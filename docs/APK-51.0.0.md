@@ -19,6 +19,8 @@
 
 ## 다음 확인 대상
 
+동일 입력을 다시 확인한 후속 SQL/문자열 근거와 바이트 위치는 [APK-EVIDENCE-51.0.0.md](APK-EVIDENCE-51.0.0.md)에 기록했다. 실제 앱 결과는 [APP-VERIFICATION.md](APP-VERIFICATION.md)에서 별도로 관리한다.
+
 - 현재 Flutter 가져오기 경로의 FPS/기본 굵기 초기값.
 - 트위닝 도형 대응과 TweenLink의 정확한 의미, 생성/삭제 시 보간 처리.
 - 전체 굵기와 요소별 굵기/스케일의 결합, Flutter 실제 렌더링과 비교.
