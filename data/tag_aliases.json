@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "status": "initial user-provided alias; not a complete Sakugabooru taxonomy",
+  "tags": [
+    {
+      "canonical": "smears",
+      "ko_label": "스미어",
+      "aliases": ["smears", "스미어"],
+      "category": "technique",
+      "source": "user_instruction"
+    }
+  ]
+}
