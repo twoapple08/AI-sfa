@@ -1,0 +1,371 @@
+{
+  "scope": "54 new instruction samples; not complete function semantics or runtime pixel verification",
+  "results": [
+    {
+      "address": "0x425ab4",
+      "matched": true
+    },
+    {
+      "address": "0x425abc",
+      "matched": true
+    },
+    {
+      "address": "0x425b04",
+      "matched": true
+    },
+    {
+      "address": "0x425b08",
+      "matched": true
+    },
+    {
+      "address": "0x426088",
+      "matched": true
+    },
+    {
+      "address": "0x4260f8",
+      "matched": true
+    },
+    {
+      "address": "0x426164",
+      "matched": true
+    },
+    {
+      "address": "0x426170",
+      "matched": true
+    },
+    {
+      "address": "0x426210",
+      "matched": true
+    },
+    {
+      "address": "0x426248",
+      "matched": true
+    },
+    {
+      "address": "0x426268",
+      "matched": true
+    },
+    {
+      "address": "0x426270",
+      "matched": true
+    },
+    {
+      "address": "0x426278",
+      "matched": true
+    },
+    {
+      "address": "0x426284",
+      "matched": true
+    },
+    {
+      "address": "0x4262d8",
+      "matched": true
+    },
+    {
+      "address": "0x426314",
+      "matched": true
+    },
+    {
+      "address": "0x42631c",
+      "matched": true
+    },
+    {
+      "address": "0x426324",
+      "matched": true
+    },
+    {
+      "address": "0x426404",
+      "matched": true
+    },
+    {
+      "address": "0x426410",
+      "matched": true
+    },
+    {
+      "address": "0x426424",
+      "matched": true
+    },
+    {
+      "address": "0x426438",
+      "matched": true
+    },
+    {
+      "address": "0x4264e0",
+      "matched": true
+    },
+    {
+      "address": "0x426538",
+      "matched": true
+    },
+    {
+      "address": "0x42655c",
+      "matched": true
+    },
+    {
+      "address": "0x426570",
+      "matched": true
+    },
+    {
+      "address": "0x42675c",
+      "matched": true
+    },
+    {
+      "address": "0x4269bc",
+      "matched": true
+    },
+    {
+      "address": "0x4269f8",
+      "matched": true
+    },
+    {
+      "address": "0x426a24",
+      "matched": true
+    },
+    {
+      "address": "0x426a60",
+      "matched": true
+    },
+    {
+      "address": "0x426adc",
+      "matched": true
+    },
+    {
+      "address": "0x426b14",
+      "matched": true
+    },
+    {
+      "address": "0x426b50",
+      "matched": true
+    },
+    {
+      "address": "0x426b8c",
+      "matched": true
+    },
+    {
+      "address": "0x426b94",
+      "matched": true
+    },
+    {
+      "address": "0x426c04",
+      "matched": true
+    },
+    {
+      "address": "0x42579c",
+      "matched": true
+    },
+    {
+      "address": "0x4273bc",
+      "matched": true
+    },
+    {
+      "address": "0x4273c0",
+      "matched": true
+    },
+    {
+      "address": "0x4273c8",
+      "matched": true
+    },
+    {
+      "address": "0x4273dc",
+      "matched": true
+    },
+    {
+      "address": "0x4273f4",
+      "matched": true
+    },
+    {
+      "address": "0x427400",
+      "matched": true
+    },
+    {
+      "address": "0x427464",
+      "matched": true
+    },
+    {
+      "address": "0x427470",
+      "matched": true
+    },
+    {
+      "address": "0x4275c8",
+      "matched": true
+    },
+    {
+      "address": "0x4275e4",
+      "matched": true
+    },
+    {
+      "address": "0x4275e8",
+      "matched": true
+    },
+    {
+      "address": "0x4275ec",
+      "matched": true
+    },
+    {
+      "address": "0x425ee0",
+      "matched": true
+    },
+    {
+      "address": "0x425ee4",
+      "matched": true
+    },
+    {
+      "address": "0x425eec",
+      "matched": true
+    },
+    {
+      "address": "0x425f40",
+      "matched": true
+    }
+  ],
+  "runtime_renderer_verified": false,
+  "formula_examples": {
+    "scope": "Derived static formula examples; no app execution/pixel/error-bound validation",
+    "curve_examples": [
+      {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            50,
+            0
+          ],
+          [
+            100,
+            0
+          ]
+        ],
+        "sigma": 2,
+        "length16": 100.0,
+        "sharpest_curvature": 0.0,
+        "turn_angle": 0.0,
+        "requested_count": 0,
+        "count": 1,
+        "first_parameters": [
+          1.0
+        ],
+        "last_parameter": 1.0,
+        "mid_curvature": 0.0
+      },
+      {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            50,
+            50
+          ],
+          [
+            100,
+            0
+          ]
+        ],
+        "sigma": 2,
+        "length16": 114.73330614529478,
+        "sharpest_curvature": 0.02,
+        "turn_angle": -1.5707963267948966,
+        "requested_count": 29,
+        "count": 29,
+        "first_parameters": [
+          0.04295636555606764,
+          0.08352713793487682,
+          0.12214934976923947,
+          0.1591686326336914
+        ],
+        "last_parameter": 1.0,
+        "mid_curvature": -0.02
+      },
+      {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            50,
+            50
+          ],
+          [
+            100,
+            0
+          ]
+        ],
+        "sigma": 10,
+        "length16": 114.73330614529478,
+        "sharpest_curvature": 0.02,
+        "turn_angle": -1.5707963267948966,
+        "requested_count": 13,
+        "count": 13,
+        "first_parameters": [
+          0.09259904648210099,
+          0.17579280832465832,
+          0.25286874885152777,
+          0.32594300322601916
+        ],
+        "last_parameter": 1.0,
+        "mid_curvature": -0.02
+      },
+      {
+        "points": [
+          [
+            0,
+            0
+          ],
+          [
+            100,
+            0
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "sigma": 2,
+        "length16": 100.0,
+        "sharpest_curvature": 1000000.0,
+        "turn_angle": 3.141592653589793,
+        "requested_count": 176777,
+        "count": 48,
+        "first_parameters": [
+          0.2604166666666667,
+          0.2708333333333333,
+          0.28125,
+          0.2916666666666667
+        ],
+        "last_parameter": 1.0,
+        "mid_curvature": 0.0
+      }
+    ],
+    "ring_examples": [
+      {
+        "width": 2,
+        "sigma": 2,
+        "nodes": 2,
+        "uniform_halfwidth": 1.0
+      },
+      {
+        "width": 6,
+        "sigma": 2,
+        "nodes": 4,
+        "uniform_halfwidth": 3.0
+      },
+      {
+        "width": 6.01,
+        "sigma": 2,
+        "nodes": 8,
+        "uniform_halfwidth": 3.005
+      },
+      {
+        "width": 100,
+        "sigma": 2,
+        "nodes": 8,
+        "uniform_halfwidth": 50.0
+      }
+    ]
+  },
+  "runtime_pixel_verified": false
+}
