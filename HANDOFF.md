@@ -38,7 +38,7 @@
 
 ## Android 실물 상태 — 추가 사용자 작업 없음
 
-- 사용자PC/추가기기없음·루팅X·Wi-Fi,Android16/SDK36/ARM64. Termux/android-tools/pkgupgrade/무선ADB/저장공간접근완료. 설치·페어링/getprop다시요청금지;실제연결실패시에만복구.
+- 환경갱신(사용자보고2026-10-15 08:48 KST): PC사용가능,대략i7-8700/GTX1050Ti/RAM16GB. 휴대폰Wi-Fi사용불가. PC의OS/인터넷/USB연결·ADB준비상태는미확인. Android16/SDK36/ARM64·루팅X 유지. Termux/android-tools/pkgupgrade/무선ADB/저장공간접근완료는이전이력이며현재무선ADB사용가능으로가정금지. PC확보만으로라이선스응답4차단해결단정금지. 기존정적캐시추적계속,설치·페어링/getprop/시작시험자동재실행·요청금지.
 - 원본 com.sG.stickfighter.activities51.0.0/versionCode51000,min24/target36,user0 base+arm64+ja+ko+xxhdpi,DEBUGGABLE없음. user150권한오류는user0사용.
 - 별도 com.twoapple08.sfa.instrument/SFA Instrument Test5APK 제작/동일키v1/v2/v3서명·정렬·원본보호항목242대조통과,비공개전달완료. 기존libapp/libflutter보존. gadget script/qjs시작·모듈로그만,서버/Java bridge/렌더Hook없음.
 - 실물동일PID12555에서Gadget early/arm64/libflutter/libapp로드성공. LicenseClient기존패키지조회NameNotFound→Play연결/요청성공→응답4예외→오류창,Close시앱종료.라이선스코드4정확한서버뜻미확인(명시invalid package코드는3).원본삭제/Play비활성단정금지.

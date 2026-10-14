@@ -8,7 +8,7 @@ FPS=(트위닝T,재생P),Q=T>P이면TelseP,K=round(Q/P),N=ceil(FQ/P),구간첫�
 캐시 e23c9fd610d3/private/blutter_out/{asm/sfa,pp.txt,ida_script/addNames.py},input/arm64-v8a/libapp.so,venv. shader6d77389e706a/private/glow.frag,Java같은private/decompiled. 최신문서checkout1be6baf45de3/AI-sfa,새private검사/읽은본문1be6baf45de3/private-trace. 이전25b8ca176661/AI-sfa dirty변경보존. 캐시우선/전체덤프·JADX·Blutter·도구설치·00–05/기존영상반복금지. binary확인후선택본문만읽기. 최신원격head/tree/expected_sha보호/dirty덮어쓰기·reset금지.
 
 Paint OBJECT8/PREVIEW약2.2 Float32정정/primitive1.14/padding1.24/색·폭복원유지,기본B재추적금지. 좌표Offset+UsableSize×p/100/clamp없음/export동기DPR1. raster q/캐시/MaskFilter는shader와분리. 레이어전체프레임/굽힘없음. 모든창작·편집기능전문가수준이목표,근사렌더러·최소SFA로축소금지.
-Android한기기/PC없음/루팅X. 설치·Termux·무선ADB·저장공간권한완료. 별도5APK/Gadget+Flutter모듈로드성공,license응답4 오류창Close앱종료→지속렌더차단. 정확한서버뜻/원본삭제/Play비활성단정금지. 우회/검사변경/추가폰명령/설치/페어링/시작시험요청금지.
+환경갱신2026-10-15 08:48 KST: PC사용가능(대략i7-8700/GTX1050Ti/RAM16GB),휴대폰Wi-Fi사용불가,루팅X. PC OS/인터넷/USB연결·ADB준비미확인. 설치·Termux·무선ADB·저장공간권한완료는이전이력이며현재무선ADB연결사용가능가정금지. PC확보만으로라이선스차단해결단정금지. 별도5APK/Gadget+Flutter모듈로드성공,license응답4 오류창Close앱종료→지속렌더차단. 정확한서버뜻/원본삭제/Play비활성단정금지. 우회/검사변경/추가폰명령/설치/페어링/시작시험요청금지.
 
 APK/SFA/영상/역컴파일/assembly/키/전체로그공개금지. 직접작성보고서·집계·인수인계main반영상시승인. 보호PREVIDEO/File-2최적화/학습/AI연결보류. 문서만수정시기존시험반복없음. 사용자잔여사용량직접조회불가. 의미있는체크포인트저장후인계갱신.
 
