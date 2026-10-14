@@ -23,7 +23,7 @@
 | APK-EDIT-01 | `0xa2272`, frame_base_moved_points 생성 SQL | frame_id 기본 키와 data BLOB, 조회/쓰기/삭제 SQL | BLOB 구조·사용 기능·SFA 저장 여부. 이름만으로 기준점 이동 기능이라고 확정하지 않는다 |
 | APK-ORDER-01 | `0xaa508`, animation_object 생성 SQL; `0x766ee`, draw_order 갱신 SQL; `0x5ca81`, draw_order 정렬 SQL | draw_order는 frame_id 없는 도형 테이블에 있음. 갱신은 도형 ID 대상, 정렬은 draw_order/ID 사용 | importer가 동일 AO의 프레임별 상충 값을 처리하는 정책. 호출 흐름은 미확인 |
 
-레이어 DB가 프레임 단위라는 사실은 13_layers 시험의 가정을 뒷받침하지만 앱 성공의 증거는 아니다. 여러 contour 저장 필드만으로 구멍 채우기 동작을 확정하지 않는다.
+레이어 DB의 frame_id는 저장 단위의 관찰일 뿐 UI 적용 범위의 근거가 아니다. 사용자 실제 확인에 따르면 레이어 조작은 전체 프레임에 적용되는 편집 보조 기능이다. 13_layers의 프레임별 숨김 가정은 철회했다. 여러 contour 저장 필드만으로 구멍 채우기 동작을 확정하지 않는다.
 
 ## 재확인과 다음 단계
 
