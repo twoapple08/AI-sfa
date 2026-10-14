@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Sequence Name="default_stickman" HeightWidthRatio="0.5625" RatioX="16" RatioY="9" FrameCount="1" BackgroundColor="-1">
+  <Frame BackgroundColor="4294967295" ID="1" Position="0">
+    <LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false" />
+    <AO ID="1" TypeId="2" Color="-16777216" LayerId="0" DrawOrder="1" ThicknessScale="1.0" ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">
+      <AP ID="1" Flags="5" Index="0" X="50.0" Y="5.0" />
+      <AP ID="2" Flags="5" Index="1" X="50.0" Y="20.0">
+        <AC ConnPtId="3" />
+      </AP>
+    </AO>
+    <AO ID="2" TypeId="1" Color="-16777216" LayerId="0" DrawOrder="2" ThicknessScale="1.0" ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">
+      <AP ID="3" Flags="4" Index="0" X="50.0" Y="20.0">
+        <AC ConnPtId="2" />
+        <AC ConnPtId="6" />
+        <AC ConnPtId="10" />
+      </AP>
+      <AP ID="4" Flags="3" Index="1" X="50.0" Y="40.0">
+        <AC ConnPtId="13" />
+        <AC ConnPtId="17" />
+      </AP>
+    </AO>
+    <AO ID="3" TypeId="1" Color="-16777216" LayerId="0" DrawOrder="3" ThicknessScale="1.0" ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">
+      <AP ID="5" Flags="5" Index="0" X="45.78125" Y="30.0">
+        <AC ConnPtId="8" />
+      </AP>
+      <AP ID="6" Flags="4" Index="1" X="50.0" Y="20.0">
+        <AC ConnPtId="3" />
+      </AP>
+    </AO>
+    <AO ID="4" TypeId="1" Color="-16777216" LayerId="0" DrawOrder="4" ThicknessScale="1.0" ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">
+      <AP ID="7" Flags="5" Index="0" X="41.5625" Y="40.0" />
+      <AP ID="8" Flags="4" Index="1" X="45.78125" Y="30.0">
+        <AC ConnPtId="5" />
+      </AP>
+    </AO>
+    <AO ID="5" TypeId="1" Color="-16777216" LayerId="0" DrawOrder="5" ThicknessScale="1.0" ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">
+      <AP ID="9" Flags="5" Index="0" X="54.21875000000001" Y="30.0">
+        <AC ConnPtId="12" />
+      </AP>
+      <AP ID="10" Flags="4" Index="1" X="50.0" Y="20.0">
+        <AC ConnPtId="3" />
+      </AP>
+    </AO>
+    <AO ID="6" TypeId="1" Color="-16777216" LayerId="0" DrawOrder="6" ThicknessScale="1.0" ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">
+      <AP ID="11" Flags="5" Index="0" X="58.4375" Y="40.0" />
+      <AP ID="12" Flags="4" Index="1" X="54.21875000000001" Y="30.0">
+        <AC ConnPtId="9" />
+      </AP>
+    </AO>
+    <AO ID="7" TypeId="1" Color="-16777216" LayerId="0" DrawOrder="7" ThicknessScale="1.0" ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">
+      <AP ID="13" Flags="2" Index="0" X="50.0" Y="40.0">
+        <AC ConnPtId="4" />
+      </AP>
+      <AP ID="14" Flags="5" Index="1" X="45.78125" Y="52.0">
+        <AC ConnPtId="15" />
+      </AP>
+    </AO>
+    <AO ID="8" TypeId="1" Color="-16777216" LayerId="0" DrawOrder="8" ThicknessScale="1.0" ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">
+      <AP ID="15" Flags="4" Index="0" X="45.78125" Y="52.0">
+        <AC ConnPtId="14" />
+      </AP>
+      <AP ID="16" Flags="5" Index="1" X="45.78125" Y="62.0" />
+    </AO>
+    <AO ID="9" TypeId="1" Color="-16777216" LayerId="0" DrawOrder="9" ThicknessScale="1.0" ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">
+      <AP ID="17" Flags="2" Index="0" X="50.0" Y="40.0">
+        <AC ConnPtId="4" />
+      </AP>
+      <AP ID="18" Flags="5" Index="1" X="54.21875000000001" Y="52.0">
+        <AC ConnPtId="19" />
+      </AP>
+    </AO>
+    <AO ID="10" TypeId="1" Color="-16777216" LayerId="0" DrawOrder="10" ThicknessScale="1.0" ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">
+      <AP ID="19" Flags="4" Index="0" X="54.21875000000001" Y="52.0">
+        <AC ConnPtId="18" />
+      </AP>
+      <AP ID="20" Flags="5" Index="1" X="54.21875000000001" Y="62.0" />
+    </AO>
+  </Frame>
+</Sequence>
