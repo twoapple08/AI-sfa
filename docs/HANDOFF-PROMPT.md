@@ -1,7 +1,8 @@
 https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
-최신 HANDOFF.md, AGENTS.md, docs/AOT-PATH-TRACE-2026-10-15.md를 읽어. 이미 읽은 자료/기존 시험을 불필요하게 재처리하지 마.
-Blutter Dart3.12.0 ARM64 스파51.0.0 AOT 추출 성공(671파일/asm666개/선언12,752개), 원래 Dart 소스 복원 아님. 캐시 /workspace/scratch/e23c9fd610d3/private/blutter_out/asm/sfa 재사용. 새11명령 실물ELF/Capstone 대조 통과(기존4와별도);전체해석 검증 아님.
-importer는 XML DrawOrder/ObjectScale을 조회하지 않아 새ID순서/ObjectScale1이 되는 원인 확인. planner는 레이어·연결그룹 glow unit→각AO FR+base unit. FR outerSegments참조/레이어/소비집합이 배치에 관여. GlowAlpha로색알파교체·RGB사전알파·shader/raster/MaskFilter fallback 확인. TweenLink는존재/같은TypeId/점목록길이·Index/중복·잔존ID충돌 검사. 일부표본을모든조건으로일반화하지마.
-다음은GetAnimationObjects 로드·캐시공급순서와비연속그룹방문순서→TryDrawGlowWithShader(0x425458) paint배율·blend 실제값→_planFillRegions(0x62ff78)/renameTweenLinkedFill·canonicalize·held/interpolated/discard·색정책을필요한함수만추적해. compareDrawOrder closure는_mergeLayerDown 소속이며planner 공통규칙이라고가정금지. 함수코드주소와옛ELF문자열오프셋구분.
-설치/빌드/전체덤프/기존00–05자료분석반복금지. reFlutter dump엔진태그404로변경APK/dump미생성,자체engine빌드/Android환경/분할서명미완. 굽힘기능없음. 04Flags의bit16/상위기준점ID압축확인.05원대원다른ID수동링크확인.
-기존시험재출력·제작자문의·추가작품요청없음. 고정PREVIDEO예측수정·File-2최적화·학습·AI연결계속보류. APK/SFA/영상/역컴파일소스공개금지. FPS는(트위닝,재생),레이어전체프레임제작보조,편집공간과출력범위구분. 정확도를유지하며토큰낭비를줄이고필요하면자율적으로인수인계갱신해.
+최신 HANDOFF.md, AGENTS.md, docs/ANDROID-INSTRUMENTATION-HANDOFF-2026-10-15.md를 읽어. AOT 의미 해석이 필요할 때만 docs/AOT-PATH-TRACE-2026-10-15.md를 읽어. 기존자료/시험/설치재처리금지.
+사용자는기기한대(Android16/SDK36,ARM64),PC/추가기기없음,루팅X,Wi-Fi사용. Termux/android-tools설치와무선ADB실행완료. pkg upgrade로초기linker오류해결후adb shell getprop/pm/dumpsys성공. 스파패키지com.sG.stickfighter.activities,51.0.0/versionCode51000,minSdk24,targetSdk36,user0에base+arm64_v8a+ja+ko+xxhdpi 총5APK,DEBUGGABLE표시없음. user150오류는user0지정으로회피. 설치/페어링/기기정보재요청금지;연결끊김때만확인.
+다음은원래Flutter엔진유지+Frida Gadget 계측의별도package 테스트앱제작. 아직계측APK/서명검증/실물계측/전달파일없음. 도구다운로드프로세스39459는더이상없고 /workspace/scratch/37921248d0d6/private/instrument-tools 는비어있음. 공식도구획득응답부터짧게검증→manifest충돌참조검사→최소시작계측제작/분할서명검증→비공개전달→사용자시작확인→렌더/보간hook확장. 원본삭제/덮어쓰기/루팅금지. SFA백업완료확인은아직없으니실제설치단계에서확인.
+캐시base /workspace/scratch/6d77389e706a/evidence/apk/base.apk, 분할모음 /workspace/scratch/6d77389e706a/evidence/STICK FIGHTER (51.0.0).apks, ARM64 /workspace/scratch/e23c9fd610d3/private/input/split_config.arm64_v8a.apk, AOT /workspace/scratch/e23c9fd610d3/private/blutter_out/asm/sfa. 작업 /workspace/scratch/37921248d0d6/AI-sfa. 캐시존재부터확인;불필요다운로드/전체JADX/Blutter재설치/재덤프금지.
+AOT추출성공은원본Dart복원아님. importer DrawOrder/ObjectScale미조회·기본값원인,group glow→AO FR/base,GlowAlpha교체/사전알파/fallback,TweenLink TypeId/Index/충돌확인. 남은공급순서/blend/FR held/interpolated/색정책을일반화금지. reFlutter engine404/자체빌드/Android계측/분할서명미완은구분.
+00–05완료,굽힘없음,04Flags bit16/상위참조확인,05원대원수동링크확인. 기존시험재출력/추가작품/제작자문의금지. 고정PREVIDEO수정/File-2최적화/학습/AI연결보류. APK/SFA/영상/역컴파일/asm공개금지. FPS=(트위닝,재생),레이어전체프레임제작보조,편집공간과출력범위구분.
+보고서/집계/인수인계main반영상시승인;쓰기업데이트전원격head확인/expected_sha보호. 시스템자동승인설정변경불가,거부시우회금지. 주간잔여량직접조회불가. 사용자가남은대화3–4회수준일때인수인계요청;실제잔여량단정금지,체크포인트저장후이프롬프트제공. 정확도유지하며좁은출력/캐시재사용.
