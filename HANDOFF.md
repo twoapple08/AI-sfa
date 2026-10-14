@@ -9,19 +9,20 @@
 - 기존00–05시험/자료분석완료. 재출력·추가작품·제작자문의금지. 기존추출·도구설치·시험은새변경/실패관련필요없으면반복금지.
 - 정확도유지하며캐시/읽은내용재사용·좁은출력·실제명령검증. AGENTS.md준수. 사용자잔여주간사용량직접조회불가. 인수인계필요시체크포인트저장후docs/HANDOFF-PROMPT.md제공.
 
-## 현행 체크포인트 — Optimized/raw·PNG/Android 인코더 연결·대화 인계
+## 현행 체크포인트 — 그룹 글로우·셰이더 수학·내보내기 타임라인
 
-먼저 AGENTS.md와 **docs/AOT-EXPORT-DISPATCH-TRACE-2026-10-15.md**를 읽는다.
+먼저 AGENTS.md와 **docs/AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md**를 읽는다. 이전 export 연결은 docs/AOT-EXPORT-DISPATCH-TRACE-2026-10-15.md.
 
-- doInBackground→ExportToVideoOptimized. 두분기같은_recordExportPicture→Picture.toImage. rawRgba→frames.rgba,PNG→frame_%05d.png. optimized를Java객체renderer선택으로해석금지.
-- 예상raw bytes=width×height×4×PlaybackEnumeration산출N. N>0이고공간알면예상+512MiB≤usable,공간null이면예상≤2GiB일때raw,elsePNG. codec지원검사가아님. 실패후전체다른형식재시도미확인.
-- sfa/platform_bridge encodeVideoFromRawRgbaFile/encodeVideoFromImageSequence→JavaW2.e/g→MainActivity.t/s→V4.b.Y/X→공통V. RGBA버퍼/Bitmap→GLtexture→MediaCodec H.264 surface→MediaMuxerMP4. W2.r은완성이미지샘플,AO/FR/glow재구현아님.
-- 시간=index×1e9/max(rate,1)ns;설정bitrate=clamp(W×H×rate×.18,2M,40M),I-frame1;색설정configure실패시색옵션제외재시도. 실제codec/영상분기/색pixel미계측.
-- 새21명령ELF/Capstone대조통과. Java는기존decompiled읽기만/bytecode전부검증아님. 문서만변경/이전시험반복없음.
-- **정확한 다음:** FrameDrawPlan.drawUnit/그룹glow합성에서shader/raster/MaskFilter선택추적→shaderasset수학식→exportPlaybackEnumeration endpoint/FPS연결. 기존영상/00–05재시험금지.
-- 이전GLOW-BACKEND보고서:shaderloadawait/stylegate,원본shader→raster→MaskFilter. rasterq(.35/.5/.67/1)/local×q/4배수image/확대,imageLRU128entry·8M픽셀·2M초과거절,MaskFilter.05단위/.1–2000/96삽입순서. 실제픽셀일치미검증.
-- Paint정정유지:OBJECT8/PREVIEW약2.2는PPFloat32+ldr s0. 편집캐시/planFor기본false→일반8,전체편집preview단정금지. 정상폭/색복원,primitive1.14/padding1.24구분.docs/AOT-PAINT-DISPATCH-TRACE-2026-10-15.md.
-- 대화인수인계요청체크포인트. 재개시docs/HANDOFF-PROMPT.md사용. 기본B찾기/설치/폰시험반복금지.
+- 그룹 glow-only unit→Frame._DrawCompositeObjectGlow는 iterator로 각AO색→DrawGlowEffect. 그룹 union/saveLayer/단일블러아님. InterpolatedFrame도별도helper→각InterpolatedAO. 각객체shader→raster→MaskFilter선택,그룹backend일괄고정금지.
+- 기존shaderasset105992bytes/IPLR/SPIR-V+ES300/ES100/SkSL텍스트. 캐시APK내단일asset bytes일치. 원본/자동생성shader공개금지. uniform10=h,11=sigma,12=kind,17=capstrips,18=pieces,19=ringnodes,21+4i=끝점xy/곡률z. geometry한객체최대48몸통+2cap→Cclamp→uColor×C. 그룹전체clamp아님.
+- shader수학:erf근사band·Gaussian밀도,몸통방향/곡률L²c/12및moment보정,cap사각형strip또는8node반원적분,ring I0e근사+2/4/8node적분. 모든pixel동등성/실제backend미검증. curve분할및ring내부반폭전체연결은다음.
+- FPS순서=(트위닝T,재생P). P최소1,실제tween=enabled&&T>P,Q=T또는P,K=max(round(Q/P),1),N=ceil(F×Q/P). a=min(floor(jP/Q),F−1),b=min(a+1,F−1),구간첫j=ceil(aQ/P)는t0,나머지m=floor((jP mod Q)K/Q),t=m/K;마지막a=b도t0. export인라인산식확인. 마지막원본유지/새endpoint추가없음. 비정수배t양자화. UI는T≥P로정규화.
+- N→raw공간예측W×H×4×N,Q→raw/PNG양쪽Android인코더→j×1e9/max(Q,1)ns. Optimized는같은DartPicture의raw/PNG중간형식선택,Java객체renderer아님. 공간알면예상+512MiB≤usable/null이면예상≤2GiB. 실패후형식전체재시도미확인.
+- 새45명령ELF/Capstone대조,asset bytes대조,해석산식96조합일관성통과. 96앱시험아님. 문서만변경/기존시험반복없음.
+- **정확한 다음:** GlowShader._curvePieces 분할오차·곡률·48개한계→drawRing/퇴화stroke 내부반폭·node선택. 기존B/00–05/영상/폰시험반복금지. pixel/codec/색runtime미확인유지.
+- 기존Paint OBJECT8/PREVIEW약2.2 Float32정정·정상폭/색복원·primitive1.14/padding1.24유지. 편집cache planFor기본false→일반8,전체편집preview단정금지. AOT-PAINT-DISPATCH보고서.
+- 기존raster q(.35/.5/.67/1)/local×q/4배수image/확대,LRU128entry·8M픽셀·2M초과거절,MaskFilter.05단위/.1–2000/96삽입순서유지. shader수학과이상적동일Gaussian으로합치지않는다.
+- 필요시현재docs/HANDOFF-PROMPT.md로인계. 자동잔여사용량조회불가. 설치·페어링·실물시작시험재요청없음.
 
 ## 필요한 이전 정적 사실·근거
 
@@ -57,6 +58,6 @@
 - 원본base /workspace/scratch/6d77389e706a/evidence/apk/base.apk,분할모음같은evidence/STICK FIGHTER (51.0.0).apks. 기존Java캐시6d77389e706a/private/decompiled.
 - 계측도구/빌드 /workspace/scratch/37921248d0d6/private/{instrument-tools,instrument-build}. 전용키sfa-test.jks재사용. 공식tools Apktool3.0.3/signer1.3.0/Gadget17.23.3 ARM64확보됨. 빈도구폴더/다운로드미완은옛상태.
 - 비공개ZIP /workspace/scratch/25b8ca176661/output/SFA-Instrument-Startup-2026-10-15.zip,libfile_a9e9671bcd3c8191b95a54915af9aa6d. 원본기반APK공개금지.
-- 문서worktree25b8ca176661/AI-sfa;새검사기/집계private-trace/. 이전37921248d0d6/e23c9fd610d3의로컬변경보존.remote반영뒤localHEAD뒤처질수있음;캐시문서덮어쓰기/reset/중복커밋금지.
+- 최신문서checkout1be6baf45de3/AI-sfa;이번검사/읽은shader텍스트1be6baf45de3/private-trace/. 이전문서worktree25b8ca176661/AI-sfa;이전검사/집계private-trace/. 이전37921248d0d6/e23c9fd610d3의로컬변경보존.remote반영뒤localHEAD뒤처질수있음;캐시문서덮어쓰기/reset/중복커밋금지.
 - reFlutter해당dumpengine404/자체engine빌드미실시이력은FLUTTER-TOOLS-RESULTS-2026-10-15.md.재시도요청없음.
 - 압축전인수인계전체보존:docs/history/HANDOFF-2026-10-15-before-render-context.md.현재내용이우선이며역사기록의낡은'다음'을재실행하지않는다.
