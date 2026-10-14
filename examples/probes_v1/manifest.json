@@ -1,0 +1,231 @@
+{
+  "status": "generated; current app verification pending",
+  "recommended_fps": {
+    "tween_fps": 24,
+    "playback_fps": 24
+  },
+  "frames_per_case": 48,
+  "cases": [
+    {
+      "id": "01_move",
+      "label_ko": "이동",
+      "expected": "기본 스틱맨이 좌우로 이동",
+      "attribute": "coordinates",
+      "app_verified": false,
+      "frame_start_1based": 1,
+      "frame_end_1based": 48,
+      "seconds_at_24fps": [
+        0,
+        2
+      ]
+    },
+    {
+      "id": "02_rotate",
+      "label_ko": "회전",
+      "expected": "골반을 중심으로 몸 전체가 좌우로 기울어짐",
+      "attribute": "coordinates",
+      "app_verified": false,
+      "frame_start_1based": 49,
+      "frame_end_1based": 96,
+      "seconds_at_24fps": [
+        2,
+        4
+      ]
+    },
+    {
+      "id": "03_stretch",
+      "label_ko": "늘리기",
+      "expected": "연결된 팔꿈치와 손목을 함께 움직여 오른팔 길이 변화",
+      "attribute": "coordinates",
+      "app_verified": false,
+      "frame_start_1based": 97,
+      "frame_end_1based": 144,
+      "seconds_at_24fps": [
+        4,
+        6
+      ]
+    },
+    {
+      "id": "04_flip",
+      "label_ko": "뒤집기",
+      "expected": "한 팔을 든 비대칭 자세가 중간에 좌우 반전",
+      "attribute": "coordinates",
+      "app_verified": false,
+      "frame_start_1based": 145,
+      "frame_end_1based": 192,
+      "seconds_at_24fps": [
+        6,
+        8
+      ]
+    },
+    {
+      "id": "05_scale",
+      "label_ko": "크기",
+      "expected": "발 부근 기준점에서 몸 크기가 작아졌다 커짐",
+      "attribute": "coordinates",
+      "app_verified": false,
+      "frame_start_1based": 193,
+      "frame_end_1based": 240,
+      "seconds_at_24fps": [
+        8,
+        10
+      ]
+    },
+    {
+      "id": "06_color",
+      "label_ko": "선 색상",
+      "expected": "몸의 색이 빨강에서 파랑으로 변화",
+      "attribute": "Color",
+      "app_verified": false,
+      "frame_start_1based": 241,
+      "frame_end_1based": 288,
+      "seconds_at_24fps": [
+        10,
+        12
+      ]
+    },
+    {
+      "id": "07_opacity",
+      "label_ko": "불투명도",
+      "expected": "파란 몸의 알파가 낮아졌다 높아짐",
+      "attribute": "Color",
+      "app_verified": false,
+      "frame_start_1based": 289,
+      "frame_end_1based": 336,
+      "seconds_at_24fps": [
+        12,
+        14
+      ]
+    },
+    {
+      "id": "08_thickness",
+      "label_ko": "개별 굵기",
+      "expected": "오른팔 두 선만 굵어졌다 가늘어짐",
+      "attribute": "ThicknessScale",
+      "app_verified": false,
+      "frame_start_1based": 337,
+      "frame_end_1based": 384,
+      "seconds_at_24fps": [
+        14,
+        16
+      ]
+    },
+    {
+      "id": "09_glow",
+      "label_ko": "글로우",
+      "expected": "어두운 배경에서 주황 선 주변의 푸른 글로우 변화",
+      "attribute": "GlowRadius/Color/Alpha/Thickness",
+      "app_verified": false,
+      "frame_start_1based": 385,
+      "frame_end_1based": 432,
+      "seconds_at_24fps": [
+        16,
+        18
+      ]
+    },
+    {
+      "id": "10_curve",
+      "label_ko": "곡선 변형",
+      "expected": "곡선 하나의 제어점이 위아래로 이동",
+      "attribute": "TypeId3/coordinates",
+      "app_verified": false,
+      "frame_start_1based": 433,
+      "frame_end_1based": 480,
+      "seconds_at_24fps": [
+        18,
+        20
+      ]
+    },
+    {
+      "id": "11_fill",
+      "label_ko": "채우기 색상",
+      "expected": "연결된 삼각형 안의 채우기 색이 변화",
+      "attribute": "FR/FS",
+      "app_verified": false,
+      "frame_start_1based": 481,
+      "frame_end_1based": 528,
+      "seconds_at_24fps": [
+        20,
+        22
+      ]
+    },
+    {
+      "id": "12_fill_alpha",
+      "label_ko": "채우기 불투명도",
+      "expected": "삼각형의 선은 유지되고 내부만 반투명해짐",
+      "attribute": "FR.Color",
+      "app_verified": false,
+      "frame_start_1based": 529,
+      "frame_end_1based": 576,
+      "seconds_at_24fps": [
+        22,
+        24
+      ]
+    },
+    {
+      "id": "13_layers",
+      "label_ko": "레이어 표시",
+      "expected": "겹친 두 스틱맨 중 위 레이어가 절반 지점에서 숨겨짐",
+      "attribute": "LayerDef.Visible",
+      "app_verified": false,
+      "frame_start_1based": 577,
+      "frame_end_1based": 624,
+      "seconds_at_24fps": [
+        24,
+        26
+      ]
+    },
+    {
+      "id": "14_draw_order",
+      "label_ko": "겹침 순서",
+      "expected": "교차하는 빨강·파랑 굵은 선의 앞뒤가 절반 지점에서 바뀜",
+      "attribute": "DrawOrder",
+      "app_verified": false,
+      "frame_start_1based": 625,
+      "frame_end_1based": 672,
+      "seconds_at_24fps": [
+        26,
+        28
+      ]
+    },
+    {
+      "id": "15_background",
+      "label_ko": "배경색",
+      "expected": "몸은 고정되고 배경색만 변화",
+      "attribute": "Frame.BackgroundColor",
+      "app_verified": false,
+      "frame_start_1based": 673,
+      "frame_end_1based": 720,
+      "seconds_at_24fps": [
+        28,
+        30
+      ]
+    },
+    {
+      "id": "16_appear_delete",
+      "label_ko": "요소 생성/삭제",
+      "expected": "스틱맨 옆의 독립 원이 중간에 생겼다 없어짐",
+      "attribute": "AO presence",
+      "app_verified": false,
+      "frame_start_1based": 721,
+      "frame_end_1based": 768,
+      "seconds_at_24fps": [
+        30,
+        32
+      ]
+    }
+  ],
+  "not_covered": [
+    "exact editor operations",
+    "ObjectScale-only semantics",
+    "perspective/bend UI equivalence",
+    "groups/ungroup",
+    "TweenLink",
+    "complex fills and holes",
+    "layer locking",
+    "editor-only settings",
+    "global thickness/FPS import initialization"
+  ],
+  "total_frames": 768,
+  "max_objects_per_frame": 20
+}

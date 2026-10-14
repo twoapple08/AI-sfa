@@ -85,3 +85,20 @@ HTML 미리보기의 `--tween-fps`는 목표값을 표시할 뿐입니다. **현
 ```bash
 python -m unittest discover -s tests -v
 ```
+
+## 기능별 시험 v1과 이어서 작업하기
+
+**현재 우선순위는 Stick Fighter 전체 기능 분석과 검증입니다. 자료 수집·학습은 뒤로 미룹니다.**
+
+[기능별 시험 안내](docs/FEATURE-PROBE-GUIDE.md)를 먼저 읽어 주세요. `examples/probes_v1/feature_probes_v1.sfa`는 16개 기능을 2초씩 보여 주는 768프레임 합본입니다. 가져온 뒤 **(트위닝, 재생)=(24,24)**로 직접 맞춰 주세요. 앱 검증 전 시험 파일이며 모든 기능을 다룬 완료본이 아닙니다.
+
+- [합본 SFA](examples/probes_v1/feature_probes_v1.sfa)
+- [개별 시험 포함 ZIP](examples/probes_v1/feature_probes_v1.zip)
+- [전체 기능 분석표](docs/FEATURE-COVERAGE.md)
+- [인수인계 문서](HANDOFF.md)
+- [새 대화용 프롬프트](docs/HANDOFF-PROMPT.md)
+
+```bash
+python build_feature_probes.py
+python -m unittest discover -s tests -v
+```
