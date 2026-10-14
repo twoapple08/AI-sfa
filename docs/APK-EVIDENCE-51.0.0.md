@@ -21,6 +21,7 @@
 | APK-PERSP-01 | `0x29047`, perspective-bend; `0xa1e7e`, perspective-lasso | 두 표식과 PerspectiveKindPanel, 선택/격자/드래그 함수 이름 | 전체 옵션 목록, 수학식, 퇴화 사각형 처리, 연결점 전파 |
 | APK-FLAGS-01 | `0x3c76d`, raw_flags 갱신 SQL | NULL 행을 selectable과 anchor_point_type의 비트 OR로 채우는 SQL 문자열 | 전체 비트 정의·그룹 비트·현재 실행 여부·XML 변환 |
 | APK-EDIT-01 | `0xa2272`, frame_base_moved_points 생성 SQL | frame_id 기본 키와 data BLOB, 조회/쓰기/삭제 SQL | BLOB 구조·사용 기능·SFA 저장 여부. 이름만으로 기준점 이동 기능이라고 확정하지 않는다 |
+| APK-ORDER-01 | `0xaa508`, animation_object 생성 SQL; `0x766ee`, draw_order 갱신 SQL; `0x5ca81`, draw_order 정렬 SQL | draw_order는 frame_id 없는 도형 테이블에 있음. 갱신은 도형 ID 대상, 정렬은 draw_order/ID 사용 | importer가 동일 AO의 프레임별 상충 값을 처리하는 정책. 호출 흐름은 미확인 |
 
 레이어 DB가 프레임 단위라는 사실은 13_layers 시험의 가정을 뒷받침하지만 앱 성공의 증거는 아니다. 여러 contour 저장 필드만으로 구멍 채우기 동작을 확정하지 않는다.
 
@@ -30,4 +31,4 @@
 
 현재 환경에는 jadx/adb/Flutter 런타임이 없어 추가 Android 역컴파일 및 앱 실행을 수행하지 않았다. 기존 네이티브 분석은 [NATIVE-TWEEN-FINDINGS.md](NATIVE-TWEEN-FINDINGS.md)의 이전 근거로 유지한다.
 
-먼저 v1 합본을 (트위닝 FPS, 재생 FPS)=(24,24)로 출력해 저장 상태 수용/표시를 확인한다. 이 결과 전에는 그룹·원근·구멍·수동 링크의 조작 실험을 일괄 요청하지 않는다. (24,24)는 추가 보간 검증이 아니다.
+v1 (24,24) 반환 영상에서 레이어 표시/순서 전환이 기대와 달랐다. APK-ORDER-01은 동일 AO ID의 프레임별 순서 변경이라는 시험 설계를 재검토할 근거다. 상세 관찰과 다음 SFA 왕복 비교는 APP-VERIFICATION.md에 기록했다. 그룹·원근·구멍·수동 링크 조작 실험을 일괄 요청하지 않는다. (24,24)는 추가 보간 검증이 아니다.
