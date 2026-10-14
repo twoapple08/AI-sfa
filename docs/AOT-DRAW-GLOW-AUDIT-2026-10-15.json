@@ -1,0 +1,73 @@
+{
+  "scope": "12 newly selected instruction samples; not whole function semantic verification",
+  "results": [
+    {
+      "address": "0x34ec98",
+      "matched": true
+    },
+    {
+      "address": "0x34f244",
+      "matched": true
+    },
+    {
+      "address": "0x42c46c",
+      "matched": true
+    },
+    {
+      "address": "0x42c4fc",
+      "matched": true
+    },
+    {
+      "address": "0x421160",
+      "matched": true
+    },
+    {
+      "address": "0x421190",
+      "matched": true
+    },
+    {
+      "address": "0x4254cc",
+      "matched": true
+    },
+    {
+      "address": "0x4254d0",
+      "matched": true
+    },
+    {
+      "address": "0x426c48",
+      "matched": true
+    },
+    {
+      "address": "0x426c5c",
+      "matched": true
+    },
+    {
+      "address": "0x426db4",
+      "matched": true
+    },
+    {
+      "address": "0x42871c",
+      "matched": true
+    }
+  ],
+  "static_analysis_only": true,
+  "runtime_renderer_verified": false,
+  "corrected_uniform11": {
+    "old": "first double d0",
+    "new": "second double d1 / corrected sigma"
+  },
+  "db_order_scope": "GetAnimationObjectsForFrame SQL supplier only",
+  "group_example": {
+    "input": [
+      "A(g)",
+      "B(h)",
+      "C(g)"
+    ],
+    "output": [
+      "A(g)",
+      "C(g)",
+      "B(h)"
+    ]
+  },
+  "initial_blendMode": "srcOver; copied incoming Paint thereafter"
+}

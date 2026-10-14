@@ -42,3 +42,5 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 - Do not infer remaining weekly usage or a number of available turns. The assistant cannot inspect that quota here. When the user reports a low budget, persist a concrete checkpoint and provide the current handoff prompt. User Android setup is already verified: do not repeat installation, pairing, getprop, or APK inventory unless a changed environment or connection failure requires it.
 
 - APK 재패키징은 서명 성공만으로 완료로 세지 않는다. 최종 APK의 원본 lib/assets/res/resources.arsc 및 미수정 dex 항목 보존을 대조한다. raw-resource 빌드의 파일 누락 여부를 확인하고, 중간 실패본은 전달하지 않는다. Manifest는 전체 덤프 대신 package/provider/permission/component의 필요한 항목만 출력한다.
+
+- AOT에서 double 인수 의미는 SetupParameters 요약만 믿지 말고 실제 mov/stur/ldur와 호출 시 재배치로 연결한다. uniform·단위·BlendMode는 초기 상태/상속/실행 상태를 구분한다.

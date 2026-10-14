@@ -45,7 +45,7 @@ DB 로드 SQL의 0x34f208/0x34f23c에는 `COALESCE(a.draw_order, a._id) ASC, a._
 | 0,1,2 | (R/255 × a), (G/255 × a), (B/255 × a) |
 | 3 | a |
 | 10 | 전달된 두께 인수 / 2 |
-| 11 | 첫 double 인수(d0 진입값) |
+| 11 | 두 번째 double 인수(d1 진입값); 이후 추가추적으로 sigma 확인 |
 | 12 | 세 번째 double 인수(d2 진입값) |
 
 RGB는 사전 알파 적용이다. 11/12의 전체 호출자별 물리적 의미는 아직 모두 매핑하지 않았으므로 UI 숫자 단위라고 확정하지 않는다. `_drawRing`(0x42741c)은 중심/반경을 4/5/6에, 별도 값을19에 넣는다. `_fill`(0x425e9c)은 전달받은 blendMode를 paint에 설정한다. **blendMode의 실제 열거값/연결 객체별 정책은 미완**이다.
@@ -71,3 +71,7 @@ FR 보간은 별도 `_planFillRegions`(0x62ff78)에서 renameTweenLinkedFill(0x6
 다음은 ① Frame.GetAnimationObjects의 로드·캐시 공급자가 planner에 주는 순서와 비연속 연결 그룹의 방문순서 ② TryDrawGlowWithShader(0x425458)/DrawGlowEffect의 paint 배율·blendMode 실제값 ③ _planFillRegions(0x62ff78)와 renameTweenLinkedFill, canonicalize, held/interpolated 분기를 좁게 추적한다. 이번에 확정한 XML 속성 누락/기본값·기존 00–05 영상은 다시 처리하지 않는다.
 
 reFlutter 엔진 빌드/Android 실행/분할APK 서명 미완은 그대로다. 고정 PREVIDEO 예측, File-2 최적화, 학습·AI 연결은 계속 보류한다.
+
+## 2026-10-15 추가 정정/현행 보고서
+
+후속 AOT-DRAW-GLOW-TRACE-2026-10-15.md에서 uniform11의 인수 오해를 실제 스택 저장 명령으로 정정했고 DB 목록 공급/비연속 그룹/보정 sigma/초기 Paint srcOver를 연결했다. 마지막 절의 분할서명·Android 미완은 이 보고서 작성 당시 상태이며, 현행은 ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md의 모듈로드 성공/라이선스 차단 결과다. 전체 렌더/보간 런타임 검증은 여전히 미완.

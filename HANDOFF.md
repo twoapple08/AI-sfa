@@ -12,7 +12,19 @@
 - APK/SFA/영상/역컴파일 소스/추출 프레임을 공개 저장소에 올리지 않는다. 보고서·집계·직접 작성한 도구만 반영한다.
 - 사용자 추가 요청: 정확도를 유지하며 토큰 낭비를 적극 줄이고, 효율상 필요하면 자율적으로 인수인계와 새 대화 프롬프트를 갱신한다. 실행 지침은 AGENTS.md.
 
-## 최신 체크포인트 — 계측시작 성공 / 실제 라이선스 오류코드4 확인
+## 최신 체크포인트 — DB 공급/비연속 그룹/글로우 인수 정적추적 완료
+
+- 먼저 docs/AOT-DRAW-GLOW-TRACE-2026-10-15.md. 새12명령 ELF/Capstone대조 통과. 기존00–05/원본영상/JADX/Blutter/휴대폰시험 반복없음. 기존unit/probe검사 문서변경으로반복안함.
+- GetAnimationObjects는캐시getter/null→빈목록이며DB조회아님. PopulateFrameAnimationObjects/BulkLoadFrames는null/빈목록일때만DB공급;비어있지않으면유지. GetAnimationObjectsForFrame SQL순서는COALESCE(draw_order,id),id ASC→map/list보존. 모든편집/보간목록동일순서보장아님.
+- _BuildLayerObjectGroups는삽입순서Map: 같은레이어 A(g),B(h),C(g)→그룹[A,C],[B]→AO방문A,C,B. 연결그룹으로DrawOrder전체선형순서가달라질수있음;FRtake첫경계방문위치도영향. 실물새시험아님.
+- 글로우 W=B×max(S×ThicknessScale,0)/DPR×max(GlowThickness/10,0), R=max(GlowRadius×S/DPR,.001), sigma=sqrt(R²+(.29/DPR)²). shader화면밖판정확장W/2+4sigma+1. true반환이실제픽셀그림보장아님. B/DPR/Canvas전체공급미완.
+- **정정** _shaderFor uniform10=첫double/2(W/2),11=두번째double(sigma),12=직선/곡선0·링1(퇴화전환포함). 이전11=d0오해정정. 실제레지스터저장우선.
+- glow blend는전달Paint상속. 초기OBJECT_PAINT/PREVIEW_OBJECT_PAINT의저장슬롯0 XOR기본3→srcOver확인;전체실행중불변모드보장아님. shader/raster/MaskFilter의영상dispatch/전체합성미완유지.
+- 정확한 다음: _planFillRegions(0x62ff78)→renameTweenLinkedFill→canonicalize→held/interpolated/discard·색정책. 이후B/DPR/Canvas공급과shader/fallback연결.
+- 캐시e23c9fd610d3/private/blutter_out/asm/sfa,pp.txt,ida_script/addNames.py,input/arm64-v8a/libapp.so,venv. 새검사기25b8ca176661/private-trace. 공개는직접작성보고서/집계만. 초기검사기2개bl주소오기입은원래주석확인수정후12/12통과;추출오류로판정금지.
+- 실제Android은Gadget/Flutter모듈로드성공이나LicenseClient응답4→Close앱종료. 편집/렌더정상실행없음. 검사변경/우회미실시. 추가사용자명령/설치/Play설정/시작시험요청없음. 아래실물체크포인트참조.
+
+## 이전 실물 체크포인트 — 계측시작 성공 / 실제 라이선스 오류코드4 확인
 
 - 최신근거 docs/ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md 마지막 두 실물 절. PID12555 Gadget early/arm64/libflutter/libapp로드 확인. 앱의 정상 편집/렌더/보간 동작 검증은 아니다.
 - 같은PID LicenseClient: 기존패키지 getPackageInfo NameNotFound→Play main licensing service 연결/요청성공→응답4 예외→오류창. 사용자 Close시앱종료. 3개 시작PID에서같은오류. 원본삭제/Play비활성으로판정금지.
