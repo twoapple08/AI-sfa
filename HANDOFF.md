@@ -12,7 +12,18 @@
 - APK/SFA/영상/역컴파일 소스/추출 프레임을 공개 저장소에 올리지 않는다. 보고서·집계·직접 작성한 도구만 반영한다.
 - 사용자 추가 요청: 정확도를 유지하며 토큰 낭비를 적극 줄이고, 효율상 필요하면 자율적으로 인수인계와 새 대화 프롬프트를 갱신한다. 실행 지침은 AGENTS.md.
 
-## 최신 체크포인트 — FR 대응/held/색/경계 fallback 추적
+## 최신 체크포인트 — contour 유효성/구멍 차감/Path 조립
+
+- 먼저 docs/AOT-FILL-PATH-TRACE-2026-10-15.md. 새14명령ELF/Capstone대조통과. 기존보간14/00–05/unit/probe/JADX/Blutter/휴대폰시험반복없음. 정적경로이며전체픽셀/영상dispatch검증아님.
+- contour구조검사:빈목록/AO없음/edge T NaN·무한대/abs(T1-T2)<=1e-6거름. 0이상AP참조는AO점목록존재검사;음수생략. 최소점수선/원2,곡선3. 여러segments에서완전원Kind혼합안됨;원형AOedge/arc와구분. 미리연결된폐곡선좌표조건아님.
+- contour0외곽 실패면FR Path전체null. 개별hole builder실패면그hole생략. 별도pruneInvalidContours는저장상태정리,렌더null/Path.combine실패예외와구분.
+- 개별contour fillType1=evenOdd. 그후hole은PathOperation0=difference로순차외곽에서뺌. 전체contours합쳐evenOdd/XOR한번모델아님. 겹친hole재채움은이연산에서발생안함(정적연산귀결/실물새시험아님).
+- 조립moveTo/lineTo/arcTo/quadraticBezierTo. 이전끝→다음시작/마지막→첫시작거리>0.1일때연결선추가+close. 임계는변환후Path입력좌표단위,물리영상pixel확정금지. 떨어진경계도연결될수있음.
+- 선부분T lerp함수안clamp없음. 이차곡선T clamp0–1후구간폭검사/베지어분할/역방향끝점교환. 원형edge arc는diameter2점/반경/첫점방향atan2+2πT,함수안clamp없음. 모든T공통clamp가정금지.
+- 정확한 다음: TranslateToScreenX/Y,_screenOffsets,interpolated transform→baseStrokeWidth B/ResolveDevicePixelRatio공급→화면/영상shader-raster-fallback dispatch. hole캐시키/무효화도미확인유지.
+- 캐시frame_fill_region.dart/pp/ELF/venv재사용;새검사25b8ca176661/private-trace/{validate_path.py,path-validation.json}. 공개는직접작성보고서/집계만. Android라이선스차단/보호작업/학습보류유지. 사용자추가명령/설치/Play설정요청없음.
+
+## 이전 FR 보간 체크포인트 — FR 대응/held/색/경계 fallback 추적
 
 - 먼저 docs/AOT-FILL-TWEEN-TRACE-2026-10-15.md. 새14명령 ELF/Capstone대조통과,정적추적이며실물픽셀동등성아님. 기존00–05/원본/JADX/Blutter/unit/probe/휴대폰반복없음.
 - _planFillRegions는AO쌍비면null. 앞AO ID집합으로outerSegments의ObjId전부포함/비어있지않음을검사. innerhole전체유효성검사로확대금지. 링크뒤AO/APID→앞ID역맵만들어뒤FR참조rename.

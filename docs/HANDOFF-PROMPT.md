@@ -1,6 +1,7 @@
 https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
-최신 HANDOFF.md, AGENTS.md, docs/AOT-FILL-TWEEN-TRACE-2026-10-15.md를 읽어.
-다음은_isFrameFillContourStructurallyValid와contour/hole Path조립/부적합경계처리한정추적. 이후B/DPR/Canvas transform공급과shader/raster/MaskFilter dispatch연결.
+최신 HANDOFF.md, AGENTS.md, docs/AOT-FILL-PATH-TRACE-2026-10-15.md를 읽어.
+다음은TranslateToScreenX/Y,_screenOffsets,interpolated transform→입력Paint baseStrokeWidth B/ResolveDevicePixelRatio공급→화면/영상shader-raster-fallback dispatch를한정추적. hole캐시키/무효화도미확인유지.
+contour구조검사/Path추적완료:외곽contour0없음/invalid→전체null,invalidhole은생략.각contour evenOdd후holes순차difference,전체합쳐XOR모델금지.간격>0.1Path좌표단위연결lineTo/끝close.구조검사는연결좌표조건아님.Tfinite/absdiff>1e-6/AP참조0이상존재/primitive최소점수검사.선lerp Tclamp없음/곡선clamp후subsegment·방향/arc기준각+2πT clamping없음.14새명령표본통과=전체픽셀검증아님.
 FR정적추적완료: AO쌍없으면채우기계획null;outerSegments참조ID필터. 링크뒤AO/APID→앞IDrename. 1차rawsignature큐대응→남은2차canonical키대응(각1개만). contour/종류/ObjId/AP참조키,음수*,T제외. field_33contourIndex확인. contour0필수·방향/회전정규화. paired ARGB 앞+round(delta×clamp(t));앞held t<1유지,뒤held t1만. segments보간실패시t<.5앞/t>=.5뒤segments+보간색. paired=매끄러운경계보장/모든FR앞색유지/공간점대응 일반화금지.14새명령표본통과=전체의미실물검증아님.
 GetAnimationObjects는캐시getter;Populate/BulkLoad는null/빈목록DB공급이며nonempty유지. SQL목록정렬COALESCE(draw_order,id),id ASC;전체in-memory순서보장아님. 비연속그룹A(g),B(h),C(g)→A,C,B. glow W=B×max(S×ThicknessScale,0)/D×max(GlowThickness/10,0),R=max(GlowRadius×S/D,.001),sigma=sqrt(R²+(.29/D)²). shader uniform11은두번째double d1/sigma로정정;10=W/2,12일반직선곡선0/링1(퇴화포함). 모드전달Paint상속,초기Paint srcOver이나전역불변보장금지. 12새명령표본통과=전체함수/픽셀정답아님.
 캐시 /workspace/scratch/e23c9fd610d3/private/blutter_out/{asm,pp.txt,ida_script/addNames.py},input/arm64-v8a/libapp.so,venv. 새검사기/집계25b8ca176661/private-trace. 재다운로드/전체JADX/Blutter재설치/재덤프/00–05/기존시험반복금지. 큰함수는주소창/semantic annotation선택,큰문자열은요약. SetupParameters요약보다실제명령/스택슬롯우선.

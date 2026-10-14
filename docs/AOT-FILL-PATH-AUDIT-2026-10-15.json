@@ -1,0 +1,62 @@
+{
+  "scope": "14 new instruction samples; not complete function semantics or runtime pixel verification",
+  "results": [
+    {
+      "address": "0x420734",
+      "matched": true
+    },
+    {
+      "address": "0x420738",
+      "matched": true
+    },
+    {
+      "address": "0x794f10",
+      "matched": true
+    },
+    {
+      "address": "0x794f14",
+      "matched": true
+    },
+    {
+      "address": "0x41d664",
+      "matched": true
+    },
+    {
+      "address": "0x79503c",
+      "matched": true
+    },
+    {
+      "address": "0x367b2c",
+      "matched": true
+    },
+    {
+      "address": "0x367b64",
+      "matched": true
+    },
+    {
+      "address": "0x41eb2c",
+      "matched": true
+    },
+    {
+      "address": "0x41eb38",
+      "matched": true
+    },
+    {
+      "address": "0x7958b0",
+      "matched": true
+    },
+    {
+      "address": "0x41f4d8",
+      "matched": true
+    },
+    {
+      "address": "0x41f560",
+      "matched": true
+    },
+    {
+      "address": "0x42013c",
+      "matched": true
+    }
+  ],
+  "runtime_renderer_verified": false
+}

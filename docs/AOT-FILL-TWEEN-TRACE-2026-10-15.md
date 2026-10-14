@@ -29,7 +29,7 @@ interpolation segment key(0x632930)는 다음과 같다.
 
 이전 보고서의 미확인 field_33은 FrameFillSegment.signature의 ':contour:' 문자열 결합(0x5cfe80–0x5cfed8)과 canonicalize의 contour별 묶음으로 **contour index**에 대응시켰다. 실제 segment enum Kind와 AO TypeId는 별도 체계다.
 
-AP 참조를 좌표나 AnchorPoint.Index로 자동 정규화하지 않는다. 같은 ObjId/좌표라도 양수 AP 참조가 달라지면 키가 달라질 수 있다. 따라서 기존 표본에서 앞색이 유지됐다는 사실을 모든 대응쌍의 색 정책으로 일반화하면 안 된다.
+AP 참조를 좌표나 AnchorPoint.Index로 자동 정규화하지 않는다. 같은 ObjId/좌표라도 0 이상 AP 참조가 달라지면 키가 달라질 수 있다. 따라서 기존 표본에서 앞색이 유지됐다는 사실을 모든 대응쌍의 색 정책으로 일반화하면 안 된다.
 
 ## 3. canonicalize의 확인 범위
 
