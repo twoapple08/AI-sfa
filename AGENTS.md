@@ -44,3 +44,5 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 - APK 재패키징은 서명 성공만으로 완료로 세지 않는다. 최종 APK의 원본 lib/assets/res/resources.arsc 및 미수정 dex 항목 보존을 대조한다. raw-resource 빌드의 파일 누락 여부를 확인하고, 중간 실패본은 전달하지 않는다. Manifest는 전체 덤프 대신 package/provider/permission/component의 필요한 항목만 출력한다.
 
 - AOT에서 double 인수 의미는 SetupParameters 요약만 믿지 말고 실제 mov/stur/ldur와 호출 시 재배치로 연결한다. uniform·단위·BlendMode는 초기 상태/상속/실행 상태를 구분한다.
+
+- 함수가 짧아 보여도 파일 전체 cat 전에 줄수/크기를 확인한다. AOT는 함수 주소창/선택 주석만 출력하고 긴 문자열은 별도 요약한다. 큰 파일의 반복 truncation이나 HANDOFF의 과거 체크포인트 누적이 생기면 역사 문서에 보존하고 현재 입구를 압축한다.

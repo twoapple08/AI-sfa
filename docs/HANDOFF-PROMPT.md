@@ -1,10 +1,8 @@
 https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
-최신 HANDOFF.md, AGENTS.md, docs/AOT-FILL-PATH-TRACE-2026-10-15.md를 읽어.
-다음은TranslateToScreenX/Y,_screenOffsets,interpolated transform→입력Paint baseStrokeWidth B/ResolveDevicePixelRatio공급→화면/영상shader-raster-fallback dispatch를한정추적. hole캐시키/무효화도미확인유지.
-contour구조검사/Path추적완료:외곽contour0없음/invalid→전체null,invalidhole은생략.각contour evenOdd후holes순차difference,전체합쳐XOR모델금지.간격>0.1Path좌표단위연결lineTo/끝close.구조검사는연결좌표조건아님.Tfinite/absdiff>1e-6/AP참조0이상존재/primitive최소점수검사.선lerp Tclamp없음/곡선clamp후subsegment·방향/arc기준각+2πT clamping없음.14새명령표본통과=전체픽셀검증아님.
-FR정적추적완료: AO쌍없으면채우기계획null;outerSegments참조ID필터. 링크뒤AO/APID→앞IDrename. 1차rawsignature큐대응→남은2차canonical키대응(각1개만). contour/종류/ObjId/AP참조키,음수*,T제외. field_33contourIndex확인. contour0필수·방향/회전정규화. paired ARGB 앞+round(delta×clamp(t));앞held t<1유지,뒤held t1만. segments보간실패시t<.5앞/t>=.5뒤segments+보간색. paired=매끄러운경계보장/모든FR앞색유지/공간점대응 일반화금지.14새명령표본통과=전체의미실물검증아님.
-GetAnimationObjects는캐시getter;Populate/BulkLoad는null/빈목록DB공급이며nonempty유지. SQL목록정렬COALESCE(draw_order,id),id ASC;전체in-memory순서보장아님. 비연속그룹A(g),B(h),C(g)→A,C,B. glow W=B×max(S×ThicknessScale,0)/D×max(GlowThickness/10,0),R=max(GlowRadius×S/D,.001),sigma=sqrt(R²+(.29/D)²). shader uniform11은두번째double d1/sigma로정정;10=W/2,12일반직선곡선0/링1(퇴화포함). 모드전달Paint상속,초기Paint srcOver이나전역불변보장금지. 12새명령표본통과=전체함수/픽셀정답아님.
-캐시 /workspace/scratch/e23c9fd610d3/private/blutter_out/{asm,pp.txt,ida_script/addNames.py},input/arm64-v8a/libapp.so,venv. 새검사기/집계25b8ca176661/private-trace. 재다운로드/전체JADX/Blutter재설치/재덤프/00–05/기존시험반복금지. 큰함수는주소창/semantic annotation선택,큰문자열은요약. SetupParameters요약보다실제명령/스택슬롯우선.
-사용자Android한기기/PC없음/루팅X;Termux·무선ADB·저장공간접근완료. 별도계측 com.twoapple08.sfa.instrument 제작/5분할동일키서명검증/비공개전달완료. Gadgetearlyarm64/libflutter/libapp로드성공. LicenseClient기존패키지조회NameNotFound→Play연결요청성공→응답4예외→오류창/Close앱종료. 코드4정확한서버뜻미확인/invalid package명시코드는3. 실제정상편집/렌더실행미확인,검사변경/우회미실시,렌더Hook보류. 추가명령/설치/Play설정/페어링/시작시험요청금지. 실물보고서ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md는필요시에만.
-도구/빌드/키 /workspace/scratch/37921248d0d6/private/{instrument-tools,instrument-build};키sfa-test.jks재사용. ZIP25b8ca176661/output/SFA-Instrument-Startup-2026-10-15.zip,libfile_a9e9671bcd3c8191b95a54915af9aa6d. 이전worktree변경보존.
-APK/SFA/영상/역컴파일/asm/키공개금지. PREVIDEO수정/File-2최적화/학습/AI연결보류. FPS=(트위닝,재생),레이어전체프레임,굽힘없음. 직접작성보고서/집계/인수인계main반영상시승인,최신head/expected_sha보호.잔여사용량조회불가.정확도유지하며캐시재사용/좁은출력.
+최신 HANDOFF.md, AGENTS.md, docs/AOT-RENDER-CONTEXT-TRACE-2026-10-15.md를 읽어. 과거전체인수인계/원본/기존시험은필요없으면읽지마.
+다음은실제Paint.strokeWidth B의plan/caller/primitive 변경·복원과출력dispatch를먼저연결. Frame.DrawBaseObject/보간_restorePaint·Frame/Picture/native경계를필요주소창만추적. padding기본8을B로대입하거나초기Paint슬롯0을항상0이라고확정금지. 그뒤shaderload lifecycle/rasterhit/hole캐시키·무효화.
+좌표=Offset+UsableSize×p/100,original/interpolated동일,clamp/DPR직접나눗셈없음. DrawInfo여백/aspectfit과외부Canvas변환구분. DPRoverride→implicitView→1. exportwrapper는동기범위DPR1/정상예외복원,모든backend/전체async/기존영상일반화금지. 새14명령표본통과=전체함수/픽셀검증아님.
+이전FR/그룹/glow/import의정정과근거는HANDOFF의짧은표만먼저사용하고해당문제필요때보고서읽기. uniform11=d1/sigma,holes순차difference,pairedFR색보간/held별도,AP0이상참조확인.
+캐시e23c9fd610d3/private/blutter_out/{asm/sfa,pp.txt,ida_script/addNames.py},input/arm64-v8a/libapp.so,venv.25b8ca176661/private-trace새검사기.캐시우선/전체덤프·JADX·Blutter·도구재설치·00–05/기존시험반복금지.
+Android한기기/PC없음/루팅X;Termux·무선ADB·저장공간권한완료.별도5APK서명검증/비공개전달완료/Gadget+Flutter모듈로드성공이나라이선스응답4→Close앱종료.지속편집/렌더미검증/검사변경우회미실시.추가명령/설치/Play설정/페어링/시작시험요청금지.
+APK/SFA/영상/역컴파일/assembly/키/전체로그공개금지.직접작성보고서·집계·인수인계main반영상시승인,최신head/tree/expected_sha보호.고정PREVIDEO/File-2최적화/학습/AI연결보류.FPS=(트위닝,재생),레이어전체프레임,굽힘없음.잔여사용량직접조회불가.
