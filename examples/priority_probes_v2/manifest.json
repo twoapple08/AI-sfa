@@ -1,0 +1,310 @@
+{
+  "status": "generated; app execution pending",
+  "files": [
+    {
+      "name": "00_roundtrip.sfa",
+      "original_frames": 24,
+      "fps": {
+        "tween_fps": 24,
+        "playback_fps": 24
+      },
+      "expected_output_frames": 24,
+      "expected_seconds": 1.0,
+      "cases": [
+        "Static import/roundtrip sentinel; no user edits"
+      ]
+    },
+    {
+      "name": "01_fill_order.sfa",
+      "original_frames": 192,
+      "fps": {
+        "tween_fps": 24,
+        "playback_fps": 24
+      },
+      "expected_output_frames": 192,
+      "expected_seconds": 8.0,
+      "cases": [
+        {
+          "seconds": [
+            0,
+            1
+          ],
+          "case": "outer_only"
+        },
+        {
+          "seconds": [
+            1,
+            2
+          ],
+          "case": "inner_contour"
+        },
+        {
+          "seconds": [
+            2,
+            3
+          ],
+          "case": "inner_reversed"
+        },
+        {
+          "seconds": [
+            3,
+            4
+          ],
+          "case": "red_then_blue_FR"
+        },
+        {
+          "seconds": [
+            4,
+            5
+          ],
+          "case": "blue_then_red_FR"
+        },
+        {
+          "seconds": [
+            5,
+            6
+          ],
+          "case": "red_then_blue_AO"
+        },
+        {
+          "seconds": [
+            6,
+            7
+          ],
+          "case": "blue_then_red_AO"
+        },
+        {
+          "seconds": [
+            7,
+            8
+          ],
+          "case": "fill_and_strokes"
+        }
+      ]
+    },
+    {
+      "name": "02_glow.sfa",
+      "original_frames": 288,
+      "fps": {
+        "tween_fps": 24,
+        "playback_fps": 24
+      },
+      "expected_output_frames": 288,
+      "expected_seconds": 12.0,
+      "cases": [
+        {
+          "seconds": [
+            0,
+            1
+          ],
+          "case": "no_glow",
+          "change": {
+            "alpha": 0
+          }
+        },
+        {
+          "seconds": [
+            1,
+            2
+          ],
+          "case": "radius_4",
+          "change": {
+            "radius": 4
+          }
+        },
+        {
+          "seconds": [
+            2,
+            3
+          ],
+          "case": "reference_radius_12",
+          "change": {}
+        },
+        {
+          "seconds": [
+            3,
+            4
+          ],
+          "case": "radius_28",
+          "change": {
+            "radius": 28
+          }
+        },
+        {
+          "seconds": [
+            4,
+            5
+          ],
+          "case": "thickness_10",
+          "change": {
+            "thickness": 10
+          }
+        },
+        {
+          "seconds": [
+            5,
+            6
+          ],
+          "case": "thickness_40",
+          "change": {
+            "thickness": 40
+          }
+        },
+        {
+          "seconds": [
+            6,
+            7
+          ],
+          "case": "alpha_64",
+          "change": {
+            "alpha": 64
+          }
+        },
+        {
+          "seconds": [
+            7,
+            8
+          ],
+          "case": "alpha_128",
+          "change": {
+            "alpha": 128
+          }
+        },
+        {
+          "seconds": [
+            8,
+            9
+          ],
+          "case": "base_alpha_0",
+          "change": {
+            "base_alpha": 0
+          }
+        },
+        {
+          "seconds": [
+            9,
+            10
+          ],
+          "case": "glow_color_alpha_64",
+          "change": {
+            "color_alpha": 64
+          }
+        },
+        {
+          "seconds": [
+            10,
+            11
+          ],
+          "case": "object_scale_2",
+          "change": {
+            "scale": 2
+          }
+        },
+        {
+          "seconds": [
+            11,
+            12
+          ],
+          "case": "two_coincident_objects",
+          "change": {
+            "count": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "03_tween.sfa",
+      "original_frames": 168,
+      "fps": {
+        "tween_fps": 24,
+        "playback_fps": 12
+      },
+      "expected_output_frames": 336.0,
+      "expected_seconds": 14.0,
+      "cases": [
+        {
+          "seconds": [
+            0,
+            2
+          ],
+          "case": "same_id_move",
+          "phase_frames": 6
+        },
+        {
+          "seconds": [
+            2,
+            4
+          ],
+          "case": "presence",
+          "phase_frames": 6
+        },
+        {
+          "seconds": [
+            4,
+            6
+          ],
+          "case": "new_id_same_pose",
+          "phase_frames": 6
+        },
+        {
+          "seconds": [
+            6,
+            8
+          ],
+          "case": "fill_presence",
+          "phase_frames": 6
+        },
+        {
+          "seconds": [
+            8,
+            10
+          ],
+          "case": "missing_boundary",
+          "phase_frames": 6
+        },
+        {
+          "seconds": [
+            10,
+            12
+          ],
+          "case": "base_alpha",
+          "phase_frames": 6
+        },
+        {
+          "seconds": [
+            12,
+            14
+          ],
+          "case": "fill_color",
+          "phase_frames": 6
+        }
+      ]
+    },
+    {
+      "name": "04_ui_seed.sfa",
+      "original_frames": 1,
+      "fps": {
+        "tween_fps": 24,
+        "playback_fps": 24
+      },
+      "expected_output_frames": 1,
+      "expected_seconds": 0.041666666666666664,
+      "cases": [
+        "One frame: red viewer-right arm, blue viewer-left arm; two disconnected orange lines"
+      ]
+    },
+    {
+      "name": "05_link_seed.sfa",
+      "original_frames": 24,
+      "fps": {
+        "tween_fps": 24,
+        "playback_fps": 12
+      },
+      "expected_output_frames": 48.0,
+      "expected_seconds": 2.0,
+      "cases": [
+        "24 originals: frames1-12 left,13-24 right; different AO IDs; no TweenLink stored"
+      ]
+    }
+  ]
+}

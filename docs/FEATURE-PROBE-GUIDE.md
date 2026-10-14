@@ -76,3 +76,7 @@ python -m unittest discover -s tests -v
 ## 현재 우선순위에 따른 요청 보류
 
 APP-V1-ROUNDTRIP은 채우기·구멍·순서/글로우/생성·삭제·보간 분석 뒤로 보류한다. 추가 작품·전체 기능 샘플·기존 영상 재출력 요청은 없다. 기존 근거의 추가 결과와 향후 최소실험 후보는 [FILL-GLOW-TWEEN-ANALYSIS-2026-10-14.md](FILL-GLOW-TWEEN-ANALYSIS-2026-10-14.md)에 있다. 후보 목록은 사용자에게 현재 제작을 요구하는 목록이 아니다.
+
+## 사용자 승인에 따른 v2 실행 요청
+
+네가지협력작업을진행하자는새요청으로별도의작은시험6개를준비했다. 기존v1합본전체재출력은요청하지않는다. 현재실행안내는[PRIORITY-PROBE-USER-GUIDE.md](PRIORITY-PROBE-USER-GUIDE.md). v2도형순서는서로다른ID로시험해동일AO의프레임별상충을피했다. 앱실행검증은반환자료수신후다룬다.

@@ -2,3 +2,4 @@ __pycache__/
 *.pyc
 .venv/
 .env
+examples/priority_probes_v2/AI-sfa-priority-tests-v2.zip
