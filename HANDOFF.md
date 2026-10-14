@@ -12,13 +12,15 @@
 - APK/SFA/영상/역컴파일 소스/추출 프레임을 공개 저장소에 올리지 않는다. 보고서·집계·직접 작성한 도구만 반영한다.
 - 사용자 추가 요청: 정확도를 유지하며 토큰 낭비를 적극 줄이고, 효율상 필요하면 자율적으로 인수인계와 새 대화 프롬프트를 갱신한다. 실행 지침은 AGENTS.md.
 
-## 최신 체크포인트 — Gadget/Flutter 모듈 로드 성공, Play 오류 종료
+## 최신 체크포인트 — 계측시작 성공 / 실제 라이선스 오류코드4 확인
 
-- 실물 결과는 docs/ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md의 마지막 절. 03:40 KST 동일PID12555에서 Gadget early/arm64 시작, libflutter.so와 libapp.so 로드 확인. 렌더/보간/편집 기능 정상 실행 검증은 아니다.
-- Google Play 확인 오류 창과 앱 화면이 함께 뜸. 사용자: 오류 창을 닫으면 앱도 종료. 원래 라이선스 검사 관련 가능성; 정확한 오류코드/분기 미확인. 다른PID heap tagging 오류를 앱 원인으로 오독 금지.
-- startup-log.txt 빈파일 뒤 사전 live logcat 수집으로 성공기록 확보. 최근500줄 사후추출 반복금지. Termux 저장공간권한 해결/파일접근 성공. 설치/페어링/Play설정변경/추가시작 시험 재요청금지.
-- 캐시 한정검사 완료: LicenseActivity 안내문구 일치/Close→closeApp, LicenseClient.handleError의 ERROR 태그 확인. 정확한 다음: 재시작 없이 기존 logcat의 LicenseClient/LicenseActivity 두 태그 수령으로 실제 예외/코드 확인. 검사우회/변경 미실시. 편집실행경로 확보 전 렌더·보간 Hook 확장 보류. 기존 AOT 미확인 planner/glow/FR 정적추적 가능.
-- 아래 제작완료 체크포인트의 실물시작/로그없음·다시설치 요청은 이 결과로 대체한다. 원본삭제/덮어쓰기/공개금지/학습보류/기존시험반복금지 유지.
+- 최신근거 docs/ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md 마지막 두 실물 절. PID12555 Gadget early/arm64/libflutter/libapp로드 확인. 앱의 정상 편집/렌더/보간 동작 검증은 아니다.
+- 같은PID LicenseClient: 기존패키지 getPackageInfo NameNotFound→Play main licensing service 연결/요청성공→응답4 예외→오류창. 사용자 Close시앱종료. 3개 시작PID에서같은오류. 원본삭제/Play비활성으로판정금지.
+- 캐시상 LicenseClient.packageName=기존패키지 상수; local조회와V2요청 공통사용. manifest변경으로안바뀜. processResponse의코드4는나머지예외; invalid package명시코드는3. 서비스코드4정확한뜻/서버원인은미확인. package visibility등가능성은가설.
+- 최소로그수령완료. 추가명령/재설치/Play설정/페어링/시작시험요청없음. 이름치환/queries만으로해결보장금지. 검사/응답/종료우회또는변경미실시. 실행경로미확보로렌더/보간Hook확장보류.
+- 정확한 다음: 기존AOT 미확인 GetAnimationObjects 공급/비연속그룹 방문순서→TryDrawGlowWithShader paint/blend 한정정적추적. AOT-PATH-TRACE-2026-10-15.md만필요할때읽기. 기존자료/시험/전체덤프/도구재설치금지.
+- Termux저장공간접근성공. 빈초기로그는사후최근500줄필터한계; 이후live수집성공. 다음새빌드때수집스크립트수정필요,지금재전달불필요. 아래제작보고의실물없음/다시설치요청은폐기.
+- 전달/빌드/키/원본캐시는아래이전제작체크포인트참조. 공개레포에요약만. 기존원본/고정예측/File-2/학습보호유지.
 
 ## 이전 체크포인트 — 별도 시작 계측 APK 제작·정적/서명 검증 완료
 

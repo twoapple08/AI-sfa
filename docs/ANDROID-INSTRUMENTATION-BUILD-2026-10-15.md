@@ -49,3 +49,13 @@ Apktool의 raw-resource 빌드가 기존 res 파일을 누락시키는 문제가
 정확한 다음: 현재 캐시의 LicenseClient와 오류 안내 호출 경로만 제한적으로 읽어 실패 분기/증거 확보 가능성을 확인한다. 사용자 재설치/Play설정 변경/추가 시작 시험은 요청하지 않는다. 라이선스 검사 변경이나 우회는 이번 결과 처리에서 하지 않는다. 편집 기능을 사용할 실행 경로가 확보되기 전 렌더/보간 Hook 확장은 보류하고, 기존 AOT의 미확인 planner/glow/FR 규칙 추적을 진행할 수 있다. 이 결과는 위 제작 보고서의 '실물 시작/로그 없음'과 다음 설치 요청을 대체한다.
 
 기존 Java 캐시 한정 확인: LicenseActivity.showErrorDialog의 안내 문구가 사용자 스크린샷과 일치하며 Close는 closeApp을 호출한다. LicenseClient.handleError는 LicenseClient 태그 ERROR 로그에 검사 예외를 기록한 뒤 상태에 따라 오류 Activity를 시작한다. 실제 예외/오류코드는 아직 미수령. 다음 최소 요청은 재시작 없이 `adb logcat -d -v threadtime -s LicenseClient:V LicenseActivity:V`로 현재 버퍼의 검사 로그만 읽는 것이다. 버퍼가 비었으면 같은 시험을 무조건 반복하지 않는다. 정적 코드 존재와 이번 실행 분기 확정을 구분한다.
+
+## 실제 검사 예외 수령 — 2026-10-15 03:44 KST
+
+사용자 기존 버퍼에서 03:38/03:40/03:41의 세 PID가 공통으로 local installer check의 기존 패키지 com.sG.stickfighter.activities 조회 NameNotFoundException, main licensing service 연결/요청 성공, 응답 코드4 → Unexpected response code4 예외를 보였다. 특히 PID12555는 앞선 Gadget/Flutter 모듈 로그와 일치한다. 원본 앱 제거를 의미하지 않는다. 별도 앱의 package visibility/조회 주체 차이 등이 가능하며 실제 원인은 아직 구분하지 않았다.
+
+기존 캐시 한정검사에서 LicenseClient.packageName은 원래 패키지 상수이고, local getPackageInfo/getInstallSourceInfo와 V2 라이선스 요청에 공통으로 사용됨을 확인했다. manifest 변경이 이 상수를 바꾸지 않았다. processResponse는 0=검사응답검증,2=paywall,3=invalid package 처리와 나머지 예외 경로를 가지며 코드4는 나머지 경로다. **이 앱 코드만으로 서비스 코드4의 정확한 의미나 서버측 원인을 정의할 수 없다. 코드3과 혼동하여 invalid package 응답으로 단정하지 않는다.**
+
+Gadget/ELF 모듈 로드 성공과 라이선스에 의한 지속 실행 차단을 분리한다. Play 서비스 비활성/미연결은 이번 로그와 맞지 않으므로 Play 설정변경/재설치/페어링은 요청하지 않는다. 기존 패키지명을 테스트 이름으로 단순 치환하거나 queries 추가만으로 정식 검사 성공을 보장하지 않는다. 검사상수/응답/종료경로 변경 또는 우회는 미실시. 이번 원인분류에 필요한 최소 로그 수령은 완료됐으므로 추가 시작시험을 요청하지 않는다.
+
+다음 작업은 사용가능한 실행경로 설계 전 기존 AOT의 미확인 GetAnimationObjects 공급/그룹방문순서 및 TryDrawGlowWithShader paint/blend의 한정 정적추적을 재개한다. 라이선스 없는 정상 편집 실행을 확보했다고 주장하지 않는다. 공개 저장소에는 이 직접작성 요약만, 전체 로그/역컴파일소스/주소/원본은 올리지 않는다.
