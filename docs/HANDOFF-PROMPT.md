@@ -1,5 +1,6 @@
 https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
-최신 HANDOFF.md와 AGENTS.md, docs/APK-GROUP-LINK-TRACE-2026-10-15.md를 먼저 읽어. UI결과가필요할때UI-04-05-RESULTS-2026-10-15.md를읽어. 현재 대화에서 읽은 자료는 불필요하게 반복하지 마.
-00/01/02/03 및04실제조작·05수동링크자료분석은완료야. 굽힘기능은없으므로시험목록에서제외해. U1은손끝드래그와전체크기200%적용의누적결과야. U2첫결과는사영변환,두번째는아핀확대+속성스케일. 그룹은AC/Flags로표현되고해제후독립이동해.05는13프레임TweenLink하나로출력24가누락→중앙원으로바뀌었어. 이표본을모든조건의공식으로확대하지마.
-다음은기존APK에서DrawOrder/ObjectScale가져오기·저장변화,FR배치키,그룹Flags/AC전파,TweenLink경계실제함수추적이야. 기존 /workspace/scratch/6d77389e706a/private/ 캐시는발견·libapp SHA검증완료야. 다시다운로드/역컴파일하지마. 그룹Flags는bit16/상위6비트이후기준점ID의압축참조이며두상태와APK SQL로확인했어. Flags정규화시ID참조보존이필요해. 네이티브같은ID보간함수만으로05링크효과를설명할수없으므로상위해결/실제경로추적을이어가. 기존시험재출력·제작자문의·추가작품요청은하지마.
-고정PREVIDEO예측수정·File-2최적화·학습·AI연결은계속보류야. FPS는(트위닝,재생),레이어는전체프레임제작보조,편집공간과출력범위를구분해. 토큰효율과인수인계는AGENTS.md를따라줘.
+최신 HANDOFF.md, AGENTS.md, docs/FLUTTER-TOOLS-RESULTS-2026-10-15.md를 읽어. 이미 읽은 자료/기존 시험을 불필요하게 재처리하지 마.
+Blutter로Dart3.12.0 ARM64 스파51.0.0 AOT추출에성공했어. 671파일/asm666개/코드선언12,752개이며원래Dart소스복원은아니야. 명령주소4개실물검증통과. 캐시 /workspace/scratch/e23c9fd610d3/private/blutter_out/asm/sfa를재사용해. reFlutter는버전인식성공이나dump엔진배포태그404로APK/dump생성실패. 자체engine빌드/Android실행환경은미완이며분할APK서명도미검증이야.
+다음은Blutter어셈블리에서importSequenceXmlText/handler→DrawOrder/ObjectScale가져오기·저장변경원인→FrameDrawPlan unit정렬/FR배치→glow uniform/합성→FrameInterpolationPlan/TweenLink함수를필요한범위만추적하는거야. 설치/빌드/전체덤프를반복하지마. 함수주소는도구보고서에있고이전ELF문자열오프셋과구분해.
+00–05반환자료분석완료. 굽힘기능없음. 04그룹Flags의bit16/상위기준점ID압축은실물·SQL확인.05다른ID원대원TweenLink로중간누락→중앙원검증. 일부표본을모든조건으로일반화하지마.
+기존시험재출력·제작자문의·추가작품요청없음. 고정PREVIDEO예측수정·File-2최적화·학습·AI연결계속보류. APK/영상/역컴파일소스는공개레포에올리지마. FPS는(트위닝,재생),레이어전체프레임제작보조,편집공간과출력범위구분. 정확도를유지하며토큰낭비를줄이고필요하면자율적으로인수인계갱신해.

@@ -11,7 +11,17 @@
 - APK/SFA/영상/역컴파일 소스/추출 프레임을 공개 저장소에 올리지 않는다. 보고서·집계·직접 작성한 도구만 반영한다.
 - 사용자 추가 요청: 정확도를 유지하며 토큰 낭비를 적극 줄이고, 효율상 필요하면 자율적으로 인수인계와 새 대화 프롬프트를 갱신한다. 실행 지침은 AGENTS.md.
 
-## 최신 추가 추적 — 그룹 참조 인코딩 / 경로 경계
+## 최신 체크포인트 — Blutter 성공 / reFlutter 배포 엔진 없음
+
+- 최신보고서: docs/FLUTTER-TOOLS-RESULTS-2026-10-15.md,집계: docs/FLUTTER-TOOLS-AUDIT-2026-10-15.json. 사용자지시로두도구를순서대로실제로시도.
+- **Blutter성공:** Dart3.12.0/android-arm64/스냅샷41be3daaabd524b8aa7423bc24584957. 버전별분석기빌드후종료0. 추출671파일/86,508,012바이트,asm666개/코드선언블록12,752. 원래Dart소스복원아님. 명령주소4개를실물ELF/Capstone과대조통과. 추출전체정확성/모든함수해석완료아님.
+- **reFlutter0.9.8:** 스냅샷지원목록일치하지만dump용android-v3-tag GitHub API404/다운로드실패종료1. 변경APK/dump.dart생성없음. -b는engine commit선택만성공. macOS build-only스크립트는brew없음guard종료1;Linux수동엔진빌드미실시. depot_tools/gclient는bootstrap응답확인. adb/emulator없음. 분할APK의서명/실행검증미완.
+- **정확한다음행동:** 성공한Blutter asm에서importSequenceXmlText/handler→DrawOrder/ObjectScale설정,FrameDrawPlan unit정렬/FR배치→글로우uniform/합성→FrameInterpolationPlan/TweenLink를필요한함수만추적. 도구빌드/추출/원본영상/SFA검사재실행금지(새변경/문제가있을때만). reFlutter자체엔진빌드·Android실행은별도미완.
+- 캐시 /workspace/scratch/e23c9fd610d3/private/: blutter_out(asm/pp.txt/objs.txt/ida_script/blutter_frida.js), blutter/bin/blutter_dartvm3.12.0_android_arm64,venv,depsroot,input/arm64-v8a,reFlutter,depot_tools. 실행LD_LIBRARY_PATH=depsroot/lib. Blutter로컬변경은Capstone CMake검색과ninja -j2뿐;분석알고리즘패치없음. 옛캐시도유지. 비공개추출물공개금지.
+- 보호상태그대로: 고정예측/File-2최적화/학습/AI연결보류. 00–05사용자자료완료,기존시험재출력/제작자문의요청없음. 이번문서/집계만반영.
+- 다음대화는이문서/AGENTS와최신도구보고서부터. 정확한다음프롬프트: docs/HANDOFF-PROMPT.md. 길어진설치/분석기록대신이체크포인트를사용.
+
+## 이전 추가 추적 — 그룹 참조 인코딩 / 경로 경계
 
 - 최신정적추적: docs/APK-GROUP-LINK-TRACE-2026-10-15.md. 먼저읽고필요한UI결과만연결한다. 기존private캐시가실제존재해다운로드/재역컴파일없음; libapp.so기존SHA일치.
 - 그룹Flags93598163 = (위선기준점ID1462471 << 6) | 16 | 3. grouped/grouped_move에서확인;해제Flags3. AOT SQL도0x10/상위참조재매핑/하위6비트보존식을포함. **ID정규화시Flags내참조도대응해야함**. 단순그룹마스크상수로사용금지. 전체Flags비트/전파함수는미확인.
@@ -82,7 +92,7 @@
 
 ## 읽기 경로 — 현재 대화에서 읽은 것은 반복하지 말 것
 
-- 새 대화: 이 문서와AGENTS.md → APK-GROUP-LINK-TRACE-2026-10-15.md. 기능 전체 범위가 필요하면FEATURE-COVERAGE.md.
+- 새 대화: 이 문서와AGENTS.md → FLUTTER-TOOLS-RESULTS-2026-10-15.md. 기능 전체 범위가 필요하면FEATURE-COVERAGE.md.
 - 채우기/글로우/보간: FILL-GLOW-TWEEN-ANALYSIS-2026-10-14.md, 필요한 경우NATIVE-TWEEN-FINDINGS.md/APK-EVIDENCE-51.0.0.md.
 - 영상 사실: VIDEO-PREDICTION-COMPARISON-2026-10-14.md 및 필요한 프레임의VIDEO-FRAME-AUDIT.json. JSON 전체를 대화에 출력하지 않는다.
 - 출력 범위: EDITOR-OUTPUT-BOUNDS.md. v1: FEATURE-PROBE-GUIDE.md/APP-VERIFICATION.md.
