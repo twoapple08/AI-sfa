@@ -11,6 +11,14 @@
 - APK/SFA/영상/역컴파일 소스/추출 프레임을 공개 저장소에 올리지 않는다. 보고서·집계·직접 작성한 도구만 반영한다.
 - 사용자 추가 요청: 정확도를 유지하며 토큰 낭비를 적극 줄이고, 효율상 필요하면 자율적으로 인수인계와 새 대화 프롬프트를 갱신한다. 실행 지침은 AGENTS.md.
 
+## 최신 추가 추적 — 그룹 참조 인코딩 / 경로 경계
+
+- 최신정적추적: docs/APK-GROUP-LINK-TRACE-2026-10-15.md. 먼저읽고필요한UI결과만연결한다. 기존private캐시가실제존재해다운로드/재역컴파일없음; libapp.so기존SHA일치.
+- 그룹Flags93598163 = (위선기준점ID1462471 << 6) | 16 | 3. grouped/grouped_move에서확인;해제Flags3. AOT SQL도0x10/상위참조재매핑/하위6비트보존식을포함. **ID정규화시Flags내참조도대응해야함**. 단순그룹마스크상수로사용금지. 전체Flags비트/전파함수는미확인.
+- frame_tween_link조회/삽입SQL은AOT에있고05와부합. 읽은네이티브Y2.i.d는같은AOID조회뿐이어서05다른ID링크효과를단독으로설명못함. 상위링크해결/다른출력경로중어느쪽인지미확인.
+- **다음행동:** 캐시AOT상수/함수참조를연결할호환도구의로컬가용성을먼저확인. importer DrawOrder/ObjectScale변경함수/FR배치키/그룹전파·링크대응추적. 문자열발견을실행경로확정으로승격금지.
+- 캐시: /workspace/scratch/6d77389e706a/private/{decompiled,libapp.so,jadx,glow.frag}. 04/05입력은현재형제upload/. 새Flags식4상태assert검증;기존구조/영상/22생성검사반복없음. AGENTS.md에큰메타데이터필터링/UTF-8구조쓰기/툴선택지침추가.
+
 ## 최신 체크포인트 — 04 실제 UI / 05 수동 링크 분석 완료
 
 - 최신 보고서: docs/UI-04-05-RESULTS-2026-10-15.md. 집계: docs/UI-04-05-AUDIT-2026-10-15.json. 이전01/02/03은완료상태이며다시분석/출력요청하지않는다.
@@ -18,11 +26,11 @@
 - 반환SFA11개구조오류0. 04/05 seed왕복은이름/ID/절대순서/숫자표기정규화후보존. 녹화4개는접촉표와조작주변표본,실제출력2개총96장을800×450으로전수디코딩. 전체렌더엔진재현이아님.
 - U1: 녹화에서손끝드래그뒤변형탭크기200%/굵기100%적용이누적됨. 최종스틱맨10AO ObjectScale2/ThicknessScale1,주황선불변. 손끝외19점은허리(35,40)기준2배. 단일아래팔2배시험아님. 손끝중간좌표는역산만. UI설정ObjectScale2보존은02입력왕복1변경과구분.
 - U2: 첫결과20점은사영변환적합오차1.92e-12,아핀은3.24. 두번째는아핀x1.188627/y1.251527+이동,10AO의ObjectScale/ThicknessScale1.1820126. 핸들별전체계산식/굵기식미확인.
-- U4: 독립이동위선만→그룹은두Index0점상호AC2개추가/아래Flags3→93598163→이동시두선동일변위→해제AC제거/Flags3→다시위선만이동. 12AO/24AP유지. 그룹은병합아님,AC는동일좌표관절에한정안됨. Flags내부인코딩/모든선택경로미확인.
+- U4: 독립이동위선만→그룹은두Index0점상호AC2개추가/아래Flags3→93598163→이동시두선동일변위→해제AC제거/Flags3→다시위선만이동. 12AO/24AP유지. 그룹은병합아님,AC는동일좌표관절에한정안됨. Flags상위참조인코딩은위추적참조;모든선택경로미확인.
 - U5: 원본13에TweenLink ID=뒤AO/From=앞AO하나. 이름/링크제외전후XML동일. 실제전후각24FPS/48장/2초. 축소RGB차이는출력24만: 링크전원누락→후중앙원. 다른유형/FR/복잡한링크정책미확인.
 - **정확한다음행동:** 기존APK복구가능여부를확인하고DrawOrder/ObjectScale importer변경,FR배치키,그룹Flags/AC전파,TweenLink경계함수를추적. 기존시험재출력/제작자문의/추가파일요청없음. 뒤집기/올그룹/원근핸들별공식/잠금등은미확인표에유지.
 - 이번은문서/집계만변경. 고정예측/File-2최적화/학습/AI연결계속보류. 11SFA구조검사와96장경계비교실행,기존22생성검사는문서변경으로재실행안함.
-- 현재환경: /workspace/scratch/e23c9fd610d3/AI-sfa. 입력17개는형제upload/,프레임·접촉표는evidence/. APK/역컴파일은현재환경에복구하지않음. 원본은공개저장소에올리지않는다.
+- 현재환경: /workspace/scratch/e23c9fd610d3/AI-sfa. 입력17개는형제upload/,프레임·접촉표는evidence/. APK/역컴파일은위기존캐시발견후재사용가능. 원본은공개저장소에올리지않는다.
 
 ## 이전 완료 체크포인트 — v2 합본 01/02/03
 
@@ -74,7 +82,7 @@
 
 ## 읽기 경로 — 현재 대화에서 읽은 것은 반복하지 말 것
 
-- 새 대화: 이 문서와AGENTS.md → UI-04-05-RESULTS-2026-10-15.md. 기능 전체 범위가 필요하면FEATURE-COVERAGE.md.
+- 새 대화: 이 문서와AGENTS.md → APK-GROUP-LINK-TRACE-2026-10-15.md. 기능 전체 범위가 필요하면FEATURE-COVERAGE.md.
 - 채우기/글로우/보간: FILL-GLOW-TWEEN-ANALYSIS-2026-10-14.md, 필요한 경우NATIVE-TWEEN-FINDINGS.md/APK-EVIDENCE-51.0.0.md.
 - 영상 사실: VIDEO-PREDICTION-COMPARISON-2026-10-14.md 및 필요한 프레임의VIDEO-FRAME-AUDIT.json. JSON 전체를 대화에 출력하지 않는다.
 - 출력 범위: EDITOR-OUTPUT-BOUNDS.md. v1: FEATURE-PROBE-GUIDE.md/APP-VERIFICATION.md.
