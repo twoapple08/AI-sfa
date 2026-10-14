@@ -9,20 +9,19 @@
 - 기존00–05시험/자료분석완료. 재출력·추가작품·제작자문의금지. 기존추출·도구설치·시험은새변경/실패관련필요없으면반복금지.
 - 정확도유지하며캐시/읽은내용재사용·좁은출력·실제명령검증. AGENTS.md준수. 사용자잔여주간사용량직접조회불가. 인수인계필요시체크포인트저장후docs/HANDOFF-PROMPT.md제공.
 
-## 현행 체크포인트 — 셰이더/래스터/MaskFilter 선택
+## 현행 체크포인트 — Optimized/raw·PNG/Android 인코더 연결·대화 인계
 
-먼저 AGENTS.md와 **docs/AOT-GLOW-BACKEND-TRACE-2026-10-15.md**를 읽는다.
+먼저 AGENTS.md와 **docs/AOT-EXPORT-DISPATCH-TRACE-2026-10-15.md**를 읽는다.
 
-- main은 GlowShader.load Future를 기다림. 프로그램 있으면 재사용, fromAsset 성공저장/실패null. 실물 성공여부미계측.
-- 원본DrawGlowEffect는shader→rasterplan/cull→cached image→직접MaskFilter. shadertrue에화면밖생략포함. stylecode1gate/프로그램nonnull필요. 보간은별도Paint복원규칙유지.
-- 래스터q: bounds면적≥1.6M/긴변≥1800→.35;≥.7M/1200→.5;≥.25M/700또는R≥18→.67;else1. 이미지축ceil/최소1/4배수. 좌표local×q/폭Wq/블러Rq/destination이미지크기÷q.
-- 이미지cache는2M픽셀초과거절/hit재삽입LRU/최대128entry·합8M픽셀(dispose). bytes/GPU메모리단정금지. 흰image→ARGBsrcIn착색/입력blend상속/q<.999lowelse none.
-- key공유helper round(value×2),종류/폭·블러/이미지크기/local geometry;line ARGB/절대원점직접없음. curve/circlegeometry각원소전부미해석.
-- MaskFilter k=clamp(round(max(input,.001)×20),2,40000),sigma=k/20(normal),최소.1/최대2000/.05간격. 최대96삽입순서cache,hit재삽입없음→LRU와구분.
-- 새20명령ELF/Capstone대조통과. 기존시험/폰작업없음. 전체함수/픽셀일치검증아님.
-- **정확한 다음:** export optimized/native encoder dispatch. 그룹합성별도선택/사용자영상backend/shaderasset함수·엔진pixel미확인. 캐시보고서참조.
-- Paint정정유지:OBJECT8/PREVIEW약2.2는PPFloat32+ldr s0. 편집캐시/planFor기본false→일반8,전체편집preview단정금지. 정상폭/색복원,primitive1.14와padding1.24구분. docs/AOT-PAINT-DISPATCH-TRACE-2026-10-15.md.
-- Picture→encoder최종선택미확인. 기본B공급찾기/설치/기존시험반복금지.
+- doInBackground→ExportToVideoOptimized. 두분기같은_recordExportPicture→Picture.toImage. rawRgba→frames.rgba,PNG→frame_%05d.png. optimized를Java객체renderer선택으로해석금지.
+- 예상raw bytes=width×height×4×PlaybackEnumeration산출N. N>0이고공간알면예상+512MiB≤usable,공간null이면예상≤2GiB일때raw,elsePNG. codec지원검사가아님. 실패후전체다른형식재시도미확인.
+- sfa/platform_bridge encodeVideoFromRawRgbaFile/encodeVideoFromImageSequence→JavaW2.e/g→MainActivity.t/s→V4.b.Y/X→공통V. RGBA버퍼/Bitmap→GLtexture→MediaCodec H.264 surface→MediaMuxerMP4. W2.r은완성이미지샘플,AO/FR/glow재구현아님.
+- 시간=index×1e9/max(rate,1)ns;설정bitrate=clamp(W×H×rate×.18,2M,40M),I-frame1;색설정configure실패시색옵션제외재시도. 실제codec/영상분기/색pixel미계측.
+- 새21명령ELF/Capstone대조통과. Java는기존decompiled읽기만/bytecode전부검증아님. 문서만변경/이전시험반복없음.
+- **정확한 다음:** FrameDrawPlan.drawUnit/그룹glow합성에서shader/raster/MaskFilter선택추적→shaderasset수학식→exportPlaybackEnumeration endpoint/FPS연결. 기존영상/00–05재시험금지.
+- 이전GLOW-BACKEND보고서:shaderloadawait/stylegate,원본shader→raster→MaskFilter. rasterq(.35/.5/.67/1)/local×q/4배수image/확대,imageLRU128entry·8M픽셀·2M초과거절,MaskFilter.05단위/.1–2000/96삽입순서. 실제픽셀일치미검증.
+- Paint정정유지:OBJECT8/PREVIEW약2.2는PPFloat32+ldr s0. 편집캐시/planFor기본false→일반8,전체편집preview단정금지. 정상폭/색복원,primitive1.14/padding1.24구분.docs/AOT-PAINT-DISPATCH-TRACE-2026-10-15.md.
+- 대화인수인계요청체크포인트. 재개시docs/HANDOFF-PROMPT.md사용. 기본B찾기/설치/폰시험반복금지.
 
 ## 필요한 이전 정적 사실·근거
 

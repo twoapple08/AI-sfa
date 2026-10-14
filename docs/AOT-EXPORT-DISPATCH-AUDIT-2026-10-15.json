@@ -1,0 +1,90 @@
+{
+  "scope": "21 new instruction samples; not complete function semantics or runtime pixel verification",
+  "results": [
+    {
+      "address": "0x629054",
+      "matched": true
+    },
+    {
+      "address": "0x629800",
+      "matched": true
+    },
+    {
+      "address": "0x629848",
+      "matched": true
+    },
+    {
+      "address": "0x62984c",
+      "matched": true
+    },
+    {
+      "address": "0x629850",
+      "matched": true
+    },
+    {
+      "address": "0x629870",
+      "matched": true
+    },
+    {
+      "address": "0x62988c",
+      "matched": true
+    },
+    {
+      "address": "0x62a38c",
+      "matched": true
+    },
+    {
+      "address": "0x62a3e0",
+      "matched": true
+    },
+    {
+      "address": "0x62a464",
+      "matched": true
+    },
+    {
+      "address": "0x633b48",
+      "matched": true
+    },
+    {
+      "address": "0x633bb4",
+      "matched": true
+    },
+    {
+      "address": "0x633c3c",
+      "matched": true
+    },
+    {
+      "address": "0x62e0fc",
+      "matched": true
+    },
+    {
+      "address": "0x62e140",
+      "matched": true
+    },
+    {
+      "address": "0x62e160",
+      "matched": true
+    },
+    {
+      "address": "0x62c160",
+      "matched": true
+    },
+    {
+      "address": "0x62c1a4",
+      "matched": true
+    },
+    {
+      "address": "0x62c1c4",
+      "matched": true
+    },
+    {
+      "address": "0x515514",
+      "matched": true
+    },
+    {
+      "address": "0x5158ec",
+      "matched": true
+    }
+  ],
+  "runtime_renderer_verified": false
+}
