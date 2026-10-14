@@ -2,6 +2,7 @@
 
 ## 목표·사용자 지침
 
+- 2026-10-15 사용자 상시 승인: 직접 작성한 분석보고서·집계·인수인계/작업지침은 이 레포 main에 반복확인 없이 반영 가능. 원본/역컴파일물 공개와 기존 보호작업은 제외. 시스템 자동승인설정 자체는 변경불가.
 - 한국어 소통. 사용자는 PC 없는 루팅 안 된 Android/Termux 환경. GitHub 반영 허용, 앱 제작자의 역공학 허가를 받았다고 설명했다.
 - 먼저 Stick Fighter51.0.0의 모든 창작/편집 기능을 분석·명세·실제 앱 검증한다. 최소 SFA 생성으로 목표를 축소하지 않는다.
 - 현재 우선순위: ① 채우기·구멍·겹침 순서 ② 글로우 강도·범위·합성 ③ 생성·삭제와 프레임 사이 보간.
@@ -11,7 +12,19 @@
 - APK/SFA/영상/역컴파일 소스/추출 프레임을 공개 저장소에 올리지 않는다. 보고서·집계·직접 작성한 도구만 반영한다.
 - 사용자 추가 요청: 정확도를 유지하며 토큰 낭비를 적극 줄이고, 효율상 필요하면 자율적으로 인수인계와 새 대화 프롬프트를 갱신한다. 실행 지침은 AGENTS.md.
 
-## 최신 체크포인트 — Blutter 성공 / reFlutter 배포 엔진 없음
+## 최신 체크포인트 — AOT 경로 제한 추적
+
+- 최신 보고서: docs/AOT-PATH-TRACE-2026-10-15.md, 집계: docs/AOT-PATH-TRACE-AUDIT-2026-10-15.json. 기존 성공 캐시만 읽음. 설치/빌드/전체덤프/00–05 재분석 없음.
+- importer startElement(0x5099ac)는 XML DrawOrder/ObjectScale을 조회하지 않는다. 새 AO는 새 ID를 DrawOrder로 저장(0x50cdf8/0x50ce1c), ObjectScale은 생성 기본값1 유지. exporter는 두 필드를 기록한다. 01/02 왕복 변화의 코드 원인 확보; 모든 import/recovery 경로 일반화 금지.
+- BuildDrawPlan(0x42b910): 레이어→연결 그룹별 glow-only unit→각 AO의 FR+base unit. drawUnit은 해당 FR 뒤 해당 AO 기본형상을 그림. FR 역색인은 outerSegments ObjId, take는 레이어/소비집합 검사. FR목록 하나만으로 전체 겹침순서를 설명하지 않음. compareDrawOrder closure의 부모는 _mergeLayerDown이며 planner comparator라고 확정 금지.
+- DrawGlowEffect(0x420dcc)는 GlowAlpha로 GlowColor의 알파를 교체. shaderFor(0x426c38) uniform0–2는 RGB×alpha/255,3은alpha/255,10은두께/2. shader→raster cache→MaskFilter fallback 확인. 실제blend 열거값/모든단위/영상dispatch 미완.
+- FrameInterpolationPlan(0x62f408)→resolveTweenLinks(0x632d74): 존재·TypeId·source중복/양쪽잔존ID충돌 검사. _samePoints는 목록길이/위치별Index 비교(좌표비교아님). 같은ID 먼저→링크대응,없으면쌍생략. 복잡한FR/링크실행검증 미완.
+- 새11명령 실물ELF/Capstone 대조 통과,handler 속성목록 한정assert 통과. 전체의미/전체함수검증 아님. 문서만변경해기존unit/생성시험반복없음.
+- 정확한 다음: GetAnimationObjects의로드·캐시공급순서/비연속그룹방문순서→TryDrawGlowWithShader(0x425458)의paint배율·blend→_planFillRegions(0x62ff78)/renameTweenLinkedFill·canonicalize·held/interpolated/discard·색정책. 아래 옛 '정확한 다음'은 이전 체크포인트다.
+- 작업환경 /workspace/scratch/37921248d0d6/AI-sfa (origin/main 008b69e 기준 별도worktree). 이전 e23c9fd610d3/AI-sfa의변경은그대로보존. 캐시 /workspace/scratch/e23c9fd610d3/private/blutter_out/asm/sfa 재사용.
+- reFlutter/Android/분할서명 미완,보호파일·최적화/학습보류·재출력/추가작품/제작자문의금지 유지. 새대화는 이 문서·AGENTS·AOT-PATH-TRACE부터;설치결과가필요할때만FLUTTER-TOOLS-RESULTS.
+
+## 이전 체크포인트 — Blutter 성공 / reFlutter 배포 엔진 없음
 
 - 최신보고서: docs/FLUTTER-TOOLS-RESULTS-2026-10-15.md,집계: docs/FLUTTER-TOOLS-AUDIT-2026-10-15.json. 사용자지시로두도구를순서대로실제로시도.
 - **Blutter성공:** Dart3.12.0/android-arm64/스냅샷41be3daaabd524b8aa7423bc24584957. 버전별분석기빌드후종료0. 추출671파일/86,508,012바이트,asm666개/코드선언블록12,752. 원래Dart소스복원아님. 명령주소4개를실물ELF/Capstone과대조통과. 추출전체정확성/모든함수해석완료아님.
@@ -92,7 +105,7 @@
 
 ## 읽기 경로 — 현재 대화에서 읽은 것은 반복하지 말 것
 
-- 새 대화: 이 문서와AGENTS.md → FLUTTER-TOOLS-RESULTS-2026-10-15.md. 기능 전체 범위가 필요하면FEATURE-COVERAGE.md.
+- 새 대화: 이 문서와AGENTS.md → AOT-PATH-TRACE-2026-10-15.md. 기능 전체 범위가 필요하면FEATURE-COVERAGE.md.
 - 채우기/글로우/보간: FILL-GLOW-TWEEN-ANALYSIS-2026-10-14.md, 필요한 경우NATIVE-TWEEN-FINDINGS.md/APK-EVIDENCE-51.0.0.md.
 - 영상 사실: VIDEO-PREDICTION-COMPARISON-2026-10-14.md 및 필요한 프레임의VIDEO-FRAME-AUDIT.json. JSON 전체를 대화에 출력하지 않는다.
 - 출력 범위: EDITOR-OUTPUT-BOUNDS.md. v1: FEATURE-PROBE-GUIDE.md/APP-VERIFICATION.md.

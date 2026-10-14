@@ -83,3 +83,7 @@ VIDEO-PREDICTION-COMPARISON-2026-10-14.md의 두 작품 비교에서 최초 예�
 ## 04/05 실제 UI 추가 검증 — 2026-10-15
 
 [UI-04-05-RESULTS-2026-10-15.md](UI-04-05-RESULTS-2026-10-15.md): SFA11개와녹화4개/출력2개. 늘이기뒤전체크기변형,원근두결과,그룹·해제·이동,수동TweenLink원대원경계확인.05전체96출력프레임축소디코딩에서차이는24번째중앙원뿐. 굽힘은존재하지않는기능으로철회. 기존04/05자료수령·분석완료이며이전의‘다음은04’는과거시점. 전체공식/복잡한형상/모든선택경로완료는아니다.
+
+## AOT 경로 제한 추적 체크포인트
+
+[AOT-PATH-TRACE-2026-10-15.md](AOT-PATH-TRACE-2026-10-15.md): importer DrawOrder/ObjectScale 누락과기본값원인,그룹glow→AO별FR/base planner,GlowAlpha교체·사전알파·fallback,TweenLink 유효성/Index대응확인. 정적해석과11개새명령표본검증이며모든기능/영상dispatch/전체렌더완료아님. 남은공급순서·blend·FR보간분기를필요한범위만추적한다.

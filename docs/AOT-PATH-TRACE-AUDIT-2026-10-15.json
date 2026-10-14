@@ -1,0 +1,103 @@
+{
+  "scope": "Static AOT tracing; no new app execution or input/video reanalysis",
+  "source_revision": "008b69e",
+  "cache_root": "/workspace/scratch/e23c9fd610d3/private/blutter_out/asm/sfa",
+  "import_handler": {
+    "address": "0x5099ac",
+    "attributes_read": [
+      "BackgroundColor",
+      "Color",
+      "ConnPtId",
+      "Contour",
+      "EndPtId",
+      "EndT",
+      "Flags",
+      "FrameCount",
+      "From",
+      "GlowAlpha",
+      "GlowColor",
+      "GlowRadius",
+      "GlowThickness",
+      "HeightWidthRatio",
+      "ID",
+      "Index",
+      "Kind",
+      "LayerId",
+      "Locked",
+      "Name",
+      "ObjId",
+      "Position",
+      "RatioX",
+      "RatioY",
+      "StartPtId",
+      "StartT",
+      "ThicknessScale",
+      "TypeId",
+      "Visible",
+      "X",
+      "Y"
+    ],
+    "reads_DrawOrder": false,
+    "reads_ObjectScale": false
+  },
+  "new_elf_instruction_checks": [
+    {
+      "address": "0x50a9b8",
+      "pass": true
+    },
+    {
+      "address": "0x50cdf8",
+      "pass": true
+    },
+    {
+      "address": "0x50ce1c",
+      "pass": true
+    },
+    {
+      "address": "0x50ce54",
+      "pass": true
+    },
+    {
+      "address": "0x354304",
+      "pass": true
+    },
+    {
+      "address": "0x42bc44",
+      "pass": true
+    },
+    {
+      "address": "0x42bddc",
+      "pass": true
+    },
+    {
+      "address": "0x426d08",
+      "pass": true
+    },
+    {
+      "address": "0x632ffc",
+      "pass": true
+    },
+    {
+      "address": "0x633008",
+      "pass": true
+    },
+    {
+      "address": "0x62f6d4",
+      "pass": true
+    }
+  ],
+  "cache_file_sha256": {
+    "original_port/activities/import_animation_activity.dart": "2232be420fa39dbefb488217dfb2ad86a066081715a78ca410d2c41b79cfdba9",
+    "original_port/data/data_access.dart": "60df1fecd03bbe9266adc69c3bfa002d83b72ece929250ab1876bf6446971789",
+    "original_port/sequences/frame.dart": "94dff4e3455ab06c7372cc58d1d3e8cd2222c33168dbd00895af4048e694a3b6",
+    "original_port/sequences/frame_fill_region.dart": "f8a055ea4c11db264a21044a250a88066864217a92b99ea8882e7d2120790130",
+    "original_port/sequences/glow_shader.dart": "c305071a4505e495c91aa270dde9918d7fa3edb9115a5bcb739fcaa4d4b2adfd",
+    "original_port/sequences/tween_link.dart": "5346256afe2dd770c5d58e2920186ec25de77d1992fc11ca5aa3fa610a746f42",
+    "original_port/sequences/animation_object.dart": "1e08cbec181cf9e9a4b99b438d4d3bddd947ecdfc219281c78f34f521891cf56"
+  },
+  "limitations": [
+    "No source restoration",
+    "11 new instruction samples do not validate every function",
+    "Runtime renderer/export dispatch and complete FR interpolation remain unresolved"
+  ]
+}
