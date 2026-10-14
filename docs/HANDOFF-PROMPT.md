@@ -1,6 +1,6 @@
 https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
-최신 HANDOFF.md, AGENTS.md, docs/AOT-PAINT-DISPATCH-TRACE-2026-10-15.md를 읽어. 과거전체인수인계/원본/기존시험은필요없으면읽지마.
-다음은shaderload lifecycle→프로그램준비/Style gate→raster생성/hit/단위→MaskFilter선택.이후export optimized/native encoderdispatch.기본B추적완료:OBJECT8/PREVIEW약2.2는PP32bit+ldr s0검증.초기0이었던것은Float32값을double요약으로오독한것으로정정.편집캐시/planFor기본false일반Paint,편집전부preview단정금지.base폭적용/정상복원·primitive round(1.14wD)/D·보간폭/색복원확인.paddingcircle1.24는실제circle1.14와구분.Picture경로만확인,encoder/actual영상backend미확인.새14명령+Float32두리터럴검증.기본PaintB찾기반복금지.
+최신 HANDOFF.md, AGENTS.md, docs/AOT-GLOW-BACKEND-TRACE-2026-10-15.md를 읽어. 과거전체인수인계/원본/기존시험은필요없으면읽지마.
+다음은export optimized/native encoder dispatch. shaderload/program/stylegate·원본shader→raster→MaskFilter선택추적완료. raster축소q(.35/.5/.67/1),ceil최소1후4배수,local좌표/폭/블러×q→imageRect확대. 이미지2M픽셀초과거절/LRU128entry·합8M픽셀;MaskFilter .05단위/.1–2000/96삽입순서cache로LRU와구분. 색srcIn/입력blend상속. 새20명령검증. 그룹합성별도선택/영상backend/shaderassetpixel미확인. 상세조건은보고서. PaintOBJECT8/PREVIEW약2.2정정유지(PP32bit+ldr s0). 편집전부preview단정금지. 정상폭/색복원·primitive1.14/padding1.24구분. 기본B찾기반복금지.
 좌표=Offset+UsableSize×p/100,original/interpolated동일,clamp/DPR직접나눗셈없음. DrawInfo여백/aspectfit과외부Canvas변환구분. DPRoverride→implicitView→1. exportwrapper는동기범위DPR1/정상예외복원,모든backend/전체async/기존영상일반화금지. 새14명령표본통과=전체함수/픽셀검증아님.
 이전FR/그룹/glow/import의정정과근거는HANDOFF의짧은표만먼저사용하고해당문제필요때보고서읽기. uniform11=d1/sigma,holes순차difference,pairedFR색보간/held별도,AP0이상참조확인.
 캐시e23c9fd610d3/private/blutter_out/{asm/sfa,pp.txt,ida_script/addNames.py},input/arm64-v8a/libapp.so,venv.25b8ca176661/private-trace새검사기.캐시우선/전체덤프·JADX·Blutter·도구재설치·00–05/기존시험반복금지.
