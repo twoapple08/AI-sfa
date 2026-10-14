@@ -9,23 +9,25 @@
 - 기존00–05시험/자료분석완료. 재출력·추가작품·제작자문의금지. 기존추출·도구설치·시험은새변경/실패관련필요없으면반복금지.
 - 정확도유지하며캐시/읽은내용재사용·좁은출력·실제명령검증. AGENTS.md준수. 사용자잔여주간사용량직접조회불가. 인수인계필요시체크포인트저장후docs/HANDOFF-PROMPT.md제공.
 
-## 현행 체크포인트 — 렌더 좌표/DPR·여백 확인, Paint B 미해결
+## 현행 체크포인트 — 실제 Paint B 확보/Float32 주석 오독 정정
 
-먼저 AGENTS.md와 **docs/AOT-RENDER-CONTEXT-TRACE-2026-10-15.md**를 읽는다. 다른보고서는해당문제에필요할때만.
+먼저 AGENTS.md와 **docs/AOT-PAINT-DISPATCH-TRACE-2026-10-15.md**를 읽는다. 이전좌표/DPR/여백은AOT-RENDER-CONTEXT보고서,필요시에만.
 
-- X=OffsetX+UsableWidth×x/100,Y동일. original/interpolated변환동일,좌표clamp/DPR직접나눗셈없음.
-- DrawInformation은캔버스치수·strokeoverflowpadding·height/width비율로중앙fit. ratio0은9/16기본. 외부Canvas줌/이동/clip과구분.
-- DPR=staticoverride→implicitView DPR→1. _withExportRenderDevicePixelRatio는동기callback동안override1,정상/예외시복원. _recordExportPicture의Picture/Draw범위및Optimized의DrawInformation범위확인. 전체async/backend/사용자영상DPR1확정금지.
-- paddinghelper기본baseStrokeWidth8≠모든실제Paint B. curve안정화round(1.14×w×D)/D,여백circle배율1.24. 실제Paint.strokeWidth의B는SetPaintThickness/glow입력. 초기OBJECT/PREVIEW_PAINT슬롯0→비영값공급경로는아직닫지못함. 8로메우거나실제항상0이라고확정금지.
-- glow shader→rasterplan/cache→MaskFilter호출순서확인. live선택조건/전체cachehit/영상backend미확인.
-- 새14명령ELF/Capstone표본통과. 이전Path/FR/생성/unit시험반복없음. 정적추적성공=전체함수의미/실물픽셀성공아님.
-- **정확한 다음:** 실제Paint B의plan/caller/primitive 변경·복원과출력dispatch먼저연결. Frame.DrawBaseObject/보간객체_restorePaint·Frame/Picture/native경계필요부분만. 이후shaderload lifecycle/rasterhit/hole캐시키·무효화. 전체파일덤프금지.
-- 일시exec-server끊김후재연결/캐시/새검증성공. 사용자ADB실패/캐시손실판정금지.
+- **정정:** 초기Paint폭0/비영값공급미해결은요약주석오독이었다. 실제ldr s0(Float32)와PPraw:OBJECT_PAINT0x41000000=8,PREVIEW0x400ccccd≈2.2. d0=0주석이실제double0보증아님.
+- BuildDrawPlan isPreview=false일반8/truepreview2.2. EditorFrameCache._FrameRecord와FrameDrawPlanCache.planFor는기본false호출. 전체편집화면=preview2.2로단정금지.
+- 원본DrawBaseObject는B×max(sequenceThickness/100×ThicknessScale,0)/DPR 적용후정상경로에서B/cap/join복원. 보간base도폭비트/색복원. 모든예외복원보장금지.
+- Line/Curve도StabilizeCurvedStrokeWidth호출. Circle DrawObject배율1.14;실제확인보정폭round(1.14×w×D)/D. padding용circle1.24와구분. glowW는최종기본선반올림폭을그대로곱하는식아님.
+- 보간glow는입력Paint임시변경/_restorePaint다중종료경로. 원본공용GLOW_PAINT와별개. 기존maskFilter/모든예외완전복원미확인.
+- Picture호출연결:Frame.Draw→drawUnit,EditorFrameCache._record→drawUnit/recordings,ViewSequence.RecordPicture→planFor/Draw,exportDPR1closure→동적Draw/toImage/toByteData. Java네이티브renderer/영상encoder/optimized backend선택은아직미확인.
+- 새14명령ELF/Capstone+PPFloat32두값검증통과. 기존검사/원본/설치반복없음. 추출물고친것아님,직접작성보고서만정정.
+- **정확한 다음:** shaderload lifecycle→프로그램준비/Style gate→raster생성/hit/단위조건→MaskFilter선택. 이후export optimized/nativeencoder dispatch. 기본Paint B찾기반복금지.
+- 캐시e23c9fd610d3/private/blutter_out/asm/sfa/원본ELF/pp/venv. 새검사25b8ca176661/private-trace/{validate_paint.py,paint-validation.json}. 공개는해석/집계만. 휴대폰추가작업없음.
 
 ## 필요한 이전 정적 사실·근거
 
 | 주제 | 현행 근거·제한 |
 |---|---|
+| 좌표/DPR/여백 | AOT-RENDER-CONTEXT-TRACE-2026-10-15.md: Offset+UsableSize×p/100/aspectfit/DPRoverride→view→1/export동기DPR1. 초기0해석은PAINT-DISPATCH보고서로정정. |
 | 채우기 보간 | AOT-FILL-TWEEN-TRACE-2026-10-15.md: rawsignature→유일canonical후보대응. paired색보간,앞held t<1유지/뒤held t1만. 경계보간실패시t.5기준앞/뒤segments+보간색. '모든FR앞색유지'금지. field_33=contourIndex. |
 | 구멍·경계 | AOT-FILL-PATH-TRACE-2026-10-15.md: outer0실패전체null/hole실패생략. 개별contour evenOdd후holes순차difference. 거리>0.1Path좌표연결lineTo/close. 선Tclamp없음/곡선clamp분할/arc기준각+2πT. |
 | 공급·그룹·glow | AOT-DRAW-GLOW-TRACE-2026-10-15.md: getter DB자동조회없음/null빈목록만DB공급. DB정렬COALESCE(draw_order,id),id. 비연속그룹A(g),B(h),C(g)→A,C,B. shader11=d1/sigma로정정,10=W/2,12일반0/링1. blend입력Paint상속/초기srcOver. |

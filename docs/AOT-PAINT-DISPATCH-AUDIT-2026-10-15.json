@@ -1,0 +1,74 @@
+{
+  "scope": "14 new instruction samples; not complete function semantics or runtime pixel verification",
+  "results": [
+    {
+      "address": "0x42d6c8",
+      "matched": true
+    },
+    {
+      "address": "0x42d6cc",
+      "matched": true
+    },
+    {
+      "address": "0x42d778",
+      "matched": true
+    },
+    {
+      "address": "0x42d77c",
+      "matched": true
+    },
+    {
+      "address": "0x4150f4",
+      "matched": true
+    },
+    {
+      "address": "0x41525c",
+      "matched": true
+    },
+    {
+      "address": "0x793618",
+      "matched": true
+    },
+    {
+      "address": "0x7937e0",
+      "matched": true
+    },
+    {
+      "address": "0x7937ec",
+      "matched": true
+    },
+    {
+      "address": "0x797c94",
+      "matched": true
+    },
+    {
+      "address": "0x791a44",
+      "matched": true
+    },
+    {
+      "address": "0x7912f8",
+      "matched": true
+    },
+    {
+      "address": "0x791660",
+      "matched": true
+    },
+    {
+      "address": "0x793af4",
+      "matched": true
+    }
+  ],
+  "runtime_renderer_verified": false,
+  "float32_constants": [
+    {
+      "pool_offset": "0x11d28",
+      "raw_uint32": "0x41000000",
+      "float32": 8.0
+    },
+    {
+      "pool_offset": "0x11d30",
+      "raw_uint32": "0x400ccccd",
+      "float32": 2.200000047683716
+    }
+  ]
+}

@@ -53,7 +53,7 @@ StabilizeCurvedStrokeWidth(0x43f6a0)는 round(1.14×q×DPR)/DPR를계산한다. 
 
 SetPaintThickness(0x4152bc)는전달Paint의현재strokeWidth를기본값B로읽고 B×max(S×ThicknessScale,0)/DPR로바꾸며이전B를반환한다(0x415318/0x415374/0x415398/0x41539c). 앞서glow도같은실제B를참조하는경로를확인했다.
 
-**미해결:** OBJECT/PREVIEW Paint 초기화의strokeWidth 슬롯0에서실제그리기B가비영값으로공급/변경되는모든경로를아직닫지못했다. 초기0만으로'실제항상0'이라결론내리지않는다. 반대로여백기본8을대입해미해결을가리지않는다. 공유Paint를plan/caller/primitive가변경·복원하는호출연결과실제exportdispatch를추가추적해야한다.
+**2026-10-15 정정:** 초기strokeWidth0이라는해석은Blutter Float32로드를double요약주석으로오독한것이었다. 실제ldr s0와PP원시32비트에따라OBJECT_PAINT=8,PREVIEW_OBJECT_PAINT≈2.2다. 공급/변경·복원/primitive보정은AOT-PAINT-DISPATCH-TRACE-2026-10-15.md에서연결했다. 따라서'초기0→비영값미해결'과아래해당찾기를요구하는옛다음행동은폐기한다. 여백helper8과실제Paint8의공급근거를구분해야한다는지침은유지한다.
 
 ## 5. 글로우 경로의 현재 연결
 
@@ -70,3 +70,5 @@ SetPaintThickness(0x4152bc)는전달Paint의현재strokeWidth를기본값B로읽
 HANDOFF.md가많은과거체크포인트를반복수록하여길어져이번에현행입구를압축했다. 삭제전전체는docs/history/HANDOFF-2026-10-15-before-render-context.md에보존한다. 고정예측/File-2최적화/학습/AI연결보류·원본/역컴파일/assembly공개금지유지.
 
 캐시e23c9fd610d3/private/blutter_out/asm/sfa/original_port/sequences/{draw_information,animation_object,frame_fill_region}.dart와activities/sequence_action_activity.dart,ELF/venv. 새표본검사25b8ca176661/private-trace/{validate_render_context.py,render-context-validation.json}. 직접작성해석/집계/인수인계만공개한다.
+
+현재다음은AOT-PAINT-DISPATCH-TRACE-2026-10-15.md의shader/raster선택과optimized/encoderdispatch다. 기존기본폭재추적요청은완료로대체한다.
