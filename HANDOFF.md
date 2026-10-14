@@ -12,7 +12,15 @@
 - APK/SFA/영상/역컴파일 소스/추출 프레임을 공개 저장소에 올리지 않는다. 보고서·집계·직접 작성한 도구만 반영한다.
 - 사용자 추가 요청: 정확도를 유지하며 토큰 낭비를 적극 줄이고, 효율상 필요하면 자율적으로 인수인계와 새 대화 프롬프트를 갱신한다. 실행 지침은 AGENTS.md.
 
-## 최신 체크포인트 — 별도 시작 계측 APK 제작·정적/서명 검증 완료
+## 최신 체크포인트 — Gadget/Flutter 모듈 로드 성공, Play 오류 종료
+
+- 실물 결과는 docs/ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md의 마지막 절. 03:40 KST 동일PID12555에서 Gadget early/arm64 시작, libflutter.so와 libapp.so 로드 확인. 렌더/보간/편집 기능 정상 실행 검증은 아니다.
+- Google Play 확인 오류 창과 앱 화면이 함께 뜸. 사용자: 오류 창을 닫으면 앱도 종료. 원래 라이선스 검사 관련 가능성; 정확한 오류코드/분기 미확인. 다른PID heap tagging 오류를 앱 원인으로 오독 금지.
+- startup-log.txt 빈파일 뒤 사전 live logcat 수집으로 성공기록 확보. 최근500줄 사후추출 반복금지. Termux 저장공간권한 해결/파일접근 성공. 설치/페어링/Play설정변경/추가시작 시험 재요청금지.
+- 캐시 한정검사 완료: LicenseActivity 안내문구 일치/Close→closeApp, LicenseClient.handleError의 ERROR 태그 확인. 정확한 다음: 재시작 없이 기존 logcat의 LicenseClient/LicenseActivity 두 태그 수령으로 실제 예외/코드 확인. 검사우회/변경 미실시. 편집실행경로 확보 전 렌더·보간 Hook 확장 보류. 기존 AOT 미확인 planner/glow/FR 정적추적 가능.
+- 아래 제작완료 체크포인트의 실물시작/로그없음·다시설치 요청은 이 결과로 대체한다. 원본삭제/덮어쓰기/공개금지/학습보류/기존시험반복금지 유지.
+
+## 이전 체크포인트 — 별도 시작 계측 APK 제작·정적/서명 검증 완료
 
 - 먼저 docs/ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md와 집계(필요 수치만)를 읽는다. Android 연결 준비 이력은 ANDROID-INSTRUMENTATION-HANDOFF-2026-10-15.md. 사용자 설치·페어링·기기정보/00–05/JADX/Blutter 반복 금지.
 - 공식 도구 확보 성공: Apktool3.0.3/uber-apk-signer1.3.0/Gadget17.23.3 ARM64. 크기/해시 기록, Apktool/Gadget release digest 일치. 이제 빈 도구 폴더/다운로드 미완이라는 옛 상태는 폐기한다.

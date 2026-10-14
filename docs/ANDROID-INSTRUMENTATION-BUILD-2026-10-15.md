@@ -37,3 +37,15 @@ Apktool의 raw-resource 빌드가 기존 res 파일을 누락시키는 문제가
 문서/집계 변경만 레포에 반영한다. 기존 unit/probe 생성 시험은 문서 변경으로 반복하지 않았다. 이번 제작의 서명·manifest·원본 항목 대조는 별도 실행했다.
 
 공식 근거: https://github.com/iBotPeaches/Apktool/releases/tag/v3.0.3 , https://github.com/patrickfav/uber-apk-signer/releases/tag/v1.3.0 , https://github.com/frida/frida/releases/tag/17.23.3 , https://frida.re/docs/gadget/ , https://frida.re/docs/javascript-api/ .
+
+## 실기기 시작 계측 결과 — 2026-10-15 03:40 KST
+
+사용자 제공 logcat에서 같은 PID12555의 SFAProbe 기록을 확인했다. 03:40:35.588 gadget-init(stage=early, arch=arm64), 03:40:35.632 libflutter.so 로드(size11788288), 03:40:35.660 libapp.so 로드(size8065024). ASLR 주소는 공개 문서에 재기록하지 않는다. 이는 Gadget script와 모듈 로드 성공이며 렌더/보간 실행이나 편집 화면 정상 작동의 증거가 아니다.
+
+사용자 스크린샷에 SFA Instrument Test와 Google Play 확인 오류 안내가 나타났고, 사용자는 오류와 앱 화면이 함께 뜨며 오류 창을 닫으면 앱도 종료된다고 확인했다. 따라서 시작 준비 단계까지만 통과, 지속적인 앱 사용은 차단된 상태다. 보존된 라이선스 검사와 관련될 가능성이 있지만 정확한 오류 코드/실패 분기는 아직 확인하지 않았다. 제공한 제한 태그 로그에는 이를 특정하는 기록이 없다. 다른 PID12716의 heap tagging 오류를 테스트 앱 PID12555의 종료 원인으로 단정하지 않는다. display property 경고만으로 로더 실패도 판단하지 않는다.
+
+초기 startup-log.txt는 빈 파일이었다. 수집을 시작 전에 켠 후 재시작한 startup-debug-log.txt에서 위 성공 기록을 확보했다. 최근500줄/2태그만 사후 추출하는 기존 install-start.sh는 시작 로그를 놓칠 수 있으므로 동일 방식 재시험 금지. 사용자 Termux 저장공간 권한은 termux-setup-storage 후 접근/로그 저장 성공. 연결/설치/페어링 재요청 없음. install-start.sh의 BACKUP 응답 자체는 대화에 없으므로 백업 완료를 별도 확정하지 않는다.
+
+정확한 다음: 현재 캐시의 LicenseClient와 오류 안내 호출 경로만 제한적으로 읽어 실패 분기/증거 확보 가능성을 확인한다. 사용자 재설치/Play설정 변경/추가 시작 시험은 요청하지 않는다. 라이선스 검사 변경이나 우회는 이번 결과 처리에서 하지 않는다. 편집 기능을 사용할 실행 경로가 확보되기 전 렌더/보간 Hook 확장은 보류하고, 기존 AOT의 미확인 planner/glow/FR 규칙 추적을 진행할 수 있다. 이 결과는 위 제작 보고서의 '실물 시작/로그 없음'과 다음 설치 요청을 대체한다.
+
+기존 Java 캐시 한정 확인: LicenseActivity.showErrorDialog의 안내 문구가 사용자 스크린샷과 일치하며 Close는 closeApp을 호출한다. LicenseClient.handleError는 LicenseClient 태그 ERROR 로그에 검사 예외를 기록한 뒤 상태에 따라 오류 Activity를 시작한다. 실제 예외/오류코드는 아직 미수령. 다음 최소 요청은 재시작 없이 `adb logcat -d -v threadtime -s LicenseClient:V LicenseActivity:V`로 현재 버퍼의 검사 로그만 읽는 것이다. 버퍼가 비었으면 같은 시험을 무조건 반복하지 않는다. 정적 코드 존재와 이번 실행 분기 확정을 구분한다.
