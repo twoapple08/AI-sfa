@@ -12,18 +12,17 @@
 - APK/SFA/영상/역컴파일 소스/추출 프레임을 공개 저장소에 올리지 않는다. 보고서·집계·직접 작성한 도구만 반영한다.
 - 사용자 추가 요청: 정확도를 유지하며 토큰 낭비를 적극 줄이고, 효율상 필요하면 자율적으로 인수인계와 새 대화 프롬프트를 갱신한다. 실행 지침은 AGENTS.md.
 
-## 최신 체크포인트 — 사용자 Android 연결 완료 / 계측 APK 제작 전
+## 최신 체크포인트 — 별도 시작 계측 APK 제작·정적/서명 검증 완료
 
-- 최신 보고서: docs/ANDROID-INSTRUMENTATION-HANDOFF-2026-10-15.md. 먼저 이 문서·AGENTS·이 보고서를 읽는다. AOT 의미 해석이 필요할 때만 AOT-PATH-TRACE-2026-10-15.md.
-- 사용자: 다른 Android 기기/PC 사용 불가, Wi-Fi 사용, 루팅X. 관련 도구 없던 상태에서 Termux·android-tools 설치와 무선ADB 연결 완료. Termux linker 오류는 pkg upgrade 뒤 해결되어 adb shell getprop/pm/dumpsys 실제 성공. 설치·페어링/getprop를 다시 시키지 않는다. 세션 연결이 끊겼을 때만 연결 상태 확인.
-- 실물: Android16/SDK36,ABI arm64-v8a,armeabi-v7a,armeabi. 스파 패키지 com.sG.stickfighter.activities,versionName51.0.0,versionCode51000,minSdk24,targetSdk36. user0의base+arm64_v8a+ja+ko+xxhdpi 총5APK. DEBUGGABLE표시없음. com.sfaclan.community는별도앱. user150조회SecurityException은user0지정으로회피;앱불량판정금지.
-- 계측 제안: reFlutter 배포엔진 재시도 대신 원래 Flutter 엔진 유지+Frida Gadget의script 모드로 제한된 호출/인수 기록 검토. 사용자 한기기이므로 원본과동시 설치 가능한 별도package 및provider/permission/component참조/서명을 먼저검증. 패키지명변경만으로작동보장금지. 원본삭제/덮어쓰기/루팅요청없음.
-- **아직 계측 APK/서명검증/설치파일/런타임로그 없음.** 구현·빌드·실물실행미완. 다운로드시도프로세스39459는현재Unknown process id이며instrument-tools폴더비어있음. 도구가다운로드됐다고주장하거나같은프로세스를재폴링하지않는다. APKTool/서명도구/Gadget 준비부터 필요.
-- 정확한 다음: 기존base/split캐시확인(이미확인)→공식도구획득경로의네트워크응답/파일검증→base manifest와충돌참조의한정검사→별도package의최소시작계측APK 제작/서명검증→비공개사용자전달→사용자가설치·시작만확인. 시작성공뒤렌더/보간계측확장. 재덤프/전체JADX/00–05재분석금지.
-- 캐시: /workspace/scratch/6d77389e706a/evidence/apk/base.apk 및 evidence/STICK FIGHTER (51.0.0).apks; ARM64입력 /workspace/scratch/e23c9fd610d3/private/input/split_config.arm64_v8a.apk;AOT /workspace/scratch/e23c9fd610d3/private/blutter_out/asm/sfa. 작업·빈도구폴더 /workspace/scratch/37921248d0d6/{AI-sfa,private/instrument-tools}. java있음,apktool/apksigner/aapt2의PATH명령없음(당시확인).
-- 사용자작업은중요작품의앱밖SFA백업만안내했고완료답변은없음. 수정앱설치는준비전요청하지않는다. 백업여부와설치대상은실제설치단계에서확인. 기존시험재출력/추가작품/제작자문의없음.
-- 사용자주간사용량/남은대화횟수는직접조회불가. 사용자가3–4대화남을때인수인계요청. 이번체크포인트로저장;실제잔여량을추정해단정하지않고사용자알림또는작업단위종료시재개프롬프트제공.
-- GitHub main의기존AOT·상시승인문서는847fea3에반영. 동일범위의보고서/집계/인수인계상시승인유지. 시스템자동승인설정변경불가. APK/SFA/영상/역컴파일/asm공개금지,고정예측/File-2최적화/학습/AI연결보류유지.
+- 먼저 docs/ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md와 집계(필요 수치만)를 읽는다. Android 연결 준비 이력은 ANDROID-INSTRUMENTATION-HANDOFF-2026-10-15.md. 사용자 설치·페어링·기기정보/00–05/JADX/Blutter 반복 금지.
+- 공식 도구 확보 성공: Apktool3.0.3/uber-apk-signer1.3.0/Gadget17.23.3 ARM64. 크기/해시 기록, Apktool/Gadget release digest 일치. 이제 빈 도구 폴더/다운로드 미완이라는 옛 상태는 폐기한다.
+- 별도 com.twoapple08.sfa.instrument, 표시명 SFA Instrument Test. base+arm64+ja+ko+xxhdpi 모두 같은 키로 v1/v2/v3 서명/정렬 검증 통과. manifest package/provider5개/전용권한 분리. component 클래스명 유지. 원래 libapp/libflutter와 자산/리소스/미수정 dex 등 242항목 바이트 대조 통과.
+- Gadget script/qjs는 시작·모듈 로그만. 서버/Java bridge/렌더·보간 후킹 없음. 원래 라이선스 검사 보존. 새 패키지/서명 실행 차단 가능성은 미확인.
+- **실물 설치·시작·Gadget 로그 없음.** 실제 동작/원본 출력동등성 완료 주장 금지. 정확한 다음: 전달ZIP 비공개 저장완료(libfile_a9e9671bcd3c8191b95a54915af9aa6d)→사용자수령→사용자 앱밖SFA백업 확인→별도앱5APK 설치/빈화면 시작/최소로그 수령→오류구분. 시작 성공 뒤 필요한 주소 후킹 검토.
+- ZIP /workspace/scratch/25b8ca176661/output/SFA-Instrument-Startup-2026-10-15.zip, 한국어 README/install-start.sh 포함. 원본삭제·덮어쓰기 없음. 스크립트 BACKUP 입력 뒤 기존ADB 사용. Termux에서 다운로드폴더 접근실패/연결오류는 발생시에만 해결.
+- 도구/빌드/키/로그 캐시 /workspace/scratch/37921248d0d6/private/{instrument-tools,instrument-build}. delivery/최종APK, validation.json, verify-final.log. 키 sfa-test.jks 재사용. 보호원본 캐시 base6d77389e706a/evidence/apk/base.apk, ARM64 e23c9fd610d3/private/input/, 기존AOT 그대로.
+- 문서 worktree /workspace/scratch/25b8ca176661/AI-sfa, 기준main490b35b. 이전37921248d0d6/AI-sfa의수정 보존. 기존시험 재실행없음. 직접작성보고서/집계/인수인계 상시승인, APK/역컴파일/키 공개금지. PREVIDEO/File-2/학습/AI연결보호 유지.
+- 사용자 백업은 아직 완료 답변 없음. 남은사용량 직접조회불가. docs/HANDOFF-PROMPT.md를 재개용으로 사용.
 
 ## 이전 체크포인트 — AOT 경로 제한 추적
 

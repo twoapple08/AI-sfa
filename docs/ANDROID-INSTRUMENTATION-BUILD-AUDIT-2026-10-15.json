@@ -1,0 +1,96 @@
+{
+  "package": "com.twoapple08.sfa.instrument",
+  "apk_count": 5,
+  "certificate_sha256": "6a4858e84d5f64ae5cec20d2e13febfd92e760b080328edc5d6f70dff4ee7463",
+  "apks": [
+    {
+      "name": "base.apk",
+      "size": 19042561,
+      "sha256": "0eeec89bd6e3fc26d169655b2b8753c30fc5dd17a8ecbc80a2081c2c8be710fe",
+      "unchanged_entries_verified": 178,
+      "badging": "package: name='com.twoapple08.sfa.instrument' versionCode='51000' versionName='51.0.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'"
+    },
+    {
+      "name": "split_config.arm64_v8a.apk",
+      "size": 31675263,
+      "sha256": "4baa9cf8b62ceba232689e82a3e737dc85dabdc3159f9d2c511e6ee59d2d22ce",
+      "unchanged_entries_verified": 5,
+      "badging": "package: name='com.twoapple08.sfa.instrument' versionCode='51000' versionName='' split='config.arm64_v8a'"
+    },
+    {
+      "name": "split_config.ja.apk",
+      "size": 16730,
+      "sha256": "da3a829b94666481d2c0b70ee5e39c644bb1558b456da8f40d39874f7cc2b6e3",
+      "unchanged_entries_verified": 1,
+      "badging": "package: name='com.twoapple08.sfa.instrument' versionCode='51000' versionName='' split='config.ja'"
+    },
+    {
+      "name": "split_config.ko.apk",
+      "size": 16730,
+      "sha256": "caede90386f032ea465dae7cdc6ccdde43674c9111252b199846015111d13ee8",
+      "unchanged_entries_verified": 1,
+      "badging": "package: name='com.twoapple08.sfa.instrument' versionCode='51000' versionName='' split='config.ko'"
+    },
+    {
+      "name": "split_config.xxhdpi.apk",
+      "size": 71824,
+      "sha256": "7d99d43231286f01c24acb7867fb1cbcfd4eaecb5dac260faae2323d191ac788",
+      "unchanged_entries_verified": 57,
+      "badging": "package: name='com.twoapple08.sfa.instrument' versionCode='51000' versionName='' split='config.xxhdpi'"
+    }
+  ],
+  "elf_load_alignment": {
+    "libapp.so": [
+      65536,
+      65536,
+      65536
+    ],
+    "libflutter.so": [
+      65536,
+      65536,
+      65536
+    ],
+    "libsfagadget.so": [
+      16384,
+      16384,
+      16384
+    ]
+  },
+  "tools": [
+    {
+      "tool": "apktool",
+      "tag": "v3.0.3",
+      "name": "apktool_3.0.3.jar",
+      "size": 15478013,
+      "digest": "sha256:dbf930b076c6b9be08d57c449cacefc3bdd6b71ebd59b3066fc0e1f5b14f9423",
+      "release_digest": "sha256:dbf930b076c6b9be08d57c449cacefc3bdd6b71ebd59b3066fc0e1f5b14f9423",
+      "url": "https://github.com/iBotPeaches/Apktool/releases/download/v3.0.3/apktool_3.0.3.jar"
+    },
+    {
+      "tool": "signer",
+      "tag": "v1.3.0",
+      "name": "uber-apk-signer-1.3.0.jar",
+      "size": 3208194,
+      "digest": "sha256:e1299fd6fcf4da527dd53735b56127e8ea922a321128123b9c32d619bba1d835",
+      "release_digest": null,
+      "url": "https://github.com/patrickfav/uber-apk-signer/releases/download/v1.3.0/uber-apk-signer-1.3.0.jar"
+    },
+    {
+      "tool": "gadget",
+      "tag": "17.23.3",
+      "name": "frida-gadget-17.23.3-android-arm64.so.xz",
+      "size": 6974396,
+      "digest": "sha256:aeb3109844d69f5745438597667841a9141e8701a174341999e1479a4c97925f",
+      "release_digest": "sha256:aeb3109844d69f5745438597667841a9141e8701a174341999e1479a4c97925f",
+      "url": "https://github.com/frida/frida/releases/download/17.23.3/frida-gadget-17.23.3-android-arm64.so.xz"
+    }
+  ],
+  "runtime_verified": false,
+  "license_check_preserved": true,
+  "signature_schemes_verified": [
+    "v1",
+    "v2",
+    "v3"
+  ],
+  "original_protected_entry_count": 242
+}
