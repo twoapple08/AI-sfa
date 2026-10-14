@@ -75,3 +75,7 @@ reFlutter 엔진 빌드/Android 실행/분할APK 서명 미완은 그대로다. 
 ## 2026-10-15 추가 정정/현행 보고서
 
 후속 AOT-DRAW-GLOW-TRACE-2026-10-15.md에서 uniform11의 인수 오해를 실제 스택 저장 명령으로 정정했고 DB 목록 공급/비연속 그룹/보정 sigma/초기 Paint srcOver를 연결했다. 마지막 절의 분할서명·Android 미완은 이 보고서 작성 당시 상태이며, 현행은 ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md의 모듈로드 성공/라이선스 차단 결과다. 전체 렌더/보간 런타임 검증은 여전히 미완.
+
+## FR 대응/held 후속 추적
+
+AOT-FILL-TWEEN-TRACE-2026-10-15.md에서 field_33=contourIndex를 확인하고 raw signature/유일 canonical 후보 대응, 앞held·뒤held의t1조건, paired색보간과경계실패시t.5fallback을연결했다. 위 'field 완전매핑/held/색 다음추적'은이후상태로대체한다. 구조유효성/전체dispatch/픽셀검증은미완.

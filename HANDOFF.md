@@ -12,7 +12,19 @@
 - APK/SFA/영상/역컴파일 소스/추출 프레임을 공개 저장소에 올리지 않는다. 보고서·집계·직접 작성한 도구만 반영한다.
 - 사용자 추가 요청: 정확도를 유지하며 토큰 낭비를 적극 줄이고, 효율상 필요하면 자율적으로 인수인계와 새 대화 프롬프트를 갱신한다. 실행 지침은 AGENTS.md.
 
-## 최신 체크포인트 — DB 공급/비연속 그룹/글로우 인수 정적추적 완료
+## 최신 체크포인트 — FR 대응/held/색/경계 fallback 추적
+
+- 먼저 docs/AOT-FILL-TWEEN-TRACE-2026-10-15.md. 새14명령 ELF/Capstone대조통과,정적추적이며실물픽셀동등성아님. 기존00–05/원본/JADX/Blutter/unit/probe/휴대폰반복없음.
+- _planFillRegions는AO쌍비면null. 앞AO ID집합으로outerSegments의ObjId전부포함/비어있지않음을검사. innerhole전체유효성검사로확대금지. 링크뒤AO/APID→앞ID역맵만들어뒤FR참조rename.
+- 1차FR segment signature목록키(ObjId/AP참조/T구간/contour 포함)로큐대응. 남은후보2차canonical key대응은양쪽각1개일때만. 키는contour/종류/ObjId/양수AP참조,음수는*;T제외. field_33=contourIndex확인.
+- canonicalize는contour0필수/키정렬,정방향·역방향후보/회전비교. 무조건공간좌표/pointIndex대응아님. raw/canonical키불일치시미대응held가능;전체기존표본원인확정아님.
+- paired는ARGB채널 앞+round((뒤-앞)×clamp(t))로보간. 앞held=true는t<1유지/t1없음,뒤held=false는t<1없음/t1유지;알파0결과생략. fade아님. **모든FR앞색유지 일반화금지**.
+- segments보간은목록길이/종류/contour/ObjId검사,edge T1/T2선형보간. 실패시paired builder는t<.5앞원래segments/t>=.5뒤원래segments,색은보간색. paired=항상매끄러운경계아님. 출력null생략은UI영구삭제아님.
+- 정확한 다음: _isFrameFillContourStructurallyValid/contour/hole Path조립·부적합경계처리→B/DPR/Canvas transform공급/shader-raster dispatch. 기능상세남은항목유지.
+- 캐시e23c9fd610d3/private/blutter_out/asm/sfa/original_port/sequences/{frame,frame_fill_region,tween_link}.dart,input/arm64-v8a/libapp.so,venv. 새검사25b8ca176661/private-trace/{validate_fill.py,fill-validation.json}. 일시exec-server끊김은재연결/캐시검증성공;사용자ADB/캐시손실판정금지.
+- Android Gadget/Flutter모듈로드성공·라이선스코드4차단그대로. 추가사용자명령/시작/설치/Play설정요청없음. 검사변경/우회미실시. 공개는보고서/집계만,보호원본/고정예측/File-2/학습보류유지.
+
+## 이전 정적 체크포인트 — DB 공급/비연속 그룹/글로우 인수 정적추적 완료
 
 - 먼저 docs/AOT-DRAW-GLOW-TRACE-2026-10-15.md. 새12명령 ELF/Capstone대조 통과. 기존00–05/원본영상/JADX/Blutter/휴대폰시험 반복없음. 기존unit/probe검사 문서변경으로반복안함.
 - GetAnimationObjects는캐시getter/null→빈목록이며DB조회아님. PopulateFrameAnimationObjects/BulkLoadFrames는null/빈목록일때만DB공급;비어있지않으면유지. GetAnimationObjectsForFrame SQL순서는COALESCE(draw_order,id),id ASC→map/list보존. 모든편집/보간목록동일순서보장아님.
