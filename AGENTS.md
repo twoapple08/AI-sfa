@@ -50,3 +50,5 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 - AOT float 상수는 요약 d0=값만으로 읽지 않는다. ldr sN/str sN이면 PP 원시32비트를 IEEE754 Float32로, ldr dN이면64비트로 해석한다. scalar 폭·리터럴·fcvt/저장슬롯을 확인하고, 특히 0.000000 요약과 IMM 원시비트가 다르면 원시 명령/폭을 우선한다. GDT 슬롯번호는 클래스별로 다른 메서드에 재사용될 수 있어 번호만으로 메서드명을 일반화하지 않는다.
 
 - 셰이더 asset 등 확장자만으로 텍스트를 가정하지 않는다. 먼저 file/바이너리 식별자·크기를 확인하고 필요한 텍스트 본문이나 메타데이터만 골라 읽는다. binary에 cat/sed를 실행해 전체 바이트를 출력하지 않는다.
+
+- PP 문자열/annotation은 필요한 주소·길이 제한으로 먼저 선택한다. 주소창 출력은 실제 명령을 우선해 중복 요약과 긴 문자열의 truncation을 피한다. 원격에 같은주제 체크포인트가 생기면 먼저 대조하고 추가근거만 보충하며, 중복표본수를 합산하지 않는다.

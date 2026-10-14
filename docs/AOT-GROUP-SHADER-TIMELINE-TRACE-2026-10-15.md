@@ -131,3 +131,23 @@ N은 기존 raw 공간 예측 W×H×4×N에 쓰이고, Q는 context.field_2b에 
 다음 우선순위: **GlowShader._curvePieces의 분할 오차·곡률·48개 한계와 drawRing/퇴화 stroke의 내부 반폭·노드 선택을 연결**한다. 이번 수학 요약을 완전한 pixel 복제식으로 승격하지 않는다. 실제 backend·shader/raster/MaskFilter pixel 차이·기기codec/색은 runtime 미확인으로 남긴다.
 
 캐시: e23c9fd610d3/private/blutter_out/asm/sfa/{main.dart,original_port/sequences/{frame,interpolated_frame,interpolated_animation_object,glow_shader,playback_timeline}.dart,original_port/dialogs/video_settings_dialog.dart,original_port/activities/sequence_action_activity.dart},libapp.so/venv. 자산6d77389e706a/private/glow.frag. 이번 private 검사·본문 읽기 파일은1be6baf45de3/private-trace. 최신 문서checkout1be6baf45de3/AI-sfa. 이전dirty worktree는 보존했다.
+
+
+## 6. 추가 명령 대조·타임라인 예시
+
+원격 체크포인트5042a69를 보존하고 같은 캐시에서 별도로 선택한50명령을 ELF PT_LOAD/Capstone에 대조했다. 모두 통과했다. 이전45명령과 중복되는 주소가 있어95개의 서로 다른 신규 명령으로 합산하지 않는다. 자산 byte/hash도 일치하며, 설치/추출/영상/실물시험은 반복하지 않았다. 추가 집계: AOT-GROUP-SHADER-TIMELINE-SUPPLEMENT-AUDIT-2026-10-15.json.
+
+BuildDrawPlan은 그룹 glow unit 뒤에 구성원별 fill/본체 unit을 넣는다(0x42bc44/0x42bddc). drawUnit은 해당 fill 뒤 본체를 그린다(0x414f78/0x41509c). 보간 호출자도 그룹 helper를 먼저 호출하고 구성원을 순회한다(0x793260/0x793534). 객체별 backend 선택과 그룹 전체 coverage clamp를 혼동하지 않는다는 본문의 결론을 유지한다.
+
+다음은 본문 산식을 추가6개 입력에 대입한 결과다. 실행 영상의 프레임 수나 duration을 재측정한 것이 아니다. 양수 비율의0.5 반올림은 실제 LibcRound 호출(0x519d74)에 연결된다.
+
+| F | (트위닝,재생) | Q | K | N | 산출 결과 |
+|---:|---|---:|---:|---:|---|
+| 2 | (60,12) | 60 | 5 | 10 | 앞 구간t=0,.2,.4,.6,.8; 마지막 원본5회 유지 |
+| 2 | (30,12) | 30 | 3 | 5 | 앞 구간t=0,1/3,2/3; 마지막 원본2회 유지 |
+| 4 | (30,12) | 30 | 3 | 10 | 원본 시작index0,3,5,8; 각 시작step0 |
+| 2 | (24,24) | 24 | 1 | 2 | 보간 비활성, 원본당1장 |
+| 1 | (60,12) | 60 | 5 | 5 | 같은 원본5회 |
+| 0 | (60,12) | 60 | 5 | 0 | 출력 없음 |
+
+추가 private 검사:5a16c98ed7ee/private-trace/{validate_group_shader_timeline.py,group-shader-timeline-validation.json,shader-timeline-structure.json,window.py}. 문서 반영용 clean worktree5a16c98ed7ee/AI-sfa-publish. 본문의 다음 우선순위와 runtime 미확인 제한은 그대로 유지한다.

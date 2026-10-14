@@ -11,3 +11,5 @@ Paint OBJECT8/PREVIEW약2.2 Float32정정/primitive1.14/padding1.24/색·폭복�
 Android한기기/PC없음/루팅X. 설치·Termux·무선ADB·저장공간권한완료. 별도5APK/Gadget+Flutter모듈로드성공,license응답4 오류창Close앱종료→지속렌더차단. 정확한서버뜻/원본삭제/Play비활성단정금지. 우회/검사변경/추가폰명령/설치/페어링/시작시험요청금지.
 
 APK/SFA/영상/역컴파일/assembly/키/전체로그공개금지. 직접작성보고서·집계·인수인계main반영상시승인. 보호PREVIDEO/File-2최적화/학습/AI연결보류. 문서만수정시기존시험반복없음. 사용자잔여사용량직접조회불가. 의미있는체크포인트저장후인계갱신.
+
+추가검증:같은보고서6절/별도SUPPLEMENT-AUDIT에50명령대조·6정적산출예시. 이전45표본과중복있어95개합산금지. 추가캐시5a16c98ed7ee/private-trace,clean문서worktree5a16c98ed7ee/AI-sfa-publish. 기존체크포인트·캐시보존/다음우선순위유지.

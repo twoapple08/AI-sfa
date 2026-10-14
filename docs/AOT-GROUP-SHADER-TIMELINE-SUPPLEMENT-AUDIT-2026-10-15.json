@@ -1,0 +1,516 @@
+{
+  "scope": "50 new instruction samples; not complete function semantics or runtime pixel verification",
+  "results": [
+    {
+      "address": "0x42bc44",
+      "matched": true
+    },
+    {
+      "address": "0x42bc48",
+      "matched": true
+    },
+    {
+      "address": "0x42bddc",
+      "matched": true
+    },
+    {
+      "address": "0x414f28",
+      "matched": true
+    },
+    {
+      "address": "0x414f44",
+      "matched": true
+    },
+    {
+      "address": "0x414f78",
+      "matched": true
+    },
+    {
+      "address": "0x415068",
+      "matched": true
+    },
+    {
+      "address": "0x41509c",
+      "matched": true
+    },
+    {
+      "address": "0x420da0",
+      "matched": true
+    },
+    {
+      "address": "0x793260",
+      "matched": true
+    },
+    {
+      "address": "0x7968fc",
+      "matched": true
+    },
+    {
+      "address": "0x796f68",
+      "matched": true
+    },
+    {
+      "address": "0x797114",
+      "matched": true
+    },
+    {
+      "address": "0x7971d4",
+      "matched": true
+    },
+    {
+      "address": "0x7972a0",
+      "matched": true
+    },
+    {
+      "address": "0x426da4",
+      "matched": true
+    },
+    {
+      "address": "0x426db4",
+      "matched": true
+    },
+    {
+      "address": "0x426dc4",
+      "matched": true
+    },
+    {
+      "address": "0x4274d8",
+      "matched": true
+    },
+    {
+      "address": "0x425c54",
+      "matched": true
+    },
+    {
+      "address": "0x425c7c",
+      "matched": true
+    },
+    {
+      "address": "0x425cc4",
+      "matched": true
+    },
+    {
+      "address": "0x425cfc",
+      "matched": true
+    },
+    {
+      "address": "0x6346ec",
+      "matched": true
+    },
+    {
+      "address": "0x6348d0",
+      "matched": true
+    },
+    {
+      "address": "0x628710",
+      "matched": true
+    },
+    {
+      "address": "0x628718",
+      "matched": true
+    },
+    {
+      "address": "0x62875c",
+      "matched": true
+    },
+    {
+      "address": "0x628838",
+      "matched": true
+    },
+    {
+      "address": "0x628840",
+      "matched": true
+    },
+    {
+      "address": "0x6295c0",
+      "matched": true
+    },
+    {
+      "address": "0x6295cc",
+      "matched": true
+    },
+    {
+      "address": "0x629610",
+      "matched": true
+    },
+    {
+      "address": "0x519c24",
+      "matched": true
+    },
+    {
+      "address": "0x519c58",
+      "matched": true
+    },
+    {
+      "address": "0x519c90",
+      "matched": true
+    },
+    {
+      "address": "0x519ca0",
+      "matched": true
+    },
+    {
+      "address": "0x519d54",
+      "matched": true
+    },
+    {
+      "address": "0x519d74",
+      "matched": true
+    },
+    {
+      "address": "0x62bbd0",
+      "matched": true
+    },
+    {
+      "address": "0x62bbdc",
+      "matched": true
+    },
+    {
+      "address": "0x62bc30",
+      "matched": true
+    },
+    {
+      "address": "0x62bc54",
+      "matched": true
+    },
+    {
+      "address": "0x62bc58",
+      "matched": true
+    },
+    {
+      "address": "0x629c58",
+      "matched": true
+    },
+    {
+      "address": "0x629d2c",
+      "matched": true
+    },
+    {
+      "address": "0x629ddc",
+      "matched": true
+    },
+    {
+      "address": "0x62a120",
+      "matched": true
+    },
+    {
+      "address": "0x633b84",
+      "matched": true
+    },
+    {
+      "address": "0x633c24",
+      "matched": true
+    }
+  ],
+  "runtime_renderer_verified": false,
+  "asset": {
+    "asset_bytes": 105992,
+    "asset_sha256": "12260c19f930c779a853e8f919b1b6ffd823da7bcd1f75163ff3910d998aabad",
+    "matches_cached_base_apk": true,
+    "embedded_text_backends": [
+      "GLSL ES 300",
+      "GLSL ES 100",
+      "SkSL"
+    ],
+    "shader_structure_checks": true,
+    "scope": "Static formulas and asset identity, not actual engine execution or pixel equivalence"
+  },
+  "timeline_examples": [
+    {
+      "frames": 2,
+      "fps_tuple": [
+        60,
+        12
+      ],
+      "output_count": 10,
+      "effective_rate": 60,
+      "steps": 5,
+      "rows": [
+        [
+          0,
+          0,
+          1,
+          0,
+          5
+        ],
+        [
+          1,
+          0,
+          1,
+          1,
+          5
+        ],
+        [
+          2,
+          0,
+          1,
+          2,
+          5
+        ],
+        [
+          3,
+          0,
+          1,
+          3,
+          5
+        ],
+        [
+          4,
+          0,
+          1,
+          4,
+          5
+        ],
+        [
+          5,
+          1,
+          1,
+          0,
+          5
+        ],
+        [
+          6,
+          1,
+          1,
+          0,
+          5
+        ],
+        [
+          7,
+          1,
+          1,
+          0,
+          5
+        ],
+        [
+          8,
+          1,
+          1,
+          0,
+          5
+        ],
+        [
+          9,
+          1,
+          1,
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "frames": 2,
+      "fps_tuple": [
+        30,
+        12
+      ],
+      "output_count": 5,
+      "effective_rate": 30,
+      "steps": 3,
+      "rows": [
+        [
+          0,
+          0,
+          1,
+          0,
+          3
+        ],
+        [
+          1,
+          0,
+          1,
+          1,
+          3
+        ],
+        [
+          2,
+          0,
+          1,
+          2,
+          3
+        ],
+        [
+          3,
+          1,
+          1,
+          0,
+          3
+        ],
+        [
+          4,
+          1,
+          1,
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "frames": 4,
+      "fps_tuple": [
+        30,
+        12
+      ],
+      "output_count": 10,
+      "effective_rate": 30,
+      "steps": 3,
+      "rows": [
+        [
+          0,
+          0,
+          1,
+          0,
+          3
+        ],
+        [
+          1,
+          0,
+          1,
+          1,
+          3
+        ],
+        [
+          2,
+          0,
+          1,
+          2,
+          3
+        ],
+        [
+          3,
+          1,
+          2,
+          0,
+          3
+        ],
+        [
+          4,
+          1,
+          2,
+          1,
+          3
+        ],
+        [
+          5,
+          2,
+          3,
+          0,
+          3
+        ],
+        [
+          6,
+          2,
+          3,
+          1,
+          3
+        ],
+        [
+          7,
+          2,
+          3,
+          2,
+          3
+        ],
+        [
+          8,
+          3,
+          3,
+          0,
+          3
+        ],
+        [
+          9,
+          3,
+          3,
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "frames": 2,
+      "fps_tuple": [
+        24,
+        24
+      ],
+      "output_count": 2,
+      "effective_rate": 24,
+      "steps": 1,
+      "rows": [
+        [
+          0,
+          0,
+          1,
+          0,
+          1
+        ],
+        [
+          1,
+          1,
+          1,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "frames": 1,
+      "fps_tuple": [
+        60,
+        12
+      ],
+      "output_count": 5,
+      "effective_rate": 60,
+      "steps": 5,
+      "rows": [
+        [
+          0,
+          0,
+          0,
+          0,
+          5
+        ],
+        [
+          1,
+          0,
+          0,
+          0,
+          5
+        ],
+        [
+          2,
+          0,
+          0,
+          0,
+          5
+        ],
+        [
+          3,
+          0,
+          0,
+          0,
+          5
+        ],
+        [
+          4,
+          0,
+          0,
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "frames": 0,
+      "fps_tuple": [
+        60,
+        12
+      ],
+      "output_count": 0,
+      "effective_rate": 60,
+      "steps": 5,
+      "rows": []
+    }
+  ],
+  "note": "Independent 50-sample verification; overlaps prior 45-sample audit, do not add counts. No app/runtime pixel tests."
+}
