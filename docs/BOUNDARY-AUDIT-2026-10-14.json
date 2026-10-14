@@ -1,0 +1,175 @@
+{
+  "source_sha256": "5e64e1b89c2b2af5a2289e7a3b3437652f7eebd42d164d375e39559133f68a5b",
+  "scope": "XML statistics only; no renderer/interpolation verification; no coordinates exported",
+  "boundaries": [
+    {
+      "boundary": [
+        38,
+        39
+      ],
+      "ao_count": [
+        1849,
+        1734
+      ],
+      "common_ao_count": 1734,
+      "ends": [
+        {
+          "background_argb": "4279308561",
+          "common_base_alpha_positive": 0,
+          "common_glow_radius_alpha_positive": 6,
+          "common_glow_curves_control_hull_below_output": 6,
+          "fill_count": 2170,
+          "fills_referencing_only_common_objects": 2160,
+          "eligible_fill_colors": {
+            "4279308561": 2160
+          }
+        },
+        {
+          "background_argb": "4279308561",
+          "common_base_alpha_positive": 0,
+          "common_glow_radius_alpha_positive": 6,
+          "common_glow_curves_control_hull_below_output": 6,
+          "fill_count": 2160,
+          "fills_referencing_only_common_objects": 2160,
+          "eligible_fill_colors": {
+            "4279308561": 2160
+          }
+        }
+      ],
+      "changed_common_ao_attributes": {}
+    },
+    {
+      "boundary": [
+        72,
+        73
+      ],
+      "ao_count": [
+        10374,
+        13824
+      ],
+      "common_ao_count": 0,
+      "ends": [
+        {
+          "background_argb": "4279308561",
+          "common_base_alpha_positive": 0,
+          "common_glow_radius_alpha_positive": 0,
+          "common_glow_curves_control_hull_below_output": 0,
+          "fill_count": 12960,
+          "fills_referencing_only_common_objects": 0,
+          "eligible_fill_colors": {}
+        },
+        {
+          "background_argb": "4279308561",
+          "common_base_alpha_positive": 0,
+          "common_glow_radius_alpha_positive": 0,
+          "common_glow_curves_control_hull_below_output": 0,
+          "fill_count": 17280,
+          "fills_referencing_only_common_objects": 0,
+          "eligible_fill_colors": {}
+        }
+      ],
+      "changed_common_ao_attributes": {}
+    },
+    {
+      "boundary": [
+        84,
+        85
+      ],
+      "ao_count": [
+        1770,
+        1758
+      ],
+      "common_ao_count": 1752,
+      "ends": [
+        {
+          "background_argb": "4279308561",
+          "common_base_alpha_positive": 0,
+          "common_glow_radius_alpha_positive": 0,
+          "common_glow_curves_control_hull_below_output": 0,
+          "fill_count": 2166,
+          "fills_referencing_only_common_objects": 2163,
+          "eligible_fill_colors": {
+            "4279308561": 2163
+          }
+        },
+        {
+          "background_argb": "4279308561",
+          "common_base_alpha_positive": 0,
+          "common_glow_radius_alpha_positive": 0,
+          "common_glow_curves_control_hull_below_output": 0,
+          "fill_count": 2165,
+          "fills_referencing_only_common_objects": 2164,
+          "eligible_fill_colors": {
+            "4279308561": 2163,
+            "4294967295": 1
+          }
+        }
+      ],
+      "changed_common_ao_attributes": {}
+    },
+    {
+      "boundary": [
+        94,
+        95
+      ],
+      "ao_count": [
+        5083,
+        5360
+      ],
+      "common_ao_count": 0,
+      "ends": [
+        {
+          "background_argb": "4279308561",
+          "common_base_alpha_positive": 0,
+          "common_glow_radius_alpha_positive": 0,
+          "common_glow_curves_control_hull_below_output": 0,
+          "fill_count": 4423,
+          "fills_referencing_only_common_objects": 0,
+          "eligible_fill_colors": {}
+        },
+        {
+          "background_argb": "4279308561",
+          "common_base_alpha_positive": 0,
+          "common_glow_radius_alpha_positive": 0,
+          "common_glow_curves_control_hull_below_output": 0,
+          "fill_count": 4521,
+          "fills_referencing_only_common_objects": 0,
+          "eligible_fill_colors": {}
+        }
+      ],
+      "changed_common_ao_attributes": {}
+    },
+    {
+      "boundary": [
+        103,
+        104
+      ],
+      "ao_count": [
+        8556,
+        52
+      ],
+      "common_ao_count": 0,
+      "ends": [
+        {
+          "background_argb": "4279308561",
+          "common_base_alpha_positive": 0,
+          "common_glow_radius_alpha_positive": 0,
+          "common_glow_curves_control_hull_below_output": 0,
+          "fill_count": 8784,
+          "fills_referencing_only_common_objects": 0,
+          "eligible_fill_colors": {}
+        },
+        {
+          "background_argb": "4279308561",
+          "common_base_alpha_positive": 0,
+          "common_glow_radius_alpha_positive": 0,
+          "common_glow_curves_control_hull_below_output": 0,
+          "fill_count": 5,
+          "fills_referencing_only_common_objects": 0,
+          "eligible_fill_colors": {}
+        }
+      ],
+      "changed_common_ao_attributes": {}
+    }
+  ]
+}
