@@ -14,9 +14,9 @@
 - 실행 환경·기존AOT/ELF/Capstone 접근복구. 원본재추출/도구재설치없음. 15:15의unavailable은해소됐고,캐시가유실된것은아니었음. license4 지속편집계측차단과는별개.
 - 기능별실제표본/정적근거/미확인은docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md. 기존00–05영상·SFA재분석없음. 지금사용자추가작업없음.
 
-## 현행 체크포인트 — 레이어 현재 프레임 메모리·선택 갱신
+## 현행 체크포인트 — 상세 패널 적용 명령·크기/굵기 수학
 
-먼저 AGENTS.md와 **docs/AOT-LAYER-MEMORY-TRACE-2026-10-15.md**를 읽는다. 객체 의존집합은AOT-DIRTY-PROPAGATION,캐시층별기본은AOT-CACHE-BOUNDARY보고서.
+먼저 AGENTS.md와 **docs/AOT-MODIFY-PANEL-TRANSFORM-TRACE-2026-10-15.md**를 읽는다. 객체 의존집합은AOT-DIRTY-PROPAGATION,캐시층별기본은AOT-CACHE-BOUNDARY보고서.
 
 - 원본hole-combine:_HoledFillPaths key는생성steps double을복사한Float64→Int64 bit열/hash/길이/전word비교. ID/색단독키아님. hole>0없으면이cache안씀. hit도앞contour빌드는진행,combine만생략. remove/reinsert LRU256,miss때앞entryeviction,반환Path.from복사. 보간fill별도nativecombine,동일cache호출없음.
 - planFor는AO목록Expando→fits.Frame/목록identity·순서·LayerId·점수/layer/fill관련구조검사. geometry/색전부snapshot검사아님. plan재사용과완성pixel재사용구분. 모든in-placeDrawOrder/Flags/contour변경안전보장미확인.
@@ -34,7 +34,9 @@
 - GlobalSwap내부닫힘:동일sequence AO.layer_id A→임시→B교환,다른frame(현재ID제외)layer_def.layer_index도같이교환. 현재frame은외부SaveFrame경로,이후전체cacheevict연결. DrawOrder/좌표/색쿼리없음/다른sequence전파아님. 새48명령대조통과/중복합산금지.
 - 레이어메모리연결:swapLayers 0x5bd210은두번호탐색실패시skip,Layer.number서로교환/AO LayerId교환/Frame활성번호교환/번호comparator동적호출. 활동frames순회후현재Frame미포함시별도1회. UpdateLayerSelectionAfterMove는유효목표index의번호를Frame2b/activity23,위치를activity1b에저장. 메모리→DB현재SaveFrame/타frame정의교환→cacheevict연결. 마지막정렬GDT구체대상전체미해석/DB실패rollback·실제앱미검증. 새37명령대조통과.
 - 일반AO앞뒤UI는여전히미식별. 이름/PP/명명DrawOrder호출검색만으로부재단정금지. PP뒤로문구는Flutter탐색용. 생성UpdateDrawOrder/merge비교로UI대체금지. 같은검색반복금지.
-- **정확한 다음:** 객체상세패널/공통command dispatch의실제조작목록에서순서관련조작존재와mutation연결식별. 레이어현재메모리연결은완료. root수명/movedpoint·연결전체/codec전체/재생전용cache미완. 기존영상/폰시험반복금지.
+- 상세패널3탭color/transform/glow. 변형적용버튼→ApplyAllPendingChangesAndDismiss→각pending참일때color→transform→glow순적용. afterAction fieldaf참→commit callback,fieldab참→dismiss callback. 0x555e0c annotation은customdirty지만실제dialog.fieldab=true쓰는공유짧은몸체;수신객체/실명령우선.
+- ApplyTransform:각정수percent하한1/100,parse실패각배율1. pivot은대상AO/점순서첫(Flags&0x2e)==2,없으면첫AO점목록의동적getter fallback(구체getter미해결/첫점단정금지),아예없으면return. t/o≤0계산1→ThicknessScale*굵기배율,ObjectScale*size배율,점p'=c+m(p-c). 좌표clamp없음/화면중심아님/손끝drag식아님. 대상목록확장규칙미완. 새54명령대조통과. 상세탭의DrawOrder변경경로미식별/앱전체부재아님.
+- **정확한 다음:** dialog생성main0x5e4504의대상AO목록선택/연결확장범위·순서→올그룹/뒤집기등알려진도구명령연결. 일반앞뒤UI는미식별로남기고같은검색반복금지. root수명/movedpoint·연결전체/codec전체/재생cache미완. 기존영상/폰시험반복금지.
 - 이전curve/ring:AOT-CURVE-RING보고서.16chord길이/최대곡률/회전각→n1–48,균일t/회전t혼합,중간부호곡률triple.48상한후반삭제아님/오차보장아님. 일반ring2/4/8node선택의min은node판단만,반폭원래W/2. 퇴화stroke radius0/8node._fill h+3sigma+1/cull h+4sigma+1구분.
 - 이전group/shader/timeline:AOT-GROUP-SHADER-TIMELINE보고서.각AO글로우먼저/fill·본체뒤. 객체내coverage clamp와객체간blend분리. Q/K/N양자화timeline/마지막원본유지. FPS=(T트위닝,P재생). raw/PNG동일DartPicture→Java완성textureH.264/MP4,공간예측선택/codec검사아님(EXPORT-DISPATCH).
 - Paint OBJECT8/PREVIEW약2.2 Float32/primitive1.14/padding1.24정정유지. 기존B/00–05/영상/설치/폰시험재실행금지. runtime license4차단상태유지/추가사용자작업없음.
