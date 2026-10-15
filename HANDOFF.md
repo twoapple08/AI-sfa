@@ -9,9 +9,9 @@
 - 기존00–05시험/자료분석완료. 재출력·추가작품·제작자문의금지. 기존추출·도구설치·시험은새변경/실패관련필요없으면반복금지.
 - 정확도유지하며캐시/읽은내용재사용·좁은출력·실제명령검증. AGENTS.md준수. 사용자잔여주간사용량직접조회불가. 인수인계필요시체크포인트저장후docs/HANDOFF-PROMPT.md제공.
 
-## 현행 체크포인트 — 공유 프레임 상세값·그룹·fill 복원
+## 현행 체크포인트 — 기반 그룹 참조·점 override·시퀀스 레이어 교환
 
-먼저 AGENTS.md와 **docs/AOT-SHARED-RESTORE-TRACE-2026-10-15.md**를 읽는다. 객체 의존집합은AOT-DIRTY-PROPAGATION,캐시층별기본은AOT-CACHE-BOUNDARY보고서.
+먼저 AGENTS.md와 **docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md**를 읽는다. 객체 의존집합은AOT-DIRTY-PROPAGATION,캐시층별기본은AOT-CACHE-BOUNDARY보고서.
 
 - 원본hole-combine:_HoledFillPaths key는생성steps double을복사한Float64→Int64 bit열/hash/길이/전word비교. ID/색단독키아님. hole>0없으면이cache안씀. hit도앞contour빌드는진행,combine만생략. remove/reinsert LRU256,miss때앞entryeviction,반환Path.from복사. 보간fill별도nativecombine,동일cache호출없음.
 - planFor는AO목록Expando→fits.Frame/목록identity·순서·LayerId·점수/layer/fill관련구조검사. geometry/색전부snapshot검사아님. plan재사용과완성pixel재사용구분. 모든in-placeDrawOrder/Flags/contour변경안전보장미확인.
@@ -23,9 +23,11 @@
 - renderable cache는정수FrameID→Frame,수정버전키없음.get remove/reinsert LRU,put최대12객체,take remove만/폐기없음.evict/clear AOmap해제+AOlist null;native이미지dispose아님.markFrameDataDirty는ef=true만.markCanvasDirty는현재IDevict+steady해제+counter/notifier. loadDetails는이미채워진객체반환또는take재사용/필요DB보충.bind는ID집합밖evict+canvasdirty+dirtyfalse. 매번새AO재조회단정금지.
 - 레이어Up/Down→moveSelectedLayer→SwapLayersAndContentGlobal/SaveFrame/commit→setState실제closure에서캐시전체키evict·주변목록비움·canvasdirty→onion/prefetch예약. 개별AO순서UI완료아님.saveCurrentFrame은dirtyguard→SaveFrame정상반환뒤false/history;저장자체evict없음. SaveFrame→saveFiguresChangedOnly/replaceFrameFillRegions연결확인,내부비교미완. 새62명령ELF대조통과,중복합산금지.
 - 저장새근거:기본AO행 sequence/type/layer/thickness/DrawOrder비교,DrawOrder≤0이면저장후보ID(필드재대입확인아님). thickness/objectscale≤0은AO값1보정. 프레임상세ARGB/두배율/glow4값은holdsDetail 일반동등성비교→필요UpdateDetail insert/update. AP selectable bit0/type mask0x2e와raw_flags전체별도저장구분. fill공유storeSharedFills조기반환분기있어무조건delete/reinsert아님. 로컬segment contourIndex field33→9번째DB인수확인. 새44명령통과/기존표본중복합산금지. 최초넓은검색출력잘림후주소창으로축소,원본/기존시험반복없음.
-- 공유복원:상세현재행우선→removed_detail있으면상속차단→없으면기반행. 값별혼합아닌행선택/COALESCE. storedDetailRows도현재override·removed제외기반행공급. root로컬점 raw_flags전체우선/null fallback,기반점은bit4시((B+(F>>6))<<6)|(F&0x3f),비그룹F&0x2f,B=FrameBase.field17. 그룹참조상대화의저장역변환미완.
+- 공유복원:상세현재행우선→removed_detail있으면상속차단→없으면기반행. 값별혼합아닌행선택/COALESCE. storedDetailRows도현재override·removed제외기반행공급. root로컬점 raw_flags전체우선/null fallback,기반점은bit4시((B+(F>>6))<<6)|(F&0x3f),비그룹F&0x2f,B=FrameBase.field17. 그룹참조상대화의저장역변환은아래root근거로연결.
 - 공유fill encode→FNV후보→길이/전바이트동일검사→set재사용/추가+frame_ref 기준region/pointID. readSharedFills map에frame키있으면그값/키없으면로컬조회.decode→regions는기준region+순번,점상대값+기준point,contour별도복원/불변segment목록. ID숫자변화만손실판정금지. codec전체바이트/t정규화미완. 새55명령대조통과/중복합산금지.
-- **정확한 다음:** 기반저장의groupFlags상대화·point override/삭제표시↔복원식연결→SwapLayersAndContentGlobal내부/일반AO앞뒤UI. codec전체재현·재생전용cache경계미완. 기존영상/폰시험반복금지.
+- 기반생성_storeRoot에서r=(F>>6)-P,bit4&&0≤r<n이면(r<<6)|(F&0x3f),아니면F&0x2f. 복원B+r대응닫힘/일반pointUPDATE규칙으로확대금지. storedPointRows는기반ID/Flags복원후비교,로컬override/removed제외._storeRootPoint구체화도동일Flags식/연결참조변환._deleteAnchorPoint→noteRowsLeaving/행삭제/listRemovedPoint,포함base범위에삭제표시→재공급제외. 모든삭제UI/root수명미완.
+- GlobalSwap내부닫힘:동일sequence AO.layer_id A→임시→B교환,다른frame(현재ID제외)layer_def.layer_index도같이교환. 현재frame은외부SaveFrame경로,이후전체cacheevict연결. DrawOrder/좌표/색쿼리없음/다른sequence전파아님. 새48명령대조통과/중복합산금지.
+- **정확한 다음:** 일반AO앞뒤순서UI·레이어이동현재frame메모리갱신→기능별정적확인/실제앱검증필요항목정리. root수명/movedpoint·연결전체/codec전체/재생전용cache미완. 기존영상/폰시험반복금지.
 - 이전curve/ring:AOT-CURVE-RING보고서.16chord길이/최대곡률/회전각→n1–48,균일t/회전t혼합,중간부호곡률triple.48상한후반삭제아님/오차보장아님. 일반ring2/4/8node선택의min은node판단만,반폭원래W/2. 퇴화stroke radius0/8node._fill h+3sigma+1/cull h+4sigma+1구분.
 - 이전group/shader/timeline:AOT-GROUP-SHADER-TIMELINE보고서.각AO글로우먼저/fill·본체뒤. 객체내coverage clamp와객체간blend분리. Q/K/N양자화timeline/마지막원본유지. FPS=(T트위닝,P재생). raw/PNG동일DartPicture→Java완성textureH.264/MP4,공간예측선택/codec검사아님(EXPORT-DISPATCH).
 - Paint OBJECT8/PREVIEW약2.2 Float32/primitive1.14/padding1.24정정유지. 기존B/00–05/영상/설치/폰시험재실행금지. runtime license4차단상태유지/추가사용자작업없음.
