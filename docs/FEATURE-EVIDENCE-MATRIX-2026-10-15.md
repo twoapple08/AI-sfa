@@ -18,7 +18,7 @@
 | 원근 | 04 첫 표본의 사영변환 적합, 두 번째 표본의 아핀 좌표 변화/속성 배율 관찰 | 일반8핸들·시작snapshot·사영/쌍선형 선택·실패fallback·좌표저장(아래 원근 보고서) | 올가미→AllGroup 및 선택screenmap키 필터도 확인; 앞단tap·곡선/원 최종 픽셀·실제 수치 경계 |
 | 생성·삭제·보간 | 03 동일ID 이동/알파 중간값, 새ID 교체 누락, FR 생성·삭제 비대칭 표본 | fill 대응·실패 fallback·점 override/삭제 표시 | root 해제·moved run/잔차·outgoing연결저장·객체/Index보간 신규확인; rebase/compaction·비정상 연결·임의 작품 일반화 미완 |
 | 수동 트위닝 잇기 | 05 다른ID 두 원의 링크 후 중간 원 복구, 축소 영상에서 해당 한 장 차이 | 기존 AOT의 링크 유형/점순서/충돌 검사 근거 | 뒤key정렬·자연ID충돌·TypeId/동위치Index검사 확인; UI 전체·역방향·복합FR 실제 결과 미완 |
-| 레이어 위·아래 이동 | 이 표에서 실제 앱 검증 완료로 세지 않음 | UI→메모리 Layer번호/AO LayerId/활성선택 교환→sequence DB 교환/현재 SaveFrame→cache 제거 | 실제 앱 결과·DB 실패 rollback·동적 정렬 대상의 전체 해석 |
+| 레이어 위·아래 이동·병합·삭제·추가 | 이 표에서 실제 앱 검증 완료로 세지 않음 | UI→메모리/sequence DB 교환·cache 제거; 병합기존순서슬롯재배정/삭제기반참조·fill정리/전체frame정의추가/history초기화 | 실제 앱 결과·DB 실패 rollback·동적 정렬 대상의 전체 해석 |
 | 내보내기·FPS | 기존 01–05 출력의 길이/프레임수 관찰 | (T 트위닝,P 재생) timeline, Dart Picture→Java 인코더, 별도재생Frame/Picture/Image버퍼·clock 연결 | 모든 FPS 조합·renderer backend·완전한 픽셀 동일성 |
 
 실제 표본은 [01–03 결과](PRIORITY-V2-RESULTS-2026-10-14.md), [04–05 결과](UI-04-05-RESULTS-2026-10-15.md)를 따른다. 이전 보고서 말미의 당시 ‘다음 작업’은 최신 체크포인트보다 우선하지 않는다.
@@ -41,7 +41,7 @@ PC는 사용자20:26 보고로 현재 사용 불가다. 서버 cache는 정상�
 
 추가로 [DB-REWRITE](AOT-DB-REWRITE-TRACE-2026-10-15.md)(52선택명령), [COMPACTION-PHASES](AOT-COMPACTION-PHASES-TRACE-2026-10-15.md)(178선택명령)를 연결했다. 프레임 압축 정상 단계·PlainRanks·moved 병합과 파일 교체 guard/실패 경로, 일반 undo/redo의 frame별 stack·hash/async guard를 확인했다. 실제 압축 실행·무손실/실패 원자성 증명은 아니다.
 
-새 미완 UI 경로는 레이어 merge/delete/add의 실제 callback에서 찾은 전역 데이터 처리다. 전체 UI coverage·hash 내부·동적 호출 실제 target·오류 입력/외부 수정/전체 수명 계약도 미완이다. 상세 변형 fallback은 GDT의 실제 대상 mapping이 기존 cache에 없어 미해결이다. 일반 앞뒤/별도 잠금 UI는 미식별이며 같은 이름 검색을 반복하지 않는다. 이들을 모두 실물에서만 해결할 수 있는 문제로 바꾸어 적지 않는다.
+[LAYER-MERGE-DELETE-ADD](AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md)(138선택명령)에서 병합의 target/source 순서·기존 DrawOrder 슬롯 재배정, 삭제의 root 가상 참조·fill 정리, 전체 frame 레이어 추가와 merge/delete history 초기화를 추가 확인했다. 공유 fill의 outer 제거는 빈 segment region 유지, 기존 SQL 표현은 region 행 삭제라는 차이도 구분했다. 이 명령의 정상 정적 경로를 다시 미수행으로 표시하지 않는다. 새 UI 후보는 frame dialog 버튼·객체 삭제 caller·GetFastHash 계약이다. 전체 UI coverage·hash 내부·동적 호출 실제 target·오류 입력/외부 수정/전체 수명 계약도 미완이다. 상세 변형 fallback은 GDT의 실제 대상 mapping이 기존 cache에 없어 미해결이다. 일반 앞뒤/별도 잠금 UI는 미식별이며 같은 이름 검색을 반복하지 않는다. 이들을 모두 실물에서만 해결할 수 있는 문제로 바꾸어 적지 않는다.
 
 픽셀/backend 동등성·모든 UI 조작 결과·비정상 입력의 실제 결과는 새 실물 검증 없이 완료로 세지 않는다. 기존 계측 앱 license4 차단은 유지된다. 독립 분석 가능 항목 전체를 소진했다거나 완전한 animating AI가 만들어졌다는 의미는 아니다.
 

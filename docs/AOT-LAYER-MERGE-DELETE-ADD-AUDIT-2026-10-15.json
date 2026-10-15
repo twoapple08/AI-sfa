@@ -1,0 +1,559 @@
+{
+  "scope": "138 instruction samples; not complete function semantics or runtime pixel verification",
+  "results": [
+    {
+      "address": "0x5b876c",
+      "matched": true
+    },
+    {
+      "address": "0x5b8804",
+      "matched": true
+    },
+    {
+      "address": "0x5b8830",
+      "matched": true
+    },
+    {
+      "address": "0x5b8864",
+      "matched": true
+    },
+    {
+      "address": "0x5b8894",
+      "matched": true
+    },
+    {
+      "address": "0x5b8968",
+      "matched": true
+    },
+    {
+      "address": "0x5b8988",
+      "matched": true
+    },
+    {
+      "address": "0x5b8c44",
+      "matched": true
+    },
+    {
+      "address": "0x5b8d10",
+      "matched": true
+    },
+    {
+      "address": "0x5b8d88",
+      "matched": true
+    },
+    {
+      "address": "0x5b8eac",
+      "matched": true
+    },
+    {
+      "address": "0x5b9114",
+      "matched": true
+    },
+    {
+      "address": "0x5b914c",
+      "matched": true
+    },
+    {
+      "address": "0x5b9204",
+      "matched": true
+    },
+    {
+      "address": "0x5b92d8",
+      "matched": true
+    },
+    {
+      "address": "0x5b92f4",
+      "matched": true
+    },
+    {
+      "address": "0x5b9304",
+      "matched": true
+    },
+    {
+      "address": "0x5b931c",
+      "matched": true
+    },
+    {
+      "address": "0x5b9340",
+      "matched": true
+    },
+    {
+      "address": "0x5b9360",
+      "matched": true
+    },
+    {
+      "address": "0x5b93e8",
+      "matched": true
+    },
+    {
+      "address": "0x5b94d4",
+      "matched": true
+    },
+    {
+      "address": "0x5b9524",
+      "matched": true
+    },
+    {
+      "address": "0x5b9550",
+      "matched": true
+    },
+    {
+      "address": "0x5b9690",
+      "matched": true
+    },
+    {
+      "address": "0x5b96f0",
+      "matched": true
+    },
+    {
+      "address": "0x5b9758",
+      "matched": true
+    },
+    {
+      "address": "0x5b9794",
+      "matched": true
+    },
+    {
+      "address": "0x5b979c",
+      "matched": true
+    },
+    {
+      "address": "0x5b97c8",
+      "matched": true
+    },
+    {
+      "address": "0x5b981c",
+      "matched": true
+    },
+    {
+      "address": "0x5b9828",
+      "matched": true
+    },
+    {
+      "address": "0x5b9830",
+      "matched": true
+    },
+    {
+      "address": "0x5b9840",
+      "matched": true
+    },
+    {
+      "address": "0x5b9850",
+      "matched": true
+    },
+    {
+      "address": "0x5b9858",
+      "matched": true
+    },
+    {
+      "address": "0x5b9c70",
+      "matched": true
+    },
+    {
+      "address": "0x5b9c80",
+      "matched": true
+    },
+    {
+      "address": "0x5b9c90",
+      "matched": true
+    },
+    {
+      "address": "0x5b9ca0",
+      "matched": true
+    },
+    {
+      "address": "0x5b9cdc",
+      "matched": true
+    },
+    {
+      "address": "0x5b9d3c",
+      "matched": true
+    },
+    {
+      "address": "0x5b9d64",
+      "matched": true
+    },
+    {
+      "address": "0x5b9d74",
+      "matched": true
+    },
+    {
+      "address": "0x5b9dcc",
+      "matched": true
+    },
+    {
+      "address": "0x5b9b18",
+      "matched": true
+    },
+    {
+      "address": "0x5b9c04",
+      "matched": true
+    },
+    {
+      "address": "0x5ba36c",
+      "matched": true
+    },
+    {
+      "address": "0x5ba370",
+      "matched": true
+    },
+    {
+      "address": "0x5ba378",
+      "matched": true
+    },
+    {
+      "address": "0x5ba38c",
+      "matched": true
+    },
+    {
+      "address": "0x5b9f7c",
+      "matched": true
+    },
+    {
+      "address": "0x5ba0a4",
+      "matched": true
+    },
+    {
+      "address": "0x5ba0ac",
+      "matched": true
+    },
+    {
+      "address": "0x5ba194",
+      "matched": true
+    },
+    {
+      "address": "0x5ba1a4",
+      "matched": true
+    },
+    {
+      "address": "0x5ba1ac",
+      "matched": true
+    },
+    {
+      "address": "0x5ba200",
+      "matched": true
+    },
+    {
+      "address": "0x5ba208",
+      "matched": true
+    },
+    {
+      "address": "0x5ba22c",
+      "matched": true
+    },
+    {
+      "address": "0x5ba234",
+      "matched": true
+    },
+    {
+      "address": "0x5ba23c",
+      "matched": true
+    },
+    {
+      "address": "0x36c484",
+      "matched": true
+    },
+    {
+      "address": "0x5bb30c",
+      "matched": true
+    },
+    {
+      "address": "0x5bb438",
+      "matched": true
+    },
+    {
+      "address": "0x5bb458",
+      "matched": true
+    },
+    {
+      "address": "0x5bb47c",
+      "matched": true
+    },
+    {
+      "address": "0x5bb484",
+      "matched": true
+    },
+    {
+      "address": "0x5bb48c",
+      "matched": true
+    },
+    {
+      "address": "0x5bb494",
+      "matched": true
+    },
+    {
+      "address": "0x5bb518",
+      "matched": true
+    },
+    {
+      "address": "0x5bb528",
+      "matched": true
+    },
+    {
+      "address": "0x5bb530",
+      "matched": true
+    },
+    {
+      "address": "0x5bb538",
+      "matched": true
+    },
+    {
+      "address": "0x5bb564",
+      "matched": true
+    },
+    {
+      "address": "0x5bb650",
+      "matched": true
+    },
+    {
+      "address": "0x5bb694",
+      "matched": true
+    },
+    {
+      "address": "0x5bb6ac",
+      "matched": true
+    },
+    {
+      "address": "0x5bb798",
+      "matched": true
+    },
+    {
+      "address": "0x5bb800",
+      "matched": true
+    },
+    {
+      "address": "0x5bb818",
+      "matched": true
+    },
+    {
+      "address": "0x5bb870",
+      "matched": true
+    },
+    {
+      "address": "0x5bb8ec",
+      "matched": true
+    },
+    {
+      "address": "0x5bb934",
+      "matched": true
+    },
+    {
+      "address": "0x5bb978",
+      "matched": true
+    },
+    {
+      "address": "0x5bb9bc",
+      "matched": true
+    },
+    {
+      "address": "0x5bba00",
+      "matched": true
+    },
+    {
+      "address": "0x5bba74",
+      "matched": true
+    },
+    {
+      "address": "0x5bbb44",
+      "matched": true
+    },
+    {
+      "address": "0x5bbb6c",
+      "matched": true
+    },
+    {
+      "address": "0x5bbb78",
+      "matched": true
+    },
+    {
+      "address": "0x5bbb80",
+      "matched": true
+    },
+    {
+      "address": "0x5bbb94",
+      "matched": true
+    },
+    {
+      "address": "0x5bbba4",
+      "matched": true
+    },
+    {
+      "address": "0x5bbbc0",
+      "matched": true
+    },
+    {
+      "address": "0x5bbbf4",
+      "matched": true
+    },
+    {
+      "address": "0x5bbc30",
+      "matched": true
+    },
+    {
+      "address": "0x5bbce0",
+      "matched": true
+    },
+    {
+      "address": "0x5a45bc",
+      "matched": true
+    },
+    {
+      "address": "0x5a45e8",
+      "matched": true
+    },
+    {
+      "address": "0x5a461c",
+      "matched": true
+    },
+    {
+      "address": "0x5a4684",
+      "matched": true
+    },
+    {
+      "address": "0x5a46b4",
+      "matched": true
+    },
+    {
+      "address": "0x5a46f0",
+      "matched": true
+    },
+    {
+      "address": "0x36700c",
+      "matched": true
+    },
+    {
+      "address": "0x3670c4",
+      "matched": true
+    },
+    {
+      "address": "0x3670e4",
+      "matched": true
+    },
+    {
+      "address": "0x367110",
+      "matched": true
+    },
+    {
+      "address": "0x36711c",
+      "matched": true
+    },
+    {
+      "address": "0x3671bc",
+      "matched": true
+    },
+    {
+      "address": "0x330ac4",
+      "matched": true
+    },
+    {
+      "address": "0x330ba0",
+      "matched": true
+    },
+    {
+      "address": "0x330ba8",
+      "matched": true
+    },
+    {
+      "address": "0x330c10",
+      "matched": true
+    },
+    {
+      "address": "0x330e30",
+      "matched": true
+    },
+    {
+      "address": "0x330e38",
+      "matched": true
+    },
+    {
+      "address": "0x330eb8",
+      "matched": true
+    },
+    {
+      "address": "0x3314dc",
+      "matched": true
+    },
+    {
+      "address": "0x331514",
+      "matched": true
+    },
+    {
+      "address": "0x33161c",
+      "matched": true
+    },
+    {
+      "address": "0x331660",
+      "matched": true
+    },
+    {
+      "address": "0x331828",
+      "matched": true
+    },
+    {
+      "address": "0x3325d4",
+      "matched": true
+    },
+    {
+      "address": "0x332724",
+      "matched": true
+    },
+    {
+      "address": "0x33273c",
+      "matched": true
+    },
+    {
+      "address": "0x332770",
+      "matched": true
+    },
+    {
+      "address": "0x332794",
+      "matched": true
+    },
+    {
+      "address": "0x332840",
+      "matched": true
+    },
+    {
+      "address": "0x33284c",
+      "matched": true
+    },
+    {
+      "address": "0x332928",
+      "matched": true
+    },
+    {
+      "address": "0x332938",
+      "matched": true
+    },
+    {
+      "address": "0x3329d8",
+      "matched": true
+    },
+    {
+      "address": "0x3329e8",
+      "matched": true
+    },
+    {
+      "address": "0x3329f0",
+      "matched": true
+    },
+    {
+      "address": "0x332a6c",
+      "matched": true
+    },
+    {
+      "address": "0x332a8c",
+      "matched": true
+    },
+    {
+      "address": "0x332a94",
+      "matched": true
+    },
+    {
+      "address": "0x332aa8",
+      "matched": true
+    }
+  ],
+  "runtime_renderer_verified": false,
+  "normalization_note": "Dart register aliases normalized; compressed stur/str NULL uses w22"
+}
