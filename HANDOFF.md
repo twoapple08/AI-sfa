@@ -9,15 +9,14 @@
 - 기존00–05시험/자료분석완료. 재출력·추가작품·제작자문의금지. 기존추출·도구설치·시험은새변경/실패관련필요없으면반복금지.
 - 정확도유지하며캐시/읽은내용재사용·좁은출력·실제명령검증. AGENTS.md준수. 사용자잔여주간사용량직접조회불가. 인수인계필요시체크포인트저장후docs/HANDOFF-PROMPT.md제공.
 
-## 현재 실행 환경·기능표 — 2026-10-15 15:15 KST
+## 현재 실행 환경·기능표 — 2026-10-15 15:59 KST
 
-- 이 세션의 실행 환경 unavailable/터미널 도구 없음으로 비공개 AOT·ELF 신규 추적은 보류했다. 캐시 유실·손상을 확인한 것은 아니다. GitHub 접근은 가능하다.
-- 기능별 실제 표본/정적 근거/미확인은 **docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md**. 기존 00–05 영상·SFA 재분석이나 새 명령 대조는 하지 않았다. 계측 앱의 license4 차단과 이번 환경 장애는 구분한다.
-- 환경 복구 후 기존 캐시 존재 확인→아래의 일반 AO 순서 UI 식별·레이어 현재 메모리 갱신부터 재개. UI 존재도 확인 없이 앞뒤 기능이 있다고 단정하지 않는다. 사용자 설치·페어링·휴대폰 시작 시험 요청 없음.
+- 실행 환경·기존AOT/ELF/Capstone 접근복구. 원본재추출/도구재설치없음. 15:15의unavailable은해소됐고,캐시가유실된것은아니었음. license4 지속편집계측차단과는별개.
+- 기능별실제표본/정적근거/미확인은docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md. 기존00–05영상·SFA재분석없음. 지금사용자추가작업없음.
 
-## 현행 체크포인트 — 기반 그룹 참조·점 override·시퀀스 레이어 교환
+## 현행 체크포인트 — 레이어 현재 프레임 메모리·선택 갱신
 
-먼저 AGENTS.md와 **docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md**를 읽는다. 객체 의존집합은AOT-DIRTY-PROPAGATION,캐시층별기본은AOT-CACHE-BOUNDARY보고서.
+먼저 AGENTS.md와 **docs/AOT-LAYER-MEMORY-TRACE-2026-10-15.md**를 읽는다. 객체 의존집합은AOT-DIRTY-PROPAGATION,캐시층별기본은AOT-CACHE-BOUNDARY보고서.
 
 - 원본hole-combine:_HoledFillPaths key는생성steps double을복사한Float64→Int64 bit열/hash/길이/전word비교. ID/색단독키아님. hole>0없으면이cache안씀. hit도앞contour빌드는진행,combine만생략. remove/reinsert LRU256,miss때앞entryeviction,반환Path.from복사. 보간fill별도nativecombine,동일cache호출없음.
 - planFor는AO목록Expando→fits.Frame/목록identity·순서·LayerId·점수/layer/fill관련구조검사. geometry/색전부snapshot검사아님. plan재사용과완성pixel재사용구분. 모든in-placeDrawOrder/Flags/contour변경안전보장미확인.
@@ -33,7 +32,9 @@
 - 공유fill encode→FNV후보→길이/전바이트동일검사→set재사용/추가+frame_ref 기준region/pointID. readSharedFills map에frame키있으면그값/키없으면로컬조회.decode→regions는기준region+순번,점상대값+기준point,contour별도복원/불변segment목록. ID숫자변화만손실판정금지. codec전체바이트/t정규화미완. 새55명령대조통과/중복합산금지.
 - 기반생성_storeRoot에서r=(F>>6)-P,bit4&&0≤r<n이면(r<<6)|(F&0x3f),아니면F&0x2f. 복원B+r대응닫힘/일반pointUPDATE규칙으로확대금지. storedPointRows는기반ID/Flags복원후비교,로컬override/removed제외._storeRootPoint구체화도동일Flags식/연결참조변환._deleteAnchorPoint→noteRowsLeaving/행삭제/listRemovedPoint,포함base범위에삭제표시→재공급제외. 모든삭제UI/root수명미완.
 - GlobalSwap내부닫힘:동일sequence AO.layer_id A→임시→B교환,다른frame(현재ID제외)layer_def.layer_index도같이교환. 현재frame은외부SaveFrame경로,이후전체cacheevict연결. DrawOrder/좌표/색쿼리없음/다른sequence전파아님. 새48명령대조통과/중복합산금지.
-- **정확한 다음:** 환경복구·기존캐시확인→일반AO순서UI존재/dispatch식별·레이어이동현재frame메모리갱신. 기능별근거표정리는완료(새기능검증아님). root수명/movedpoint·연결전체/codec전체/재생전용cache미완. 기존영상/폰시험반복금지.
+- 레이어메모리연결:swapLayers 0x5bd210은두번호탐색실패시skip,Layer.number서로교환/AO LayerId교환/Frame활성번호교환/번호comparator동적호출. 활동frames순회후현재Frame미포함시별도1회. UpdateLayerSelectionAfterMove는유효목표index의번호를Frame2b/activity23,위치를activity1b에저장. 메모리→DB현재SaveFrame/타frame정의교환→cacheevict연결. 마지막정렬GDT구체대상전체미해석/DB실패rollback·실제앱미검증. 새37명령대조통과.
+- 일반AO앞뒤UI는여전히미식별. 이름/PP/명명DrawOrder호출검색만으로부재단정금지. PP뒤로문구는Flutter탐색용. 생성UpdateDrawOrder/merge비교로UI대체금지. 같은검색반복금지.
+- **정확한 다음:** 객체상세패널/공통command dispatch의실제조작목록에서순서관련조작존재와mutation연결식별. 레이어현재메모리연결은완료. root수명/movedpoint·연결전체/codec전체/재생전용cache미완. 기존영상/폰시험반복금지.
 - 이전curve/ring:AOT-CURVE-RING보고서.16chord길이/최대곡률/회전각→n1–48,균일t/회전t혼합,중간부호곡률triple.48상한후반삭제아님/오차보장아님. 일반ring2/4/8node선택의min은node판단만,반폭원래W/2. 퇴화stroke radius0/8node._fill h+3sigma+1/cull h+4sigma+1구분.
 - 이전group/shader/timeline:AOT-GROUP-SHADER-TIMELINE보고서.각AO글로우먼저/fill·본체뒤. 객체내coverage clamp와객체간blend분리. Q/K/N양자화timeline/마지막원본유지. FPS=(T트위닝,P재생). raw/PNG동일DartPicture→Java완성textureH.264/MP4,공간예측선택/codec검사아님(EXPORT-DISPATCH).
 - Paint OBJECT8/PREVIEW약2.2 Float32/primitive1.14/padding1.24정정유지. 기존B/00–05/영상/설치/폰시험재실행금지. runtime license4차단상태유지/추가사용자작업없음.
