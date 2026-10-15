@@ -1,0 +1,223 @@
+{
+  "scope": "54 new instruction samples; not complete function semantics or runtime pixel verification",
+  "results": [
+    {
+      "address": "0x42a254",
+      "matched": true
+    },
+    {
+      "address": "0x42a2a0",
+      "matched": true
+    },
+    {
+      "address": "0x42a2bc",
+      "matched": true
+    },
+    {
+      "address": "0x42a314",
+      "matched": true
+    },
+    {
+      "address": "0x42a4cc",
+      "matched": true
+    },
+    {
+      "address": "0x42a55c",
+      "matched": true
+    },
+    {
+      "address": "0x42a5e8",
+      "matched": true
+    },
+    {
+      "address": "0x42a674",
+      "matched": true
+    },
+    {
+      "address": "0x42a754",
+      "matched": true
+    },
+    {
+      "address": "0x42a78c",
+      "matched": true
+    },
+    {
+      "address": "0x42a7c8",
+      "matched": true
+    },
+    {
+      "address": "0x42a7dc",
+      "matched": true
+    },
+    {
+      "address": "0x42a814",
+      "matched": true
+    },
+    {
+      "address": "0x42a828",
+      "matched": true
+    },
+    {
+      "address": "0x42a95c",
+      "matched": true
+    },
+    {
+      "address": "0x42a994",
+      "matched": true
+    },
+    {
+      "address": "0x42a9a4",
+      "matched": true
+    },
+    {
+      "address": "0x42a9f0",
+      "matched": true
+    },
+    {
+      "address": "0x42aa10",
+      "matched": true
+    },
+    {
+      "address": "0x42ab3c",
+      "matched": true
+    },
+    {
+      "address": "0x42abb4",
+      "matched": true
+    },
+    {
+      "address": "0x42abe8",
+      "matched": true
+    },
+    {
+      "address": "0x42d878",
+      "matched": true
+    },
+    {
+      "address": "0x42d894",
+      "matched": true
+    },
+    {
+      "address": "0x42d8d0",
+      "matched": true
+    },
+    {
+      "address": "0x42e114",
+      "matched": true
+    },
+    {
+      "address": "0x42e154",
+      "matched": true
+    },
+    {
+      "address": "0x42e190",
+      "matched": true
+    },
+    {
+      "address": "0x42e3fc",
+      "matched": true
+    },
+    {
+      "address": "0x42e420",
+      "matched": true
+    },
+    {
+      "address": "0x42e460",
+      "matched": true
+    },
+    {
+      "address": "0x42e494",
+      "matched": true
+    },
+    {
+      "address": "0x42e4a4",
+      "matched": true
+    },
+    {
+      "address": "0x42e560",
+      "matched": true
+    },
+    {
+      "address": "0x42e568",
+      "matched": true
+    },
+    {
+      "address": "0x42e5c8",
+      "matched": true
+    },
+    {
+      "address": "0x42e61c",
+      "matched": true
+    },
+    {
+      "address": "0x42e6c8",
+      "matched": true
+    },
+    {
+      "address": "0x42e708",
+      "matched": true
+    },
+    {
+      "address": "0x42e76c",
+      "matched": true
+    },
+    {
+      "address": "0x5af650",
+      "matched": true
+    },
+    {
+      "address": "0x5e5a94",
+      "matched": true
+    },
+    {
+      "address": "0x5e61e4",
+      "matched": true
+    },
+    {
+      "address": "0x5e61f4",
+      "matched": true
+    },
+    {
+      "address": "0x5e41bc",
+      "matched": true
+    },
+    {
+      "address": "0x5e4204",
+      "matched": true
+    },
+    {
+      "address": "0x5e420c",
+      "matched": true
+    },
+    {
+      "address": "0x5e4244",
+      "matched": true
+    },
+    {
+      "address": "0x367e1c",
+      "matched": true
+    },
+    {
+      "address": "0x367e64",
+      "matched": true
+    },
+    {
+      "address": "0x5b9690",
+      "matched": true
+    },
+    {
+      "address": "0x5b97c8",
+      "matched": true
+    },
+    {
+      "address": "0x5b9830",
+      "matched": true
+    },
+    {
+      "address": "0x5b9840",
+      "matched": true
+    }
+  ],
+  "runtime_renderer_verified": false,
+  "normalization_note": "cmp w0,NULL listing at 0x42a5e8 normalized to cmp w0,w22 for compressed-pointer width"
+}

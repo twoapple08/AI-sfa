@@ -9,16 +9,18 @@
 - 기존00–05시험/자료분석완료. 재출력·추가작품·제작자문의금지. 기존추출·도구설치·시험은새변경/실패관련필요없으면반복금지.
 - 정확도유지하며캐시/읽은내용재사용·좁은출력·실제명령검증. AGENTS.md준수. 사용자잔여주간사용량직접조회불가. 인수인계필요시체크포인트저장후docs/HANDOFF-PROMPT.md제공.
 
-## 현행 체크포인트 — fill/plan/editor/glow 캐시 재사용 경계
+## 현행 체크포인트 — 객체→그룹glow·fill/구멍 갱신 전파
 
-먼저 AGENTS.md와 **docs/AOT-CACHE-BOUNDARY-TRACE-2026-10-15.md**를 읽는다.
+먼저 AGENTS.md와 **docs/AOT-DIRTY-PROPAGATION-TRACE-2026-10-15.md**를 읽는다. 캐시층별기본은AOT-CACHE-BOUNDARY보고서.
 
 - 원본hole-combine:_HoledFillPaths key는생성steps double을복사한Float64→Int64 bit열/hash/길이/전word비교. ID/색단독키아님. hole>0없으면이cache안씀. hit도앞contour빌드는진행,combine만생략. remove/reinsert LRU256,miss때앞entryeviction,반환Path.from복사. 보간fill별도nativecombine,동일cache호출없음.
 - planFor는AO목록Expando→fits.Frame/목록identity·순서·LayerId·점수/layer/fill관련구조검사. geometry/색전부snapshot검사아님. plan재사용과완성pixel재사용구분. 모든in-placeDrawOrder/Flags/contour변경안전보장미확인.
 - 편집paint는설정listEquals→underlay/record갱신,구조update null→recordings폐기/새record. _holdsValues는TypeId/Color/ThicknessScale/ObjectScale/Glow값·DrawOrder/boolean/point x,y,Index검사. 값변경→영향unit집합,Picture재생+변경unit직접그림. 2D≤U와drag/집합조건이있어무조건부분재사용아님. 폐기는globalglow/holedcache전체clear가아님.
 - glow이미지key는기존localgeometry/Wq/Rq/dimension양자화;색/절대원점제외와ColorFilter새색입힘유지. fill exactbit key와합치지마. export새PictureRecorder→동적Draw→endRecording,EditorFrameCache.paint안씀. sharedgeometrycache까지미사용단정금지.
 - 새65명령ELF/Capstone통과.NULL compressedstur2곳은w22폭정규화명시. 문서만변경,기존unit/probe/영상/폰시험반복없음. runtimepixel/실제영상backend미검증.
-- **정확한 다음:** _FrameRecord생성자의AO→본체/glow/fill unit인덱스·의존집합→update전파→실제편집DrawOrder/Flags/FR contour변경의목록교체·무효화계약. 한객체이동시그룹glow/연결fill·구멍갱신을정적경로로닫기.
+- 생성역참조닫힘:AOidentity→본체unit(field4f)/groupglowunit(53),FRidentity→소유unit(57). 전체FRsegment.ObjId→같은ID의모든AO위치→fillunit Set→Int64 _followers(5b). contour0필터없어hole도포함. 값변경→본체+followers+oldActive OR newActive의glowunit. active=Radius>0&&GlowAlpha>0. FR색별도자기unit갱신.
+- AP Flags(fieldf)구조검사→불일치null→새record/plan. groupUI fieldf설정/해제연결. filltap은FR삭제/새FR·복사불변segment목록추가. mergeLayerDown은sort→rendercacheevict→dirty→reload. 전UI계약완성아님. 새54명령대조통과(기존표본과중복합산금지).
+- **정확한 다음:** _evictRenderableFrameCache/_markFrameDataDirty·renderableframe identity/revision key→일반DrawOrder변경UI·FR변환/segment교체→DB저장/재불러오기·재생cache폐기경계. 기존영상/폰시험반복금지.
 - 이전curve/ring:AOT-CURVE-RING보고서.16chord길이/최대곡률/회전각→n1–48,균일t/회전t혼합,중간부호곡률triple.48상한후반삭제아님/오차보장아님. 일반ring2/4/8node선택의min은node판단만,반폭원래W/2. 퇴화stroke radius0/8node._fill h+3sigma+1/cull h+4sigma+1구분.
 - 이전group/shader/timeline:AOT-GROUP-SHADER-TIMELINE보고서.각AO글로우먼저/fill·본체뒤. 객체내coverage clamp와객체간blend분리. Q/K/N양자화timeline/마지막원본유지. FPS=(T트위닝,P재생). raw/PNG동일DartPicture→Java완성textureH.264/MP4,공간예측선택/codec검사아님(EXPORT-DISPATCH).
 - Paint OBJECT8/PREVIEW약2.2 Float32/primitive1.14/padding1.24정정유지. 기존B/00–05/영상/설치/폰시험재실행금지. runtime license4차단상태유지/추가사용자작업없음.
