@@ -17,7 +17,7 @@
 
 ## 현행 읽기 순서와 체크포인트
 
-AGENTS.md → docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md → 필요한 주제 보고서만 읽는다. 기능 구분은 docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md. 이전 전체 handoff는 docs/history/HANDOFF-2026-10-15-before-group-history-rebase.md에 보존했다. 과거의 ‘다음’은 현행 지시가 아니다.
+AGENTS.md → docs/AOT-EDITOR-MENU-DELETE-CALLER-TRACE-2026-10-15.md → 필요한 주제 보고서만 읽는다. 기능 구분은 docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md. 이전 전체 handoff는 docs/history/HANDOFF-2026-10-15-before-group-history-rebase.md에 보존했다. 과거의 ‘다음’은 현행 지시가 아니다.
 
 새 추가 분석:
 
@@ -48,15 +48,16 @@ AGENTS.md → docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md → 필요한 
 
 1. LAYER-MERGE-DELETE-ADD 정상경로도추가완료: 목록위치직전layer로병합,AO대표source/target각sort→target먼저+source뒤→기존effectiveorderkey정렬슬롯을각AO모든frame인스턴스에배정.1부터새번호아님. frame별SaveFrame→전역LayerId갱신·definition삭제→commit/cache무효화/reload/history전부clear후entry. delete는layer둘이상/sequence전체AO·fill·기반참조·incoming/outgoing·상세·definition삭제/historyclear. add는DB최대+1/메모리열린layer충돌회피/모든frame에visibletrue·lockedfalse로정의추가.138선택명령.
 2. 삭제보조도확인: root의비삭제AO source가삭제AO의실제override target을가리키면source를가상ID로먼저구체화;실제override/removed없는가상targetincoming별도삭제;범위실제삭제점removed표시. fill공유withoutFigures는영향outer0이면빈segment storedregion유지/영향hole만제거,SQL기존행은outerregion행삭제/hole segment삭제로표현차이. 전체실패·수명보장은아님.
-3. 다음유의미한정적범위는원본UI전체coverage 중아직계약미추적인구체caller: main _buildCurrentFrameDialog0x5b5d78(size0xd40)의버튼→frame복사/삽입/삭제전환, _deleteSelectedFrameObject0x6022ec(size0x160)/_deleteConnectedObjects0x5e7748(size0x244), _historySignatureOf가호출하는Frame.GetFastHash0x51cb64의포함필드·캐시무효화. 먼저기존보고서에이미자세한근거있는지좁게확인하고새분기만추적. 전체UIcoverage완료라고쓰지마. compaction/Rewrite/일반undo/레이어merge/delete/add정상경로는반복하지않음. 오류·외부수정·전체수명·동적dispatch미확인유지.
-4. 상세변형fallback GDT+0x85e4 actualgetter는 기존 cache에 selector↔target표가 없어 미해결. Adopt layer fallback도 같은 selector지만 대상class다름. ‘첫점/첫레이어’ 단정금지. 완전 재decompile 반복금지.
-5. 일반AO 앞뒤/별도 lock toggle UI 미식별. 같은 PP/이름검색·생성DrawOrder 재추적 반복금지. 새로운 구체 caller가 있을 때만 추적.
-6. codec malformed입력/overflow/전체객체수명/동시·DB실패 보장,모든곡선·그룹glow·backend pixel·UI실결과는 미완. 정적미수행을 실물로만 가능한 것으로 분류하지 않는다. license4지속편집차단 유지/사용자추가시험요청없음.
+3. EDITOR-MENU-DELETE-CALLER(65선택명령)추가확인. _buildCurrentFrameDialog는실제callback상도구모드·속성·배경·축/zoom/snap·레이어surface다. 이름으로frame복사/삽입버튼이있다고가정한이전‘다음’을정정한다. 실제tap4perspective/5fill/7tween,panstart4perspective/6AllGroup/7tween. 나머지mode이름추측금지. 선택객체삭제는활성anchor→연결AOIDset+자기소유AO→현재frameAO필터→transaction DeleteAnchorPointsOfFigures/removeWhere/prune/SaveFrame→historyentry. layer전역삭제와구분.
+4. 다음실제미완: time-axis frame추가·복사·삭제의구체caller를먼저찾기(현재FrameDialog를그입구로가정하지마),DataAccess._deleteAnchorPoint0x3608b0/_cleanupUnusedAnimationObjects0x3662a4,Frame.GetFastHash0x51cb64 포함필드/무효화. 먼저기존보고서의완료세부와대조해새분기만. 전체UIcoverage·오류/외부수정·전체수명·dynamicactualtarget미완유지. 기존compaction/Rewrite/undo/레이어정상경로재분석반복금지.
+5. 상세변형fallback GDT+0x85e4 actualgetter는 기존 cache에 selector↔target표가 없어 미해결. Adopt layer fallback도 같은 selector지만 대상class다름. ‘첫점/첫레이어’ 단정금지. 완전 재decompile 반복금지.
+6. 일반AO 앞뒤/별도 lock toggle UI 미식별. 같은 PP/이름검색·생성DrawOrder 재추적 반복금지. 새로운 구체 caller가 있을 때만 추적.
+7. codec malformed입력/overflow/전체객체수명/동시·DB실패 보장,모든곡선·그룹glow·backend pixel·UI실결과는 미완. 정적미수행을 실물로만 가능한 것으로 분류하지 않는다. license4지속편집차단 유지/사용자추가시험요청없음.
 
 ## 캐시·검증·보호
 
 - 활성 checkout /workspace/scratch/5a16c98ed7ee/AI-sfa-publish. 선택명령 검사 /workspace/scratch/5a16c98ed7ee/private-trace. 기존dirtyworktree와다른체크아웃보존/reset금지.
 - AOT/ELF /workspace/scratch/e23c9fd610d3/private/{blutter_out,input/arm64-v8a/libapp.so,venv,depsroot}. asm/sfa,pp.txt,objs.txt재사용. 원본추출·Blutter설치/전체재실행필요없음. 도구gdb없음.
 - shader /workspace/scratch/6d77389e706a/private/glow.frag는binary:cat금지. 원본apk6d77389e706a/evidence,계측tools37921248d0d6/private,비공개ZIP25b8ca176661/output. 상세이력은이전handoff/ANDROID-INSTRUMENTATION-BUILD/FLUTTER-TOOLS-RESULTS보고서.
-- 이번변경은문서·명령audit뿐. ELF대조GROUP57/HISTORY178/REBASE62/REWRITE52/PHASES178/LAYER138모두통과. 링크·JSON·diff검사후main반영. 코드변경시에만필요검사: python -m unittest discover -s tests -v. 기존unit/probe반복하지않음.
+- 이번변경은문서·명령audit뿐. ELF대조GROUP57/HISTORY178/REBASE62/REWRITE52/PHASES178/LAYER138/EDITOR65모두통과. 링크·JSON·diff검사후main반영. 코드변경시에만필요검사: python -m unittest discover -s tests -v. 기존unit/probe반복하지않음.
 - 잔여주간사용량조회불가. 인수인계추천시체크포인트저장후docs/HANDOFF-PROMPT.md제공. 다음대화에서도자율진행지시유지.
