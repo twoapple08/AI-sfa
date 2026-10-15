@@ -37,7 +37,9 @@
 
 PC는 사용자20:26 보고로 현재 사용 불가다. 서버 cache는 정상이며 사용자 추가 시험을 요구하지 않았다. 작은 체크포인트마다 자율 작업을 멈추지 않는 지침을 AGENTS에 추가했다.
 
-미확인 정적 범위는 GroupFlagRepair/RepairGroupFlags, 전체 UI/undo·custom fill prune, rebase/compaction 및 오류 입력 계약이다. 상세 변형 fallback은 GDT의 실제 대상 mapping이 기존 cache에 없어 미해결이다. 일반 앞뒤/별도 잠금 UI는 미식별이며 같은 이름 검색을 반복하지 않는다. 이들을 모두 실물에서만 해결할 수 있는 문제로 바꾸어 적지 않는다.
+추가로 [GROUP-REPAIR](AOT-GROUP-REPAIR-TRACE-2026-10-15.md), [FILL-PRUNE-HISTORY](AOT-FILL-PRUNE-HISTORY-TRACE-2026-10-15.md), [ROOT-REBASE-IDLE](AOT-ROOT-REBASE-IDLE-TRACE-2026-10-15.md)를 연결했다. 그룹 비정상 참조·순환과 DB 반영, fill 구조 정리·custom undo 정상경로·일반 복원 live LayerId/DrawOrder 보존·history 비교, root 재기반 완전일치 조건·idle wrapper/재작성 guard를 확인했다. 각각57/127/62 선택 명령 대조이며 전체 의미/실물 증명은 아니다.
+
+미확인 정적 범위는 compaction 내부 단계·Rewrite 파일교체/실패복구, 일반 undo/redo 전체 stack·async guard, 전체 UI coverage 및 오류 입력 계약이다. 상세 변형 fallback은 GDT의 실제 대상 mapping이 기존 cache에 없어 미해결이다. 일반 앞뒤/별도 잠금 UI는 미식별이며 같은 이름 검색을 반복하지 않는다. 이들을 모두 실물에서만 해결할 수 있는 문제로 바꾸어 적지 않는다.
 
 픽셀/backend 동등성·모든 UI 조작 결과·비정상 입력의 실제 결과는 새 실물 검증 없이 완료로 세지 않는다. 기존 계측 앱 license4 차단은 유지된다. 독립 분석 가능 항목 전체를 소진했다거나 완전한 animating AI가 만들어졌다는 의미는 아니다.
 

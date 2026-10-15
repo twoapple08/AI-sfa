@@ -1,79 +1,58 @@
 # AI-sfa 현재 인수인계 — 2026-10-15
 
-## 목표·상시 지침
+## 목표·권한·금지
 
-- 한국어 소통. Stick Fighter51.0.0의 **모든 창작·편집 기능 분석과 실제 앱 검증**이 목표다. 최소SFA생성/렌더근사로목표축소금지. 사쿠가수집/학습/AI연결은보류.
-- 직접작성보고서·집계·작업지침은main반영상시승인. 쓰기전최신head/tree/expected_sha확인,다른변경보존. 시스템자동승인거부우회금지.
-- 공개금지: APK/SFA/영상/역컴파일소스/assembly/키/전체런타임로그. 레포에원본또는역컴파일코드첨부금지.
-- FPS=(트위닝,재생). 레이어UI는전체프레임제작보조. 굽힘기능없음. 편집공간/출력사각형구분,음수·화면밖좌표임의삭제/중앙이동금지.
-- 기존00–05시험/자료분석완료. 재출력·추가작품·제작자문의금지. 기존추출·도구설치·시험은새변경/실패관련필요없으면반복금지.
-- 정확도유지하며캐시/읽은내용재사용·좁은출력·실제명령검증. AGENTS.md준수. 사용자잔여주간사용량직접조회불가. 인수인계필요시체크포인트저장후docs/HANDOFF-PROMPT.md제공.
+- 한국어. 목표는 Stick Fighter51.0.0의 모든 창작·편집 기능 분석과 실제 앱 검증. 최소 생성기/렌더 근사로 축소하지 않는다. 사쿠가 수집·학습·AI 연결 보류.
+- 사용자는 혼자 가능한 일을 전부 자율 진행하라고 반복 지시했다(최신20:32 KST). 작은 보고서·커밋마다 ‘다음은…’으로 턴을 끝내지 않는다. 미수행과 실제 차단을 구분한다. 모든 독립 분석이 끝났다는 거짓 완료 금지.
+- 직접 작성 보고서·집계·작업지침 main 반영 상시 승인. 최신 remote head/tree 확인·expected_sha 보호·다른 변경 보존. 자동승인 거부 우회 금지.
+- APK/SFA/영상 원본·역컴파일 소스/assembly·키·전체 로그 공개 금지. PREVIDEO 예측은3278146 고정, 정답에 맞춰 수정 금지. File-2 최초100%조건 미충족: 최적화/재압축/삭제/병합/원본수정 금지.
+- FPS=(트위닝,재생). 굽힘 기능 없음. 음수/화면밖 좌표 임의 삭제·중앙 이동 금지. 레이어 UI는 전체 프레임 제작 보조. 편집 공간과 출력 사각형 구분.
+- 기존00–05 영상·SFA 시험/분석은 완료한 범위 재사용. 재설치·페어링·getprop·폰 시작 시험·기존 영상 분석·새 작품/제작자 문의 반복/요청 금지. 문서 변경만으로 unit/probe 재실행 금지.
 
-## 현재 실행 환경·기능표 — 2026-10-15 20:32 KST
+## 현재 환경과 차단
 
-- PC 현재 사용 불가(20:26 사용자 보고). 서버의 기존 AOT/ELF/Capstone 접근은 정상. PC 소실과 서버 캐시를 혼동하지 않는다.
-- 실행 환경·기존AOT/ELF/Capstone 접근복구. 원본재추출/도구재설치없음. 15:15의unavailable은해소됐고,캐시가유실된것은아니었음. license4 지속편집계측차단과는별개.
-- 기능별실제표본/정적근거/미확인은docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md. 기존00–05영상·SFA재분석없음. 지금사용자추가작업없음.
+- 사용자20:26 보고로 PC 현재 없음. 이전 i7-8700/1050Ti/16GB를 가용 환경으로 전제하지 않는다. 폰 Wi-Fi는 학교망 제약. 서버 AOT/ELF/Capstone 캐시는 정상이며 PC 소실과 다르다. 지금 사용자 추가 작업 없음.
+- 계측 앱은 Gadget/Flutter/libapp 로드까지 실물 확인됐지만 Play license 응답4로 지속 편집 차단. 응답4의 정확한 서버 뜻은 미확인. 검사 우회 안 함. 원본00–05 실제 UI/출력 표본은 존재하므로 ‘앱 시험 전혀 없음’으로 쓰지 않는다.
+- 원본 com.sG.stickfighter.activities51.0.0/code51000, min24/target36/user0/ARM64, Android16/SDK36/비루팅 이력. 학교망에서 현재 무선ADB 가능하다고 가정하지 않는다. 계측 com.twoapple08.sfa.instrument Test5는 원본보호242대조·서명/정렬 통과, 비공개 전달 완료. 재빌드 필요 없음.
 
-## 현행 체크포인트 — 원근 선택·codec/root 해제·재생·객체 보간
+## 현행 읽기 순서와 체크포인트
 
-먼저 AGENTS.md와 docs/AOT-OBJECT-TWEEN-PAIR-TRACE-2026-10-15.md를 읽는다. 기능별 근거는 FEATURE-EVIDENCE-MATRIX. 직전 상세패널/캐시/저장 세부사항은 각 보고서와 docs/history/HANDOFF-2026-10-15-before-autonomous-tools.md에 보존했다. 과거 ‘다음’을 반복하지 않는다.
+AGENTS.md → docs/AOT-ROOT-REBASE-IDLE-TRACE-2026-10-15.md → 필요한 주제 보고서만 읽는다. 기능 구분은 docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md. 이전 전체 handoff는 docs/history/HANDOFF-2026-10-15-before-group-history-rebase.md에 보존했다. 과거의 ‘다음’은 현행 지시가 아니다.
 
-- 사용자 최신 지시: 혼자 처리 가능한 작업은 자율 진행. 사용자 추가 시험 요청 없음. 설치/페어링/폰시작/기존 영상 반복 금지. 전체 기능 분석 목표 유지, 학습·AI연결 보류.
-- CONNECTED-TARGET-REFLECTION: tap→CollectGroupClosure→AO ID 첫 발견 중복제거 목록→상세 dialog. closure는 AC·소유 AO 점·그룹 parent/children을 입력 map 범위에서 큐로 확장. 반사는 start x 중심 x'=2c−x, start ID 제외, tap→saveAfterMove 연결. DrawOrder sort 아님.
-- ALLGROUP-BOX: layer 표시/잠금 필터, 전역 설정 bool에 따른 활성 layer 제한. 초기 점 화면좌표/속성 snapshot에서 상자 변환; 모서리만 t/o 배율 및 Radius=min(round(R0*k),max(300,R0)); 측면/이동/회전은 해당 속성 loop 제외. 최소 화면 크기8, rotate snap45도 진입.55도/유지.96도. pan종료 moved면saveAfterMove. movedFigures는 동일Frame/구조에서 좌표만 비교하며 속성diff로 일반화 금지. 표시 토글→sequence DB 전달 확인; 별도 잠금 UI 미식별.
-- MOVEMENT-DISPATCH: pose tool0, stretch1. T=Flags&0x2e로 전체이동/회전/PivotTo 분기; 0x21 조상 예외 별도. concurrent는 일반 AC만 따라가며 그룹연결 제외. 늘이기는 이 점들을 같은 포인터 좌표로 이동. 전체이동 closure는 그룹 확장 포함. 회전은 화면좌표에서 수행 후 역변환.
-- _branchOf: pivot 일반연결점 ID를 경계로 두고 branch seed에서 비그룹 AC+소유 AO 점 확장. RotateBranch에서 현재 점==pivot이면 적용 후 회전중심 다시 구성하는 조건 있음. GetClusterHead는 parent가 일반연결점 안일 때 위로 이동.
-- BuildTree: map 점 parent/children 초기화→선호점+T2 후보 전체 ID정렬→미방문 후보 탐색, 비그룹AC 후 AO다른점 확장/parent지정. 남은점은 map값순 새탐색. 선호점 무조건 첫 root 단정금지. 0x5114b0 공유몸체는 fieldb=null이며 Flutter dispose 의미로 읽지마.
-- 새175개 선택 명령 ELF/Capstone 대조 통과(CONNECTED-ALLGROUP audit). 전체함수/실제앱/pixel 검증 아님; 다른 보고서 표본과 중복 합산 금지. 문서만변경/unit·probe재실행 없음.
-- PERSPECTIVE-WARP: 일반핸들8개·시작snapshot·screen18 hit-test·valid quad=maxpairdistance>2(볼록/면적검사아님). D,S순 인수; signedH/V로 목적abs≤.5 또는 둘abs>.5반전이면bilinear우선,그외projective,실패시bilinear. homography분모abs<1e−6/비finite 또는점하나실패→전체fallback. bilinear는sourcequad bbox의u/v로D0→D1,D3→D2보간/clamp없음. solver pivot최대abs<1e−7실패. 일반helper는좌표만저장;lasso→AllGroup별도라모드전체속성불변일반화금지. 새130선택명령대조/실제앱미검증.
-- 올가미경로 닫힘:resolveLassoTarget=선택screenmap키→Frame점ID필터,ofPoints=점목록+소유AO ID중복제거 별도. 시작AllGroupDrag/update dragTo우선/종료leftBox·기존anchor ID재선택·저장. 새polygon 내부판정helper아님.
-- 새 SELECTION-CUSTOM: 원근후보 visible T2만,activeLayer bucket. bounds=연결점screen bbox inflate18/min48;다시inflate26후거리²≤676,score8d²+.0015area+.015center거리². anchor는첫비그룹T2→첫그룹T2→입력. fallback점우선순위3/1/0과제곱거리여유9. 일반/custom수학공유,custom종료dirty→saveCurrent이며일반saveAfterMove와다름. 새80명령대조. contexthelper는hidden층제외/locked필드미조회,모드전체lock무관으로확대금지.
-- 새 FILL-MOVED-CODEC: fill=zlib/버전1/U7varint+ZigZag/ARGB·kind·AO·contour/edgeoptional점·Float64LE. NaNt→null→복원0/1,−0→+0,범위clamp없음. moved=연속IDrun/gap·길이/첫delta64bit+각점predicted와target signedbit정수차를ZigZag. XOR/정수좌표양자화아님. callbackoffset+B. outgoing연결갱신은withLinks=false구체화→그점기존outgoing삭제→대상ID중복제거insert. 전체비정상바이트보장아님.
-- 새 ROOT-RELEASE: base존재/root참조base행정확히1/2N<R일때만잔여점·연결구체화→moved좌표반영→상세복사→dropbase. drop은removed/moved/base삭제후아무base도참조안하는root점/outgoing/detail/root정리. noteRowsLeaving공통bool은recordScope대상−1표시로소비;즉시참조복구메커니즘으로단정금지. CODEC-ROOT 새102선택명령대조.
-- 새 PLAYBACK-BUFFER: sourceindex→Frame LRU100/읽은Frameidentity별점수500000초과&&2개초과시목록/map해제. outputindex→Picture?와Placement맞는Image별도. recordahead최대120/6000µs/각64MiB검사,finishAhead4후보중최초1Image변환후return. plan앞뒤identity쌍재사용. displayed소유권dispose분리. clock은목표+최대8ms허용/한period초과늦으면기준재설정;exporttimeline과분리. 새90명령대조.
-- 새 OBJECT-TWEEN: 앞AO기준쌍,수동대응우선→같은ID,미대응중간AO추가없음. link입력뒤ID→앞ID/뒤key정렬,앞반환중복·양frame자연ID충돌·TypeId·동위치Index목록검사. 점은앞목록순/같은위치Index우선→뒤첫Index검색→없으면앞좌표유지. p0+(p1−p0)t,새보간객체/원본점수정아님. tScale선형,R/GlowThickness반올림,GlowAlpha=앞+trunc(delta*t),색ARGB. ObjectScale일괄lerp로일반화금지. 그룹ID앞연결집합공급. 새64명령대조.
-- 모든audit는선택명령일치이며전체함수/앱/pixel검증아님. 표본수독립누적합산금지. 코드변경없음/기존unit·probe·폰·영상반복없음.
-- 사용자20:32재지시: 혼자진행가능한일전부. 작은보고서·커밋끝마다다음안내로멈추지마. 앞서안내한원근tap/custom/저장보간작업은이번정상경로를처리함. **완전한앱이해/모든독립분석완료주장은금지.**
-- 남은 구체 정적범위: 상세변형fallback GDT+0x85e4의concretegetter(기존cache에selector↔target표없음/첫점단정금지),GroupFlagRepair/RepairGroupFlags의비정상그룹정규화,전체UI명령coverage/undo·custom fill prune,root rebase/compaction의나머지분기. 보간·codec전체오류입력/수명·동시실패의일반보장미완. 이항목은실물없어서본질적으로불가능한것으로분류하지마.
-- 일반AO앞뒤/별도잠금UI는미식별. 같은이름·PP검색·생성DrawOrder호출재추적반복금지. 새로운구체UIcaller가있을때만추적. 기존renderer·fill·timeline·modify보고서재사용. 실제pixel/backend와미검증UI결과는별도실물검증범위이며license4차단유지. PC재확보/폰재설치요청없음.
+새 추가 분석:
 
-## 필요한 이전 정적 사실·근거
+- GROUP-REPAIR: ResolveGroupParentId는 방문 ID 순환 차단/비그룹T2 부모 요구. null lookup에서만 조건부 legacy16bit token fallback; 실제 잘못된 부모에서는 fallback 없음. Repair는 ID정렬→자기참조 해제→없는 부모 복원/해제→순환 최소ID 한 점 해제→비T2 부모 재배정→잔여 flags 정리. Reassign은 구조 연결 후보 비그룹T2 최소ID. 기존 어느 한 방향 연결이 있으면 양방향 보완하지 않음. 메모리 변경 map/제거·추가 쌍→frame helper 초기화→DB transaction의 flags/양방향삭제/각끝점 outgoing 재저장. 57 선택 명령 ELF 대조.
+- FILL-PRUNE-HISTORY: 외곽0 무효→region 제거; 무효 양수구멍·음수contour segment 제거/나머지 순서와 ID 유지. edge 유한t/abs차>1e−6/참조점·Type1·2≥2점·Type3≥3점. circle Type2≥2점; 다중segment의 circle 금지. 기하학 폐곡선 보장 아님. custom undo/redo snapshot deep clone/activeID/ID목록불일치 reset/중복비교/확인 push stack60/DB prune→SaveFrame→reload. 일반복원은 live layer 적용→prune→변경AO 또는전체저장/배경·tweenlink별도. Adopt는 live AO ID맞고layer유효하면 LayerId+DrawOrder 보존, 아니면유효snapshot layer유지/활성layerfallback. fallback GDT getter 미확정. history비교는 layer/AO/점/연결/fill의 순서도민감; double은 NaN쌍동등,±0구분. 127 선택 명령 대조.
+- ROOT-REBASE-IDLE: N>0/기존base없음/점ID범위 다른frame·가상base중첩없음/root행·크기/ID대응 AO·Index N일치/holdsRootExactly 통과때만 점/outgoing/중복상세삭제→base삽입. rID=rootFirst−(fID−B). holds는 좌표·flags복원·연결중복/외부연결·root상세기본값동등 검사. idle compaction은 시작전6ms검사/DBidentity 상태재사용/처리대상실패최대3. Rewrite 필요=DB·depthguard후 page_size<4096 또는 auto_vacuum!=2, 그외빈공간≥8MiB&&빈page≥전체1/4. 원본압축 실행 아님. 62 선택 명령 대조.
 
-| 주제 | 현행 근거·제한 |
+앞서 완료한 근거도 재사용:
+
+| 보고서 접두어(AOT-…-2026-10-15.md) | 확인 범위·주의 |
 |---|---|
-| 좌표/DPR/여백 | AOT-RENDER-CONTEXT-TRACE-2026-10-15.md: Offset+UsableSize×p/100/aspectfit/DPRoverride→view→1/export동기DPR1. 초기0해석은PAINT-DISPATCH보고서로정정. |
-| 채우기 보간 | AOT-FILL-TWEEN-TRACE-2026-10-15.md: rawsignature→유일canonical후보대응. paired색보간,앞held t<1유지/뒤held t1만. 경계보간실패시t.5기준앞/뒤segments+보간색. '모든FR앞색유지'금지. field_33=contourIndex. |
-| 구멍·경계 | AOT-FILL-PATH-TRACE-2026-10-15.md: outer0실패전체null/hole실패생략. 개별contour evenOdd후holes순차difference. 거리>0.1Path좌표연결lineTo/close. 선Tclamp없음/곡선clamp분할/arc기준각+2πT. |
-| 공급·그룹·glow | AOT-DRAW-GLOW-TRACE-2026-10-15.md: getter DB자동조회없음/null빈목록만DB공급. DB정렬COALESCE(draw_order,id),id. 비연속그룹A(g),B(h),C(g)→A,C,B. shader11=d1/sigma로정정,10=W/2,12일반0/링1. blend입력Paint상속/초기srcOver. |
-| import/링크 | AOT-PATH-TRACE-2026-10-15.md: importer DrawOrder/ObjectScale미조회→생성ID순서/default1. 수동링크TypeId/Index/충돌검사. 모든import/general링크정책확정금지. |
-| UI실측 | UI-04-05-RESULTS-2026-10-15.md: '굽힘없음',그룹Flags상위ID참조/AC,원대원TweenLink출력복구. 전체기능완료아님. |
-| 00–03영상 | PRIORITY-V2-RESULTS-2026-10-14.md,ROUNDTRIP-V2-RESULT-2026-10-14.md. 기존측정/왕복변화재분석금지. |
+| OBJECT-TWEEN-PAIR-TRACE | 앞AO 기준/수동link우선→동일ID/미대응skip. Index위치→뒤첫Index→앞좌표유지. 새객체/선형좌표/tScale·glow정수화/앞그룹ID. ObjectScale일괄lerp단정금지.64선택명령. |
+| PLAYBACK-BUFFER-TRACE | Frame sourceindex LRU100/읽은점500000·2frameguard. output Picture/Image별예산64MiB·120/6ms,finishAhead최초1변환. plan쌍identity/clock과export분리.90명령. |
+| FILL-MOVED-CODEC-TRACE, ROOT-RELEASE-TRACE | fillzlib/v1/U7/ZigZag/optional64bit;NaNt→null→0/1,−0→+0. moved연속run/첫delta+signedbit정수잔차(XOR아님). root해제1ref&&2N<R/잔여구체화/drop.공동102명령. |
+| PERSPECTIVE-SELECTION-CUSTOM-TRACE | visibleT2/활성bucket/bboxinflate18·min48→inflate26거리²≤676/score8d²+.0015area+.015center². anchor/fallback우선순위3/1/0,여유9. customdirty→saveCurrent차이.80명령. |
+| PERSPECTIVE-WARP-TRACE | source/destination signed축반전bilinear우선/projective실패전체fallback;validquad距離>2,볼록검사아님. 일반좌표저장/올가미AllGroup별도.130명령. |
+| CONNECTED-TARGET-REFLECTION-TRACE, ALLGROUP-BOX-TRACE, MOVEMENT-DISPATCH-TRACE | closure/AO중복제거·반사/레이어필터·상자속성모서리loop/pose·stretch·branch·BuildTree.상세는역사handoff링크.공동175명령. |
+| DRAW-GLOW-TRACE, GROUP-SHADER-TIMELINE-TRACE, EXPORT-DISPATCH-TRACE | DB공급/정렬COALESCE(draw_order,id),id/비연속그룹단위/shader11=d1/sigma,10=W/2,12일반0링1/blend상속/출력FPS timeline. |
+| FILL-TWEEN-TRACE, FILL-PATH-TRACE | fill대응·held앞t<1/뒤t1·경계실패t.5선택+색보간/outer실패전체null·hole실패생략/evenOdd·difference. |
+| RENDER-CONTEXT-TRACE, SAVED-VALUES-TRACE, SHARED-RESTORE-TRACE, ROOT-FLAGS-LAYER-SWAP-TRACE, LAYER-MEMORY-TRACE | 좌표/DPR/속성저장·공유복원/레이어교환·표시토글DB연결.別lockUI미식별. |
 
-## Android 실물 상태 — 추가 사용자 작업 없음
+모든 audit는 선택 명령 일치이며 전체 함수/실제 앱/pixel 검증 아님. 보고서 간 중복 표본을 독립 누적 합산하지 않는다. GDT slot만으로 concrete target 메서드명 추정 금지. float폭·Smi와 실제 명령 우선. 공유 Flutter annotation에 속지 않는다.
 
-- 환경갱신(사용자보고2026-10-15 08:48–08:49 KST): 당시 PC사용가능,대략i7-8700/GTX1050Ti/RAM16GB였으나 20:26 KST 현재 PC사용불가로 정정. 휴대폰Wi-Fi는학교망연결가능하나제약있음(08:49 KST정정,정확한제약미확인). PC의OS/인터넷/USB연결·ADB준비상태는미확인. Android16/SDK36/ARM64·루팅X 유지. Termux/android-tools/pkgupgrade/무선ADB/저장공간접근완료는이전이력이며현재학교망무선ADB사용가능으로가정금지. PC확보만으로라이선스응답4차단해결단정금지. 기존정적캐시추적계속,설치·페어링/getprop/시작시험자동재실행·요청금지.
-- 원본 com.sG.stickfighter.activities51.0.0/versionCode51000,min24/target36,user0 base+arm64+ja+ko+xxhdpi,DEBUGGABLE없음. user150권한오류는user0사용.
-- 별도 com.twoapple08.sfa.instrument/SFA Instrument Test5APK 제작/동일키v1/v2/v3서명·정렬·원본보호항목242대조통과,비공개전달완료. 기존libapp/libflutter보존. gadget script/qjs시작·모듈로그만,서버/Java bridge/렌더Hook없음.
-- 실물동일PID12555에서Gadget early/arm64/libflutter/libapp로드성공. LicenseClient기존패키지조회NameNotFound→Play연결/요청성공→응답4예외→오류창,Close시앱종료.라이선스코드4정확한서버뜻미확인(명시invalid package코드는3).원본삭제/Play비활성단정금지.
-- 실제지속편집/렌더검증없음.검사변경/우회미실시.추가사용자명령/재설치/Play설정/시작시험요청없음.자세한근거ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md.
-- SFA앱밖백업은설치스크립트질문으로안내했으나사용자BACKUP응답원문은없음.완료확정을만들지않는다.
+## 다음 실제 작업·미완
 
-## 보호 상태·검증
+1. 정적분석 계속: `_compactionStep`0x4f9b8c와 `_advanceCompaction`0x4fa7e8의 내부단계/보조함수, `RewriteCompactly`0x4f8914의 파일교체·실패복구. 현재 보고서는 wrapper/rebase만 완료. 전체compaction완료로 쓰지 않는다.
+2. 일반 editor undo/redo 전체 stack·async guard와 전체 UI command coverage는 미완. custom 정상경로·fill prune·Adopt/history 비교를 다시 처음부터 읽지 않는다.
+3. 상세변형fallback GDT+0x85e4 actualgetter는 기존 cache에 selector↔target표가 없어 미해결. Adopt layer fallback도 같은 selector지만 대상class다름. ‘첫점/첫레이어’ 단정금지. 완전 재decompile 반복금지.
+4. 일반AO 앞뒤/별도 lock toggle UI 미식별. 같은 PP/이름검색·생성DrawOrder 재추적 반복금지. 새로운 구체 caller가 있을 때만 추적.
+5. codec malformed입력/overflow/전체객체수명/동시·DB실패 보장,모든곡선·그룹glow·backend pixel·UI실결과는 미완. 정적미수행을 실물로만 가능한 것으로 분류하지 않는다. license4지속편집차단 유지/사용자추가시험요청없음.
 
-- PREVIDEO-PREDICTIONS-2026-10-14.md/PREVIDEO-FRAME-AUDIT.json은3278146고정예측. 정답맞춰수정금지. 비교/정정은별도VIDEO-PREDICTION-COMPARISON.
-- File-2최초예측100%조건불충족으로최적화/재압축/삭제/병합/원본수정금지. 영상경계정정/실측은각보고서참조.
-- 보고서집계/명령표본은렌더러/완성AI/학습결과아님. 기본HTML preview는근사. sfa.read_sfa32MiB한계임의해제금지.
-- 코드변경시필요검사:repo루트 python -m unittest discover -s tests -v. 문서만변경하면기존시험반복안함.
+## 캐시·검증·보호
 
-## 캐시·재개
-
-- AOT/ELF: /workspace/scratch/e23c9fd610d3/private/{blutter_out,input/arm64-v8a/libapp.so,venv,depsroot}. asm/sfa,pp.txt,ida_script/addNames.py재사용. Blutter성공은원래Dart소스복원아님.
-- 원본base /workspace/scratch/6d77389e706a/evidence/apk/base.apk,분할모음같은evidence/STICK FIGHTER (51.0.0).apks. 기존Java캐시6d77389e706a/private/decompiled.
-- 계측도구/빌드 /workspace/scratch/37921248d0d6/private/{instrument-tools,instrument-build}. 전용키sfa-test.jks재사용. 공식tools Apktool3.0.3/signer1.3.0/Gadget17.23.3 ARM64확보됨. 빈도구폴더/다운로드미완은옛상태.
-- 비공개ZIP /workspace/scratch/25b8ca176661/output/SFA-Instrument-Startup-2026-10-15.zip,libfile_a9e9671bcd3c8191b95a54915af9aa6d. 원본기반APK공개금지.
-- 현행문서checkout5a16c98ed7ee/AI-sfa-publish;curve/ring/cache검사5a16c98ed7ee/private-trace/. 이전문서checkout1be6baf45de3/AI-sfa;읽은shader텍스트1be6baf45de3/private-trace/. 이전문서worktree25b8ca176661/AI-sfa;이전검사/집계private-trace/. 이전37921248d0d6/e23c9fd610d3의로컬변경보존.remote반영뒤localHEAD뒤처질수있음;캐시문서덮어쓰기/reset/중복커밋금지.
-- reFlutter해당dumpengine404/자체engine빌드미실시이력은FLUTTER-TOOLS-RESULTS-2026-10-15.md.재시도요청없음.
-- 압축전인수인계전체보존:docs/history/HANDOFF-2026-10-15-before-render-context.md.현재내용이우선이며역사기록의낡은'다음'을재실행하지않는다.
-
-- 추가 검증 캐시5a16c98ed7ee/private-trace;추가문서반영clean worktree5a16c98ed7ee/AI-sfa-publish. 기존1be6baf45de3캐시/체크포인트와옛dirtyworktree는보존.
+- 활성 checkout /workspace/scratch/5a16c98ed7ee/AI-sfa-publish. 선택명령 검사 /workspace/scratch/5a16c98ed7ee/private-trace. 기존dirtyworktree와다른체크아웃보존/reset금지.
+- AOT/ELF /workspace/scratch/e23c9fd610d3/private/{blutter_out,input/arm64-v8a/libapp.so,venv,depsroot}. asm/sfa,pp.txt,objs.txt재사용. 원본추출·Blutter설치/전체재실행필요없음. 도구gdb없음.
+- shader /workspace/scratch/6d77389e706a/private/glow.frag는binary:cat금지. 원본apk6d77389e706a/evidence,계측tools37921248d0d6/private,비공개ZIP25b8ca176661/output. 상세이력은이전handoff/ANDROID-INSTRUMENTATION-BUILD/FLUTTER-TOOLS-RESULTS보고서.
+- 이번변경은문서·명령audit뿐. ELF대조57/127/62모두통과. 링크·JSON·diff검사후main반영. 코드변경시에만필요검사: python -m unittest discover -s tests -v. 기존unit/probe반복하지않음.
+- 잔여주간사용량조회불가. 인수인계추천시체크포인트저장후docs/HANDOFF-PROMPT.md제공. 다음대화에서도자율진행지시유지.

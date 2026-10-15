@@ -1,0 +1,235 @@
+{
+  "scope": "57 instruction samples; not complete function semantics or runtime pixel verification",
+  "results": [
+    {
+      "address": "0x346860",
+      "matched": true
+    },
+    {
+      "address": "0x34689c",
+      "matched": true
+    },
+    {
+      "address": "0x346a10",
+      "matched": true
+    },
+    {
+      "address": "0x346b34",
+      "matched": true
+    },
+    {
+      "address": "0x346b60",
+      "matched": true
+    },
+    {
+      "address": "0x346b78",
+      "matched": true
+    },
+    {
+      "address": "0x346c10",
+      "matched": true
+    },
+    {
+      "address": "0x36eec0",
+      "matched": true
+    },
+    {
+      "address": "0x36eee0",
+      "matched": true
+    },
+    {
+      "address": "0x36ef0c",
+      "matched": true
+    },
+    {
+      "address": "0x36ef60",
+      "matched": true
+    },
+    {
+      "address": "0x520e28",
+      "matched": true
+    },
+    {
+      "address": "0x520fc8",
+      "matched": true
+    },
+    {
+      "address": "0x521234",
+      "matched": true
+    },
+    {
+      "address": "0x521274",
+      "matched": true
+    },
+    {
+      "address": "0x521500",
+      "matched": true
+    },
+    {
+      "address": "0x5215e0",
+      "matched": true
+    },
+    {
+      "address": "0x521620",
+      "matched": true
+    },
+    {
+      "address": "0x521648",
+      "matched": true
+    },
+    {
+      "address": "0x52165c",
+      "matched": true
+    },
+    {
+      "address": "0x522368",
+      "matched": true
+    },
+    {
+      "address": "0x52236c",
+      "matched": true
+    },
+    {
+      "address": "0x52217c",
+      "matched": true
+    },
+    {
+      "address": "0x522180",
+      "matched": true
+    },
+    {
+      "address": "0x52182c",
+      "matched": true
+    },
+    {
+      "address": "0x5218e8",
+      "matched": true
+    },
+    {
+      "address": "0x5218f8",
+      "matched": true
+    },
+    {
+      "address": "0x521b58",
+      "matched": true
+    },
+    {
+      "address": "0x521dc0",
+      "matched": true
+    },
+    {
+      "address": "0x521ddc",
+      "matched": true
+    },
+    {
+      "address": "0x521934",
+      "matched": true
+    },
+    {
+      "address": "0x521de8",
+      "matched": true
+    },
+    {
+      "address": "0x521fa4",
+      "matched": true
+    },
+    {
+      "address": "0x521fe0",
+      "matched": true
+    },
+    {
+      "address": "0x521fec",
+      "matched": true
+    },
+    {
+      "address": "0x52212c",
+      "matched": true
+    },
+    {
+      "address": "0x5220f8",
+      "matched": true
+    },
+    {
+      "address": "0x5221c0",
+      "matched": true
+    },
+    {
+      "address": "0x5221d8",
+      "matched": true
+    },
+    {
+      "address": "0x522208",
+      "matched": true
+    },
+    {
+      "address": "0x5201e4",
+      "matched": true
+    },
+    {
+      "address": "0x5201f0",
+      "matched": true
+    },
+    {
+      "address": "0x52020c",
+      "matched": true
+    },
+    {
+      "address": "0x520218",
+      "matched": true
+    },
+    {
+      "address": "0x520290",
+      "matched": true
+    },
+    {
+      "address": "0x5202ac",
+      "matched": true
+    },
+    {
+      "address": "0x520420",
+      "matched": true
+    },
+    {
+      "address": "0x5205f4",
+      "matched": true
+    },
+    {
+      "address": "0x52078c",
+      "matched": true
+    },
+    {
+      "address": "0x520830",
+      "matched": true
+    },
+    {
+      "address": "0x520850",
+      "matched": true
+    },
+    {
+      "address": "0x520858",
+      "matched": true
+    },
+    {
+      "address": "0x5208d4",
+      "matched": true
+    },
+    {
+      "address": "0x520a28",
+      "matched": true
+    },
+    {
+      "address": "0x520a80",
+      "matched": true
+    },
+    {
+      "address": "0x520a9c",
+      "matched": true
+    },
+    {
+      "address": "0x520b2c",
+      "matched": true
+    }
+  ],
+  "runtime_renderer_verified": false,
+  "normalization_note": "Dart register aliases normalized; compressed stur/str NULL uses w22"
+}
