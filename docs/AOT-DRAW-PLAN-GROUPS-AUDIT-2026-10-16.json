@@ -1,0 +1,86 @@
+{
+ "scope": "20 selected instruction checks against restored same ELF (Capstone vs Blutter); not full semantics or runtime",
+ "checks": [
+  {
+   "address": "0x42bb1c",
+   "matched": true
+  },
+  {
+   "address": "0x42bbb8",
+   "matched": true
+  },
+  {
+   "address": "0x42bbc0",
+   "matched": true
+  },
+  {
+   "address": "0x42bbe4",
+   "matched": true
+  },
+  {
+   "address": "0x42bc34",
+   "matched": true
+  },
+  {
+   "address": "0x42bd64",
+   "matched": true
+  },
+  {
+   "address": "0x42bdcc",
+   "matched": true
+  },
+  {
+   "address": "0x42c370",
+   "matched": true
+  },
+  {
+   "address": "0x42c374",
+   "matched": true
+  },
+  {
+   "address": "0x42c378",
+   "matched": true
+  },
+  {
+   "address": "0x42c37c",
+   "matched": true
+  },
+  {
+   "address": "0x42c3a0",
+   "matched": true
+  },
+  {
+   "address": "0x42c698",
+   "matched": true
+  },
+  {
+   "address": "0x42c9f0",
+   "matched": true
+  },
+  {
+   "address": "0x42cab0",
+   "matched": true
+  },
+  {
+   "address": "0x42cab8",
+   "matched": true
+  },
+  {
+   "address": "0x42cbac",
+   "matched": true
+  },
+  {
+   "address": "0x42cd38",
+   "matched": true
+  },
+  {
+   "address": "0x42bb14",
+   "matched": true
+  },
+  {
+   "address": "0x42bae8",
+   "matched": true
+  }
+ ],
+ "runtime_verified": false
+}

@@ -203,6 +203,11 @@ def draw_glow(obj, cv, seq_thickness=100.0):
     sigma = math.hypot(radius * cv.p['glow_sigma_per_radius'], cv.p['glow_sigma_floor']) * cv.px_scale
     thickness = min(thickness, cv.p.get('glow_thickness_cap', 1e9))
     half = thickness * cv.p['glow_w_per_thickness'] * cv.px_scale / 2
+    ts = float(obj.get('ThicknessScale', '1') or 1)
+    ts = ts if math.isfinite(ts) and ts > 0 else 1.0
+    # User artwork: the glow band width also scales with the object's ThicknessScale (sigma does not).
+    half *= ts ** cv.p.get('glow_width_ts_exp', 1.0)
+    sigma *= ts ** cv.p.get('glow_sigma_ts_exp', 0.0)
     gs = seq_thickness / 100.0
     sigma *= gs ** cv.p.get('glow_seq_sigma_exp', 1.0)
     half *= gs ** cv.p.get('glow_seq_width_exp', 1.0)
@@ -335,24 +340,27 @@ def render_frame(frame, width=1920, height=1080, params=None, seq_thickness=100.
     find = group_units(frame)
     units = {}
     for obj in objects.values():
-        units.setdefault(find(obj.get('ID')), []).append(obj)
+        # Static _BuildLayerObjectGroups (0x42c2c8): connected groups are split per layer.
+        units.setdefault((obj.get('LayerId'), find(obj.get('ID'))), []).append(obj)
     fills_before = {}
     for region in frame.iter('FR'):
         refs = [objects[s.get('ObjId')] for s in region.findall('FS') if s.get('ObjId') in objects]
         if refs:
             # APP-T1: a fill is drawn below all of its boundary objects (anchor = lowest DrawOrder).
-            fills_before.setdefault(find(min(refs, key=order).get('ID')), []).append(region)
+            # FillRegionsByFigure.take: the first member (in order) referencing the fill claims it.
+            fills_before.setdefault(min(refs, key=order).get('ID'), []).append(region)
     pick = max if cv.p.get('unit_anchor') == 'max' else min
     for key in sorted(units, key=lambda k: pick(order(o) for o in units[k])):
         members = sorted(units[key], key=order)
-        # Static BuildDrawPlan: the unit's glows first, then each member's fill(s) and body.
+        # Static BuildDrawPlan: the unit's glows first, then per member (in order) its claimed
+        # fills and its body (fill/body units interleave with other members' bodies).
         for obj in members:
             draw_glow(obj, cv, seq_thickness)
-        for region in fills_before.get(key, []):
-            cov, box = fill_polygon_coverage(fill_contours(region, objects, cv), cv)
-            if cov is not None:
-                cv.blend(cov, region.get('Color', '0'), box=box)
         for obj in members:
+            for region in fills_before.get(obj.get('ID'), []):
+                cov, box = fill_polygon_coverage(fill_contours(region, objects, cv), cv)
+                if cov is not None:
+                    cv.blend(cov, region.get('Color', '0'), box=box)
             draw_core(obj, cv, seq_thickness)
     return np.clip(np.rint(cv.img), 0, 255).astype(np.uint8)
 
