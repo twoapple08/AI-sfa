@@ -25,7 +25,9 @@ PARAMS = {
     'offset_x': 0.19,               # measured sub-pixel origin shift (px at 1080p)
     'offset_y': 0.08,
     'object_scale_stroke': False,   # multiply core stroke width by ObjectScale (under test)
-    'object_scale_glow': False,     # multiply glow W/sigma by ObjectScale (under test)
+    'object_scale_glow': False,     # multiply glow W/sigma by ObjectScale (rejected on user artwork)
+    'glow_thickness_cap': 1e9,      # tested cap 60: fits one artwork frame (R26,T120) but not another (R67,T157); off
+    'unit_anchor': 'min',           # unit position among others: min or max member order
 }
 
 
@@ -199,6 +201,7 @@ def draw_glow(obj, cv, seq_thickness=100.0):
     if radius <= 0 or alpha <= 0 or thickness <= 0:
         return
     sigma = math.hypot(radius * cv.p['glow_sigma_per_radius'], cv.p['glow_sigma_floor']) * cv.px_scale
+    thickness = min(thickness, cv.p.get('glow_thickness_cap', 1e9))
     half = thickness * cv.p['glow_w_per_thickness'] * cv.px_scale / 2
     gs = seq_thickness / 100.0
     sigma *= gs ** cv.p.get('glow_seq_sigma_exp', 1.0)
@@ -325,7 +328,10 @@ def render_frame(frame, width=1920, height=1080, params=None, seq_thickness=100.
     hidden = {l.get('ID') for l in frame.findall('LayerDef') if l.get('Visible', 'true') == 'false'}
     # APP-T1: objects on a hidden layer are not drawn in exported frames.
     objects = {o.get('ID'): o for o in frame.findall('AO') if o.get('LayerId') not in hidden}
-    order = lambda o: (float(o.get('DrawOrder', '0') or 0), int(o.get('ID')) if o.get('ID', '').lstrip('-').isdigit() else 0)
+    # User artwork: layers stack in LayerDef list order (first = bottom), DrawOrder within a layer.
+    layer_rank = {l.get('ID'): i for i, l in enumerate(frame.findall('LayerDef'))}
+    order = lambda o: (layer_rank.get(o.get('LayerId'), 0), float(o.get('DrawOrder', '0') or 0),
+                       int(o.get('ID')) if o.get('ID', '').lstrip('-').isdigit() else 0)
     find = group_units(frame)
     units = {}
     for obj in objects.values():
@@ -336,7 +342,8 @@ def render_frame(frame, width=1920, height=1080, params=None, seq_thickness=100.
         if refs:
             # APP-T1: a fill is drawn below all of its boundary objects (anchor = lowest DrawOrder).
             fills_before.setdefault(find(min(refs, key=order).get('ID')), []).append(region)
-    for key in sorted(units, key=lambda k: min(order(o) for o in units[k])):
+    pick = max if cv.p.get('unit_anchor') == 'max' else min
+    for key in sorted(units, key=lambda k: pick(order(o) for o in units[k])):
         members = sorted(units[key], key=order)
         # Static BuildDrawPlan: the unit's glows first, then each member's fill(s) and body.
         for obj in members:
