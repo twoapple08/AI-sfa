@@ -1,7 +1,8 @@
 https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
-최신 HANDOFF.md, AGENTS.md, docs/AOT-DIRTY-PROPAGATION-TRACE-2026-10-15.md를 읽고 재개해. 과거전체인수인계/원본은필요할때만읽어.
+최신 HANDOFF.md, AGENTS.md, docs/AOT-FRAME-CACHE-SAVE-TRACE-2026-10-15.md를 읽고 재개해. 과거전체인수인계/원본은필요할때만읽어.
 
-다음은 _evictRenderableFrameCache/_markFrameDataDirty와 renderable-frame identity/revision key → 일반 DrawOrder 변경 UI·FR 변환/segment 교체 → DB 저장·재불러오기/재생 캐시 폐기 경계야.
+다음은 _saveFiguresChangedOnly의 DrawOrder/Flags/glow/point 저장 비교 → _replaceFrameFillRegions·segment 재공급 → SwapLayersAndContentGlobal 내부/일반 AO 순서 UI → 재생 전용 캐시 폐기 경계야.
+완료추가:renderable cache는FrameID→Frame/LRU12,수정버전키없음.get remove재삽입/take는remove만/evict는AOmap+AOlist해제.markFrameDataDirty eftrue만,canvasdirty 현재IDevict+notifier. loadDetails는기존객체/take재사용가능,bind는집합밖evict+dirtyfalse. 레이어Up/Down→GlobalSwap+SaveFrame→실제setState closure 전체evict/주변목록비움/canvasdirty→onion/prefetch예약. saveCurrentFrame 정상저장후dirtyfalse/history,자체evict없음. SaveFrame에서changedOnly/replaceFill호출확인,세부저장비교미완. 새62명령통과/중복합산금지.
 완료추가:AO→본체unit4f/glowunit53,FR→unit57,모든segment.ObjId→동일ID모든AO위치→followers5b. contour0필터없어hole도전파. 값변경은본체+followers+변경전OR후activeglowunit. active=Radius>0&&GlowAlpha>0.FR색별도자기unit. APFlags비교불일치→새record/plan;groupUI Flags설정해제연결. filltap삭제/새FR+불변복사segments추가,mergeLayerDown sort→evict→dirty→load. 모든UI계약완료아님. 새54명령통과/압축cmpNULL w22정규화,기존표본중복합산금지.
 완료:원본hole-combine key는생성steps복사Float64→Int64 bit열,LRU256/반환Path.from복사. nohole은cache미사용,hit도contour계산하고combine생략. 보간fill별도combine. planFor AO목록Expando/구조fits,모든속성검사아님. editor설정/구조검사·색/두께/glow/point snapshot→영향unit집합→기록재생+직접그림/재기록.2D≤U와drag/집합조건구분. 생성의존집합연결완료,일반변경UI계약일부미완. 새65명령대조(압축sturNULL2곳w22정규화),앱시험/pixel검증아님.
 기존glow이미지key localgeometry/Wq/Rq/크기양자화·색나중입힘·cache예산은GLOW-BACKEND유지. fillbit key와합치지마. export새recorder/Draw는editorpaint와다름,sharedcache전체미사용단정금지.
