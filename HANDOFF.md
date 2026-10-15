@@ -47,6 +47,10 @@ AGENTS → 이 문서 → [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-202
 
 그룹 glow→객체별 backend→shader 수학→timeline/FPS→raw/PNG/Java encoder는 GROUP-SHADER-TIMELINE/EXPORT-DISPATCH. DRAW-GLOW/FILL-PATH/FILL-TWEEN/OBJECT-TWEEN-PAIR로 채우기·순서·보간 연결. 원근/선택/custom·MODIFY-PANEL/CONNECTED-TARGET/ALLGROUP/MOVEMENT·SAVED-VALUES/SHARED-RESTORE는 편집/저장. GROUP-REPAIR/FILL-PRUNE-HISTORY/ROOT-REBASE-IDLE/DB-REWRITE/COMPACTION-PHASES/LAYER-MEMORY/LAYER-MERGE-DELETE-ADD/EDITOR-MENU-DELETE-CALLER도 재사용한다. 기존00–05 영상/시험·같은 정상 경로 재분석으로 진행량을 부풀리지 않는다.
 
+## 앱 이해 단계 마감 (2026-10-16)
+
+[APP-UNDERSTANDING-STATUS](docs/APP-UNDERSTANDING-STATUS-2026-10-16.md)가 현재 기준. 사용자: "앱 이해를 완료하고 생각한 학습 방식을 얘기해 주겠다". 다음은 사용자 설명을 받아 학습 단계 설계.
+
 ## 실제 미완과 다음의 좁은 작업
 
 추가로 [ROOT-COPY-DB-BRANCHES](docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)(49명령)를 확인했다. source base의 원점 ID/AO rank 연속prefix p가 2(N−p)≤N이면 그 root를 p개만재사용,아니면새root생성→조건부source rebase시도→targetbase삽입. ID예약은 AUTOINCREMENT schema에따라sqlite_sequence상향 vs가상base꼬리정리. 같은sequence AO ID유지/다른sequence새ID/DB점·상세복사 상위단계확인. 정상분기를다시미수행으로세지않는다.

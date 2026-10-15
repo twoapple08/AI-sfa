@@ -14,3 +14,4 @@ ROOT-COPY-DB-BRANCHES(49명령)도추가완료:source기반의원점ID/AOrank연
 
 2026-10-16 Claude Code 클라우드 갱신: 과거 /workspace 캐시 경로 없음. Drive 백업(drive.google.com 등)은 환경 네트워크 정책 403 → 사용자가 Allowed domains에 추가하기 전에는 재시도하지 마. 받으면 SHA256 d6d5f1ff…cff676 대조 후 일반 AO 앞뒤/별도 lock UI의 구체 caller 정적 추적부터. 새로 docs/APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md(정적 결과의 SFA 관측 가능성 대조), examples/frame_commands_v3 시드, tools/check_frame_commands.py, tests 6개 추가(unittest 28 통과). 앱 결과 없음. 반환 SFA가 오면 연속 내보내기 쌍으로 판정·기록. 세션 지정 branch 규칙이 있으면 그 branch에 push.
 추가 완료: docs/AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md(49명령) — DrawOrder 쓰기경로 전수(일반 AO 앞뒤 UI 경로 없음, 부재증명 아님), 잠금은 layer_def뿐, 축고정/회전스냅 UI→드래그 연결. 다음은 편집 보조 UI(양파 스킨 등)의 데이터 영향 확인 또는 APP-V3 반환 판정.
+2026-10-16 앱 이해 단계 마감: docs/APP-UNDERSTANDING-STATUS-2026-10-16.md를 먼저 읽어. 기준 렌더러 sfa_render.py+sfa_tween.py는 실제 사용자 작품 244프레임 평균 MAE 0.908. 사용자가 다음에 "생각해 둔 학습 방식"을 설명할 예정이니 그 설명을 기준으로 학습 단계 설계를 시작(학습/AI 통합 보류는 사용자 지시로 해제될 때까지 유지).
