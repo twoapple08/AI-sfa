@@ -81,5 +81,5 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 
 ## Claude Code 클라우드 환경 — 2026-10-16
 
-- 과거 `/workspace/scratch` 캐시 경로는 이 환경에 없다. Drive 백업 다운로드는 환경 네트워크 정책 403으로 막힌다. 사용자가 Allowed domains를 바꾸기 전에는 같은 다운로드를 반복 시도하지 않고, 저장소만으로 가능한 검증 도구·대조 작업을 진행한다. 캐시 없이 AOT 의미를 추측해 쓰지 않는다.
+- 과거 `/workspace/scratch` 캐시 경로는 이 환경에 없다. 사용자가 Drive 도메인을 허용해 백업 다운로드가 가능하다. 먼저 `/root/sfa-cache/.ok`(Setup script 복구)를 확인하고, 없을 때만 백업을 받아 hash 대조 후 scratchpad에 푼다. 다운로드가 다시 403이면 반복하지 말고 보고한다. 캐시 없이 AOT 의미를 추측해 쓰지 않는다.
 - 이 세션의 git 지시는 지정 작업 branch에 push하는 것이다. main 직접 반영 상시 승인과 충돌하면 지정 branch에 push하고 그 사실을 보고한다.

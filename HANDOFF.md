@@ -16,7 +16,7 @@
 
 ## 현행 환경 — 2026-10-16 Claude Code 클라우드
 
-- 이 환경에는 아래 `/workspace/scratch/...` 경로가 **없다**. 사용자가 준 Drive 백업 링크(id `1WKLmfS3ovsF--7MXPJREVp81pRXekma6`)는 `drive.google.com`/`drive.usercontent.google.com`/`docs.google.com`이 환경 네트워크 정책에서 403 거부되어 받지 못했다. 원본 APK도 없어 AOT 재추출 불가. 사용자가 환경 설정 Network access의 Allowed domains에 위 도메인을 추가하면 다운로드→SHA256 `d6d5f1ff…cff676`/40,381,872bytes 대조→scratchpad 압축해제로 재개한다. 같은 정책에서 반복 다운로드 시도 금지.
+- 사용자가 환경 Network access에 Drive 도메인을 허용한 뒤 같은 세션에서 백업 다운로드 성공: 40,381,872bytes·SHA256 `d6d5f1ff…cff676` 일치, ELF/셰이더 hash3 일치, asm666. 압축해제 위치는 세션 scratchpad의 `cache/`(세션 종료 시 소멸). 새 세션은 환경 Setup script가 `/root/sfa-cache`로 자동 복구하도록 사용자에게 안내함(적용 여부는 새 세션에서 확인). 도구: 시스템 Python3.13+`PYTHONPATH=cache/python`의 capstone5.0.7 동작. 환경변수 추가 불필요.
 - 이번에는 새 AOT 분석 없이 [APP-V3 시간축 명령 검사](docs/APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md)를 추가했다: 정적 결과의 SFA 관측 가능성 대조, 시드 `examples/frame_commands_v3/`, `tools/check_frame_commands.py`, 단위시험6개. 앱 결과는 없음.
 
 ## 이전 환경(ChatGPT) — 복구 완료 기록
