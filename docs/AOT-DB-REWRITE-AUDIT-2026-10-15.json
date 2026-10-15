@@ -1,0 +1,215 @@
+{
+  "scope": "52 instruction samples; not complete function semantics or runtime pixel verification",
+  "results": [
+    {
+      "address": "0x4f8974",
+      "matched": true
+    },
+    {
+      "address": "0x4f897c",
+      "matched": true
+    },
+    {
+      "address": "0x4f8994",
+      "matched": true
+    },
+    {
+      "address": "0x4f89b8",
+      "matched": true
+    },
+    {
+      "address": "0x4f8a0c",
+      "matched": true
+    },
+    {
+      "address": "0x4f8a18",
+      "matched": true
+    },
+    {
+      "address": "0x4f8a38",
+      "matched": true
+    },
+    {
+      "address": "0x4f8a58",
+      "matched": true
+    },
+    {
+      "address": "0x4f8a64",
+      "matched": true
+    },
+    {
+      "address": "0x4f8a74",
+      "matched": true
+    },
+    {
+      "address": "0x4f8a78",
+      "matched": true
+    },
+    {
+      "address": "0x4f8a90",
+      "matched": true
+    },
+    {
+      "address": "0x4f8a94",
+      "matched": true
+    },
+    {
+      "address": "0x4f8aa0",
+      "matched": true
+    },
+    {
+      "address": "0x4f8aac",
+      "matched": true
+    },
+    {
+      "address": "0x4f8abc",
+      "matched": true
+    },
+    {
+      "address": "0x4f8ac8",
+      "matched": true
+    },
+    {
+      "address": "0x4f8adc",
+      "matched": true
+    },
+    {
+      "address": "0x4f8ae0",
+      "matched": true
+    },
+    {
+      "address": "0x4f8af8",
+      "matched": true
+    },
+    {
+      "address": "0x4f8b08",
+      "matched": true
+    },
+    {
+      "address": "0x4f8ba4",
+      "matched": true
+    },
+    {
+      "address": "0x4f8bb0",
+      "matched": true
+    },
+    {
+      "address": "0x4f8bb4",
+      "matched": true
+    },
+    {
+      "address": "0x4f8bd0",
+      "matched": true
+    },
+    {
+      "address": "0x4f8bd8",
+      "matched": true
+    },
+    {
+      "address": "0x4f8dc4",
+      "matched": true
+    },
+    {
+      "address": "0x4f8e3c",
+      "matched": true
+    },
+    {
+      "address": "0x4f8e44",
+      "matched": true
+    },
+    {
+      "address": "0x4f8e68",
+      "matched": true
+    },
+    {
+      "address": "0x4f907c",
+      "matched": true
+    },
+    {
+      "address": "0x4f90a4",
+      "matched": true
+    },
+    {
+      "address": "0x4f90b4",
+      "matched": true
+    },
+    {
+      "address": "0x4f90c0",
+      "matched": true
+    },
+    {
+      "address": "0x4f90cc",
+      "matched": true
+    },
+    {
+      "address": "0x4f90f0",
+      "matched": true
+    },
+    {
+      "address": "0x4f9130",
+      "matched": true
+    },
+    {
+      "address": "0x4f91d8",
+      "matched": true
+    },
+    {
+      "address": "0x4f91f0",
+      "matched": true
+    },
+    {
+      "address": "0x4f920c",
+      "matched": true
+    },
+    {
+      "address": "0x4f9220",
+      "matched": true
+    },
+    {
+      "address": "0x4f927c",
+      "matched": true
+    },
+    {
+      "address": "0x4f9284",
+      "matched": true
+    },
+    {
+      "address": "0x4f9294",
+      "matched": true
+    },
+    {
+      "address": "0x4f92a8",
+      "matched": true
+    },
+    {
+      "address": "0x4f9308",
+      "matched": true
+    },
+    {
+      "address": "0x4f9310",
+      "matched": true
+    },
+    {
+      "address": "0x4f937c",
+      "matched": true
+    },
+    {
+      "address": "0x4f939c",
+      "matched": true
+    },
+    {
+      "address": "0x4f93c8",
+      "matched": true
+    },
+    {
+      "address": "0x4f9438",
+      "matched": true
+    },
+    {
+      "address": "0x4f95f8",
+      "matched": true
+    }
+  ],
+  "runtime_renderer_verified": false,
+  "normalization_note": "Dart register aliases normalized; compressed stur/str NULL uses w22"
+}

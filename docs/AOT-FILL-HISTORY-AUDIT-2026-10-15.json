@@ -1,5 +1,5 @@
 {
-  "scope": "127 instruction samples; not complete function semantics or runtime pixel verification",
+  "scope": "178 instruction samples; not complete function semantics or runtime pixel verification",
   "results": [
     {
       "address": "0x367450",
@@ -507,6 +507,210 @@
     },
     {
       "address": "0x5cff6c",
+      "matched": true
+    },
+    {
+      "address": "0x602a20",
+      "matched": true
+    },
+    {
+      "address": "0x602a28",
+      "matched": true
+    },
+    {
+      "address": "0x602ad0",
+      "matched": true
+    },
+    {
+      "address": "0x602afc",
+      "matched": true
+    },
+    {
+      "address": "0x602b50",
+      "matched": true
+    },
+    {
+      "address": "0x602b68",
+      "matched": true
+    },
+    {
+      "address": "0x602c10",
+      "matched": true
+    },
+    {
+      "address": "0x602c34",
+      "matched": true
+    },
+    {
+      "address": "0x602c88",
+      "matched": true
+    },
+    {
+      "address": "0x602c9c",
+      "matched": true
+    },
+    {
+      "address": "0x602cc4",
+      "matched": true
+    },
+    {
+      "address": "0x602d24",
+      "matched": true
+    },
+    {
+      "address": "0x602d44",
+      "matched": true
+    },
+    {
+      "address": "0x602d6c",
+      "matched": true
+    },
+    {
+      "address": "0x602d9c",
+      "matched": true
+    },
+    {
+      "address": "0x605408",
+      "matched": true
+    },
+    {
+      "address": "0x6054b8",
+      "matched": true
+    },
+    {
+      "address": "0x6054e4",
+      "matched": true
+    },
+    {
+      "address": "0x60553c",
+      "matched": true
+    },
+    {
+      "address": "0x605550",
+      "matched": true
+    },
+    {
+      "address": "0x605620",
+      "matched": true
+    },
+    {
+      "address": "0x60562c",
+      "matched": true
+    },
+    {
+      "address": "0x605638",
+      "matched": true
+    },
+    {
+      "address": "0x605670",
+      "matched": true
+    },
+    {
+      "address": "0x605698",
+      "matched": true
+    },
+    {
+      "address": "0x6056e8",
+      "matched": true
+    },
+    {
+      "address": "0x605724",
+      "matched": true
+    },
+    {
+      "address": "0x60575c",
+      "matched": true
+    },
+    {
+      "address": "0x60577c",
+      "matched": true
+    },
+    {
+      "address": "0x6057a4",
+      "matched": true
+    },
+    {
+      "address": "0x6057f0",
+      "matched": true
+    },
+    {
+      "address": "0x602e34",
+      "matched": true
+    },
+    {
+      "address": "0x602e5c",
+      "matched": true
+    },
+    {
+      "address": "0x602e64",
+      "matched": true
+    },
+    {
+      "address": "0x602e70",
+      "matched": true
+    },
+    {
+      "address": "0x602e7c",
+      "matched": true
+    },
+    {
+      "address": "0x602e8c",
+      "matched": true
+    },
+    {
+      "address": "0x60318c",
+      "matched": true
+    },
+    {
+      "address": "0x603198",
+      "matched": true
+    },
+    {
+      "address": "0x60488c",
+      "matched": true
+    },
+    {
+      "address": "0x604890",
+      "matched": true
+    },
+    {
+      "address": "0x60539c",
+      "matched": true
+    },
+    {
+      "address": "0x6053a0",
+      "matched": true
+    },
+    {
+      "address": "0x51c1f4",
+      "matched": true
+    },
+    {
+      "address": "0x51c204",
+      "matched": true
+    },
+    {
+      "address": "0x51c210",
+      "matched": true
+    },
+    {
+      "address": "0x51c230",
+      "matched": true
+    },
+    {
+      "address": "0x51c730",
+      "matched": true
+    },
+    {
+      "address": "0x51c748",
+      "matched": true
+    },
+    {
+      "address": "0x51c780",
+      "matched": true
+    },
+    {
+      "address": "0x51c7c4",
       "matched": true
     }
   ],

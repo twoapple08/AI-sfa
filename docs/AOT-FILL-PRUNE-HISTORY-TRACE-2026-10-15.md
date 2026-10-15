@@ -1,6 +1,6 @@
 # 채우기 구조 정리와 canvas history 복원 — 2026-10-15
 
-기존 AOT/ELF에서 채우기 정리와 사용자 정의 도형의 undo/redo 정상 경로, history 비교와 일반 프레임 복원의 DB·live layer 경로를 추적했다. 실제 앱 시험·기존 영상 재분석은 하지 않았다. 일반 편집기의 모든 history 분기를 완료했다는 문서는 아니다.
+기존 AOT/ELF에서 채우기 정리와 사용자 정의 도형의 undo/redo 정상 경로, history 비교와 일반 프레임 undo/redo의 stack·async·DB·live layer 경로를 추적했다. 실제 앱 시험·기존 영상 재분석은 하지 않았다. 모든 UI 진입·실패 복구를 완료했다는 문서는 아니다.
 
 ## 채우기를 제거하는 조건
 
@@ -33,7 +33,19 @@ undo에서 현재 상태가 undo stack 마지막과 다르면 현재 snapshot을
 
 `_keepLiveLayerState`(0x604198)는 DB에서 복원 대상 frame의 레이어를 읽는다. 현재 편집 frame ID가 대상과 다르면 열린 frame 목록에서 같은 ID를 찾는다. DB 레이어가 비었고 live frame이 있으면 live 레이어 목록을 대신 사용한다. 선택한 레이어를 deep clone해 `Frame.AdoptLiveLayerState`(0x60441c)에 전달한다.
 
-Adopt는 빈 레이어 입력이면 반환한다. 아니면 대상의 레이어 목록을 교체한다. live 활성 layer가 새 목록에 있으면 유지하며, 없으면 동적 getter가 반환한 layer의 번호를 사용한다. 이 fallback getter의 concrete target은 여기서도 미확정이므로 ‘첫 레이어’라고 단정하지 않는다. live AO를 AO ID map으로 만든 후 복원 AO를 순회하여, 같은 ID의 live AO가 있고 그 LayerId가 새 목록에 있으면 **live LayerId와 DrawOrder를 복사**한다. 그렇지 않으면 snapshot AO의 LayerId가 유효할 때는 유지하고, 유효하지 않으면 활성 layer로 바꾼다. 즉 일반 undo가 레이어 배정·표시·순서까지 무조건 과거 값으로 돌리는 경로가 아니다. async guard와 일반 undo/redo의 전체 stack 분기는 별도 미완 범위다.
+Adopt는 빈 레이어 입력이면 반환한다. 아니면 대상의 레이어 목록을 교체한다. live 활성 layer가 새 목록에 있으면 유지하며, 없으면 동적 getter가 반환한 layer의 번호를 사용한다. 이 fallback getter의 concrete target은 여기서도 미확정이므로 ‘첫 레이어’라고 단정하지 않는다. live AO를 AO ID map으로 만든 후 복원 AO를 순회하여, 같은 ID의 live AO가 있고 그 LayerId가 새 목록에 있으면 **live LayerId와 DrawOrder를 복사**한다. 그렇지 않으면 snapshot AO의 LayerId가 유효할 때는 유지하고, 유효하지 않으면 활성 layer로 바꾼다. 즉 일반 undo가 레이어 배정·표시·순서까지 무조건 과거 값으로 돌리는 경로가 아니다.
+
+## 일반 프레임의 stack과 비동기 진입
+
+일반 undo(0x6053e4)/redo(0x6029fc)는 **frame ID별 두 history map**에서 stack을 찾는다. 적용 중 bool(field0x10f)이 참이면 진입하지 않으며 다른 진행 bool·두 transient 입력·프레임 목록·현재 frame 존재 guard도 있다. 각 transient 필드의 모든 UI 의미는 확정하지 않는다.
+
+undo는 마지막 snapshot의 signature와 현재 signature가 다르면 현재 snapshot을 redo 쪽에 추가하고 undo 마지막을 적용한다. 같으면 undo 항목이 둘 이상일 때 stack 항목을 redo로 옮긴 후 새 마지막을 적용한다. redo는 redo에서 가져온 대상과 현재 상태가 undo 마지막과 중복되는지 signature로 확인하여 필요한 snapshot만 넣고 대상을 적용한다. 확인한 두 경로 모두 추가한 stack이60을 넘으면0번 항목을 제거하는 호출이 있다.
+
+위 stack 역할은 같은 typed-list receiver의 동적 호출 위치·인수·반환값·후속 signature 비교를 종합한 해석이다. GDT selector만으로 전역 메서드명을 확정한 것이 아니다. 예를 들어 항목을 꺼내는 0xbc49와 마지막을 읽는 0x9780의 concrete dispatch table은 기존 cache에 따로 없다. 이 한계를 ‘모든 동적 호출 대상 복원 완료’로 바꾸지 않는다.
+
+`_historySignatureOf`(0x51c704)는 `Frame.GetFastHash`를 얻고 tween link가 있으면 `tweenLinksSignature`와 Object.hash로 합친다. 이 caller의 중복 판정은 custom의 `sameFrameForHistory`를 매번 전체 호출하는 비교와 다르다. hash가 같다는 것이 모든 상태의 충돌 없는 동일성 증명은 아니다. 개별 GetFastHash 필드·충돌 계약 전체는 이 문서 범위 밖이다. single snapshot에는 frame 복사 외 배경색·tween link의 별도 값도 보관하며 link map은 복사 후 변경 불가 view로 만든다.
+
+비동기 적용 함수는 sequence가 없으면 반환한다. 적용 중 bool을 true로 설정한 뒤 **16ms Duration의 Future.delayed를 await**하고 mounted 상태를 다시 검사한다. 그러고 나서 앞 절의 clone/live layer/DB 복원을 진행한다. 이 16ms는 실제 렌더 완료를 기다렸다는 보장이 아니다. 정상 종료에서 mounted면 bool을 false로 바꾸고, 예외 종료에서도 mounted면 false로 바꾼 후 rethrow하는 별도 경로가 있다. 이 함수 하나의 guard로 모든 외부 DB 수정·navigation 경쟁·실패 직전 stack 변경까지 원자적으로 복구된다고 주장하지 않는다.
 
 ## history 비교의 민감도
 
