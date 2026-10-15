@@ -1,0 +1,267 @@
+{
+  "scope": "65 new instruction samples; not complete function semantics or runtime pixel verification",
+  "results": [
+    {
+      "address": "0x420b64",
+      "matched": true
+    },
+    {
+      "address": "0x415b60",
+      "matched": true
+    },
+    {
+      "address": "0x415ba0",
+      "matched": true
+    },
+    {
+      "address": "0x415cec",
+      "matched": true
+    },
+    {
+      "address": "0x415df0",
+      "matched": true
+    },
+    {
+      "address": "0x415e44",
+      "matched": true
+    },
+    {
+      "address": "0x415ec4",
+      "matched": true
+    },
+    {
+      "address": "0x415ecc",
+      "matched": true
+    },
+    {
+      "address": "0x415ee8",
+      "matched": true
+    },
+    {
+      "address": "0x415f2c",
+      "matched": true
+    },
+    {
+      "address": "0x415f94",
+      "matched": true
+    },
+    {
+      "address": "0x415fb4",
+      "matched": true
+    },
+    {
+      "address": "0x415fc0",
+      "matched": true
+    },
+    {
+      "address": "0x416294",
+      "matched": true
+    },
+    {
+      "address": "0x4162b0",
+      "matched": true
+    },
+    {
+      "address": "0x4162c8",
+      "matched": true
+    },
+    {
+      "address": "0x72867c",
+      "matched": true
+    },
+    {
+      "address": "0x7286a0",
+      "matched": true
+    },
+    {
+      "address": "0x7286f8",
+      "matched": true
+    },
+    {
+      "address": "0x7286fc",
+      "matched": true
+    },
+    {
+      "address": "0x41dd5c",
+      "matched": true
+    },
+    {
+      "address": "0x41ddec",
+      "matched": true
+    },
+    {
+      "address": "0x41d950",
+      "matched": true
+    },
+    {
+      "address": "0x41db14",
+      "matched": true
+    },
+    {
+      "address": "0x794d48",
+      "matched": true
+    },
+    {
+      "address": "0x794e28",
+      "matched": true
+    },
+    {
+      "address": "0x794f14",
+      "matched": true
+    },
+    {
+      "address": "0x517484",
+      "matched": true
+    },
+    {
+      "address": "0x51749c",
+      "matched": true
+    },
+    {
+      "address": "0x5174cc",
+      "matched": true
+    },
+    {
+      "address": "0x517524",
+      "matched": true
+    },
+    {
+      "address": "0x517d6c",
+      "matched": true
+    },
+    {
+      "address": "0x517d7c",
+      "matched": true
+    },
+    {
+      "address": "0x517da4",
+      "matched": true
+    },
+    {
+      "address": "0x517efc",
+      "matched": true
+    },
+    {
+      "address": "0x517f24",
+      "matched": true
+    },
+    {
+      "address": "0x51809c",
+      "matched": true
+    },
+    {
+      "address": "0x5180dc",
+      "matched": true
+    },
+    {
+      "address": "0x518194",
+      "matched": true
+    },
+    {
+      "address": "0x42926c",
+      "matched": true
+    },
+    {
+      "address": "0x414850",
+      "matched": true
+    },
+    {
+      "address": "0x414890",
+      "matched": true
+    },
+    {
+      "address": "0x4148bc",
+      "matched": true
+    },
+    {
+      "address": "0x4148ec",
+      "matched": true
+    },
+    {
+      "address": "0x414900",
+      "matched": true
+    },
+    {
+      "address": "0x414988",
+      "matched": true
+    },
+    {
+      "address": "0x4149d8",
+      "matched": true
+    },
+    {
+      "address": "0x414a60",
+      "matched": true
+    },
+    {
+      "address": "0x414aac",
+      "matched": true
+    },
+    {
+      "address": "0x414b40",
+      "matched": true
+    },
+    {
+      "address": "0x42e394",
+      "matched": true
+    },
+    {
+      "address": "0x42e3b4",
+      "matched": true
+    },
+    {
+      "address": "0x42e560",
+      "matched": true
+    },
+    {
+      "address": "0x42e61c",
+      "matched": true
+    },
+    {
+      "address": "0x42e9c0",
+      "matched": true
+    },
+    {
+      "address": "0x42ed3c",
+      "matched": true
+    },
+    {
+      "address": "0x42ed64",
+      "matched": true
+    },
+    {
+      "address": "0x42edb8",
+      "matched": true
+    },
+    {
+      "address": "0x428c68",
+      "matched": true
+    },
+    {
+      "address": "0x428cd4",
+      "matched": true
+    },
+    {
+      "address": "0x42d974",
+      "matched": true
+    },
+    {
+      "address": "0x42eeac",
+      "matched": true
+    },
+    {
+      "address": "0x42eeb4",
+      "matched": true
+    },
+    {
+      "address": "0x62df14",
+      "matched": true
+    },
+    {
+      "address": "0x62df1c",
+      "matched": true
+    }
+  ],
+  "runtime_renderer_verified": false,
+  "normalization_note": "Blutter symbolic stur NULL operands normalized to w22 to match compressed-pointer stores at 0x42d974/0x42eeb4"
+}

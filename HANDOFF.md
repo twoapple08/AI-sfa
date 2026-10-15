@@ -9,22 +9,19 @@
 - 기존00–05시험/자료분석완료. 재출력·추가작품·제작자문의금지. 기존추출·도구설치·시험은새변경/실패관련필요없으면반복금지.
 - 정확도유지하며캐시/읽은내용재사용·좁은출력·실제명령검증. AGENTS.md준수. 사용자잔여주간사용량직접조회불가. 인수인계필요시체크포인트저장후docs/HANDOFF-PROMPT.md제공.
 
-## 현행 체크포인트 — 곡선 분할·곡률·링node/반폭
+## 현행 체크포인트 — fill/plan/editor/glow 캐시 재사용 경계
 
-먼저 AGENTS.md와 **docs/AOT-CURVE-RING-TRACE-2026-10-15.md**를 읽는다. 이전그룹/shader/timeline은AOT-GROUP-SHADER-TIMELINE,export는AOT-EXPORT-DISPATCH보고서.
+먼저 AGENTS.md와 **docs/AOT-CACHE-BOUNDARY-TRACE-2026-10-15.md**를 읽는다.
 
-- 그룹 glow-only unit→Frame._DrawCompositeObjectGlow는 iterator로 각AO색→DrawGlowEffect. 그룹 union/saveLayer/단일블러아님. InterpolatedFrame도별도helper→각InterpolatedAO. 각객체shader→raster→MaskFilter선택,그룹backend일괄고정금지.
-- 기존shaderasset105992bytes/IPLR/SPIR-V+ES300/ES100/SkSL텍스트. 캐시APK내단일asset bytes일치. 원본/자동생성shader공개금지. uniform10=h,11=sigma,12=kind,17=capstrips,18=pieces,19=ringnodes,21+4i=끝점xy/곡률z. geometry한객체최대48몸통+2cap→Cclamp→uColor×C. 그룹전체clamp아님.
-- shader수학:erf근사band·Gaussian밀도,몸통방향/곡률L²c/12및moment보정,cap사각형strip또는8node반원적분,ring I0e근사+2/4/8node적분. 모든pixel동등성/실제backend미검증. curve분할및일반ring반폭/node연결완료는현행CURVE-RING보고서.
-- FPS순서=(트위닝T,재생P). P최소1,실제tween=enabled&&T>P,Q=T또는P,K=max(round(Q/P),1),N=ceil(F×Q/P). a=min(floor(jP/Q),F−1),b=min(a+1,F−1),구간첫j=ceil(aQ/P)는t0,나머지m=floor((jP mod Q)K/Q),t=m/K;마지막a=b도t0. export인라인산식확인. 마지막원본유지/새endpoint추가없음. 비정수배t양자화. UI는T≥P로정규화.
-- N→raw공간예측W×H×4×N,Q→raw/PNG양쪽Android인코더→j×1e9/max(Q,1)ns. Optimized는같은DartPicture의raw/PNG중간형식선택,Java객체renderer아님. 공간알면예상+512MiB≤usable/null이면예상≤2GiB. 실패후형식전체재시도미확인.
-- 새45명령ELF/Capstone대조,asset bytes대조,해석산식96조합일관성통과. 별도50표본대조/6산출예시추가도통과(주소중복있음,95개합산금지). 앱시험아님. 본문6절/별도SUPPLEMENT-AUDIT참조. 문서만변경/기존시험반복없음.
-- 곡선:16chord길이L/최소접선길이로kmax/회전각theta→n=clamp(max(ceil(Lsqrt(kmax/(.16max(sigma,.001)))),ceil(abs(theta)/.6)),1,48). abs(theta)>.01이면균일t와방향회전t를반씩혼합. 끝점+중간부호곡률triple,48초과요구시후반삭제아님. 오차보장아님.
-- 일반ring:z=min(W,8sigma)/sigma≤1:2nodes,≤3:4,else8. min은node판단용,uniform반폭은원래W/2. 길이<1e−5stroke→radius0/8node. _fill inflate=W/2+3sigma+1,cull4sigma와구분. 새54명령대조/4curve·4ring산출예시통과,runtime시험아님.
-- **정확한 다음:** fill/holed-path와draw-plan/glow이미지캐시key·변경무효화경계→색/좌표/두께/구멍수정의재사용·재생성→edit/export호출자구분. 기존B/00–05/영상/폰시험반복금지. pixel/codec/색runtime미확인유지.
-- 기존Paint OBJECT8/PREVIEW약2.2 Float32정정·정상폭/색복원·primitive1.14/padding1.24유지. 편집cache planFor기본false→일반8,전체편집preview단정금지. AOT-PAINT-DISPATCH보고서.
-- 기존raster q(.35/.5/.67/1)/local×q/4배수image/확대,LRU128entry·8M픽셀·2M초과거절,MaskFilter.05단위/.1–2000/96삽입순서유지. shader수학과이상적동일Gaussian으로합치지않는다.
-- 필요시현재docs/HANDOFF-PROMPT.md로인계. 자동잔여사용량조회불가. 설치·페어링·실물시작시험재요청없음.
+- 원본hole-combine:_HoledFillPaths key는생성steps double을복사한Float64→Int64 bit열/hash/길이/전word비교. ID/색단독키아님. hole>0없으면이cache안씀. hit도앞contour빌드는진행,combine만생략. remove/reinsert LRU256,miss때앞entryeviction,반환Path.from복사. 보간fill별도nativecombine,동일cache호출없음.
+- planFor는AO목록Expando→fits.Frame/목록identity·순서·LayerId·점수/layer/fill관련구조검사. geometry/색전부snapshot검사아님. plan재사용과완성pixel재사용구분. 모든in-placeDrawOrder/Flags/contour변경안전보장미확인.
+- 편집paint는설정listEquals→underlay/record갱신,구조update null→recordings폐기/새record. _holdsValues는TypeId/Color/ThicknessScale/ObjectScale/Glow값·DrawOrder/boolean/point x,y,Index검사. 값변경→영향unit집합,Picture재생+변경unit직접그림. 2D≤U와drag/집합조건이있어무조건부분재사용아님. 폐기는globalglow/holedcache전체clear가아님.
+- glow이미지key는기존localgeometry/Wq/Rq/dimension양자화;색/절대원점제외와ColorFilter새색입힘유지. fill exactbit key와합치지마. export새PictureRecorder→동적Draw→endRecording,EditorFrameCache.paint안씀. sharedgeometrycache까지미사용단정금지.
+- 새65명령ELF/Capstone통과.NULL compressedstur2곳은w22폭정규화명시. 문서만변경,기존unit/probe/영상/폰시험반복없음. runtimepixel/실제영상backend미검증.
+- **정확한 다음:** _FrameRecord생성자의AO→본체/glow/fill unit인덱스·의존집합→update전파→실제편집DrawOrder/Flags/FR contour변경의목록교체·무효화계약. 한객체이동시그룹glow/연결fill·구멍갱신을정적경로로닫기.
+- 이전curve/ring:AOT-CURVE-RING보고서.16chord길이/최대곡률/회전각→n1–48,균일t/회전t혼합,중간부호곡률triple.48상한후반삭제아님/오차보장아님. 일반ring2/4/8node선택의min은node판단만,반폭원래W/2. 퇴화stroke radius0/8node._fill h+3sigma+1/cull h+4sigma+1구분.
+- 이전group/shader/timeline:AOT-GROUP-SHADER-TIMELINE보고서.각AO글로우먼저/fill·본체뒤. 객체내coverage clamp와객체간blend분리. Q/K/N양자화timeline/마지막원본유지. FPS=(T트위닝,P재생). raw/PNG동일DartPicture→Java완성textureH.264/MP4,공간예측선택/codec검사아님(EXPORT-DISPATCH).
+- Paint OBJECT8/PREVIEW약2.2 Float32/primitive1.14/padding1.24정정유지. 기존B/00–05/영상/설치/폰시험재실행금지. runtime license4차단상태유지/추가사용자작업없음.
 
 ## 필요한 이전 정적 사실·근거
 
@@ -60,7 +57,7 @@
 - 원본base /workspace/scratch/6d77389e706a/evidence/apk/base.apk,분할모음같은evidence/STICK FIGHTER (51.0.0).apks. 기존Java캐시6d77389e706a/private/decompiled.
 - 계측도구/빌드 /workspace/scratch/37921248d0d6/private/{instrument-tools,instrument-build}. 전용키sfa-test.jks재사용. 공식tools Apktool3.0.3/signer1.3.0/Gadget17.23.3 ARM64확보됨. 빈도구폴더/다운로드미완은옛상태.
 - 비공개ZIP /workspace/scratch/25b8ca176661/output/SFA-Instrument-Startup-2026-10-15.zip,libfile_a9e9671bcd3c8191b95a54915af9aa6d. 원본기반APK공개금지.
-- 현행문서checkout5a16c98ed7ee/AI-sfa-publish;curve/ring검사5a16c98ed7ee/private-trace/. 이전문서checkout1be6baf45de3/AI-sfa;읽은shader텍스트1be6baf45de3/private-trace/. 이전문서worktree25b8ca176661/AI-sfa;이전검사/집계private-trace/. 이전37921248d0d6/e23c9fd610d3의로컬변경보존.remote반영뒤localHEAD뒤처질수있음;캐시문서덮어쓰기/reset/중복커밋금지.
+- 현행문서checkout5a16c98ed7ee/AI-sfa-publish;curve/ring/cache검사5a16c98ed7ee/private-trace/. 이전문서checkout1be6baf45de3/AI-sfa;읽은shader텍스트1be6baf45de3/private-trace/. 이전문서worktree25b8ca176661/AI-sfa;이전검사/집계private-trace/. 이전37921248d0d6/e23c9fd610d3의로컬변경보존.remote반영뒤localHEAD뒤처질수있음;캐시문서덮어쓰기/reset/중복커밋금지.
 - reFlutter해당dumpengine404/자체engine빌드미실시이력은FLUTTER-TOOLS-RESULTS-2026-10-15.md.재시도요청없음.
 - 압축전인수인계전체보존:docs/history/HANDOFF-2026-10-15-before-render-context.md.현재내용이우선이며역사기록의낡은'다음'을재실행하지않는다.
 
