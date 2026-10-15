@@ -49,7 +49,7 @@ AGENTS → 이 문서 → [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-202
 
 ## 앱 이해 단계 마감 (2026-10-16)
 
-[APP-UNDERSTANDING-STATUS](docs/APP-UNDERSTANDING-STATUS-2026-10-16.md)가 현재 기준. 사용자: "앱 이해를 완료하고 생각한 학습 방식을 얘기해 주겠다". 다음은 사용자 설명을 받아 학습 단계 설계.
+[APP-UNDERSTANDING-STATUS](docs/APP-UNDERSTANDING-STATUS-2026-10-16.md)가 현재 기준. 사용자: "앱 이해를 완료하고 생각한 학습 방식을 얘기해 주겠다". 사용자 학습 방식 수령 → [AI-PIPELINE-PLAN](docs/AI-PIPELINE-PLAN-2026-10-16.md) 작성(개인용 확정·개발자 합의, 영상(사쿠가부루 등) 학습, 층①동작→②이펙트→③배경카메라→④스타일, 로컬 APK/EXE). **구현 미시작**: 사용자 PC 복귀 후 0단계 체크리스트부터. 학습·AI 통합은 이 계획 범위에서 사용자 지시로 진행 가능.
 
 ## 실제 미완과 다음의 좁은 작업
 

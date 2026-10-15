@@ -83,3 +83,8 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 
 - 과거 `/workspace/scratch` 캐시 경로는 이 환경에 없다. 사용자가 Drive 도메인을 허용해 백업 다운로드가 가능하다. 먼저 `/root/sfa-cache/.ok`(Setup script 복구)를 확인하고, 없을 때만 백업을 받아 hash 대조 후 scratchpad에 푼다. 다운로드가 다시 403이면 반복하지 말고 보고한다. 캐시 없이 AOT 의미를 추측해 쓰지 않는다.
 - 이 세션의 git 지시는 지정 작업 branch에 push하는 것이다. main 직접 반영 상시 승인과 충돌하면 지정 branch에 push하고 그 사실을 보고한다.
+
+## 학습 단계 결정 — 2026-10-16
+
+- 사용자 결정: 오직 개인용(스틱파이터 개발자와 합의). 학습 자료는 웹 애니메이션 작화 클립·영화 장면, SFA 작품은 보정용. 설계는 docs/AI-PIPELINE-PLAN-2026-10-16.md. 이 범위의 학습·AI 통합은 사용자 지시에 따라 진행하되, 수집 원본·추출 데이터·모델·타인 작품은 공개하지 않는다. 작품명은 학습 입력에서 제외, 애니메이터 스타일은 자료 많은 유명 애니메이터만.
+
