@@ -14,32 +14,19 @@
 - 실행 환경·기존AOT/ELF/Capstone 접근복구. 원본재추출/도구재설치없음. 15:15의unavailable은해소됐고,캐시가유실된것은아니었음. license4 지속편집계측차단과는별개.
 - 기능별실제표본/정적근거/미확인은docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md. 기존00–05영상·SFA재분석없음. 지금사용자추가작업없음.
 
-## 현행 체크포인트 — 상세 패널 적용 명령·크기/굵기 수학
+## 현행 체크포인트 — 연결 대상·올그룹·이동/분기 트리
 
-먼저 AGENTS.md와 **docs/AOT-MODIFY-PANEL-TRANSFORM-TRACE-2026-10-15.md**를 읽는다. 객체 의존집합은AOT-DIRTY-PROPAGATION,캐시층별기본은AOT-CACHE-BOUNDARY보고서.
+먼저 AGENTS.md와 docs/AOT-MOVEMENT-DISPATCH-TRACE-2026-10-15.md를 읽는다. 기능별 근거는 FEATURE-EVIDENCE-MATRIX. 직전 상세패널/캐시/저장 세부사항은 각 보고서와 docs/history/HANDOFF-2026-10-15-before-autonomous-tools.md에 보존했다. 과거 ‘다음’을 반복하지 않는다.
 
-- 원본hole-combine:_HoledFillPaths key는생성steps double을복사한Float64→Int64 bit열/hash/길이/전word비교. ID/색단독키아님. hole>0없으면이cache안씀. hit도앞contour빌드는진행,combine만생략. remove/reinsert LRU256,miss때앞entryeviction,반환Path.from복사. 보간fill별도nativecombine,동일cache호출없음.
-- planFor는AO목록Expando→fits.Frame/목록identity·순서·LayerId·점수/layer/fill관련구조검사. geometry/색전부snapshot검사아님. plan재사용과완성pixel재사용구분. 모든in-placeDrawOrder/Flags/contour변경안전보장미확인.
-- 편집paint는설정listEquals→underlay/record갱신,구조update null→recordings폐기/새record. _holdsValues는TypeId/Color/ThicknessScale/ObjectScale/Glow값·DrawOrder/boolean/point x,y,Index검사. 값변경→영향unit집합,Picture재생+변경unit직접그림. 2D≤U와drag/집합조건이있어무조건부분재사용아님. 폐기는globalglow/holedcache전체clear가아님.
-- glow이미지key는기존localgeometry/Wq/Rq/dimension양자화;색/절대원점제외와ColorFilter새색입힘유지. fill exactbit key와합치지마. export새PictureRecorder→동적Draw→endRecording,EditorFrameCache.paint안씀. sharedgeometrycache까지미사용단정금지.
-- 새65명령ELF/Capstone통과.NULL compressedstur2곳은w22폭정규화명시. 문서만변경,기존unit/probe/영상/폰시험반복없음. runtimepixel/실제영상backend미검증.
-- 생성역참조닫힘:AOidentity→본체unit(field4f)/groupglowunit(53),FRidentity→소유unit(57). 전체FRsegment.ObjId→같은ID의모든AO위치→fillunit Set→Int64 _followers(5b). contour0필터없어hole도포함. 값변경→본체+followers+oldActive OR newActive의glowunit. active=Radius>0&&GlowAlpha>0. FR색별도자기unit갱신.
-- AP Flags(fieldf)구조검사→불일치null→새record/plan. groupUI fieldf설정/해제연결. filltap은FR삭제/새FR·복사불변segment목록추가. mergeLayerDown은sort→rendercacheevict→dirty→reload. 전UI계약완성아님. 새54명령대조통과(기존표본과중복합산금지).
-- renderable cache는정수FrameID→Frame,수정버전키없음.get remove/reinsert LRU,put최대12객체,take remove만/폐기없음.evict/clear AOmap해제+AOlist null;native이미지dispose아님.markFrameDataDirty는ef=true만.markCanvasDirty는현재IDevict+steady해제+counter/notifier. loadDetails는이미채워진객체반환또는take재사용/필요DB보충.bind는ID집합밖evict+canvasdirty+dirtyfalse. 매번새AO재조회단정금지.
-- 레이어Up/Down→moveSelectedLayer→SwapLayersAndContentGlobal/SaveFrame/commit→setState실제closure에서캐시전체키evict·주변목록비움·canvasdirty→onion/prefetch예약. 개별AO순서UI완료아님.saveCurrentFrame은dirtyguard→SaveFrame정상반환뒤false/history;저장자체evict없음. SaveFrame→saveFiguresChangedOnly/replaceFrameFillRegions연결확인,내부비교미완. 새62명령ELF대조통과,중복합산금지.
-- 저장새근거:기본AO행 sequence/type/layer/thickness/DrawOrder비교,DrawOrder≤0이면저장후보ID(필드재대입확인아님). thickness/objectscale≤0은AO값1보정. 프레임상세ARGB/두배율/glow4값은holdsDetail 일반동등성비교→필요UpdateDetail insert/update. AP selectable bit0/type mask0x2e와raw_flags전체별도저장구분. fill공유storeSharedFills조기반환분기있어무조건delete/reinsert아님. 로컬segment contourIndex field33→9번째DB인수확인. 새44명령통과/기존표본중복합산금지. 최초넓은검색출력잘림후주소창으로축소,원본/기존시험반복없음.
-- 공유복원:상세현재행우선→removed_detail있으면상속차단→없으면기반행. 값별혼합아닌행선택/COALESCE. storedDetailRows도현재override·removed제외기반행공급. root로컬점 raw_flags전체우선/null fallback,기반점은bit4시((B+(F>>6))<<6)|(F&0x3f),비그룹F&0x2f,B=FrameBase.field17. 그룹참조상대화의저장역변환은아래root근거로연결.
-- 공유fill encode→FNV후보→길이/전바이트동일검사→set재사용/추가+frame_ref 기준region/pointID. readSharedFills map에frame키있으면그값/키없으면로컬조회.decode→regions는기준region+순번,점상대값+기준point,contour별도복원/불변segment목록. ID숫자변화만손실판정금지. codec전체바이트/t정규화미완. 새55명령대조통과/중복합산금지.
-- 기반생성_storeRoot에서r=(F>>6)-P,bit4&&0≤r<n이면(r<<6)|(F&0x3f),아니면F&0x2f. 복원B+r대응닫힘/일반pointUPDATE규칙으로확대금지. storedPointRows는기반ID/Flags복원후비교,로컬override/removed제외._storeRootPoint구체화도동일Flags식/연결참조변환._deleteAnchorPoint→noteRowsLeaving/행삭제/listRemovedPoint,포함base범위에삭제표시→재공급제외. 모든삭제UI/root수명미완.
-- GlobalSwap내부닫힘:동일sequence AO.layer_id A→임시→B교환,다른frame(현재ID제외)layer_def.layer_index도같이교환. 현재frame은외부SaveFrame경로,이후전체cacheevict연결. DrawOrder/좌표/색쿼리없음/다른sequence전파아님. 새48명령대조통과/중복합산금지.
-- 레이어메모리연결:swapLayers 0x5bd210은두번호탐색실패시skip,Layer.number서로교환/AO LayerId교환/Frame활성번호교환/번호comparator동적호출. 활동frames순회후현재Frame미포함시별도1회. UpdateLayerSelectionAfterMove는유효목표index의번호를Frame2b/activity23,위치를activity1b에저장. 메모리→DB현재SaveFrame/타frame정의교환→cacheevict연결. 마지막정렬GDT구체대상전체미해석/DB실패rollback·실제앱미검증. 새37명령대조통과.
-- 일반AO앞뒤UI는여전히미식별. 이름/PP/명명DrawOrder호출검색만으로부재단정금지. PP뒤로문구는Flutter탐색용. 생성UpdateDrawOrder/merge비교로UI대체금지. 같은검색반복금지.
-- 상세패널3탭color/transform/glow. 변형적용버튼→ApplyAllPendingChangesAndDismiss→각pending참일때color→transform→glow순적용. afterAction fieldaf참→commit callback,fieldab참→dismiss callback. 0x555e0c annotation은customdirty지만실제dialog.fieldab=true쓰는공유짧은몸체;수신객체/실명령우선.
-- ApplyTransform:각정수percent하한1/100,parse실패각배율1. pivot은대상AO/점순서첫(Flags&0x2e)==2,없으면첫AO점목록의동적getter fallback(구체getter미해결/첫점단정금지),아예없으면return. t/o≤0계산1→ThicknessScale*굵기배율,ObjectScale*size배율,점p'=c+m(p-c). 좌표clamp없음/화면중심아님/손끝drag식아님. 대상목록확장규칙미완. 새54명령대조통과. 상세탭의DrawOrder변경경로미식별/앱전체부재아님.
-- **정확한 다음:** dialog생성main0x5e4504의대상AO목록선택/연결확장범위·순서→올그룹/뒤집기등알려진도구명령연결. 일반앞뒤UI는미식별로남기고같은검색반복금지. root수명/movedpoint·연결전체/codec전체/재생cache미완. 기존영상/폰시험반복금지.
-- 이전curve/ring:AOT-CURVE-RING보고서.16chord길이/최대곡률/회전각→n1–48,균일t/회전t혼합,중간부호곡률triple.48상한후반삭제아님/오차보장아님. 일반ring2/4/8node선택의min은node판단만,반폭원래W/2. 퇴화stroke radius0/8node._fill h+3sigma+1/cull h+4sigma+1구분.
-- 이전group/shader/timeline:AOT-GROUP-SHADER-TIMELINE보고서.각AO글로우먼저/fill·본체뒤. 객체내coverage clamp와객체간blend분리. Q/K/N양자화timeline/마지막원본유지. FPS=(T트위닝,P재생). raw/PNG동일DartPicture→Java완성textureH.264/MP4,공간예측선택/codec검사아님(EXPORT-DISPATCH).
-- Paint OBJECT8/PREVIEW약2.2 Float32/primitive1.14/padding1.24정정유지. 기존B/00–05/영상/설치/폰시험재실행금지. runtime license4차단상태유지/추가사용자작업없음.
+- 사용자 최신 지시: 혼자 처리 가능한 작업은 자율 진행. 사용자 추가 시험 요청 없음. 설치/페어링/폰시작/기존 영상 반복 금지. 전체 기능 분석 목표 유지, 학습·AI연결 보류.
+- CONNECTED-TARGET-REFLECTION: tap→CollectGroupClosure→AO ID 첫 발견 중복제거 목록→상세 dialog. closure는 AC·소유 AO 점·그룹 parent/children을 입력 map 범위에서 큐로 확장. 반사는 start x 중심 x'=2c−x, start ID 제외, tap→saveAfterMove 연결. DrawOrder sort 아님.
+- ALLGROUP-BOX: layer 표시/잠금 필터, 전역 설정 bool에 따른 활성 layer 제한. 초기 점 화면좌표/속성 snapshot에서 상자 변환; 모서리만 t/o 배율 및 Radius=min(round(R0*k),max(300,R0)); 측면/이동/회전은 해당 속성 loop 제외. 최소 화면 크기8, rotate snap45도 진입.55도/유지.96도. pan종료 moved면saveAfterMove. movedFigures는 동일Frame/구조에서 좌표만 비교하며 속성diff로 일반화 금지. 표시 토글→sequence DB 전달 확인; 별도 잠금 UI 미식별.
+- MOVEMENT-DISPATCH: pose tool0, stretch1. T=Flags&0x2e로 전체이동/회전/PivotTo 분기; 0x21 조상 예외 별도. concurrent는 일반 AC만 따라가며 그룹연결 제외. 늘이기는 이 점들을 같은 포인터 좌표로 이동. 전체이동 closure는 그룹 확장 포함. 회전은 화면좌표에서 수행 후 역변환.
+- _branchOf: pivot 일반연결점 ID를 경계로 두고 branch seed에서 비그룹 AC+소유 AO 점 확장. RotateBranch에서 현재 점==pivot이면 적용 후 회전중심 다시 구성하는 조건 있음. GetClusterHead는 parent가 일반연결점 안일 때 위로 이동.
+- BuildTree: map 점 parent/children 초기화→선호점+T2 후보 전체 ID정렬→미방문 후보 탐색, 비그룹AC 후 AO다른점 확장/parent지정. 남은점은 map값순 새탐색. 선호점 무조건 첫 root 단정금지. 0x5114b0 공유몸체는 fieldb=null이며 Flutter dispose 의미로 읽지마.
+- 새175개 선택 명령 ELF/Capstone 대조 통과(CONNECTED-ALLGROUP audit). 전체함수/실제앱/pixel 검증 아님; 다른 보고서 표본과 중복 합산 금지. 문서만변경/unit·probe재실행 없음.
+- **정확한 다음:** 원근 도구의 대상 선택·핸들 변형 수학을 기존 AOT에서 추적. 기존04 사영/아핀 관찰 재분석 금지. 상세패널 fallback 동적getter 구체대상, 일반 앞뒤/잠금 UI, root수명/movedpoint·codec전체/재생cache 미완 유지. 이름검색·이미 닫힌 cache/행렬 반복금지.
+- 기존 group/shader/timeline·curve/ring·fill·dirty/cache·저장/복원·layer·modify-panel 보고서 재사용. FPS=(T,P), groupglow와 실제04 그룹이동 검증 구분. ModifyPanel fallback을 ‘첫점’으로 확정하지마. 0x555e0c는 실제dialog.fieldab 쓰기.
 
 ## 필요한 이전 정적 사실·근거
 
