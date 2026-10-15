@@ -39,6 +39,8 @@
 5. frame이 하나 남을 때까지 삭제 후 마지막 하나도 삭제 시도 → `06_f_delete_last.sfa`. 버튼이 비활성이거나 확인창이 거부되면 그 사실만 적는다.
 6. (선택) 1의 clipboard를 다른 프로젝트에 붙여넣고 그 프로젝트 내보내기 → `06_g_cross_sequence.sfa`
 
+7. (선택, 축 고정) 아무 프레임의 한 점을 편집 메뉴에서 세로 축 고정을 켠 채 비스듬히 드래그 → `06_h_axis_fix.sfa`. 직전 내보내기와 비교해 그 점의 X 불변·Y 변화를 확인한다(근거 [AXIS-FIX](AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md)). 검사 도구 자동 판정은 없고 좌표 비교로 기록한다.
+
 판정은 연속 쌍 a→b, b→c, c→d, d→e, e→f에 검사 도구를 실행한다. 기대 사건은 각각 `paste_same_sequence`(pasted_after_source), `paste_same_sequence`(pasted_before_source), `empty_frame`, 제거만 있는 변화, `last_frame_delete_recreated_empty_frame0`이다. a는 시드와 직접 비교하지 않는다.
 
 ## 해석 규칙

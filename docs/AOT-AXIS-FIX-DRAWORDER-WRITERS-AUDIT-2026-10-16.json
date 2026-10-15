@@ -1,0 +1,202 @@
+{
+ "scope": "49 selected instruction checks against restored same ELF (Capstone vs Blutter); not full semantics or runtime",
+ "checks": [
+  {
+   "address": "0x5bdf64",
+   "matched": true
+  },
+  {
+   "address": "0x5bdf68",
+   "matched": true
+  },
+  {
+   "address": "0x5bdf7c",
+   "matched": true
+  },
+  {
+   "address": "0x5bdf8c",
+   "matched": true
+  },
+  {
+   "address": "0x5bdf9c",
+   "matched": true
+  },
+  {
+   "address": "0x5bdfa0",
+   "matched": true
+  },
+  {
+   "address": "0x5be078",
+   "matched": true
+  },
+  {
+   "address": "0x5be07c",
+   "matched": true
+  },
+  {
+   "address": "0x5be090",
+   "matched": true
+  },
+  {
+   "address": "0x5be0a0",
+   "matched": true
+  },
+  {
+   "address": "0x5be0b0",
+   "matched": true
+  },
+  {
+   "address": "0x5be0b4",
+   "matched": true
+  },
+  {
+   "address": "0x525698",
+   "matched": true
+  },
+  {
+   "address": "0x5256a8",
+   "matched": true
+  },
+  {
+   "address": "0x5256ac",
+   "matched": true
+  },
+  {
+   "address": "0x5256bc",
+   "matched": true
+  },
+  {
+   "address": "0x5be6a0",
+   "matched": true
+  },
+  {
+   "address": "0x5be6a4",
+   "matched": true
+  },
+  {
+   "address": "0x5e9e60",
+   "matched": true
+  },
+  {
+   "address": "0x5e9e64",
+   "matched": true
+  },
+  {
+   "address": "0x5e9e68",
+   "matched": true
+  },
+  {
+   "address": "0x5e9e70",
+   "matched": true
+  },
+  {
+   "address": "0x5e9e98",
+   "matched": true
+  },
+  {
+   "address": "0x5e9e9c",
+   "matched": true
+  },
+  {
+   "address": "0x5e9ea0",
+   "matched": true
+  },
+  {
+   "address": "0x5e9ea8",
+   "matched": true
+  },
+  {
+   "address": "0x5e9ca4",
+   "matched": true
+  },
+  {
+   "address": "0x5e9cc4",
+   "matched": true
+  },
+  {
+   "address": "0x5e9ce4",
+   "matched": true
+  },
+  {
+   "address": "0x5e9dc4",
+   "matched": true
+  },
+  {
+   "address": "0x5e9dd0",
+   "matched": true
+  },
+  {
+   "address": "0x5e9df4",
+   "matched": true
+  },
+  {
+   "address": "0x5e9e28",
+   "matched": true
+  },
+  {
+   "address": "0x5ef9f0",
+   "matched": true
+  },
+  {
+   "address": "0x5efa18",
+   "matched": true
+  },
+  {
+   "address": "0x5f4fd8",
+   "matched": true
+  },
+  {
+   "address": "0x5f4ff8",
+   "matched": true
+  },
+  {
+   "address": "0x5e734c",
+   "matched": true
+  },
+  {
+   "address": "0x527158",
+   "matched": true
+  },
+  {
+   "address": "0x52715c",
+   "matched": true
+  },
+  {
+   "address": "0x527160",
+   "matched": true
+  },
+  {
+   "address": "0x5bdf34",
+   "matched": true
+  },
+  {
+   "address": "0x5be048",
+   "matched": true
+  },
+  {
+   "address": "0x5be670",
+   "matched": true
+  },
+  {
+   "address": "0x525664",
+   "matched": true
+  },
+  {
+   "address": "0x5fc5d4",
+   "matched": true
+  },
+  {
+   "address": "0x5ce204",
+   "matched": true
+  },
+  {
+   "address": "0x5ce318",
+   "matched": true
+  },
+  {
+   "address": "0x5ce508",
+   "matched": true
+  }
+ ],
+ "runtime_verified": false
+}

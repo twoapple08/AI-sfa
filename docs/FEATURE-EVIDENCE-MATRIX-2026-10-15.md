@@ -55,3 +55,5 @@ PC는 사용자20:26 보고로 현재 사용 불가다. 서버 cache는 정상�
 2026-10-16 추가: [ROOT-COPY-DB-BRANCHES](AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)에서 root prefix(절반이상) 재사용/새root/source rebase시도/targetbase 범위·점ID예약 schema·같은/다른sequence AO DB복사 정상분기를49선택명령으로 보충했다. 실제복사/실패보장·전체UI coverage는 별개다.
 
 2026-10-16 추가: [APP-V3](APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md)에서 시간축 명령 정적 결과를 SFA 관측 가능/불가로 나누고 시드·검사 도구·절차를 추가했다. 실제 앱 결과는 아직 없고 root/ID 예약/unused 정리는 내보내기로 관측 불가로 분류했다.
+
+2026-10-16 추가: [AXIS-FIX-DRAWORDER-WRITERS](AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md)(49선택명령). DrawOrder 쓰기 경로 전수 조사로 생성·복사·import·병합·undo 외 일반 AO 앞뒤 UI 경로가 나오지 않았다(부재 증명 아님). 잠금 열은 layer_def.is_locked뿐이며, 잠금형 편집 보조인 축 고정(세로/가로 배타, 일반 점 드래그만, 환경설정 미저장)과 회전 스냅 UI를 연결했다.

@@ -1,269 +1,294 @@
 {
-  "schema_version": 1,
-  "date_kst": "2026-10-16",
-  "source_commit": "bf5ea5d3576e1e454c958b3e7c2692d3b8d3806a",
-  "purpose": "기존 보고서의 기능별 근거 색인; 새 AOT 또는 runtime 검증 아님",
-  "exhaustive_feature_inventory": false,
-  "all_solo_analysis_complete": false,
-  "runtime_renderer_verified": false,
-  "current_static_analysis_blocker": null,
-  "features": [
-    {
-      "id": "fill",
-      "title_ko": "채우기·구멍",
-      "evidence_reports": [
-        "docs/AOT-FILL-PATH-TRACE-2026-10-15.md",
-        "docs/AOT-FILL-TWEEN-TRACE-2026-10-15.md",
-        "docs/AOT-FILL-PRUNE-HISTORY-TRACE-2026-10-15.md"
-      ],
-      "existing_runtime_samples": [
-        "01: 단순 구멍·윤곽 방향·겹침 출력"
-      ],
-      "static_scope": [
-        "경로 조합·대응·실패 fallback·구조 prune"
-      ],
-      "remaining": [
-        "복잡한 윤곽·부분 경계의 실제 픽셀"
-      ],
-      "complete": false
-    },
-    {
-      "id": "draw-order",
-      "title_ko": "객체·채우기 순서",
-      "evidence_reports": [
-        "docs/AOT-DRAW-GLOW-TRACE-2026-10-15.md",
-        "docs/AOT-SAVED-VALUES-TRACE-2026-10-15.md",
-        "docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md"
-      ],
-      "existing_runtime_samples": [
-        "01: FR 목록 반전 표본; 반대 DrawOrder 시험은 왕복 변경으로 불성립"
-      ],
-      "static_scope": [
-        "DB 정렬·그룹 draw unit·순서 저장·레이어 병합의 기존 슬롯 배정"
-      ],
-      "remaining": [
-        "일반 AO 순서 변경 UI 구체 caller"
-      ],
-      "complete": false
-    },
-    {
-      "id": "glow",
-      "title_ko": "글로우",
-      "evidence_reports": [
-        "docs/AOT-DRAW-GLOW-TRACE-2026-10-15.md",
-        "docs/AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md"
-      ],
-      "existing_runtime_samples": [
-        "02: 수평선 두께·반경·알파·독립 객체 중첩"
-      ],
-      "static_scope": [
-        "객체별 backend 선택·그룹 객체별 순회·uniform·셰이더 수학"
-      ],
-      "remaining": [
-        "곡선·링·연결 그룹의 backend별 픽셀·blend"
-      ],
-      "complete": false
-    },
-    {
-      "id": "group",
-      "title_ko": "그룹·해제",
-      "evidence_reports": [
-        "docs/AOT-GROUP-REPAIR-TRACE-2026-10-15.md",
-        "docs/AOT-CONNECTED-TARGET-REFLECTION-TRACE-2026-10-15.md",
-        "docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md"
-      ],
-      "existing_runtime_samples": [
-        "04: AC/Flags·동반 이동·해제 후 독립 이동"
-      ],
-      "static_scope": [
-        "부모 해석·legacy fallback·순환 복구·연결 재배정·DB 반영"
-      ],
-      "remaining": [
-        "중첩·트위닝·잠금 UI 전체 계약"
-      ],
-      "complete": false
-    },
-    {
-      "id": "transform",
-      "title_ko": "이동·크기·늘이기",
-      "evidence_reports": [
-        "docs/AOT-MOVEMENT-DISPATCH-TRACE-2026-10-15.md",
-        "docs/AOT-CONNECTED-TARGET-REFLECTION-TRACE-2026-10-15.md",
-        "docs/AOT-ALLGROUP-BOX-TRACE-2026-10-15.md",
-        "docs/AOT-SAVED-VALUES-TRACE-2026-10-15.md",
-        "docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md"
-      ],
-      "existing_runtime_samples": [
-        "04: 크기 적용·손끝 드래그·누적 확대"
-      ],
-      "static_scope": [
-        "pose/stretch 분기·branch/BuildTree·대상 중복 제거·pivot 변형",
-        "상세 변형 fallback의 정상 목록 first 실제 target"
-      ],
-      "remaining": [
-        "전체 hit-test·비정상 연결·실제 수치 경계"
-      ],
-      "complete": false
-    },
-    {
-      "id": "perspective",
-      "title_ko": "원근",
-      "evidence_reports": [
-        "docs/AOT-PERSPECTIVE-WARP-TRACE-2026-10-15.md",
-        "docs/AOT-PERSPECTIVE-SELECTION-CUSTOM-TRACE-2026-10-15.md"
-      ],
-      "existing_runtime_samples": [
-        "04: 사영 적합 및 아핀 좌표 변화 표본"
-      ],
-      "static_scope": [
-        "8핸들·snapshot·쌍선형/사영 선택·fallback·선택 점수·저장"
-      ],
-      "remaining": [
-        "곡선/원 최종 픽셀·실제 경계"
-      ],
-      "complete": false
-    },
-    {
-      "id": "tween",
-      "title_ko": "객체·채우기 보간",
-      "evidence_reports": [
-        "docs/AOT-OBJECT-TWEEN-PAIR-TRACE-2026-10-15.md",
-        "docs/AOT-FILL-TWEEN-TRACE-2026-10-15.md"
-      ],
-      "existing_runtime_samples": [
-        "03: 동일 ID 이동·알파·새 ID 누락·FR 비대칭"
-      ],
-      "static_scope": [
-        "앞 AO 기준·수동 link/동일 ID·Index 대응·속성 정수화"
-      ],
-      "remaining": [
-        "복합 입력·전체 생성/삭제 경계의 실제 결과"
-      ],
-      "complete": false
-    },
-    {
-      "id": "manual-link",
-      "title_ko": "수동 트위닝 잇기",
-      "evidence_reports": [
-        "docs/AOT-OBJECT-TWEEN-PAIR-TRACE-2026-10-15.md"
-      ],
-      "existing_runtime_samples": [
-        "05: 다른 ID 원 링크 후 중간 원 복구"
-      ],
-      "static_scope": [
-        "뒤 key 정렬·자연 ID 충돌·TypeId/Index 검사"
-      ],
-      "remaining": [
-        "UI 전체·역방향·복합 FR 실물"
-      ],
-      "complete": false
-    },
-    {
-      "id": "layer",
-      "title_ko": "레이어",
-      "evidence_reports": [
-        "docs/AOT-LAYER-MEMORY-TRACE-2026-10-15.md",
-        "docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md",
-        "docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md"
-      ],
-      "existing_runtime_samples": [],
-      "static_scope": [
-        "sequence 교환·현재 메모리·병합·전역 삭제·모든 frame 추가·history"
-      ],
-      "remaining": [
-        "별도 잠금 toggle UI·실제 결과·DB 실패 rollback"
-      ],
-      "complete": false
-    },
-    {
-      "id": "history",
-      "title_ko": "실행 취소·다시 실행",
-      "evidence_reports": [
-        "docs/AOT-FILL-PRUNE-HISTORY-TRACE-2026-10-15.md",
-        "docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md",
-        "docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md"
-      ],
-      "existing_runtime_samples": [],
-      "static_scope": [
-        "custom snapshot·일반 frame별 stack·live LayerId/DrawOrder·16ms guard",
-        "FastHash 포함 필드·좌표 반올림·자체 cache 부재",
-        "GrowableList last/removeLast 실제 target"
-      ],
-      "remaining": [
-        "구체 편집별 history 기록/충돌 영향의 실제 결과·실패/동시 실행 보장"
-      ],
-      "complete": false
-    },
-    {
-      "id": "storage",
-      "title_ko": "저장·공유 기반·압축",
-      "evidence_reports": [
-        "docs/AOT-SHARED-RESTORE-TRACE-2026-10-15.md",
-        "docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md",
-        "docs/AOT-FILL-MOVED-CODEC-TRACE-2026-10-15.md",
-        "docs/AOT-ROOT-RELEASE-TRACE-2026-10-15.md",
-        "docs/AOT-ROOT-REBASE-IDLE-TRACE-2026-10-15.md",
-        "docs/AOT-COMPACTION-PHASES-TRACE-2026-10-15.md",
-        "docs/AOT-DB-REWRITE-TRACE-2026-10-15.md",
-        "docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md"
-      ],
-      "existing_runtime_samples": [
-        "00–05 저장 왕복은 기존 표본 범위만"
-      ],
-      "static_scope": [
-        "공유 복원·removed·codec·root 해제·rebase·12 압축 단계·파일 교체 guard",
-        "copy root prefix 재사용/새 root/source rebase 시도·ID예약 schema·동일/다른 sequence AO DB복사 정상 분기"
-      ],
-      "remaining": [
-        "malformed/overflow·전체 수명·동시 수정·실패 원자성"
-      ],
-      "complete": false
-    },
-    {
-      "id": "export",
-      "title_ko": "내보내기·FPS·재생",
-      "evidence_reports": [
-        "docs/AOT-EXPORT-DISPATCH-TRACE-2026-10-15.md",
-        "docs/AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md",
-        "docs/AOT-PLAYBACK-BUFFER-TRACE-2026-10-15.md"
-      ],
-      "existing_runtime_samples": [
-        "01–05 출력 길이/프레임수"
-      ],
-      "static_scope": [
-        "timeline·양자화 t·마지막 원본 유지·raw/PNG·Java encoder·별도 재생 cache"
-      ],
-      "remaining": [
-        "모든 FPS 조합·실제 codec·색·pixel"
-      ],
-      "complete": false
-    },
-    {
-      "id": "deletion-ui",
-      "title_ko": "선택 객체 삭제·시간축 명령",
-      "evidence_reports": [
-        "docs/AOT-EDITOR-MENU-DELETE-CALLER-TRACE-2026-10-15.md",
-        "docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md",
-        "docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md",
-        "docs/AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md",
-        "docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md",
-        "docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md"
-      ],
-      "existing_runtime_samples": [],
-      "static_scope": [
-        "선택 anchor→연결 AO·transaction·prune/SaveFrame/history·점 삭제 기본 순서",
-        "unused AO의 실제/가상 기반 잔존 조건",
-        "실제 시간축 callback·clipboard/앞뒤 insert/paste·마지막 frame 삭제 보충·DB/preview 갱신",
-        "copy root prefix 재사용/새 root/source rebase 시도·ID예약 schema·동일/다른 sequence AO DB복사 정상 분기"
-      ],
-      "remaining": [
-        "원시 DB helper 전체 수명·실패/비정상 입력 보장",
-        "전체 UI·실제 DB 실패/동시 실행"
-      ],
-      "complete": false
-    }
-  ],
-  "analysis_environment_restored": true,
-  "private_cache_backup_saved": true,
-  "dispatch_mapping_available": true
+ "schema_version": 1,
+ "date_kst": "2026-10-16",
+ "source_commit": "bf5ea5d3576e1e454c958b3e7c2692d3b8d3806a",
+ "purpose": "기존 보고서의 기능별 근거 색인; 새 AOT 또는 runtime 검증 아님",
+ "exhaustive_feature_inventory": false,
+ "all_solo_analysis_complete": false,
+ "runtime_renderer_verified": false,
+ "current_static_analysis_blocker": null,
+ "features": [
+  {
+   "id": "fill",
+   "title_ko": "채우기·구멍",
+   "evidence_reports": [
+    "docs/AOT-FILL-PATH-TRACE-2026-10-15.md",
+    "docs/AOT-FILL-TWEEN-TRACE-2026-10-15.md",
+    "docs/AOT-FILL-PRUNE-HISTORY-TRACE-2026-10-15.md"
+   ],
+   "existing_runtime_samples": [
+    "01: 단순 구멍·윤곽 방향·겹침 출력"
+   ],
+   "static_scope": [
+    "경로 조합·대응·실패 fallback·구조 prune"
+   ],
+   "remaining": [
+    "복잡한 윤곽·부분 경계의 실제 픽셀"
+   ],
+   "complete": false
+  },
+  {
+   "id": "draw-order",
+   "title_ko": "객체·채우기 순서",
+   "evidence_reports": [
+    "docs/AOT-DRAW-GLOW-TRACE-2026-10-15.md",
+    "docs/AOT-SAVED-VALUES-TRACE-2026-10-15.md",
+    "docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md",
+    "docs/AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md"
+   ],
+   "existing_runtime_samples": [
+    "01: FR 목록 반전 표본; 반대 DrawOrder 시험은 왕복 변경으로 불성립"
+   ],
+   "static_scope": [
+    "DB 정렬·그룹 draw unit·순서 저장·레이어 병합의 기존 슬롯 배정",
+    "DrawOrder DB쓰기5함수·메모리store 전수: 생성/복사/import/병합/undo 외 일반 AO 앞뒤 UI 경로 없음(위젯237 receiver 미확정·부재 증명 아님)"
+   ],
+   "remaining": [
+    "일반 AO 순서 변경 UI 구체 caller"
+   ],
+   "complete": false
+  },
+  {
+   "id": "glow",
+   "title_ko": "글로우",
+   "evidence_reports": [
+    "docs/AOT-DRAW-GLOW-TRACE-2026-10-15.md",
+    "docs/AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md"
+   ],
+   "existing_runtime_samples": [
+    "02: 수평선 두께·반경·알파·독립 객체 중첩"
+   ],
+   "static_scope": [
+    "객체별 backend 선택·그룹 객체별 순회·uniform·셰이더 수학"
+   ],
+   "remaining": [
+    "곡선·링·연결 그룹의 backend별 픽셀·blend"
+   ],
+   "complete": false
+  },
+  {
+   "id": "group",
+   "title_ko": "그룹·해제",
+   "evidence_reports": [
+    "docs/AOT-GROUP-REPAIR-TRACE-2026-10-15.md",
+    "docs/AOT-CONNECTED-TARGET-REFLECTION-TRACE-2026-10-15.md",
+    "docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md"
+   ],
+   "existing_runtime_samples": [
+    "04: AC/Flags·동반 이동·해제 후 독립 이동"
+   ],
+   "static_scope": [
+    "부모 해석·legacy fallback·순환 복구·연결 재배정·DB 반영"
+   ],
+   "remaining": [
+    "중첩·트위닝·잠금 UI 전체 계약"
+   ],
+   "complete": false
+  },
+  {
+   "id": "transform",
+   "title_ko": "이동·크기·늘이기",
+   "evidence_reports": [
+    "docs/AOT-MOVEMENT-DISPATCH-TRACE-2026-10-15.md",
+    "docs/AOT-CONNECTED-TARGET-REFLECTION-TRACE-2026-10-15.md",
+    "docs/AOT-ALLGROUP-BOX-TRACE-2026-10-15.md",
+    "docs/AOT-SAVED-VALUES-TRACE-2026-10-15.md",
+    "docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md",
+    "docs/AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md"
+   ],
+   "existing_runtime_samples": [
+    "04: 크기 적용·손끝 드래그·누적 확대"
+   ],
+   "static_scope": [
+    "pose/stretch 분기·branch/BuildTree·대상 중복 제거·pivot 변형",
+    "상세 변형 fallback의 정상 목록 first 실제 target",
+    "축고정 토글(정적0xc20, 1세로/2가로 배타)→_applyAxisFix로 일반 점 드래그 목표점 투영; 원근/올그룹/트윈링크 모드 제외; 환경설정 미저장"
+   ],
+   "remaining": [
+    "전체 hit-test·비정상 연결·실제 수치 경계",
+    "축고정 실물 SFA(X불변) 확인·회전스냅 각도 단위"
+   ],
+   "complete": false
+  },
+  {
+   "id": "perspective",
+   "title_ko": "원근",
+   "evidence_reports": [
+    "docs/AOT-PERSPECTIVE-WARP-TRACE-2026-10-15.md",
+    "docs/AOT-PERSPECTIVE-SELECTION-CUSTOM-TRACE-2026-10-15.md"
+   ],
+   "existing_runtime_samples": [
+    "04: 사영 적합 및 아핀 좌표 변화 표본"
+   ],
+   "static_scope": [
+    "8핸들·snapshot·쌍선형/사영 선택·fallback·선택 점수·저장"
+   ],
+   "remaining": [
+    "곡선/원 최종 픽셀·실제 경계"
+   ],
+   "complete": false
+  },
+  {
+   "id": "tween",
+   "title_ko": "객체·채우기 보간",
+   "evidence_reports": [
+    "docs/AOT-OBJECT-TWEEN-PAIR-TRACE-2026-10-15.md",
+    "docs/AOT-FILL-TWEEN-TRACE-2026-10-15.md"
+   ],
+   "existing_runtime_samples": [
+    "03: 동일 ID 이동·알파·새 ID 누락·FR 비대칭"
+   ],
+   "static_scope": [
+    "앞 AO 기준·수동 link/동일 ID·Index 대응·속성 정수화"
+   ],
+   "remaining": [
+    "복합 입력·전체 생성/삭제 경계의 실제 결과"
+   ],
+   "complete": false
+  },
+  {
+   "id": "manual-link",
+   "title_ko": "수동 트위닝 잇기",
+   "evidence_reports": [
+    "docs/AOT-OBJECT-TWEEN-PAIR-TRACE-2026-10-15.md"
+   ],
+   "existing_runtime_samples": [
+    "05: 다른 ID 원 링크 후 중간 원 복구"
+   ],
+   "static_scope": [
+    "뒤 key 정렬·자연 ID 충돌·TypeId/Index 검사"
+   ],
+   "remaining": [
+    "UI 전체·역방향·복합 FR 실물"
+   ],
+   "complete": false
+  },
+  {
+   "id": "layer",
+   "title_ko": "레이어",
+   "evidence_reports": [
+    "docs/AOT-LAYER-MEMORY-TRACE-2026-10-15.md",
+    "docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md",
+    "docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md"
+   ],
+   "existing_runtime_samples": [],
+   "static_scope": [
+    "sequence 교환·현재 메모리·병합·전역 삭제·모든 frame 추가·history"
+   ],
+   "remaining": [
+    "별도 잠금 toggle UI·실제 결과·DB 실패 rollback"
+   ],
+   "complete": false
+  },
+  {
+   "id": "history",
+   "title_ko": "실행 취소·다시 실행",
+   "evidence_reports": [
+    "docs/AOT-FILL-PRUNE-HISTORY-TRACE-2026-10-15.md",
+    "docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md",
+    "docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md"
+   ],
+   "existing_runtime_samples": [],
+   "static_scope": [
+    "custom snapshot·일반 frame별 stack·live LayerId/DrawOrder·16ms guard",
+    "FastHash 포함 필드·좌표 반올림·자체 cache 부재",
+    "GrowableList last/removeLast 실제 target"
+   ],
+   "remaining": [
+    "구체 편집별 history 기록/충돌 영향의 실제 결과·실패/동시 실행 보장"
+   ],
+   "complete": false
+  },
+  {
+   "id": "storage",
+   "title_ko": "저장·공유 기반·압축",
+   "evidence_reports": [
+    "docs/AOT-SHARED-RESTORE-TRACE-2026-10-15.md",
+    "docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md",
+    "docs/AOT-FILL-MOVED-CODEC-TRACE-2026-10-15.md",
+    "docs/AOT-ROOT-RELEASE-TRACE-2026-10-15.md",
+    "docs/AOT-ROOT-REBASE-IDLE-TRACE-2026-10-15.md",
+    "docs/AOT-COMPACTION-PHASES-TRACE-2026-10-15.md",
+    "docs/AOT-DB-REWRITE-TRACE-2026-10-15.md",
+    "docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md"
+   ],
+   "existing_runtime_samples": [
+    "00–05 저장 왕복은 기존 표본 범위만"
+   ],
+   "static_scope": [
+    "공유 복원·removed·codec·root 해제·rebase·12 압축 단계·파일 교체 guard",
+    "copy root prefix 재사용/새 root/source rebase 시도·ID예약 schema·동일/다른 sequence AO DB복사 정상 분기"
+   ],
+   "remaining": [
+    "malformed/overflow·전체 수명·동시 수정·실패 원자성"
+   ],
+   "complete": false
+  },
+  {
+   "id": "export",
+   "title_ko": "내보내기·FPS·재생",
+   "evidence_reports": [
+    "docs/AOT-EXPORT-DISPATCH-TRACE-2026-10-15.md",
+    "docs/AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md",
+    "docs/AOT-PLAYBACK-BUFFER-TRACE-2026-10-15.md"
+   ],
+   "existing_runtime_samples": [
+    "01–05 출력 길이/프레임수"
+   ],
+   "static_scope": [
+    "timeline·양자화 t·마지막 원본 유지·raw/PNG·Java encoder·별도 재생 cache"
+   ],
+   "remaining": [
+    "모든 FPS 조합·실제 codec·색·pixel"
+   ],
+   "complete": false
+  },
+  {
+   "id": "deletion-ui",
+   "title_ko": "선택 객체 삭제·시간축 명령",
+   "evidence_reports": [
+    "docs/AOT-EDITOR-MENU-DELETE-CALLER-TRACE-2026-10-15.md",
+    "docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md",
+    "docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md",
+    "docs/AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md",
+    "docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md",
+    "docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md"
+   ],
+   "existing_runtime_samples": [],
+   "static_scope": [
+    "선택 anchor→연결 AO·transaction·prune/SaveFrame/history·점 삭제 기본 순서",
+    "unused AO의 실제/가상 기반 잔존 조건",
+    "실제 시간축 callback·clipboard/앞뒤 insert/paste·마지막 frame 삭제 보충·DB/preview 갱신",
+    "copy root prefix 재사용/새 root/source rebase 시도·ID예약 schema·동일/다른 sequence AO DB복사 정상 분기"
+   ],
+   "remaining": [
+    "원시 DB helper 전체 수명·실패/비정상 입력 보장",
+    "전체 UI·실제 DB 실패/동시 실행"
+   ],
+   "complete": false
+  },
+  {
+   "id": "edit-aids",
+   "title_ko": "편집 보조(축 고정·회전 스냅·잠금)",
+   "evidence_reports": [
+    "docs/AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md",
+    "docs/AOT-ALLGROUP-BOX-TRACE-2026-10-15.md"
+   ],
+   "existing_runtime_samples": [],
+   "static_scope": [
+    "잠금 열은 layer_def.is_locked뿐, AO 잠금 열 없음",
+    "AP selectable=Flags bit0 hit-test만 읽음, bit0 즉시값 설정 연산 없음",
+    "축고정 UI closure→toggle→pan update→DoMovementAction 연결"
+   ],
+   "remaining": [
+    "계산값 저장으로 bit0를 바꾸는 경로 완전 배제 안 함",
+    "회전 스냅 환경설정 복원 여부",
+    "실제 앱 확인"
+   ],
+   "complete": false
+  }
+ ],
+ "analysis_environment_restored": true,
+ "private_cache_backup_saved": true,
+ "dispatch_mapping_available": true
 }
