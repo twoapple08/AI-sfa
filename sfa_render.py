@@ -284,7 +284,9 @@ def group_units(frame):
 def render_frame(frame, width=1920, height=1080, params=None, seq_thickness=100.0):
     cv = Canvas(width, height, params=params)
     cv.fill_bg(frame.get('BackgroundColor', '-1'))
-    objects = {o.get('ID'): o for o in frame.findall('AO')}
+    hidden = {l.get('ID') for l in frame.findall('LayerDef') if l.get('Visible', 'true') == 'false'}
+    # APP-T1: objects on a hidden layer are not drawn in exported frames.
+    objects = {o.get('ID'): o for o in frame.findall('AO') if o.get('LayerId') not in hidden}
     order = lambda o: (float(o.get('DrawOrder', '0') or 0), int(o.get('ID')) if o.get('ID', '').lstrip('-').isdigit() else 0)
     find = group_units(frame)
     units = {}
@@ -294,7 +296,8 @@ def render_frame(frame, width=1920, height=1080, params=None, seq_thickness=100.
     for region in frame.iter('FR'):
         refs = [objects[s.get('ObjId')] for s in region.findall('FS') if s.get('ObjId') in objects]
         if refs:
-            fills_before.setdefault(find(max(refs, key=order).get('ID')), []).append(region)
+            # APP-T1: a fill is drawn below all of its boundary objects (anchor = lowest DrawOrder).
+            fills_before.setdefault(find(min(refs, key=order).get('ID')), []).append(region)
     for key in sorted(units, key=lambda k: min(order(o) for o in units[k])):
         members = sorted(units[key], key=order)
         for region in fills_before.get(key, []):
