@@ -1,0 +1,86 @@
+{
+ "status": "generated; app video pending",
+ "file": "07_render_reference.sfa",
+ "fps": {
+  "tween_fps": 24,
+  "playback_fps": 24
+ },
+ "frames": 108,
+ "expected_seconds": 4.5,
+ "coordinates": "percent of 16:9 output; 1 unit = width/100 horizontally, height/100 vertically",
+ "segments": [
+  {
+   "segment": "colors",
+   "frames_1based": [
+    1,
+    12
+   ],
+   "note": "12 opaque fill swatches (rows of 6) on gray 128; edge lines alpha 0. Color pipeline calibration."
+  },
+  {
+   "segment": "lines",
+   "frames_1based": [
+    13,
+    24
+   ],
+   "note": "White lines on dark: ThicknessScale 0.5/1/2/4 horizontal, vertical, diagonal, near-point stroke."
+  },
+  {
+   "segment": "circles",
+   "frames_1based": [
+    25,
+    36
+   ],
+   "note": "TypeId2 circles: diameter endpoints vertical, diameters 8/20/40 (scale1) and 20 (scale3)."
+  },
+  {
+   "segment": "curves",
+   "frames_1based": [
+    37,
+    48
+   ],
+   "note": "TypeId3: symmetric arc, near-straight, returning cusp (start==end)."
+  },
+  {
+   "segment": "glow_lines",
+   "frames_1based": [
+    49,
+    60
+   ],
+   "note": "Orange lines, cyan glow alpha255: (GlowRadius,GlowThickness)=(4,20),(12,20),(24,20),(12,5),(12,60)."
+  },
+  {
+   "segment": "glow_shapes",
+   "frames_1based": [
+    61,
+    72
+   ],
+   "note": "Glow 12/20 on circle, curve and near-point stroke."
+  },
+  {
+   "segment": "group_glow",
+   "frames_1based": [
+    73,
+    84
+   ],
+   "note": "Crossing glowing lines: left independent, right grouped (AO13 Index0 child of AO12 Index0)."
+  },
+  {
+   "segment": "fill_overlap",
+   "frames_1based": [
+    85,
+    96
+   ],
+   "note": "Fill alpha 128 red over/under alpha 128 blue on white; opaque green with half-alpha red overlap."
+  },
+  {
+   "segment": "boundary",
+   "frames_1based": [
+    97,
+    108
+   ],
+   "note": "Shapes crossing right/top/left output edges (negative/over-100 coordinates kept)."
+  }
+ ],
+ "measure": "Use the middle frames of each held segment; compare against a future reference renderer."
+}
