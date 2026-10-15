@@ -1,0 +1,46 @@
+{
+ "scope": "10 selected instruction checks against restored same ELF (Capstone vs Blutter); not full semantics or runtime",
+ "checks": [
+  {
+   "address": "0x5254b4",
+   "matched": true
+  },
+  {
+   "address": "0x525500",
+   "matched": true
+  },
+  {
+   "address": "0x52552c",
+   "matched": true
+  },
+  {
+   "address": "0x552f74",
+   "matched": true
+  },
+  {
+   "address": "0x552f84",
+   "matched": true
+  },
+  {
+   "address": "0x430d2c",
+   "matched": true
+  },
+  {
+   "address": "0x40fd30",
+   "matched": true
+  },
+  {
+   "address": "0x430cbc",
+   "matched": true
+  },
+  {
+   "address": "0x42f970",
+   "matched": true
+  },
+  {
+   "address": "0x42fabc",
+   "matched": true
+  }
+ ],
+ "runtime_verified": false
+}

@@ -272,13 +272,15 @@
    "title_ko": "편집 보조(축 고정·회전 스냅·잠금)",
    "evidence_reports": [
     "docs/AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md",
-    "docs/AOT-ALLGROUP-BOX-TRACE-2026-10-15.md"
+    "docs/AOT-ALLGROUP-BOX-TRACE-2026-10-15.md",
+    "docs/AOT-EDITOR-AIDS-PREFS-TRACE-2026-10-16.md"
    ],
    "existing_runtime_samples": [],
    "static_scope": [
     "잠금 열은 layer_def.is_locked뿐, AO 잠금 열 없음",
     "AP selectable=Flags bit0 hit-test만 읽음, bit0 즉시값 설정 연산 없음",
-    "축고정 UI closure→toggle→pan update→DoMovementAction 연결"
+    "축고정 UI closure→toggle→pan update→DoMovementAction 연결",
+    "양파스킨/AnchorSize/점표시/어두운배경=편집기 환경설정 7키(MethodChannel saveEditorPreferences), DB·SFA 미포함, DrawOnionSkin은 편집 painter underlay에서만 호출"
    ],
    "remaining": [
     "계산값 저장으로 bit0를 바꾸는 경로 완전 배제 안 함",
