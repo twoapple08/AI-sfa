@@ -1,0 +1,31 @@
+{
+  "scope": "기존 원본의 3개 자산 복구·과거 SHA-256 대조; AOT 또는 runtime 검증 아님",
+  "inputs": [
+    {
+      "file": "glow.frag",
+      "size": 105992,
+      "sha256": "12260c19f930c779a853e8f919b1b6ffd823da7bcd1f75163ff3910d998aabad",
+      "matches_previous": true
+    },
+    {
+      "file": "libapp.so",
+      "size": 8061840,
+      "sha256": "35ce3936f08e5da6caf08e0f3d4c80e0c81777475ac4f682c66f9f4a00a32c1f",
+      "matches_previous": true
+    },
+    {
+      "file": "libflutter.so",
+      "size": 11579872,
+      "sha256": "52ac56d38c26198c51ce57429b1356ffb9574c61058562dae771c0610e9e79f2",
+      "matches_previous": true
+    }
+  ],
+  "aot_restored": false,
+  "runtime_verified": false,
+  "analysis_tools_restored": false,
+  "automatic_review_blockers": [
+    "PyPI 분석 도구 설치: 기존 설치 반복 금지와 충돌",
+    "Blutter 새 clone: 기존 캐시 재사용·전체 재분석 반복 금지와 충돌"
+  ],
+  "bypass_attempted": false
+}

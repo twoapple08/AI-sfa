@@ -12,14 +12,22 @@
 
 중복 대기도 정정했다. `_deleteAnchorPoint`의 note→연결/점 행 삭제→removed 기록은 [ROOT-FLAGS-LAYER-SWAP](AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md)에 이미 있다. 전체 수명·다른 frame 보호가 미완이라는 이유로 이 기본 흐름까지 처음부터 다시 분석하지 않는다. `_buildCurrentFrameDialog` 역시 시간축 프레임 복사 메뉴라는 추측을 재사용하지 않는다.
 
+## 제한 복구 결과 — 사용자 후속 지시 후
+
+원본 APKS에서 `libapp.so`(8,061,840 bytes), `libflutter.so`(11,579,872 bytes), binary `glow.frag`(105,992 bytes)만 비공개 복구했다. 세 SHA-256은 과거 도구/셰이더 보고서와 모두 일치한다. [복구 감사](ANALYSIS-RECOVERY-AUDIT-2026-10-16.json)는 크기·hash·상태만 포함한다. 새 영상/SFA 분석·폰 설치/시작 시험은 없다.
+
+**완전한 분석 캐시 복구는 아니다.** AOT/PP/objs 및 기존 분석 도구가 여전히 없다. Python 분석 도구 설치와 Blutter clone은 자동 승인 검토에서 각각 기존 설치 반복 금지·기존 캐시 재사용 범위 충돌을 이유로 거절됐다. 다른 명령이나 경로로 우회하지 않았다. 사용자의 포괄적 계속 지시만으로 검토가 이를 예외 승인한 것으로 처리하지 않는다.
+
+현재 private 자산: `/workspace/scratch/5a16c98ed7ee/private-recovery/evidence/{libapp.so,libflutter.so,glow.frag}`. 새로 복원한 원본 ELF·셰이더와 없는 분석 메타데이터를 구분한다. 원본/assembly/키 공개 금지는 그대로다. 남은 함수 분석에 필요한 도구 복구가 거절되어 다음 정적 작업을 수행한 것으로 보고하지 않는다. 실제 Android 편집·렌더도 현재 실행 환경 부재 및 기존 license4 차단이 별도로 남는다.
+
 ## 새로 확인한 실제 차단
 
 | 자원 | 현재 관측 | 영향 |
 |---|---|---|
 | 공개 저장소 | main clone 복구 성공, 위 기준 SHA와 일치 | 보고서·코드·기존 audit 이용 가능 |
 | 과거 AOT/PP/objs | 지정된 `e23c9fd610d3/private` 경로 없음. 현재 접근 가능한 작업 경로 검색에서도 찾지 못함 | 남은 함수 본문·상수/문자열·클래스 수신자 확인 불가 |
-| 과거 ELF/venv·Capstone | 지정 경로 없음, 현재 Python의 capstone import도 실패 | 같은 ELF의 독립 명령 재대조 불가 |
-| 과거 shader/Java 캐시 | 지정된 `6d77389e706a/private` 경로 없음 | 자산/Java 본문 추가 추적 불가 |
+| ELF/venv·Capstone | ELF는 원본에서 복구·hash 일치. 과거 venv/도구는 없음 | 분석 도구 복구가 자동 검토 거절되어 독립 명령 재대조 미수행 |
+| shader/Java 캐시 | binary shader는 복구·hash 일치. 기존 Java 읽기 캐시는 없음 | shader 원본 복구와 Java/AOT 메타데이터 복구는 구분 |
 | 지속 보관된 파일 | 원본 APKS, 계측 시작 ZIP, 기존 SFA/영상·probe 묶음 목록은 확인 | 원본이 있다는 사실과 분석 캐시가 복구됐다는 사실은 다름 |
 | 실제 계측 편집 | 기존 Play license 응답4 차단 | 지속 편집·새 픽셀 측정 미완, 우회하지 않음 |
 

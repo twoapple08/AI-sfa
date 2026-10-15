@@ -6,7 +6,7 @@
   "exhaustive_feature_inventory": false,
   "all_solo_analysis_complete": false,
   "runtime_renderer_verified": false,
-  "current_static_analysis_blocker": "기존 AOT/PP/objs/ELF/venv 캐시가 현재 실행 환경에 없음; 공개 저장소 복구 완료",
+  "current_static_analysis_blocker": "ELF/셰이더는 과거 hash와 일치하게 제한 복구. AOT/PP/objs/기존 분석 도구 없음; 도구 설치·Blutter clone은 자동 검토에서 기존 반복 금지 충돌로 거절.",
   "features": [
     {
       "id": "fill",

@@ -10,3 +10,5 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
 복구 후 다음 새 분석: _cleanupUnusedAnimationObjects0x3662a4와_figuresShownFromRoots0x366bc8의후보/가상root가시성,Frame.GetFastHash0x51cb64 포함필드/무효화,시간축frame추가·복사·삭제의구체caller. GDT+0x85e4 concrete getter미확정:첫점/첫layer단정금지. 일반AO앞뒤/별도lockUI미식별:같은이름검색반복금지. 실패/전체수명/실제pixel검증미완. 기존license4지속편집차단/우회안함.
 
 PREVIDEO3278146고정/File-2원본·최적화보호. 원본APK/SFA/영상/역컴파일·assembly/키/전체로그공개금지. 직접작성보고서·집계·인계는main상시승인/최신head·tree·expected_sha보호. 다른변경보존/reset금지. 문서만변경하면기존unit/probe반복금지. 캐시가복구되면비공개로체크포인트보존하되원본공개금지. 전체분석완료/완성AI주장금지.
+
+후속 제한복구: private-recovery/evidence의libapp.so/libflutter.so/glow.frag 3개는원본APKS에서복구/기존hash일치. AOT/PP/objs/분석도구는없음. 서버도구설치·Blutterclone은자동승인검토가이전설치반복금지와충돌한다고거절했다. 같은행위를다른명령으로우회하지마. 새함수분석/런타임완료아님. docs/ANALYSIS-RECOVERY-AUDIT-2026-10-16.json 참조.

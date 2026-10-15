@@ -15,6 +15,10 @@
 - 계측 앱은 Gadget/Flutter/libapp 로드까지 실물 확인됐지만 Play license 응답4로 지속 편집 차단. 응답4의 정확한 서버 뜻은 미확인. 검사 우회 안 함. 원본00–05 실제 UI/출력 표본은 존재하므로 ‘앱 시험 전혀 없음’으로 쓰지 않는다.
 - 원본 com.sG.stickfighter.activities51.0.0/code51000, min24/target36/user0/ARM64, Android16/SDK36/비루팅 이력. 학교망에서 현재 무선ADB 가능하다고 가정하지 않는다. 계측 com.twoapple08.sfa.instrument Test5는 원본보호242대조·서명/정렬 통과, 비공개 전달 완료. 재빌드 필요 없음.
 
+### 제한 복구·자동 검토 차단
+
+후속 사용자 지시 후 기존 APKS의 libapp.so/libflutter.so/glow.frag만 비공개 복구했고 과거 SHA-256 3개와 모두 일치했다. 위치는 `/workspace/scratch/5a16c98ed7ee/private-recovery/evidence`. AOT/PP/objs/기존 도구는 여전히 없음. 서버 분석 도구 설치와 Blutter clone은 자동 승인 검토에서 기존 설치·전체 재분석 반복 금지를 이유로 거절됨. 우회/재시도하지 않는다. 기존 포괄적 계속 지시와 명시적 예외 승인을 구분한다. 새 함수 분석·runtime 결과 없음. [복구 audit](docs/ANALYSIS-RECOVERY-AUDIT-2026-10-16.json).
+
 ## 현행 읽기 순서와 체크포인트
 
 AGENTS.md → docs/ANALYSIS-READINESS-2026-10-16.md → 필요한 주제 보고서만 읽는다. 기능 구분은 docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md. 이전 전체 handoff는 docs/history/HANDOFF-2026-10-15-before-group-history-rebase.md에 보존했다. 과거의 ‘다음’은 현행 지시가 아니다.
