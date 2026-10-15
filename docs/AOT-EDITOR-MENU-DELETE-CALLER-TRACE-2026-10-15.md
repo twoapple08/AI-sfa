@@ -27,8 +27,12 @@
 
 `DeleteAnchorPointsOfFigures`(0x5e798c)는 해당 frame scope에서 closure 0x5e7a20을 실행한다. closure는 대상 AO의 점 ID를 중복 제거해 `_deleteAnchorPoint`를 호출하고, 현재 frame AO/점 정리 뒤 `_cleanupUnusedAnimationObjects`, 필요 경로의 `_releaseLittleUsedRoot`로 이어진다. 레이어 전역 삭제처럼 sequence의 해당 LayerId AO 행을 처음부터 일괄 삭제하는 caller는 아니다. `_deleteAnchorPoint`와 unused AO 정리의 전체 내부 조건·영향 frame 수명은 아직 추가 확인 대상이다.
 
+## 기존 근거 재사용 정정 — 2026-10-16
+
+`_deleteAnchorPoint`의 note→연결 행 삭제→점 행 삭제→removed 기록은 [ROOT-FLAGS-LAYER-SWAP](AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md)의 기존 근거다. 이 기본 순서를 다시 미수행으로 세지 않는다. 아직 미확인인 다른 frame 보호·전체 수명 및 `_cleanupUnusedAnimationObjects` 내부 조건과 구분한다. 이 정정은 기존 보고서 대조이며 새 ELF 검사나 앱 시험이 아니다.
+
 ## 검증·미완
 
 [감사 파일](AOT-EDITOR-MENU-DELETE-CALLER-AUDIT-2026-10-15.json)은 선택 명령의 ELF/Capstone 대조이며 메뉴 전체 UI·실제 삭제·실패 원자성 검증은 아니다. 다른 보고서 표본과 독립 누적 합산하지 않는다. 코드 변경이 없으므로 unit/probe 재실행은 하지 않았다.
 
-남은 구체 범위는 time-axis frame 명령의 실제 caller, `_deleteAnchorPoint`(0x3608b0)·`_cleanupUnusedAnimationObjects`(0x3662a4), `Frame.GetFastHash`(0x51cb64)의 포함 필드와 무효화다. 기존 보고서에 이미 완료한 세부가 있는지 먼저 확인하고 새 분기만 추적한다. 일반 AO 앞뒤/별도 lock toggle UI 미식별과 GDT concrete target 미확정도 유지한다.
+남은 구체 범위는 time-axis frame 명령의 실제 caller, `_cleanupUnusedAnimationObjects`(0x3662a4), `Frame.GetFastHash`(0x51cb64)의 포함 필드와 무효화다. 기존 보고서에 이미 완료한 세부가 있는지 먼저 확인하고 새 분기만 추적한다. 일반 AO 앞뒤/별도 lock toggle UI 미식별과 GDT concrete target 미확정도 유지한다.

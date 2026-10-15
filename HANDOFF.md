@@ -1,4 +1,4 @@
-# AI-sfa 현재 인수인계 — 2026-10-15
+# AI-sfa 현재 인수인계 — 2026-10-16
 
 ## 목표·권한·금지
 
@@ -11,13 +11,13 @@
 
 ## 현재 환경과 차단
 
-- 사용자20:26 보고로 PC 현재 없음. 이전 i7-8700/1050Ti/16GB를 가용 환경으로 전제하지 않는다. 폰 Wi-Fi는 학교망 제약. 서버 AOT/ELF/Capstone 캐시는 정상이며 PC 소실과 다르다. 지금 사용자 추가 작업 없음.
+- 사용자20:26 보고로 PC 현재 없음. 이전 i7-8700/1050Ti/16GB를 가용 환경으로 전제하지 않는다. 폰 Wi-Fi는 학교망 제약. 과거에는 서버 AOT/ELF/Capstone 캐시가 정상이었다. **2026-10-16 현재 재확인 결과 기존 checkout/private 캐시 경로가 이 환경에 없다.** 공개 저장소는 같은 경로에 clone으로 복구했다. PC 소실과 별개인 분석 환경 차단이며 캐시 소실의 원인은 확인하지 못했다. 사용자 재설치·폰 시험을 요청하지 않는다.
 - 계측 앱은 Gadget/Flutter/libapp 로드까지 실물 확인됐지만 Play license 응답4로 지속 편집 차단. 응답4의 정확한 서버 뜻은 미확인. 검사 우회 안 함. 원본00–05 실제 UI/출력 표본은 존재하므로 ‘앱 시험 전혀 없음’으로 쓰지 않는다.
 - 원본 com.sG.stickfighter.activities51.0.0/code51000, min24/target36/user0/ARM64, Android16/SDK36/비루팅 이력. 학교망에서 현재 무선ADB 가능하다고 가정하지 않는다. 계측 com.twoapple08.sfa.instrument Test5는 원본보호242대조·서명/정렬 통과, 비공개 전달 완료. 재빌드 필요 없음.
 
 ## 현행 읽기 순서와 체크포인트
 
-AGENTS.md → docs/AOT-EDITOR-MENU-DELETE-CALLER-TRACE-2026-10-15.md → 필요한 주제 보고서만 읽는다. 기능 구분은 docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md. 이전 전체 handoff는 docs/history/HANDOFF-2026-10-15-before-group-history-rebase.md에 보존했다. 과거의 ‘다음’은 현행 지시가 아니다.
+AGENTS.md → docs/ANALYSIS-READINESS-2026-10-16.md → 필요한 주제 보고서만 읽는다. 기능 구분은 docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md. 이전 전체 handoff는 docs/history/HANDOFF-2026-10-15-before-group-history-rebase.md에 보존했다. 과거의 ‘다음’은 현행 지시가 아니다.
 
 새 추가 분석:
 
@@ -46,18 +46,20 @@ AGENTS.md → docs/AOT-EDITOR-MENU-DELETE-CALLER-TRACE-2026-10-15.md → 필요�
 
 ## 다음 실제 작업·미완
 
+현재 다음 단계는 [근거 통합·검증 준비](docs/ANALYSIS-READINESS-2026-10-16.md). [기계 판독 색인](docs/FEATURE-CONTRACT-INDEX-2026-10-16.json)은 기존 근거만 재분류했다. 원본 분석 캐시 복구 전 아래 미완을 새로 확정할 수 없다. 정적 미수행을 실물 전용으로 바꾸거나 전체 완료로 처리하지 않는다.
+
 1. LAYER-MERGE-DELETE-ADD 정상경로도추가완료: 목록위치직전layer로병합,AO대표source/target각sort→target먼저+source뒤→기존effectiveorderkey정렬슬롯을각AO모든frame인스턴스에배정.1부터새번호아님. frame별SaveFrame→전역LayerId갱신·definition삭제→commit/cache무효화/reload/history전부clear후entry. delete는layer둘이상/sequence전체AO·fill·기반참조·incoming/outgoing·상세·definition삭제/historyclear. add는DB최대+1/메모리열린layer충돌회피/모든frame에visibletrue·lockedfalse로정의추가.138선택명령.
 2. 삭제보조도확인: root의비삭제AO source가삭제AO의실제override target을가리키면source를가상ID로먼저구체화;실제override/removed없는가상targetincoming별도삭제;범위실제삭제점removed표시. fill공유withoutFigures는영향outer0이면빈segment storedregion유지/영향hole만제거,SQL기존행은outerregion행삭제/hole segment삭제로표현차이. 전체실패·수명보장은아님.
 3. EDITOR-MENU-DELETE-CALLER(65선택명령)추가확인. _buildCurrentFrameDialog는실제callback상도구모드·속성·배경·축/zoom/snap·레이어surface다. 이름으로frame복사/삽입버튼이있다고가정한이전‘다음’을정정한다. 실제tap4perspective/5fill/7tween,panstart4perspective/6AllGroup/7tween. 나머지mode이름추측금지. 선택객체삭제는활성anchor→연결AOIDset+자기소유AO→현재frameAO필터→transaction DeleteAnchorPointsOfFigures/removeWhere/prune/SaveFrame→historyentry. layer전역삭제와구분.
-4. 다음실제미완: time-axis frame추가·복사·삭제의구체caller를먼저찾기(현재FrameDialog를그입구로가정하지마),DataAccess._deleteAnchorPoint0x3608b0/_cleanupUnusedAnimationObjects0x3662a4,Frame.GetFastHash0x51cb64 포함필드/무효화. 먼저기존보고서의완료세부와대조해새분기만. 전체UIcoverage·오류/외부수정·전체수명·dynamicactualtarget미완유지. 기존compaction/Rewrite/undo/레이어정상경로재분석반복금지.
+4. 다음실제미완: time-axis frame추가·복사·삭제의구체caller를먼저찾기(현재FrameDialog를그입구로가정하지마),DataAccess._cleanupUnusedAnimationObjects0x3662a4,Frame.GetFastHash0x51cb64 포함필드/무효화. _deleteAnchorPoint0x3608b0의note→연결/점삭제→removed기록기본흐름은ROOT-FLAGS-LAYER-SWAP에이미있으므로반복하지않음. 다른frame보호·전체수명은별도미완. 먼저기존보고서의완료세부와대조해새분기만. 전체UIcoverage·오류/외부수정·전체수명·dynamicactualtarget미완유지. 기존compaction/Rewrite/undo/레이어정상경로재분석반복금지.
 5. 상세변형fallback GDT+0x85e4 actualgetter는 기존 cache에 selector↔target표가 없어 미해결. Adopt layer fallback도 같은 selector지만 대상class다름. ‘첫점/첫레이어’ 단정금지. 완전 재decompile 반복금지.
 6. 일반AO 앞뒤/별도 lock toggle UI 미식별. 같은 PP/이름검색·생성DrawOrder 재추적 반복금지. 새로운 구체 caller가 있을 때만 추적.
 7. codec malformed입력/overflow/전체객체수명/동시·DB실패 보장,모든곡선·그룹glow·backend pixel·UI실결과는 미완. 정적미수행을 실물로만 가능한 것으로 분류하지 않는다. license4지속편집차단 유지/사용자추가시험요청없음.
 
 ## 캐시·검증·보호
 
-- 활성 checkout /workspace/scratch/5a16c98ed7ee/AI-sfa-publish. 선택명령 검사 /workspace/scratch/5a16c98ed7ee/private-trace. 기존dirtyworktree와다른체크아웃보존/reset금지.
-- AOT/ELF /workspace/scratch/e23c9fd610d3/private/{blutter_out,input/arm64-v8a/libapp.so,venv,depsroot}. asm/sfa,pp.txt,objs.txt재사용. 원본추출·Blutter설치/전체재실행필요없음. 도구gdb없음.
-- shader /workspace/scratch/6d77389e706a/private/glow.frag는binary:cat금지. 원본apk6d77389e706a/evidence,계측tools37921248d0d6/private,비공개ZIP25b8ca176661/output. 상세이력은이전handoff/ANDROID-INSTRUMENTATION-BUILD/FLUTTER-TOOLS-RESULTS보고서.
-- 이번변경은문서·명령audit뿐. ELF대조GROUP57/HISTORY178/REBASE62/REWRITE52/PHASES178/LAYER138/EDITOR65모두통과. 링크·JSON·diff검사후main반영. 코드변경시에만필요검사: python -m unittest discover -s tests -v. 기존unit/probe반복하지않음.
+- 활성 checkout /workspace/scratch/5a16c98ed7ee/AI-sfa-publish는 main clone으로 복구. 현재 private-trace에는 정리/문서검사만 있고 이전 ELF 검증 스크립트는 없다. 기존 dirtyworktree는 현재 관측되지 않으며 삭제/reset을 실행하지 않았다.
+- **현재 없음(과거 경로):** AOT/ELF /workspace/scratch/e23c9fd610d3/private/{blutter_out,input/arm64-v8a/libapp.so,venv,depsroot}. asm/sfa,pp.txt,objs.txt는 복구되면 재사용. 현재 없음. 완전 재decompile·도구 재설치는 사용자 금지 범위여서 진행하지 않았다. 원본 APKS/계측 배포 ZIP은 백업 목록에 있으나 분석 캐시 백업으로 확인되지 않았다.
+- 과거 shader /workspace/scratch/6d77389e706a/private/glow.frag도 현재 없음. 복구 시 binary:cat금지. 원본apk6d77389e706a/evidence,계측tools37921248d0d6/private,비공개ZIP25b8ca176661/output. 상세이력은이전handoff/ANDROID-INSTRUMENTATION-BUILD/FLUTTER-TOOLS-RESULTS보고서.
+- 과거 ELF대조GROUP57/HISTORY178/REBASE62/REWRITE52/PHASES178/LAYER138/EDITOR65통과기록은기존audit다. 현재변경은기존근거색인·문서정정뿐이며새ELF검사는없다. 링크·JSON·diff검사통과후main반영. 코드변경시에만필요검사: python -m unittest discover -s tests -v. 기존unit/probe반복하지않음.
 - 잔여주간사용량조회불가. 인수인계추천시체크포인트저장후docs/HANDOFF-PROMPT.md제공. 다음대화에서도자율진행지시유지.

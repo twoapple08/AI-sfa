@@ -4,6 +4,8 @@
 
 ## 현재 작업 조건
 
+**2026-10-16 현행 환경 정정:** 아래의 서버 cache 정상은 당시 상태다. 현재 분석 캐시/도구 경로가 없고 공개 저장소만 복구했다. [현행 준비 상태](ANALYSIS-READINESS-2026-10-16.md)와 [기능 근거 색인](FEATURE-CONTRACT-INDEX-2026-10-16.json)을 따른다. 새 AOT/실물 결과는 추가하지 않았다.
+
 15:15 KST에는 실행 환경이 unavailable이었으나 15:59 KST에 기존 AOT/ELF 캐시·터미널 접근이 복구됐다. 캐시 재추출이나 도구 설치 없이 재사용했다. 신규 레이어 메모리 정적 근거는 [LAYER-MEMORY](AOT-LAYER-MEMORY-TRACE-2026-10-15.md)이며 새 실제 앱·영상 검증은 없다. 계측 앱의 license4 차단은 별개로 유지된다.
 
 ## 기능별 구분
@@ -16,7 +18,7 @@
 | 그룹·해제 | 04에서 AC/Flags 변화와 동반 이동·해제 후 독립 이동 | UI Flags→구조 갱신, 기반 그룹 참조 상대화↔복원 | 중첩·그룹 트위닝·잠금 UI의 전체 계약; 올그룹 상자/레이어 필터·모서리 확대·회전 보조는 새 정적 근거 참조; 그룹 이동 표본을 그룹 glow 합성 검증으로 세지 않음 |
 | 크기 변형·늘이기 | 04 UI 크기 적용 후 ObjectScale2 유지; 손끝 드래그와 전체 확대가 누적된 표본 | 상세 패널 pending 일괄 적용·pivot 선택·c+m(p−c)·두 속성 배율과 저장/복원 | 대상 closure/AO ID 중복 제거 연결은 확인; 손끝 drag의 도구/점 유형 분기·branch 경계·트리 ID 정렬과 잔여 map 순서 확인; 전체 hit-test·비정상 연결은 미완. 02 입력2→왕복1을 기능 무효로 일반화 금지 |
 | 원근 | 04 첫 표본의 사영변환 적합, 두 번째 표본의 아핀 좌표 변화/속성 배율 관찰 | 일반8핸들·시작snapshot·사영/쌍선형 선택·실패fallback·좌표저장(아래 원근 보고서) | 올가미→AllGroup 및 선택screenmap키 필터도 확인; 앞단tap·곡선/원 최종 픽셀·실제 수치 경계 |
-| 생성·삭제·보간 | 03 동일ID 이동/알파 중간값, 새ID 교체 누락, FR 생성·삭제 비대칭 표본 | fill 대응·실패 fallback·점 override/삭제 표시 | root 해제·moved run/잔차·outgoing연결저장·객체/Index보간 신규확인; rebase/compaction·비정상 연결·임의 작품 일반화 미완 |
+| 생성·삭제·보간 | 03 동일ID 이동/알파 중간값, 새ID 교체 누락, FR 생성·삭제 비대칭 표본 | fill 대응·실패 fallback·점 override/삭제 표시 | root 해제·moved run/잔차·outgoing연결저장·객체/Index보간 신규확인; rebase/compaction 정상 정적 경로는 아래 추가 보고서에서 확인; 비정상 연결·임의 작품 일반화 미완 |
 | 수동 트위닝 잇기 | 05 다른ID 두 원의 링크 후 중간 원 복구, 축소 영상에서 해당 한 장 차이 | 기존 AOT의 링크 유형/점순서/충돌 검사 근거 | 뒤key정렬·자연ID충돌·TypeId/동위치Index검사 확인; UI 전체·역방향·복합FR 실제 결과 미완 |
 | 레이어 위·아래 이동·병합·삭제·추가 | 이 표에서 실제 앱 검증 완료로 세지 않음 | UI→메모리/sequence DB 교환·cache 제거; 병합기존순서슬롯재배정/삭제기반참조·fill정리/전체frame정의추가/history초기화 | 실제 앱 결과·DB 실패 rollback·동적 정렬 대상의 전체 해석 |
 | 내보내기·FPS | 기존 01–05 출력의 길이/프레임수 관찰 | (T 트위닝,P 재생) timeline, Dart Picture→Java 인코더, 별도재생Frame/Picture/Image버퍼·clock 연결 | 모든 FPS 조합·renderer backend·완전한 픽셀 동일성 |
@@ -41,7 +43,7 @@ PC는 사용자20:26 보고로 현재 사용 불가다. 서버 cache는 정상�
 
 추가로 [DB-REWRITE](AOT-DB-REWRITE-TRACE-2026-10-15.md)(52선택명령), [COMPACTION-PHASES](AOT-COMPACTION-PHASES-TRACE-2026-10-15.md)(178선택명령)를 연결했다. 프레임 압축 정상 단계·PlainRanks·moved 병합과 파일 교체 guard/실패 경로, 일반 undo/redo의 frame별 stack·hash/async guard를 확인했다. 실제 압축 실행·무손실/실패 원자성 증명은 아니다.
 
-[LAYER-MERGE-DELETE-ADD](AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md)(138선택명령)에서 병합의 target/source 순서·기존 DrawOrder 슬롯 재배정, 삭제의 root 가상 참조·fill 정리, 전체 frame 레이어 추가와 merge/delete history 초기화를 추가 확인했다. 공유 fill의 outer 제거는 빈 segment region 유지, 기존 SQL 표현은 region 행 삭제라는 차이도 구분했다. 이 명령의 정상 정적 경로를 다시 미수행으로 표시하지 않는다. [EDITOR-MENU-DELETE-CALLER](AOT-EDITOR-MENU-DELETE-CALLER-TRACE-2026-10-15.md)(65선택명령)에서 실제 도구 모드 route와 선택 객체 삭제의 현재 frame 대상·저장/history 연결도 확인했다. CurrentFrameDialog 이름으로 시간축 frame복사/삽입 입구를 가정한 것은 정정했다. 미완은 실제 시간축 명령 caller·개별 점 삭제/unused AO 정리 helper·GetFastHash 계약이다. 전체 UI coverage·hash 내부·동적 호출 실제 target·오류 입력/외부 수정/전체 수명 계약도 미완이다. 상세 변형 fallback은 GDT의 실제 대상 mapping이 기존 cache에 없어 미해결이다. 일반 앞뒤/별도 잠금 UI는 미식별이며 같은 이름 검색을 반복하지 않는다. 이들을 모두 실물에서만 해결할 수 있는 문제로 바꾸어 적지 않는다.
+[LAYER-MERGE-DELETE-ADD](AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md)(138선택명령)에서 병합의 target/source 순서·기존 DrawOrder 슬롯 재배정, 삭제의 root 가상 참조·fill 정리, 전체 frame 레이어 추가와 merge/delete history 초기화를 추가 확인했다. 공유 fill의 outer 제거는 빈 segment region 유지, 기존 SQL 표현은 region 행 삭제라는 차이도 구분했다. 이 명령의 정상 정적 경로를 다시 미수행으로 표시하지 않는다. [EDITOR-MENU-DELETE-CALLER](AOT-EDITOR-MENU-DELETE-CALLER-TRACE-2026-10-15.md)(65선택명령)에서 실제 도구 모드 route와 선택 객체 삭제의 현재 frame 대상·저장/history 연결도 확인했다. CurrentFrameDialog 이름으로 시간축 frame복사/삽입 입구를 가정한 것은 정정했다. 미완은 실제 시간축 명령 caller·unused AO 정리 helper·GetFastHash 계약(개별 점 삭제 기본 흐름은 ROOT-FLAGS-LAYER-SWAP에서 재사용)이다. 전체 UI coverage·hash 내부·동적 호출 실제 target·오류 입력/외부 수정/전체 수명 계약도 미완이다. 상세 변형 fallback은 GDT의 실제 대상 mapping이 기존 cache에 없어 미해결이다. 일반 앞뒤/별도 잠금 UI는 미식별이며 같은 이름 검색을 반복하지 않는다. 이들을 모두 실물에서만 해결할 수 있는 문제로 바꾸어 적지 않는다.
 
 픽셀/backend 동등성·모든 UI 조작 결과·비정상 입력의 실제 결과는 새 실물 검증 없이 완료로 세지 않는다. 기존 계측 앱 license4 차단은 유지된다. 독립 분석 가능 항목 전체를 소진했다거나 완전한 animating AI가 만들어졌다는 의미는 아니다.
 

@@ -61,3 +61,8 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 - PC는 20:26 KST 사용자 보고로 현재 사용 불가다. 이전 PC 사양/준비를 현행 가용 환경으로 전제하지 않는다. 휴대폰 재설치·페어링·시작 시험이나 기존 영상 반복을 요청하지 않는다.
 
 - callback inventory는 긴 PP 원문 대신 주소·짧은 대상명·인수만 출력한다. 여러 주소창을 합치기 전 실제 명령 행수와 긴 SQL/PP annotation 길이를 예산에 반영한다. 보통0x200(128명령) 창을 기본으로 하고, 잘린 부분만 회수한다. 함수 이름의 ‘FrameDialog’를 시간축 frame복사/삽입 메뉴로 가정하지 말고 실제 callback 역할부터 확인한다.
+
+## Environment continuity — 2026-10-16
+
+- ‘캐시 정상’은 영구 보장이 아니다. 이번 환경에서는 지정된 과거 private 경로가 없어 공개 repo만 복구했다. 최신 HANDOFF/ANALYSIS-READINESS의 현행 관측을 우선한다. 자료가 없으면 본문 의미를 추측하거나 과거 audit를 새 ELF 검사로 표시하지 않는다. 원본 APKS 보유와 AOT/PP/objs/도구 캐시 보유를 구분한다. 사용자 금지인 설치·전체 재decompile·기존 시험 반복으로 차단을 우회하지 않는다.
+- 저장소 tree/Library 목록은 필요한 경로·이름·크기만 필터 출력한다. raw 전체 tree/metadata/도우미 본문 출력은 피한다. 기존 근거를 정리한 색인은 새 함수 분석이나 runtime 검증으로 세지 않는다.
