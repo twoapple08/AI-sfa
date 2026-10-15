@@ -11,3 +11,5 @@ ROOT-COPY-DB-BRANCHES(49명령)도추가완료:source기반의원점ID/AOrank연
 다음은기능표의아직직접연결하지않은구체UIcallback을식별해coverage보충. 원시DB수명/실패·codec비정상/overflow/동시DB·전체UI·실제pixel미완. 일반앞뒤/별도lockUI미식별은같은PP/이름검색반복하지말고새구체caller만. 정적미수행을실물전용으로바꾸거나전체독립작업완료로주장하지마.
 
 원본00–05실제표본존재/기존계측Gadget·Flutter로드성공이나license4지속편집차단. PC현재없음/학교Wi-Fi제약,서버x86_64/adb·emulator없음. license우회안함. PREVIDEO3278146/File-2원본·최적화보호/FPS=(트위닝,재생)/굽힘없음/화면밖좌표보존/학습AI통합보류. 원본APK/SFA/영상/역컴파일·assembly/키/전체로그공개금지. 작성보고서·집계·인계main상시승인/최신head·tree·expected_sha보호/다른작업보존. 문서만변경시기존unit/probe반복금지. 전체분석완료/완성AI주장금지.
+
+2026-10-16 Claude Code 클라우드 갱신: 과거 /workspace 캐시 경로 없음. Drive 백업(drive.google.com 등)은 환경 네트워크 정책 403 → 사용자가 Allowed domains에 추가하기 전에는 재시도하지 마. 받으면 SHA256 d6d5f1ff…cff676 대조 후 일반 AO 앞뒤/별도 lock UI의 구체 caller 정적 추적부터. 새로 docs/APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md(정적 결과의 SFA 관측 가능성 대조), examples/frame_commands_v3 시드, tools/check_frame_commands.py, tests 6개 추가(unittest 28 통과). 앱 결과 없음. 반환 SFA가 오면 연속 내보내기 쌍으로 판정·기록. 세션 지정 branch 규칙이 있으면 그 branch에 push.

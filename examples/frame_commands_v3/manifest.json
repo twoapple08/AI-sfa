@@ -1,0 +1,12 @@
+{
+ "status": "generated; app execution pending",
+ "file": "06_frame_commands_seed.sfa",
+ "fps": {
+  "tween_fps": 24,
+  "playback_fps": 24
+ },
+ "frames": 2,
+ "purpose": "Timeline copy/paste/insert/delete export checks; see docs/APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md",
+ "checker": "python tools/check_frame_commands.py BEFORE.sfa AFTER.sfa",
+ "seed_note": "Group flags are generator-encoded; import may repair them. Compare app exports, not this seed."
+}

@@ -14,7 +14,12 @@
 - APK/SFA/영상 원본·역컴파일 소스/assembly·키·전체 로그 공개 금지. 비공개 분석 cache 백업과 공개 집계를 구분한다.
 - PREVIDEO 예측3278146 고정. File-2 최초100%조건 미충족: 최적화/재압축/삭제/병합/원본 수정 금지. 음수/화면 밖 좌표 임의 삭제/재중앙화 금지. FPS=(트위닝,재생). ‘굽힘’ 기능 없음.
 
-## 현행 환경 — 복구 완료
+## 현행 환경 — 2026-10-16 Claude Code 클라우드
+
+- 이 환경에는 아래 `/workspace/scratch/...` 경로가 **없다**. 사용자가 준 Drive 백업 링크(id `1WKLmfS3ovsF--7MXPJREVp81pRXekma6`)는 `drive.google.com`/`drive.usercontent.google.com`/`docs.google.com`이 환경 네트워크 정책에서 403 거부되어 받지 못했다. 원본 APK도 없어 AOT 재추출 불가. 사용자가 환경 설정 Network access의 Allowed domains에 위 도메인을 추가하면 다운로드→SHA256 `d6d5f1ff…cff676`/40,381,872bytes 대조→scratchpad 압축해제로 재개한다. 같은 정책에서 반복 다운로드 시도 금지.
+- 이번에는 새 AOT 분석 없이 [APP-V3 시간축 명령 검사](docs/APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md)를 추가했다: 정적 결과의 SFA 관측 가능성 대조, 시드 `examples/frame_commands_v3/`, `tools/check_frame_commands.py`, 단위시험6개. 앱 결과는 없음.
+
+## 이전 환경(ChatGPT) — 복구 완료 기록
 
 사용자 PC는 현재 없고 폰 학교 Wi-Fi는 제약이 있다. 서버 cache는 한때 소실됐지만 **현재는 도구/AOT 복구 및 비공개 백업 완료**다. 과거의 ‘cache 없음/설치 검토 거절’을 현행 차단으로 재사용하지 않는다.
 
@@ -46,6 +51,7 @@ AGENTS → 이 문서 → [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-202
 
 추가로 [ROOT-COPY-DB-BRANCHES](docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)(49명령)를 확인했다. source base의 원점 ID/AO rank 연속prefix p가 2(N−p)≤N이면 그 root를 p개만재사용,아니면새root생성→조건부source rebase시도→targetbase삽입. ID예약은 AUTOINCREMENT schema에따라sqlite_sequence상향 vs가상base꼬리정리. 같은sequence AO ID유지/다른sequence새ID/DB점·상세복사 상위단계확인. 정상분기를다시미수행으로세지않는다.
 
+0. **다음 정확한 작업:** 캐시를 받을 수 있으면 일반 AO 앞뒤/별도 lock UI의 구체 caller부터 정적 추적. 못 받으면 APP-V3 반환 SFA가 올 때 검사기로 판정·기록(시드 비교 금지, 연속 내보내기 쌍 비교). 그 밖의 문서 정리를 진척으로 부풀리지 않는다.
 1. frame copy의 상위·ID/연결/group/fill·rootprefix/예약schema·AO DB복사 정상 경로는 확인했다. 원시 DB helper 전체 수명/실패 원자성·비정상 입력을 이 결과만으로 완료 처리하지 않는다. 해당 질문에 실제 필요한 새 branch가 있을 때만 추가한다. 다음 기능 단계는 기존 기능표에 아직 직접 연결하지 않은 실제 UI callback을 구체적으로 식별해 coverage를 보충하는 것이다. 완료한 정상copy/root 경로를 다시 따라가지 않는다.
 2. 일반 AO 앞뒤/별도 lock toggle UI는 여전히 미식별. 같은 이름/PP검색과 생성 DrawOrder 추적 반복 금지. 새 구체 caller가 있을 때만 확인. 전체 UI coverage는 미완.
 3. codec malformed/overflow, 전체 객체 수명·동시 DB 변경·오류 원자성 보장은 정상 정적 경로와 별도 미완이다. 정적 미수행을 실물에서만 가능한 항목으로 바꾸지 않는다.
@@ -55,4 +61,4 @@ AGENTS → 이 문서 → [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-202
 
 주소창 기본0x200/약128명령, 긴 SQL/PP는 먼저 개수·길이 확인. rawtree/도우미/fullmetadata 출력 금지. float32/64·Smi·분기 실제 명령 우선, 공유 Flutter getterannotation에 속지 않는다. 새metadata를 얻으면 같은 정상경로 재덤프 대신 새근거만 대조한다.
 
-이번은 보고서·집계·지침 변경뿐. JSON/참조/링크/diff검사, 새로운 선택명령·dispatch metadata 검사만 수행. 기존 unit/probe 재실행 없음. 코드 변경시에만 필요한 검사 `python -m unittest discover -s tests -v`. 주간 잔여량 조회 불가. 인수인계가 필요하면 최신 프롬프트를 제공하며 자율진행·서버복구 허용·반복방지 정정 유지.
+이번(APP-V3)은 코드·시드 추가로 `python -m unittest discover -s tests -v` 28개 통과. 기존 probe 재생성 없음. 코드 변경시에만 필요한 검사 `python -m unittest discover -s tests -v`. 주간 잔여량 조회 불가. 인수인계가 필요하면 최신 프롬프트를 제공하며 자율진행·서버복구 허용·반복방지 정정 유지.
