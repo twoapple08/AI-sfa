@@ -68,3 +68,8 @@ DataAccess.DeleteFrame(0x5aa250)은 삭제 전 실제 점과 현재 base에서 �
 ## 검증 범위
 
 [감사](AOT-TIMELINE-FRAME-COMMANDS-AUDIT-2026-10-16.json)는 선택 명령146곳의 Capstone/AOT 대조다. UI 실제 누르기·실제 DB 실패·동시 실행·전체 복사 helper의 모든 입력을 시험한 결과가 아니다. 같은 보고서 안의 미리보기 cache와 재생 버퍼를 혼동하지 않는다. frame 명령의 실제 입구 미식별 항목은 이 범위에서 해소하되 전체 UI coverage 완료는 주장하지 않는다.
+
+
+## 추가 근거
+
+호출 뒤 남겨 두었던 root prefix 재사용·새 root·source 재기반 시도·ID 예약 schema와 AO DB복사의 정상 분기는 [ROOT-COPY-DB-BRANCHES](AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)에서 이어 확인했다. 본문의 ‘이 호출 연결만으로 미완’과 실제 helper의 새 확인 범위를 구분한다.

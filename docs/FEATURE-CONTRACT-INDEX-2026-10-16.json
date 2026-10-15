@@ -204,13 +204,15 @@
         "docs/AOT-ROOT-RELEASE-TRACE-2026-10-15.md",
         "docs/AOT-ROOT-REBASE-IDLE-TRACE-2026-10-15.md",
         "docs/AOT-COMPACTION-PHASES-TRACE-2026-10-15.md",
-        "docs/AOT-DB-REWRITE-TRACE-2026-10-15.md"
+        "docs/AOT-DB-REWRITE-TRACE-2026-10-15.md",
+        "docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md"
       ],
       "existing_runtime_samples": [
         "00–05 저장 왕복은 기존 표본 범위만"
       ],
       "static_scope": [
-        "공유 복원·removed·codec·root 해제·rebase·12 압축 단계·파일 교체 guard"
+        "공유 복원·removed·codec·root 해제·rebase·12 압축 단계·파일 교체 guard",
+        "copy root prefix 재사용/새 root/source rebase 시도·ID예약 schema·동일/다른 sequence AO DB복사 정상 분기"
       ],
       "remaining": [
         "malformed/overflow·전체 수명·동시 수정·실패 원자성"
@@ -244,16 +246,18 @@
         "docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md",
         "docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md",
         "docs/AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md",
-        "docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md"
+        "docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md",
+        "docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md"
       ],
       "existing_runtime_samples": [],
       "static_scope": [
         "선택 anchor→연결 AO·transaction·prune/SaveFrame/history·점 삭제 기본 순서",
         "unused AO의 실제/가상 기반 잔존 조건",
-        "실제 시간축 callback·clipboard/앞뒤 insert/paste·마지막 frame 삭제 보충·DB/preview 갱신"
+        "실제 시간축 callback·clipboard/앞뒤 insert/paste·마지막 frame 삭제 보충·DB/preview 갱신",
+        "copy root prefix 재사용/새 root/source rebase 시도·ID예약 schema·동일/다른 sequence AO DB복사 정상 분기"
       ],
       "remaining": [
-        "root copy 적격/실패 및 DB copy helper의 나머지 내부 분기",
+        "원시 DB helper 전체 수명·실패/비정상 입력 보장",
         "전체 UI·실제 DB 실패/동시 실행"
       ],
       "complete": false

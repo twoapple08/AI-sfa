@@ -50,3 +50,6 @@ PC는 사용자20:26 보고로 현재 사용 불가다. 서버 cache는 정상�
 픽셀/backend 동등성·모든 UI 조작 결과·비정상 입력의 실제 결과는 새 실물 검증 없이 완료로 세지 않는다. 기존 계측 앱 license4 차단은 유지된다. 독립 분석 가능 항목 전체를 소진했다거나 완전한 animating AI가 만들어졌다는 의미는 아니다.
 
 이 문서의 상태는 제한된 표본과 기존 정적 근거에 관한 것이다. 완성도 백분율, 모든 기능 완료, 앱과 동일한 렌더러 완성으로 환산하지 않는다. ‘굽힘’은 사용자 정정대로 존재하지 않는 기능으로 제외한다. PREVIDEO 고정 예측·File-2 보호·학습/AI 연결 보류를 유지한다.
+
+
+2026-10-16 추가: [ROOT-COPY-DB-BRANCHES](AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)에서 root prefix(절반이상) 재사용/새root/source rebase시도/targetbase 범위·점ID예약 schema·같은/다른sequence AO DB복사 정상분기를49선택명령으로 보충했다. 실제복사/실패보장·전체UI coverage는 별개다.
