@@ -23,6 +23,8 @@ PARAMS = {
     'glow_sigma_floor': 0.29,       # sigma = sqrt(R^2 + 0.29^2) (static, DPR 1)
     'offset_x': 0.19,               # measured sub-pixel origin shift (px at 1080p)
     'offset_y': 0.08,
+    'object_scale_stroke': False,   # multiply core stroke width by ObjectScale (under test)
+    'object_scale_glow': False,     # multiply glow W/sigma by ObjectScale (under test)
 }
 
 
@@ -158,7 +160,18 @@ def stroke_width(obj, cv, seq_thickness):
     scale = float(obj.get('ThicknessScale', '1') or 1)
     if not math.isfinite(scale) or scale <= 0:
         scale = 1.0
-    return cv.p['stroke_px_per_scale'] * scale * seq_thickness / 100.0 * cv.px_scale
+    width = cv.p['stroke_px_per_scale'] * scale * seq_thickness / 100.0 * cv.px_scale
+    if cv.p['object_scale_stroke']:
+        width *= _object_scale(obj)
+    return width
+
+
+def _object_scale(obj):
+    try:
+        v = float(obj.get('ObjectScale', '1') or 1)
+    except ValueError:
+        return 1.0
+    return v if math.isfinite(v) and v > 0 else 1.0
 
 
 def draw_core(obj, cv, seq_thickness):
@@ -178,6 +191,9 @@ def draw_glow(obj, cv):
         return
     sigma = math.hypot(radius * cv.p['glow_sigma_per_radius'], cv.p['glow_sigma_floor']) * cv.px_scale
     half = thickness * cv.p['glow_w_per_thickness'] * cv.px_scale / 2
+    if cv.p['object_scale_glow']:
+        sigma *= _object_scale(obj)
+        half *= _object_scale(obj)
     box = cv.box(object_extent(obj, cv), half + 4 * sigma + 1)
     if box is None:
         return
