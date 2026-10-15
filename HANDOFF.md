@@ -51,7 +51,7 @@ AGENTS → 이 문서 → [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-202
 
 추가로 [ROOT-COPY-DB-BRANCHES](docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)(49명령)를 확인했다. source base의 원점 ID/AO rank 연속prefix p가 2(N−p)≤N이면 그 root를 p개만재사용,아니면새root생성→조건부source rebase시도→targetbase삽입. ID예약은 AUTOINCREMENT schema에따라sqlite_sequence상향 vs가상base꼬리정리. 같은sequence AO ID유지/다른sequence새ID/DB점·상세복사 상위단계확인. 정상분기를다시미수행으로세지않는다.
 
-0-1. **APP-V3 실물 결과(2026-10-16):** 사용자 SFA 6개, 연속 5쌍 실패0. 같은 sequence 붙여넣기(AO ID 유지/새 점 ID/연결·그룹·fill 재작성/배경·레이어)와 ‘앞에 붙여넣기’, 새 프레임(레이어 복제), 단일 삭제가 실물과 부합. 가져오기 단계 그룹 사슬 평탄화 실물 확인. **미해결:** 모두 삭제 후 남은 frame이 기존 ID2297(AO0/레이어1)로 정적 CreateNewFrame(AUTOINCREMENT 새ID) 예측과 다름 → 사용자 조작 경로 확인 필요. 결과는 APP-V3 문서 말미.
+0-1. **APP-V3 실물 결과(2026-10-16):** 사용자 SFA 6개, 연속 5쌍 실패0. 같은 sequence 붙여넣기(AO ID 유지/새 점 ID/연결·그룹·fill 재작성/배경·레이어)와 ‘앞에 붙여넣기’, 새 프레임(레이어 복제), 단일 삭제가 실물과 부합. 가져오기 단계 그룹 사슬 평탄화 실물 확인. 휴지통 개별 삭제로 마지막 삭제 시 AO0/기본레이어1 새 frame 생성 확인(ID2297 재사용은 비AUTOINCREMENT 기존DB 추정). 하단 버튼(←붙여넣기/◂새프레임/수정/복사/▸새프레임/→붙여넣기/휴지통)↔callback 대응 사용자 화면으로 확인. 결과는 APP-V3 문서 말미.
 0. **완료(2026-10-16):** [AXIS-FIX-DRAWORDER-WRITERS](docs/AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md) — DrawOrder SQL쓰기5함수/메모리store 전수, 잠금 스키마(layer만), 축고정·회전스냅 UI→드래그 연결. 일반 앞뒤/별도 lock 항목은 이 쓰기경로 근거로 대체하고 같은 탐색을 반복하지 않는다. **다음 작업:** 기능표 '편집 보조'의 남은 UI(양파 스킨·앵커 표시·편집 확대 등)가 저장 데이터에 영향을 주는지 같은 쓰기경로 방식으로 확인, 또는 APP-V3 반환 SFA 판정.
 1. frame copy의 상위·ID/연결/group/fill·rootprefix/예약schema·AO DB복사 정상 경로는 확인했다. 원시 DB helper 전체 수명/실패 원자성·비정상 입력을 이 결과만으로 완료 처리하지 않는다. 해당 질문에 실제 필요한 새 branch가 있을 때만 추가한다. 다음 기능 단계는 기존 기능표에 아직 직접 연결하지 않은 실제 UI callback을 구체적으로 식별해 coverage를 보충하는 것이다. 완료한 정상copy/root 경로를 다시 따라가지 않는다.
 2. 일반 AO 앞뒤/별도 lock: 쓰기경로 전수로 정리(위 완료). 위젯 receiver 미확정·계산값 bit0 경로는 미배제. 전체 UI coverage는 미완.
