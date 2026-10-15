@@ -1,7 +1,8 @@
 https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
-최신 HANDOFF.md, AGENTS.md, docs/AOT-SAVED-VALUES-TRACE-2026-10-15.md를 읽고 재개해. 과거전체인수인계/원본은필요할때만읽어.
+최신 HANDOFF.md, AGENTS.md, docs/AOT-SHARED-RESTORE-TRACE-2026-10-15.md를 읽고 재개해. 과거전체인수인계/원본은필요할때만읽어.
 
-다음은 공유 frame base의 상세행 선택·그룹 Flags 비교/override → _storeSharedFills → fill/segment 재공급 → SwapLayersAndContentGlobal 내부/일반 AO 앞뒤 UI야. 재생 전용 캐시 경계는 미완.
+다음은 기반 저장의 그룹 Flags 상대화·점 override/삭제 표시와 복원 식 연결 → SwapLayersAndContentGlobal 내부/일반 AO 앞뒤 UI야. codec 전체 재현·재생 전용 캐시 경계는 미완.
+완료추가:공유상세현재행우선/removed_detail상속차단/기반행fallback. root로컬raw_flags전체/null fallback,기반점bit4시((B+(F>>6))<<6)|(F&0x3f),아니면F&0x2f,B=FrameBase.field17. 저장역변환미완. 공유fill encode/FNV후보길이·전바이트확인→set/ref,읽기는frame키존재시공유반환/없으면로컬. regions기준region+순번/점상대값+기준point/contour별도복원. ID숫자차이만손실판정금지. codec전체형식·t정규화미완. 새55명령대조/기존표본중복합산금지.
 완료추가:기본AO행 sequence/type/layer/thickness/DrawOrder비교,DrawOrder≤0 저장후보ID. thickness/objectscale≤0 AO값1보정. holdsDetail ARGB/두배율/glow4값일반동등성비교→필요UpdateDetail. AP selectable bit0/type mask0x2e와raw_flags전체저장별도. 공유fill storeSharedFills조기반환분기,로컬segment contourIndex→9번째DB인수확인. 공유선택전체규칙/재공급미완. 새44명령통과. 최초넓은검색출력잘림후주소창축소,기존시험반복없음.
 완료추가:renderable cache는FrameID→Frame/LRU12,수정버전키없음.get remove재삽입/take는remove만/evict는AOmap+AOlist해제.markFrameDataDirty eftrue만,canvasdirty 현재IDevict+notifier. loadDetails는기존객체/take재사용가능,bind는집합밖evict+dirtyfalse. 레이어Up/Down→GlobalSwap+SaveFrame→실제setState closure 전체evict/주변목록비움/canvasdirty→onion/prefetch예약. saveCurrentFrame 정상저장후dirtyfalse/history,자체evict없음. SaveFrame에서changedOnly/replaceFill호출확인,세부저장비교미완. 새62명령통과/중복합산금지.
 완료추가:AO→본체unit4f/glowunit53,FR→unit57,모든segment.ObjId→동일ID모든AO위치→followers5b. contour0필터없어hole도전파. 값변경은본체+followers+변경전OR후activeglowunit. active=Radius>0&&GlowAlpha>0.FR색별도자기unit. APFlags비교불일치→새record/plan;groupUI Flags설정해제연결. filltap삭제/새FR+불변복사segments추가,mergeLayerDown sort→evict→dirty→load. 모든UI계약완료아님. 새54명령통과/압축cmpNULL w22정규화,기존표본중복합산금지.
