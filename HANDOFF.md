@@ -16,7 +16,7 @@
 
 ## 현행 체크포인트 — 연결 대상·올그룹·이동/분기 트리
 
-먼저 AGENTS.md와 docs/AOT-MOVEMENT-DISPATCH-TRACE-2026-10-15.md를 읽는다. 기능별 근거는 FEATURE-EVIDENCE-MATRIX. 직전 상세패널/캐시/저장 세부사항은 각 보고서와 docs/history/HANDOFF-2026-10-15-before-autonomous-tools.md에 보존했다. 과거 ‘다음’을 반복하지 않는다.
+먼저 AGENTS.md와 docs/AOT-PERSPECTIVE-WARP-TRACE-2026-10-15.md를 읽는다. 기능별 근거는 FEATURE-EVIDENCE-MATRIX. 직전 상세패널/캐시/저장 세부사항은 각 보고서와 docs/history/HANDOFF-2026-10-15-before-autonomous-tools.md에 보존했다. 과거 ‘다음’을 반복하지 않는다.
 
 - 사용자 최신 지시: 혼자 처리 가능한 작업은 자율 진행. 사용자 추가 시험 요청 없음. 설치/페어링/폰시작/기존 영상 반복 금지. 전체 기능 분석 목표 유지, 학습·AI연결 보류.
 - CONNECTED-TARGET-REFLECTION: tap→CollectGroupClosure→AO ID 첫 발견 중복제거 목록→상세 dialog. closure는 AC·소유 AO 점·그룹 parent/children을 입력 map 범위에서 큐로 확장. 반사는 start x 중심 x'=2c−x, start ID 제외, tap→saveAfterMove 연결. DrawOrder sort 아님.
@@ -25,7 +25,9 @@
 - _branchOf: pivot 일반연결점 ID를 경계로 두고 branch seed에서 비그룹 AC+소유 AO 점 확장. RotateBranch에서 현재 점==pivot이면 적용 후 회전중심 다시 구성하는 조건 있음. GetClusterHead는 parent가 일반연결점 안일 때 위로 이동.
 - BuildTree: map 점 parent/children 초기화→선호점+T2 후보 전체 ID정렬→미방문 후보 탐색, 비그룹AC 후 AO다른점 확장/parent지정. 남은점은 map값순 새탐색. 선호점 무조건 첫 root 단정금지. 0x5114b0 공유몸체는 fieldb=null이며 Flutter dispose 의미로 읽지마.
 - 새175개 선택 명령 ELF/Capstone 대조 통과(CONNECTED-ALLGROUP audit). 전체함수/실제앱/pixel 검증 아님; 다른 보고서 표본과 중복 합산 금지. 문서만변경/unit·probe재실행 없음.
-- **정확한 다음:** 원근 도구의 대상 선택·핸들 변형 수학을 기존 AOT에서 추적. 기존04 사영/아핀 관찰 재분석 금지. 상세패널 fallback 동적getter 구체대상, 일반 앞뒤/잠금 UI, root수명/movedpoint·codec전체/재생cache 미완 유지. 이름검색·이미 닫힌 cache/행렬 반복금지.
+- PERSPECTIVE-WARP: 일반핸들8개·시작snapshot·screen18 hit-test·valid quad=maxpairdistance>2(볼록/면적검사아님). D,S순 인수; signedH/V로 목적abs≤.5 또는 둘abs>.5반전이면bilinear우선,그외projective,실패시bilinear. homography분모abs<1e−6/비finite 또는점하나실패→전체fallback. bilinear는sourcequad bbox의u/v로D0→D1,D3→D2보간/clamp없음. solver pivot최대abs<1e−7실패. 일반helper는좌표만저장;lasso→AllGroup별도라모드전체속성불변일반화금지. 새130선택명령대조/실제앱미검증.
+- 올가미경로 닫힘:resolveLassoTarget=선택screenmap키→Frame점ID필터,ofPoints=점목록+소유AO ID중복제거 별도. 시작AllGroupDrag/update dragTo우선/종료leftBox·기존anchor ID재선택·저장. 새polygon 내부판정helper아님.
+- **정확한 다음:** 원근 앞단 tap/hit-test와 사용자 정의 figure 편집 차이. 기존04 사영/아핀 관찰 재분석 금지. 상세패널 fallback 동적getter 구체대상, 일반 앞뒤/잠금 UI, root수명/movedpoint·codec전체/재생cache 미완 유지. 이름검색·이미 닫힌 cache/행렬 반복금지.
 - 기존 group/shader/timeline·curve/ring·fill·dirty/cache·저장/복원·layer·modify-panel 보고서 재사용. FPS=(T,P), groupglow와 실제04 그룹이동 검증 구분. ModifyPanel fallback을 ‘첫점’으로 확정하지마. 0x555e0c는 실제dialog.fieldab 쓰기.
 
 ## 필요한 이전 정적 사실·근거

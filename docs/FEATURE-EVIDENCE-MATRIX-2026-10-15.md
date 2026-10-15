@@ -15,7 +15,7 @@
 | 독립 객체 glow | 02 수평선의 radius/thickness/alpha, 기본선 알파0, 독립 객체 두 개 중첩 표본 | 객체별 backend·shader 수학·cache key·영향 unit 전파 | 곡선/링/연결 그룹을 포함한 전체 픽셀·blend 결과 |
 | 그룹·해제 | 04에서 AC/Flags 변화와 동반 이동·해제 후 독립 이동 | UI Flags→구조 갱신, 기반 그룹 참조 상대화↔복원 | 중첩·그룹 트위닝·잠금 UI의 전체 계약; 올그룹 상자/레이어 필터·모서리 확대·회전 보조는 새 정적 근거 참조; 그룹 이동 표본을 그룹 glow 합성 검증으로 세지 않음 |
 | 크기 변형·늘이기 | 04 UI 크기 적용 후 ObjectScale2 유지; 손끝 드래그와 전체 확대가 누적된 표본 | 상세 패널 pending 일괄 적용·pivot 선택·c+m(p−c)·두 속성 배율과 저장/복원 | 대상 closure/AO ID 중복 제거 연결은 확인; 손끝 drag의 도구/점 유형 분기·branch 경계·트리 ID 정렬과 잔여 map 순서 확인; 전체 hit-test·비정상 연결은 미완. 02 입력2→왕복1을 기능 무효로 일반화 금지 |
-| 원근 | 04 첫 표본의 사영변환 적합, 두 번째 표본의 아핀 좌표 변화/속성 배율 관찰 | 이 문서는 기존 UI 결과를 분류 | 핸들별 행렬·굵기/배율 계산, 곡선·원·범위 밖 점 처리 전체 |
+| 원근 | 04 첫 표본의 사영변환 적합, 두 번째 표본의 아핀 좌표 변화/속성 배율 관찰 | 일반8핸들·시작snapshot·사영/쌍선형 선택·실패fallback·좌표저장(아래 원근 보고서) | 올가미→AllGroup 및 선택screenmap키 필터도 확인; 앞단tap·곡선/원 최종 픽셀·실제 수치 경계 |
 | 생성·삭제·보간 | 03 동일ID 이동/알파 중간값, 새ID 교체 누락, FR 생성·삭제 비대칭 표본 | fill 대응·실패 fallback·점 override/삭제 표시 | root 수명, moved point·연결 전체 분기, 임의 작품 일반화 |
 | 수동 트위닝 잇기 | 05 다른ID 두 원의 링크 후 중간 원 복구, 축소 영상에서 해당 한 장 차이 | 기존 AOT의 링크 유형/점순서/충돌 검사 근거 | 복수·충돌·역방향·다른 유형·FR 대응 전체 |
 | 레이어 위·아래 이동 | 이 표에서 실제 앱 검증 완료로 세지 않음 | UI→메모리 Layer번호/AO LayerId/활성선택 교환→sequence DB 교환/현재 SaveFrame→cache 제거 | 실제 앱 결과·DB 실패 rollback·동적 정렬 대상의 전체 해석 |
@@ -28,7 +28,7 @@
 ## 현재 바로 할 작업
 
 1. [연결 대상·뒤집기](AOT-CONNECTED-TARGET-REFLECTION-TRACE-2026-10-15.md), [올그룹 상자](AOT-ALLGROUP-BOX-TRACE-2026-10-15.md), [이동 dispatch](AOT-MOVEMENT-DISPATCH-TRACE-2026-10-15.md)를 재사용한다. 이번에 대상 AO 확장/순서, 반사 tap→저장, 올그룹 필터·배율·snap·종료 저장, 표시 토글의 sequence DB 전달을 확인했다.
-2. branch 선택/차단과 트리 root·부모 결정의 정상 경로를 확인했다. 다음 정적 우선순위는 원근 도구의 대상 선택·핸들 변형 수학이다. 같은 문자열 검색·완료된 행렬·cache 경계를 반복하지 않는다.
+2. branch 선택/차단과 트리 root·부모 결정의 정상 경로를 확인했다. [원근 일반핸들](AOT-PERSPECTIVE-WARP-TRACE-2026-10-15.md)의 수학·fallback을 추가 확인했다. 올가미→AllGroupDrag 및 입력 점/속성 AO 목록 분리도 확인했다. 다음은 원근 앞단 tap/hit-test와 customfigure 편집 차이다. 같은 문자열 검색·완료된 행렬·cache 경계를 반복하지 않는다.
 3. 일반 앞뒤 UI와 잠금 토글 UI는 미식별이다. 데이터 필드나 helper 이름만으로 메뉴가 있다고 확정하지 않는다. 상세 변형 fallback getter·hit-test 전체·codec/root 수명·재생 cache도 미완으로 유지한다.
 4. 새 실제 앱 검증은 없으며 기존 표본 재요청 없이 정적 작업을 이어간다.
 
