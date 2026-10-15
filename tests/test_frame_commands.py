@@ -101,7 +101,7 @@ class FrameCommandChecker(unittest.TestCase):
             self.assertEqual(report['fail_count'], 0, report['checks'])
             event = next(e for e in report['events'] if e['kind'] == 'paste_same_sequence')
             self.assertEqual(event['side'], 'pasted_after_source' if after else 'pasted_before_source')
-            self.assertTrue(event['direction'].startswith('by_point_ids'), event)
+            self.assertIn(event['direction'], ('by_frame_ids', 'by_highest_frame_id'), event)
 
     def test_direction_ambiguous_when_export_renumbers_points(self):
         root = paste(copy.deepcopy(self.seed), 0, False)
@@ -120,7 +120,7 @@ class FrameCommandChecker(unittest.TestCase):
         report = self.run_pair(root)
         self.assertEqual(report['fail_count'], 0, report['checks'])
         event = next(e for e in report['events'] if e['kind'] == 'paste_same_sequence')
-        self.assertEqual(event['direction'], 'ambiguous_best_of_both')
+        self.assertIn(event['direction'], ('by_frame_ids', 'by_highest_frame_id'), event)
 
     def test_paste_detects_deviations(self):
         expected = {'keep_point_ids': 'point_ids_new', 'raw_flags': 'flags_remapped_to_root_parent',

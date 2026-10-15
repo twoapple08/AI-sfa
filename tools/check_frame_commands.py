@@ -251,16 +251,36 @@ def compare(before_path, after_path):
             checks.append(check(f'empty_frame@{j}_layers_from_neighbour', bool(same) or not neighbours,
                                 f'neighbour positions with identical LayerDef={same}'))
             continue
+        before_frame_ids = {f['id'] for f in before}
+        if frame['id'] in before_frame_ids:
+            # Alignment may mark an old copy as inserted when several frames share content;
+            # frame IDs persist between exports, so prefer the one content-equal unseen ID.
+            unseen = [k for k, f in enumerate(after) if sig_a[k] == sig_a[j]
+                      and f['id'] not in before_frame_ids]
+            if len(unseen) == 1:
+                inserted_set = (inserted_set - {j}) | {unseen[0]}
+                j = unseen[0]
         source, candidates = pick_source(j, after, sig_a, inserted_set)
         if source is None:
             report['events'].append({'kind': 'unmatched_new_frame', 'after_position': j})
             checks.append(check(f'new_frame@{j}_source_found', False,
                                 'no unchanged frame with the same AO ID set', 'info'))
             continue
-        # Content-equal source/copy: the original keeps its point IDs from the earlier
-        # export when export IDs are stable; otherwise the direction is ambiguous.
+        # Content-equal source/copy: decide which one is new by frame IDs, then point IDs.
         new_index, direction = j, 'content_differs'
-        if sig_a[source] == sig_a[j]:
+        src_old, new_old = after[source]['id'] in before_frame_ids, after[j]['id'] in before_frame_ids
+        if sig_a[source] == sig_a[j] and src_old != new_old:
+            # Frame IDs persist between exports of one project; the new frame's ID is unseen.
+            if new_old:
+                source, new_index = j, source
+            direction = 'by_frame_ids'
+        elif sig_a[source] == sig_a[j] and not src_old and not new_old and \
+                after[source]['id'].isdigit() and after[j]['id'].isdigit():
+            # frame._id is AUTOINCREMENT in the app schema: the newest row has the largest ID.
+            if int(after[source]['id']) > int(after[j]['id']):
+                source, new_index = j, source
+            direction = 'by_highest_frame_id'
+        elif sig_a[source] == sig_a[j]:
             known = [set(f['points']) for f in before]
             src_known = set(after[source]['points']) in known
             new_known = set(after[j]['points']) in known
