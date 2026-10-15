@@ -6,7 +6,7 @@
   "exhaustive_feature_inventory": false,
   "all_solo_analysis_complete": false,
   "runtime_renderer_verified": false,
-  "current_static_analysis_blocker": "ELF/셰이더는 과거 hash와 일치하게 제한 복구. AOT/PP/objs/기존 분석 도구 없음; 도구 설치·Blutter clone은 자동 검토에서 기존 반복 금지 충돌로 거절.",
+  "current_static_analysis_blocker": null,
   "features": [
     {
       "id": "fill",
@@ -90,13 +90,15 @@
         "docs/AOT-MOVEMENT-DISPATCH-TRACE-2026-10-15.md",
         "docs/AOT-CONNECTED-TARGET-REFLECTION-TRACE-2026-10-15.md",
         "docs/AOT-ALLGROUP-BOX-TRACE-2026-10-15.md",
-        "docs/AOT-SAVED-VALUES-TRACE-2026-10-15.md"
+        "docs/AOT-SAVED-VALUES-TRACE-2026-10-15.md",
+        "docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md"
       ],
       "existing_runtime_samples": [
         "04: 크기 적용·손끝 드래그·누적 확대"
       ],
       "static_scope": [
-        "pose/stretch 분기·branch/BuildTree·대상 중복 제거·pivot 변형"
+        "pose/stretch 분기·branch/BuildTree·대상 중복 제거·pivot 변형",
+        "상세 변형 fallback의 정상 목록 first 실제 target"
       ],
       "remaining": [
         "전체 hit-test·비정상 연결·실제 수치 경계"
@@ -177,14 +179,18 @@
       "id": "history",
       "title_ko": "실행 취소·다시 실행",
       "evidence_reports": [
-        "docs/AOT-FILL-PRUNE-HISTORY-TRACE-2026-10-15.md"
+        "docs/AOT-FILL-PRUNE-HISTORY-TRACE-2026-10-15.md",
+        "docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md",
+        "docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md"
       ],
       "existing_runtime_samples": [],
       "static_scope": [
-        "custom snapshot·일반 frame별 stack·live LayerId/DrawOrder·16ms guard"
+        "custom snapshot·일반 frame별 stack·live LayerId/DrawOrder·16ms guard",
+        "FastHash 포함 필드·좌표 반올림·자체 cache 부재",
+        "GrowableList last/removeLast 실제 target"
       ],
       "remaining": [
-        "GetFastHash 포함 필드·무효화·충돌 계약"
+        "구체 편집별 history 기록/충돌 영향의 실제 결과·실패/동시 실행 보장"
       ],
       "complete": false
     },
@@ -236,17 +242,24 @@
       "evidence_reports": [
         "docs/AOT-EDITOR-MENU-DELETE-CALLER-TRACE-2026-10-15.md",
         "docs/AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md",
-        "docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md"
+        "docs/AOT-LAYER-MERGE-DELETE-ADD-TRACE-2026-10-15.md",
+        "docs/AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md",
+        "docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md"
       ],
       "existing_runtime_samples": [],
       "static_scope": [
-        "선택 anchor→연결 AO·transaction·prune/SaveFrame/history·점 삭제 기본 순서"
+        "선택 anchor→연결 AO·transaction·prune/SaveFrame/history·점 삭제 기본 순서",
+        "unused AO의 실제/가상 기반 잔존 조건",
+        "실제 시간축 callback·clipboard/앞뒤 insert/paste·마지막 frame 삭제 보충·DB/preview 갱신"
       ],
       "remaining": [
-        "unused AO의 가상 root 가시성·set 차집합 조건",
-        "시간축 frame 추가·복사·삭제의 구체 caller"
+        "root copy 적격/실패 및 DB copy helper의 나머지 내부 분기",
+        "전체 UI·실제 DB 실패/동시 실행"
       ],
       "complete": false
     }
-  ]
+  ],
+  "analysis_environment_restored": true,
+  "private_cache_backup_saved": true,
+  "dispatch_mapping_available": true
 }

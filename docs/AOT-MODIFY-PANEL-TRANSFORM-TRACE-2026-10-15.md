@@ -57,3 +57,8 @@ dialog.field7의 대상 AO 목록 순서와 각 AO의 점 목록 순서로 탐�
 ## 검증
 
 새로 선택한54개 명령을 비공개 ELF PT_LOAD의 Capstone 결과와 AOT 목록으로 대조하여 모두 일치했다. audit는 주소·boolean만 공개한다. 과거 표본과 중복 합산하지 않는다. 이 검사는 전체 함수 의미·실제 앱 결과·픽셀 일치의 증명이 아니다. 기존 unit/probe/영상 분석·설치·페어링·휴대폰 시작 시험은 반복하지 않았다. 코드 변경 없이 문서·기능표·인계만 변경했다. 현재 사용자 추가 작업은 없다.
+
+
+## 2026-10-16 추가 근거
+
+본문 당시 미확정이던 목록 getter는 [DISPATCH-TARGETS](AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md)의 실제 표/수신 cid/본문으로 정상 목록 계열의 first로 확인했다. 이 한정 미확정 항목을 다시 탐색하지 않는다. history hash 포함 필드는 [UNUSED-AO-FAST-HASH](AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md), 실제 시간축 명령은 [TIMELINE-FRAME-COMMANDS](AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md)를 따른다. 기존 검증을 실제 앱/pixel 완료로 승격하지 않는다.

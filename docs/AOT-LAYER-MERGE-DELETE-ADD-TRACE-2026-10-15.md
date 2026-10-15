@@ -56,3 +56,8 @@ withoutFigures는 각 stored region에서 삭제 AO를 참조한 segment들의 c
 [선택 명령 감사](AOT-LAYER-MERGE-DELETE-ADD-AUDIT-2026-10-15.json)는 기존 ELF/Capstone 대조이며 전체 UI·실제 DB 삭제·실패 rollback·픽셀 동등성 검증은 아니다. 기존 comparator/cache 보고서와 중복 표본을 독립 누적 합산하지 않는다. 일반 AO 앞뒤 변경/별도 lock toggle UI는 여전히 미식별이며 레이어 병합을 그 UI의 발견으로 세지 않는다.
 
 이 범위는 코드·원본 파일을 변경하지 않은 정적 분석이다. 새 설치·페어링·폰 시작 시험·기존 영상/SFA 분석·unit/probe 재실행은 하지 않았다. 남은 것은 전체 UI coverage·비정상/동시 실패·공유 set 변경의 전체 변경범위 기록과 오류 복구 결과다.
+
+
+## 2026-10-16 추가 근거
+
+본문 당시 미확정이던 목록 getter는 [DISPATCH-TARGETS](AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md)의 실제 표/수신 cid/본문으로 정상 목록 계열의 first로 확인했다. 이 한정 미확정 항목을 다시 탐색하지 않는다. history hash 포함 필드는 [UNUSED-AO-FAST-HASH](AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md), 실제 시간축 명령은 [TIMELINE-FRAME-COMMANDS](AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md)를 따른다. 기존 검증을 실제 앱/pixel 완료로 승격하지 않는다.

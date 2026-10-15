@@ -1,5 +1,5 @@
 {
-  "scope": "기존 원본의 3개 자산 복구·과거 SHA-256 대조; AOT 또는 runtime 검증 아님",
+  "scope": "원본 hash·분석 환경 재구축·추출 수량·선택 call 대조 집계; runtime 검증 아님",
   "inputs": [
     {
       "file": "glow.frag",
@@ -20,12 +20,55 @@
       "matches_previous": true
     }
   ],
-  "aot_restored": false,
+  "aot_restored": true,
   "runtime_verified": false,
-  "analysis_tools_restored": false,
-  "automatic_review_blockers": [
+  "analysis_tools_restored": true,
+  "bypass_attempted": false,
+  "automatic_review_blockers_historical": [
     "PyPI 분석 도구 설치: 기존 설치 반복 금지와 충돌",
     "Blutter 새 clone: 기존 캐시 재사용·전체 재분석 반복 금지와 충돌"
   ],
-  "bypass_attempted": false
+  "explicit_user_recovery_authorization": "2026-10-16 02:02 KST",
+  "redundancy_instruction_clarified": "2026-10-16 02:06 KST: unnecessary repeated work, not a category ban",
+  "extraction": {
+    "exit_code": 0,
+    "files": 671,
+    "asm_files": 666,
+    "bytes": 86508012,
+    "declared_code_blocks": 12752
+  },
+  "source_commits": {
+    "blutter": "4a60ac648bf448c5a7596437243bcd0b9376fdf0",
+    "dart_sdk": "98116461144f4429ab873f8497023a5ec3b08127"
+  },
+  "known_call_target_checks": [
+    {
+      "address": "0x414f78",
+      "matched": true
+    },
+    {
+      "address": "0x51cd1c",
+      "matched": true
+    },
+    {
+      "address": "0x629054",
+      "matched": true
+    }
+  ],
+  "private_backup": {
+    "file_name": "AI-sfa-analysis-cache-2026-10-16.zip",
+    "payload_files": 803,
+    "size": 40381872,
+    "sha256": "d6d5f1ffb24a0f55fe9c9b548a73526c448ddede066e2920e0aa6f28b0cff676",
+    "all_manifest_hashes_verified": true,
+    "saved": true,
+    "version": 1,
+    "dispatch_metadata_included": true
+  },
+  "dispatch_metadata": {
+    "dump_mode": "diagnostic only, exits before AnalyzeAll",
+    "length": 57043,
+    "origin": 4096,
+    "selected_mappings_checked": 6
+  }
 }

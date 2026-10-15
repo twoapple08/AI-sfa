@@ -1,0 +1,590 @@
+{
+  "scope": "146 selected instruction checks against restored same ELF; not full semantics or runtime",
+  "checks": [
+    {
+      "address": "0x36d6d8",
+      "matched": true
+    },
+    {
+      "address": "0x36d724",
+      "matched": true
+    },
+    {
+      "address": "0x36d72c",
+      "matched": true
+    },
+    {
+      "address": "0x36d734",
+      "matched": true
+    },
+    {
+      "address": "0x36d73c",
+      "matched": true
+    },
+    {
+      "address": "0x36d7a4",
+      "matched": true
+    },
+    {
+      "address": "0x36d7e4",
+      "matched": true
+    },
+    {
+      "address": "0x36d870",
+      "matched": true
+    },
+    {
+      "address": "0x36d874",
+      "matched": true
+    },
+    {
+      "address": "0x36d878",
+      "matched": true
+    },
+    {
+      "address": "0x36d884",
+      "matched": true
+    },
+    {
+      "address": "0x36d890",
+      "matched": true
+    },
+    {
+      "address": "0x36d898",
+      "matched": true
+    },
+    {
+      "address": "0x36d8a0",
+      "matched": true
+    },
+    {
+      "address": "0x36d8a8",
+      "matched": true
+    },
+    {
+      "address": "0x36d8b4",
+      "matched": true
+    },
+    {
+      "address": "0x36d8bc",
+      "matched": true
+    },
+    {
+      "address": "0x36d8dc",
+      "matched": true
+    },
+    {
+      "address": "0x36f048",
+      "matched": true
+    },
+    {
+      "address": "0x36f098",
+      "matched": true
+    },
+    {
+      "address": "0x36ee80",
+      "matched": true
+    },
+    {
+      "address": "0x36ee88",
+      "matched": true
+    },
+    {
+      "address": "0x36e910",
+      "matched": true
+    },
+    {
+      "address": "0x36e954",
+      "matched": true
+    },
+    {
+      "address": "0x36e9ac",
+      "matched": true
+    },
+    {
+      "address": "0x36e9b0",
+      "matched": true
+    },
+    {
+      "address": "0x36ea5c",
+      "matched": true
+    },
+    {
+      "address": "0x36ec60",
+      "matched": true
+    },
+    {
+      "address": "0x36ec84",
+      "matched": true
+    },
+    {
+      "address": "0x36ecf8",
+      "matched": true
+    },
+    {
+      "address": "0x36ed00",
+      "matched": true
+    },
+    {
+      "address": "0x36ed08",
+      "matched": true
+    },
+    {
+      "address": "0x36edd0",
+      "matched": true
+    },
+    {
+      "address": "0x36edd8",
+      "matched": true
+    },
+    {
+      "address": "0x36ee00",
+      "matched": true
+    },
+    {
+      "address": "0x5abea4",
+      "matched": true
+    },
+    {
+      "address": "0x5abeb8",
+      "matched": true
+    },
+    {
+      "address": "0x5abecc",
+      "matched": true
+    },
+    {
+      "address": "0x5abee0",
+      "matched": true
+    },
+    {
+      "address": "0x5abef4",
+      "matched": true
+    },
+    {
+      "address": "0x5abf58",
+      "matched": true
+    },
+    {
+      "address": "0x5abfe0",
+      "matched": true
+    },
+    {
+      "address": "0x5ac1cc",
+      "matched": true
+    },
+    {
+      "address": "0x5aca04",
+      "matched": true
+    },
+    {
+      "address": "0x5aca08",
+      "matched": true
+    },
+    {
+      "address": "0x5aca50",
+      "matched": true
+    },
+    {
+      "address": "0x5aca54",
+      "matched": true
+    },
+    {
+      "address": "0x5aca9c",
+      "matched": true
+    },
+    {
+      "address": "0x5acaa0",
+      "matched": true
+    },
+    {
+      "address": "0x5ac498",
+      "matched": true
+    },
+    {
+      "address": "0x5ac49c",
+      "matched": true
+    },
+    {
+      "address": "0x5acda0",
+      "matched": true
+    },
+    {
+      "address": "0x5acdb4",
+      "matched": true
+    },
+    {
+      "address": "0x510658",
+      "matched": true
+    },
+    {
+      "address": "0x51066c",
+      "matched": true
+    },
+    {
+      "address": "0x510698",
+      "matched": true
+    },
+    {
+      "address": "0x5106f8",
+      "matched": true
+    },
+    {
+      "address": "0x5106fc",
+      "matched": true
+    },
+    {
+      "address": "0x510730",
+      "matched": true
+    },
+    {
+      "address": "0x51073c",
+      "matched": true
+    },
+    {
+      "address": "0x5107b0",
+      "matched": true
+    },
+    {
+      "address": "0x510934",
+      "matched": true
+    },
+    {
+      "address": "0x510954",
+      "matched": true
+    },
+    {
+      "address": "0x510a1c",
+      "matched": true
+    },
+    {
+      "address": "0x510a24",
+      "matched": true
+    },
+    {
+      "address": "0x36f820",
+      "matched": true
+    },
+    {
+      "address": "0x36f828",
+      "matched": true
+    },
+    {
+      "address": "0x5b175c",
+      "matched": true
+    },
+    {
+      "address": "0x5b17a4",
+      "matched": true
+    },
+    {
+      "address": "0x5b182c",
+      "matched": true
+    },
+    {
+      "address": "0x5b1840",
+      "matched": true
+    },
+    {
+      "address": "0x5b184c",
+      "matched": true
+    },
+    {
+      "address": "0x5b185c",
+      "matched": true
+    },
+    {
+      "address": "0x5b1878",
+      "matched": true
+    },
+    {
+      "address": "0x5b189c",
+      "matched": true
+    },
+    {
+      "address": "0x5ac4f8",
+      "matched": true
+    },
+    {
+      "address": "0x5ac514",
+      "matched": true
+    },
+    {
+      "address": "0x5ac554",
+      "matched": true
+    },
+    {
+      "address": "0x5ac5d8",
+      "matched": true
+    },
+    {
+      "address": "0x5ac60c",
+      "matched": true
+    },
+    {
+      "address": "0x5ac618",
+      "matched": true
+    },
+    {
+      "address": "0x5ac620",
+      "matched": true
+    },
+    {
+      "address": "0x5ac648",
+      "matched": true
+    },
+    {
+      "address": "0x5ac688",
+      "matched": true
+    },
+    {
+      "address": "0x5ac7a8",
+      "matched": true
+    },
+    {
+      "address": "0x5ac7c4",
+      "matched": true
+    },
+    {
+      "address": "0x5ac7cc",
+      "matched": true
+    },
+    {
+      "address": "0x5aa034",
+      "matched": true
+    },
+    {
+      "address": "0x5aa09c",
+      "matched": true
+    },
+    {
+      "address": "0x5aa0b8",
+      "matched": true
+    },
+    {
+      "address": "0x5aa0c8",
+      "matched": true
+    },
+    {
+      "address": "0x5aa168",
+      "matched": true
+    },
+    {
+      "address": "0x5aa194",
+      "matched": true
+    },
+    {
+      "address": "0x5aa1a0",
+      "matched": true
+    },
+    {
+      "address": "0x5aa1f8",
+      "matched": true
+    },
+    {
+      "address": "0x510b88",
+      "matched": true
+    },
+    {
+      "address": "0x510ba8",
+      "matched": true
+    },
+    {
+      "address": "0x51031c",
+      "matched": true
+    },
+    {
+      "address": "0x5103cc",
+      "matched": true
+    },
+    {
+      "address": "0x510c08",
+      "matched": true
+    },
+    {
+      "address": "0x510ca8",
+      "matched": true
+    },
+    {
+      "address": "0x510d10",
+      "matched": true
+    },
+    {
+      "address": "0x510d1c",
+      "matched": true
+    },
+    {
+      "address": "0x510d38",
+      "matched": true
+    },
+    {
+      "address": "0x510d40",
+      "matched": true
+    },
+    {
+      "address": "0x5aa29c",
+      "matched": true
+    },
+    {
+      "address": "0x5aa2cc",
+      "matched": true
+    },
+    {
+      "address": "0x5aa35c",
+      "matched": true
+    },
+    {
+      "address": "0x5aa3a8",
+      "matched": true
+    },
+    {
+      "address": "0x5aa3c4",
+      "matched": true
+    },
+    {
+      "address": "0x5aa3dc",
+      "matched": true
+    },
+    {
+      "address": "0x5aa3e8",
+      "matched": true
+    },
+    {
+      "address": "0x5aa588",
+      "matched": true
+    },
+    {
+      "address": "0x5aa61c",
+      "matched": true
+    },
+    {
+      "address": "0x5aa674",
+      "matched": true
+    },
+    {
+      "address": "0x5aa680",
+      "matched": true
+    },
+    {
+      "address": "0x5aa688",
+      "matched": true
+    },
+    {
+      "address": "0x5aa690",
+      "matched": true
+    },
+    {
+      "address": "0x5aa7a4",
+      "matched": true
+    },
+    {
+      "address": "0x5aa808",
+      "matched": true
+    },
+    {
+      "address": "0x5aa854",
+      "matched": true
+    },
+    {
+      "address": "0x34eb10",
+      "matched": true
+    },
+    {
+      "address": "0x36f700",
+      "matched": true
+    },
+    {
+      "address": "0x36f760",
+      "matched": true
+    },
+    {
+      "address": "0x36f940",
+      "matched": true
+    },
+    {
+      "address": "0x36f94c",
+      "matched": true
+    },
+    {
+      "address": "0x36f96c",
+      "matched": true
+    },
+    {
+      "address": "0x368808",
+      "matched": true
+    },
+    {
+      "address": "0x36888c",
+      "matched": true
+    },
+    {
+      "address": "0x368a38",
+      "matched": true
+    },
+    {
+      "address": "0x368aac",
+      "matched": true
+    },
+    {
+      "address": "0x368bd8",
+      "matched": true
+    },
+    {
+      "address": "0x36f0ec",
+      "matched": true
+    },
+    {
+      "address": "0x368ce0",
+      "matched": true
+    },
+    {
+      "address": "0x368d08",
+      "matched": true
+    },
+    {
+      "address": "0x368d28",
+      "matched": true
+    },
+    {
+      "address": "0x368d60",
+      "matched": true
+    },
+    {
+      "address": "0x368d64",
+      "matched": true
+    },
+    {
+      "address": "0x36941c",
+      "matched": true
+    },
+    {
+      "address": "0x369434",
+      "matched": true
+    },
+    {
+      "address": "0x3695ec",
+      "matched": true
+    },
+    {
+      "address": "0x369604",
+      "matched": true
+    },
+    {
+      "address": "0x369778",
+      "matched": true
+    },
+    {
+      "address": "0x3697f4",
+      "matched": true
+    },
+    {
+      "address": "0x36984c",
+      "matched": true
+    },
+    {
+      "address": "0x369858",
+      "matched": true
+    }
+  ],
+  "runtime_verified": false
+}

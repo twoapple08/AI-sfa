@@ -4,6 +4,8 @@
 
 ## 현재 작업 조건
 
+**최신 2026-10-16:** 서버 분석 환경과 비공개 백업 복구 완료. 실제 dispatch 표로 정상 목록의 first/last/removeLast를 확인했고, unused AO 잔존 조건·FastHash 포함 필드·실제 시간축 명령 경로를 새로 연결했다. 아래 과거 캐시 부재/해당 getter 미확정 항목은 현행 상태가 아니다. 새 [DISPATCH](AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md), [HASH/UNUSED](AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md), [FRAME 명령](AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md)을 따른다. 실제 앱/전체 UI/pixel 미완은 유지한다.
+
 **2026-10-16 현행 환경 정정:** 아래의 서버 cache 정상은 당시 상태다. 현재 분석 캐시/도구 경로가 없고 공개 저장소만 복구했다. [현행 준비 상태](ANALYSIS-READINESS-2026-10-16.md)와 [기능 근거 색인](FEATURE-CONTRACT-INDEX-2026-10-16.json)을 따른다. 새 AOT/실물 결과는 추가하지 않았다.
 
 15:15 KST에는 실행 환경이 unavailable이었으나 15:59 KST에 기존 AOT/ELF 캐시·터미널 접근이 복구됐다. 캐시 재추출이나 도구 설치 없이 재사용했다. 신규 레이어 메모리 정적 근거는 [LAYER-MEMORY](AOT-LAYER-MEMORY-TRACE-2026-10-15.md)이며 새 실제 앱·영상 검증은 없다. 계측 앱의 license4 차단은 별개로 유지된다.

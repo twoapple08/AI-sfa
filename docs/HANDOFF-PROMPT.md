@@ -1,20 +1,12 @@
 https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
-최신 HANDOFF.md, AGENTS.md, docs/ANALYSIS-READINESS-2026-10-16.md를 읽고 재개해. 기능 근거는 docs/FEATURE-CONTRACT-INDEX-2026-10-16.json과 docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md.
+최신 HANDOFF.md, AGENTS.md, docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md를 읽고 재개해. 기능표/FEATURE-CONTRACT-INDEX와 필요한 보고서만 추가로 읽는다.
 
-사용자 지시: 혼자 가능한 것은 전부 자율 진행하고 작은 보고서/커밋마다 멈추지마. 전체 기능 분석 목표 유지. 학습·AI 연결은 보류. PC는 현재 없고 폰 학교망 제약. 설치·페어링·getprop·시작 시험·기존00–05영상/SFA 분석·새 작품/제작자 문의 반복/요청 금지.
+사용자 지시: 혼자 가능한 일을 전부 자율 진행. 작은 보고서/커밋마다 멈추거나 같은 허용을 다시 묻지마. 02:06정정: 작업종류의 일률금지가 아니라 ‘이미 완료했고 필요없는 작업을 오판해 반복하지말라’는 뜻이다. 환경소실·새미해결질문 등 실제필요가 있는 작업은 범위를 좁혀 진행. 02:02서버도구복구 설치·다운로드·AOT재추출 상시허용은 다음인수인계에도 유지. 현재폰재설치/페어링/기존00–05영상재분석이 필요한 근거는 없으므로 반복하지마.
 
-현재 중요한 환경 변경: 예전 HANDOFF의 ‘서버 캐시 정상’은 과거 상태다. 2026-10-16 재확인에서 e23c9fd610d3/private AOT/PP/objs/ELF/venv,6d77389e706a/private shader/Java,이전private-trace가 현재 환경에 없다. 공개 repo는 /workspace/scratch/5a16c98ed7ee/AI-sfa-publish로clone복구. 목록에 원본 APKS/계측 배포 ZIP이 있어도 분석 캐시 복구로 세지마. 도구 재설치·전체 redecompile 금지 유지. 이 차단을 실물만으로 가능한 문제나 모든 독립 분석 완료로 바꾸지마. 실제 접근 가능 여부만 확인하고, 자료 없는 본문을 추측하지마.
+서버복구/비공개백업완료: /workspace/scratch/5a16c98ed7ee/private-recovery/{blutter_out,evidence,venv,blutter/bin,depsroot,dispatch_out}. AOT671/asm666/86508012bytes/선언12752,입력hash3일치,추출종료0. 없어지면 기존비공개 AI-sfa-analysis-cache-2026-10-16.zip 먼저복구. 과거‘캐시없음/도구설치검토거절’을현행차단으로재사용하지마. 캐시가있는데다시전체빌드/덤프하지마.
 
-기존 그룹/셰이더/timeline/export,선택/원근/이동,codec/root,재생/보간,group repair/history/rebase,DBrewrite/compaction/layer merge-delete-add/editor delete caller 보고서 재사용. 새 색인은 13기능 범주를 정리한 것이지 완전한 기능목록이나 새 AOT/runtime 검사 아님. _deleteAnchorPoint0x3608b0 기본 note→연결/점삭제→removed는ROOT-FLAGS-LAYER-SWAP에이미있음;반복금지. _buildCurrentFrameDialog는도구/속성/레이어surface지 시간축 frame복사입구로가정하지마.
+새완료: UNUSED-AO-FAST-HASH(73명령): 후보C에서실제비root점A·가상기반R을제외해삭제. FastHash=Position/FR색·segment수/AO ID·색·DrawOrder/점round(xy*10000)·Flags;자체hashcache없음/전체상태동등성아님. TIMELINE-FRAME-COMMANDS(146):실제layoutcallback→insert/paste전후/clipboard/배경/ID·연결·그룹·fill map/DB순서·preview/마지막삭제새frame. DISPATCH-TARGETS: 실제표origin4096,len57043/cid90·91·92 +85e4 first. 상세변형fallback첫AO첫점·Adopt첫layer/merge·copy목록first 정상계열확인. cid92+bc49 removeLast,+9780last,+8cb1iterator.6mapping+16명령. 이전미확정반복금지/다른cid일반화금지/실제앱시험아님.
 
-복구 후 다음 새 분석: _cleanupUnusedAnimationObjects0x3662a4와_figuresShownFromRoots0x366bc8의후보/가상root가시성,Frame.GetFastHash0x51cb64 포함필드/무효화,시간축frame추가·복사·삭제의구체caller. GDT+0x85e4 concrete getter미확정:첫점/첫layer단정금지. 일반AO앞뒤/별도lockUI미식별:같은이름검색반복금지. 실패/전체수명/실제pixel검증미완. 기존license4지속편집차단/우회안함.
+다음정적새범위: _baseCopyOnRoot0x369908 전체적격·재사용/실패,CopyAnimationObject0x36d0e0·CopyAnimationObjectToSequence0x36c5d8 내부DBbranch를기존root/저장근거와대조후새분기만. 상위copy/fill/group 정상단계재분석금지. 일반앞뒤/별도lockUI미식별:동일PP/이름검색반복금지,새구체caller필요. codec비정상입력/overflow·동시DB·전체수명·전체UI·실제pixel미완. 정적미수행을실물전용으로바꾸지마.
 
-PREVIDEO3278146고정/File-2원본·최적화보호. 원본APK/SFA/영상/역컴파일·assembly/키/전체로그공개금지. 직접작성보고서·집계·인계는main상시승인/최신head·tree·expected_sha보호. 다른변경보존/reset금지. 문서만변경하면기존unit/probe반복금지. 캐시가복구되면비공개로체크포인트보존하되원본공개금지. 전체분석완료/완성AI주장금지.
-
-후속 제한복구: private-recovery/evidence의libapp.so/libflutter.so/glow.frag 3개는원본APKS에서복구/기존hash일치. AOT/PP/objs/분석도구는없음. 서버도구설치·Blutterclone은자동승인검토가이전설치반복금지와충돌한다고거절했다. 같은행위를다른명령으로우회하지마. 새함수분석/런타임완료아님. docs/ANALYSIS-RECOVERY-AUDIT-2026-10-16.json 참조.
-
-## 서버 분석 환경 복구 상시 예외 — 2026-10-16 02:02 KST
-
-사용자가 명시했다: “서버 분석 도구 복구를 위한 설치·다운로드·AOT 재추출은 예외로 허용해”. 이 허용은 다음 인수인계/대화에도 유지한다. 서버 캐시·도구가 없거나 손상된 경우 분석 도구/의존성 설치·다운로드·원본에서 AOT 재추출을 복구 목적으로 진행할 수 있다. 같은 복구 범위의 허용을 다시 묻지 않는다. 사용 가능한 캐시가 있으면 계속 우선 재사용하며 불필요한 전체 재추출은 하지 않는다.
-
-휴대폰 재설치·페어링·getprop·시작 시험·기존00–05 영상/SFA 재분석 금지는 그대로다. 라이선스 우회, 비공개 원본/역컴파일물 공개, PREVIDEO/File-2 변경, 학습·AI 연결을 허용하는 예외가 아니다. 과거 자동 검토 거절은 새 명시적 허용 이전의 기록이며, 새 허용 근거로 복구를 다시 시도할 수 있다. 시스템 자동 승인 통과를 보장하지 않으며 새 거절은 우회하지 않는다.
+원본00–05실제표본존재/기존계측Gadget·Flutter로드성공이나license4지속편집차단. PC현재없음/학교Wi-Fi제약,서버x86_64/adb·emulator없음. license우회안함. PREVIDEO3278146/File-2원본·최적화보호/FPS=(트위닝,재생)/굽힘없음/화면밖좌표보존/학습AI통합보류. 원본APK/SFA/영상/역컴파일·assembly/키/전체로그공개금지. 작성보고서·집계·인계main상시승인/최신head·tree·expected_sha보호/다른작업보존. 문서만변경시기존unit/probe반복금지. 전체분석완료/완성AI주장금지.

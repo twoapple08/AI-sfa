@@ -56,3 +56,8 @@ undo는 마지막 snapshot의 signature와 현재 signature가 다르면 현재 
 ## 검증 범위
 
 선택 명령의 원본 ELF/Capstone 대조 결과는 [감사 파일](AOT-FILL-HISTORY-AUDIT-2026-10-15.json)에 기록했다. 전체 함수 의미·완전한 UI coverage·실제 malformed 데이터 결과·pixel 동등성 검증은 아니다. 다른 보고서와 중복 표본을 독립 누적 합산하지 않는다. 문서만 변경했으므로 unit/probe·휴대폰 시작 시험은 반복하지 않았다.
+
+
+## 2026-10-16 추가 근거
+
+본문 당시 미확정이던 목록 getter는 [DISPATCH-TARGETS](AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md)의 실제 표/수신 cid/본문으로 정상 목록 계열의 first로 확인했다. 이 한정 미확정 항목을 다시 탐색하지 않는다. history hash 포함 필드는 [UNUSED-AO-FAST-HASH](AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md), 실제 시간축 명령은 [TIMELINE-FRAME-COMMANDS](AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md)를 따른다. 기존 검증을 실제 앱/pixel 완료로 승격하지 않는다.

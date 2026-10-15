@@ -1,0 +1,118 @@
+{
+  "scope": "snapshot dispatch-table metadata extraction; not Android execution",
+  "table_length": 57043,
+  "origin_element": 4096,
+  "mappings": [
+    {
+      "cid": 90,
+      "selector": "0x85e4",
+      "table_index": 38462,
+      "target_offset": "0x4d6064",
+      "matched": true
+    },
+    {
+      "cid": 91,
+      "selector": "0x85e4",
+      "table_index": 38463,
+      "target_offset": "0x4d6064",
+      "matched": true
+    },
+    {
+      "cid": 92,
+      "selector": "0x85e4",
+      "table_index": 38464,
+      "target_offset": "0x4d5ff4",
+      "matched": true
+    },
+    {
+      "cid": 92,
+      "selector": "0x8cb1",
+      "table_index": 40205,
+      "target_offset": "0x4b87d0",
+      "matched": true
+    },
+    {
+      "cid": 92,
+      "selector": "0xbc49",
+      "table_index": 52389,
+      "target_offset": "0x3f95fc",
+      "matched": true
+    },
+    {
+      "cid": 92,
+      "selector": "0x9780",
+      "table_index": 42972,
+      "target_offset": "0x4acd38",
+      "matched": true
+    }
+  ],
+  "runtime_verified": false,
+  "instruction_checks": [
+    {
+      "address": "0x4d6018",
+      "matched": true
+    },
+    {
+      "address": "0x4d6020",
+      "matched": true
+    },
+    {
+      "address": "0x4d6034",
+      "matched": true
+    },
+    {
+      "address": "0x4d6088",
+      "matched": true
+    },
+    {
+      "address": "0x4d6090",
+      "matched": true
+    },
+    {
+      "address": "0x4d609c",
+      "matched": true
+    },
+    {
+      "address": "0x4acd60",
+      "matched": true
+    },
+    {
+      "address": "0x4acd80",
+      "matched": true
+    },
+    {
+      "address": "0x3f9620",
+      "matched": true
+    },
+    {
+      "address": "0x3f9654",
+      "matched": true
+    },
+    {
+      "address": "0x63590c",
+      "matched": true
+    },
+    {
+      "address": "0x635918",
+      "matched": true
+    },
+    {
+      "address": "0x60453c",
+      "matched": true
+    },
+    {
+      "address": "0x604548",
+      "matched": true
+    },
+    {
+      "address": "0x5b9114",
+      "matched": true
+    },
+    {
+      "address": "0x5b9120",
+      "matched": true
+    }
+  ],
+  "full_table_published": false,
+  "elf_sha256": "35ce3936f08e5da6caf08e0f3d4c80e0c81777475ac4f682c66f9f4a00a32c1f"
+}

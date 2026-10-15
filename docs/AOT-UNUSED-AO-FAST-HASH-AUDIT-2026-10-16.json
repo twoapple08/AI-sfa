@@ -1,0 +1,298 @@
+{
+  "scope": "73 selected instruction checks against restored same ELF; not full semantics or runtime",
+  "checks": [
+    {
+      "address": "0x5af22c",
+      "matched": true
+    },
+    {
+      "address": "0x5af23c",
+      "matched": true
+    },
+    {
+      "address": "0x5af264",
+      "matched": true
+    },
+    {
+      "address": "0x5af274",
+      "matched": true
+    },
+    {
+      "address": "0x5af2ac",
+      "matched": true
+    },
+    {
+      "address": "0x5ae924",
+      "matched": true
+    },
+    {
+      "address": "0x5ae934",
+      "matched": true
+    },
+    {
+      "address": "0x366f2c",
+      "matched": true
+    },
+    {
+      "address": "0x366f34",
+      "matched": true
+    },
+    {
+      "address": "0x366f44",
+      "matched": true
+    },
+    {
+      "address": "0x3662c8",
+      "matched": true
+    },
+    {
+      "address": "0x3662cc",
+      "matched": true
+    },
+    {
+      "address": "0x3662e0",
+      "matched": true
+    },
+    {
+      "address": "0x3662ec",
+      "matched": true
+    },
+    {
+      "address": "0x366328",
+      "matched": true
+    },
+    {
+      "address": "0x3663a8",
+      "matched": true
+    },
+    {
+      "address": "0x36645c",
+      "matched": true
+    },
+    {
+      "address": "0x366480",
+      "matched": true
+    },
+    {
+      "address": "0x3665f4",
+      "matched": true
+    },
+    {
+      "address": "0x3666ec",
+      "matched": true
+    },
+    {
+      "address": "0x3666f8",
+      "matched": true
+    },
+    {
+      "address": "0x3666fc",
+      "matched": true
+    },
+    {
+      "address": "0x3667a4",
+      "matched": true
+    },
+    {
+      "address": "0x3667b0",
+      "matched": true
+    },
+    {
+      "address": "0x366870",
+      "matched": true
+    },
+    {
+      "address": "0x36687c",
+      "matched": true
+    },
+    {
+      "address": "0x366880",
+      "matched": true
+    },
+    {
+      "address": "0x366920",
+      "matched": true
+    },
+    {
+      "address": "0x36693c",
+      "matched": true
+    },
+    {
+      "address": "0x3669a0",
+      "matched": true
+    },
+    {
+      "address": "0x366a64",
+      "matched": true
+    },
+    {
+      "address": "0x366aa8",
+      "matched": true
+    },
+    {
+      "address": "0x366aec",
+      "matched": true
+    },
+    {
+      "address": "0x366c24",
+      "matched": true
+    },
+    {
+      "address": "0x366c2c",
+      "matched": true
+    },
+    {
+      "address": "0x366c30",
+      "matched": true
+    },
+    {
+      "address": "0x366c50",
+      "matched": true
+    },
+    {
+      "address": "0x366cd0",
+      "matched": true
+    },
+    {
+      "address": "0x366d84",
+      "matched": true
+    },
+    {
+      "address": "0x366d8c",
+      "matched": true
+    },
+    {
+      "address": "0x366db8",
+      "matched": true
+    },
+    {
+      "address": "0x366e98",
+      "matched": true
+    },
+    {
+      "address": "0x366ebc",
+      "matched": true
+    },
+    {
+      "address": "0x34eb28",
+      "matched": true
+    },
+    {
+      "address": "0x33c410",
+      "matched": true
+    },
+    {
+      "address": "0x51cb84",
+      "matched": true
+    },
+    {
+      "address": "0x51cbd0",
+      "matched": true
+    },
+    {
+      "address": "0x51cbd4",
+      "matched": true
+    },
+    {
+      "address": "0x51cbe0",
+      "matched": true
+    },
+    {
+      "address": "0x51cc64",
+      "matched": true
+    },
+    {
+      "address": "0x51ccb0",
+      "matched": true
+    },
+    {
+      "address": "0x51ccc4",
+      "matched": true
+    },
+    {
+      "address": "0x51cccc",
+      "matched": true
+    },
+    {
+      "address": "0x51ccd4",
+      "matched": true
+    },
+    {
+      "address": "0x51cd04",
+      "matched": true
+    },
+    {
+      "address": "0x51cd1c",
+      "matched": true
+    },
+    {
+      "address": "0x51cd84",
+      "matched": true
+    },
+    {
+      "address": "0x51cdf0",
+      "matched": true
+    },
+    {
+      "address": "0x51ce5c",
+      "matched": true
+    },
+    {
+      "address": "0x51cec8",
+      "matched": true
+    },
+    {
+      "address": "0x51cf58",
+      "matched": true
+    },
+    {
+      "address": "0x51cf60",
+      "matched": true
+    },
+    {
+      "address": "0x51cf64",
+      "matched": true
+    },
+    {
+      "address": "0x51cf84",
+      "matched": true
+    },
+    {
+      "address": "0x51cfac",
+      "matched": true
+    },
+    {
+      "address": "0x51d010",
+      "matched": true
+    },
+    {
+      "address": "0x51d01c",
+      "matched": true
+    },
+    {
+      "address": "0x51d03c",
+      "matched": true
+    },
+    {
+      "address": "0x51d060",
+      "matched": true
+    },
+    {
+      "address": "0x51d0c8",
+      "matched": true
+    },
+    {
+      "address": "0x51d128",
+      "matched": true
+    },
+    {
+      "address": "0x51d150",
+      "matched": true
+    },
+    {
+      "address": "0x51d15c",
+      "matched": true
+    }
+  ],
+  "runtime_verified": false
+}
