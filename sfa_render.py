@@ -16,7 +16,8 @@ import sfa
 
 # Calibrated against APP-R1 (1920x1080). Values marked fitted are refined by tools/fit_render.py.
 PARAMS = {
-    'padding_px_at_1080': 10.52,    # DrawInformation padding P, measured (APP-R1 swatch edges)
+    'padding_q0': 6.5,              # padding model (see Canvas), hypothesis from two exports
+    'padding_s': 2.104,
     'stroke_px_per_scale': 9.0,     # fitted: core stroke width per ThicknessScale at 1080p
     'glow_w_per_thickness': 0.78,   # fitted: glow band width W (px) per GlowThickness
     'glow_sigma_per_radius': 1.0,   # fitted: sigma (px) per GlowRadius
@@ -48,14 +49,18 @@ def phi(x):
 
 
 class Canvas:
-    def __init__(self, width=1920, height=1080, ratio=0.5625, params=None):
+    def __init__(self, width=1920, height=1080, ratio=0.5625, params=None, seq_thickness=100.0):
         self.w, self.h = width, height
         self.p = dict(PARAMS, **(params or {}))
         # APP-R1 measured a uniform shrink about the centre: usable width = W - 2P and
         # height = width * ratio (horizontal margin P, vertical margin P * ratio). Applying the
         # static DrawInformation formula to an exact 1920x1080 canvas would instead be
         # height-limited (1080 - 2P), which does not match the measured output.
-        pad = self.p['padding_px_at_1080'] * width / 1920.0
+        # Padding follows the static helper P = (round(1.24*q)/2 + 1) * s with q proportional to
+        # the sequence line thickness. HYPOTHESIS fitted on two APP-R1 exports: 100% -> 10.52 px,
+        # 50% -> 6.30 px at 1920 wide (q0 = 6.5 at 100%, s = 2.104).
+        q = self.p['padding_q0'] * seq_thickness / 100.0
+        pad = (math.floor(1.24 * q + 0.5) / 2 + 1) * self.p['padding_s'] * width / 1920.0
         uw = max(width - 2 * pad, 1)
         uh = uw * ratio
         if uh > height:
@@ -161,6 +166,10 @@ def stroke_width(obj, cv, seq_thickness):
     if not math.isfinite(scale) or scale <= 0:
         scale = 1.0
     width = cv.p['stroke_px_per_scale'] * scale * seq_thickness / 100.0 * cv.px_scale
+    if cv.p.get('stroke_round_px', True):
+        # APP-R1 100%/50%: integrated widths 5/9/18/36 and 2/5/9/18 px = round(9*s*T/100),
+        # matching the static stroke stabilisation round(f*q*DPR)/DPR. ASSUMPTION: minimum 1 px.
+        width = max(math.floor(width + 0.5), 1)
     if cv.p['object_scale_stroke']:
         width *= _object_scale(obj)
     return width
@@ -183,7 +192,7 @@ def draw_core(obj, cv, seq_thickness):
     cv.blend(w / 2 - d + 0.5, obj.get('Color', '-16777216'), box=box)
 
 
-def draw_glow(obj, cv):
+def draw_glow(obj, cv, seq_thickness=100.0):
     radius = float(obj.get('GlowRadius', '0') or 0)
     alpha = float(obj.get('GlowAlpha', '0') or 0) / 255.0
     thickness = float(obj.get('GlowThickness', '0') or 0)
@@ -191,6 +200,9 @@ def draw_glow(obj, cv):
         return
     sigma = math.hypot(radius * cv.p['glow_sigma_per_radius'], cv.p['glow_sigma_floor']) * cv.px_scale
     half = thickness * cv.p['glow_w_per_thickness'] * cv.px_scale / 2
+    gs = seq_thickness / 100.0
+    sigma *= gs ** cv.p.get('glow_seq_sigma_exp', 1.0)
+    half *= gs ** cv.p.get('glow_seq_width_exp', 1.0)
     if cv.p['object_scale_glow']:
         sigma *= _object_scale(obj)
         half *= _object_scale(obj)
@@ -270,7 +282,11 @@ def fill_contours(region, objects, cv):
 
 
 def group_units(frame):
-    """Union AOs connected by group-child flags (resolved to the root parent)."""
+    """Glow/draw units: AOs joined by AnchorConnection (AC) links or group-child flags.
+
+    Static: Frame._ResolveConnectedObjectGlowGroupIds (0x42c53c) unions the owner AOs of each
+    point's connection targets and of its resolved group parent. Confirmed on a user artwork.
+    """
     owner, flags = {}, {}
     for obj in frame.findall('AO'):
         for p in obj.findall('AP'):
@@ -283,6 +299,12 @@ def group_units(frame):
             parent[a] = parent[parent[a]]
             a = parent[a]
         return a
+    for obj in frame.findall('AO'):
+        for p in obj.findall('AP'):
+            for c in p.findall('AC'):
+                target = owner.get(c.get('ConnPtId'))
+                if target is not None:
+                    parent[find(obj.get('ID'))] = find(target)
     for pid, f in flags.items():
         seen, cur = {pid}, pid
         while flags.get(cur, 0) & 0x10:
@@ -298,7 +320,7 @@ def group_units(frame):
 
 
 def render_frame(frame, width=1920, height=1080, params=None, seq_thickness=100.0):
-    cv = Canvas(width, height, params=params)
+    cv = Canvas(width, height, params=params, seq_thickness=seq_thickness)
     cv.fill_bg(frame.get('BackgroundColor', '-1'))
     hidden = {l.get('ID') for l in frame.findall('LayerDef') if l.get('Visible', 'true') == 'false'}
     # APP-T1: objects on a hidden layer are not drawn in exported frames.
@@ -316,17 +338,15 @@ def render_frame(frame, width=1920, height=1080, params=None, seq_thickness=100.
             fills_before.setdefault(find(min(refs, key=order).get('ID')), []).append(region)
     for key in sorted(units, key=lambda k: min(order(o) for o in units[k])):
         members = sorted(units[key], key=order)
+        # Static BuildDrawPlan: the unit's glows first, then each member's fill(s) and body.
+        for obj in members:
+            draw_glow(obj, cv, seq_thickness)
         for region in fills_before.get(key, []):
             cov, box = fill_polygon_coverage(fill_contours(region, objects, cv), cv)
             if cov is not None:
                 cv.blend(cov, region.get('Color', '0'), box=box)
         for obj in members:
-            draw_glow(obj, cv)
-            if len(members) == 1:
-                draw_core(obj, cv, seq_thickness)
-        if len(members) > 1:
-            for obj in members:
-                draw_core(obj, cv, seq_thickness)
+            draw_core(obj, cv, seq_thickness)
     return np.clip(np.rint(cv.img), 0, 255).astype(np.uint8)
 
 

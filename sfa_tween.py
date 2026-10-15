@@ -235,8 +235,10 @@ def interpolate(front, back, t):
         b = links.get(a.get('ID')) or bmap.get(a.get('ID'))
         if b is not None:
             pairs.append((a, b))
-    # ASSUMPTION: background colour of an intermediate frame is the front frame's.
+    # APP user artwork (2026-10-16): the background colour interpolates like other ARGB values.
     f = E.Element('Frame', dict(front.attrib))
+    f.set('BackgroundColor', str(interpolate_argb(u32(front.get('BackgroundColor', '-1')),
+                                                  u32(back.get('BackgroundColor', '-1')), t)))
     for layer in front.findall('LayerDef'):
         f.append(copy.deepcopy(layer))
     for a, b in pairs:
