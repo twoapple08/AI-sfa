@@ -1,6 +1,6 @@
 # 그리기 계획: 레이어·연결 묶음·채우기 배정 — 2026-10-16
 
-복구한 같은 ELF/AOT에서 확인했다. [감사](AOT-DRAW-PLAN-GROUPS-AUDIT-2026-10-16.json)는 선택 명령 20곳의 Capstone/AOT 대조다. 실제 사용자 작품 영상 대조([USER-ARTWORK-1](USER-ARTWORK-1-RENDER-CHECK-2026-10-16.md))로 결과를 검증했다.
+복구한 같은 ELF/AOT에서 확인했다. [감사](AOT-DRAW-PLAN-GROUPS-AUDIT-2026-10-16.json)는 선택 명령 27곳의 Capstone/AOT 대조다. 실제 사용자 작품 영상 대조([USER-ARTWORK-1](USER-ARTWORK-1-RENDER-CHECK-2026-10-16.md))로 결과를 검증했다.
 
 ## Frame.BuildDrawPlan(0x42b910)
 
@@ -29,5 +29,15 @@
 ## 실물 검증과 남은 것
 
 - 사용자 작품 244프레임에서 이 순서를 적용해 평균 MAE가 1.155(레이어 순서만 반영한 렌더러)에서 0.908이 됐다. 같은 날 glow 폭 × ThicknessScale 발견도 함께 반영된 수치다.
-- `FillRegionsByFigure`의 키(어느 ObjId로 색인되는지)는 본문 closure(0x42d798)를 읽지 않았다. 렌더러는 "참조 객체 중 묶음 순서상 첫 구성원이 가져간다"로 근사한다. outer segment만 색인하는지 등 세부는 미확인이다.
+## FillRegionsByFigure — 채우기 배정(추가 확인)
+
+생성자 closure(0x42d798)는 FR마다 `resolveFrameFillRegionLayer`(0x415954)를 호출한다. 이 함수는 FR의 **outerSegments**를 순서대로 보며, AO map에서 처음 찾은 객체의 LayerId(field7)를 그 채우기의 레이어로 반환한다(0x415978–0x415a40). 찾지 못하면 null이다. 생성자는 outer segment의 ObjId마다 중복 없이(Set._add 0x42d53c) 채우기 목록 map에 넣는다(0x42d5b0). `take(AO ID, layer)`(0x42bf90)가 해당 레이어 차례에 그 객체 몫을 꺼낸다.
+
+정리하면 다음과 같다.
+
+- 채우기는 첫 outer 객체의 레이어에서만 그려진다.
+- 그 레이어의 outer 객체 중 그리기 순서상 첫 구성원이 채우기를 가져가, 그 본체 바로 앞에 그린다.
+- 구멍 contour 객체는 배정에 관여하지 않는다.
+- 렌더러는 이 규칙을 그대로 따른다. 레이어 판정은 숨긴 객체까지 포함한 AO map으로 한다. 숨긴 레이어로 판정된 채우기는 그리지 않는다.
+- take 본문의 '이미 가져감' 표시 방식은 명령 단위로 다 읽지 않았다. 다만 중복 그리기가 없는 실물 결과와 맞는다.
 - 보간 프레임(InterpolatedFrame)의 그리기 경로가 같은 계획을 쓰는지는, 보간 호출자도 그룹 helper를 먼저 호출한다는 기존 근거(0x793260/0x793534)와 실물 대조로만 확인했다. 본문 전체는 읽지 않았다.

@@ -332,7 +332,8 @@ def render_frame(frame, width=1920, height=1080, params=None, seq_thickness=100.
     cv.fill_bg(frame.get('BackgroundColor', '-1'))
     hidden = {l.get('ID') for l in frame.findall('LayerDef') if l.get('Visible', 'true') == 'false'}
     # APP-T1: objects on a hidden layer are not drawn in exported frames.
-    objects = {o.get('ID'): o for o in frame.findall('AO') if o.get('LayerId') not in hidden}
+    all_objects = {o.get('ID'): o for o in frame.findall('AO')}
+    objects = {k: o for k, o in all_objects.items() if o.get('LayerId') not in hidden}
     # User artwork: layers stack in LayerDef list order (first = bottom), DrawOrder within a layer.
     layer_rank = {l.get('ID'): i for i, l in enumerate(frame.findall('LayerDef'))}
     order = lambda o: (layer_rank.get(o.get('LayerId'), 0), float(o.get('DrawOrder', '0') or 0),
@@ -344,10 +345,16 @@ def render_frame(frame, width=1920, height=1080, params=None, seq_thickness=100.
         units.setdefault((obj.get('LayerId'), find(obj.get('ID'))), []).append(obj)
     fills_before = {}
     for region in frame.iter('FR'):
-        refs = [objects[s.get('ObjId')] for s in region.findall('FS') if s.get('ObjId') in objects]
-        if refs:
-            # APP-T1: a fill is drawn below all of its boundary objects (anchor = lowest DrawOrder).
-            # FillRegionsByFigure.take: the first member (in order) referencing the fill claims it.
+        # Static FillRegionsByFigure: indexed by outer-segment (contour 0) ObjIds; the fill's layer
+        # is the LayerId of the first outer segment whose AO exists (resolveFrameFillRegionLayer
+        # 0x415954); take(AO, layer) gives it to the first such member drawn in that layer.
+        outer = [sg.get('ObjId') for sg in region.findall('FS')
+                 if float(sg.get('Contour', '0') or 0) == 0 and sg.get('ObjId') in all_objects]
+        if not outer:
+            continue
+        layer = all_objects[outer[0]].get('LayerId')
+        refs = [objects[i] for i in outer if i in objects and objects[i].get('LayerId') == layer]
+        if refs:                                   # a fill resolved to a hidden layer is not drawn
             fills_before.setdefault(min(refs, key=order).get('ID'), []).append(region)
     pick = max if cv.p.get('unit_anchor') == 'max' else min
     for key in sorted(units, key=lambda k: pick(order(o) for o in units[k])):
