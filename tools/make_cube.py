@@ -25,6 +25,7 @@ import make_copy as mc  # noqa: E402
 
 W, H = md.W, md.H
 N = 120
+KT = 1.9                                                   # 폭발 후 시간 압축(속도감): 같은 궤적을 1.9배 빠르게
 argb, CLEAR = md.argb, md.CLEAR
 
 BG = argb(196, 192, 184)
@@ -33,7 +34,8 @@ INK = argb(40, 38, 36)
 TOP, MID, DARK = argb(222, 218, 208), argb(178, 174, 166), argb(70, 67, 63)
 SHADOW = argb(160, 156, 148)
 SPECK = argb(112, 108, 102)
-D_LINE, D_SHADE, D_LITE, D_BASE = argb(52, 50, 48), argb(128, 124, 120), argb(226, 223, 216), argb(186, 182, 176)
+D_LINE, D_SHADE, D_LITE, D_BASE = argb(126, 120, 110), argb(160, 153, 141), argb(232, 228, 218), argb(212, 206, 194)
+D_DEEP = argb(136, 129, 118)
 CORE, RAY = (250, 248, 242), (62, 58, 54)
 K, Wt = (16, 15, 14), (246, 244, 238)
 
@@ -41,7 +43,8 @@ LAYERS = [('ground', '땅·그림자'), ('dust_b_shade', '뒤 먼지 실루엣')
           ('dust_b_base', '뒤 먼지 테두리·그림자 혀'), ('dust_b_tail', '뒤 먼지 줄무늬'), ('cube', '큐브·잔해'),
           ('blast', '폭발'), ('dust_f_shade', '앞 먼지 실루엣'), ('dust_f_lite', '앞 먼지 밝은 몸통'),
           ('dust_f_base', '앞 먼지 테두리·그림자 혀'), ('dust_f_tail', '앞 먼지 줄무늬'), ('debris', '돌 파편'),
-          ('fx', '바람·줄무늬'), ('imp_bg', '반전 면(알파)'), ('imp_fg', '임팩트 선')]
+          ('fx', '바람·줄무늬'), ('imp_bg', '반전 면(알파)'), ('imp_bgtex', '임팩트 바탕 연필 결'),
+          ('imp_fg', '임팩트 흑백 형태'), ('imp_tex', '임팩트 연필 결·잔털'), ('imp_glow', '임팩트 빛(글로우)')]
 
 
 def ease_out(s):
@@ -81,16 +84,16 @@ LIGHT = _L / np.linalg.norm(_L)
 
 
 def shake_at(t):
-    """진동: 라이즈(8–19) 점점 커짐, 임팩트(20–31) 최대, 폭발 후(32–60) 감쇠, 착지 여진(66–71)."""
+    """진동: 라이즈(8–19) 점점 커짐, 임팩트(20–31) 최대, 폭발 후(32–53) 크게 시작해 감쇠, 착지 여진(44–49)."""
     r = random.Random(t * 31 + 7)
     if 8 <= t < 20:
         a = 2 + 1.3 * (t - 8)
     elif 20 <= t < 32:
         a = 16
-    elif 32 <= t < 62:
-        a = 24 * (1 - (t - 32) / 30) ** 1.5
-    elif 66 <= t < 72:
-        a = 7 * (1 - (t - 66) / 6)
+    elif 32 <= t < 54:
+        a = 30 * (1 - (t - 32) / 22) ** 1.6
+    elif 44 <= t < 50:                                     # 큰 파편 첫 착지 여진
+        a = 8 * (1 - (t - 44) / 6)
     else:
         return 0.0, 0.0
     s = 1 if t % 2 else -1
@@ -199,19 +202,19 @@ def debris_paths():
     for i in range(34):
         big = i < 12
         a = 2 * math.pi * i / (12 if big else 22) + r.uniform(-.25, .25)
-        v = r.uniform(.08, .17) * (1 if big else 1.25)
+        v = r.uniform(.08, .17) * (1 if big else 1.25) * KT
         p = np.array([r.uniform(-.4, .4), r.uniform(-.4, .4), 1.4])
-        vel = np.array([v * math.cos(a), v * math.sin(a), r.uniform(.12, .3)])
+        vel = np.array([v * math.cos(a), v * math.sin(a), r.uniform(.12, .3) * KT])
         size = r.uniform(.28, .6) if big else r.uniform(.09, .18)
         rot, tilt = r.uniform(0, 6), r.uniform(0, 6)
-        spin, tspin = r.uniform(.2, .5) * r.choice((-1, 1)), r.uniform(.15, .4)
+        spin, tspin = r.uniform(.2, .5) * r.choice((-1, 1)) * KT, r.uniform(.15, .4) * KT
         path = []
         for f in range(N):
-            vel[2] -= .018
+            vel[2] -= .018 * KT * KT
             p = p + vel
             if p[2] < size / 2:
                 p[2] = size / 2
-                if abs(vel[2]) > .03:
+                if abs(vel[2]) > .03 * KT:
                     vel[2] = -vel[2] * .45
                     vel[:2] *= .7
                     spin *= -.6
@@ -252,18 +255,19 @@ def dust_lobes_at(t, cam):
     덩어리: (x, y, 반지름, 바람 끌림, 몸통 그림자 여부)."""
     if t < T_BOOM + 1:
         return [], []
-    g = ease_out((t - T_BOOM - 1) / 40)
+    x_ = min(max((t - T_BOOM) / 22, 0.0), 1.0)
+    g = 1 - (1 - x_) ** 3                                  # 0~4f에 절반 이상 터져 나오고 이후 감속
     R = .4 + 3.9 * g
     zc, flat = .8 - .4 * g, .55 - .2 * g
-    wind = ease_in((t - 66) / 50) if t >= 66 else 0.0
+    wind = ease_in((t - 54) / 40) if t >= 54 else 0.0
     back, front = [], []
     for L in LOBES:
         rr = R * L['rf']
         life = 1.0
-        if L['rf'] < .7 and t > 55:                       # 가운데부터 걷힘
-            life *= max(0.0, 1 - (t - 55) / (22 * L['die']))
-        if t > 82:
-            life *= max(0.0, 1 - (t - 82) / (34 * L['die']))
+        if L['rf'] < .7 and t > 46:                       # 가운데부터 걷힘
+            life *= max(0.0, 1 - (t - 46) / (18 * L['die']))
+        if t > 70:
+            life *= max(0.0, 1 - (t - 70) / (30 * L['die']))
         if life < .06:
             continue
         x = rr * math.cos(L['el']) * math.cos(L['a'])
@@ -293,15 +297,8 @@ def _body_mask(lobes):
 
 
 def _outlines(m, min_area=60):
-    """마스크의 큰 윤곽(SFA px, 시계 방향). 구멍은 아래로 1px 틈을 내어 바깥 고리에 합친다."""
-    m = m.copy()
-    cs, hier = cv2.findContours(m, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
-    if hier is not None and (hier[0][:, 3] >= 0).any():
-        for c, h in zip(cs, hier[0]):
-            if h[3] >= 0:
-                x, y = c[c[:, 0, 1].argmax(), 0]
-                m[y:, x:x + 1] = 0
-        cs, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    """마스크의 큰 윤곽(SFA px, 시계 방향). 안쪽 구멍은 메운다(앞뒤로 나눠 그려 잔해는 따로 드러남)."""
+    cs, _ = cv2.findContours(m.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
     out = []
     for c in cs:
         if cv2.contourArea(c) < min_area:
@@ -370,70 +367,79 @@ def _ring(bul):
     return ring
 
 
-def draw_dust(fr, lobes, side):
-    """애니 먼지(Sakugabooru smoke·debris 참고)를 곡선으로 직접 설계.
-    ① 실루엣: 큰 비대칭 볼록 곡선 고리, 그림자색 + 곡선 자체가 짙은 외곽선
-    ② 밝은 몸통: 실루엣을 깎고 왼쪽 위로 민 형태에 다시 볼록 곡선 → 오른쪽 아래에 볼록한 경계의 그림자 덩어리가 남음
-    ③ 밝은 테두리: 왼쪽 위를 향한 몸통 볼록의 얇은 초승달
-    ④ 그림자 혀: 몸통 골에서 안쪽으로 짧게 휘어 들어가는 뾰족한 그림자
-    ⑤ 흩어질 때 줄무늬 꼬리"""
+def _spike(fr, base, out, tg, w, ln, col, r):
+    """가장자리에서 털·불꽃처럼 뻗는 가시: 살짝 휜 뾰족한 곡선 쐐기."""
+    a1, a2 = base - tg * w / 2, base + tg * w / 2
+    tip = base + out * ln + tg * ln * r.uniform(-.25, .25)
+    bend = tg * ln * r.uniform(-.18, .18)
+    fr.cpoly([tuple(a1), tuple((a1 + tip) / 2 + bend), tuple(tip), tuple((a2 + tip) / 2 + bend)], col)
+
+
+def draw_dust(fr, lobes, side, t, center):
+    """애니 먼지(Sakugabooru smoke·debris 40편 140장 참고)를 곡선으로 직접 설계.
+    - 굵은 검은 외곽선 없음: 바탕보다 조금 어두운 가는 선만(돌덩이처럼 보이지 않게)
+    - 밝은 베이지·회색 2톤 + 아주 짙은 점 몇 개
+    - 터지는 동안 바깥 가장자리에 털·불꽃 같은 뾰족한 가시(폭발 중심에서 멀어지는 쪽)
+    - 그림자 경계는 둥글지 않고 날카롭게 파고드는 가시, 그림자색 작은 타원 구멍"""
     if not lobes:
         return
     scale = float(np.median([l[2] for l in lobes])) / 60
+    spike = max(0.0, 1 - (t - T_BOOM) / 26) ** .7          # 폭발 직후일수록 가시가 길다
     body = _body_mask(lobes)
     mw = max(40.0, 125 * scale) / DS
-    k = max(2, int(mw * .2))
+    k = max(2, int(mw * .16))
     lit = cv2.erode(body, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * k + 1, 2 * k + 1)))
-    lit = cv2.warpAffine(lit, np.float32([[1, 0, -.12 * mw], [0, 1, -.18 * mw]]), (lit.shape[1], lit.shape[0]))
+    lit = cv2.warpAffine(lit, np.float32([[1, 0, -.1 * mw], [0, 1, -.16 * mw]]), (lit.shape[1], lit.shape[0]))
     lit = cv2.bitwise_and(lit, cv2.erode(body, np.ones((5, 5), np.uint8)))
     base_seed = int(len(lobes)) * 7 + (1 if side == 'f' else 0)
-    fr.layer = f'dust_{side}_shade'
-    sil = [cloud_bulges(P, base_seed + ci, scale) for ci, P in enumerate(_outlines(body))]
-    for bul in sil:
-        fr.cpoly(_ring(bul), D_SHADE, D_LINE, .7)          # 곡선이 이어진 커스텀 오브젝트 하나
-    overlaps = []
-    for ci, bul in enumerate(sil):                         # 겹침선: 골에서 앞 덩어리 윤곽이 몸통 안으로 이어짐
-        r = random.Random(base_seed + 50 + ci)
-        for b in bul:
-            if r.random() < .6:
-                A, cA, nrm, tg, w, h = b['A'], b['seq'][1], b['n'], b['tg'], b['w'], b['h']
-                d0 = (A - cA) / (np.hypot(*(A - cA)) or 1)     # 갈고리를 반대로 이어 안쪽으로
-                c = A + d0 * w * r.uniform(.12, .2)
-                e = A - nrm * h * r.uniform(.45, .8) + tg * w * r.uniform(.05, .2)
-                overlaps.append((A, c, e))
+    cen = np.array(center)
+    sil = [cloud_bulges(P, base_seed + ci, scale, .62, (.36, .56)) for ci, P in enumerate(_outlines(body))]
+    for ci, bul in enumerate(sil):
+        fr.layer = f'dust_{side}_shade'
+        fr.cpoly(_ring(bul), D_SHADE, D_LINE, .28)         # 곡선이 이어진 커스텀 오브젝트 하나(가는 외곽선)
+        if spike > .05:                                    # 털·불꽃 가시: 바깥(폭발 중심 반대)을 향한 볼록에서
+            r = random.Random(base_seed + 70 + ci)
+            for b in bul:
+                d = b['P'] - cen
+                if float(np.dot(b['n'], d / (np.hypot(*d) or 1))) < .25:
+                    continue
+                out = (b['n'] * .5 + d / (np.hypot(*d) or 1) * .5)
+                out /= np.hypot(*out) or 1
+                for _ in range(r.randint(3, 6)):
+                    u = r.uniform(.15, .85)
+                    base = _q(b['S1'], b['c1'], b['P'], u * 2) if u < .5 else _q(b['P'], b['c2'], b['S2'], u * 2 - 1)
+                    base = base - b['n'] * 3
+                    fr.layer = f'dust_{side}_shade'
+                    _spike(fr, base, out, b['tg'], b['w'] * r.uniform(.14, .26), b['w'] * r.uniform(.5, 1.4) * spike, D_SHADE, r)
     for ci, P in enumerate(_outlines(lit, 30)):
         seed = base_seed + 100 + ci
-        bul = cloud_bulges(P, seed, scale, .8, (.28, .42))
+        bul = cloud_bulges(P, seed, scale, .55, (.3, .5))
         fr.layer = f'dust_{side}_lite'
         fr.cpoly(_ring(bul), D_BASE)
         r = random.Random(seed + 7)
+        fr.layer = f'dust_{side}_base'
         for i, b in enumerate(bul):
             face = float(np.dot(b['n'], L2))
-            A, B, Pk, S1, S2, c1, c2, nrm, tg = b['A'], b['B'], b['P'], b['S1'], b['S2'], b['c1'], b['c2'], b['n'], b['tg']
-            if face > .35:                                  # 밝은 테두리: 어깨~꼭대기~어깨를 따라가는 초승달
-                d = b['h'] * r.uniform(.16, .26)
-                a2, b2 = _q(S1, c1, Pk, .25), _q(Pk, c2, S2, .75)
-                ca, cb = _q(S1, c1, Pk, .65), _q(Pk, c2, S2, .35)
-                inner = Pk - nrm * d + tg * b['w'] * r.uniform(-.06, .06)
-                fr.layer = f'dust_{side}_base'
-                fr.cpoly([tuple(a2), tuple(ca), tuple(Pk), tuple(cb), tuple(b2), tuple(inner)], D_LITE)
-            elif face < -.1 and r.random() < .5:             # 그림자 혀: 골에서 휘어 들어감
-                ln = b['w'] * r.uniform(.25, .45)
+            A, B, nrm, tg = b['A'], b['B'], b['n'], b['tg']
+            if face < .25 and r.random() < .85:             # 날카롭게 파고드는 그림자 가시(골에서 몸통 안으로)
                 inn = -(nrm + bul[i - 1]['n']) / 2
                 inn /= np.hypot(*inn) or 1
-                tip = A + inn * ln + tg * ln * r.uniform(-.3, .3)
-                wd = b['w'] * r.uniform(.06, .1)
-                a1, a2_ = A - tg * wd, A + tg * wd
-                bend = r.uniform(-.2, .2) * ln
-                fr.layer = f'dust_{side}_base'
-                fr.cpoly([tuple(a1), tuple((a1 + tip) / 2 + tg * bend), tuple(tip), tuple((a2_ + tip) / 2 + tg * bend)], D_SHADE)
-    fr.layer = f'dust_{side}_base'
-    for A, c, e in overlaps:                               # 겹침선은 몸통 위에(굵게 → 가늘게)
-        m = _q(A, c, e, .5)
-        cm1 = _q(A, c, e, .25) * 2 - (A + m) / 2
-        cm2 = _q(A, c, e, .75) * 2 - (m + e) / 2
-        fr.curve(tuple(A), tuple(cm1), tuple(m), D_LINE, .55)
-        fr.curve(tuple(m), tuple(cm2), tuple(e), D_LINE, .25)
+                inn = inn * .7 + L2 * -.3 * -1               # 빛 쪽(왼쪽 위)으로 기울어 파고듦
+                inn /= np.hypot(*inn) or 1
+                _spike(fr, A - nrm * 2, inn, tg, b['w'] * r.uniform(.16, .28), b['w'] * r.uniform(.45, .95), D_SHADE, r)
+                if r.random() < .4:                          # 갈래 가시
+                    _spike(fr, A - nrm * 2 + tg * b['w'] * .18, inn, tg, b['w'] * .11, b['w'] * r.uniform(.25, .5), D_SHADE, r)
+            if face > .45 and r.random() < .5:              # 밝은 면 위 얇은 하이라이트(꼭대기 쪽)
+                Pk, S1, S2, c1, c2 = b['P'], b['S1'], b['S2'], b['c1'], b['c2']
+                d_ = b['h'] * r.uniform(.12, .2)
+                a2, b2 = _q(S1, c1, Pk, .35), _q(Pk, c2, S2, .65)
+                ca, cb = _q(S1, c1, Pk, .7), _q(Pk, c2, S2, .3)
+                fr.cpoly([tuple(a2), tuple(ca), tuple(Pk), tuple(cb), tuple(b2), tuple(Pk - nrm * d_)], D_LITE)
+        for _ in range(r.randint(2, 6)):                    # 그림자색 작은 타원 구멍
+            b = r.choice(bul)
+            q = b['P'] - b['n'] * b['h'] * r.uniform(1.2, 2.6)
+            rr = b['w'] * r.uniform(.04, .09)
+            fr.circle(tuple(q), rr, CLEAR, .06, None, fill=D_SHADE if r.random() < .75 else D_DEEP)
     fr.layer = f'dust_{side}_tail'
     r = random.Random(int(sum(l[0] for l in lobes)))
     for x, y, s, w, _ in lobes:                             # 흩어지는 줄무늬 꼬리: 휘며 가늘어지는 곡선
@@ -536,41 +542,161 @@ def chunk(c, s, rot):
 
 
 # ----------------------------------------------------------------------------- impact frames (21–32f)
+GRAPHITE = (36, 35, 33)
+
+
+def pencil(fr, p0, p1, w, rgb, alpha, r):
+    """4B 연필 획: 한 획을 2~3가닥(살짝 어긋나고 길이·진하기 다름)으로. 끝은 가늘게."""
+    dx, dy = p1[0] - p0[0], p1[1] - p0[1]
+    L = math.hypot(dx, dy) or 1
+    nx, ny = -dy / L, dx / L
+    for j in range(r.choice((2, 2, 3))):
+        o = r.uniform(-w * .5, w * .5)
+        t0, t1 = r.uniform(0, .08), r.uniform(.75, 1.0)
+        a = (p0[0] + dx * t0 + nx * o, p0[1] + dy * t0 + ny * o)
+        m = (p0[0] + dx * (t0 + t1) / 2 + nx * o * 1.2 + r.uniform(-1.5, 1.5), p0[1] + dy * (t0 + t1) / 2 + ny * o * 1.2 + r.uniform(-1.5, 1.5))
+        b = (p0[0] + dx * t1 + nx * o * .6, p0[1] + dy * t1 + ny * o * .6)
+        al = int(alpha * r.uniform(.55, 1.0))
+        fr.line(a, m, argb(*rgb, al), max(w / 9 * r.uniform(.5, 1.0), .08))
+        fr.line(m, b, argb(*rgb, al), max(w / 20 * r.uniform(.5, 1.0), .06))
+
+
+def pencil_rays(fr, c, r0, r1, n, w, rgb, alpha, seed, inward=False, spread=(0, 2 * math.pi), sy=1.0):
+    r = random.Random(seed)
+    for _ in range(n):
+        a = r.uniform(*spread)
+        a0, a1 = r0 * r.uniform(.8, 1.3), r1 * r.uniform(.4, 1.1)
+        p0 = (c[0] + a0 * math.cos(a), c[1] + a0 * math.sin(a) * sy)
+        p1 = (c[0] + a1 * math.cos(a), c[1] + a1 * math.sin(a) * sy)
+        if inward:
+            p0, p1 = p1, p0
+        pencil(fr, p0, p1, w * r.uniform(.4, 1.0), rgb, alpha, r)
+
+
+def hatch_poly(fr, poly, ang, gap, w, rgb, alpha, seed):
+    """다각형 안을 연필 사선으로 채움(경계를 넘는 획 끝도 조금 남겨 거칠게)."""
+    r = random.Random(seed)
+    ca, sa = math.cos(ang), math.sin(ang)
+    rot = [(x * ca + y * sa, -x * sa + y * ca) for x, y in poly]
+    vmin, vmax = min(q[1] for q in rot), max(q[1] for q in rot)
+    v = vmin + gap * r.uniform(.2, 1)
+    while v < vmax:
+        xs = []
+        for (ux, uy), (wx, wy) in zip(rot, rot[1:] + rot[:1]):
+            if (uy > v) != (wy > v):
+                xs.append(ux + (v - uy) * (wx - ux) / (wy - uy))
+        xs.sort()
+        for i in range(0, len(xs) - 1, 2):
+            u0, u1 = xs[i] - r.uniform(-4, 10), xs[i + 1] + r.uniform(-4, 10)
+            p0 = (u0 * ca - v * sa, u0 * sa + v * ca)
+            p1 = (u1 * ca - v * sa, u1 * sa + v * ca)
+            pencil(fr, p0, p1, w, rgb, alpha, r)
+        v += gap * r.uniform(.6, 1.4)
+
+
+def fringe(fr, pts, c, n, L, w, rgb, alpha, seed, inward=False):
+    """경계에서 털처럼 뻗는 연필 잔털(중심에서 멀어지는 방향, inward면 안쪽)."""
+    r = random.Random(seed)
+    for _ in range(n):
+        i = r.randrange(len(pts))
+        a, b = pts[i], pts[(i + 1) % len(pts)]
+        t = r.random()
+        p = (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
+        d = (p[0] - c[0], p[1] - c[1])
+        dl = math.hypot(*d) or 1
+        u = (d[0] / dl, d[1] / dl)
+        if inward:
+            u = (-u[0], -u[1])
+        ln = L * r.uniform(.3, 1.0)
+        q = (p[0] + u[0] * ln + r.uniform(-.15, .15) * ln, p[1] + u[1] * ln + r.uniform(-.15, .15) * ln)
+        pencil(fr, p, q, w * r.uniform(.4, 1), rgb, alpha, r)
+
+
+def glow_line(fr, a, b, th, gr, gt, rgb=(255, 255, 255), ga=255):
+    col = argb(*rgb)
+    fr.line(a, b, col, th, (gr, gt, argb(*rgb), ga))
+
+
+def flare(fr, c, L, z, seed):
+    """빛나는 십자 플레어: 긴 가로·세로 + 짧은 사선, 모두 글로우."""
+    r = random.Random(seed)
+    for ang, ln, th in ((0, L, .5), (math.pi / 2, L * .7, .45), (math.pi / 4, L * .3, .3), (-math.pi / 4, L * .3, .3)):
+        u = (math.cos(ang), math.sin(ang))
+        for sg in (-1, 1):
+            glow_line(fr, c, (c[0] + sg * u[0] * ln * r.uniform(.8, 1.1), c[1] + sg * u[1] * ln * r.uniform(.8, 1.1)), th, 18 * z, 24, (255, 252, 240), 230)
+    fr.circle(c, 26 * z, argb(255, 255, 255), .3, (40 * z, 70, argb(255, 250, 235), 255), fill=argb(255, 255, 255))
+
+
+def jag_pts(c, R, seed, sx=1.25, sy=.85, n=40):
+    r = random.Random(seed)
+    pts = []
+    for i in range(n):
+        a = 2 * math.pi * i / n
+        k_ = 1 + (r.uniform(.12, .32) * (2.4 if r.random() < .12 else 1) if i % 2 == 0 else -r.uniform(0, .08))
+        pts.append((c[0] + R * k_ * sx * math.cos(a), c[1] + R * k_ * sy * math.sin(a)))
+    return pts
+
+
 def impact(fr, cam, k, sub):
-    """k: 0..5 = IF1..IF6, sub: 같은 그림의 2번째 프레임(획이 살짝 달라짐)."""
+    """나카무라식 임팩트(87편·후보 611장 참고): 흑백 2톤이지만 검정은 4B 연필 획이 겹친 결(회색 결이 비침),
+    경계는 털처럼 갈라지는 잔털, 흰 쪽은 글로우로 빛이 번짐(블룸)·십자 플레어·빛나는 가는 광선.
+    k: 0..5 = IF1..IF6, sub: 같은 그림의 2번째 프레임(획이 다시 그려져 끓음)."""
     c = cam(0, 0, 1.2)
     z = cam.sc / 168
-    sd = 40 + k * 10 + sub
-    fr.layer = 'imp_bg'
+    sd = 40 + k * 10 + sub * 997
     full = [(-80, -80), (W + 80, -80), (W + 80, H + 80), (-80, H + 80)]
     dark_bg = k in (0, 2, 3)
-    alpha = {0: 235, 1: 255, 2: 255, 3: 245, 4: 255, 5: 250}[k]
-    fr.poly(full, argb(*(K if dark_bg else Wt), alpha))   # 반전 면: 이 프레임에서만 알파를 켬
-    fr.layer = 'imp_fg'
+    fr.layer = 'imp_bg'
+    fr.poly(full, argb(*(GRAPHITE if dark_bg else Wt), {0: 238, 1: 255, 2: 250, 3: 245, 4: 255, 5: 252}[k]))
     WH, BK = argb(*Wt), argb(*K)
     top = [cam(-1, -1, 2), cam(1, -1, 2), cam(1, 1, 2), cam(-1, 1, 2)]
     right = [cam(1, -1, 2), cam(1, 1, 2), cam(1, 1, 0), cam(1, -1, 0)]
     front = [cam(-1, 1, 2), cam(1, 1, 2), cam(1, 1, 0), cam(-1, 1, 0)]
-    if k == 0:                                             # IF1 흑·집중선
-        rays(fr, c, 300 * z, 1500, 300, WH, 16, sd)
-        fr.poly(top, WH, WH, .5)
-        fr.poly(right, BK, WH, .6)
-        fr.poly(front, BK, WH, .6)
-    elif k == 1:                                           # IF2 반전·윗면 방사
-        rays(fr, c, 470 * z, 1500, 170, BK, 26, sd)
+    if dark_bg:                                            # 어두운 화면 자체가 연필로 칠한 결 + 종이 결처럼 비치는 밝은 긁힘
+        fr.layer = 'imp_bgtex'
+        pencil_rays(fr, c, 120 * z, 1500, 420, 9, K, 235, sd + 1)
+        pencil_rays(fr, c, 160 * z, 1500, 110, 4, (120, 117, 110), 110, sd + 11)
+    if k == 0:                                             # IF1 흑·집중선 + 빛나는 윗면
+        fr.layer = 'imp_fg'
+        fr.poly(top, WH)
+        fr.poly(right, BK)
+        fr.poly(front, BK)
+        fr.layer = 'imp_tex'
+        for f, ang in ((right, 1.2), (front, 2.0)):
+            hatch_poly(fr, f, ang, 7 * z, 6, (70, 68, 64), 150, sd + 3)
+        fringe(fr, right + front, c, 90, 70 * z, 7, K, 230, sd + 4)
+        fr.layer = 'imp_glow'
+        for a_, b_ in zip(top, top[1:] + top[:1]):
+            glow_line(fr, a_, b_, .5, 22 * z, 40)
+        r = random.Random(sd)
+        for _ in range(70):                                 # 빛나는 가는 광선
+            a = r.uniform(0, 2 * math.pi)
+            p0 = (c[0] + 180 * z * math.cos(a), c[1] + 150 * z * math.sin(a))
+            p1 = (c[0] + r.uniform(500, 1500) * math.cos(a), c[1] + r.uniform(500, 1500) * math.sin(a))
+            glow_line(fr, p0, p1, r.uniform(.12, .4), r.uniform(4, 10), 10, (255, 253, 245), r.randint(150, 230))
+        flare(fr, tuple(np.mean(top, 0)), 520 * z, z, sd + 5)
+    elif k == 1:                                           # IF2 반전: 흰 화면 + 검은 큐브, 큐브에서 연필 털 폭발
+        fr.layer = 'imp_fg'
         for f in (right, front, top):
             fr.poly(f, BK)
-        fr.line(right[0], right[1], WH, .3)
+        fr.layer = 'imp_tex'
+        pencil_rays(fr, c, 300 * z, 1600, 360, 14, K, 245, sd + 1)
+        fringe(fr, right + front + top, c, 260, 160 * z, 9, K, 240, sd + 2)
+        hatch_poly(fr, top, .3, 9 * z, 5, (90, 88, 84), 120, sd + 3)
+        fr.layer = 'imp_glow'
         tc = tuple(np.mean(top, 0))
         r = random.Random(sd)
-        for _ in range(60):                                # 윗면 안에만: 면 경계까지의 거리로 길이 제한
+        for _ in range(26):
             a = r.uniform(0, 2 * math.pi)
             u = (math.cos(a), math.sin(a))
             dmax = _ray_to_poly(tc, u, top)
             if dmax:
-                tri(fr, (tc[0] + u[0] * 8, tc[1] + u[1] * 8), (tc[0] + u[0] * dmax * r.uniform(.6, .95), tc[1] + u[1] * dmax * r.uniform(.6, .95)), r.uniform(3, 9), WH)
-    elif k == 2:                                           # IF3 십자 분할(원근 방향)
+                glow_line(fr, tc, (tc[0] + u[0] * dmax * r.uniform(.6, .95), tc[1] + u[1] * dmax * r.uniform(.6, .95)), r.uniform(.2, .5), 8 * z, 16)
+        flare(fr, tc, 260 * z, z, sd + 4)
+    elif k == 2:                                           # IF3 십자 분할: 빛줄기(글로우) + 연필로 칠한 검은 4덩어리
         r = random.Random(sd)
+        fr.layer = 'imp_fg'
+        arms = []
         for ax in ((1, 0), (0, 1)):
             for sg in (-1, 1):
                 q = cam(sg * 9 * ax[0], sg * 9 * ax[1], 1.2)
@@ -578,52 +704,96 @@ def impact(fr, cam, k, sub):
                 L = math.hypot(dx, dy)
                 ux, uy = dx / L, dy / L
                 nx, ny = -uy, ux
-                g0, g1 = 90 * z, 34 * z
+                g0, g1 = 90 * z, 30 * z
                 far = (c[0] + ux * 2600, c[1] + uy * 2600)
-                fr.poly([(c[0] + nx * g0, c[1] + ny * g0), (far[0] + nx * g1, far[1] + ny * g1),
-                         (far[0] - nx * g1, far[1] - ny * g1), (c[0] - nx * g0, c[1] - ny * g0)], WH)
-                for s in np.linspace(.04, 1, 36):
-                    g = g0 + (g1 - g0) * s
-                    for sdn in (-1, 1):
-                        b = (c[0] + ux * 1800 * s + nx * sdn * g * .8, c[1] + uy * 1800 * s + ny * sdn * g * .8)
-                        ln = r.uniform(16, 80) * (1.2 - s)
-                        tri(fr, b, (b[0] + nx * sdn * ln + ux * ln * .6, b[1] + ny * sdn * ln + uy * ln * .6), r.uniform(6, 16), WH)
-        rays(fr, c, 100 * z, 700, 90, WH, 10, sd + 1)
-        jag_core(fr, c, 110 * z, WH, sd, 1.2, .9, 40)
-    elif k == 3:                                           # IF4 톱니 폭발
-        jag_core(fr, c, 380 * z, WH, sd, 1.25, .85, 90)
-        rays(fr, c, 420 * z, 1300, 260, WH, 14, sd + 1)
-        rays(fr, c, 110 * z, 420 * z, 150, BK, 10, sd + 2, inward=True)
+                arm = [(c[0] + nx * g0, c[1] + ny * g0), (far[0] + nx * g1, far[1] + ny * g1),
+                       (far[0] - nx * g1, far[1] - ny * g1), (c[0] - nx * g0, c[1] - ny * g0)]
+                fr.poly(arm, WH)
+                arms.append((arm, ux, uy, nx, ny))
+        fr.layer = 'imp_tex'
+        for arm, ux, uy, nx, ny in arms:                   # 빛에 먹힌 가장자리 = 안쪽으로 파고드는 검은 연필 털
+            for side in (0, 3):
+                a_, b_ = arm[side], arm[side + 1] if side == 0 else arm[2]
+                fringe(fr, [a_, b_], c, 70, 60 * z, 8, K, 235, sd + side + int(ux * 10), inward=False)
+        fr.layer = 'imp_glow'
+        for arm, ux, uy, nx, ny in arms:
+            glow_line(fr, c, (c[0] + ux * 1800, c[1] + uy * 1800), .9, 40 * z, 90, (255, 252, 240), 200)
+        flare(fr, c, 700 * z, z, sd + 6)
+    elif k == 3:                                           # IF4 톱니 폭발: 블룸 + 연필 결
+        rim = jag_pts(c, 380 * z, sd)
+        fr.layer = 'imp_fg'
+        fr.poly(rim, WH)
+        fr.layer = 'imp_tex'
+        pencil_rays(fr, c, 110 * z, 420 * z, 160, 8, K, 210, sd + 2, inward=True)
+        fringe(fr, rim, c, 220, 140 * z, 9, K, 235, sd + 3)
         r = random.Random(sd + 3)
         for _ in range(10):
-            a, rr, s = r.uniform(0, 6.3), r.uniform(120, 380) * z, r.uniform(22, 54) * z
-            fr.poly(chunk((c[0] + rr * math.cos(a) * 1.2, c[1] + rr * math.sin(a) * .8), s, a), BK)
-    elif k == 4:                                           # IF5 쐐기 가시
+            a, rr, s_ = r.uniform(0, 6.3), r.uniform(120, 380) * z, r.uniform(22, 54) * z
+            ch = chunk((c[0] + rr * math.cos(a) * 1.2, c[1] + rr * math.sin(a) * .8), s_, a)
+            fr.poly(ch, BK)
+            fringe(fr, ch, (c[0], c[1]), 8, s_ * 1.6, 6, K, 220, sd + int(rr), inward=True)
+        fr.layer = 'imp_glow'
+        for a_, b_ in zip(rim, rim[1:] + rim[:1]):          # 테두리 블룸
+            glow_line(fr, a_, b_, .4, 34 * z, 60, (255, 250, 236), 220)
+        r = random.Random(sd + 9)
+        for _ in range(80):
+            a = r.uniform(0, 2 * math.pi)
+            p0 = (c[0] + 400 * z * 1.25 * math.cos(a), c[1] + 400 * z * .85 * math.sin(a))
+            p1 = (c[0] + r.uniform(700, 1600) * math.cos(a), c[1] + r.uniform(700, 1600) * math.sin(a))
+            glow_line(fr, p0, p1, r.uniform(.12, .45), r.uniform(5, 12), 12, (255, 252, 240), r.randint(150, 230))
+        flare(fr, c, 600 * z, z, sd + 7)
+    elif k == 4:                                           # IF5 쐐기 가시: 연필로 칠한 검은 쐐기 + 빛나는 중심
         r = random.Random(sd)
+        wedges = []
+        fr.layer = 'imp_fg'
         for i in range(16):
             a = 2 * math.pi * i / 16 + r.uniform(-.12, .12)
             wd, r0 = r.uniform(.06, .16), r.uniform(180, 320) * z
-            fr.poly([(c[0] + r0 * math.cos(a), c[1] + r0 * .8 * math.sin(a)),
-                     (c[0] + 2400 * math.cos(a - wd), c[1] + 2400 * math.sin(a - wd)),
-                     (c[0] + 2400 * math.cos(a + wd), c[1] + 2400 * math.sin(a + wd))], BK)
-        rays(fr, c, 80 * z, 320 * z, 70, BK, 8, sd + 1, inward=True)
+            wg = [(c[0] + r0 * math.cos(a), c[1] + r0 * .8 * math.sin(a)),
+                  (c[0] + 2400 * math.cos(a - wd), c[1] + 2400 * math.sin(a - wd)),
+                  (c[0] + 2400 * math.cos(a + wd), c[1] + 2400 * math.sin(a + wd))]
+            fr.poly(wg, BK)
+            wedges.append((wg, a))
+        fr.layer = 'imp_tex'
+        for wg, a in wedges:
+            hatch_poly(fr, wg, a, 10, 7, (84, 82, 78), 140, sd + int(a * 100))
+            fringe(fr, wg[1:] + wg[:1], c, 40, 50 * z, 8, K, 230, sd + int(a * 50))
+        pencil_rays(fr, c, 80 * z, 320 * z, 90, 7, K, 200, sd + 1, inward=True)
         for _ in range(12):
-            a, rr, s = r.uniform(0, 6.3), r.uniform(150, 520) * z, r.uniform(24, 64) * z
+            a, rr, s_ = r.uniform(0, 6.3), r.uniform(150, 520) * z, r.uniform(24, 64) * z
             p = (c[0] + rr * math.cos(a), c[1] + rr * .8 * math.sin(a))
-            fr.poly(chunk(p, s, a), BK, WH, .25)
-            tri(fr, p, (p[0] - (p[0] - c[0]) * .5, p[1] - (p[1] - c[1]) * .5), s * 1.4, BK)
-    else:                                                  # IF6 먹 얼룩 먼지
+            fr.poly(chunk(p, s_, a), BK)
+            pencil_rays(fr, p, s_ * .3, s_ * 2.2, 10, 10, K, 220, sd + int(rr), spread=(a + math.pi - .35, a + math.pi + .35))
+        fr.layer = 'imp_glow'
+        flare(fr, c, 760 * z, z, sd + 8)
+    else:                                                  # IF6 먹 얼룩 먼지: 곡선 덩어리 + 연필 털 + 빛나는 흰 중심
         r = random.Random(sd)
-        for i in range(22):
-            a = 2 * math.pi * i / 22 + r.uniform(-.1, .1)
-            rr, s = r.uniform(300, 520) * z, r.uniform(100, 190) * z
+        fr.layer = 'imp_fg'
+        blobs = []
+        for i in range(14):
+            a = 2 * math.pi * i / 14 + r.uniform(-.1, .1)
+            rr, s_ = r.uniform(330, 520) * z, r.uniform(120, 200) * z
             p = (c[0] + rr * math.cos(a) * 1.25, c[1] + rr * .7 * math.sin(a))
-            fr.circle(p, s, CLEAR, .06, None, fill=BK)
-            rays(fr, p, s * .7, s * 1.9, 12, BK, 12, sd + 10 + i, spread=(a - 1.0, a + 1.0))
-        jag_core(fr, c, 240 * z, WH, sd + 2, 1.3, .8, 60)
+            P = np.array([(p[0] + s_ * math.cos(t), p[1] + s_ * .8 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)])
+            bul = cloud_bulges(P, sd + i, s_ / 160)
+            ring = _ring(bul)
+            fr.cpoly(ring, BK)
+            blobs.append((p, [tuple(b['P']) for b in bul]))
+        rim = jag_pts(c, 240 * z, sd + 2, 1.3, .8)
+        fr.poly(rim, WH)
+        fr.layer = 'imp_tex'
+        for p, peaks in blobs:
+            fringe(fr, peaks, c, 26, 120 * z, 10, K, 235, sd + int(p[0]))
+            pencil_rays(fr, p, 10, 140 * z, 12, 6, (96, 94, 90), 150, sd + int(p[1]))
+        fr.layer = 'imp_glow'
+        for a_, b_ in zip(rim, rim[1:] + rim[:1]):
+            glow_line(fr, a_, b_, .4, 30 * z, 55, (255, 250, 236), 220)
         for _ in range(8):
-            a, rr, s = r.uniform(0, 6.3), r.uniform(340, 600) * z, r.uniform(28, 60) * z
-            fr.poly(chunk((c[0] + rr * math.cos(a) * 1.25, c[1] + rr * .7 * math.sin(a)), s, a), CLEAR, WH, .45)
+            a, rr, s_ = r.uniform(0, 6.3), r.uniform(340, 600) * z, r.uniform(28, 60) * z
+            ch = chunk((c[0] + rr * math.cos(a) * 1.25, c[1] + rr * .7 * math.sin(a)), s_, a)
+            for a_, b_ in zip(ch, ch[1:] + ch[:1]):
+                glow_line(fr, a_, b_, .45, 10 * z, 18)
+        flare(fr, c, 480 * z, z, sd + 9)
 
 
 def _ray_to_poly(o, u, poly):
@@ -642,7 +812,7 @@ def _ray_to_poly(o, u, poly):
 
 # ----------------------------------------------------------------------------- explosion (33–44f)
 def blast(fr, cam, t):
-    s = (t - T_BOOM) / 11
+    s = (t - T_BOOM) / 7
     if not 0 <= s <= 1:
         return
     c = cam(0, 0, 1.4)
@@ -666,10 +836,10 @@ def blast(fr, cam, t):
 
 # ----------------------------------------------------------------------------- wind (67–104f)
 def wind(fr, cam, t):
-    if not 66 <= t < 106:
+    if not 54 <= t < 86:
         return
     fr.layer = 'fx'
-    s = (t - 66) / 40
+    s = (t - 54) / 32
     for band, (y0, amp, w) in enumerate(((H * .80, 14, .9), (H * .30, 20, .6), (H * .55, 10, .45))):
         head = -300 + (W + 700) * ease_out(s + band * .08)
         tail = head - 900
@@ -684,11 +854,11 @@ def wind(fr, cam, t):
 
 
 def pebbles(fr, cam, t):
-    if t < 40:
+    if t < 36:
         return
     fr.layer = 'ground'
     r = random.Random(6)
-    n = min(70, int((t - 40) * 2.5))
+    n = min(70, int((t - 36) * 5))
     for i in range(n):
         a, rr = r.uniform(0, 2 * math.pi), r.uniform(1.6, 6.5)
         p = cam(rr * math.cos(a), rr * math.sin(a), 0)
@@ -710,8 +880,8 @@ def build_frame(t):
     pebbles(fr, cam, t)
     blast(fr, cam, t)
     back, front = dust_lobes_at(t, cam)
-    draw_dust(fr, back, 'b')
-    draw_dust(fr, front, 'f')
+    draw_dust(fr, back, 'b', t, cam(0, 0, 1))
+    draw_dust(fr, front, 'f', t, cam(0, 0, 1))
     fr.layer = 'debris'
     for rock, size, path in DEBRIS:
         p, rot, tilt = path[t - T_BOOM]
