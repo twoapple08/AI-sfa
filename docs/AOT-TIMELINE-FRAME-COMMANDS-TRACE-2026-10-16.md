@@ -6,7 +6,8 @@
 
 ## 실제 UI 입구
 
-build의 Orientation callback(0x5abc34)은 두 분기 모두 SequenceActionLandLayout을 만들면서 아래 callback을 전달한다(0x5abea4–0x5abf58,0x5ac090–0x5ac144). callback 역할은 이름 나열 순서가 아니라 closure의 실제 인수·호출과 바깥 조건으로 확인했다.
+- build의 Orientation callback(0x5abc34)은 두 분기 모두 SequenceActionLandLayout을 만들면서 아래 callback을 전달한다(0x5abea4–0x5abf58,0x5ac090–0x5ac144).
+- callback 역할은 이름 나열 순서가 아니라 closure의 실제 인수·호출과 바깥 조건으로 확인했다.
 
 | 명령 | 실제 연결 |
 |---|---|
@@ -49,7 +50,8 @@ build의 Orientation callback(0x5abc34)은 두 분기 모두 SequenceActionLandL
 
 ### 복사 helper의 분기와 ID map
 
-MakeCopyForSequenceAtPosition(0x34ea78)은 `_inOneTransaction` closure에서 새 frame을 만들고 새 frame scope의 `_copyFrameContents`를 호출한다. source.Frame.sequence ID와 대상 sequence가 같은지를 bool로 전달한다(0x36f930–0x36f96c). ‘같은 sequence 붙여넣기’와 ‘다른 sequence 붙여넣기’를 같은 ID 정책으로 단정하지 않는다.
+- MakeCopyForSequenceAtPosition(0x34ea78)은 `_inOneTransaction` closure에서 새 frame을 만들고 새 frame scope의 `_copyFrameContents`를 호출한다.
+- source.Frame.sequence ID와 대상 sequence가 같은지를 bool로 전달한다(0x36f930–0x36f96c). ‘같은 sequence 붙여넣기’와 ‘다른 sequence 붙여넣기’를 같은 ID 정책으로 단정하지 않는다.
 
 - `_copyFrameContents`(0x3686b0)는 저장된 source.ID>0이고 필요한 목록이 비었으면 AO/layer/fill을 보충한다.
 - 대상 sequence의 기존 layer 구조가 있으면 그것을, 없으면 source layer를 사용해 새 Layer 목록을 만든다.
@@ -62,9 +64,14 @@ AO 복사에는 다음 세 갈래가 있다.
 - 같은 sequence의 나머지 경우: `CopyAnimationObject`.
 - 다른 sequence: `CopyAnimationObjectToSequence`; 이 helper에는 새 AO ID 할당 경로가 있다.
 
-빠른 unstored helper는 새 점 ID를 순차 공급받고 Index/x/y/Flags를 복사하며, 새 점→원래 점과 원래 점 ID→새 ID map을 만든다. AO ID/TypeId/ARGB/LayerId/DrawOrder를 복사하고, 정상 유한 배율에서 thickness/object scale은 양수일 때 유지하고 그 외 1을 사용하며 glow 값도 복사한다(0x36d6d8–0x36d7e4,0x36d870–0x36d8dc). NaN/비정상 값의 전체 정책으로 확대하지 않는다.
+- 빠른 unstored helper는 새 점 ID를 순차 공급받고 Index/x/y/Flags를 복사하며, 새 점→원래 점과 원래 점 ID→새 ID map을 만든다.
+- AO ID/TypeId/ARGB/LayerId/DrawOrder를 복사하고, 정상 유한 배율에서 thickness/object scale은 양수일 때 유지하고 그 외 1을 사용하며 glow 값도 복사한다(0x36d6d8–0x36d7e4,0x36d870–0x36d8dc).
+- NaN/비정상 값의 전체 정책으로 확대하지 않는다.
 
-상위 helper는 원 AO ID→새 AO ID map도 만들고, 원 점의 outgoing 연결 중 새 ID map에 대응이 있는 대상만 새 AnchorConnection으로 붙인다(0x368d60/0x368d64,0x368f68–0x36912c). 맵 밖 연결을 기존 점 ID로 그대로 가져오는 것으로 구현하면 다르다. 이후 각 점의 group Flags는 기존 RemapGroupChildFlags에 원점 map/새 ID map을 전달해 재작성한다(0x369778/0x36ee80/0x36ee88). 그 내부 legacy/범위 규칙은 GROUP-REPAIR 근거를 재사용한다.
+- 상위 helper는 원 AO ID→새 AO ID map도 만들고, 원 점의 outgoing 연결 중 새 ID map에 대응이 있는 대상만 새 AnchorConnection으로 붙인다(0x368d60/0x368d64,0x368f68–0x36912c).
+- 맵 밖 연결을 기존 점 ID로 그대로 가져오는 것으로 구현하면 다르다.
+- 이후 각 점의 group Flags는 기존 RemapGroupChildFlags에 원점 map/새 ID map을 전달해 재작성한다(0x369778/0x36ee80/0x36ee88).
+- 그 내부 legacy/범위 규칙은 GROUP-REPAIR 근거를 재사용한다.
 
 - 같은 sequence의 DB AO LayerId/DrawOrder가 대상 layer에 유효하면 그 값을 사용한다.
 - 그렇지 않으면 복사된 AO의 유효 layer를 유지하고, 필요 시 활성 layer로 fallback한다.
@@ -116,4 +123,5 @@ AO 복사에는 다음 세 갈래가 있다.
 
 ## 추가 근거
 
-호출 뒤 남겨 두었던 root prefix 재사용·새 root·source 재기반 시도·ID 예약 schema와 AO DB복사의 정상 분기는 [ROOT-COPY-DB-BRANCHES](AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)에서 이어 확인했다. 본문의 ‘이 호출 연결만으로 미완’과 실제 helper의 새 확인 범위를 구분한다.
+- 호출 뒤 남겨 두었던 root prefix 재사용·새 root·source 재기반 시도·ID 예약 schema와 AO DB복사의 정상 분기는 [ROOT-COPY-DB-BRANCHES](AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)에서 이어 확인했다.
+- 본문의 ‘이 호출 연결만으로 미완’과 실제 helper의 새 확인 범위를 구분한다.

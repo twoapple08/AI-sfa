@@ -33,7 +33,9 @@ AllGroupTarget.resolve(0x5f2d08)는 collectAllGroupFigures(0x5f3330)로 Frame의
 
 ## 공통 좌표 변환
 
-원래 상자 중심 C, 반폭 a, 반높이 b, 각도 θ에 대해 각 시작 점을 원래 상자의 local 좌표로 바꾼다. local의 x/y에 새 반폭/원래 반폭과 새 반높이/원래 반높이를 각각 곱한 뒤 새 상자의 toScreen으로 되돌린다(0x5ea414–0x5ea468). 최종 화면 좌표에서 DrawInformation의 offset/usable size를 역으로 적용하여 AP의 백분율 좌표를 저장한다(0x5ea4a0–0x5ea530).
+- 원래 상자 중심 C, 반폭 a, 반높이 b, 각도 θ에 대해 각 시작 점을 원래 상자의 local 좌표로 바꾼다.
+- local의 x/y에 새 반폭/원래 반폭과 새 반높이/원래 반높이를 각각 곱한 뒤 새 상자의 toScreen으로 되돌린다(0x5ea414–0x5ea468).
+- 최종 화면 좌표에서 DrawInformation의 offset/usable size를 역으로 적용하여 AP의 백분율 좌표를 저장한다(0x5ea4a0–0x5ea530).
 
 따라서 수치의 8 최소 크기는 변형 상자의 화면 좌표 단위이며 출력 MP4의 물리 픽셀 8이나 SFA 좌표 8과 같다고 볼 수 없다. 음수·화면 밖 AP 좌표를 지우는 clamp는 이 저장 구간에 없다.
 
@@ -94,7 +96,9 @@ _BoxTurnSettling.settle(0x5eacc4)은 _applyRotationSnapAssist(0x5ead48)에 기�
 
 ## 레이어 표시 UI의 별도 연결
 
-레이어 항목 callback(0x5b6ec4)은 is_visible을 반전하여 setState에서 현재 상태를 바꾸고 _syncLayerStateToAllFrames를 호출한다. 활성 레이어를 숨기면 _activateNearestVisibleLayer로 간다(0x5b6fac). DB UpdateLayerAttributesGlobal은 같은 sequence의 해당 layer_index에 visible과 locked를 함께 기록한다(0x5b8020–0x5b802c).
+- 레이어 항목 callback(0x5b6ec4)은 is_visible을 반전하여 setState에서 현재 상태를 바꾸고 _syncLayerStateToAllFrames를 호출한다.
+- 활성 레이어를 숨기면 _activateNearestVisibleLayer로 간다(0x5b6fac).
+- DB UpdateLayerAttributesGlobal은 같은 sequence의 해당 layer_index에 visible과 locked를 함께 기록한다(0x5b8020–0x5b802c).
 
 - 이는 표시 토글의 실제 호출과 잠금 값의 전달/올그룹 제외 규칙을 확인한 것이다.
 - 별도의 잠금 토글 UI를 찾았다고 쓰지 않는다.

@@ -6,7 +6,10 @@
 
 ## 1. record가 만드는 세 가지 역참조
 
-_FrameRecord 생성자(0x4291b4)는 먼저 BuildDrawPlan을 만들고, 현재 AO/FR의 목록 위치를 알아내는 두 HashMap.identity를 만든다(0x42a254–0x42a314). 숫자 ID를 객체 identity와 혼동하지 않는다. 별도로 **AO.ID→같은 ID를 가진 AO 목록 위치들의 List<int>**를 만든다(0x42a4cc–0x42a55c). 이 부분은 같은 ID에 마지막 객체 하나만 남기는 map이 아니다.
+- _FrameRecord 생성자(0x4291b4)는 먼저 BuildDrawPlan을 만들고, 현재 AO/FR의 목록 위치를 알아내는 두 HashMap.identity를 만든다(0x42a254–0x42a314).
+- 숫자 ID를 객체 identity와 혼동하지 않는다.
+- 별도로 **AO.ID→같은 ID를 가진 AO 목록 위치들의 List<int>**를 만든다(0x42a4cc–0x42a55c).
+- 이 부분은 같은 ID에 마지막 객체 하나만 남기는 map이 아니다.
 
 생성자는 plan의 모든 FrameDrawUnit을 순회한다. 앞 보고서의 unit.field_b=null이면 그룹 glow-only unit, 객체가 있으면 그 객체의 fill/본체 unit이라는 정의와 연결된다.
 
@@ -23,11 +26,17 @@ _FrameRecord 생성자(0x4291b4)는 먼저 BuildDrawPlan을 만들고, 현재 AO
 
 ## 2. 구멍도 fill 의존성에 들어간다
 
-객체 unit에 들어 있는 각 FR의 field_17 **전체 segment 목록**을 순회한다(0x42a9a4–0x42aa10). 각 segment.field_b=ObjId를 앞의 AO.ID→목록 위치들 map에서 찾아, 해당 AO 위치마다 현재 fill unit index를 Set에 추가한다(0x42aa10–0x42ab44). segment의 contourIndex가 0인지 검사해 hole을 제외하는 분기는 이 loop에 없다.
+- 객체 unit에 들어 있는 각 FR의 field_17 **전체 segment 목록**을 순회한다(0x42a9a4–0x42aa10).
+- 각 segment.field_b=ObjId를 앞의 AO.ID→목록 위치들 map에서 찾아, 해당 AO 위치마다 현재 fill unit index를 Set에 추가한다(0x42aa10–0x42ab44).
+- segment의 contourIndex가 0인지 검사해 hole을 제외하는 분기는 이 loop에 없다.
 
-field_17이 전체 경계 목록이라는 점은 _storedFillContours(0x367de4)가 같은 목록을 읽고 segment.field_33=contourIndex로 나누는 것과 연결했다(0x367e1c/0x367e64). 따라서 outer와 hole 모두 같은 FR을 그리는 unit에 의존한다. hole 전용의 별도 draw unit을 새로 만드는 방식은 아니다.
+- field_17이 전체 경계 목록이라는 점은 _storedFillContours(0x367de4)가 같은 목록을 읽고 segment.field_33=contourIndex로 나누는 것과 연결했다(0x367e1c/0x367e64).
+- 따라서 outer와 hole 모두 같은 FR을 그리는 unit에 의존한다.
+- hole 전용의 별도 draw unit을 새로 만드는 방식은 아니다.
 
-동일한 AO가 한 FR에서 여러 segment로 참조되거나, 여러 FR이 같은 객체 unit에 포함되면 Set이 unit index 중복을 제거한다. 만들어진 AO위치→Set을 forEach로 순회해 Int64List로 복사하고 _followers 배열에 넣는다(0x42abb4/0x42abe8,closure0x42d7e0). 저장 순서를 임의 정렬이라고 부르지 않는다.
+- 동일한 AO가 한 FR에서 여러 segment로 참조되거나, 여러 FR이 같은 객체 unit에 포함되면 Set이 unit index 중복을 제거한다.
+- 만들어진 AO위치→Set을 forEach로 순회해 Int64List로 복사하고 _followers 배열에 넣는다(0x42abb4/0x42abe8,closure0x42d7e0).
+- 저장 순서를 임의 정렬이라고 부르지 않는다.
 
 - 이 연결은 **그 FR이 현재 plan의 unit에 배정되어 있을 때**의 규칙이다.
 - 존재하지 않는 ObjId는 조회된 AO 위치가 없어 연결되지 않는다.
@@ -61,9 +70,14 @@ FR 색은 별도 loop에서 field_f와 저장된 색 snapshot을 비교한다. �
 
 ## 4. 그룹 Flags와 구조 재생성
 
-AnchorPoint.GetXml의 Flags는 field_f다(0x5af644–0x5af650). _FrameRecord.update는 point identity·ID(field_1b)뿐 아니라 이 Flags도 보관된 값과 비교한다(0x42e10c–0x42e190). 다르면 null을 반환하는 구조 부적합 경로다. 이는 x/y/Index가 달라진 경우의 값 비교·부분 갱신과 구분된다.
+- AnchorPoint.GetXml의 Flags는 field_f다(0x5af644–0x5af650).
+- _FrameRecord.update는 point identity·ID(field_1b)뿐 아니라 이 Flags도 보관된 값과 비교한다(0x42e10c–0x42e190).
+- 다르면 null을 반환하는 구조 부적합 경로다.
+- 이는 x/y/Index가 달라진 경우의 값 비교·부분 갱신과 구분된다.
 
-실제 _handleFrameGroupTap 경로에서 Flags의 상위 그룹 참조/비트 0x10을 조합해 field_f에 저장하거나 해제하는 명령을 확인했다(0x5e61d4–0x5e61f4,해제 0x5e5a74–0x5e5a94). 따라서 그룹 조작 뒤 다음 paint의 Flags 대조가 부적합하면 기존 record/plan을 계속 쓰지 않고 CACHE-BOUNDARY의 새 _FrameRecord→BuildDrawPlan 경로로 연결된다. 직접 프레임 조작의 모든 분기를 실행시험한 것은 아니다.
+- 실제 _handleFrameGroupTap 경로에서 Flags의 상위 그룹 참조/비트 0x10을 조합해 field_f에 저장하거나 해제하는 명령을 확인했다(0x5e61d4–0x5e61f4,해제 0x5e5a74–0x5e5a94).
+- 따라서 그룹 조작 뒤 다음 paint의 Flags 대조가 부적합하면 기존 record/plan을 계속 쓰지 않고 CACHE-BOUNDARY의 새 _FrameRecord→BuildDrawPlan 경로로 연결된다.
+- 직접 프레임 조작의 모든 분기를 실행시험한 것은 아니다.
 
 FrameDrawPlanCache.fits만 보고 ‘Flags 변경이 무시된다’고 판단하면 편집기 쪽 구조 검사를 빠뜨린다. 반대로 이 EditorFrameCache guard가 존재한다고 view/export의 모든 캐시에도 동일한 guard가 있다고 가정해서는 안 된다.
 
@@ -102,7 +116,8 @@ Set이 중복을 제거하므로 자기 unit에 포함된 FR이 다시 참조되
 
 ## 7. 검증과 다음 단계
 
-새 54명령 ELF PT_LOAD/Capstone 대조 통과. 압축 pointer 비교 0x42a5e8의 symbolic `cmp w0,NULL`은 실제폭 w22로 정규화했음을 audit에 기록했다. AOT-DIRTY-PROPAGATION-AUDIT-2026-10-15.json. 이전 54/65표본과 일부 중복이 있으므로 서로 다른 명령 수로 단순 합산하지 않는다.
+- 새 54명령 ELF PT_LOAD/Capstone 대조 통과. 압축 pointer 비교 0x42a5e8의 symbolic `cmp w0,NULL`은 실제폭 w22로 정규화했음을 audit에 기록했다.
+- AOT-DIRTY-PROPAGATION-AUDIT-2026-10-15.json. 이전 54/65표본과 일부 중복이 있으므로 서로 다른 명령 수로 단순 합산하지 않는다.
 
 - 문서만 변경했다.
 - 기존 unittest/probe/영상/설치/페어링/휴대폰 시작 시험은 반복하지 않았다.

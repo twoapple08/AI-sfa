@@ -4,7 +4,10 @@
 
 ## 상세 패널의 입력 목록
 
-main의 캔버스 tap closure 0x5e4264에서 도구 값이 1 또는 6인 상세 분기는 시작 AnchorPoint와 점 ID map을 GetAllConnectedAnimationObjects(0x5d8a28)에 넘긴다(0x5e44ec). 반환 AO 목록이 ModifyFigureDialog 생성자에 전달된다(0x5e4504). 모드 6은 `_isAllGroupMode`의 Smi12 검사와 대응한다. 이 사실을 모든 도구가 같은 선택 범위를 쓴다는 뜻으로 확대하지 않는다.
+- main의 캔버스 tap closure 0x5e4264에서 도구 값이 1 또는 6인 상세 분기는 시작 AnchorPoint와 점 ID map을 GetAllConnectedAnimationObjects(0x5d8a28)에 넘긴다(0x5e44ec).
+- 반환 AO 목록이 ModifyFigureDialog 생성자에 전달된다(0x5e4504).
+- 모드 6은 `_isAllGroupMode`의 Smi12 검사와 대응한다.
+- 이 사실을 모든 도구가 같은 선택 범위를 쓴다는 뜻으로 확대하지 않는다.
 
 - 이 수집 함수는 시작 AP의 편집 helper에 AO 목록이 이미 있으면 반환한다.
 - 없으면 그룹/구조 연결 점 closure를 만든 다음 각 방문점의 소유 AO를 가져와 AO ID(field57) Set으로 중복을 제거한다.
@@ -13,7 +16,8 @@ main의 캔버스 tap closure 0x5e4264에서 도구 값이 1 또는 6인 상세 
 
 ## 점 closure의 연결
 
-CollectGroupedStructuralConnectedAnchorPoints(0x5d8cf0)는 CollectGroupClosure(0x3463b4)의 결과를 고정·변경 불가 목록으로 만든다. 함수 이름에 structural이 들어가지만 이 wrapper가 CollectStructuralConnectedAnchorPoints를 직접 호출하는 것은 아니다.
+- CollectGroupedStructuralConnectedAnchorPoints(0x5d8cf0)는 CollectGroupClosure(0x3463b4)의 결과를 고정·변경 불가 목록으로 만든다.
+- 함수 이름에 structural이 들어가지만 이 wrapper가 CollectStructuralConnectedAnchorPoints를 직접 호출하는 것은 아니다.
 
 - CollectGroupClosure는 ListQueue와 방문 AP ID Set을 사용한다.
 - 시작점을 넣고 removeFirst로 꺼내 결과에 추가한다.

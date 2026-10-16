@@ -21,7 +21,10 @@
 
 ## 2. 구멍 경로 key는 ID가 아니라 생성 명령·좌표다
 
-buildFrameFillRegionPath(0x415a84)는 _storedFillContours 결과에서 contourIndex>0이 있는지 검사한다(closure0x420b48의 gt). 있으면 double 목록을 만들고 contour0과 각 hole을 빌드하면서 경로 steps를 기록한다. 없으면 steps=null이고 원본 외곽 Path를 바로 반환한다(0x415b98–0x415bac). 이 함수의 no-hole 경로에 _HoledFillPaths를 자동 적용하지 않는다.
+- buildFrameFillRegionPath(0x415a84)는 _storedFillContours 결과에서 contourIndex>0이 있는지 검사한다(closure0x420b48의 gt).
+- 있으면 double 목록을 만들고 contour0과 각 hole을 빌드하면서 경로 steps를 기록한다.
+- 없으면 steps=null이고 원본 외곽 Path를 바로 반환한다(0x415b98–0x415bac).
+- 이 함수의 no-hole 경로에 _HoledFillPaths를 자동 적용하지 않는다.
 
 - 경로 빌더는 moveTo의 명령 구분 값과 실제 좌표를 steps에 넣는다(0x41dd54–0x41ddec). line/curve/close에도 별도 명령과 인수 기록이 있다.
 - 원형 contour도 구분 값 6과 화면 좌표를 기록하고 실제 Path를 addPath한다(0x41d7b4/0x41d950/0x41db14). 이 원형 기록은 단순 SFA 좌표만이 아니라 DrawInformation의 배율/offset과 연결된다.
@@ -31,7 +34,10 @@ buildFrameFillRegionPath(0x415a84)는 _storedFillContours 결과에서 contourIn
 - 따라서 유효한 hole들의 좌표뿐 아니라 실패 경계 표지도 key를 구성한다.
 - 모든 marker·arc 인수 순서를 복제 구현으로 전개한 것은 아니다.
 
-_StepsKey(0x416234)는 입력 double 목록을 **새 Float64 배열로 복사**한 뒤 같은 buffer를 Int64List로 본다(0x416294/0x4162b0/0x4162c8). hash는 길이에서 시작해 각 64bit word를 Object.hash로 누적한다. ==(0x7285f8)은 클래스/hash/길이를 먼저 확인한 다음 **모든 64bit word를 비교**한다(0x7286e8–0x7286fc). hash가 같다고 즉시 같은 key로 처리하지 않는다.
+- _StepsKey(0x416234)는 입력 double 목록을 **새 Float64 배열로 복사**한 뒤 같은 buffer를 Int64List로 본다(0x416294/0x4162b0/0x4162c8).
+- hash는 길이에서 시작해 각 64bit word를 Object.hash로 누적한다.
+- ==(0x7285f8)은 클래스/hash/길이를 먼저 확인한 다음 **모든 64bit word를 비교**한다(0x7286e8–0x7286fc).
+- hash가 같다고 즉시 같은 key로 처리하지 않는다.
 
 - 이 key에는 GlowRadius나 색을 단독 필드로 넣는 방식이 없다.
 - key는 이미 빌더가 만든 steps다.
@@ -66,7 +72,8 @@ resolve(0x415e70):
 
 ## 4. 그리기 계획 캐시는 구조를 확인한다
 
-FrameDrawPlanCache.planFor(0x51743c)는 Frame.field_1f의 AO 목록을 Expando key로 조회하고 _KeptDrawPlan.fits(0x517d38)가 true이면 보관된 plan을 반환한다. miss/부적합이면 BuildDrawPlan을 다시 만들고 AO 목록에 새 kept plan을 연결한다(0x517484/0x51749c/0x5174cc/0x517524).
+- FrameDrawPlanCache.planFor(0x51743c)는 Frame.field_1f의 AO 목록을 Expando key로 조회하고 _KeptDrawPlan.fits(0x517d38)가 true이면 보관된 plan을 반환한다.
+- miss/부적합이면 BuildDrawPlan을 다시 만들고 AO 목록에 새 kept plan을 연결한다(0x517484/0x51749c/0x5174cc/0x517524).
 
 - fits의 확인한 조건은 Frame identity, AO 목록 identity/길이, AO의 목록 순서별 identity·LayerId·점 수, Frame의 layer/fill 관련 목록 identity/길이, layer identity와 저장 값, fill 관련 항목 identity 등이다.
 - AO의 LayerId는 GetXml0x5af2ac로 대응했다.
@@ -82,7 +89,11 @@ FrameDrawPlanCache.planFor(0x51743c)는 Frame.field_1f의 AO 목록을 Expando k
 
 ## 5. 편집 기록에는 속성 snapshot 비교가 있다
 
-EditorFrameCache.paint(0x414738)는 _settingValues로 설정 목록을 만들고 이전 목록과 listEquals한다(0x414850). 설정이 다르면 _dropUnderlay와 새 _FrameRecord 경로로 간다. 기록이 있고 설정이 같으면 _FrameRecord.update를 시도한다(0x4148bc). 기록이 없거나 update 결과 null이면 _dropRecordings, 새 _FrameRecord로 이어진다(0x4148ec/0x414900). 새 record 생성자는 BuildDrawPlan을 직접 호출한다(0x42926c).
+- EditorFrameCache.paint(0x414738)는 _settingValues로 설정 목록을 만들고 이전 목록과 listEquals한다(0x414850).
+- 설정이 다르면 _dropUnderlay와 새 _FrameRecord 경로로 간다.
+- 기록이 있고 설정이 같으면 _FrameRecord.update를 시도한다(0x4148bc).
+- 기록이 없거나 update 결과 null이면 _dropRecordings, 새 _FrameRecord로 이어진다(0x4148ec/0x414900).
+- 새 record 생성자는 BuildDrawPlan을 직접 호출한다(0x42926c).
 
 update(0x42db0c)는 Frame·목록 구조/순서/LayerId/점 수/anchor connection 수와 값을 대조하고 부적합하면 null을 반환한다. 값 변경의 경우 _holdsValues(0x42e928)를 사용한다.
 
@@ -98,11 +109,18 @@ _addValues(0x42af24)와 _holdsValues를 연결한 AO snapshot은 다음을 포�
 - 이 snapshot은 glow 이미지 key와 달리 Color/GlowColor도 비교한다.
 - 비교는 값의 fcmp이며 Float64 bit key와 같은 방식이라고 합치지 않는다.
 
-값이 다르면 _addValues로 snapshot을 갱신하고 영향 unit 집합에 인덱스/의존 집합을 넣는 경로가 있다(0x42e394–0x42e61c). 정상값 변화가 모두 전체 record를 null로 만드는 것은 아니다. 영향 집합의 본체/glow/fill별 매핑과 그룹·구멍 의존 전파의 완전한 공급자는 아직 아래 다음 범위다.
+- 값이 다르면 _addValues로 snapshot을 갱신하고 영향 unit 집합에 인덱스/의존 집합을 넣는 경로가 있다(0x42e394–0x42e61c).
+- 정상값 변화가 모두 전체 record를 null로 만드는 것은 아니다.
+- 영향 집합의 본체/glow/fill별 매핑과 그룹·구멍 의존 전파의 완전한 공급자는 아직 아래 다음 범위다.
 
-paint는 기존 recordings와 새 영향 집합의 관계 검사에 통과하면 _drawWithRecordings로 간다. 새 기록 선택에서 변경 unit 수 D와 plan unit 수 U가 2D≤U인 조건을 검사한다(0x414a44–0x414a64). 이 조건과 drag/이전 집합 조건이 맞으면 _record에 변경 집합을 넘기고, 다른 분기에는 빈 집합을 넘겨 다시 기록한다(0x414aac/0x414b40). 따라서 ‘변경이 작으면 언제나 같은 Picture 유지’라는 무조건 규칙은 아니다.
+- paint는 기존 recordings와 새 영향 집합의 관계 검사에 통과하면 _drawWithRecordings로 간다.
+- 새 기록 선택에서 변경 unit 수 D와 plan unit 수 U가 2D≤U인 조건을 검사한다(0x414a44–0x414a64).
+- 이 조건과 drag/이전 집합 조건이 맞으면 _record에 변경 집합을 넘기고, 다른 분기에는 빈 집합을 넘겨 다시 기록한다(0x414aac/0x414b40).
+- 따라서 ‘변경이 작으면 언제나 같은 Picture 유지’라는 무조건 규칙은 아니다.
 
-_drawWithRecordings에는 Picture 재생(0x428c68)과 특정 unit을 drawUnit으로 다시 그리는 경로(0x428cd4)가 같이 있다. _dropRecordings는 참조를 null로 만들고 각 run의 native 자원을 폐기하는 경로, _dropUnderlay는 Picture.dispose 후 관련 참조를 null로 만든다(0x42d974/0x42eeac–0x42eeb8). 이 폐기를 global glow/holed-path cache 전체 초기화로 읽으면 틀린다.
+- _drawWithRecordings에는 Picture 재생(0x428c68)과 특정 unit을 drawUnit으로 다시 그리는 경로(0x428cd4)가 같이 있다.
+- _dropRecordings는 참조를 null로 만들고 각 run의 native 자원을 폐기하는 경로, _dropUnderlay는 Picture.dispose 후 관련 참조를 null로 만든다(0x42d974/0x42eeac–0x42eeb8).
+- 이 폐기를 global glow/holed-path cache 전체 초기화로 읽으면 틀린다.
 
 ## 6. 수정별 재사용 경계와 export 구분
 

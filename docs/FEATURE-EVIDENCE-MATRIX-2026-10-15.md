@@ -33,12 +33,13 @@
 | 원근 | 04 첫 표본의 사영변환 적합, 두 번째 표본의 아핀 좌표 변화/속성 배율 관찰 | 일반 8핸들·시작 snapshot·사영/쌍선형 선택·실패 fallback·좌표저장(아래 원근 보고서) | 올가미→AllGroup 및 선택 screenmap키 필터도 확인; 앞단 tap·곡선/원 최종 픽셀·실제 수치 경계 |
 | 생성·삭제·보간 | 03 동일 ID 이동/알파 중간값, 새 ID 교체 누락, FR 생성·삭제 비대칭 표본 | fill 대응·실패 fallback·점 override/삭제 표시 | root 해제·moved run/잔차·outgoing연결저장·객체/Index보간 신규확인; rebase/compaction 정상 정적 경로는 아래 추가 보고서에서 확인; 비정상 연결·임의 작품 일반화 미완 |
 | 수동 트위닝 잇기 | 05 다른 ID 두 원의 링크 후 중간 원 복구, 축소 영상에서 해당 한 장 차이 | 기존 AOT의 링크 유형/점순서/충돌 검사 근거 | 뒤 key정렬·자연 ID충돌·TypeId/동위치 Index검사 확인; UI 전체·역방향·복합 FR 실제 결과 미완 |
-| 레이어 위·아래 이동·병합·삭제·추가 | 이 표에서 실제 앱 검증 완료로 세지 않음 | UI→메모리/sequence DB 교환·cache 제거; 병합기존순서슬롯재배정/삭제기반참조·fill정리/전체 frame정의추가/history초기화 | 실제 앱 결과·DB 실패 rollback·동적 정렬 대상의 전체 해석 |
+| 레이어 위·아래 이동·병합·삭제·추가 | 이 표에서 실제 앱 검증 완료로 세지 않음 | UI→메모리/sequence DB 교환·cache 제거; 병합 기존 순서 슬롯 재배정 / 삭제 기반 참조·fill 정리 / 전체 frame 정의 추가 / history 초기화 | 실제 앱 결과·DB 실패 rollback·동적 정렬 대상의 전체 해석 |
 | 내보내기·FPS | 기존 01–05 출력의 길이/프레임수 관찰 | (T 트위닝,P 재생) timeline, Dart Picture→Java 인코더, 별도재생 Frame/Picture/Image버퍼·clock 연결 | 모든 FPS 조합·renderer backend·완전한 픽셀 동일성 |
 
 실제 표본은 [01–03 결과](PRIORITY-V2-RESULTS-2026-10-14.md), [04–05 결과](UI-04-05-RESULTS-2026-10-15.md)를 따른다. 이전 보고서 말미의 당시 ‘다음 작업’은 최신 체크포인트보다 우선하지 않는다.
 
-정적 근거는 [DRAW-GLOW](AOT-DRAW-GLOW-TRACE-2026-10-15.md), [FILL-TWEEN](AOT-FILL-TWEEN-TRACE-2026-10-15.md), [GROUP-SHADER-TIMELINE](AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md), [DIRTY-PROPAGATION](AOT-DIRTY-PROPAGATION-TRACE-2026-10-15.md), [FRAME-CACHE-SAVE](AOT-FRAME-CACHE-SAVE-TRACE-2026-10-15.md), [SAVED-VALUES](AOT-SAVED-VALUES-TRACE-2026-10-15.md), [SHARED-RESTORE](AOT-SHARED-RESTORE-TRACE-2026-10-15.md), [ROOT-FLAGS-LAYER-SWAP](AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md)에 있다. 이 목록은 기존 보고서의 대체 구현이나 새로운 증명이 아니다.
+- 정적 근거는 [DRAW-GLOW](AOT-DRAW-GLOW-TRACE-2026-10-15.md), [FILL-TWEEN](AOT-FILL-TWEEN-TRACE-2026-10-15.md), [GROUP-SHADER-TIMELINE](AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md), [DIRTY-PROPAGATION](AOT-DIRTY-PROPAGATION-TRACE-2026-10-15.md), [FRAME-CACHE-SAVE](AOT-FRAME-CACHE-SAVE-TRACE-2026-10-15.md), [SAVED-VALUES](AOT-SAVED-VALUES-TRACE-2026-10-15.md), [SHARED-RESTORE](AOT-SHARED-RESTORE-TRACE-2026-10-15.md), [ROOT-FLAGS-LAYER-SWAP](AOT-ROOT-FLAGS-LAYER-SWAP-TRACE-2026-10-15.md)에 있다.
+- 이 목록은 기존 보고서의 대체 구현이나 새로운 증명이 아니다.
 
 ## 자율 진행 체크포인트
 
@@ -83,8 +84,11 @@
 - PREVIDEO 고정 예측·File-2 보호·학습/AI 연결 보류를 유지한다.
 
 
-2026-10-16 추가: [ROOT-COPY-DB-BRANCHES](AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)에서 root prefix(절반이상) 재사용/새 root/source rebase시도/targetbase 범위·점 ID예약 schema·같은/다른 sequence AO DB복사 정상분기를 49선택명령으로 보충했다. 실제복사/실패보장·전체 UI coverage는 별개다.
+- 2026-10-16 추가: [ROOT-COPY-DB-BRANCHES](AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)에서 root prefix(절반이상) 재사용/새 root/source rebase시도/targetbase 범위·점 ID예약 schema·같은/다른 sequence AO DB복사 정상분기를 49선택명령으로 보충했다.
+- 실제복사/실패보장·전체 UI coverage는 별개다.
 
 2026-10-16 추가: [APP-V3](APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md)에서 시간축 명령 정적 결과를 SFA 관측 가능/불가로 나누고 시드·검사 도구·절차를 추가했다. 실제 앱 결과는 아직 없고 root/ID 예약/unused 정리는 내보내기로 관측 불가로 분류했다.
 
-2026-10-16 추가: [AXIS-FIX-DRAWORDER-WRITERS](AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md)(49선택명령). DrawOrder 쓰기 경로 전수 조사로 생성·복사·import·병합·undo 외 일반 AO 앞뒤 UI 경로가 나오지 않았다(부재 증명 아님). 잠금 열은 layer_def.is_locked뿐이며, 잠금형 편집 보조인 축 고정(세로/가로 배타, 일반 점 드래그만, 환경설정 미저장)과 회전 스냅 UI를 연결했다.
+- 2026-10-16 추가: [AXIS-FIX-DRAWORDER-WRITERS](AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md)(49선택명령).
+- DrawOrder 쓰기 경로 전수 조사로 생성·복사·import·병합·undo 외 일반 AO 앞뒤 UI 경로가 나오지 않았다(부재 증명 아님).
+- 잠금 열은 layer_def.is_locked뿐이며, 잠금형 편집 보조인 축 고정(세로/가로 배타, 일반 점 드래그만, 환경설정 미저장)과 회전 스냅 UI를 연결했다.

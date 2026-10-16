@@ -7,9 +7,13 @@
 
 ## 선택 대상과 범위 검사
 
-`_moveSelectedLayer`(main.dart 0x5bc818)는 현재 Frame과 레이어 목록을 얻고 현재 활성 번호와 일치하는 레이어를 탐색한다. 대상 인덱스는 Up의 true에서 +1, Down의 false에서 -1로 계산하며 범위를 벗어나면 반환한다(0x5bc8e8–0x5bc984). 이 부호를 실제 화면의 위/아래 좌표와 혼동하지 않는다.
+- `_moveSelectedLayer`(main.dart 0x5bc818)는 현재 Frame과 레이어 목록을 얻고 현재 활성 번호와 일치하는 레이어를 탐색한다.
+- 대상 인덱스는 Up의 true에서 +1, Down의 false에서 -1로 계산하며 범위를 벗어나면 반환한다(0x5bc8e8–0x5bc984).
+- 이 부호를 실제 화면의 위/아래 좌표와 혼동하지 않는다.
 
-선택 번호 A와 이웃 번호 B를 context에 넣고 swapLayers closure(0x5bd210)를 만든다. 활동이 보유한 프레임 목록을 순회해 이 closure를 호출한 뒤, 현재 Frame이 그 목록에 포함되지 않았으면 현재 Frame에도 한 번 호출한다(0x5bca48–0x5bcb84). 목록에 있다는 조건은 이 구간의 ListBase.contains 결과이며 모든 곳의 identity 계약으로 확대하지 않는다.
+- 선택 번호 A와 이웃 번호 B를 context에 넣고 swapLayers closure(0x5bd210)를 만든다.
+- 활동이 보유한 프레임 목록을 순회해 이 closure를 호출한 뒤, 현재 Frame이 그 목록에 포함되지 않았으면 현재 Frame에도 한 번 호출한다(0x5bca48–0x5bcb84).
+- 목록에 있다는 조건은 이 구간의 ListBase.contains 결과이며 모든 곳의 identity 계약으로 확대하지 않는다.
 
 ## swapLayers가 하는 일
 

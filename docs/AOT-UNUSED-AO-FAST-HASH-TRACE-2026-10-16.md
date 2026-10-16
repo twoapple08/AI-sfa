@@ -9,7 +9,10 @@
 
 `_cleanupUnusedAnimationObjects`(0x3662a4)는 입력 AO ID가 비면 반환하고, 중복 제거한 후보 C를 만든다. 후보가 아닌 모든 AO를 이 helper가 처음부터 순회해 삭제하는 구조가 아니다.
 
-먼저 후보 ID chunk별로 **frame_root의 frame이 아닌 실제 anchor_point**가 참조하는 AO ID 집합 A를 구한다(0x366328/0x3663a8/0x36645c/0x366480). 현재 삭제 중인 frame 하나로 한정한 점 조회가 아니다. 그다음 C에서 A에 없는 후보만 모아 `_figuresShownFromRoots`(0x366bc8)에 보낸다(0x3666ec–0x3667a4). 반환 집합 R을 A에 합친 뒤 C 중 그 합집합에 없는 ID만 삭제 대상으로 만든다(0x3667b0/0x366870–0x366918).
+- 먼저 후보 ID chunk별로 **frame_root의 frame이 아닌 실제 anchor_point**가 참조하는 AO ID 집합 A를 구한다(0x366328/0x3663a8/0x36645c/0x366480).
+- 현재 삭제 중인 frame 하나로 한정한 점 조회가 아니다.
+- 그다음 C에서 A에 없는 후보만 모아 `_figuresShownFromRoots`(0x366bc8)에 보낸다(0x3666ec–0x3667a4).
+- 반환 집합 R을 A에 합친 뒤 C 중 그 합집합에 없는 ID만 삭제 대상으로 만든다(0x3667b0/0x366870–0x366918).
 
 - 정상 정수 ID 입력에서 정리하면 **D = C \ (A ∪ R)**다.
 - 실제 점 하나가 다른 비 root frame에 남아 있거나, 아래 조건의 가상 기반 점 하나가 남아 있으면 이 정리의 삭제 대상에서 빠진다.
@@ -48,7 +51,8 @@ fill의 구멍/outer 처리와 공유 표현 차이는 [LAYER-MERGE-DELETE-ADD](
 - 단, 입력 AO는 `GetAnimationObjects`가 반환하는 현재 메모리 목록이다.
 - 그 getter는 목록이 null이면 빈 목록을 만들어 보관하고 반환하며 여기서 DB를 다시 읽지는 않는다(0x34eb9c–0x34ec1c). 따라서 DB가 외부에서 바뀌었다는 이유만으로 이 함수가 새 값을 자동 로드한다고 해석하면 안 된다.
 
-일반 정수·유한 좌표 입력의 주요 연산은 M=0x7fffffff, mix(h,k)=(31h+k)&M이다. 초기 h=(Frame.Position.hashCode+527)&M이며 Position은 GetPosition/Frame XML의 Position 공급과 같은 field17이다(0x34eb28/0x5ae934/0x51cb84).
+- 일반 정수·유한 좌표 입력의 주요 연산은 M=0x7fffffff, mix(h,k)=(31h+k)&M이다.
+- 초기 h=(Frame.Position.hashCode+527)&M이며 Position은 GetPosition/Frame XML의 Position 공급과 같은 field17이다(0x34eb28/0x5ae934/0x51cb84).
 
 | 순회 | 넣는 값과 순서 |
 |---|---|

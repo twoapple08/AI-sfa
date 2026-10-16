@@ -64,7 +64,8 @@
 
 ### 공유 fill과 기존 행 표현의 차이
 
-`_deleteFillRegionsReferencingAnimationObjects`(0x3309bc)는 공유 frame_fill_set와 기존 개별 region/segment 행을 모두 처리한다. 공유 set은 max_figure_id 후보 필터 뒤 `FillSetCodec.withoutFigures`(0x332598)를 호출하고, 바뀐 경우 같은 set의 hash/data를 갱신한다.
+- `_deleteFillRegionsReferencingAnimationObjects`(0x3309bc)는 공유 frame_fill_set와 기존 개별 region/segment 행을 모두 처리한다.
+- 공유 set은 max_figure_id 후보 필터 뒤 `FillSetCodec.withoutFigures`(0x332598)를 호출하고, 바뀐 경우 같은 set의 hash/data를 갱신한다.
 
 - withoutFigures는 각 stored region에서 삭제 AO를 참조한 segment들의 contourIndex를 모은다.
 - 아무것도 맞지 않으면 원래 region을 유지한다.

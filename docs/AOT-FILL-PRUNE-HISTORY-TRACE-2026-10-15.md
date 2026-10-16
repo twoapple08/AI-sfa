@@ -6,7 +6,8 @@
 
 ## 채우기를 제거하는 조건
 
-`Frame.PruneInvalidFillRegions`(0x367384)는 현재 AO를 ID map으로 만든 뒤 fill 목록을 **뒤에서 앞으로** 순회한다. 각 `FrameFillRegion.pruneInvalidContoursForObjectsById`(0x3675ec)가 null이면 해당 region을 제거하고, 반환 region이 있으면 그 항목을 대체한다.
+- `Frame.PruneInvalidFillRegions`(0x367384)는 현재 AO를 ID map으로 만든 뒤 fill 목록을 **뒤에서 앞으로** 순회한다.
+- 각 `FrameFillRegion.pruneInvalidContoursForObjectsById`(0x3675ec)가 null이면 해당 region을 제거하고, 반환 region이 있으면 그 항목을 대체한다.
 
 - region 안의 segment를 음수가 아닌 contourIndex별로 모은다.
 - 외곽 contour0이 없거나 구조 검사에 실패하면 region 전체가 null이다.

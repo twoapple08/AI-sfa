@@ -68,11 +68,12 @@ DB 로더 X2.a에서 thickness_scale과 object_scale을 서로 다른 도형 속
 
 ## 추가 정적 추적
 
-[FILL-GLOW-TWEEN-ANALYSIS-2026-10-14.md](FILL-GLOW-TWEEN-ANALYSIS-2026-10-14.md)에 공통 AO 후보 필터, 모든 경계 객체를 기준으로 한 FR 후보 필터, 경계 signature/topology 대응, 미대응 앞 FR 유지, 부분 T분할, 원본/중간 글로우 배율 차이를 기록했다. 네이티브 Contour저장누락과 Flutter shader의 존재도 확인했으므로 이 경로 전체를 Flutter출력의정답으로 확대하지 않는다.
+- [FILL-GLOW-TWEEN-ANALYSIS-2026-10-14.md](FILL-GLOW-TWEEN-ANALYSIS-2026-10-14.md)에 공통 AO 후보 필터, 모든 경계 객체를 기준으로 한 FR 후보 필터, 경계 signature/topology 대응, 미대응 앞 FR 유지, 부분 T분할, 원본/중간 글로우 배율 차이를 기록했다.
+- 네이티브 Contour저장누락과 Flutter shader의 존재도 확인했으므로 이 경로 전체를 Flutter출력의정답으로 확대하지 않는다.
 
 ## v2 합본 반환 결과
 
 - [PRIORITY-V2-RESULTS-2026-10-14.md](PRIORITY-V2-RESULTS-2026-10-14.md)에 01/02/03의왕복변화와실제 984출력프레임의측정을기록했다.
-- 지정 DrawOrder상대순서/ObjectScale2가재저장에서바뀐구간을렌더실패로세지않는다.
-- FR목록반전만으로순서가안바뀌었고,일부글로우/생성삭제/채우기유지규칙을조건부로확인했다.
+- 지정 DrawOrder 상대 순서 / ObjectScale 2가 재저장에서 바뀐 구간을 렌더 실패로 세지 않는다.
+- FR 목록 반전만으로는 순서가 안 바뀌었고, 일부 글로우 / 생성·삭제 / 채우기 유지 규칙을 조건부로 확인했다.
 - 부분곡선/TweenLink/전체합성식은미확인. 다음은 04실제 UI조작이며같은시험재출력은요청하지않는다.

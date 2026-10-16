@@ -7,9 +7,12 @@
 
 ## 1. 그룹 글로우는 객체별 누적 그리기다
 
-FrameDrawPlan.drawUnit(0x414ee8)은 unit.field_b가 null인 글로우 전용 unit이면 unit.field_7의 그룹과 plan의 Paint를 Frame._DrawCompositeObjectGlow(0x420c30)에 전달하고 반환한다(0x414f28–0x414f54). BuildDrawPlan의 그룹 unit 공급은 0x42bc34–0x42bc54다. 일반 객체 unit은 채우기와 본체 경로로 이어진다.
+- FrameDrawPlan.drawUnit(0x414ee8)은 unit.field_b가 null인 글로우 전용 unit이면 unit.field_7의 그룹과 plan의 Paint를 Frame._DrawCompositeObjectGlow(0x420c30)에 전달하고 반환한다(0x414f28–0x414f54).
+- BuildDrawPlan의 그룹 unit 공급은 0x42bc34–0x42bc54다.
+- 일반 객체 unit은 채우기와 본체 경로로 이어진다.
 
-_DrawCompositeObjectGlow는 그룹의 iterator를 만들고 반복하면서 각 AnimationObject의 색을 전달 Paint에 설정한 뒤 DrawGlowEffect를 호출한다(0x420d8c/0x420da0/0x420da8). **읽은 그룹 helper에는 그룹 전체를 이미지로 합치거나 saveLayer·단일 블러·그룹 전용 셰이더를 선택하는 단계가 없다.** Composite라는 이름을 그룹 실루엣의 합집합 블러로 해석하면 틀린다.
+- _DrawCompositeObjectGlow는 그룹의 iterator를 만들고 반복하면서 각 AnimationObject의 색을 전달 Paint에 설정한 뒤 DrawGlowEffect를 호출한다(0x420d8c/0x420da0/0x420da8).
+- **읽은 그룹 helper에는 그룹 전체를 이미지로 합치거나 saveLayer·단일 블러·그룹 전용 셰이더를 선택하는 단계가 없다.** Composite라는 이름을 그룹 실루엣의 합집합 블러로 해석하면 틀린다.
 
 따라서 기존 원본 객체 규칙을 이 호출자까지 연결할 수 있다.
 
@@ -92,7 +95,8 @@ k=1/(sqrt(2)×sigma), Gaussian 밀도 g(x)=exp(−x²/(2sigma²))/(sqrt(2π)×si
 - strips<1.5일 때 길이≈0.84882635h, 반높이≈0.92527539h의 한 사각형이다.
 - 그 이상이면 h/strips 폭으로 나누고 반원 면적 원시함수의 차분으로 strip 반높이를 계산하여 최대 8개의 band 곱을 합한다.
 
-strips<0.5이면 x=−h sin(phi) 치환을 이용한 반원 적분으로 넘어간다. integrand는 h cos(phi)×g(u+h sin(phi))×B(−h cos(phi)−v,h cos(phi)−v). 4sigma 범위로 적분 구간을 제한하고 횡방향 경계 각도에서 최대 두 구간으로 나누어, 각 구간을 8-node Gauss-Legendre로 적분한다.
+- strips<0.5이면 x=−h sin(phi) 치환을 이용한 반원 적분으로 넘어간다.
+- integrand는 h cos(phi)×g(u+h sin(phi))×B(−h cos(phi)−v,h cos(phi)−v). 4sigma 범위로 적분 구간을 제한하고 횡방향 경계 각도에서 최대 두 구간으로 나누어, 각 구간을 8-node Gauss-Legendre로 적분한다.
 
 읽은 line/curve Dart 공급자는 z=h/sigma에 대해 z≤1이면 strips1, 1<z≤4이면 min(ceil(3z),8), z>4이면 0을 전달한다(직선 0x4276d4–0x427778,곡선 0x425bb0–0x425c54). 같은 radius에서도 두께/sigma에 따라 cap 계산 방식이 바뀐다.
 
@@ -122,7 +126,11 @@ p에서 중심까지 거리 r, ring 중심선 반경 a일 때 rho 적분 범위�
 
 기호: F=원본 프레임 수, P=max(재생 FPS,1), T=요청 트위닝 FPS. 저장 FPS 순서는 계속 (트위닝,재생)이다.
 
-VideoSettingsDialog 재생 seekbar는 field_13(0x6346ec), tween seekbar는 field_1f(0x6348d0)에 저장한다. onClick은 재생값을 최소 1로, tween값을 재생값 이상으로 만든 뒤 VideoSettingsReady에 전달한다(0x628700–0x62875c). VideoSettingsReady는 task.field_1b에 재생, field_23에 tween을 저장한다(0x628838/0x628840). 내보내기는 이 task의 값으로 PlaybackEnumeration을 생성한다(0x6295c0–0x629610). 일반 factory의 tweeningEnabled 기본값은 true다.
+- VideoSettingsDialog 재생 seekbar는 field_13(0x6346ec), tween seekbar는 field_1f(0x6348d0)에 저장한다.
+- onClick은 재생값을 최소 1로, tween값을 재생값 이상으로 만든 뒤 VideoSettingsReady에 전달한다(0x628700–0x62875c).
+- VideoSettingsReady는 task.field_1b에 재생, field_23에 tween을 저장한다(0x628838/0x628840).
+- 내보내기는 이 task의 값으로 PlaybackEnumeration을 생성한다(0x6295c0–0x629610).
+- 일반 factory의 tweeningEnabled 기본값은 true다.
 
 | 항목 | PlaybackEnumeration 규칙 |
 |---|---|
@@ -138,7 +146,10 @@ VideoSettingsDialog 재생 seekbar는 field_13(0x6346ec), tween seekbar는 field
 
 factory:0x519bac–0x519ce4, round helper:0x519d1c–0x519dd4, outputAt:0x62bb8c–0x62bc9c. F≤0의 outputAt은 상수 빈출력 반환 경로다. 모든 비정상 정수/오버플로/NaN 동작을 확정한 식이 아니다.
 
-최적화 export는 outputAt 이름을 직접 호출하지 않고 같은 산술을 루프에 인라인한다(0x629ca0–0x629d8c). loop j는 0부터 N−1(0x629c58–0x629c5c). m/K는 0x629dd4–0x629ddc, t>0이고 서로 다른 frame이면 FrameInterpolationPlan.apply(0x62a150). t0 또는 같은 frame이면 원본을 사용한다(0x62a034–0x62a074).
+- 최적화 export는 outputAt 이름을 직접 호출하지 않고 같은 산술을 루프에 인라인한다(0x629ca0–0x629d8c).
+- loop j는 0부터 N−1(0x629c58–0x629c5c).
+- m/K는 0x629dd4–0x629ddc, t>0이고 서로 다른 frame이면 FrameInterpolationPlan.apply(0x62a150).
+- t0 또는 같은 frame이면 원본을 사용한다(0x62a034–0x62a074).
 
 - **마지막 프레임 뒤의 F→새 endpoint는 생성하지 않는다.** 마지막 구간은 a=b=F−1이므로 마지막 원본을 반복한다.
 - (F−1)K+1이라는 프레임 수 공식은 이 경로에 맞지 않는다.
@@ -157,7 +168,9 @@ factory:0x519bac–0x519ce4, round helper:0x519d1c–0x519dd4, outputAt:0x62bb8c
 - VideoSettingsDialog onClick은 이런 요청의 tween을 24로 올려 보낸다.
 - UI 정규화와 factory의 독립 입력 처리를 구분한다.
 
-N은 기존 raw 공간 예측 W×H×4×N에 쓰이고, Q는 context.field_2b에 저장되어 raw/PNG 양쪽 인코더에 전달된다(0x629630/0x629658,0x633b84,PNG0x633c1c). 이전 Android 인코더 보고서의 presentation timestamp j×1e9/max(Q,1) ns와 연결된다. 정수배가 아닌 경우 정확한 연속시간 t가 아니라 K 단계로 양자화한 t를 쓴다.
+- N은 기존 raw 공간 예측 W×H×4×N에 쓰이고, Q는 context.field_2b에 저장되어 raw/PNG 양쪽 인코더에 전달된다(0x629630/0x629658,0x633b84,PNG0x633c1c).
+- 이전 Android 인코더 보고서의 presentation timestamp j×1e9/max(Q,1) ns와 연결된다.
+- 정수배가 아닌 경우 정확한 연속시간 t가 아니라 K 단계로 양자화한 t를 쓴다.
 
 ## 5. 검증과 다음 범위
 
@@ -184,7 +197,10 @@ N은 기존 raw 공간 예측 W×H×4×N에 쓰이고, Q는 context.field_2b에 
 - 자산 byte/hash도 일치하며, 설치/추출/영상/실물시험은 반복하지 않았다.
 - 추가 집계: AOT-GROUP-SHADER-TIMELINE-SUPPLEMENT-AUDIT-2026-10-15.json.
 
-BuildDrawPlan은 그룹 glow unit 뒤에 구성원별 fill/본체 unit을 넣는다(0x42bc44/0x42bddc). drawUnit은 해당 fill 뒤 본체를 그린다(0x414f78/0x41509c). 보간 호출자도 그룹 helper를 먼저 호출하고 구성원을 순회한다(0x793260/0x793534). 객체별 backend 선택과 그룹 전체 coverage clamp를 혼동하지 않는다는 본문의 결론을 유지한다.
+- BuildDrawPlan은 그룹 glow unit 뒤에 구성원별 fill/본체 unit을 넣는다(0x42bc44/0x42bddc).
+- drawUnit은 해당 fill 뒤 본체를 그린다(0x414f78/0x41509c).
+- 보간 호출자도 그룹 helper를 먼저 호출하고 구성원을 순회한다(0x793260/0x793534).
+- 객체별 backend 선택과 그룹 전체 coverage clamp를 혼동하지 않는다는 본문의 결론을 유지한다.
 
 - 다음은 본문 산식을 추가 6개 입력에 대입한 결과다.
 - 실행 영상의 프레임 수나 duration을 재측정한 것이 아니다.

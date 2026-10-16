@@ -26,7 +26,9 @@
 - 원본·끝점 동일·뒤 frame 없음 등 분기는 원본 Frame을 RecordPicture에 넘긴다.
 - 두 다른 Frame 사이의 보간이면 FrameInterpolationPlan.apply 후 배경색 보간과 RecordPicture로 이어진다.
 
-직전 보간 plan(thread.field3b)은 앞/뒤 Frame **identity 쌍**이 같을 때 재사용한다(0x63fa50/68). 불일치면 뒤 Frame의 TweenLinks를 공급하여 새 plan을 만든다. 이 분기에는 색/점 전부의 변경 버전 키가 없으므로 ‘같은 객체를 임의 수정해도 항상 안전한 plan’이라고 일반화하지 않는다.
+- 직전 보간 plan(thread.field3b)은 앞/뒤 Frame **identity 쌍**이 같을 때 재사용한다(0x63fa50/68).
+- 불일치면 뒤 Frame의 TweenLinks를 공급하여 새 plan을 만든다.
+- 이 분기에는 색/점 전부의 변경 버전 키가 없으므로 ‘같은 객체를 임의 수정해도 항상 안전한 plan’이라고 일반화하지 않는다.
 
 - ViewSequencePlayerView.RecordPicture(0x516dc0)는 새 PictureRecorder/Canvas→배경·clip/DrawInformation→FrameDrawPlanCache.planFor와 Frame.Draw→endRecording으로 간다.
 - 편집 EditorFrameCache.paint를 호출하는 경로가 아니다.
@@ -61,13 +63,18 @@ _recordAhead(0x63f0b8)의 루프는 현재 위치에서 최대 120후보를 본�
 - 배율, 화면 origin×배율의 소수 부분, 논리 폭·높이가 다르면 해당 finished 항목을 제거하고 null을 반환한다.
 - 소수 부분은 floor를 뺀 값이며 절대 origin 좌표 전체를 key로 비교하는 것이 아니다.
 
-_onTick은 Picture가 있고 due이면 finished Image를 찾고, 없을 때도 Picture와 null Image를 ShowPlaybackPicture에 전달한다(0x63e2f4–34c). ShowPlaybackPicture는 표시 Image와 Picture를 각각 교체한다. 이 전달 경로만으로 실제 Flutter backend의 모든 fallback 픽셀이 동일함을 증명하지 않는다.
+- _onTick은 Picture가 있고 due이면 finished Image를 찾고, 없을 때도 Picture와 null Image를 ShowPlaybackPicture에 전달한다(0x63e2f4–34c).
+- ShowPlaybackPicture는 표시 Image와 Picture를 각각 교체한다.
+- 이 전달 경로만으로 실제 Flutter backend의 모든 fallback 픽셀이 동일함을 증명하지 않는다.
 
 ## 만료와 소유권
 
-_releaseOutputsBehind(0x63f278)는 현재 표시 output은 보존하고, 현재에서의 순방향 거리(루프 재생 시 wrap)가 120미만인 범위 밖의 key를 _removeBuffered로 제거한다. _removeBuffered는 finished Image 먼저 제거, Picture map remove, approximate byte 차감 순서다.
+- _releaseOutputsBehind(0x63f278)는 현재 표시 output은 보존하고, 현재에서의 순방향 거리(루프 재생 시 wrap)가 120미만인 범위 밖의 key를 _removeBuffered로 제거한다.
+- _removeBuffered는 finished Image 먼저 제거, Picture map remove, approximate byte 차감 순서다.
 
-화면에 현재 표시 중인 Picture/Image와 동일하면 그 제거 함수가 바로 dispose하지 않는다(0x51a06c/0x51a194). 표시 교체 함수도 thread.OwnsPicture/OwnsImage 여부를 확인한 뒤 자원을 폐기한다. map에서 뺐다는 사실만으로 화면이 아직 쓰는 native 자원을 즉시 파기한다고 해석하지 않는다.
+- 화면에 현재 표시 중인 Picture/Image와 동일하면 그 제거 함수가 바로 dispose하지 않는다(0x51a06c/0x51a194).
+- 표시 교체 함수도 thread.OwnsPicture/OwnsImage 여부를 확인한 뒤 자원을 폐기한다.
+- map에서 뺐다는 사실만으로 화면이 아직 쓰는 native 자원을 즉시 파기한다고 해석하지 않는다.
 
 - InvalidatePlayback→InvalidateBuffer는 DisposePictures와 보간 plan/열거 상태 null 처리를 거친다.
 - 실행 중 상태에서는 열거/clock을 다시 만든다.
@@ -81,7 +88,9 @@ _releaseOutputsBehind(0x63f278)는 현재 표시 output은 보존하고, 현재�
 - 이후 k의 목표 시간은 기준시간+정수나눗셈((k−기준 counter)×1000000/FPS)이다.
 - isDue는 현재시간에 min(정수 period의 절반,8000µs)을 더해 목표와 비교한다(0x63f850–87c).
 
-shown은 목표보다 한 정수 period 이상 **초과**해 늦으면 기준시간/counter를 현재로 다시 잡는다(0x63f5a0/5a4). _onTick의 확인한 경로는 표시 counter를 한 번 증가시키며, 지연량만큼 원본 frame을 건너뛰는 공식을 이 구간에서 사용하지 않는다. 모든 ticker/OS 정지·백그라운드 동작까지 보장한 결과는 아니다.
+- shown은 목표보다 한 정수 period 이상 **초과**해 늦으면 기준시간/counter를 현재로 다시 잡는다(0x63f5a0/5a4).
+- _onTick의 확인한 경로는 표시 counter를 한 번 증가시키며, 지연량만큼 원본 frame을 건너뛰는 공식을 이 구간에서 사용하지 않는다.
+- 모든 ticker/OS 정지·백그라운드 동작까지 보장한 결과는 아니다.
 
 - 이는 실시간 화면 스케줄링이다.
 - export의 (T 트위닝,P 재생) 타임라인/프레임 생성 규칙을 이 clock의 지연 보정으로 대체하면 안 된다.

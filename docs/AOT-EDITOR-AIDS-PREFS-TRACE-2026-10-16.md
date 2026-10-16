@@ -32,9 +32,13 @@
 
 SFA 내보내기·DB 함수는 이 키를 참조하지 않는다.
 
-**저장 위치.** `_saveEditorPreferences`(0x552f14)는 `{"values": Map}`을 MethodChannel의 `saveEditorPreferences`로 넘긴다(0x552f74, 0x552f84). 즉 Android 쪽 환경설정에 저장되며, 프로젝트 DB 테이블이 아니다. Android 쪽 저장 구현의 Java 본문은 이번에 읽지 않았다.
+- **저장 위치.** `_saveEditorPreferences`(0x552f14)는 `{"values": Map}`을 MethodChannel의 `saveEditorPreferences`로 넘긴다(0x552f74, 0x552f84).
+- 즉 Android 쪽 환경설정에 저장되며, 프로젝트 DB 테이블이 아니다.
+- Android 쪽 저장 구현의 Java 본문은 이번에 읽지 않았다.
 
-**그리기 경로.** `DrawOnionSkin`은 `_paintEditorUnderlay`(0x42f598) 안에서만 호출된다(0x42f970, 0x42fabc). `_paintEditorUnderlay`의 호출자는 `_EditFrameUnderlayPainter.paint`(0x430d2c)와 `_EditFramePainter`의 closure 두 곳(0x40fd30, 0x430cbc)이다. 모두 편집 화면 painter다.
+- **그리기 경로.** `DrawOnionSkin`은 `_paintEditorUnderlay`(0x42f598) 안에서만 호출된다(0x42f970, 0x42fabc).
+- `_paintEditorUnderlay`의 호출자는 `_EditFrameUnderlayPainter.paint`(0x430d2c)와 `_EditFramePainter`의 closure 두 곳(0x40fd30, 0x430cbc)이다.
+- 모두 편집 화면 painter다.
 
 - 반면 시퀀스·미리보기 프레임 그림을 만드는 `renderSequenceActionFramePicture`의 호출자는 메인 메뉴 미리보기, 프레임 개요, 프레임 목록, 시퀀스 미니 미리보기다.
 - 이들은 편집기 underlay를 호출하지 않는다.

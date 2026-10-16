@@ -6,13 +6,17 @@
 
 ## 1. 채우기 후보 필터와 링크 이름 변환
 
-_planFillRegions(0x62ff78)는 AO 보간 쌍 목록이 비면 null을 반환한다(0x62ffb0–0x62ffc4). 목록이 있으면 각 쌍의 앞 AO ID로 집합을 만든다(closure0x632d10). 앞 FR 목록과 링크 변환 뒤 FR 목록을 _fillRegionReferencesOnlyObjects(0x632bfc)로 필터한다.
+- _planFillRegions(0x62ff78)는 AO 보간 쌍 목록이 비면 null을 반환한다(0x62ffb0–0x62ffc4).
+- 목록이 있으면 각 쌍의 앞 AO ID로 집합을 만든다(closure0x632d10).
+- 앞 FR 목록과 링크 변환 뒤 FR 목록을 _fillRegionReferencesOnlyObjects(0x632bfc)로 필터한다.
 
 - 이 필터는 **outerSegments**가 비었으면 false이고, 각 outer segment의 ObjId가 위 집합에 모두 있어야 true다.
 - 이 함수 자체가 모든 안쪽 구멍 경계까지 검사한다고 확대하지 않는다.
 - 탈락 FR은 이 planner의 후보에 포함되지 않는다.
 
-FrameInterpolationPlan 생성자에서 링크용 역방향 맵을 만든다. resolved source→destination 링크를 따라 destination AO ID→source AO ID(0x62f7a0–0x62f7fc), 같은 목록 위치의 destination AP ID→source AP ID(0x62f8b4–0x62f938)를 만든 뒤 planner에 전달한다(0x62fe78/0x62fe7c/0x62fe80). resolver의 TypeId/Index/충돌 검사와 결합하는 경로이며 모든 AO/점에 자동 공간대응을 추정하는 기능이 아니다.
+- FrameInterpolationPlan 생성자에서 링크용 역방향 맵을 만든다.
+- resolved source→destination 링크를 따라 destination AO ID→source AO ID(0x62f7a0–0x62f7fc), 같은 목록 위치의 destination AP ID→source AP ID(0x62f8b4–0x62f938)를 만든 뒤 planner에 전달한다(0x62fe78/0x62fe7c/0x62fe80).
+- resolver의 TypeId/Index/충돌 검사와 결합하는 경로이며 모든 AO/점에 자동 공간대응을 추정하는 기능이 아니다.
 
 - renameTweenLinkedFill(0x63222c)은 이 맵을 사용해 뒤 FR의 ObjId와 필요한 AP 참조를 앞 기준 이름으로 바꾼다.
 - 매핑된 edge의 필요한 AP 참조를 찾지 못하면 null 반환 분기가 있다(0x6325dc/0x632674). circle과 edge 경로를 구분하고 색·구간값·contour metadata를 보존한 새 FR를 만든다.
@@ -38,7 +42,8 @@ interpolation segment key(0x632930)는 다음과 같다.
 | 음수 AP 참조 | 숫자 대신 * |
 | 구간 double(T1/T2) | 이 두 번째 키에는 포함하지 않음 |
 
-이전 보고서의 미확인 field_33은 FrameFillSegment.signature의 ':contour:' 문자열 결합(0x5cfe80–0x5cfed8)과 canonicalize의 contour별 묶음으로 **contour index**에 대응시켰다. 실제 segment enum Kind와 AO TypeId는 별도 체계다.
+- 이전 보고서의 미확인 field_33은 FrameFillSegment.signature의 ':contour:' 문자열 결합(0x5cfe80–0x5cfed8)과 canonicalize의 contour별 묶음으로 **contour index**에 대응시켰다.
+- 실제 segment enum Kind와 AO TypeId는 별도 체계다.
 
 - AP 참조를 좌표나 AnchorPoint.Index로 자동 정규화하지 않는다.
 - 같은 ObjId/좌표라도 0 이상 AP 참조가 달라지면 키가 달라질 수 있다.
@@ -80,7 +85,9 @@ _buildInterpolatedFillRegion(0x7920e4)은 clamp(t,0,1)로 InterpolateArgbColor(0
 
 ## 5. segment 보간 실패에는 가까운 끝의 경계를 쓰는 fallback
 
-_interpolateFillRegionSegments(0x7922b4)는 null/목록 길이 차이를 검사하고, 위치별 Kind/contourIndex/ObjId가 맞아야 한다(0x7923dc–0x792404). edge의 양수 앞 AP 참조는 유지하고 음수면 뒤 AP 참조를 선택한다(0x7924dc–0x7924f4). T1/T2는 각각 앞값+(뒤값−앞값)×clamp(t,0,1)로 보간한다(0x792508–0x792528).
+- _interpolateFillRegionSegments(0x7922b4)는 null/목록 길이 차이를 검사하고, 위치별 Kind/contourIndex/ObjId가 맞아야 한다(0x7923dc–0x792404).
+- edge의 양수 앞 AP 참조는 유지하고 음수면 뒤 AP 참조를 선택한다(0x7924dc–0x7924f4).
+- T1/T2는 각각 앞값+(뒤값−앞값)×clamp(t,0,1)로 보간한다(0x792508–0x792528).
 
 - 이 함수가 null이면 _buildInterpolatedFillRegion은 **t<0.5이면 앞 FR의 원래 segments, t>=0.5이면 뒤 FR의 원래 segments**를 선택한다(0x7921c4–0x7921f4). 색은 이미 계산된 보간색을 사용한다.
 - 이 경우 geometry의 단계 전환과 색의 연속 변화가 공존할 수 있다.

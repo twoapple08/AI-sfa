@@ -13,9 +13,14 @@
 - DB 호출이나 정렬은 없다.
 - 이름만으로 프레임 조회 시 DB가 자동으로 채워진다고 가정하면 안 된다.
 
-DataAccess.PopulateFrameAnimationObjects(0x34ec1c)는 목록이 **null 또는 비었을 때** GetAnimationObjectsForFrame을 호출하고 결과를 field_1f에 저장한다(0x34ec90/0x34ec98). 이미 비어 있지 않으면 DB를 재조회하지 않고 CreateAnimationObjectMap만 수행한다(0x34ec78). 따라서 이미 편집 중인 목록의 순서를 매번 DB 순서로 강제 교정하는 함수가 아니다. BulkLoadFrames(0x5280c8)에서도 같은 null/빈 목록 검사와 DB 목록 공급 경로가 보인다.
+- DataAccess.PopulateFrameAnimationObjects(0x34ec1c)는 목록이 **null 또는 비었을 때** GetAnimationObjectsForFrame을 호출하고 결과를 field_1f에 저장한다(0x34ec90/0x34ec98).
+- 이미 비어 있지 않으면 DB를 재조회하지 않고 CreateAnimationObjectMap만 수행한다(0x34ec78).
+- 따라서 이미 편집 중인 목록의 순서를 매번 DB 순서로 강제 교정하는 함수가 아니다.
+- BulkLoadFrames(0x5280c8)에서도 같은 null/빈 목록 검사와 DB 목록 공급 경로가 보인다.
 
-GetAnimationObjectsForFrame(0x34eff0)은 measureSync closure(0x34f0d4)에서 기존에 확인한 SQL을 실행하고, 결과를 map→GrowableList.of로 구체화한다(0x34f244/0x34f26c/0x34f27c). 해당 SQL의 두 분기는 모두 ORDER BY COALESCE(a.draw_order,a._id) ASC,a._id ASC다. 여기서 null DrawOrder는 ID fallback이며 비양수값을 모두 fallback시키는 다른 comparator와 구분한다.
+- GetAnimationObjectsForFrame(0x34eff0)은 measureSync closure(0x34f0d4)에서 기존에 확인한 SQL을 실행하고, 결과를 map→GrowableList.of로 구체화한다(0x34f244/0x34f26c/0x34f27c).
+- 해당 SQL의 두 분기는 모두 ORDER BY COALESCE(a.draw_order,a._id) ASC,a._id ASC다.
+- 여기서 null DrawOrder는 ID fallback이며 비양수값을 모두 fallback시키는 다른 comparator와 구분한다.
 
 **확인 범위:** 이 DB 공급 경로의 순서는 정렬되어 있다. 모든 in-memory 편집/보간/캐시 공급자의 최종 순서가 동일하다는 보장은 아직 없다.
 
@@ -51,7 +56,9 @@ DrawGlowEffect(0x420dcc)의 shader 호출까지 실제 레지스터/스택 전�
 - R = max(GlowRadius × S / D,0.001) (0x4211bc–0x421200).
 - W 또는 T가 양수가 아니면 그리기를 종료한다. 앞쪽에는 GlowRadius/GlowAlpha 양수 검사도 있다.
 
-TryDrawGlowWithShader(0x425458)는 입력 R에 대해 `sigma = sqrt(R² + (0.29/D)²)` 를 계산한다(0x4254b4–0x4254d0). 화면 밖 판정용 확장 폭은 `W/2 + 4×sigma + 1`이다(0x4254dc–0x4254f4). 화면 밖이면 true를 반환할 수 있으므로 **true를 반드시 실제 픽셀이 그려졌다는 증거로 세면 안 된다.**
+- TryDrawGlowWithShader(0x425458)는 입력 R에 대해 `sigma = sqrt(R² + (0.29/D)²)` 를 계산한다(0x4254b4–0x4254d0).
+- 화면 밖 판정용 확장 폭은 `W/2 + 4×sigma + 1`이다(0x4254dc–0x4254f4).
+- 화면 밖이면 true를 반환할 수 있으므로 **true를 반드시 실제 픽셀이 그려졌다는 증거로 세면 안 된다.**
 
 - 프로그램 미준비 또는 전달된 Paint style 조건이 맞지 않으면 false이고 fallback으로 넘어간다.
 - TypeId 1은 직선/2는 두 점의 중심·거리로 정의한 링/3은 곡선 분기이며 요구 점수 미달은 false다.
@@ -80,7 +87,9 @@ B의 화면/출력 공급값, 외부 Canvas transform, DPR의 모든 호출 문�
 
 ## 5. blendMode는 전달 Paint를 따른다
 
-DrawGlowEffect는 입력 Paint.blendMode를 GLOW_PAINT에 복사한다(0x420e3c/0x420e48). TryDrawGlowWithShader에도 같은 모드를 전달(0x421248/0x42127c)하고 glow_shader._fill은 전달 모드를 Paint에 설정한다(0x425f30). 이름/강조 효과만으로 plus(단순가산)라고 할 근거가 없다.
+- DrawGlowEffect는 입력 Paint.blendMode를 GLOW_PAINT에 복사한다(0x420e3c/0x420e48).
+- TryDrawGlowWithShader에도 같은 모드를 전달(0x421248/0x42127c)하고 glow_shader._fill은 전달 모드를 Paint에 설정한다(0x425f30).
+- 이름/강조 효과만으로 plus(단순가산)라고 할 근거가 없다.
 
 - BuildDrawPlan은 isPreview에 따라 PREVIEW_OBJECT_PAINT 또는 OBJECT_PAINT를 선택한다(0x42beb4–0x42bf28). 두 초기화 함수(0x42d638/0x42d6e8)는 zero ByteData를 만들며 blend 슬롯은 0이다.
 - 원본 ELF의 Paint.blendMode(0x428724)는 저장값을 _kBlendModeDefault와 XOR한 뒤 values에서 enum을 읽는다.

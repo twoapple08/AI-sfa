@@ -5,11 +5,15 @@
 - 아래는 **정적 코드 경로 해석**이며 실제 영상의 실행 경로 확정이나 전체 렌더러 완성이 아니다.
 - 공개한 것은 직접 작성한 해석과 주소·검증 집계뿐이다.
 
-입력/추출의 기존 검증은 [FLUTTER-TOOLS-RESULTS-2026-10-15.md](FLUTTER-TOOLS-RESULTS-2026-10-15.md). 이번 집계는 [AOT-PATH-TRACE-AUDIT-2026-10-15.json](AOT-PATH-TRACE-AUDIT-2026-10-15.json). 아래 주소는 Blutter 코드주소이며 ELF 문자열 오프셋/ASLR 절대주소가 아니다. 경로는 `private/blutter_out/asm/sfa/` 기준이다.
+- 입력/추출의 기존 검증은 [FLUTTER-TOOLS-RESULTS-2026-10-15.md](FLUTTER-TOOLS-RESULTS-2026-10-15.md).
+- 이번 집계는 [AOT-PATH-TRACE-AUDIT-2026-10-15.json](AOT-PATH-TRACE-AUDIT-2026-10-15.json).
+- 아래 주소는 Blutter 코드주소이며 ELF 문자열 오프셋/ASLR 절대주소가 아니다.
+- 경로는 `private/blutter_out/asm/sfa/` 기준이다.
 
 ## 1. XML 왕복의 DrawOrder/ObjectScale 변화 원인
 
-`original_port/activities/import_animation_activity.dart`의 `_ImportSequenceXmlHandler.startElement`(0x5099ac)는 AO에서 ID/TypeId/Color/ThicknessScale/글로우/LayerId를 읽지만 **DrawOrder와 ObjectScale을 조회하지 않는다**. 함수 전체의 속성 조회를 한정 집계해 확인했다. 단순히 파일 전체 문자열 검색만으로 내린 결론이 아니다.
+- `original_port/activities/import_animation_activity.dart`의 `_ImportSequenceXmlHandler.startElement`(0x5099ac)는 AO에서 ID/TypeId/Color/ThicknessScale/글로우/LayerId를 읽지만 **DrawOrder와 ObjectScale을 조회하지 않는다**. 함수 전체의 속성 조회를 한정 집계해 확인했다.
+- 단순히 파일 전체 문자열 검색만으로 내린 결론이 아니다.
 
 | 연결 | 근거 주소 | 해석 |
 |---|---|---|
@@ -115,7 +119,8 @@
 - 이는 주소·명령 표본 검증이며 위 모든 의미 해석/전체 함수의 정확성 보증은 아니다.
 - 문서 변경이라 기존 생성·unit test는 반복하지 않았다.
 
-다음은 ① Frame.GetAnimationObjects의 로드·캐시 공급자가 planner에 주는 순서와 비연속 연결 그룹의 방문순서 ② TryDrawGlowWithShader(0x425458)/DrawGlowEffect의 paint 배율·blendMode 실제값 ③ _planFillRegions(0x62ff78)와 renameTweenLinkedFill, canonicalize, held/interpolated 분기를 좁게 추적한다. 이번에 확정한 XML 속성 누락/기본값·기존 00–05 영상은 다시 처리하지 않는다.
+- 다음은 ① Frame.GetAnimationObjects의 로드·캐시 공급자가 planner에 주는 순서와 비연속 연결 그룹의 방문순서 ② TryDrawGlowWithShader(0x425458)/DrawGlowEffect의 paint 배율·blendMode 실제값 ③ _planFillRegions(0x62ff78)와 renameTweenLinkedFill, canonicalize, held/interpolated 분기를 좁게 추적한다.
+- 이번에 확정한 XML 속성 누락/기본값·기존 00–05 영상은 다시 처리하지 않는다.
 
 reFlutter 엔진 빌드/Android 실행/분할 APK 서명 미완은 그대로다. 고정 PREVIDEO 예측, File-2 최적화, 학습·AI 연결은 계속 보류한다.
 

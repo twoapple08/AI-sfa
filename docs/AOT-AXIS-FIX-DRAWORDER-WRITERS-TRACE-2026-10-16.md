@@ -17,7 +17,8 @@
 | 변경 AO만 UPDATE | `_saveFiguresChangedOnly`(0x35abc4) |
 | 다른 sequence로 INSERT | `CopyAnimationObjectToSequence`(0x36c5d8) |
 
-열 이름 문자열 `draw_order`를 직접 참조하는 나머지 함수는 행 읽기(`_createAnimationObjectFromRowWithAnchors`, `_readObjectLayers`)와 마이그레이션이다. 따라서 저장되는 순서 변경은 **메모리 AO의 DrawOrder(field_2f)를 바꾼 뒤 일반 저장으로 쓰는 방식**일 수밖에 없다.
+- 열 이름 문자열 `draw_order`를 직접 참조하는 나머지 함수는 행 읽기(`_createAnimationObjectFromRowWithAnchors`, `_readObjectLayers`)와 마이그레이션이다.
+- 따라서 저장되는 순서 변경은 **메모리 AO의 DrawOrder(field_2f)를 바꾼 뒤 일반 저장으로 쓰는 방식**일 수밖에 없다.
 
 - **메모리 쓰기.** `->field_2f =` store 367곳 가운데 237곳은 `layout/`의 위젯 build로, 위젯 필드다.
 - 나머지 가운데 정수 DrawOrder로 읽히는 곳은 이미 근거가 있는 경로뿐이었다: 생성자, DB 행 적재, import, 복사 세 helper(`_copyAnimationObjectUnstored`·`CopyAnimationObject`·`CopyAnimationObjectToSequence`), `_cloneFrameDeep`, history `_copyFigure`, `AdoptLiveLayerState`(live LayerId/DrawOrder 보존, 0x604764–0x604770), `_mergeLayerDown`(0x5b9524, 병합 슬롯 재배정). 편집 화면 State 안의 이름 없는 closure 여섯 곳(0x5b23e4, 0x5b2e40, 0x5b4358, 0x5b4508, 0x5b47a8, 0x5f4d6c)은 true/false 또는 좌표 객체를 State 필드에 쓰며, AO DrawOrder가 아니다.

@@ -68,7 +68,9 @@ _turnedParameter(0x426884):
 
 ## 4. 퇴화 곡선·선의 호출 경계
 
-읽은 drawCurve는 endpoint tangent가 아주 작으면 다른 endpoint를 향하는 chord로 대체해 방향을 구한다(0x4259b4–0x425a3c). 대체한 양 끝 방향 중 길이가 1e−5 미만인 것이 있으면 start→start인 drawLine으로 넘어간다(0x425a90–0x425abc). 원본 모든 곡선이 단순 직선으로 바뀐다는 뜻은 아니다.
+- 읽은 drawCurve는 endpoint tangent가 아주 작으면 다른 endpoint를 향하는 chord로 대체해 방향을 구한다(0x4259b4–0x425a3c).
+- 대체한 양 끝 방향 중 길이가 1e−5 미만인 것이 있으면 start→start인 drawLine으로 넘어간다(0x425a90–0x425abc).
+- 원본 모든 곡선이 단순 직선으로 바뀐다는 뜻은 아니다.
 
 - drawLine(0x42753c)은 길이<1e−5이면 _drawRing을 직접 호출한다(0x4275c4–0x4275ec). radius0, node8, 원래 W/sigma를 전달한다.
 - 따라서 거의 점인 stroke도 ring kind로 처리할 수 있다.
@@ -98,7 +100,8 @@ drawRing(0x427378)의 shuffle을 실제 mov로 따라가면, 내부에서 z=min(
 
 ## 6. 화면 밖 검사와 실제 drawRect 여백은 다른 식
 
-GlowShader._fill(0x425e9c)은 전달된 bounds를 W/2+3sigma+1만큼 inflate하고 shader/blendMode Paint로 drawRect한다(0x425ee0–0x425f40). 이것은 shader body/ring의 4sigma 조기 종료 조건이나 AO.TryDrawGlowWithShader의 화면 밖 검사용 W/2+4sigma+1과 다른 단계다.
+- GlowShader._fill(0x425e9c)은 전달된 bounds를 W/2+3sigma+1만큼 inflate하고 shader/blendMode Paint로 drawRect한다(0x425ee0–0x425f40).
+- 이것은 shader body/ring의 4sigma 조기 종료 조건이나 AO.TryDrawGlowWithShader의 화면 밖 검사용 W/2+4sigma+1과 다른 단계다.
 
 - 같은 숫자 R을 쓰는 raster plan의 여백과도 합치지 않는다.
 - culling bounds, 실제 그리는 rectangle, shader coverage 지원영역, raster 생성 bounds를 분리해야 한다.

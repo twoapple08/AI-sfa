@@ -37,7 +37,9 @@
 
 ## 부모 재배정과 연결
 
-`ReassignGroupChildren`(0x52174c)의 자식은 자기 ID가 이전 부모와 다르고, 그룹 bit가 있으며, 직접 `Flags >> 6`이 그 부모 ID인 점이다(조건 closure 0x522144). 구조 연결 수집 결과에서 이전 부모 자신을 제외하고 비그룹 T2인 후보 중 최소 ID를 새 부모로 고른다. 후보가 없으면 자식의 그룹 참조를 해제한다.
+- `ReassignGroupChildren`(0x52174c)의 자식은 자기 ID가 이전 부모와 다르고, 그룹 bit가 있으며, 직접 `Flags >> 6`이 그 부모 ID인 점이다(조건 closure 0x522144).
+- 구조 연결 수집 결과에서 이전 부모 자신을 제외하고 비그룹 T2인 후보 중 최소 ID를 새 부모로 고른다.
+- 후보가 없으면 자식의 그룹 참조를 해제한다.
 
 - 자식과 이전 부모 사이에 어느 방향이든 연결이 있으면 양쪽 목록에서 상대 ID 연결을 모두 제거하고 제거 쌍을 기록한다.
 - 새 부모가 있으면 Flags를 새 ID로 바꾼다.
@@ -52,7 +54,8 @@
 
 ## 프레임 호출과 저장
 
-`_repairGroupFlagsForFrame`→0x5201e4의 복구 호출→`IsEmpty`가 참이면 false 반환, 변경이 있으면 helper 값 초기화→`DataAccess.ApplyGroupFlagRepair`→true 반환으로 연결된다. 복구 함수를 읽은 것만으로 모든 입력 경로에 항상 실행된다고 주장하지 않는다.
+- `_repairGroupFlagsForFrame`→0x5201e4의 복구 호출→`IsEmpty`가 참이면 false 반환, 변경이 있으면 helper 값 초기화→`DataAccess.ApplyGroupFlagRepair`→true 반환으로 연결된다.
+- 복구 함수를 읽은 것만으로 모든 입력 경로에 항상 실행된다고 주장하지 않는다.
 
 - `ApplyGroupFlagRepair`(0x520264)는 비어 있으면 반환하고, 그렇지 않으면 transaction을 연다.
 - 변경 Flags는 anchor scope를 통해 반영한다.

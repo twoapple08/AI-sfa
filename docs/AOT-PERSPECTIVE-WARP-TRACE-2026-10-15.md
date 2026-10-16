@@ -55,7 +55,8 @@
 
 ## 변형 선택
 
-_applyPerspectiveWarpToAnchorPoints(0x5ebd20)에서 호출하는 _warpPerspectivePoints(0x5ebfa4)의 인수 순서는 **목적 quad D, 원본 quad S, 원본 화면좌표 map**이다. SetupParameters 이름 대신 실제 재배치와 caller field 전달을 확인했다.
+- _applyPerspectiveWarpToAnchorPoints(0x5ebd20)에서 호출하는 _warpPerspectivePoints(0x5ebfa4)의 인수 순서는 **목적 quad D, 원본 quad S, 원본 화면좌표 map**이다.
+- SetupParameters 이름 대신 실제 재배치와 caller field 전달을 확인했다.
 
 각 quad Q의 signed span을 다음처럼 정의한다.
 
@@ -79,7 +80,9 @@ _buildPerspectiveTransform(0x5ec3f4)은 네 대응점에서 두 식씩, 8개 미
 
 X=(a x+b y+c)/(g x+h y+1), Y=(d x+e y+f)/(g x+h y+1).
 
-_solveAugmentedLinearSystem(0x5ecc9c)은 각 열에서 아래 행들의 pivot 절댓값을 비교해 큰 행을 고르고, 최대값이 1e−7 미만이면 null을 반환한다(0x5ecee0–0x5ed334). 선택 행 교환·pivot 나누기·다른 행 제거가 이어지며, 작은 제거 계수는 건너뛰는 분기가 있다. 이 문서는 전체 비정상 행렬에 대한 수치해석 보장을 제시하지 않는다.
+- _solveAugmentedLinearSystem(0x5ecc9c)은 각 열에서 아래 행들의 pivot 절댓값을 비교해 큰 행을 고르고, 최대값이 1e−7 미만이면 null을 반환한다(0x5ecee0–0x5ed334).
+- 선택 행 교환·pivot 나누기·다른 행 제거가 이어지며, 작은 제거 계수는 건너뛰는 분기가 있다.
+- 이 문서는 전체 비정상 행렬에 대한 수치해석 보장을 제시하지 않는다.
 
 - _PerspectiveTransform.mapPoint(0x5ec264)는 w=gx+hy+1을 계산한다.
 - w가 finite가 아니거나 |w|<1e−6이면 null이다.
@@ -103,13 +106,18 @@ p'=(1−v)[(1−u)D0+uD1]+v[(1−u)D3+uD2].
 
 ## 좌표 저장·재그리기
 
-일반 handle pan update는 새 quad 계산→유효성→warp→성공 시 선택 quad 교체 순서다(0x5eba60/6c/b0/e4). warp는 모든 결과 map을 만든 뒤 AP map에 해당 ID가 있으면 화면좌표를 DrawInformation Offset/UsableCanvasSize로 역변환해 백분율 x/y에 저장한다(0x5ebf2c/30). map에서 못 찾은 ID는 건너뛴다. 성공 true가 반드시 실제 좌표 차이 >0이라는 뜻은 아니다.
+- 일반 handle pan update는 새 quad 계산→유효성→warp→성공 시 선택 quad 교체 순서다(0x5eba60/6c/b0/e4).
+- warp는 모든 결과 map을 만든 뒤 AP map에 해당 ID가 있으면 화면좌표를 DrawInformation Offset/UsableCanvasSize로 역변환해 백분율 x/y에 저장한다(0x5ebf2c/30).
+- map에서 못 찾은 ID는 건너뛴다.
+- 성공 true가 반드시 실제 좌표 차이 >0이라는 뜻은 아니다.
 
 - 이 좌표 적용 helper와 일반 update의 확인 구간에는 AO ThicknessScale/ObjectScale/Glow 속성 저장이 없다.
 - 원근 모드 전체에는 올가미·AllGroupDrag로 위임하는 별도 경로도 있으므로 ‘원근 모드의 모든 조작은 속성을 절대 바꾸지 않는다’로 확대하지 않는다.
 - 기존 04의 속성 변화 원인을 이 한 경로만으로 단정하지 않는다.
 
-성공 후 dragMoved와 화면 재그리기로 이어진다. 일반 pan end는 session moved가 true이면 _saveAfterMove를 호출한다(0x5e9288/0x5e92a8). 저장/좌표 diff와 전체 저장 fallback은 [올그룹 보고서](AOT-ALLGROUP-BOX-TRACE-2026-10-15.md)의 기존 확인을 재사용한다.
+- 성공 후 dragMoved와 화면 재그리기로 이어진다.
+- 일반 pan end는 session moved가 true이면 _saveAfterMove를 호출한다(0x5e9288/0x5e92a8).
+- 저장/좌표 diff와 전체 저장 fallback은 [올그룹 보고서](AOT-ALLGROUP-BOX-TRACE-2026-10-15.md)의 기존 확인을 재사용한다.
 
 ## 올가미 설정 경로는 AllGroupDrag
 

@@ -28,7 +28,9 @@ GetAnimationObjectsForFrame의 공유 기반 분기에서 사용하는 조회( d
 
 ## 그룹 Flags: 로컬 읽기와 기반 점 읽기가 다르다
 
-`_preloadAnchorPointsWithRoot`(0x350030)의 현재 프레임 로컬 점은 raw_flags가 있으면 정수 전체를 AP.fieldf에 넣는다(0x3503d0–0x350468). null일 때는 selectable 및 anchor_point_type으로 조합하는 이전 표현의 fallback이 있다. 이 fallback이 그룹 상위 참조까지 복원한다고 가정하지 않는다.
+- `_preloadAnchorPointsWithRoot`(0x350030)의 현재 프레임 로컬 점은 raw_flags가 있으면 정수 전체를 AP.fieldf에 넣는다(0x3503d0–0x350468).
+- null일 때는 selectable 및 anchor_point_type으로 조합하는 이전 표현의 fallback이 있다.
+- 이 fallback이 그룹 상위 참조까지 복원한다고 가정하지 않는다.
 
 기반 점 경로는 raw_flags를 읽은 뒤 다음 변환을 수행한다(0x350bdc–0x350cac). F는 읽은 flags, B는 `_FrameBase.field17`에서 가져온 현재 점 범위의 시작값이다(0x3505f0–0x3505f4).
 
@@ -48,13 +50,20 @@ GetAnimationObjectsForFrame의 공유 기반 분기에서 사용하는 조회( d
 
 ## 공유 채우기의 저장·재사용
 
-`_storeSharedFills`(0x359dd0)는 FillSetCodec.encode → FNV64 해시 → 같은 해시의 저장 후보 조회로 간다(0x359e0c–0x359e94). 후보의 길이가 다르면 건너뛰고, 길이가 같으면 각 바이트를 비교한다(0x359fc0–0x35a010). 모두 같을 때만 그 set ID를 선택하므로 해시 일치만으로 묶음을 공유하지 않는다. 맞는 후보가 없으면 hash/max_figure_id/data를 가진 set 행을 추가한다.
+- `_storeSharedFills`(0x359dd0)는 FillSetCodec.encode → FNV64 해시 → 같은 해시의 저장 후보 조회로 간다(0x359e0c–0x359e94).
+- 후보의 길이가 다르면 건너뛰고, 길이가 같으면 각 바이트를 비교한다(0x359fc0–0x35a010).
+- 모두 같을 때만 그 set ID를 선택하므로 해시 일치만으로 묶음을 공유하지 않는다.
+- 맞는 후보가 없으면 hash/max_figure_id/data를 가진 set 행을 추가한다.
 
-그 뒤 로컬 fill 행을 정리하고, region ID 범위를 예약하여 `frame_fill_ref`에 frame ID·set ID·first region ID·first point ID를 기록한다(0x35a1f0, 0x35a294, 0x35a318). 이것은 DB 내부 공유 표현이며 기존 파일을 최적화하거나 재압축한 작업이 아니다.
+- 그 뒤 로컬 fill 행을 정리하고, region ID 범위를 예약하여 `frame_fill_ref`에 frame ID·set ID·first region ID·first point ID를 기록한다(0x35a1f0, 0x35a294, 0x35a318).
+- 이것은 DB 내부 공유 표현이며 기존 파일을 최적화하거나 재압축한 작업이 아니다.
 
-공유 채우기를 읽는 GetFillRegionsForFrame(0x339a14)은 `_readSharedFills` 결과 map에 현재 frame 키가 있으면 그 값을 반환한다. 키가 없는 경우에 로컬 fill/segment 조회로 간다(0x339aa4–0x339b04). 단순히 공유 결과의 목록 길이만으로 fallback을 결정한다고 해석하지 않는다.
+- 공유 채우기를 읽는 GetFillRegionsForFrame(0x339a14)은 `_readSharedFills` 결과 map에 현재 frame 키가 있으면 그 값을 반환한다.
+- 키가 없는 경우에 로컬 fill/segment 조회로 간다(0x339aa4–0x339b04).
+- 단순히 공유 결과의 목록 길이만으로 fallback을 결정한다고 해석하지 않는다.
 
-`_readSharedFills`(0x33a498)는 frame_fill_ref를 읽고 set의 data를 조회하여 decode한 뒤, ref의 두 기준 ID를 FillSet.regions로 전달한다(0x33a79c, 0x33a81c, 0x33a95c). FillSet.regions는 첫 region ID에 항목 위치를 더해 새 FR ID를 만들고 ARGB를 공급하며, 복원한 segment 목록을 고정·변경 불가 목록으로 넣는다(0x33aad0, 0x33ac9c–0x33acd4).
+- `_readSharedFills`(0x33a498)는 frame_fill_ref를 읽고 set의 data를 조회하여 decode한 뒤, ref의 두 기준 ID를 FillSet.regions로 전달한다(0x33a79c, 0x33a81c, 0x33a95c).
+- FillSet.regions는 첫 region ID에 항목 위치를 더해 새 FR ID를 만들고 ARGB를 공급하며, 복원한 segment 목록을 고정·변경 불가 목록으로 넣는다(0x33aad0, 0x33ac9c–0x33acd4).
 
 ## 채우기 점 참조·구멍 번호
 

@@ -23,7 +23,8 @@
 
 ## 연결 점을 포인터로 옮기는 늘이기
 
-GetConcurrentAnchorPoints(0x5f0330)는 identity HashSet으로 방문을 막고 _addConcurrentAnchorPoints를 재귀 호출한다. 이 helper는 AC 참조 ID를 map에서 찾으며 IsGroupConnection이 true인 연결은 건너뛴다(0x5f0558–0x5f0570).
+- GetConcurrentAnchorPoints(0x5f0330)는 identity HashSet으로 방문을 막고 _addConcurrentAnchorPoints를 재귀 호출한다.
+- 이 helper는 AC 참조 ID를 map에서 찾으며 IsGroupConnection이 true인 연결은 건너뛴다(0x5f0558–0x5f0570).
 
 - 즉 concurrent는 좌표가 가까운 모든 점을 전역 검색한다는 뜻이 아니다.
 - 일반 AC를 따라가고 그룹 연결을 제외하는 집합이다.

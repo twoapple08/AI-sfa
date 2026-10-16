@@ -76,7 +76,8 @@ Flutter 쪽의 새로운 실물 근거는 base.apk의 `assets/flutter_assets/sha
 - Gaussian 계산 일부는 4sigma 범위를 사용하지만 전체 출력 클리핑 규칙으로 확대하지 않는다.
 - libapp.so의 TryDrawGlowWithShader, TryDrawCachedGlowRaster, ResolveGlowMaskFilter, 연결 객체 합성 글로우 이름은 경로 후보다. **이름만으로 호출·선택·동작을 확정하지 않는다.**
 
-미확인: SFA GlowRadius/Thickness/ObjectScale→shader uniform 변환, uColor의 사전 알파 처리, 기본 선 알파와의 관계, 실제 blend mode, 연결 객체의 누적/합성, shader/raster/mask-filter 선택 조건. 셰이더 존재를 이번 영상에서의 실행 증거로 쓰지 않는다. CSS blur 하나로 완전 재현됐다고 주장하지 않는다.
+- 미확인: SFA GlowRadius/Thickness/ObjectScale→shader uniform 변환, uColor의 사전 알파 처리, 기본 선 알파와의 관계, 실제 blend mode, 연결 객체의 누적/합성, shader/raster/mask-filter 선택 조건. 셰이더 존재를 이번 영상에서의 실행 증거로 쓰지 않는다.
+- CSS blur 하나로 완전 재현됐다고 주장하지 않는다.
 
 ## ③ 생성·삭제·프레임 사이 보간
 
@@ -125,4 +126,5 @@ Y2.i.d/e 및 Y2.k의 네이티브 경로에서 확인한 처리:
 - 먼저 Flutter의 contour_index 경로/채우기 후보 계획과 shader uniform·합성 연결을 더 확인한다.
 - 네이티브 경로를 전체 엔진으로 구현해 굳히지 않는다.
 
-정적 추적의 한계가 남으면 후보 실험은 각각 한 변수만 바꾼다: 같은 경계의 외곽/안쪽 Contour 유무, 겹친 2색 도형의 정적 순서, 고정 형상의 Radius/Thickness/Alpha 단독 변화, 같은 ID 유지 대 새 ID 교체의 생성/삭제 경계. 아직 제작/출력 요청이 아니며 전체 기능 샘플·추가 작품을 요구하지 않는다. 기존 v1 재저장 요청은 이번 우선순위 뒤로 계속 보류한다.
+- 정적 추적의 한계가 남으면 후보 실험은 각각 한 변수만 바꾼다: 같은 경계의 외곽/안쪽 Contour 유무, 겹친 2색 도형의 정적 순서, 고정 형상의 Radius/Thickness/Alpha 단독 변화, 같은 ID 유지 대 새 ID 교체의 생성/삭제 경계. 아직 제작/출력 요청이 아니며 전체 기능 샘플·추가 작품을 요구하지 않는다.
+- 기존 v1 재저장 요청은 이번 우선순위 뒤로 계속 보류한다.

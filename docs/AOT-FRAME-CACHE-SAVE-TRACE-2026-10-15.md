@@ -45,9 +45,13 @@
 
 ## 레이어 위·아래 이동 UI
 
-아래 이동(0x5bc7e4)은 false, 위 이동(0x5bd570)은 true로 `_moveSelectedLayer`(0x5bc818)에 들어간다. 이 함수는 대상/이웃 선택과 경계 검사를 거쳐 DB BeginTransaction → SwapLayersAndContentGlobal → SaveFrame → CommitTransaction → FinishTransaction → close를 호출한다(0x5bcbd4–0x5bcc28).
+- 아래 이동(0x5bc7e4)은 false, 위 이동(0x5bd570)은 true로 `_moveSelectedLayer`(0x5bc818)에 들어간다.
+- 이 함수는 대상/이웃 선택과 경계 검사를 거쳐 DB BeginTransaction → SwapLayersAndContentGlobal → SaveFrame → CommitTransaction → FinishTransaction → close를 호출한다(0x5bcbd4–0x5bcc28).
 
-정상 DB 처리 뒤 setState의 실제 closure(0x5bd008)가 renderable map의 모든 키를 복사하여 evict한다(0x5bd07c). 주변 프레임 목록 field11b/11f를 빈 목록으로 바꾸고 markCanvasDirty를 호출한다(0x5bd098–0x5bd0a4). 이어 layer 상호작용 상태를 정리하고 UpdateLayerSelectionAfterMove를 호출한다. 바깥 함수는 onion refresh·adjacent prefetch를 예약하고 전체 canvas history를 지운 뒤 현재 기록을 남긴다.
+- 정상 DB 처리 뒤 setState의 실제 closure(0x5bd008)가 renderable map의 모든 키를 복사하여 evict한다(0x5bd07c).
+- 주변 프레임 목록 field11b/11f를 빈 목록으로 바꾸고 markCanvasDirty를 호출한다(0x5bd098–0x5bd0a4).
+- 이어 layer 상호작용 상태를 정리하고 UpdateLayerSelectionAfterMove를 호출한다.
+- 바깥 함수는 onion refresh·adjacent prefetch를 예약하고 전체 canvas history를 지운 뒤 현재 기록을 남긴다.
 
 - 이는 레이어 이동 UI의 캐시 폐기 연결이다.
 - 개별 AO의 앞/뒤 보내기 UI나 모든 DrawOrder 대입 경로를 확인한 결과로 확대하지 않는다.
@@ -75,4 +79,5 @@
 - 기존 unit/probe/영상 분석, 설치·페어링·휴대폰 시작 시험을 반복하지 않았다.
 - PC 확보와 학교 Wi-Fi 제약은 기존 인계 상태를 유지하며 지금 사용자 추가 작업은 없다.
 
-다음은 `_saveFiguresChangedOnly`의 DrawOrder/Flags/glow/point 저장 비교 → `_replaceFrameFillRegions`와 segment 재공급 → SwapLayersAndContentGlobal 내부 및 일반 AO 순서 변경 UI 연결이다. 재생 전용 캐시의 폐기 경계는 남겨 둔다.
+- 다음은 `_saveFiguresChangedOnly`의 DrawOrder/Flags/glow/point 저장 비교 → `_replaceFrameFillRegions`와 segment 재공급 → SwapLayersAndContentGlobal 내부 및 일반 AO 순서 변경 UI 연결이다.
+- 재생 전용 캐시의 폐기 경계는 남겨 둔다.

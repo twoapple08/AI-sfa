@@ -20,7 +20,10 @@
 | 이미지 캐시 | TryDrawCachedGlowRaster(0x421398). 성공하면 반환한다. miss에서도 이미지를 새로 만들 수 있다. |
 | 직접 블러 | 계획이 없을 때 별도 화면 밖 검사. 앞 경로가 처리하지 못하면 ResolveGlowMaskFilter(0x4213f4)와 DrawGlowGeometry(0x421450). |
 
-TryDrawGlowWithShader(0x425458)는 프로그램 null 또는 전달된 style gate가 false이면 false를 반환한다(0x425498–0x4254a8). 원본 호출자는 Paint style code == 1 여부를 전달한다(0x421254–0x421278). TypeId 1/2/3과 필요한 점 개수 검사를 통과해야 대응 line/circle/curve 경로로 간다. sigma=sqrt(R²+(0.29/DPR)²)와 화면 밖 true의 뜻은 이전 AOT-DRAW-GLOW 보고서를 유지한다.
+- TryDrawGlowWithShader(0x425458)는 프로그램 null 또는 전달된 style gate가 false이면 false를 반환한다(0x425498–0x4254a8).
+- 원본 호출자는 Paint style code == 1 여부를 전달한다(0x421254–0x421278).
+- TypeId 1/2/3과 필요한 점 개수 검사를 통과해야 대응 line/circle/curve 경로로 간다.
+- sigma=sqrt(R²+(0.29/DPR)²)와 화면 밖 true의 뜻은 이전 AOT-DRAW-GLOW 보고서를 유지한다.
 
 보간 DrawGlowEffect에도 shader→plan→cached raster→직접 fallback 호출이 있고, 입력 Paint 복원은 AOT-PAINT-DISPATCH 보고서를 따른다. 전체 그룹 합성·최종 영상 backend가 이 원본 객체 분기와 동일하다고 일반화하지 않는다.
 

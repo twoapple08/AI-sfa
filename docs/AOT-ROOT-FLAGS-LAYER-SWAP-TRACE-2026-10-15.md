@@ -6,13 +6,17 @@
 
 ## 기반 그룹 참조: 저장과 복원
 
-그룹 참조를 상대화하는 실제 코드는 일반 point UPDATE가 아니라 기반 데이터 생성 `_storeRoot`(data_access.dart 0x36ac6c)에 있다. 이 함수는 입력 점 목록을 순회하며 AP.fieldf를 읽고, 입력 기준 점 ID P와 점 수 n으로 상대 참조 r을 만든다(0x36ad54–0x36ada4).
+- 그룹 참조를 상대화하는 실제 코드는 일반 point UPDATE가 아니라 기반 데이터 생성 `_storeRoot`(data_access.dart 0x36ac6c)에 있다.
+- 이 함수는 입력 점 목록을 순회하며 AP.fieldf를 읽고, 입력 기준 점 ID P와 점 수 n으로 상대 참조 r을 만든다(0x36ad54–0x36ada4).
 
 - r = (F >> 6) - P
 - group bit4가 켜져 있고 0 ≤ r < n이면 저장 Flags S = (r << 6) OR (F & 0x3f)
 - 그 외에는 S = F & 0x2f
 
-실제 명령은 signed arithmetic shift와 하위 32비트 마스크다. 결과 S는 point 행 묶음의 raw_flags 슬롯으로 전달된다(0x36b0e0–0x36b120). `_baseCopyOnRoot`도 기준 ID를 `_storeRoot`의 해당 인수로 전달한다(0x36a0d4–0x36a0d8). 모든 root 생성 호출의 목록 구성·연속 ID 전제까지 확인한 결과는 아니다.
+- 실제 명령은 signed arithmetic shift와 하위 32비트 마스크다.
+- 결과 S는 point 행 묶음의 raw_flags 슬롯으로 전달된다(0x36b0e0–0x36b120).
+- `_baseCopyOnRoot`도 기준 ID를 `_storeRoot`의 해당 인수로 전달한다(0x36a0d4–0x36a0d8).
+- 모든 root 생성 호출의 목록 구성·연속 ID 전제까지 확인한 결과는 아니다.
 
 - 복원은 앞서 확인한 `_preloadAnchorPointsWithRoot`의 S bit4 검사와 `((B + (S >> 6)) << 6) OR (S & 0x3f)`이다.
 - 유효한 r에 대해 복원 그룹 참조는 B+r이 된다.

@@ -17,7 +17,9 @@
 - map[P[i]]로 얻는 원 점의 ID가 source base 시작 ID+i다.
 - root의 i번째 rank AO ID가 A[i]와 같다.
 
-원 점 map 항목이나 root rank/AO 대응이 다르면 해당 위치부터 prefix를 중단한다(0x369f10–0x36a064). 이 prefix 검사 자체는 x/y·Flags·outgoing 연결·glow·fill 전체의 동일성 검사가 아니다. 따라서 ‘base를 재사용했으니 모든 점 값이 root와 같다’고 축약하면 안 된다.
+- 원 점 map 항목이나 root rank/AO 대응이 다르면 해당 위치부터 prefix를 중단한다(0x369f10–0x36a064).
+- 이 prefix 검사 자체는 x/y·Flags·outgoing 연결·glow·fill 전체의 동일성 검사가 아니다.
+- 따라서 ‘base를 재사용했으니 모든 점 값이 root와 같다’고 축약하면 안 된다.
 
 - 재사용 적격 조건은 **2×(N−p)≤N**, 즉 적어도 절반 이상에 해당하는 prefix다(0x36a068–0x36a084). p>0이면 source의 기존 root를 재사용하고 target의 base.point_count를 **p**로 넣는다.
 - N 전부를 기반 범위라고 쓰는 것이 아니다.
@@ -33,7 +35,9 @@
 - helper 내부에는 [ROOT-REBASE-IDLE](AOT-ROOT-REBASE-IDLE-TRACE-2026-10-15.md)의 범위 충돌·AO/Index·점/Flags/연결/상세 완전 일치 guard가 있다.
 - 이 기존 내부 검사를 다시 분석하지 않았다.
 
-target은 재사용이면 p, 새 root면 N으로 frame_base(frame ID,root ID,B,count)를 insert한다(0x36a2bc–0x36a370). caller는 그 뒤 SaveFrame을 실행한다. root prefix 적격과 실제 point/상세 override 저장, source rebase 성공 여부를 각각 구분한다.
+- target은 재사용이면 p, 새 root면 N으로 frame_base(frame ID,root ID,B,count)를 insert한다(0x36a2bc–0x36a370).
+- caller는 그 뒤 SaveFrame을 실행한다.
+- root prefix 적격과 실제 point/상세 override 저장, source rebase 성공 여부를 각각 구분한다.
 
 ## 점 ID 예약은 schema에 따라 두 경로다
 

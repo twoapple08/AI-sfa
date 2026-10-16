@@ -79,7 +79,9 @@ GlowAlpha의 정수화 위치는 델타를 곱한 뒤 0방향 절삭하고 앞 �
 
 ## 그룹 glow의 식별자는 앞 연결 집합에서 공급
 
-plan은 앞 AO 목록에서 _ResolveConnectedObjectGlowGroupIds를 호출한다(0x62f598). 각 앞 AO ID에 그 map의 group ID가 있으면 쌍에 넣고, 없으면 그 AO ID를 넣는다. 이 값이 _InterpolateAnimationObject의 세 번째 인수로 InterpolatedAnimationObject에 전달된다(0x62e8c0/cc,0x62f16c).
+- plan은 앞 AO 목록에서 _ResolveConnectedObjectGlowGroupIds를 호출한다(0x62f598).
+- 각 앞 AO ID에 그 map의 group ID가 있으면 쌍에 넣고, 없으면 그 AO ID를 넣는다.
+- 이 값이 _InterpolateAnimationObject의 세 번째 인수로 InterpolatedAnimationObject에 전달된다(0x62e8c0/cc,0x62f16c).
 
 - 따라서 중간 결과의 그룹 ID를 앞뒤 ID 숫자 사이에서 선형 보간하는 규칙은 아니다.
 - 뒤 Frame의 그룹 Flags를 t=.5에서 이 helper가 통째로 교체한다는 근거도 없다.

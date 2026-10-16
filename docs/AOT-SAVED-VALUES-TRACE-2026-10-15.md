@@ -31,13 +31,20 @@
 
 ## 그룹 Flags와 점 저장
 
-AP.fieldf는 단순 선택 가능 여부만이 아니다. 기존 행 비교 준비에서 bit0로 selectable을 만들고, 하위 32비트의 0x2e 마스크로 anchor point type을 만든다(0x35cd10–0x35cd38). 실제 point UPDATE에는 별도의 raw_flags 슬롯도 있으며, 그 인수는 AP.fieldf 전체를 읽는다(0x35d410). 따라서 type 마스크에 그룹 ID 상위 비트가 없다는 이유로 그룹 정보가 저장에서 잘린다고 해석하면 안 된다.
+- AP.fieldf는 단순 선택 가능 여부만이 아니다.
+- 기존 행 비교 준비에서 bit0로 selectable을 만들고, 하위 32비트의 0x2e 마스크로 anchor point type을 만든다(0x35cd10–0x35cd38).
+- 실제 point UPDATE에는 별도의 raw_flags 슬롯도 있으며, 그 인수는 AP.fieldf 전체를 읽는다(0x35d410).
+- 따라서 type 마스크에 그룹 ID 상위 비트가 없다는 이유로 그룹 정보가 저장에서 잘린다고 해석하면 안 된다.
 
-점 갱신에는 x/y, index, selectable, point type, raw flags, frame/object ID가 연결되고(0x35d500–0x35d508), 연결 목록은 `_sameLinks` 비교 후 필요 시 `_writeAnchorConnections`로 저장된다(0x35d55c–0x35d56c). 그룹 Flags 전체의 비교·공유 기반 프레임 override 분기, moved point 병합은 아직 모두 닫지 않았다. 기존 group UI→Flags→새 record/plan 연결 근거는 DIRTY-PROPAGATION 보고서를 유지한다.
+- 점 갱신에는 x/y, index, selectable, point type, raw flags, frame/object ID가 연결되고(0x35d500–0x35d508), 연결 목록은 `_sameLinks` 비교 후 필요 시 `_writeAnchorConnections`로 저장된다(0x35d55c–0x35d56c).
+- 그룹 Flags 전체의 비교·공유 기반 프레임 override 분기, moved point 병합은 아직 모두 닫지 않았다.
+- 기존 group UI→Flags→새 record/plan 연결 근거는 DIRTY-PROPAGATION 보고서를 유지한다.
 
 ## 채우기 영역과 구멍 정보
 
-`_replaceFrameFillRegions`(0x359044)에는 `_frameBaseOf` 및 `_storeSharedFills`로 조기 반환하는 공유 저장 분기가 있다(0x3590a4–0x3590cc). 모든 저장이 항상 로컬 fill 행 전체 삭제·재생성이라고 단정하면 안 된다. 해당 분기의 전체 적격 조건·공유 표현은 다음 추적 대상이다.
+- `_replaceFrameFillRegions`(0x359044)에는 `_frameBaseOf` 및 `_storeSharedFills`로 조기 반환하는 공유 저장 분기가 있다(0x3590a4–0x3590cc).
+- 모든 저장이 항상 로컬 fill 행 전체 삭제·재생성이라고 단정하면 안 된다.
+- 해당 분기의 전체 적격 조건·공유 표현은 다음 추적 대상이다.
 
 - 로컬 재기록 분기는 `_deleteFillRegionsForFrame` 호출 후 각 fill의 프레임/ARGB 행을 만들고 segment를 순서대로 기록한다.
 - segment 저장 필드는 region 참조, segment index/kind, 객체 참조, 시작/끝 점 참조, start/end t, contour index다.

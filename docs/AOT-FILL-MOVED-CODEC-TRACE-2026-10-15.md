@@ -62,7 +62,10 @@
 - 마지막에 zlib 압축한다.
 - 목록을 codec가 정렬하는 것은 아니며 호출자 _writeMovedPoints가 먼저 키를 sort한다.
 
-한 축에 대해 run의 첫 점에서 Δ=target−base를 계산한다(0x35e6bc/0x35e72c). 각 점에서 predicted=base+Δ를 double 덧셈으로 계산한다(0x35eb00/0x35f034). target double과 predicted double을 같은 64비트 정수 표현으로 해석하고 그 **정수 차이**를 ZigZag/varint로 쓴다(0x35ecb0/0x35f1dc). XOR 압축이나 좌표 정수 반올림이 아니다.
+- 한 축에 대해 run의 첫 점에서 Δ=target−base를 계산한다(0x35e6bc/0x35e72c).
+- 각 점에서 predicted=base+Δ를 double 덧셈으로 계산한다(0x35eb00/0x35f034).
+- target double과 predicted double을 같은 64비트 정수 표현으로 해석하고 그 **정수 차이**를 ZigZag/varint로 쓴다(0x35ecb0/0x35f1dc).
+- XOR 압축이나 좌표 정수 반올림이 아니다.
 
 - decode(0x351c0c)는 base callback에서 좌표를 받아 base+Δ를 만든 뒤 signed integer bit 표현에 저장 residual을 더하고 다시 Float64로 해석해 write callback에 전달한다(0x3524ac/0x352828,0x352654/0x3529c0,0x352a38). 이 방식은 일반적인 유효 입력에서 double 덧셈의 반올림 차이를 residual로 복구할 수 있도록 구성됐다.
 - 단순 Δ만 저장하는 근사 형식으로 구현하면 다르다.
@@ -74,7 +77,9 @@ _readMovedPoints의 callback adapter는 codec의 offset에 FrameBase.first_point
 
 ## DB 저장 연결
 
-_writeMovedPoints(0x35d82c)는 입력 변경 map이 비면 해당 frame의 moved_points 행을 삭제한다. 비어 있지 않으면 키 정렬→기준/대상 좌표 목록과 offset 목록→encode→frame별 UPSERT로 이어진다(0x35d944,0x35df34,0x35dfac). 이 분기에서 기준 좌표 map 조회에 실패하면 NullError 경로도 있으므로 임의의 빠진 기준값을 0으로 채워 저장하면 안 된다.
+- _writeMovedPoints(0x35d82c)는 입력 변경 map이 비면 해당 frame의 moved_points 행을 삭제한다.
+- 비어 있지 않으면 키 정렬→기준/대상 좌표 목록과 offset 목록→encode→frame별 UPSERT로 이어진다(0x35d944,0x35df34,0x35dfac).
+- 이 분기에서 기준 좌표 map 조회에 실패하면 NullError 경로도 있으므로 임의의 빠진 기준값을 0으로 채워 저장하면 안 된다.
 
 - _writeAnchorConnections(0x35f5e8)는 점을 withLinks=false로 로컬 구체화한 뒤 기존 **그 점의 outgoing 연결**을 삭제하고, 입력 연결의 대상 ID를 Set으로 중복 제거하여 순서대로 insert한다.
 - 현재 helper를 양방향 연결 자동 생성이나 incoming 연결 전체 삭제로 확대하지 않는다.

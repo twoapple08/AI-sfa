@@ -10,7 +10,9 @@
 - 컨트롤러의 `_initializeTab`(0x4e28a4)은 index1→SetupTransformTab, index2→SetupGlowTab, 그 외→SetupColorTab으로 연결된다.
 - 변형 탭 build(0x63b294)에는 크기(%)·굵기(%) 입력과 ‘변형 적용’ 버튼이 있다.
 
-이 버튼의 closure(0x63b930)는 ApplyOnlyTransform을 직접 호출하지 않는다. ApplyAllPendingChangesAndDismiss closure(0x6350fc)를 만들어 `_afterAction`으로 넘긴다(0x63b978–0x63b98c). `_afterAction`의 setState closure는 전달된 동작을 실행한 뒤 입력 컨트롤러를 동기화한다(0x63bac0).
+- 이 버튼의 closure(0x63b930)는 ApplyOnlyTransform을 직접 호출하지 않는다.
+- ApplyAllPendingChangesAndDismiss closure(0x6350fc)를 만들어 `_afterAction`으로 넘긴다(0x63b978–0x63b98c).
+- `_afterAction`의 setState closure는 전달된 동작을 실행한 뒤 입력 컨트롤러를 동기화한다(0x63bac0).
 
 - ApplyAllPendingChangesAndDismiss(0x635134)는 실행 직전 color/transform/glow 표시 fieldc3/c7/cb를 읽어 각각 true인 경우에 색상→변형→glow 순서로 적용한다(0x635194/0x6351a4/0x6351b4). 따라서 변형 탭의 버튼이라도 다른 탭의 pending 변경을 함께 적용할 수 있다.
 - 이를 무조건 모든 속성을 재설정하는 동작으로 해석하지 않는다.
