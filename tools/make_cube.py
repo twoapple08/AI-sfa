@@ -556,9 +556,53 @@ def pencil(fr, p0, p1, w, rgb, alpha, r):
         a = (p0[0] + dx * t0 + nx * o, p0[1] + dy * t0 + ny * o)
         m = (p0[0] + dx * (t0 + t1) / 2 + nx * o * 1.2 + r.uniform(-1.5, 1.5), p0[1] + dy * (t0 + t1) / 2 + ny * o * 1.2 + r.uniform(-1.5, 1.5))
         b = (p0[0] + dx * t1 + nx * o * .6, p0[1] + dy * t1 + ny * o * .6)
-        al = int(alpha * r.uniform(.55, 1.0))
+        al = int(alpha * r.uniform(.25, 1.0))           # 낮은 알파 획이 겹치며 흑연처럼 진해짐
         fr.line(a, m, argb(*rgb, al), max(w / 9 * r.uniform(.5, 1.0), .08))
         fr.line(m, b, argb(*rgb, al), max(w / 20 * r.uniform(.5, 1.0), .06))
+
+
+def smudge(fr, c, r0, r1, n, w, rgb, alpha, seed):
+    """연필 문지름: 넓고 아주 옅은 획(알파 10~30)을 겹쳐 회색 톤의 번짐을 만듦."""
+    r = random.Random(seed)
+    for _ in range(n):
+        a = r.uniform(0, 2 * math.pi)
+        p0 = (c[0] + r0 * r.uniform(.8, 1.2) * math.cos(a), c[1] + r0 * r.uniform(.8, 1.2) * math.sin(a))
+        p1 = (c[0] + r1 * r.uniform(.6, 1.1) * math.cos(a + r.uniform(-.05, .05)), c[1] + r1 * r.uniform(.6, 1.1) * math.sin(a + r.uniform(-.05, .05)))
+        fr.line(p0, p1, argb(*rgb, int(alpha * r.uniform(.4, 1))), w / 9 * r.uniform(.6, 1.4))
+
+
+def radial_glow(fr, c, R, steps, rgb, alpha, sx=1.25, sy=.85, jag=0.0, seed=0):
+    """반투명 타원을 겹쳐 중심이 가장 밝은 그라데이션(알파가 겹칠수록 진해짐)."""
+    r = random.Random(seed)
+    for i in range(steps):
+        rr = R * (1 - i / steps)
+        pts = []
+        for j in range(40):
+            a = 2 * math.pi * j / 40
+            k_ = 1 + (jag * r.uniform(-.5, 1) if j % 2 == 0 else 0)
+            pts.append((c[0] + rr * k_ * sx * math.cos(a), c[1] + rr * k_ * sy * math.sin(a)))
+        fr.poly(pts, argb(*rgb, alpha))
+
+
+def stroke_grad(fr, c, rin, rout, n, w, rgb, alpha, seed, outward=True, sy=.85):
+    """연필 획 그라데이션: 넓고 옅은 획을 길이 제각각으로 겹쳐 띠 없이 부드럽게.
+    outward=True면 중심에서 뻗어(중심이 진함), False면 가장자리에서 안으로(가장자리가 진함)."""
+    r = random.Random(seed)
+    for _ in range(n):
+        a = r.uniform(0, 2 * math.pi)
+        far = rin + (rout - rin) * r.random() ** .7
+        u = (math.cos(a), math.sin(a) * sy)
+        p0 = (c[0] + u[0] * (rin if outward else rout), c[1] + u[1] * (rin if outward else rout))
+        p1 = (c[0] + u[0] * far, c[1] + u[1] * far)
+        fr.line(p0, p1, argb(*rgb, int(alpha * r.uniform(.5, 1))), w / 9 * r.uniform(.6, 1.5))
+
+
+def vignette(fr, c, R0, R1, steps, rgb, alpha):
+    """반투명 굵은 고리를 겹쳐 가장자리로 갈수록 어두워지는 그라데이션."""
+    for i in range(steps):
+        rr = R0 + (R1 - R0) * (i + .5) / steps
+        width = (R1 - R0) / steps * (steps - i) * 1.6           # 바깥 고리일수록 여러 겹 겹침
+        fr.circle(c, rr + width / 2, argb(*rgb, alpha), width / 9, None)
 
 
 def pencil_rays(fr, c, r0, r1, n, w, rgb, alpha, seed, inward=False, spread=(0, 2 * math.pi), sy=1.0):
@@ -618,8 +662,9 @@ def glow_line(fr, a, b, th, gr, gt, rgb=(255, 255, 255), ga=255):
 
 
 def flare(fr, c, L, z, seed):
-    """빛나는 십자 플레어: 긴 가로·세로 + 짧은 사선, 모두 글로우."""
+    """빛나는 십자 플레어: 긴 가로·세로 + 짧은 사선, 모두 글로우. 아래에 반투명 블룸 그라데이션."""
     r = random.Random(seed)
+    stroke_grad(fr, c, 0, L * .55, 70, 60, (255, 252, 240), 22, seed + 3, sy=1.0)
     for ang, ln, th in ((0, L, .5), (math.pi / 2, L * .7, .45), (math.pi / 4, L * .3, .3), (-math.pi / 4, L * .3, .3)):
         u = (math.cos(ang), math.sin(ang))
         for sg in (-1, 1):
@@ -635,6 +680,11 @@ def jag_pts(c, R, seed, sx=1.25, sy=.85, n=40):
         k_ = 1 + (r.uniform(.12, .32) * (2.4 if r.random() < .12 else 1) if i % 2 == 0 else -r.uniform(0, .08))
         pts.append((c[0] + R * k_ * sx * math.cos(a), c[1] + R * k_ * sy * math.sin(a)))
     return pts
+
+
+def grain_over(fr, poly, rgb, alpha, seed, ang=.9, gap=9):
+    """면 위 반투명 연필 결(흰 면엔 회색, 검은 면엔 흑연 광택)."""
+    hatch_poly(fr, poly, ang, gap, 5, rgb, alpha, seed)
 
 
 def impact(fr, cam, k, sub):
@@ -654,14 +704,21 @@ def impact(fr, cam, k, sub):
     front = [cam(-1, 1, 2), cam(1, 1, 2), cam(1, 1, 0), cam(-1, 1, 0)]
     if dark_bg:                                            # 어두운 화면 자체가 연필로 칠한 결 + 종이 결처럼 비치는 밝은 긁힘
         fr.layer = 'imp_bgtex'
-        pencil_rays(fr, c, 120 * z, 1500, 420, 9, K, 235, sd + 1)
-        pencil_rays(fr, c, 160 * z, 1500, 110, 4, (120, 117, 110), 110, sd + 11)
+        stroke_grad(fr, c, 0, 1100 * z, 160, 110, (255, 250, 238), 16, sd + 21)     # 중심이 밝은 빛 그라데이션(연필 획)
+        smudge(fr, c, 200 * z, 1600, 70, 90, (12, 12, 12), 26, sd + 2)            # 흑연 문지름
+        pencil_rays(fr, c, 120 * z, 1500, 520, 9, K, 235, sd + 1)
+        pencil_rays(fr, c, 160 * z, 1500, 140, 4, (120, 117, 110), 110, sd + 11)
+    else:
+        fr.layer = 'imp_bgtex'
+        stroke_grad(fr, c, 300 * z, 1700, 200, 120, K, 16, sd + 21, outward=False)  # 가장자리가 어두운 그라데이션(연필 획)
+        smudge(fr, c, 300 * z, 1600, 60, 80, (40, 40, 40), 22, sd + 2)
     if k == 0:                                             # IF1 흑·집중선 + 빛나는 윗면
         fr.layer = 'imp_fg'
         fr.poly(top, WH)
         fr.poly(right, BK)
         fr.poly(front, BK)
         fr.layer = 'imp_tex'
+        grain_over(fr, top, (120, 116, 108), 40, sd + 31, .4, 11)
         for f, ang in ((right, 1.2), (front, 2.0)):
             hatch_poly(fr, f, ang, 7 * z, 6, (70, 68, 64), 150, sd + 3)
         fringe(fr, right + front, c, 90, 70 * z, 7, K, 230, sd + 4)
@@ -683,6 +740,8 @@ def impact(fr, cam, k, sub):
         pencil_rays(fr, c, 300 * z, 1600, 360, 14, K, 245, sd + 1)
         fringe(fr, right + front + top, c, 260, 160 * z, 9, K, 240, sd + 2)
         hatch_poly(fr, top, .3, 9 * z, 5, (90, 88, 84), 120, sd + 3)
+        for f in (right, front):
+            grain_over(fr, f, (150, 146, 138), 34, sd + 32, 1.3, 12)
         fr.layer = 'imp_glow'
         tc = tuple(np.mean(top, 0))
         r = random.Random(sd)
@@ -726,6 +785,7 @@ def impact(fr, cam, k, sub):
         fr.layer = 'imp_tex'
         pencil_rays(fr, c, 110 * z, 420 * z, 160, 8, K, 210, sd + 2, inward=True)
         fringe(fr, rim, c, 220, 140 * z, 9, K, 235, sd + 3)
+        grain_over(fr, rim, (110, 106, 100), 32, sd + 33, .7, 14)
         r = random.Random(sd + 3)
         for _ in range(10):
             a, rr, s_ = r.uniform(0, 6.3), r.uniform(120, 380) * z, r.uniform(22, 54) * z
