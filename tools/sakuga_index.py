@@ -133,7 +133,12 @@ def cmd_similar(a):
         for l in f:
             r = json.loads(l)
             profs[r['artist']] = r
-    skip = {'animated', 'production_materials', 'genga', 'illustration', 'web', 'remake', 'presumed'}
+    # 제작 자료·지역(국적 무관 지시)·형식 태그는 스타일 벡터에서 뺀다
+    skip = {'animated', 'production_materials', 'genga', 'illustration', 'web', 'remake',
+            'presumed', 'eastern', 'western', 'artist_unknown', 'translated', 'storyboard',
+            'layout', 'rough', 'correction', 'comparison', 'settei', 'sakuga_guide',
+            # 소재(무엇을 그렸나) 태그: 스타일 유사도를 왜곡하므로 제외
+            'mecha', 'creatures', 'animals', 'vehicle', 'vehicles', 'food', 'dancing', 'sports'}
 
     def vec(posts):
         c = collections.Counter()
@@ -150,7 +155,18 @@ def cmd_similar(a):
         ny = math.sqrt(sum(v * v for v in y.values()))
         return dot / (nx * ny) if nx and ny else 0.0
 
-    vecs = {k: vec(r['posts']) for k, r in profs.items() if r['n'] >= a.min_posts}
+    for root in a.roots:  # 뿌리는 전체 게시물 파일이 있으면 그것을 쓴다
+        full = os.path.join(a.dir, f'posts_{root}.jsonl')
+        if os.path.exists(full):
+            with open(full, encoding='utf-8') as f:
+                ps = [json.loads(l) for l in f]
+            profs[root] = {'artist': root, 'n': len(ps),
+                           'posts': [[p['tags'], p['score']] for p in ps]}
+    vecs = {k: vec(r['posts']) for k, r in profs.items()
+            if r['n'] >= a.min_posts or k in a.roots}
+    df = collections.Counter(t for v in vecs.values() for t in v)
+    idf = {t: math.log(len(vecs) / c) for t, c in df.items()}
+    vecs = {k: {t: x * idf[t] for t, x in v.items()} for k, v in vecs.items()}
     out = {}
     for root in a.roots:
         rv = vecs[root]
@@ -162,9 +178,8 @@ def cmd_similar(a):
             region = sum('eastern' in t.split() for t, _ in profs[k]['posts']) / profs[k]['n']
             rows.append({'artist': k, 'sim': round(cos(rv, v), 4), 'n': profs[k]['n'],
                          'median_score': statistics.median(scores),
-                         'effects': round(v.get('effects', 0), 2),
-                         'character_acting': round(v.get('character_acting', 0), 2),
-                         'background_animation': round(v.get('background_animation', 0), 2),
+                         'top_tags': [t for t, _ in sorted(v.items(), key=lambda x: -x[1])[:6]],
+                         'yutapon_cubes': round(v.get('yutapon_cubes', 0), 2),
                          'eastern': round(region, 2)})
         rows.sort(key=lambda r: -r['sim'])
         out[root] = rows[:a.top]
