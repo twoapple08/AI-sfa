@@ -43,12 +43,26 @@ def skeleton(frame):
     f = [None if j[0] is None else (j[0], j[1]) for j in frame]
     neck, hip = _mid(f, 5, 6), _mid(f, 11, 12)
     face = [p for p in f[0:5] if p is not None]
-    head_top = None
-    if neck is not None and face:
-        cx, cy = np.mean([p[0] for p in face]), np.mean([p[1] for p in face])
-        head_top = (2 * cx - neck[0], 2 * cy - neck[1])       # circle through neck, centred on the face
-    pts = [head_top, neck, hip] + [f[COCO_FOR[i]] for i in range(3, 11)]
-    return pts
+    face_c = (float(np.mean([p[0] for p in face])), float(np.mean([p[1] for p in face]))) if face else None
+    return [face_c, neck, hip] + [f[COCO_FOR[i]] for i in range(3, 11)]   # point 0: face centre for now
+
+
+def place_heads(seq, torso):
+    """Point 0 (face centre) -> head-circle top. The stickman head is a rigid circle: its size is
+    fixed per character (template head/torso ratio x the character's median torso), never taken
+    from the drawing (hair, big anime heads) or from the face-neck distance (shrinks when the head
+    bows). Only its direction follows the face: bowing, looking up and tilting move the circle."""
+    ratio, _ = _template_geometry()
+    diameter = ratio[0] * torso
+    out = []
+    for pts in seq:
+        pts = list(pts)
+        neck, face, hip = pts[1], pts[0], pts[2]
+        v = (face[0] - neck[0], face[1] - neck[1]) if face is not None else (neck[0] - hip[0], neck[1] - hip[1])
+        n = float(np.hypot(*v)) or 1.0
+        pts[0] = (neck[0] + v[0] / n * diameter, neck[1] + v[1] / n * diameter)
+        out.append(pts)
+    return out
 
 
 def template_points():
@@ -149,7 +163,10 @@ def build(motion, shot=None, max_chars=2):
     end = max(c['start'] + len(c['joints']) for c in chars)
     tracks = []
     for c in chars:
-        px = fill_missing([skeleton(f) for f in c['joints']], c.get('offscreen'), motion['size'][1])
+        raw = [skeleton(f) for f in c['joints']]
+        torsos = [np.hypot(f[2][0] - f[1][0], f[2][1] - f[1][1]) for f in raw if f[1] is not None and f[2] is not None]
+        torso = float(np.median(torsos)) if torsos else 0.25 * motion['size'][1]
+        px = place_heads(fill_missing(raw, c.get('offscreen'), motion['size'][1]), torso)
         seq = [[to_pct(p) for p in pts] for pts in px]
         height = np.median([max(p[1] for p in pts) - min(p[1] for p in pts) for pts in seq])
         tracks.append((c, seq, float(np.clip(0.8 * height / TEMPLATE_HEIGHT, 0.25, 1.5))))

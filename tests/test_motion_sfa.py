@@ -94,6 +94,23 @@ class StickmanSfa(unittest.TestCase):
         self.assertAlmostEqual(float(torso[0].get('X')), 50.0)        # neck x = 960 px -> 50 %
         self.assertAlmostEqual(float(torso[0].get('Y')), 400 / 1080 * 100, places=3)
 
+    def test_head_is_a_fixed_circle_that_only_turns(self):
+        joints = [coco_pose() for _ in range(3)]
+        for j in range(5):                                           # frame 1: head bowed (face near neck)
+            joints[1][j] = [joints[1][j][0] + 30, joints[1][j][1] + 50, 0.9]
+        for j in range(5):                                           # frame 2: big hairy head (face far up)
+            joints[2][j] = [joints[2][j][0], joints[2][j][1] - 60, 0.9]
+        mo = dict(self.motion, characters=[dict(self.motion['characters'][0], joints=joints, runs=[1, 1, 1])])
+        root, _ = to_sfa.build(mo)
+        sizes, dirs = [], []
+        for f in root.findall('Frame'):
+            top, neck = [(float(p.get('X')) * 19.2, float(p.get('Y')) * 10.8) for p in f.findall('AO')[0].findall('AP')]
+            sizes.append(np.hypot(top[0] - neck[0], top[1] - neck[1]))
+            dirs.append(np.degrees(np.arctan2(top[0] - neck[0], neck[1] - top[1])))
+        self.assertAlmostEqual(max(sizes) - min(sizes), 0, delta=0.05)  # same size bowed, upright, big hair
+        self.assertAlmostEqual(sizes[0], 0.75 * 160, delta=1)           # template ratio x torso (400 -> 560 px)
+        self.assertGreater(dirs[1], dirs[0] + 20)                       # bowing turns the circle
+
     def test_letterbox_fit_and_render(self):
         to_pct = to_sfa.fit((1440, 1080))                            # 4:3 clip in the 16:9 canvas
         self.assertAlmostEqual(to_pct((0, 0))[0], 12.5)
