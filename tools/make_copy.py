@@ -263,29 +263,69 @@ def stick_tracks(motion, frames, masks):
     out = []
     for slots, tracks in per_shot:
         for slot, (fr, thick) in zip(slots, tracks):
-            cols = {}
+            cols, raw = {}, {}
             for c in slot:
                 col = pink_rgb if info[id(c)]['pink'] else dark_rgb
                 for t in range(c['start'], c['start'] + len(c['joints'])):
                     cols[t] = col
-            out.append((fr, thick, cols))
+                    raw[t] = c['joints'][t - c['start']]
+            torsos = [np.hypot(p[2][0] - p[1][0], p[2][1] - p[1][1]) * md.W / 100 for p in fr.values()]
+            out.append({'fr': fr, 'thick': thick, 'hair': cols, 'raw': raw,
+                        'torso': float(np.median(torsos)) if torsos else 200.0})
     return out
 
 
 HEAD_FILL = md.argb(246, 240, 234)
 
 
-def draw_stick(f2d, pts, thick, color):
+RATIO, _ = to_sfa._template_geometry()          # bone length / torso length of the app stickman
+
+
+def lum(rgb):
+    return 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
+
+
+def draw_stick(f2d, st, t, frame_bgr):
+    """App stickman with depth cues: a translucent torso plane through both shoulders and hips, limbs
+    thicker the more they are foreshortened (pointing at the camera), a white-ish head fill, and a
+    contrasting outline underneath when the hair colour would vanish into the background."""
+    pts, thick, rgb = st['fr'][t], st['thick'], st['hair'].get(t, (45, 10, 10))
+    color = argb_of(rgb)
     px = [(x / 100 * md.W, y / 100 * md.H) for x, y in pts]
     head_top, neck = px[0], px[1]
     c = ((head_top[0] + neck[0]) / 2, (head_top[1] + neck[1]) / 2)
     r = np.hypot(head_top[0] - neck[0], head_top[1] - neck[1]) / 2
+    segs = []
+    for a, b in to_sfa.AO_POINTS[1:]:
+        child = a if to_sfa.PARENT.get(a) == b else b
+        want = RATIO[child] * st['torso']
+        have = np.hypot(px[a][0] - px[b][0], px[a][1] - px[b][1])
+        k = float(np.clip(want / max(have, 1.0), 1.0, 2.5)) ** 0.8 if child != 2 else 1.0
+        segs.append((px[a], px[b], thick * k))
+    xs = [q[0] for q in px]
+    ys = [q[1] for q in px]
+    x0, x1 = int(max(min(xs) / SX, 0)), int(min(max(xs) / SX + 1, AW))
+    y0, y1 = int(max(min(ys) / SX, 0)), int(min(max(ys) / SX + 1, AH))
+    if x1 > x0 and y1 > y0:
+        bg = np.median(frame_bgr[y0:y1, x0:x1].reshape(-1, 3), 0)[::-1]
+        if abs(lum(bg) - lum(rgb)) < 70:                 # would vanish: outline in the opposite tone
+            oc = md.argb(235, 215, 205) if lum(rgb) < 128 else md.argb(20, 8, 8)
+            f2d.layer = 'outline'
+            f2d.circle(c, r, oc, thick * 2.2)
+            for p0, p1, th in segs:
+                f2d.line(p0, p1, oc, th * 2.2)
+    j = st['raw'].get(t)
+    if j is not None:                                    # torso plane: shoulders and hips as drawn
+        quad = [j[k] for k in (5, 6, 12, 11)]
+        if all(q[0] is not None for q in quad):
+            f2d.layer = 'body'
+            f2d.poly([(q[0], q[1]) for q in quad], md.argb(*rgb, 150))
     f2d.layer = 'head'                                     # white-ish head fill under the outline (user request)
     f2d.circle(c, r, md.CLEAR, 0.1, fill=HEAD_FILL)
     f2d.layer = 'fig'
     f2d.circle(c, r, color, thick)
-    for a, b in to_sfa.AO_POINTS[1:]:
-        f2d.line(px[a], px[b], color, thick)
+    for p0, p1, th in segs:
+        f2d.line(p0, p1, color, th)
 
 
 # ----------------------------------------------------------------------------- build
@@ -293,7 +333,7 @@ def build(mode, frames, masks, shots, sticks):
     k = K_BG if mode == 'mosaku' else K_ROTO
     layers = [(f'lv{r}', f'밝기 {r + 1}') for r in range(k - 1)]
     if mode == 'mosaku':
-        layers += [('head', '머리 채우기'), ('fig', '스틱맨')]
+        layers += [('outline', '테두리'), ('body', '몸통 면'), ('head', '머리 채우기'), ('fig', '스틱맨')]
     out = []
     for s in shots:
         span = range(s['start'], min(s['end'], len(frames)))
@@ -318,9 +358,9 @@ def build(mode, frames, masks, shots, sticks):
                 f2d.cpoly(loop, argb_of(cols[order[r + 1]]))
             if mode == 'mosaku':
                 f2d.layer = 'fig'
-                for fr, thick, hair in sticks:
-                    if t in fr:
-                        draw_stick(f2d, fr[t], thick, argb_of(hair.get(t, (45, 10, 10))))
+                for st in sticks:
+                    if t in st['fr']:
+                        draw_stick(f2d, st, t, frames[t])
             out.append(f2d)
     return out, layers
 
@@ -332,7 +372,15 @@ def write(frames2d, layers, name, path):
     for fr in frames2d:                                     # dry run: pool sizes
         used = {}
         for layer, kind, pts, *_ in fr.items:
-            pool = (layer, 'cpoly', len(pts) // 2) if kind == 'cpoly' else (layer, kind)
+            if kind == 'cpoly':
+                pool = (layer, 'cpoly', len(pts) // 2)
+            elif kind == 'poly':
+                n_ = min(len(md.clip_poly(pts)), 40)
+                if n_ < 3:
+                    continue
+                pool = (layer, 'poly', n_)
+            else:
+                pool = (layer, kind)
             used[pool] = used.get(pool, 0) + 1
             ids.need[pool] = max(ids.need.get(pool, 0), used[pool])
     ids.plan([k for k, _ in layers])
