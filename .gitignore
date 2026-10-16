@@ -3,3 +3,5 @@ __pycache__/
 .venv/
 .env
 examples/priority_probes_v2/AI-sfa-priority-tests-v2.zip
+data/sakuga/tag_types.json
+data/sakuga/artist_profiles.jsonl
