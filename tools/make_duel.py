@@ -124,14 +124,15 @@ class Frame2D:
         (the probe convention), and every AO ID keeps one TypeId/point count/connection shape and
         one DrawOrder for the whole file (the importer keys objects by AO ID across frames)."""
         frame = ET.SubElement(root, 'Frame', {'BackgroundColor': self.bg, 'ID': str(500000 + n), 'Position': str(n)})
-        ET.SubElement(frame, 'LayerDef', {'ID': '0', 'Name': 'Layer 1', 'Visible': 'true', 'Locked': 'false'})
+        for k, name in enumerate(LAYER_NAMES):            # list order = stacking (first = bottom)
+            ET.SubElement(frame, 'LayerDef', {'ID': str(k), 'Name': name, 'Visible': 'true', 'Locked': 'false'})
         pid = 10000000 + n * 10000
         fills, used = [], {}
 
         def ao(oid, kind, color, th, glow):
             gr, gt, gc, ga = glow if glow else (0, 0, WHITE, 0)
             return ET.Element('AO', {
-                'ID': str(oid), 'TypeId': kind, 'Color': color, 'LayerId': '0', 'DrawOrder': str(oid),
+                'ID': str(oid), 'TypeId': kind, 'Color': color, 'LayerId': str(LAYERS.index(layer)), 'DrawOrder': str(oid),
                 'ThicknessScale': f'{max(th, 0.06):.3f}', 'ObjectScale': '1.0', 'GlowRadius': str(int(gr)),
                 'GlowThickness': str(int(gt)), 'GlowColor': gc, 'GlowAlpha': str(int(ga))})
 
@@ -185,7 +186,8 @@ class Frame2D:
             frame.append(fr)
 
 
-LAYERS = ('bg', 'mid', 'fg', 'fx')                      # back to front
+LAYERS = ('ground', 'bg', 'mid', 'fg', 'fx')            # back to front
+LAYER_NAMES = ('땅 채우기', '배경 선', '큐브·미사일', '인물', '효과')    # one SFA layer each: within a layer the app does not keep fills behind lines
 
 
 class IdPlan:
@@ -475,7 +477,10 @@ def draw_ground(fr, cam, t, boil=0.0, color=None):
             ex, ey = ex / n * 6000, ey / n * 6000
             a0, a1 = (hz[0][0] - ex, hz[0][1] - ey), (hz[-1][0] + ex, hz[-1][1] + ey)
             ground = [a0] + hz + [a1, (a1[0] + dx, a1[1] + dy), (a0[0] + dx, a0[1] + dy)]
+            keep = fr.layer
+            fr.layer = 'ground'
             fr.poly(ground, GROUND_FILL)
+            fr.layer = keep
     for R in (12, 28, 46, 66):
         n = 10
         for i in range(n):
