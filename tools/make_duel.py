@@ -119,12 +119,21 @@ class Frame2D:
             fill = BLACK if self.mode == 'impact_dark' else WHITE
         self.items.append((self.layer, 'poly', pts, self._col(color) if color != CLEAR else CLEAR, th, None, fill))
 
-    def write(self, root, n, ids):
+    def cpoly(self, pts, fill):
+        """Closed shape of quadratic curves: pts = [on0, ctrl0, on1, ctrl1, ...] (even length),
+        curve j = (on_j, ctrl_j, on_j+1). Half the objects of a straight polygon for smooth blobs."""
+        if len(pts) < 4 or len(pts) % 2 or not self._visible(pts):
+            return
+        self.items.append((self.layer, 'cpoly', pts, CLEAR, 1.0, None, fill))
+
+    def write(self, root, n, ids, layers=None, prec=2):
         """ids: IdPlan shared by all frames. Frame n gets ID 500000+n, its points 10000000+n*10000+k
         (the probe convention), and every AO ID keeps one TypeId/point count/connection shape and
         one DrawOrder for the whole file (the importer keys objects by AO ID across frames)."""
         frame = ET.SubElement(root, 'Frame', {'BackgroundColor': self.bg, 'ID': str(500000 + n), 'Position': str(n)})
-        for k, name in enumerate(LAYER_NAMES):            # list order = stacking (first = bottom)
+        layers = layers or list(zip(LAYERS, LAYER_NAMES))
+        keys = [k for k, _ in layers]
+        for k, (_, name) in enumerate(layers):            # list order = stacking (first = bottom)
             ET.SubElement(frame, 'LayerDef', {'ID': str(k), 'Name': name, 'Visible': 'true', 'Locked': 'false'})
         pid = 10000000 + n * 10000
         fills, used = [], {}
@@ -132,7 +141,7 @@ class Frame2D:
         def ao(oid, kind, color, th, glow):
             gr, gt, gc, ga = glow if glow else (0, 0, WHITE, 0)
             return ET.Element('AO', {
-                'ID': str(oid), 'TypeId': kind, 'Color': color, 'LayerId': str(LAYERS.index(layer)), 'DrawOrder': str(oid),
+                'ID': str(oid), 'TypeId': kind, 'Color': color, 'LayerId': str(keys.index(layer)), 'DrawOrder': str(oid),
                 'ThicknessScale': f'{max(th, 0.06):.3f}', 'ObjectScale': '1.0', 'GlowRadius': str(int(gr)),
                 'GlowThickness': str(int(gt)), 'GlowColor': gc, 'GlowAlpha': str(int(ga))})
 
@@ -140,7 +149,7 @@ class Frame2D:
             nonlocal pid
             pid += 1
             return ET.SubElement(parent, 'AP', {'ID': str(pid), 'Flags': str(flags), 'Index': str(idx),
-                                                'X': f'{p[0] / W * 100:.2f}', 'Y': f'{p[1] / H * 100:.2f}'})
+                                                'X': f'{p[0] / W * 100:.{prec}f}', 'Y': f'{p[1] / H * 100:.{prec}f}'})
 
         objs_out = []
         for layer, kind, pts, color, th, glow, fill in self.items:
@@ -151,6 +160,8 @@ class Frame2D:
                 n_ = min(len(pts), 40)
                 pts = pts if len(pts) == n_ else [pts[int(k * len(pts) / n_)] for k in range(n_)]
                 pool = (layer, 'poly', n_)
+            elif kind == 'cpoly':
+                pool = (layer, 'cpoly', len(pts) // 2)
             else:
                 pool = (layer, kind)
             k = used.get(pool, 0)
@@ -169,6 +180,24 @@ class Frame2D:
                 for o, (a0, a1) in zip(objs, aps):
                     ET.SubElement(fr, 'FS', {'Kind': '0', 'ObjId': o.get('ID'), 'StartPtId': a0.get('ID'),
                                              'EndPtId': a1.get('ID'), 'StartT': '0.0', 'EndT': '1.0'})
+                fills.append(fr)
+                objs_out += objs
+                continue
+            if kind == 'cpoly':
+                m = len(pts) // 2
+                objs, aps = [], []
+                for e in range(m):
+                    o = ao(base + e, '3', CLEAR, 1.0, None)
+                    trio = (pts[2 * e], pts[2 * e + 1], pts[(2 * e + 2) % len(pts)])
+                    aps.append([ap(o, i, q, 3 if i == 0 else 9) for i, q in enumerate(trio)])
+                    objs.append(o)
+                for e in range(m):                       # chain: end of curve e <-> start of curve e+1
+                    ET.SubElement(aps[e][2], 'AC', {'ConnPtId': aps[(e + 1) % m][0].get('ID')})
+                    ET.SubElement(aps[(e + 1) % m][0], 'AC', {'ConnPtId': aps[e][2].get('ID')})
+                fr = ET.Element('FR', {'Color': fill})
+                for o, a in zip(objs, aps):
+                    ET.SubElement(fr, 'FS', {'Kind': '0', 'ObjId': o.get('ID'), 'StartPtId': a[0].get('ID'),
+                                             'EndPtId': a[2].get('ID'), 'StartT': '0.0', 'EndT': '1.0'})
                 fills.append(fr)
                 objs_out += objs
                 continue
@@ -203,13 +232,13 @@ class IdPlan:
 
     @staticmethod
     def width(pool):
-        return pool[2] if pool[1] == 'poly' else 1
+        return pool[2] if pool[1] in ('poly', 'cpoly') else 1
 
-    def plan(self):
+    def plan(self, layer_keys=None):
         """Assign ID ranges after a dry run counted every pool's size."""
         self.base, nxt = {}, 1000
-        for layer in LAYERS:
-            for pool in sorted((p for p in self.need if p[0] == layer), key=lambda p: (p[1] != 'poly', str(p))):  # fills first
+        for layer in layer_keys or LAYERS:
+            for pool in sorted((p for p in self.need if p[0] == layer), key=lambda p: (p[1] not in ('poly', 'cpoly'), str(p))):  # fills first
                 self.base[pool] = nxt
                 nxt += self.need[pool] * self.width(pool) + 10
 
