@@ -119,11 +119,12 @@ ExportVideoAsyncTask._withExportRenderDevicePixelRatio(0x633254):
 
 **인수인계 관련**
 - HANDOFF.md가 과거 체크포인트를 반복 수록해 길어져, 이번에 현행 입구를 압축했다. 삭제 전 전체는 docs/history/HANDOFF-2026-10-15-before-render-context.md에 보존한다.
-- 고정 예측 / File-2 최적화 / 학습 / AI 연결 보류, 원본·역컴파일·assembly 공개 금지 유지(정리 메모: 이후 학습·AI 연결은 사용자 결정으로 허용됐다).
+- 고정 예측 변경·File-2 최적화는 보류, 원본·역컴파일·assembly 공개 금지 유지.
+- 학습·AI 연결은 2026-10-16 사용자 결정으로 개인용 범위에서 진행한다(AGENTS.md "학습 단계 결정", [AI-PIPELINE-PLAN](AI-PIPELINE-PLAN-2026-10-16.md)).
 
-**캐시 (작성 당시 이전 환경 경로)**
-- `e23c9fd610d3/private/blutter_out/asm/sfa/original_port/sequences/{draw_information,animation_object,frame_fill_region}.dart`와 `activities/sequence_action_activity.dart`, ELF/venv.
-- 새 표본 검사: `25b8ca176661/private-trace/{validate_render_context.py,render-context-validation.json}`.
+**근거 캐시**
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/asm/sfa/original_port/sequences/{draw_information,animation_object,frame_fill_region}.dart`, `blutter_out/asm/sfa/original_port/activities/sequence_action_activity.dart`, `evidence/libapp.so`, `python/`(Capstone·pyelftools). Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 새 표본 검사(`validate_render_context.py`, `render-context-validation.json`). 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-RENDER-CONTEXT-TRACE-2026-10-15.md)에 보존했다.
 - 직접 작성한 해석·집계·인수인계만 공개한다.
 
 **후속:** 현재 다음은 AOT-PAINT-DISPATCH-TRACE-2026-10-15.md의 shader/raster 선택과 optimized/encoder dispatch다. 기존 기본 폭 재추적 요청은 완료로 대체한다.

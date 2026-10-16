@@ -81,7 +81,8 @@
 - 이 문서의 상태는 제한된 표본과 기존 정적 근거에 관한 것이다.
 - 완성도 백분율, 모든 기능 완료, 앱과 동일한 렌더러 완성으로 환산하지 않는다.
 - ‘굽힘’은 사용자 정정대로 존재하지 않는 기능으로 제외한다.
-- PREVIDEO 고정 예측·File-2 보호·학습/AI 연결 보류를 유지한다.
+- PREVIDEO 고정 예측·File-2 보호를 유지한다.
+- 학습·AI 연결은 2026-10-16 사용자 결정으로 개인용 범위에서 진행한다(AGENTS.md "학습 단계 결정", [AI-PIPELINE-PLAN](AI-PIPELINE-PLAN-2026-10-16.md)).
 
 
 - 2026-10-16 추가: [ROOT-COPY-DB-BRANCHES](AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)에서 root prefix(절반이상) 재사용/새 root/source rebase시도/targetbase 범위·점 ID예약 schema·같은/다른 sequence AO DB복사 정상분기를 49선택명령으로 보충했다.

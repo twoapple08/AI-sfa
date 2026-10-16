@@ -128,4 +128,6 @@ Set이 중복을 제거하므로 자기 unit에 포함된 FR이 다시 참조되
 - 외부 DB 저장·다시불러오기에서 편집/재생 캐시가 어떤 범위로 폐기되는지 구분한다.
 - 폐기와 디스크 데이터 변환을 같은 단계로 묶지 않는다.
 
-캐시:e23c9fd610d3/private/blutter_out/asm/sfa/{main.dart,original_port/editor/editor_frame_cache.dart,original_port/sequences/{anchor_point,frame_fill_region}.dart},PP/원본 ELF/venv. 신규검사 5a16c98ed7ee/private-trace/{validate_dirty_propagation.py,dirty-propagation-validation.json}. 문서 worktree5a16c98ed7ee/AI-sfa-publish. 옛 dirtyworktree·원본보존.
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/asm/sfa/{main.dart,original_port/editor/editor_frame_cache.dart,original_port/sequences/{anchor_point,frame_fill_region}.dart}`, `blutter_out/pp.txt`, `evidence/libapp.so`, `python/`(Capstone·pyelftools). Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 신규 검사(`validate_dirty_propagation.py`, `dirty-propagation-validation.json`)와 문서 worktree. 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-DIRTY-PROPAGATION-TRACE-2026-10-15.md)에 보존했다.
+- 작성 당시 이전 worktree와 원본은 변경하지 않고 보존했다.

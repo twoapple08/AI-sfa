@@ -109,4 +109,6 @@ _buildInterpolatedFillRegion(0x7920e4)은 clamp(t,0,1)로 InterpolateArgbColor(0
 - 기존표본 재분석/휴대폰 명령/설치/라이선스 변경은 요청/실행하지 않는다.
 - 현재 라이선스 차단과 보호작업은 그대로다.
 
-캐시: e23c9fd610d3/private/blutter_out/asm/sfa/original_port/sequences/{frame,frame_fill_region,tween_link}.dart 및 input/arm64-v8a/libapp.so,venv. 새검사기/집계는 25b8ca176661/private-trace/{validate_fill.py,fill-validation.json}. 공개는 직접작성 해석·집계만, asm/source/original/log는 제외한다.
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/asm/sfa/original_port/sequences/{frame,frame_fill_region,tween_link}.dart`, `evidence/libapp.so`, `python/`(Capstone·pyelftools). Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 검사기·집계(`validate_fill.py`, `fill-validation.json`). 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-FILL-TWEEN-TRACE-2026-10-15.md)에 보존했다.
+- 공개는 직접 작성한 해석·집계만이며, asm/source/original/log는 제외한다.

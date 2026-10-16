@@ -95,12 +95,14 @@
 - 전체 재덤프·원본 영상 재분석을 반복하지 않는다.
 - reFlutter custom engine build와 Android 실행 환경은 별도 미완 항목으로 남긴다.
 
-**당시 private 루트:** `/workspace/scratch/e23c9fd610d3/private/`
-- `blutter_out/` 추출물, `blutter/bin/` 실행 가능한 분석기, `venv/`와 `depsroot/` 의존, `reFlutter/` 소스, `input/arm64-v8a/` 입력 2 라이브러리.
-- 실행 시 `LD_LIBRARY_PATH=depsroot/lib`.
-- 옛 private 캐시도 유지한다. 환경 변경 후 존재는 보장되지 않는다.
+**분석 도구·추출물 위치**
+- 현재 환경: `/root/sfa-cache/extracted`에 `blutter_out/` 추출물, `bin/` Blutter 실행 파일, `lib/` 의존 라이브러리, `python/` Capstone·pyelftools, `tool-source/`, `evidence/`(libapp.so, libflutter.so, glow.frag)가 있다. Setup script가 복구한다.
+- 실행 시 `LD_LIBRARY_PATH=<복구경로>/lib:<복구경로>/python/capstone/lib`, Python 디코더는 `PYTHONPATH=<복구경로>/python`(캐시의 RESTORE-KO.txt).
+- 작성 당시 이전 환경에는 `blutter_out/`, `blutter/bin/`, `venv/`·`depsroot/` 의존(실행 시 `LD_LIBRARY_PATH=depsroot/lib`), `reFlutter/` 소스, `input/arm64-v8a/` 입력 라이브러리 2개가 있었다. 경로는 [원문](history/before-current-facts-2026-10-16/FLUTTER-TOOLS-RESULTS-2026-10-15.md)에 보존했다.
+- reFlutter 소스는 현재 환경에 없다.
 
 기타:
 - 이번은 문서·집계만 공개.
-- 고정 예측·File-2 최적화·학습·AI 연결은 계속 보류(정리 메모: 이후 학습·AI 연결은 사용자 결정으로 허용됐다).
+- 고정 예측 변경·File-2 최적화는 계속 보류.
+- 학습·AI 연결은 2026-10-16 사용자 결정으로 개인용 범위에서 진행한다(AGENTS.md "학습 단계 결정", [AI-PIPELINE-PLAN](AI-PIPELINE-PLAN-2026-10-16.md)).
 - 기존 SFA·영상·22개 생성 검사 재실행 없음. 새로 4개 명령 위치 검증을 실행했다.

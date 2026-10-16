@@ -133,4 +133,6 @@ drawRing(0x427378)의 shuffle을 실제 mov로 따라가면, 내부에서 z=min(
 
 사용자환경정정:2026-10-15 08:49 KST,휴대폰 Wi-Fi는학교망에연결가능하나제약있음(정확한제약미확인). PC i7-8700/GTX1050Ti/RAM16GB확보. 현재무선 ADB/USB연결가능여부·PC OS는미확인. 지금사용자추가작업없음. 라이선스응답 4차단해결로세지않는다.
 
-캐시:e23c9fd610d3/private/blutter_out/asm/sfa/original_port/sequences/{glow_shader,animation_object}.dart,pp.txt,원본 ELF/venv. 신규검사 5a16c98ed7ee/private-trace/{validate_curve_ring.py,curve-ring-validation.json,check_curve_formulas.py,curve-formula-examples.json}. 문서 worktree5a16c98ed7ee/AI-sfa-publish. 이전 dirtyworktree/보호원본은변경하지않았다.
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/asm/sfa/original_port/sequences/{glow_shader,animation_object}.dart`, `blutter_out/pp.txt`, `evidence/libapp.so`, `python/`(Capstone·pyelftools). Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 신규 검사(`validate_curve_ring.py`, `curve-ring-validation.json`, `check_curve_formulas.py`, `curve-formula-examples.json`)와 문서 worktree. 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-CURVE-RING-TRACE-2026-10-15.md)에 보존했다.
+- 작성 당시 이전 worktree와 보호 원본은 변경하지 않았다.

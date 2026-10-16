@@ -2,13 +2,13 @@
 
 - 기준 main은 `afc4be303b3e7b0099fc0f8d7cc62bd469adb50e`다.
 - 이 문서는 2026-10-16 정적 결과 중 **앱 SFA 내보내기로 관측할 수 있는 것**과 관측할 수 없는 것을 나누고, 관측 가능한 항목을 판정하는 시드·검사 도구·절차를 추가한다.
-- **새 실제 앱 시험 결과는 아직 없다.** 검사 도구의 단위시험은 정적 해석을 옮긴 모의 붙여넣기에 대한 것이며 앱 검증이 아니다.
+- 실제 앱 결과는 아래 "실제 앱 결과 — 2026-10-16 사용자 반환 SFA 6개" 절에 있다. 검사 도구의 단위시험은 정적 해석을 옮긴 모의 붙여넣기에 대한 것이며 앱 검증이 아니다.
 
-## 이번 환경의 차단
+## 환경 (작성 당시 → 현재)
 
-- 이 Claude Code 클라우드 환경에는 과거 `/workspace/scratch/.../private-recovery` 경로가 없고, 사용자가 올린 Drive 백업(`drive.google.com`, `drive.usercontent.google.com`, `docs.google.com`)은 환경 네트워크 정책에서 403으로 거부됐다.
-- 원본 APK도 이 환경에 없어 AOT 재추출로 대신할 수 없다.
-- 따라서 이번에는 **새 AOT 함수 분석을 수행하지 않았다.** 일반 AO 앞뒤 순서·별도 잠금 UI 같은 미식별 callback 탐색은 캐시 복구 후 다음 작업으로 남긴다.
+- 작성 당시 이 Claude Code 클라우드 환경에는 과거 private-recovery 경로가 없었고, 사용자가 올린 Drive 백업(`drive.google.com`, `drive.usercontent.google.com`, `docs.google.com`)은 환경 네트워크 정책에서 403으로 거부됐다. 원본 APK도 이 환경에 없어 AOT 재추출로 대신할 수 없었다.
+- 그래서 이 문서 작성 시점에는 새 AOT 함수 분석을 수행하지 않았다.
+- 현재: 사용자가 Drive 도메인을 허용했고, Setup script가 백업을 `/root/sfa-cache/extracted`로 복구한다. 일반 AO 앞뒤 순서·별도 잠금은 이후 [DRAWORDER-WRITERS](AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md)에서 추적했다(잠금 열은 `layer_def.is_locked`뿐, AO 잠금 열 없음).
 
 ## 정적 결과의 관측 가능성 대조
 
@@ -60,8 +60,8 @@
 
 ## 남은 일
 
-1. 분석 캐시 복구(환경 Network access에 Drive 도메인 허용, 또는 접근 가능한 다른 전달 경로) 후 미식별 UI callback(일반 AO 앞뒤 순서, 별도 잠금 전환) 정적 추적.
-2. 위 절차의 실제 앱 결과 수집·판정.
+1. ~~분석 캐시 복구 후 미식별 UI callback(일반 AO 앞뒤 순서, 별도 잠금 전환) 정적 추적~~ → 완료: [DRAWORDER-WRITERS](AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md).
+2. ~~위 절차의 실제 앱 결과 수집·판정~~ → 완료: 아래 "실제 앱 결과" 절.
 3. 모든 기능을 쓰는 제작·저장·내보내기 검증은 이 모듈을 첫 단위로 삼아 이어 설계한다. 실제 렌더/backend pixel·곡선/링/그룹 합성은 계속 미완이다.
 
 검증: `python -m unittest discover -s tests -v` 28개 통과(이번 신규 6개 포함). 생성 시드는 `sfa.validate` 오류 없음, 그룹 Flags는 2³¹ 미만. 기존 probe 파일은 재생성하지 않았다.

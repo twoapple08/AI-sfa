@@ -115,9 +115,9 @@
 - `_HoledFillPaths` 키·무효화와 영역 레이어 의미 확인도 유지한다.
 - 휴대폰 추가 작업·설치·라이선스 변경 요청 없음.
 
-**근거 캐시 (작성 당시 이전 환경 경로)**
-- `e23c9fd610d3/private/blutter_out/asm/sfa/original_port/sequences/frame_fill_region.dart`, `pp.txt`, `input/arm64-v8a/libapp.so`, venv.
-- 새 검사: `25b8ca176661/private-trace/{validate_path.py,path-validation.json}`.
+**근거 캐시**
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/asm/sfa/original_port/sequences/frame_fill_region.dart`, `blutter_out/pp.txt`, `evidence/libapp.so`, `python/`(Capstone·pyelftools). Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 새 검사(`validate_path.py`, `path-validation.json`). 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-FILL-PATH-TRACE-2026-10-15.md)에 보존했다.
 - 공개는 직접 작성한 보고서·집계만.
 
 **공식 enum 근거**

@@ -110,4 +110,5 @@ V4.b.P의 정적 codec 설정:
 - 기존 원본/00–05영상은 재분석하지 않고 정적 경로를 먼저 연결한다.
 - runtime 계측은 기존 license 응답 4 차단 상태를 유지하며 변경/우회/재설치/폰 명령 요청은 없다.
 
-캐시: e23c9fd610d3/private/blutter_out/asm/sfa/{main.dart,original_port/activities/sequence_action_activity.dart,original_port/sequences/playback_timeline.dart},pp.txt,ELF/venv. Java 6d77389e706a/private/decompiled/sources/{A3/AbstractActivityC0076f.java,W2/{e,g,r}.java,com/sG/stickfighter/activities/MainActivity.java,V4/b.java}. 새 검사 25b8ca176661/private-trace/{validate_export_dispatch.py,export-dispatch-validation.json}.
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/asm/sfa/{main.dart,original_port/activities/sequence_action_activity.dart,original_port/sequences/playback_timeline.dart}`, `blutter_out/pp.txt`, `evidence/libapp.so`, `python/`(Capstone·pyelftools). Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 Java 역컴파일 소스(`A3/AbstractActivityC0076f.java`, `W2/{e,g,r}.java`, `com/sG/stickfighter/activities/MainActivity.java`, `V4/b.java`)와 새 검사(`validate_export_dispatch.py`, `export-dispatch-validation.json`). 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-EXPORT-DISPATCH-TRACE-2026-10-15.md)에 보존했다.

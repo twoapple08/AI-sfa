@@ -106,4 +106,6 @@ ResolveGlowMaskFilter(0x421c48)는 유한한 정상 입력에 대해:
 - 그룹 합성의 별도 선택, 실제 사용 영상의 backend, shader asset 내부 함수/엔진 pixel 결과는 미확인 상태를 유지한다.
 - 실기기 지속 렌더 계측은 기존 라이선스 응답 4 차단 상태이며 추가 사용자 작업/검사 변경은 없다.
 
-캐시: e23c9fd610d3/private/blutter_out/asm/sfa/{main.dart,original_port/sequences/{glow_shader,animation_object,interpolated_animation_object}.dart},pp.txt,원본 ELF. 새 검증기 25b8ca176661/private-trace/{validate_glow_backend.py,glow-backend-validation.json}. 공개는 직접 작성 해석과 집계만.
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/asm/sfa/{main.dart,original_port/sequences/{glow_shader,animation_object,interpolated_animation_object}.dart}`, `blutter_out/pp.txt`, `evidence/libapp.so`. Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 새 검증기(`validate_glow_backend.py`, `glow-backend-validation.json`). 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-GLOW-BACKEND-TRACE-2026-10-15.md)에 보존했다.
+- 공개는 직접 작성한 해석과 집계만.

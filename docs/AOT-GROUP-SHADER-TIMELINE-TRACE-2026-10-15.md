@@ -186,7 +186,9 @@ factory:0x519bac–0x519ce4, round helper:0x519d1c–0x519dd4, outputAt:0x62bb8c
 - 이번 수학 요약을 완전한 pixel 복제식으로 승격하지 않는다.
 - 실제 backend·shader/raster/MaskFilter pixel 차이·기기 codec/색은 runtime 미확인으로 남긴다.
 
-캐시: e23c9fd610d3/private/blutter_out/asm/sfa/{main.dart,original_port/sequences/{frame,interpolated_frame,interpolated_animation_object,glow_shader,playback_timeline}.dart,original_port/dialogs/video_settings_dialog.dart,original_port/activities/sequence_action_activity.dart},libapp.so/venv. 자산 6d77389e706a/private/glow.frag. 이번 private 검사·본문 읽기 파일은 1be6baf45de3/private-trace. 최신 문서 checkout1be6baf45de3/AI-sfa. 이전 dirty worktree는 보존했다.
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/asm/sfa/{main.dart,original_port/sequences/{frame,interpolated_frame,interpolated_animation_object,glow_shader,playback_timeline}.dart,original_port/dialogs/video_settings_dialog.dart,original_port/activities/sequence_action_activity.dart}`, `evidence/libapp.so`, 셰이더 자산 `evidence/glow.frag`, `python/`(Capstone·pyelftools). Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 private 검사·본문 읽기 파일과 문서 checkout. 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md)에 보존했다.
+- 작성 당시 이전 dirty worktree는 보존했다.
 
 
 ## 6. 추가 명령 대조·타임라인 예시
@@ -215,4 +217,5 @@ factory:0x519bac–0x519ce4, round helper:0x519d1c–0x519dd4, outputAt:0x62bb8c
 | 1 | (60,12) | 60 | 5 | 5 | 같은 원본 5회 |
 | 0 | (60,12) | 60 | 5 | 0 | 출력 없음 |
 
-추가 private 검사:5a16c98ed7ee/private-trace/{validate_group_shader_timeline.py,group-shader-timeline-validation.json,shader-timeline-structure.json,window.py}. 문서 반영용 clean worktree5a16c98ed7ee/AI-sfa-publish. 본문의 다음 우선순위와 runtime 미확인 제한은 그대로 유지한다.
+- 작성 당시 추가 private 검사(`validate_group_shader_timeline.py`, `group-shader-timeline-validation.json`, `shader-timeline-structure.json`, `window.py`)와 문서 반영용 clean worktree는 현재 환경에 없다. 현재 주소창 도구는 `/root/sfa-cache/extracted`의 `checks/window.py`다.
+- 본문의 다음 우선순위와 runtime 미확인 제한은 그대로 유지한다.

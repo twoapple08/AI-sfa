@@ -122,7 +122,11 @@
 - 다음은 ① Frame.GetAnimationObjects의 로드·캐시 공급자가 planner에 주는 순서와 비연속 연결 그룹의 방문순서 ② TryDrawGlowWithShader(0x425458)/DrawGlowEffect의 paint 배율·blendMode 실제값 ③ _planFillRegions(0x62ff78)와 renameTweenLinkedFill, canonicalize, held/interpolated 분기를 좁게 추적한다.
 - 이번에 확정한 XML 속성 누락/기본값·기존 00–05 영상은 다시 처리하지 않는다.
 
-reFlutter 엔진 빌드/Android 실행/분할 APK 서명 미완은 그대로다. 고정 PREVIDEO 예측, File-2 최적화, 학습·AI 연결은 계속 보류한다.
+- reFlutter 엔진 빌드는 미완 그대로다.
+- 분할 APK 서명은 이후 별도 계측 패키지로 완료했다([ANDROID-INSTRUMENTATION-BUILD](ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md)). 계측 앱의 지속 편집은 Play license 응답 4로 막혀 있고 우회하지 않는다.
+- 실제 앱 확인은 사용자가 휴대폰에서 한다(APP-R1/T1/V3).
+- 고정 PREVIDEO 예측, File-2 최적화는 계속 보류한다.
+- 학습·AI 연결은 2026-10-16 사용자 결정으로 개인용 범위에서 진행한다(AGENTS.md "학습 단계 결정", [AI-PIPELINE-PLAN](AI-PIPELINE-PLAN-2026-10-16.md)).
 
 ## 2026-10-15 추가 정정/현행 보고서
 

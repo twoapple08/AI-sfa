@@ -48,11 +48,14 @@
 
 ## 캐시와 작업 위치
 
-- 도구: /workspace/scratch/37921248d0d6/private/instrument-tools (tools-audit.json, 다운로드 3개, AAPT2)
-- 제작: /workspace/scratch/37921248d0d6/private/instrument-build (patch_axml.py, prepare.py, repack_base.py, verify.py, startup.js, 키, 최종 검사 로그, delivery/)
-- 최종 서명 검사: verify-final.log, validation.json. 이 중간 파일은 공개하지 않는다.
-- 전달 ZIP: /workspace/scratch/25b8ca176661/output/SFA-Instrument-Startup-2026-10-15.zip
-- 문서 worktree: /workspace/scratch/25b8ca176661/AI-sfa, 시작 원격 490b35b. 이전 로컬 변경은 그대로 유지.
+- 작성 당시 이전 환경에 다음이 있었다. 정확한 경로는 [원문](history/before-current-facts-2026-10-16/ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md)에 보존했다.
+  - 도구(instrument-tools): tools-audit.json, 다운로드 3개, AAPT2
+  - 제작(instrument-build): patch_axml.py, prepare.py, repack_base.py, verify.py, startup.js, 키, 최종 검사 로그, delivery/
+  - 최종 서명 검사: verify-final.log, validation.json
+  - 전달 ZIP: SFA-Instrument-Startup-2026-10-15.zip
+  - 문서 worktree: 시작 원격 490b35b, 이전 로컬 변경은 그대로 유지
+- 현재 Claude Code 환경에는 이 도구·제작 파일·전달 ZIP이 없다.
+- 이 중간 파일은 공개하지 않는다.
 
 - 문서/집계 변경만 레포에 반영한다.
 - 기존 unit/probe 생성 시험은 문서 변경으로 반복하지 않았다.

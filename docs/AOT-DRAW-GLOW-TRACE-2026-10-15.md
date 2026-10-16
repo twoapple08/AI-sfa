@@ -110,4 +110,6 @@ GLOW_PAINT는 전달 모드를 상속한다는 결론이 실제 불변 srcOver �
 - 그 뒤 B/D/Canvas transform의 실제 공급자와 shader/raster/fallback dispatch 연결을 보완한다.
 - 휴대폰 재설치·Play설정변경·추가시험은 요청하지 않는다.
 
-캐시: /workspace/scratch/e23c9fd610d3/private/blutter_out/{asm,pp.txt,ida_script/addNames.py}; ELF input/arm64-v8a/libapp.so; cached venv. 이번 표본 검사기/집계 임시본은 /workspace/scratch/25b8ca176661/private-trace/. 원본/assembly/private script는 공개하지 않고 직접작성 해석·집계만 반영한다.
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/{asm,pp.txt,ida_script/addNames.py}`, `evidence/libapp.so`, `python/`(Capstone·pyelftools). Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 표본 검사기·집계 임시본. 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-DRAW-GLOW-TRACE-2026-10-15.md)에 보존했다.
+- 원본/assembly/private script는 공개하지 않고 직접 작성한 해석·집계만 반영한다.

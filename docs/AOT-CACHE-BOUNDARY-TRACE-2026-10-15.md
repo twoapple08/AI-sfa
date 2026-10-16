@@ -156,4 +156,6 @@ _addValues(0x42af24)와 _holdsValues를 연결한 AO snapshot은 다음을 포�
 - 이어 실제 편집 변경 호출자의 DrawOrder/Flags/FR contour 변경·목록 교체/무효화 계약을 좁게 확인한다.
 - 객체 하나를 움직일 때 그룹 glow·연결된 fill/구멍이 함께 갱신되는지를 정적 경로로 먼저 닫는다.
 
-캐시:e23c9fd610d3/private/blutter_out/asm/sfa/original_port/{sequences/{frame,frame_fill_region,animation_object}.dart,editor/editor_frame_cache.dart,activities/sequence_action_activity.dart},PP/원본 ELF/venv. 새검사 5a16c98ed7ee/private-trace/{validate_cache_boundary.py,cache-boundary-validation.json}. 문서 worktree5a16c98ed7ee/AI-sfa-publish,옛 dirtyworktree보존.
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/asm/sfa/original_port/{sequences/{frame,frame_fill_region,animation_object}.dart,editor/editor_frame_cache.dart,activities/sequence_action_activity.dart}`, `blutter_out/pp.txt`, `evidence/libapp.so`, `python/`(Capstone·pyelftools). Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 새 검사(`validate_cache_boundary.py`, `cache-boundary-validation.json`)와 문서 worktree. 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-CACHE-BOUNDARY-TRACE-2026-10-15.md)에 보존했다.
+- 작성 당시 이전 worktree는 보존했다.

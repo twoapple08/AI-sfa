@@ -1,8 +1,10 @@
 # 분석 근거 통합과 다음 단계 진입 조건 — 2026-10-16
 
-- **현행 정정:** 서버 도구·AOT 복구와 비공개 백업이 완료됐다.
-- [복구 결과](ANALYSIS-RECOVERY-RESULT-2026-10-16.md)를 우선한다.
-- 이 문서 아래 캐시 부재·검토 거절은 당시 이력이며 현재 차단으로 재사용하지 않는다.
+- **현재 상태(2026-10-16):** 서버 도구·AOT 복구와 비공개 백업이 완료됐다. Setup script가 `/root/sfa-cache/extracted`로 복구한다(`.ok` 확인).
+  - AOT `blutter_out/asm/sfa`, PP `blutter_out/pp.txt`, ELF·셰이더 `evidence/{libapp.so,libflutter.so,glow.frag}`, Blutter `bin/`, Capstone·pyelftools `python/`.
+  - Java 역컴파일 캐시와 원본 APK/APKS는 이 환경에 없다.
+- [복구 결과](ANALYSIS-RECOVERY-RESULT-2026-10-16.md)를 우선한다. 앱 이해의 현재 기준은 [APP-UNDERSTANDING-STATUS](APP-UNDERSTANDING-STATUS-2026-10-16.md)다.
+- 아래의 캐시 부재·검토 거절은 작성 당시 이력이며 현재 차단이 아니다. 원래 문장은 [원문](history/before-current-facts-2026-10-16/ANALYSIS-READINESS-2026-10-16.md)에 보존했다.
 - 불필요한 반복 방지라는 사용자 정정도 아래에 보존했다.
 
 - 기준 main은 `bf5ea5d3576e1e454c958b3e7c2692d3b8d3806a`다.
@@ -36,32 +38,32 @@
 - [복구 감사](ANALYSIS-RECOVERY-AUDIT-2026-10-16.json)는 크기·hash·상태만 포함한다.
 - 새 영상/SFA 분석·폰 설치/시작 시험은 없다.
 
-- **완전한 분석 캐시 복구는 아니다.** AOT/PP/objs 및 기존 분석 도구가 여전히 없다.
+- (작성 당시) 완전한 분석 캐시 복구는 아니었다: AOT/PP/objs와 기존 분석 도구가 없었다. 현재는 복구돼 있다.
 - Python 분석 도구 설치와 Blutter clone은 자동 승인 검토에서 각각 기존 설치 반복 금지·기존 캐시 재사용 범위 충돌을 이유로 거절됐다.
 - 다른 명령이나 경로로 우회하지 않았다.
 - 사용자의 포괄적 계속 지시만으로 검토가 이를 예외 승인한 것으로 처리하지 않는다.
 
-- 현재 private 자산: `/workspace/scratch/5a16c98ed7ee/private-recovery/evidence/{libapp.so,libflutter.so,glow.frag}`. 새로 복원한 원본 ELF·셰이더와 없는 분석 메타데이터를 구분한다.
+- 비공개 자산(현재): `/root/sfa-cache/extracted/evidence/{libapp.so,libflutter.so,glow.frag}`. 작성 당시에는 이전 환경의 private-recovery 폴더에 있었다. 새로 복원한 원본 ELF·셰이더와 분석 메타데이터를 구분한다.
 - 원본/assembly/키 공개 금지는 그대로다.
-- 남은 함수 분석에 필요한 도구 복구가 거절되어 다음 정적 작업을 수행한 것으로 보고하지 않는다.
-- 실제 Android 편집·렌더도 현재 실행 환경 부재 및 기존 license4 차단이 별도로 남는다.
+- (작성 당시) 도구 복구가 거절되어 다음 정적 작업을 수행하지 못했다. 이후 복구 예외(02:02)로 도구를 복구해 정적 분석을 재개했다.
+- 실제 Android 앱 확인은 사용자가 휴대폰에서 한다(APP-R1/T1/V3로 진행됨). 서버에는 에뮬레이터가 없고, 계측 앱의 license 4 차단은 그대로이며 우회하지 않는다.
 
-## 새로 확인한 실제 차단
+## 환경 상태 (작성 당시 관측 → 현재)
 
-| 자원 | 현재 관측 | 영향 |
+| 자원 | 작성 당시 관측 | 현재 (2026-10-16) |
 |---|---|---|
-| 공개 저장소 | main clone 복구 성공, 위 기준 SHA와 일치 | 보고서·코드·기존 audit 이용 가능 |
-| 과거 AOT/PP/objs | 지정된 `e23c9fd610d3/private` 경로 없음. 현재 접근 가능한 작업 경로 검색에서도 찾지 못함 | 남은 함수 본문·상수/문자열·클래스 수신자 확인 불가 |
-| ELF/venv·Capstone | ELF는 원본에서 복구·hash 일치. 과거 venv/도구는 없음 | 분석 도구 복구가 자동 검토 거절되어 독립 명령 재대조 미수행 |
-| shader/Java 캐시 | binary shader는 복구·hash 일치. 기존 Java 읽기 캐시는 없음 | shader 원본 복구와 Java/AOT 메타데이터 복구는 구분 |
-| 지속 보관된 파일 | 원본 APKS, 계측 시작 ZIP, 기존 SFA/영상·probe 묶음 목록은 확인 | 원본이 있다는 사실과 분석 캐시가 복구됐다는 사실은 다름 |
-| 실제 계측 편집 | 기존 Play license 응답 4 차단 | 지속 편집·새 픽셀 측정 미완, 우회하지 않음 |
+| 공개 저장소 | main clone 복구 성공, 위 기준 SHA와 일치. 보고서·코드·기존 audit 이용 가능 | 작업 branch에서 계속 사용 |
+| 과거 AOT/PP/objs | 지정된 `e23c9fd610d3/private` 경로 없음, 작업 경로 검색에서도 찾지 못함. 남은 함수 본문·상수/문자열·클래스 수신자 확인 불가 | `/root/sfa-cache/extracted/blutter_out`(asm/sfa, pp.txt) 복구됨 |
+| ELF/venv·Capstone | ELF는 원본에서 복구·hash 일치. 과거 venv/도구 없음. 도구 복구가 자동 검토 거절되어 명령 재대조 미수행 | `evidence/libapp.so`, `python/`(Capstone·pyelftools), `bin/` Blutter 복구됨 |
+| shader/Java 캐시 | binary shader는 복구·hash 일치. 기존 Java 읽기 캐시는 없음 | `evidence/glow.frag` 있음. Java 역컴파일 캐시는 여전히 없음 |
+| 지속 보관된 파일 | 원본 APKS, 계측 시작 ZIP, 기존 SFA/영상·probe 묶음 목록은 확인. 원본이 있다는 사실과 분석 캐시가 복구됐다는 사실은 다름 | 이 클라우드 환경에는 원본 APKS·계측 ZIP이 없다 |
+| 실제 계측 편집 | 기존 Play license 응답 4 차단. 지속 편집·새 픽셀 측정 미완, 우회하지 않음 | 계측 앱 차단은 그대로. 실물 확인은 사용자 휴대폰 통제 시험(APP-R1/T1/V3)으로 진행됐다 |
 
-- 캐시가 현재 보이지 않는 원인은 확인하지 못했다.
+- (작성 당시) 캐시가 보이지 않던 원인은 확인하지 못했다.
 - 삭제 명령을 실행한 결과가 아니다.
 - 복구한 공개 저장소의 audit는 과거 검사 기록이며 지금 원본을 재검증한 결과로 표시하지 않는다.
 
-- 원본 APKS가 있어도 Blutter/도구 재설치·전체 재 decompile을 수행하면 사용자의 반복 금지 지시와 충돌한다.
+- (작성 당시 판단) 원본 APKS가 있어도 Blutter/도구 재설치·전체 재 decompile을 수행하면 사용자의 반복 금지 지시와 충돌한다고 보았다. 이 판단은 아래 02:02 복구 예외와 02:06 정정으로 대체됐다.
 - 따라서 배포 ZIP/APKS를 다시 내려받거나 폰 설치·페어링·시작 시험을 시키는 방식으로 우회하지 않았다.
 - 공개 저장소에 비공개 원본/역컴파일물/키가 없다는 점도 유지한다.
 
@@ -69,15 +71,15 @@
 
 아래는 남은 세부 질문이며 전체 프로젝트의 남은 단계 수는 아니다. 모두 실물에서만 해결 가능한 것으로 분류하지 않는다.
 
-| 항목 | 새로 확인할 것 | 필요한 근거·종료 조건 |
-|---|---|---|
-| unused AO 정리 | `_cleanupUnusedAnimationObjects` 0x3662a4 및 `_figuresShownFromRoots` 0x366bc8의 후보 집합·가상 root 가시성·제외 조건 | 해당 AOT 함수·관련 PP/SQL·동일 ELF 복구 후 조건과 삭제 범위를 실제 명령에 연결 |
-| history hash | `Frame.GetFastHash` 0x51cb64의 포함 필드·cache·무효화 | 본문과 호출/무효화 경로 확인. history 전체 비교와 hash 동일성을 구분 |
-| 시간축 명령 | frame 추가·복사·삭제의 실제 UI callback→DB→cache/history | 구체 callback부터 저장/갱신까지 연결. FrameDialog 이름으로 추정 금지 |
-| 동적 호출 | 클래스별 GDT+0x85e4의 실제 getter 등 | 수신 클래스에 맞는 selector/target 근거 필요. 첫점/첫 layer 단정 금지 |
-| 앞뒤/잠금 UI | 일반 AO 앞뒤와 별도 lock toggle의 실제 입구 | 새 구체 caller가 생길 때만 추적. 기존 이름/문자열 검색 반복 금지 |
-| 실패·수명 | malformed/overflow·동시 수정·DB 실패·전체 객체 수명 | 정상 경로의 관측을 실패 원자성 보장으로 확대하지 않음 |
-| 실제 렌더 | 곡선·링·그룹 및 backend별 pixel·색·codec | 합법적으로 편집 가능한 실행 경로와 통제된 출력 비교 필요. 과거 영상 재분석은 하지 않음 |
+| 항목 | 새로 확인할 것 | 필요한 근거·종료 조건 | 현재 상태 (2026-10-16) |
+|---|---|---| --- |
+| unused AO 정리 | `_cleanupUnusedAnimationObjects` 0x3662a4 및 `_figuresShownFromRoots` 0x366bc8의 후보 집합·가상 root 가시성·제외 조건 | 해당 AOT 함수·관련 PP/SQL·동일 ELF 복구 후 조건과 삭제 범위를 실제 명령에 연결 | 정적 확인: [UNUSED/HASH](AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md) |
+| history hash | `Frame.GetFastHash` 0x51cb64의 포함 필드·cache·무효화 | 본문과 호출/무효화 경로 확인. history 전체 비교와 hash 동일성을 구분 | 정적 확인: [UNUSED/HASH](AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md) |
+| 시간축 명령 | frame 추가·복사·삭제의 실제 UI callback→DB→cache/history | 구체 callback부터 저장/갱신까지 연결. FrameDialog 이름으로 추정 금지 | 정적 [FRAME 명령](AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md) + 실물 [APP-V3](APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md) |
+| 동적 호출 | 클래스별 GDT+0x85e4의 실제 getter 등 | 수신 클래스에 맞는 selector/target 근거 필요. 첫점/첫 layer 단정 금지 | dispatch table로 실제 target 복구: [DISPATCH](AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md) |
+| 앞뒤/잠금 UI | 일반 AO 앞뒤와 별도 lock toggle의 실제 입구 | 새 구체 caller가 생길 때만 추적. 기존 이름/문자열 검색 반복 금지 | DrawOrder 쓰기 경로 전수·잠금 열은 `layer_def.is_locked`뿐: [DRAWORDER-WRITERS](AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md) |
+| 실패·수명 | malformed/overflow·동시 수정·DB 실패·전체 객체 수명 | 정상 경로의 관측을 실패 원자성 보장으로 확대하지 않음 | 미완(비정상 입력·DB 실패 원자성) |
+| 실제 렌더 | 곡선·링·그룹 및 backend별 pixel·색·codec | 합법적으로 편집 가능한 실행 경로와 통제된 출력 비교 필요. 과거 영상 재분석은 하지 않음 | 기준 렌더러가 앱 영상과 일치(R1, APP-T1, 작품 MAE 0.908). 큰 glow raster·backend별 pixel은 남음 |
 
 ## 진행한 다음 단계
 
@@ -89,7 +91,7 @@
 - 본격적인 남은 정적 분석의 재개 조건은 기존 비공개 분석 캐시에 다시 접근하는 것이다.
 - 적어도 해당 Dart AOT 파일과 관련 PP/objs, 명령 검증용 동일 ELF가 필요하다.
 - 현재 자료만으로 내부 의미를 만들어 쓰거나 ‘혼자 할 일 모두 끝’이라고 보고하지 않는다.
-- 학습·AI 통합은 계속 보류하며 사용자의 현재 PC 부재를 해소된 것으로 전제하지 않는다.
+- 학습·AI 연결은 2026-10-16 사용자 결정으로 개인용 범위에서 진행한다(AGENTS.md "학습 단계 결정", [AI-PIPELINE-PLAN](AI-PIPELINE-PLAN-2026-10-16.md)). PC 사양은 고정되지 않으며, PC 사용 가능 여부는 사용자 보고를 따른다.
 
 ## 서버 분석 환경 복구 상시 예외 — 2026-10-16 02:02 KST
 
@@ -105,7 +107,7 @@
 
 - 위의 설치/재추출 금지 및 자동 검토 거절은 당시 상태다.
 - 현재는 이 명시적 복구 예외를 우선한다.
-- 복구 성공 여부는 실행 결과로 별도 갱신한다.
+- 복구는 성공했다(Setup script, `/root/sfa-cache/extracted`).
 
 ## 반복 방지 지시의 정확한 의미 — 2026-10-16 02:06 KST
 
@@ -116,5 +118,5 @@
 
 - 이 정정은 이 문서와 과거 보고서의 ‘재설치/페어링/기존 영상 재분석 금지’라는 포괄적 표현보다 우선한다.
 - 현재 휴대폰 재설치·페어링이나 기존 영상 재분석이 필요하다는 근거는 없으므로 요청/반복하지 않는다.
-- 서버 분석 캐시가 실제로 없는 것은 확인됐으므로 필요한 설치·다운로드·AOT 복구를 진행한다.
+- (작성 당시) 서버 분석 캐시가 실제로 없는 것이 확인되어 필요한 설치·다운로드·AOT 복구를 진행했고, 현재 복구돼 있다.
 - 라이선스 우회·원본 공개·보호 자료 변경·학습/AI 통합까지 허용한 뜻은 아니다.

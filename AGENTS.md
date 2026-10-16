@@ -3,7 +3,7 @@
 Read HANDOFF.md first for current scope and evidence. Keep it current at meaningful checkpoints.
 
 - User-facing communication and project guides: Korean.
-- Priority: full Stick Fighter feature analysis and app-verified feature probes. Dataset collection/training is deferred.
+- Priority: full Stick Fighter feature analysis and app-verified feature probes. Dataset collection/training proceeds for personal use under "학습 단계 결정 — 2026-10-16" below (it was deferred until that decision).
 - Distinguish stored-state probes, inferred algorithms, and actual app/UI verification.
 - Do not publish provided APKs, other users' animation/video originals, or decompiled app source.
 - FPS order is (tween_fps, playback_fps).

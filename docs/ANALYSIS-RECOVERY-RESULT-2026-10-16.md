@@ -45,23 +45,26 @@
 - Python 환경·라이브러리 호환성은 실제 복원 시 확인한다.
 - 백업의 존재가 다음 환경에서 자동 접근을 보장하는 것은 아니다.
 
-## 현재 경로와 다음 작업 (작성 당시)
+## 경로와 남은 정적 분석
 
-- 작성 당시 경로 `/workspace/scratch/5a16c98ed7ee/private-recovery/` 아래에 `blutter_out`, `evidence`, `venv`, `blutter/bin`, `depsroot`가 있었다.
+- 현재 환경: Setup script가 `/root/sfa-cache/extracted`로 복구한다(`.ok` 확인).
   - AOT: `blutter_out/asm/sfa`, PP/objs: `blutter_out`.
-  - 읽기 도우미: `asm_window.py`, `window.py`.
-- 정리 메모(2026-10-16): 위 경로는 이전(ChatGPT) 환경의 것이다. 현재 Claude Code 클라우드 환경에서는 Setup script가 `/root/sfa-cache/extracted`로 복구한다(HANDOFF 6절).
+  - ELF·셰이더: `evidence/`. Blutter: `bin/`, 의존: `lib/`, Capstone·pyelftools: `python/`.
+  - 읽기 도우미: `checks/asm_window.py`, `checks/window.py`.
+- 작성 당시에는 이전 환경의 private-recovery 폴더에 `blutter_out`, `evidence`, `venv`, `blutter/bin`, `depsroot`가 있었다(경로는 [원문](history/before-current-facts-2026-10-16/ANALYSIS-RECOVERY-RESULT-2026-10-16.md)).
 - 원본·메타데이터·전체 로그를 공개 출력하지 않는다.
 
-**작성 당시 남은 정적 분석**
-- `_cleanupUnusedAnimationObjects` / `_figuresShownFromRoots`, `Frame.GetFastHash`, 실제 시간축 callback.
-- 복구 후 실제 시간축 후보를 찾았다: `_insertEmptyFrame` 0x5105ac, `_deleteCurrentFrame` 0x5a9f5c, `_pasteFrame` 0x5ac4b8, `_copyCurrentFrame` 0x5b171c. 이름 발견을 동작 분석 완료로 세지 않는다.
+**남은 정적 분석 (작성 당시 → 현재)**
+- `_cleanupUnusedAnimationObjects` / `_figuresShownFromRoots`, `Frame.GetFastHash`: 이후 [UNUSED/HASH](AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md)에서 정적으로 확인했다.
+- 실제 시간축 callback: 복구 후 후보 `_insertEmptyFrame` 0x5105ac, `_deleteCurrentFrame` 0x5a9f5c, `_pasteFrame` 0x5ac4b8, `_copyCurrentFrame` 0x5b171c를 찾았다. 이후 [FRAME 명령](AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md)에서 동작을 정적으로 추적했고, [APP-V3](APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md)에서 실물로 확인했다.
 
 **실제 앱 렌더 검증은 별개다**
 - 이 서버는 x86_64이고, adb/Android emulator 실행 도구가 관측되지 않았다.
 - 기존 계측 앱은 license 4 지속 편집 차단 이력이 있다.
 - 따라서 환경 복구를 실행 검증 성공이라고 보고하지 않는다.
-- 라이선스 우회나 학습·AI 통합을 진행하지 않는다.
+- 라이선스 우회는 하지 않는다.
+- 실제 앱 확인은 이후 사용자 휴대폰 실물 시험(APP-R1/T1/V3)으로 진행됐다.
+- 학습·AI 연결은 2026-10-16 사용자 결정으로 개인용 범위에서 진행한다(AGENTS.md "학습 단계 결정", [AI-PIPELINE-PLAN](AI-PIPELINE-PLAN-2026-10-16.md)).
 
 ## 정상 분석 재개 후 갱신
 

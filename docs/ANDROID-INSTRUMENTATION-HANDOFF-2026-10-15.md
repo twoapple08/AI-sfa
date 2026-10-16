@@ -31,7 +31,7 @@
 **미완**
 - 계측 APK 없음, 서명·분할 검증 없음, 사용자 전달 파일 없음, 실제 계측 로그 없음.
 - APKTool / uber-apk-signer / ARM64 Gadget의 공식 최신 release API·다운로드를 시도한 프로세스 39459는 재개 시 존재하지 않았다. 출력 파일도 없다. 실패 원인을 네트워크 차단 등으로 확정하지 않는다.
-- `/workspace/scratch/37921248d0d6/private/instrument-tools`는 실물 확인 결과 비어 있었다.
+- 작성 당시 이전 환경의 instrument-tools 폴더는 실물 확인 결과 비어 있었다(이후 [BUILD](ANDROID-INSTRUMENTATION-BUILD-2026-10-15.md)에서 도구를 확보해 계측 패키지를 제작했다).
 - java는 PATH에 있고, apktool/apksigner/aapt2는 PATH에서 찾지 못했다. 필요한 도구를 새로 준비해야 한다. Blutter/reFlutter를 재설치하라는 뜻이 아니다.
 
 ## 다음 실행 단위
@@ -44,18 +44,15 @@
 6. 사용자에게는 설치·시작 결과와 필요한 최소 로그만 요청한다. 원본 앱 삭제·덮어쓰기는 금지한다. 패키지 변경으로 로그인·결제 등의 작동이 보장되지 않으며, 그 기능을 시험 목표로 삼지 않는다.
 7. 시작에 성공한 뒤 FrameDrawPlan / DrawGlowEffect / FrameInterpolationPlan의 필요한 주소만 추적한다. 아직 기존 앱과 출력·성능이 같다는 것이 검증된 것은 아니다.
 
-## 캐시·보호 (작성 당시 경로)
+## 캐시·보호
 
-- base: `/workspace/scratch/6d77389e706a/evidence/apk/base.apk`
-- 제공 분할 모음: `/workspace/scratch/6d77389e706a/evidence/STICK FIGHTER (51.0.0).apks`
-- ARM64: `/workspace/scratch/e23c9fd610d3/private/input/split_config.arm64_v8a.apk`
-- AOT: `/workspace/scratch/e23c9fd610d3/private/blutter_out/asm/sfa`
-- 기존 Java 읽기 캐시: `/workspace/scratch/6d77389e706a/private/decompiled/sources/com/sG/stickfighter/activities/MainActivity.java`
+- 작성 당시 이전 환경에 base.apk, 제공 분할 모음 `STICK FIGHTER (51.0.0).apks`, ARM64 분할 `split_config.arm64_v8a.apk`, AOT 추출물 `blutter_out/asm/sfa`, 기존 Java 읽기 캐시(`com/sG/stickfighter/activities/MainActivity.java`)가 있었다. 경로는 [원문](history/before-current-facts-2026-10-16/ANDROID-INSTRUMENTATION-HANDOFF-2026-10-15.md)에 보존했다.
+- 현재 환경: AOT 추출물과 libapp.so·libflutter.so는 `/root/sfa-cache/extracted`에 있다. 원본 APK·APKS 분할과 Java 역컴파일 캐시는 없다.
 - 사용자 SFA 백업은 안내만 했고 완료 확인은 없다. 실제 설치 전에 확인한다.
 - 공개 금지: APK / SFA / 영상 / 역컴파일 소스 / asm.
-- 계속 보류: 고정 PREVIDEO 수정, File-2 최적화, 학습·AI 연결.
+- 계속 보류: 고정 PREVIDEO 수정, File-2 최적화.
+- 학습·AI 연결은 2026-10-16 사용자 결정으로 개인용 범위에서 진행한다(AGENTS.md "학습 단계 결정", [AI-PIPELINE-PLAN](AI-PIPELINE-PLAN-2026-10-16.md)).
 - 굽힘 기능 없음. FPS = (트위닝, 재생). 레이어 UI는 전체 프레임 제작 보조.
-- 정리 메모(2026-10-16): 위 경로는 이전(ChatGPT) 환경의 것이다. 이후 학습·AI 연결은 사용자 결정으로 허용됐다(AGENTS.md "학습 단계 결정").
 
 ## 사용량·상시 승인
 

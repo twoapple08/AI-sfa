@@ -109,8 +109,8 @@
 - 요청된 전체 기능 분석은 계속 진행 중이며, 실기기 렌더 계측은 기존 라이선스 차단 상태다.
 - 휴대폰 추가 명령·설치·Play 설정 요청 없음.
 
-**캐시 (작성 당시 이전 환경 경로)**
-- `e23c9fd610d3/private/blutter_out/asm/sfa/original_port/sequences/{animation_object,interpolated_animation_object,line,circle,curve}.dart`, `editor/editor_frame_cache.dart`, `pp.txt`, ELF/venv.
-- 새 검사: `25b8ca176661/private-trace/{validate_paint.py,paint-validation.json}`.
+**근거 캐시**
+- **근거 캐시(현재 환경):** `/root/sfa-cache/extracted`의 `blutter_out/asm/sfa/original_port/sequences/{animation_object,interpolated_animation_object,line,circle,curve}.dart`, `blutter_out/asm/sfa/original_port/editor/editor_frame_cache.dart`, `blutter_out/pp.txt`, `evidence/libapp.so`, `python/`(Capstone·pyelftools). Setup script가 복구한다.
+- 현재 환경에 없는 것: 작성 당시 새 검사(`validate_paint.py`, `paint-validation.json`). 작성 당시 이전 환경 경로는 [원문](history/before-current-facts-2026-10-16/AOT-PAINT-DISPATCH-TRACE-2026-10-15.md)에 보존했다.
 - 공개는 직접 작성한 해석·집계만.
 - 앞선 Float32 오독은 AGENTS와 기존 보고서에 정정했다.
