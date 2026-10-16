@@ -41,3 +41,33 @@
    - A: ID 범위만 프로브식, 객체는 섞인 그대로
    - B: 객체만 고정, ID는 작은 연속값
 3. 결과가 나오기 전에는 "ID 정체성이 원인"을 확정 규칙으로 쓰지 않는다.
+
+## 2차 앱 결과 (같은 날, 사용자 제공 내보내기 3개)
+
+- duel_v2·diag_A·diag_B 모두 **선은 여전히 0픽셀**이다. 이로써 "AO ID 재사용·ID 범위" 가설은 선 소실의 원인으로 **기각**된다.
+- duel_v2에서는 원 채우기의 현·쐐기 모양 잘림이 사라졌고 채우기 순서도 맞다. 따라서 그 잘림은 ID 재사용 때문이었을 가능성이 있다.
+
+### 추가 정적 근거
+
+- 선 폭 = paint 폭 × (sequence.thickness/100, 현재 sequence가 없으면 1) × AO.field_37(ThicknessScale) ÷ DPR이다(SetPaintThickness 0x4152bc).
+- DrawBaseObject(0x4150b8)는 폭 ≤ 0이면 그리지 않고 반환한다(0x415148–0x41516c). 채우기는 이 경로를 거치지 않는다.
+- 가져오기는 CreateNewSequence로 thickness=100인 sequence를 만든다(0x36f2cc).
+- 저장 경로: StoreImportedFrame → `_storeRoot`(frame_root, animation_object_detail) / `_writeImportedDetails` / frame_base 루트 상속.
+- 어느 값이 0이 되는지는 **미확인**이다.
+
+## 3차 시험 (판별용)
+
+- `diag_C_attributes`: 앱에서 확인된 프로브 곡선(1)을 기준으로 둔다. 그 옆에 duel식 객체를 속성 하나씩 바꿔 나란히 놓았다.
+  - 2 duel식 선 그대로
+  - 3 ThicknessScale "1.0"
+  - 4 부호 있는 검정 색값
+  - 5 GlowThickness 20
+  - 6 모두 프로브식
+  - 7 duel식 곡선
+  - 8 원 외곽선
+  - 9 외곽선 있는 채운 사각형
+- `diag_D_attributes_plus_450`: diag_C와 같고, 아래쪽에 duel식 짧은 선 450개를 더했다.
+- 판정
+  - 프로브 곡선(1)까지 사라지면 파일/규모 수준 원인
+  - 프로브만 보이면 객체 속성 원인 → 보이는 열로 해당 속성을 특정
+  - C에서는 보이고 D에서만 사라지면 객체 수 원인
