@@ -37,10 +37,10 @@ D_LINE, D_SHADE, D_LITE, D_BASE = argb(52, 50, 48), argb(128, 124, 120), argb(22
 CORE, RAY = (250, 248, 242), (62, 58, 54)
 K, Wt = (16, 15, 14), (246, 244, 238)
 
-LAYERS = [('ground', '땅·그림자'), ('dust_b_shade', '뒤 먼지 실루엣·그림자'), ('dust_b_lite', '뒤 먼지 밝은 면'),
-          ('dust_b_base', '뒤 먼지 바탕'), ('dust_b_tail', '뒤 먼지 줄무늬'), ('cube', '큐브·잔해'),
-          ('blast', '폭발'), ('dust_f_shade', '앞 먼지 실루엣·그림자'), ('dust_f_lite', '앞 먼지 밝은 면'),
-          ('dust_f_base', '앞 먼지 바탕'), ('dust_f_tail', '앞 먼지 줄무늬'), ('debris', '돌 파편'),
+LAYERS = [('ground', '땅·그림자'), ('dust_b_shade', '뒤 먼지 실루엣'), ('dust_b_lite', '뒤 먼지 밝은 몸통'),
+          ('dust_b_base', '뒤 먼지 테두리·그림자 혀'), ('dust_b_tail', '뒤 먼지 줄무늬'), ('cube', '큐브·잔해'),
+          ('blast', '폭발'), ('dust_f_shade', '앞 먼지 실루엣'), ('dust_f_lite', '앞 먼지 밝은 몸통'),
+          ('dust_f_base', '앞 먼지 테두리·그림자 혀'), ('dust_f_tail', '앞 먼지 줄무늬'), ('debris', '돌 파편'),
           ('fx', '바람·줄무늬'), ('imp_bg', '반전 면(알파)'), ('imp_fg', '임팩트 선')]
 
 
@@ -279,83 +279,147 @@ def dust_lobes_at(t, cam):
     return back, front
 
 
-DS = 2.0                                                   # 먼지 마스크 해상도: SFA px / 마스크 px (960x540)
+DS = 2.0                                                   # 덩어리 윤곽 마스크: SFA px / 마스크 px (960x540)
+L2 = np.array([-.6, -.8])                                  # 화면에서 빛이 오는 쪽(왼쪽 위)
 
 
-def _loops(mask, tol, min_area):
-    """마스크 → 곡선 고리(SFA px). 구멍은 아래쪽으로 1px 틈을 내어 바깥 고리에 합친다."""
-    cs, hier = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
+def _body_mask(lobes):
+    hh, ww = int(H / DS), int(W / DS)
+    m = np.zeros((hh, ww), np.uint8)
+    for x, y, s, w, _ in lobes:
+        ax, ay = s * (1 + 1.4 * w), s * .86 * (1 - .3 * min(w, 1))
+        cv2.ellipse(m, (int(x / DS), int(y / DS)), (max(1, int(ax / DS)), max(1, int(ay / DS))), 0, 0, 360, 255, -1)
+    return (cv2.GaussianBlur(m, (0, 0), 3.0) > 110).astype(np.uint8) * 255      # 큰 형태만 남김
+
+
+def _outlines(m, min_area=60):
+    """마스크의 큰 윤곽(SFA px, 시계 방향). 구멍은 아래로 1px 틈을 내어 바깥 고리에 합친다."""
+    m = m.copy()
+    cs, hier = cv2.findContours(m, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
     if hier is not None and (hier[0][:, 3] >= 0).any():
         for c, h in zip(cs, hier[0]):
             if h[3] >= 0:
                 x, y = c[c[:, 0, 1].argmax(), 0]
-                mask[y:, x:x + 1] = 0
-        cs, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    out, sx0 = [], mc.SX
-    mc.SX = DS
-    try:
-        for c in cs:
-            if cv2.contourArea(c) >= min_area:
-                lp = mc.fit_loop(c, tol)
-                if lp:
-                    out.append(lp)
-    finally:
-        mc.SX = sx0
+                m[y:, x:x + 1] = 0
+        cs, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    out = []
+    for c in cs:
+        if cv2.contourArea(c) < min_area:
+            continue
+        P = cv2.approxPolyDP(c, 1.0, True).reshape(-1, 2).astype(float) * DS
+        area = .5 * np.sum(P[:, 0] * np.roll(P[:, 1], -1) - np.roll(P[:, 0], -1) * P[:, 1])
+        if area < 0:
+            P = P[::-1]
+        out.append(P)
     return out
 
 
-def _ell(m, x, y, s, w, scale=1.0, dx=0.0, dy=0.0):
-    """덩어리 하나: 바람에 끌리면 가로로 늘어나고 납작해진 타원."""
-    ax, ay = s * (1 + 1.4 * w) * scale, s * .86 * (1 - .3 * min(w, 1)) * scale
-    if ax >= 1 and ay >= 1:
-        cv2.ellipse(m, (int((x + dx) / DS), int((y + dy) / DS)), (int(ax / DS), int(ay / DS)), 0, 0, 360, 255, -1)
+def _at(P, cum, s):
+    s %= cum[-1]
+    i = int(np.searchsorted(cum, s, 'right') - 1)
+    i = min(i, len(P) - 1)
+    t = (s - cum[i]) / max(cum[i + 1] - cum[i], 1e-9)
+    return P[i] + (P[(i + 1) % len(P)] - P[i]) * t
+
+
+def _q(a, c, b, t):
+    return (1 - t) ** 2 * a + 2 * t * (1 - t) * c + t * t * b
+
+
+def cloud_bulges(P, seed, scale, width=1.0, height=(.26, .42)):
+    """윤곽을 따라 비대칭 볼록들을 곡선으로 설계: 골(뾰족) → 어깨 → 꼭대기 → 어깨 → 다음 골.
+    볼록마다 폭·높이·기울기가 다르고, 가끔 납작한 볼록과 길게 뻗은 가시 볼록이 섞인다."""
+    r = random.Random(seed)
+    seg = np.vstack([P, P[:1]])
+    cum = np.concatenate([[0], np.cumsum(np.hypot(*np.diff(seg, axis=0).T))])
+    L = cum[-1]
+    mean_w = max(40.0, 125 * scale * width)
+    n = max(4, int(round(L / mean_w)))
+    x0 = int(np.argmin(P[:, 0]))                           # 시작점: 가장 왼쪽(프레임 사이 안정)
+    s0 = cum[x0]
+    cuts = sorted(s0 + L * (k + r.uniform(-.28, .28)) / n for k in range(n))
+    bul = []
+    for k in range(n):
+        sa, sb = cuts[k], cuts[(k + 1) % n] + (L if k == n - 1 else 0)
+        A, B = _at(P, cum, sa), _at(P, cum, sb)
+        M = _at(P, cum, (sa + sb) / 2)
+        tg = B - A
+        w = np.hypot(*tg) or 1.0
+        tg = tg / w
+        nrm = np.array([tg[1], -tg[0]])                    # 시계 방향 윤곽의 바깥쪽
+        kind = r.random()
+        h = w * (r.uniform(*height) if kind < .82 else (r.uniform(.14, .22) if kind < .95 else r.uniform(.65, .85)))
+        lean = r.uniform(-.22, .22)
+        Pk = M + nrm * h + tg * w * lean                   # 꼭대기(비대칭)
+        # 꼭대기에서 두 곡선의 접선이 이어지게(둥근 꼭대기), 골은 뾰족하게 남김
+        c1 = Pk - tg * w * r.uniform(.36, .46) + nrm * h * .05
+        c2 = Pk + tg * w * r.uniform(.36, .46) + nrm * h * .05
+        bul.append(dict(A=A, B=B, P=Pk, c1=c1, c2=c2, n=nrm, h=h, w=w))
+    return bul
+
+
+def _ring(bul):
+    ring = []
+    for b in bul:
+        ring += [tuple(b['A']), tuple(b['c1']), tuple(b['P']), tuple(b['c2'])]
+    return ring
 
 
 def draw_dust(fr, lobes, side):
-    """애니 먼지(Sakugabooru smoke·debris 참고): 덩어리들이 하나로 뭉친 실루엣, 짙은 외곽선,
-    오른쪽 아래 그림자 초승달, 왼쪽 위 밝은 테두리, 몸통 안 덩어리 그림자, 흩어질 때 줄무늬 꼬리.
-    겹친 원을 그대로 쓰지 않고 마스크 합집합 → 곡선 고리로 맞춰 겹친 선이 생기지 않는다."""
+    """애니 먼지(Sakugabooru smoke·debris 참고)를 곡선으로 직접 설계.
+    ① 실루엣: 큰 비대칭 볼록 곡선 고리, 그림자색 + 곡선 자체가 짙은 외곽선
+    ② 밝은 몸통: 실루엣을 깎고 왼쪽 위로 민 형태에 다시 볼록 곡선 → 오른쪽 아래에 볼록한 경계의 그림자 덩어리가 남음
+    ③ 밝은 테두리: 왼쪽 위를 향한 몸통 볼록의 얇은 초승달
+    ④ 그림자 혀: 몸통 골에서 안쪽으로 짧게 휘어 들어가는 뾰족한 그림자
+    ⑤ 흩어질 때 줄무늬 꼬리"""
     if not lobes:
         return
-    hh, ww = int(H / DS), int(W / DS)
-    body = np.zeros((hh, ww), np.uint8)
-    for x, y, s, w, _ in lobes:
-        _ell(body, x, y, s, w)
-    body = (cv2.GaussianBlur(body, (0, 0), 1.2) > 120).astype(np.uint8) * 255   # 덩어리 사이 골을 살짝 둥글게
-    rm = float(np.median([l[2] for l in lobes])) / DS
-
-    def shift(m, dx, dy):
-        return cv2.warpAffine(m, np.float32([[1, 0, dx], [0, 1, dy]]), (ww, hh))
-
-    lit = cv2.bitwise_and(body, shift(body, -.16 * rm, -.28 * rm))             # 오른쪽 아래가 그림자로 남음
-    inner = np.zeros_like(body)
-    for x, y, s, w, sh in lobes:                                               # 몸통 안 덩어리 그림자(초승달)
-        if sh:
-            c0, c1 = np.zeros_like(body), np.zeros_like(body)
-            _ell(c0, x, y, s, w, .82, .10 * s, .14 * s)
-            _ell(c1, x, y, s, w, .82, -.08 * s, -.10 * s)
-            inner = cv2.bitwise_or(inner, cv2.bitwise_and(c0, cv2.bitwise_not(c1)))
-    lit = cv2.bitwise_and(lit, cv2.bitwise_not(inner))
-    base = cv2.bitwise_and(lit, shift(lit, .07 * rm, .11 * rm))                # 왼쪽 위 테두리가 밝은 면으로 남음
+    scale = float(np.median([l[2] for l in lobes])) / 60
+    body = _body_mask(lobes)
+    mw = max(40.0, 125 * scale) / DS
+    k = max(2, int(mw * .2))
+    lit = cv2.erode(body, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * k + 1, 2 * k + 1)))
+    lit = cv2.warpAffine(lit, np.float32([[1, 0, -.12 * mw], [0, 1, -.18 * mw]]), (lit.shape[1], lit.shape[0]))
+    lit = cv2.bitwise_and(lit, cv2.erode(body, np.ones((5, 5), np.uint8)))
+    base_seed = int(len(lobes)) * 7 + (1 if side == 'f' else 0)
     fr.layer = f'dust_{side}_shade'
-    for lp in _loops(body.copy(), 1.0, 20):
-        fr.cpoly(lp, D_SHADE, D_LINE, .7)                   # 곡선 자체가 짙은 외곽선
-    fr.layer = f'dust_{side}_lite'
-    for lp in _loops(lit.copy(), 1.0, 20):
-        fr.cpoly(lp, D_LITE)
-    fr.layer = f'dust_{side}_base'
-    for lp in _loops(base.copy(), 1.0, 20):
-        fr.cpoly(lp, D_BASE)
+    for ci, P in enumerate(_outlines(body)):
+        fr.cpoly(_ring(cloud_bulges(P, base_seed + ci, scale)), D_SHADE, D_LINE, .7)
+    for ci, P in enumerate(_outlines(lit, 30)):
+        seed = base_seed + 100 + ci
+        bul = cloud_bulges(P, seed, scale, .8, (.28, .42))
+        fr.layer = f'dust_{side}_lite'
+        fr.cpoly(_ring(bul), D_BASE)
+        r = random.Random(seed + 7)
+        for i, b in enumerate(bul):
+            face = float(np.dot(b['n'], L2))
+            A, B, Pk, c1, c2, nrm = b['A'], b['B'], b['P'], b['c1'], b['c2'], b['n']
+            if face > .4:                                   # 밝은 테두리(꼭대기 쪽 얇은 초승달)
+                d = b['h'] * r.uniform(.18, .28)
+                a2, b2 = _q(A, c1, Pk, .3), _q(Pk, c2, B, .7)
+                ca, cb = _q(A, c1, Pk, .68), _q(Pk, c2, B, .32)
+                fr.layer = f'dust_{side}_base'
+                fr.cpoly([tuple(a2), tuple(ca), tuple(Pk), tuple(cb), tuple(b2), tuple(Pk - nrm * d)], D_LITE)
+            elif face < -.1 and r.random() < .55:            # 그림자 혀: 골에서 짧게 휘어 들어감
+                ln = b['w'] * r.uniform(.25, .45)
+                tg = (B - A) / (b['w'] or 1)
+                inn = -(nrm + bul[i - 1]['n']) / 2
+                inn /= np.hypot(*inn) or 1
+                tip = A + inn * ln + tg * ln * r.uniform(-.3, .3)
+                wd = b['w'] * r.uniform(.06, .1)
+                a1, a2_ = A - tg * wd, A + tg * wd
+                bend = r.uniform(-.2, .2) * ln
+                fr.layer = f'dust_{side}_base'
+                fr.cpoly([tuple(a1), tuple((a1 + tip) / 2 + tg * bend), tuple(tip), tuple((a2_ + tip) / 2 + tg * bend)], D_SHADE)
     fr.layer = f'dust_{side}_tail'
     r = random.Random(int(sum(l[0] for l in lobes)))
-    for x, y, s, w, _ in lobes:                             # 흩어지는 줄무늬 꼬리: 끝이 가늘어지는 3토막
+    for x, y, s, w, _ in lobes:                             # 흩어지는 줄무늬 꼬리: 휘며 가늘어지는 곡선
         if w > .25:
             for j in range(2):
-                x0, y0 = x + s * (.2 + .5 * j) * (1 + w), y + s * (r.uniform(-.35, .35))
+                x0, y0 = x + s * (.2 + .5 * j) * (1 + w), y + s * r.uniform(-.35, .35)
                 L = (50 + 170 * w) * r.uniform(.7, 1.2)
-                pts = [(x0 + L * u, y0 - 8 * u + 5 * math.sin(u * 5 + j)) for u in (0, .35, .7, 1)]
-                for (a, b), th in zip(zip(pts, pts[1:]), (.9, .55, .25)):
-                    fr.line(a, b, D_SHADE, th)
+                a, m_, b = (x0, y0), (x0 + L * .5, y0 - 14 + 10 * j), (x0 + L, y0 - 4)
+                fr.curve(a, m_, b, D_SHADE, .8 - .3 * j)
 
 
 # ----------------------------------------------------------------------------- scene parts
