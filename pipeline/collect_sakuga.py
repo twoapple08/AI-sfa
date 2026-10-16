@@ -48,18 +48,31 @@ def excluded(post):
     return not EXCLUDED_TAGS.isdisjoint(post.get('tags', '').split())
 
 
+def _span(value):
+    """Cache value -> (first year, last year); legacy ints have no known end."""
+    if isinstance(value, list):
+        return value[0], value[1]
+    return value, None
+
+
 def post_year(post, years):
     """Latest known first-air year among the post's title tags (a franchise tag plus its newer season)."""
-    found = [years[t] for t in post.get('typed_tags', {}).get('copyright', []) if years.get(t)]
+    found = [_span(years[t])[0] for t in post.get('typed_tags', {}).get('copyright', []) if years.get(t)]
+    found = [y for y in found if y]
     return max(found) if found else None
 
 
 def is_old(post, years):
-    year = post_year(post, years)
-    if year is not None:
-        return year < MIN_YEAR
     w, h = post.get('width') or 0, post.get('height') or 1
-    return abs(w / h - 4 / 3) < 0.05                # unknown title: 4:3 frames are old TV anime
+    four_three = abs(w / h - 4 / 3) < 0.05
+    spans = [_span(years[t]) for t in post.get('typed_tags', {}).get('copyright', []) if years.get(t)]
+    spans = [(a, b) for a, b in spans if a]
+    if not spans:
+        return four_three                           # unknown title: 4:3 frames are old TV anime
+    if any(a >= MIN_YEAR for a, _ in spans):
+        return False
+    # Long-running series (One Piece, Shippuden...) aired into the 2010s: a 16:9 clip is a newer episode.
+    return not (any((b or 0) >= MIN_YEAR for _, b in spans) and not four_three)
 
 
 def load_years(data_dir):
@@ -68,18 +81,24 @@ def load_years(data_dir):
 
 
 def anilist_years(names, post=None, delay=2.0, batch=10):
-    """First-air year for each title tag via AniList search (aliased queries, `batch` per request)."""
+    """[first, last] air year per title tag via AniList search (aliased queries, `batch` per request).
+    last is 9999 while still airing, None when unknown; a title not found maps to None."""
     post = post or _post_json
     out = {}
     for i in range(0, len(names), batch):
         chunk = names[i:i + batch]
         fields = ' '.join(
             f'a{j}: Page(perPage: 1) {{ media(search: {json.dumps(n.replace("_", " ").removesuffix(" series"))}, '
-            f'type: ANIME, sort: SEARCH_MATCH) {{ startDate {{ year }} }} }}' for j, n in enumerate(chunk))
+            f'type: ANIME, sort: SEARCH_MATCH) {{ startDate {{ year }} endDate {{ year }} status }} }}' for j, n in enumerate(chunk))
         data = post({'query': '{ ' + fields + ' }'}, delay)['data']
         for j, n in enumerate(chunk):
             media = (data.get(f'a{j}') or {}).get('media') or []
-            out[n] = media[0]['startDate']['year'] if media else None
+            if not media:
+                out[n] = None
+                continue
+            m = media[0]
+            end = 9999 if m.get('status') == 'RELEASING' else (m.get('endDate') or {}).get('year')
+            out[n] = [m['startDate']['year'], end]
     return out
 
 
@@ -103,7 +122,8 @@ def _post_json(payload, delay, retries=4):
 def cmd_years(data_dir, match=''):
     years = load_years(data_dir)
     names = sorted({t for p in iter_posts(data_dir) if not excluded(p) and post_matches(p, match)
-                    for t in p.get('typed_tags', {}).get('copyright', [])} - set(years))
+                    for t in p.get('typed_tags', {}).get('copyright', [])}
+                   - {t for t, v in years.items() if not isinstance(v, int)})   # ints: legacy, no end year
     print(f'작품 태그 {len(names)}개 연도 조회')
     for i in range(0, len(names), 100):                  # save as we go: resumable
         years.update(anilist_years(names[i:i + 100]))
@@ -273,17 +293,24 @@ def cmd_curate(data_dir, match='', min_score=0):
     media = data_dir / 'media'
     years = load_years(data_dir)
     posts = {p['id']: p for p in iter_posts(data_dir)}
-    moved = Counter()
+    moved, busy = Counter(), []
     for clip in list(media.glob('*.mp4')):
         p = posts.get(int(clip.stem)) if clip.stem.isdigit() else None
         reason = reject_reason(p, years, match, min_score) if p else None
         if reason:
             dest = data_dir / 'excluded' / reason
             dest.mkdir(parents=True, exist_ok=True)
+            try:
+                os.replace(clip, dest / clip.name)          # the video first: fails if a job is reading it
+            except PermissionError:
+                busy.append(clip.stem)
+                continue
             for f in media.glob(f'{clip.stem}.*'):
                 os.replace(f, dest / f.name)
             moved[reason] += 1
     print(f'제외로 이동: {dict(moved)}, 남은 클립 {len(list(media.glob("*.mp4")))}개')
+    if busy:
+        print(f'사용 중이라 건너뜀(다시 실행): {busy}')
 
 
 def cmd_media(client, data_dir, max_files, match='', min_score=0):

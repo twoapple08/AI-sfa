@@ -103,12 +103,17 @@ class Collector(unittest.TestCase):
         self.assertFalse(cs.post_matches({'tags': 'character_acting'}, '~fighting ~impact_frames'))
 
     def test_old_titles_score_and_curate(self):
-        years = {'old_show': 2004, 'franchise': 1979, 'new_season': 2016}
+        years = {'old_show': [2004, 2005], 'franchise': [1979, 1980], 'new_season': [2016, 2016],
+                 'long_runner': [1999, 9999]}
         new = {'id': 1, 'score': 50, 'width': 1920, 'height': 1080, 'tags': 'fighting',
                'typed_tags': {'copyright': ['franchise', 'new_season']}}
         old = dict(new, id=2, typed_tags={'copyright': ['old_show']})
         unknown_43 = dict(new, id=3, width=640, height=480, typed_tags={'copyright': ['nobody_knows']})
         low = dict(new, id=4, score=3)
+        runner_hd = dict(new, id=5, typed_tags={'copyright': ['long_runner']})
+        runner_43 = dict(runner_hd, width=640, height=480)
+        self.assertFalse(cs.is_old(runner_hd, years))                    # recent episode of a long runner
+        self.assertTrue(cs.is_old(runner_43, years))
         self.assertEqual(cs.post_year(new, years), 2016)                 # newest season wins
         self.assertEqual([cs.reject_reason(p, years, 'fighting', 10) for p in (new, old, unknown_43, low)],
                          [None, 'old', 'old', 'score'])
@@ -129,9 +134,10 @@ class Collector(unittest.TestCase):
 
         def fake_post(payload, delay):
             seen.append(payload['query'])
-            return {'data': {'a0': {'media': [{'startDate': {'year': 2013}}]}, 'a1': {'media': []}}}
+            return {'data': {'a0': {'media': [{'startDate': {'year': 2013}, 'endDate': {'year': 2023},
+                                               'status': 'FINISHED'}]}, 'a1': {'media': []}}}
         out = cs.anilist_years(['attack_on_titan', 'no_such_show_series'], post=fake_post)
-        self.assertEqual(out, {'attack_on_titan': 2013, 'no_such_show_series': None})
+        self.assertEqual(out, {'attack_on_titan': [2013, 2023], 'no_such_show_series': None})
         self.assertIn('"attack on titan"', seen[0])
         self.assertIn('"no such show"', seen[0])                       # "_series" suffix dropped
 
