@@ -63,7 +63,7 @@ class FormatTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             path = Path(d) / 'preview.html'
             sfa.preview(self.root, path, 24, 48)
-            page = path.read_text()
+            page = path.read_text(encoding='utf-8')
             self.assertIn('목표 트위닝: 48 FPS', page)
             self.assertNotIn('TweenFPS', ET.tostring(self.root, encoding='unicode'))
 
