@@ -83,7 +83,7 @@ class Frame2D:
     """Objects in screen pixels (1920x1080), written as SFA AO/AP/FR."""
 
     def __init__(self, bg, mode='normal'):
-        self.bg, self.mode, self.items = bg, mode, []
+        self.bg, self.mode, self.items, self.layer = bg, mode, [], 'fg'
 
     def _col(self, c):
         if self.mode == 'impact_dark':
@@ -98,18 +98,18 @@ class Frame2D:
 
     def line(self, a, b, color, th=1.0, glow=None):
         if self._visible([a, b]):
-            self.items.append(('1', [a, b], self._col(color), th, glow, None))
+            self.items.append((self.layer, '1', [a, b], self._col(color), th, glow, None))
 
     def curve(self, a, c, b, color, th=1.0, glow=None):
         if self._visible([a, c, b]):
-            self.items.append(('3', [a, c, b], self._col(color), th, glow, None))
+            self.items.append((self.layer, '3', [a, c, b], self._col(color), th, glow, None))
 
     def circle(self, c, r, color, th=1.0, glow=None, fill=None):
         if r <= 0.5 or not self._visible([(c[0] - r, c[1] - r), (c[0] + r, c[1] + r)]):
             return
         fill = self._col(fill) if fill is not None and self.mode == 'normal' else (
             fill if fill is None else (BLACK if self.mode == 'impact_dark' else WHITE))
-        self.items.append(('2', [(c[0], c[1] - r), (c[0], c[1] + r)], self._col(color), th,
+        self.items.append((self.layer, '2', [(c[0], c[1] - r), (c[0], c[1] + r)], self._col(color), th,
                            glow if self.mode == 'normal' else None, fill))
 
     def poly(self, pts, fill, color=CLEAR, th=1.0):
@@ -117,21 +117,22 @@ class Frame2D:
             return
         if self.mode != 'normal':
             fill = BLACK if self.mode == 'impact_dark' else WHITE
-        self.items.append(('poly', pts, self._col(color) if color != CLEAR else CLEAR, th, None, fill))
+        self.items.append((self.layer, 'poly', pts, self._col(color) if color != CLEAR else CLEAR, th, None, fill))
 
-    def write(self, root, fid, pid):
-        frame = ET.SubElement(root, 'Frame', {'BackgroundColor': self.bg, 'ID': str(fid), 'Position': str(fid - 1)})
+    def write(self, root, n, ids):
+        """ids: IdPlan shared by all frames. Frame n gets ID 500000+n, its points 10000000+n*10000+k
+        (the probe convention), and every AO ID keeps one TypeId/point count/connection shape and
+        one DrawOrder for the whole file (the importer keys objects by AO ID across frames)."""
+        frame = ET.SubElement(root, 'Frame', {'BackgroundColor': self.bg, 'ID': str(500000 + n), 'Position': str(n)})
         ET.SubElement(frame, 'LayerDef', {'ID': '0', 'Name': 'Layer 1', 'Visible': 'true', 'Locked': 'false'})
-        oid = 0
-        fills = []
+        pid = 10000000 + n * 10000
+        fills, used = [], {}
 
-        def ao(kind, color, th, glow):
-            nonlocal oid
-            oid += 1
+        def ao(oid, kind, color, th, glow):
             gr, gt, gc, ga = glow if glow else (0, 0, WHITE, 0)
-            return ET.SubElement(frame, 'AO', {
+            return ET.Element('AO', {
                 'ID': str(oid), 'TypeId': kind, 'Color': color, 'LayerId': '0', 'DrawOrder': str(oid),
-                'ThicknessScale': f'{max(th, 0.05):.3f}', 'ObjectScale': '1.0', 'GlowRadius': str(int(gr)),
+                'ThicknessScale': f'{max(th, 0.06):.3f}', 'ObjectScale': '1.0', 'GlowRadius': str(int(gr)),
                 'GlowThickness': str(int(gt)), 'GlowColor': gc, 'GlowAlpha': str(int(ga))})
 
         def ap(parent, idx, p, flags):
@@ -140,35 +141,103 @@ class Frame2D:
             return ET.SubElement(parent, 'AP', {'ID': str(pid), 'Flags': str(flags), 'Index': str(idx),
                                                 'X': f'{p[0] / W * 100:.2f}', 'Y': f'{p[1] / H * 100:.2f}'})
 
-        for kind, pts, color, th, glow, fill in self.items:
+        objs_out = []
+        for layer, kind, pts, color, th, glow, fill in self.items:
             if kind == 'poly':
-                n = len(pts)
+                pts = clip_poly(pts)
+                if len(pts) < 3:
+                    continue
+                n_ = min(len(pts), 40)
+                pts = pts if len(pts) == n_ else [pts[int(k * len(pts) / n_)] for k in range(n_)]
+                pool = (layer, 'poly', n_)
+            else:
+                pool = (layer, kind)
+            k = used.get(pool, 0)
+            used[pool] = k + 1
+            base = ids.slot(pool, k)
+            if kind == 'poly':
                 objs, aps = [], []
-                for i in range(n):
-                    o = ao('1', color, th, None)
-                    a0 = ap(o, 0, pts[i], 3)
-                    a1 = ap(o, 1, pts[(i + 1) % n], 9)
+                for e in range(n_):
+                    o = ao(base + e, '1', color, th, None)
+                    aps.append((ap(o, 0, pts[e], 3), ap(o, 1, pts[(e + 1) % n_], 9)))
                     objs.append(o)
-                    aps.append((a0, a1))
-                for i in range(n):                       # chain: end i <-> start i+1
-                    ET.SubElement(aps[i][1], 'AC', {'ConnPtId': aps[(i + 1) % n][0].get('ID')})
-                    ET.SubElement(aps[(i + 1) % n][0], 'AC', {'ConnPtId': aps[i][1].get('ID')})
+                for e in range(n_):                      # chain: end e <-> start e+1
+                    ET.SubElement(aps[e][1], 'AC', {'ConnPtId': aps[(e + 1) % n_][0].get('ID')})
+                    ET.SubElement(aps[(e + 1) % n_][0], 'AC', {'ConnPtId': aps[e][1].get('ID')})
                 fr = ET.Element('FR', {'Color': fill})
                 for o, (a0, a1) in zip(objs, aps):
                     ET.SubElement(fr, 'FS', {'Kind': '0', 'ObjId': o.get('ID'), 'StartPtId': a0.get('ID'),
                                              'EndPtId': a1.get('ID'), 'StartT': '0.0', 'EndT': '1.0'})
                 fills.append(fr)
+                objs_out += objs
                 continue
-            o = ao(kind, color, th, glow)
-            for i, p in enumerate(pts):
-                ap(o, i, p, 3 if i == 0 else 9)
+            o = ao(base, kind, color, th, glow)
+            for e, q in enumerate(pts):
+                ap(o, e, q, 3 if e == 0 else 9)
             if kind == '2' and fill is not None:
                 fr = ET.Element('FR', {'Color': fill})
                 ET.SubElement(fr, 'FS', {'Kind': '1', 'ObjId': o.get('ID')})
                 fills.append(fr)
+            objs_out.append(o)
+        for o in sorted(objs_out, key=lambda o: int(o.get('ID'))):
+            frame.append(o)
         for fr in fills:
             frame.append(fr)
-        return pid
+
+
+LAYERS = ('bg', 'mid', 'fg', 'fx')                      # back to front
+
+
+class IdPlan:
+    """Stable AO IDs: pool (layer, kind[, edges]) slot k -> fixed ID block. IDs grow with the layer,
+    so DrawOrder = ID keeps background behind figures in every frame."""
+
+    def __init__(self):
+        self.need = {}
+
+    def slot(self, pool, k):
+        self.need[pool] = max(self.need.get(pool, 0), k + 1)
+        return self.base[pool] + k * self.width(pool)
+
+    @staticmethod
+    def width(pool):
+        return pool[2] if pool[1] == 'poly' else 1
+
+    def plan(self):
+        """Assign ID ranges after a dry run counted every pool's size."""
+        self.base, nxt = {}, 1000
+        for layer in LAYERS:
+            for pool in sorted((p for p in self.need if p[0] == layer), key=lambda p: (p[1] != 'poly', str(p))):  # fills first
+                self.base[pool] = nxt
+                nxt += self.need[pool] * self.width(pool) + 10
+
+
+def clip_poly(pts, pad=60):
+    """Sutherland-Hodgman clip to the canvas (plus a margin): the editor shows off-canvas fills."""
+    def clip(poly, inside, cut):
+        out = []
+        for a, b in zip(poly, poly[1:] + poly[:1]):
+            ia, ib = inside(a), inside(b)
+            if ia:
+                out.append(a)
+            if ia != ib:
+                out.append(cut(a, b))
+        return out
+    edges = [(lambda q: q[0] >= -pad, lambda a, b: _ix(a, b, 0, -pad)),
+             (lambda q: q[0] <= W + pad, lambda a, b: _ix(a, b, 0, W + pad)),
+             (lambda q: q[1] >= -pad, lambda a, b: _ix(a, b, 1, -pad)),
+             (lambda q: q[1] <= H + pad, lambda a, b: _ix(a, b, 1, H + pad))]
+    poly = list(pts)
+    for inside, cut in edges:
+        if not poly:
+            break
+        poly = clip(poly, inside, cut)
+    return poly
+
+
+def _ix(a, b, axis, v):
+    t = (v - a[axis]) / ((b[axis] - a[axis]) or 1e-9)
+    return (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
 
 
 # ----------------------------------------------------------------------------- camera
@@ -823,11 +892,14 @@ def impact_frame(t, cam):
     mode = 'impact_dark' if t != 67 else 'impact_light'
     fr = Frame2D(BLACK if mode == 'impact_dark' else WHITE, mode)
     rng = random.Random(t * 13)
+    fr.layer = 'bg'
     draw_ground(fr, cam, t, boil=1.0)
+    fr.layer = 'fg'
     for f in (A, B):
         pel, yaw, pitch, P, _ = fighter_state(f, 66)
         draw_fighter(fr, cam, skeleton(pel, yaw, pitch, P), f, th=2.2, glow=False, rng=rng, jitter=10)
     c = cam.proj(v3(0, 2.0, 0)) or (W / 2, H / 2)
+    fr.layer = 'fx'
     for i in range(22):                                    # jagged flash rays from the clash point
         a = 2 * math.pi * i / 22 + rng.uniform(-0.1, 0.1) + t
         r = rng.uniform(0.15, 0.3) * W
@@ -952,13 +1024,16 @@ def build_frame(t):
         bg = SKY_HOT
     fr = Frame2D(bg)
     boil = 1.0 if 24 <= t < 50 else (0.6 if 69 <= t < 96 or 168 <= t < 214 else 0.15)
+    fr.layer = 'bg'
     draw_ground(fr, cam, t, boil=boil)
+    fr.layer = 'mid'
     for cube in CUBES:
         draw_cube(fr, cube, cam, t)
     shockwave(fr, cam, t)
     for m in MISSILES:
         if t >= 160:
             draw_missile(fr, m, cam, t)
+    fr.layer = 'fg'
     for f in (A, B):
         if f is B and t >= 222:
             continue                                       # B vanishes into the blast
@@ -973,6 +1048,7 @@ def build_frame(t):
             for name in ('head', 'rhand', 'lhand', 'lfoot', 'rfoot', 'pelvis'):
                 draw_seg(fr, cam, Jp[name], J[name], argb(30, 24, 26, 110), 2.2)
         draw_fighter(fr, cam, J, f, th=1.1, hatch=hatch, rng=rng, jitter=1.5)
+    fr.layer = 'fx'
     if 24 <= t < 50 or 168 <= t < 222:
         speed_lines(fr, rng, 26, INK, alpha=120)
     for at, t0 in ((v3(0.2, 1.7, 0), 104), (v3(0.2, 2.2, 0), 115), (v3(0.0, 1.5, 0), 131)):
@@ -987,9 +1063,19 @@ def build_frame(t):
 def build(n=N_FRAMES):
     root = ET.Element('Sequence', {'Name': 'duel_demo', 'HeightWidthRatio': '0.5625', 'RatioX': '16',
                                    'RatioY': '9', 'FrameCount': str(n), 'BackgroundColor': SKY})
-    pid = 0
-    for t in range(n):
-        pid = build_frame(t).write(root, t + 1, pid)
+    frames = [build_frame(t) for t in range(n)]
+    ids = IdPlan()
+    for fr in frames:                                      # dry run: pool sizes
+        used = {}
+        for layer, kind, pts, *_ in fr.items:
+            pool = (layer, 'poly', min(len(clip_poly(pts)), 40)) if kind == 'poly' else (layer, kind)
+            if pool[1] == 'poly' and pool[2] < 3:
+                continue
+            used[pool] = used.get(pool, 0) + 1
+            ids.need[pool] = max(ids.need.get(pool, 0), used[pool])
+    ids.plan()
+    for t, fr in enumerate(frames):
+        fr.write(root, t, ids)
     return root
 
 
