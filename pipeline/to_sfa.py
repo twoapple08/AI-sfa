@@ -146,7 +146,26 @@ def fill_missing(seq, offscreen=None, frame_height=1080):
     return out
 
 
-def build(motion, shot=None, max_chars=2):
+def fit_box(points, margin=0.06):
+    """World mode: fit the whole composition (every joint of the shot) into the canvas."""
+    xs, ys = [p[0] for p in points], [p[1] for p in points]
+    w, h = max(xs) - min(xs) or 1.0, max(ys) - min(ys) or 1.0
+    s = min(CANVAS[0] * (1 - 2 * margin) / w, CANVAS[1] * (1 - 2 * margin) / h)
+    ox = (CANVAS[0] - w * s) / 2 - min(xs) * s
+    oy = (CANVAS[1] - h * s) / 2 - min(ys) * s
+    return lambda q: ((q[0] * s + ox) / CANVAS[0] * 100, (q[1] * s + oy) / CANVAS[1] * 100)
+
+
+def _cams(c):
+    cams = c.get('camera')
+    return [np.asarray(m, float).reshape(2, 3) for m in cams] if cams and len(cams) == len(c['joints']) else None
+
+
+def build(motion, shot=None, max_chars=2, world=False):
+    """world=False: as filmed (camera zoom/pan baked into the points, the app has no camera).
+    world=True: camera removed, the whole composition fitted once, so a camera move can be
+    added by hand in the editor (move/scale everything together)."""
+    from pipeline import camera
     tree = ET.parse(TEMPLATE)
     root = tree.getroot()
     proto = root.find('Frame')
@@ -158,15 +177,24 @@ def build(motion, shot=None, max_chars=2):
     chars = sorted(chars, key=lambda c: -len(c['joints']))[:max_chars]
     if not chars:
         raise ValueError('no character track in this shot')
-    to_pct = fit(motion['size'])
     start = min(c['start'] for c in chars)
     end = max(c['start'] + len(c['joints']) for c in chars)
-    tracks = []
+    worlds = []
     for c in chars:
+        cams = _cams(c)
         raw = [skeleton(f) for f in c['joints']]
+        if cams is not None:                               # geometry in world units: lengths and head fixed
+            raw = [[None if p is None else tuple(camera.to_world(m, [p])[0]) for p in pts]
+                   for pts, m in zip(raw, cams)]
         torsos = [np.hypot(f[2][0] - f[1][0], f[2][1] - f[1][1]) for f in raw if f[1] is not None and f[2] is not None]
         torso = float(np.median(torsos)) if torsos else 0.25 * motion['size'][1]
         px = place_heads(fill_missing(raw, c.get('offscreen'), motion['size'][1]), torso)
+        if cams is not None and not world:
+            px = [[tuple(camera.to_screen(m, [p])[0]) for p in pts] for pts, m in zip(px, cams)]
+        worlds.append(px)
+    to_pct = fit_box([p for px in worlds for pts in px for p in pts]) if world else fit(motion['size'])
+    tracks = []
+    for c, px in zip(chars, worlds):
         seq = [[to_pct(p) for p in pts] for pts in px]
         height = np.median([max(p[1] for p in pts) - min(p[1] for p in pts) for pts in seq])
         tracks.append((c, seq, float(np.clip(0.8 * height / TEMPLATE_HEIGHT, 0.25, 1.5))))
@@ -210,8 +238,9 @@ def main(argv=None):
     ap.add_argument('motion')
     ap.add_argument('out')
     ap.add_argument('--shot', type=int)
+    ap.add_argument('--world', action='store_true', help='camera removed: whole composition, fixed framing')
     a = ap.parse_args(argv)
-    root, info = build(json.loads(Path(a.motion).read_text(encoding='utf-8')), a.shot)
+    root, info = build(json.loads(Path(a.motion).read_text(encoding='utf-8')), a.shot, world=a.world)
     sfa.write_sfa(root, a.out)
     fps = round(info['fps'])
     print(f"샷 {info['shot']}: {info['frames']}프레임, 인물 {info['characters']}명 → {a.out} "

@@ -29,12 +29,12 @@ class Cleanup(unittest.TestCase):
         np.testing.assert_allclose(fixed[1, 5, :2], [922, 400])
 
     def test_short_gaps_filled_long_gaps_kept(self):
-        k = np.array([coco_pose(i) for i in range(12)], float)
+        k = np.array([coco_pose(i) for i in range(16)], float)
         k[2:4, 9, :2] = np.nan
-        k[5:11, 10, :2] = np.nan
+        k[4:14, 10, :2] = np.nan                                     # 10 frames > MAX_GAP
         out = motion.fill_gaps(k)
         self.assertAlmostEqual(out[2, 9, 0], 892.0)
-        self.assertTrue(np.isnan(out[7, 10, 0]))
+        self.assertTrue(np.isnan(out[8, 10, 0]))
 
 
 @unittest.skipIf(motion is None, 'numpy not installed (use .venv)')
@@ -54,7 +54,8 @@ class OffScreen(unittest.TestCase):
         k = self.frames()
         boxes = np.tile(np.array([800, 300, 1100, 1079], float), (8, 1))
         cleaned, _, _, bits = motion.clean_track(k, boxes, (1920, 1080))
-        self.assertTrue(np.isnan(cleaned[5, 15, 0]))
+        self.assertGreater(cleaned[5, 15, 1], 1080)                  # not the clamped edge value: below the frame
+        self.assertEqual(cleaned[5, 15, 2], 0.02)                    # borrowed from a frame where it was seen
         self.assertEqual(bits[5], (1 << 15) | (1 << 16))
         self.assertEqual(bits[0], 0)
 
@@ -70,7 +71,7 @@ class OffScreen(unittest.TestCase):
         shin = root.findall('Frame')[6].findall('AO')[7].findall('AP')
         knee_y, ankle_y = float(shin[0].get('Y')), float(shin[1].get('Y'))
         self.assertGreater(ankle_y, 100.0)                           # below the canvas, not squashed at the edge
-        self.assertAlmostEqual((ankle_y - knee_y) * 1080 / 100, 94.4, delta=3)   # usual shin length, straight
+        self.assertAlmostEqual((ankle_y - knee_y) * 1080 / 100, 100, delta=3)    # shin as last seen, not squashed
 
 
 @unittest.skipIf(motion is None, 'numpy not installed (use .venv)')
@@ -110,6 +111,24 @@ class StickmanSfa(unittest.TestCase):
         self.assertAlmostEqual(max(sizes) - min(sizes), 0, delta=0.05)  # same size bowed, upright, big hair
         self.assertAlmostEqual(sizes[0], 0.75 * 160, delta=1)           # template ratio x torso (400 -> 560 px)
         self.assertGreater(dirs[1], dirs[0] + 20)                       # bowing turns the circle
+
+    def test_world_mode_removes_the_camera(self):
+        import sfa
+        c = dict(self.motion['characters'][0])
+        zoom = [1.0 + 0.2 * i for i in range(8)]                      # filmed with a zoom-in
+        c['joints'] = [[[None, None, 0.0] if x is None else [960 + (x - 960) * z, 540 + (y - 540) * z, q]
+                        for x, y, q in f] for f, z in zip(c['joints'], zoom)]
+        c['camera'] = [[z, 0, 960 * (1 - z), 0, z, 540 * (1 - z)] for z in zoom]
+        mo = dict(self.motion, characters=[c])
+        root, _ = to_sfa.build(mo, world=True)
+        self.assertEqual(sfa.validate(root), [])
+        torso = [abs(float(f.findall('AO')[1].findall('AP')[1].get('Y')) - float(f.findall('AO')[1].findall('AP')[0].get('Y')))
+                 for f in root.findall('Frame')]
+        self.assertAlmostEqual(max(torso) - min(torso), 0, delta=0.01)   # no zoom left in world mode
+        filmed, _ = to_sfa.build(mo)
+        t2 = [abs(float(f.findall('AO')[1].findall('AP')[1].get('Y')) - float(f.findall('AO')[1].findall('AP')[0].get('Y')))
+              for f in filmed.findall('Frame')]
+        self.assertGreater(t2[-1], 2 * t2[0])                          # as filmed: the zoom is baked in
 
     def test_letterbox_fit_and_render(self):
         to_pct = to_sfa.fit((1440, 1080))                            # 4:3 clip in the 16:9 canvas

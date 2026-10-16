@@ -88,6 +88,8 @@ python -m pipeline.collect_sakuga curate data_sakuga --min-score 점수 --match 
 ```powershell
 .venv\Scripts\python -m pipeline.motion data_sakuga
 .venv\Scripts\python -m pipeline.to_sfa data_sakuga\media\번호.motion.json 결과.sfa --shot 샷번호
+.venv\Scripts\python -m pipeline.to_sfa data_sakuga\media\번호.motion.json 결과.sfa --shot 샷번호 --world   # 카메라 빼고 전체 구도
+.venv\Scripts\python tools\motion_bench.py   # 정답 있는 합성 사례로 정리 품질 측정
 ```
 
 받은 클립마다 `번호.shots.json`이 생긴다. 컷 경계, 같은 그림 반복(1s/2s/3s 작화), 한 장 그림에 카메라만 움직이는 샷(`camera_only`), 정지샷(`still`), 원화처럼 보이는 선화(`lineart_like`)를 기록한다. 이어서 실행하면 분석한 클립은 건너뛴다.
