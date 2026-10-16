@@ -119,12 +119,13 @@ class Frame2D:
             fill = BLACK if self.mode == 'impact_dark' else WHITE
         self.items.append((self.layer, 'poly', pts, self._col(color) if color != CLEAR else CLEAR, th, None, fill))
 
-    def cpoly(self, pts, fill):
+    def cpoly(self, pts, fill, color=CLEAR, th=1.0):
         """Closed shape of quadratic curves: pts = [on0, ctrl0, on1, ctrl1, ...] (even length),
-        curve j = (on_j, ctrl_j, on_j+1). Half the objects of a straight polygon for smooth blobs."""
+        curve j = (on_j, ctrl_j, on_j+1). Half the objects of a straight polygon for smooth blobs.
+        color/th: the curves themselves as the outline (default invisible)."""
         if len(pts) < 4 or len(pts) % 2 or not self._visible(pts):
             return
-        self.items.append((self.layer, 'cpoly', pts, CLEAR, 1.0, None, fill))
+        self.items.append((self.layer, 'cpoly', pts, color, th, None, fill))
 
     def write(self, root, n, ids, layers=None, prec=2):
         """ids: IdPlan shared by all frames. Frame n gets ID 500000+n, its points 10000000+n*10000+k
@@ -187,7 +188,7 @@ class Frame2D:
                 m = len(pts) // 2
                 objs, aps = [], []
                 for e in range(m):
-                    o = ao(base + e, '3', CLEAR, 1.0, None)
+                    o = ao(base + e, '3', color, th, None)
                     trio = (pts[2 * e], pts[2 * e + 1], pts[(2 * e + 2) % len(pts)])
                     aps.append([ap(o, i, q, 3 if i == 0 else 9) for i, q in enumerate(trio)])
                     objs.append(o)
