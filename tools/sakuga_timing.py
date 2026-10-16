@@ -58,7 +58,9 @@ def analyze(path, thresh):
 
 
 def sheet(path, idx, out, cols=8, w=213, h=120, limit=64):
-    pick = set(idx[:limit])
+    if len(idx) > limit:  # 앞부분만 보지 않도록 클립 전체에서 고르게 뽑는다
+        idx = [idx[round(k * (len(idx) - 1) / (limit - 1))] for k in range(limit)]
+    pick = set(idx)
     tiles = [f for i, f in enumerate(frames(path, w, h, gray=False)) if i in pick]
     rows = (len(tiles) + cols - 1) // cols
     canvas = np.zeros((rows * h, cols * w, 3), np.uint8)
