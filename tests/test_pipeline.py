@@ -160,6 +160,20 @@ class Hardware(unittest.TestCase):
         self.assertEqual(setup_env.torch_channel(12.0, 12.8), 'cu128')   # RTX 5060 needs cu128+
         self.assertEqual(setup_env.torch_channel(12.0, 12.6), 'cpu')     # driver too old for Blackwell
 
+    def test_venv_valid_only_for_this_pc(self):
+        import sys as _sys
+        with tempfile.TemporaryDirectory() as d:
+            venv = Path(d, 'venv')
+            exe = setup_env.venv_python(venv)
+            exe.parent.mkdir(parents=True)
+            exe.write_bytes(b'')
+            (venv / 'aisfa_env.json').write_text(json.dumps({'channel': 'cu126'}), encoding='utf-8')
+            (venv / 'pyvenv.cfg').write_text(f'home = {Path(_sys.executable).parent}\n', encoding='utf-8')
+            self.assertTrue(setup_env.venv_ok(venv, 'cu126'))
+            self.assertFalse(setup_env.venv_ok(venv, 'cu128'))          # moved to a PC with another GPU
+            (venv / 'pyvenv.cfg').write_text('home = Z:\\no\\python\n', encoding='utf-8')
+            self.assertFalse(setup_env.venv_ok(venv, 'cu126'))          # base Python missing on this PC
+
 
 if __name__ == '__main__':
     unittest.main()

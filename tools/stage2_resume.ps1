@@ -7,7 +7,14 @@ Set-Location (Split-Path $PSScriptRoot -Parent)
 $env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')
 $env:PYTHONIOENCODING = 'utf-8'
 $env:PYTHONUNBUFFERED = '1'
-$py = '.venv\Scripts\python.exe'
+# 이 PC에 맞는 파이썬 환경(USB로 옮겨 다녀도 PC마다 따로)을 찾고, 없으면 먼저 설치한다.
+$py = python -m pipeline.setup_env --where
+if ($LASTEXITCODE -ne 0) {
+    Write-Output '이 PC용 환경이 없어 먼저 설치한다(PyTorch 약 2.6GB, 10-20분).'
+    python -m pipeline.setup_env
+    $py = python -m pipeline.setup_env --where
+    if ($LASTEXITCODE -ne 0) { throw '환경 설치 실패: 위 출력 확인' }
+}
 # 학습 대상 기준(사용자 결정 2026-10-16): 액션씬, 점수 상위 30%, 서양 카툰·옛날 애니 자동 제외
 $match = '~fighting ~impact_frames -cgi -mecha -creatures rating:s'
 $minScore = 158

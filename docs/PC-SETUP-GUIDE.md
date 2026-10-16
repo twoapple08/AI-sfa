@@ -113,3 +113,5 @@ powershell -ExecutionPolicy Bypass -File tools\stage2_resume.ps1
 ```
 
 절전(잠자기)은 작업이 멈췄다가 깨어나면 계속된다. 완전 종료·재시작은 위 명령으로 이어 간다.
+
+USB에 담아 여러 PC에서 쓰는 방법은 [USB-GUIDE](USB-GUIDE.md).
