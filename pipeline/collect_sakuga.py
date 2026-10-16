@@ -24,8 +24,11 @@ from pathlib import Path
 
 BASE = 'https://www.sakugabooru.com'
 USER_AGENT = 'AI-sfa-personal-research/0.1 (personal, non-commercial)'
-# Moebooru tag types. Sakugabooru labels may differ; raw numbers are always kept.
-TAG_TYPES = {0: 'general', 1: 'artist', 3: 'copyright', 4: 'character', 5: 'meta'}
+# Moebooru tag types, checked against the live Sakugabooru tag list (2026-10-16): 1 artist
+# (yutaka_nakamura), 3 copyright (show titles), 0 general (animated/effects/smears), 5 meta
+# (presumed/remake). Type 4 is Moebooru 'character' but Sakugabooru uses it for named drawing
+# techniques (kanada_light_flare, itano_circus), so it is labelled 'technique'.
+TAG_TYPES = {0: 'general', 1: 'artist', 3: 'copyright', 4: 'technique', 5: 'meta'}
 TRAINING_EXCLUDED_TYPES = {'copyright'}      # user decision: work titles are not learned
 
 
@@ -135,14 +138,17 @@ def iter_posts(data_dir):
 
 def cmd_stats(data_dir, top=30):
     posts = list(iter_posts(data_dir))
+    tag_table = load_tags(data_dir)
     by_kind = {}
     for p in posts:
-        for kind, names in p.get('typed_tags', {}).items():
+        # Re-type from tags.json when present so label changes apply to already stored posts.
+        typed = typed_tags(p.get('tags', ''), tag_table) if tag_table else p.get('typed_tags', {})
+        for kind, names in typed.items():
             by_kind.setdefault(kind, Counter()).update(names)
     report = {'posts': len(posts), 'top': {k: c.most_common(top) for k, c in by_kind.items()}}
     Path(data_dir, 'stats.json').write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding='utf-8')
     print(f"post {len(posts)}개")
-    for kind in ('artist', 'general', 'meta', 'unknown'):
+    for kind in ('artist', 'technique', 'general', 'meta', 'unknown'):
         if kind in report['top']:
             print(f"[{kind}]", ', '.join(f'{n}({c})' for n, c in report['top'][kind][:15]))
 
@@ -157,7 +163,7 @@ def cmd_media(client, data_dir, max_files):
     with open(index, 'a', newline='', encoding='utf-8-sig') as fh:
         writer = csv.writer(fh)
         if new_index:
-            writer.writerow(['id', 'file', 'md5', 'score', 'artists', 'general_tags', 'meta_tags'])
+            writer.writerow(['id', 'file', 'md5', 'score', 'artists', 'technique_tags', 'general_tags', 'meta_tags'])
         for p in iter_posts(data_dir):
             if done >= max_files:
                 break
@@ -179,7 +185,8 @@ def cmd_media(client, data_dir, max_files):
             meta.write_text(json.dumps(sidecar, ensure_ascii=False, indent=1), encoding='utf-8')
             tt = p.get('typed_tags', {})
             writer.writerow([p['id'], target.name, p.get('md5'), p.get('score'),
-                             ' '.join(tt.get('artist', [])), ' '.join(tt.get('general', [])),
+                             ' '.join(tt.get('artist', [])), ' '.join(tt.get('technique', [])),
+                             ' '.join(tt.get('general', [])),
                              ' '.join(tt.get('meta', []))])
             done += 1
             print(f"  [{done}/{max_files}] {target.name}")

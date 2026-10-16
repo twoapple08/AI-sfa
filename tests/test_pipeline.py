@@ -14,10 +14,11 @@ VIDEO = b'fake-video-bytes' * 100
 POSTS = [{'id': i, 'md5': hashlib.md5(VIDEO).hexdigest(), 'file_url': f'https://files.example/{i}.mp4',
           'file_ext': 'mp4', 'file_size': len(VIDEO), 'width': 1280, 'height': 720, 'score': i,
           'rating': 's', 'created_at': 0, 'source': 'https://twitter.example', 
-          'tags': 'yutaka_nakamura smears fighting some_show animated'} for i in range(1, 6)]
+          'tags': 'yutaka_nakamura smears fighting some_show animated kanada_light_flare presumed'} for i in range(1, 6)]
 TAGS = [{'name': 'yutaka_nakamura', 'type': 1, 'count': 900}, {'name': 'smears', 'type': 0, 'count': 5000},
         {'name': 'fighting', 'type': 0, 'count': 8000}, {'name': 'some_show', 'type': 3, 'count': 40},
-        {'name': 'animated', 'type': 5, 'count': 100000}]
+        {'name': 'animated', 'type': 0, 'count': 100000}, {'name': 'presumed', 'type': 5, 'count': 30000},
+        {'name': 'kanada_light_flare', 'type': 4, 'count': 1300}]   # type numbers as on live Sakugabooru
 
 
 class FakeResp(io.BytesIO):
@@ -50,6 +51,8 @@ class Collector(unittest.TestCase):
             self.assertEqual([p['id'] for p in posts], [1, 2, 3, 4, 5])
             self.assertEqual(posts[0]['typed_tags']['artist'], ['yutaka_nakamura'])
             self.assertEqual(posts[0]['typed_tags']['copyright'], ['some_show'])
+            self.assertEqual(posts[0]['typed_tags']['technique'], ['kanada_light_flare'])
+            self.assertEqual(posts[0]['typed_tags']['meta'], ['presumed'])
             cs.cmd_media(client, d, max_files=2)
             cs.cmd_media(client, d, max_files=10)                               # skips verified files
             media = sorted(p.name for p in Path(d, 'media').glob('*.mp4'))
@@ -61,6 +64,8 @@ class Collector(unittest.TestCase):
             cs.cmd_stats(d)
             stats = json.loads(Path(d, 'stats.json').read_text(encoding='utf-8'))
             self.assertEqual(stats['top']['artist'][0], ['yutaka_nakamura', 5])
+            self.assertEqual(stats['top']['technique'][0], ['kanada_light_flare', 5])
+            self.assertIn('technique_tags', rows[0])
 
     def test_md5_mismatch_is_rejected(self):
         bad = [dict(POSTS[0], md5='0' * 32)]
