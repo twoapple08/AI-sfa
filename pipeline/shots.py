@@ -64,9 +64,31 @@ def frame_diffs(grays):
 
 FLASH_MAX = 2        # a segment this short whose neighbours match is a flash/impact frame, not a shot
 FLASH_SAME = 0.8
+DISSOLVE_SPAN = 8    # dissolves (overlaps) are gradual: frame t+4 ~ average of frames t and t+8
+DISSOLVE_DIFF = 25.0
+DISSOLVE_RESID = 0.25
 
 
-def find_cuts(frames, diffs):
+def find_dissolves(grays):
+    """Cut positions at the middle of cross-dissolves, which frame-to-frame tests miss."""
+    th = [cv2.resize(g, (64, 36), interpolation=cv2.INTER_AREA).astype(np.float32) for g in grays]
+    hits, half = [], DISSOLVE_SPAN // 2
+    for t in range(len(th) - DISSOLVE_SPAN):
+        a, m, b = th[t], th[t + half], th[t + DISSOLVE_SPAN]
+        change = float(np.mean(np.abs(a - b)))
+        if change > DISSOLVE_DIFF and float(np.mean(np.abs(m - (a + b) / 2))) < DISSOLVE_RESID * change:
+            hits.append(t + half)
+    cuts, run = [], []
+    for h in hits + [None]:
+        if run and (h is None or h > run[-1] + DISSOLVE_SPAN):     # one dissolve can give broken runs
+            cuts.append(run[len(run) // 2])
+            run = []
+        if h is not None:
+            run.append(h)
+    return cuts
+
+
+def find_cuts(frames, diffs, grays=None):
     """Shot start indices and flash events [(start, end)] that were folded into their shot."""
     hists = [_hist(f) for f in frames]
     cuts = [0]
@@ -75,6 +97,10 @@ def find_cuts(frames, diffs):
         mean = diffs[i][0]
         if (mean > CUT_DIFF and corr < CUT_CORR) or (mean > CUT_DIFF_MIN and corr < CUT_CORR_STRONG):
             cuts.append(i)
+    if grays is not None:
+        hard = set(cuts)
+        cuts = sorted(hard | {d for d in find_dissolves(grays)
+                              if all(abs(d - c) > DISSOLVE_SPAN for c in hard)})
     kept, flashes, i = [0], [], 1
     while i < len(cuts):
         s = cuts[i]
@@ -153,7 +179,7 @@ def analyse_shot(frames, grays, diffs, start, end):
 def analyse_frames(frames, fps):
     grays = [cv2.cvtColor(f, cv2.COLOR_BGR2GRAY) for f in frames]
     diffs = frame_diffs(grays)
-    cuts, flashes = find_cuts(frames, diffs)
+    cuts, flashes = find_cuts(frames, diffs, grays)
     cuts.append(len(frames))
     shots = [analyse_shot(frames, grays, diffs, s, e) for s, e in zip(cuts, cuts[1:]) if e > s]
     for shot in shots:

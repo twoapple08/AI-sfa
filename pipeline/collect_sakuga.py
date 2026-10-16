@@ -7,6 +7,10 @@ Usage (run from the repository root):
   python -m pipeline.collect_sakuga stats DATA_DIR                 # tag/artist counts from collected posts
   python -m pipeline.collect_sakuga media DATA_DIR --max 200       # download files for collected posts
   python -m pipeline.collect_sakuga media DATA_DIR --max 200 --match "fighting -cgi rating:s"   # only matching posts
+  python -m pipeline.collect_sakuga years DATA_DIR --match "~fighting ~impact_frames"   # title tag -> air year (AniList)
+  python -m pipeline.collect_sakuga curate DATA_DIR --match "..." --min-score 20   # move failing clips to excluded/
+Always skipped (user decisions): western cartoons, and titles first aired before MIN_YEAR
+(unknown year: 4:3 frames count as old).
 
 Everything resumes: re-running skips posts/files already stored (md5 checked). Requests are
 spaced (default 1.5 s). Standard library only.
@@ -18,6 +22,7 @@ import json
 import os
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from collections import Counter
@@ -34,8 +39,77 @@ TRAINING_EXCLUDED_TYPES = {'copyright'}      # user decision: work titles are no
 EXCLUDED_TAGS = {'western'}                  # user decision 2026-10-16: no western cartoons (Tom and Jerry etc.)
 
 
+MIN_YEAR = 2010                              # user decision 2026-10-16: no old (2000s and earlier) anime
+ANILIST = 'https://graphql.anilist.co'
+YEARS_FILE = 'copyright_years.json'          # copyright tag -> first air year (AniList), None if not found
+
+
 def excluded(post):
     return not EXCLUDED_TAGS.isdisjoint(post.get('tags', '').split())
+
+
+def post_year(post, years):
+    """Latest known first-air year among the post's title tags (a franchise tag plus its newer season)."""
+    found = [years[t] for t in post.get('typed_tags', {}).get('copyright', []) if years.get(t)]
+    return max(found) if found else None
+
+
+def is_old(post, years):
+    year = post_year(post, years)
+    if year is not None:
+        return year < MIN_YEAR
+    w, h = post.get('width') or 0, post.get('height') or 1
+    return abs(w / h - 4 / 3) < 0.05                # unknown title: 4:3 frames are old TV anime
+
+
+def load_years(data_dir):
+    path = Path(data_dir) / YEARS_FILE
+    return json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+
+
+def anilist_years(names, post=None, delay=2.0, batch=10):
+    """First-air year for each title tag via AniList search (aliased queries, `batch` per request)."""
+    post = post or _post_json
+    out = {}
+    for i in range(0, len(names), batch):
+        chunk = names[i:i + batch]
+        fields = ' '.join(
+            f'a{j}: Page(perPage: 1) {{ media(search: {json.dumps(n.replace("_", " ").removesuffix(" series"))}, '
+            f'type: ANIME, sort: SEARCH_MATCH) {{ startDate {{ year }} }} }}' for j, n in enumerate(chunk))
+        data = post({'query': '{ ' + fields + ' }'}, delay)['data']
+        for j, n in enumerate(chunk):
+            media = (data.get(f'a{j}') or {}).get('media') or []
+            out[n] = media[0]['startDate']['year'] if media else None
+    return out
+
+
+def _post_json(payload, delay, retries=4):
+    body = json.dumps(payload).encode()
+    for attempt in range(retries + 1):
+        time.sleep(delay)
+        req = urllib.request.Request(ANILIST, data=body, headers={
+            'Content-Type': 'application/json', 'Accept': 'application/json', 'User-Agent': USER_AGENT})
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                return json.loads(resp.read().decode('utf-8'))
+        except urllib.error.HTTPError as exc:
+            if attempt == retries:
+                raise
+            wait = int(exc.headers.get('Retry-After') or 2 ** (attempt + 2))
+            print(f'  AniList {exc.code}; {wait}s 대기', file=sys.stderr)
+            time.sleep(wait)
+
+
+def cmd_years(data_dir, match=''):
+    years = load_years(data_dir)
+    names = sorted({t for p in iter_posts(data_dir) if not excluded(p) and post_matches(p, match)
+                    for t in p.get('typed_tags', {}).get('copyright', [])} - set(years))
+    print(f'작품 태그 {len(names)}개 연도 조회')
+    for i in range(0, len(names), 100):                  # save as we go: resumable
+        years.update(anilist_years(names[i:i + 100]))
+        Path(data_dir, YEARS_FILE).write_text(json.dumps(years, ensure_ascii=False, indent=0), encoding='utf-8')
+    found = sum(1 for v in years.values() if v)
+    print(f'연도 확인 {found}/{len(years)}개')
 
 
 class Client:
@@ -160,9 +234,15 @@ def cmd_stats(data_dir, top=30):
 
 
 def post_matches(post, spec):
-    """Local filter in Sakugabooru search syntax: `tag` required, `-tag` excluded, `rating:s,q` allowed."""
+    """Local filter in Sakugabooru search syntax: `tag` required, `-tag` excluded, `~tag` any-of,
+    `rating:s,q` allowed."""
     tags = set(post.get('tags', '').split())
+    any_of = {t[1:] for t in spec.split() if t.startswith('~')}
+    if any_of and tags.isdisjoint(any_of):
+        return False
     for term in spec.split():
+        if term.startswith('~'):
+            continue
         if term.startswith('rating:'):
             if (post.get('rating') or '?')[0] not in {r[:1] for r in term[7:].split(',')}:
                 return False
@@ -174,12 +254,45 @@ def post_matches(post, spec):
     return True
 
 
-def cmd_media(client, data_dir, max_files, match=''):
+def reject_reason(post, years, match='', min_score=0):
+    """Why a post is not training material under the user's decisions, or None."""
+    if excluded(post):
+        return 'western'
+    if is_old(post, years):
+        return 'old'
+    if (post.get('score') or 0) < min_score:
+        return 'score'
+    if not post_matches(post, match):
+        return 'match'
+    return None
+
+
+def cmd_curate(data_dir, match='', min_score=0):
+    """Move downloaded clips (and their derived files) that fail the criteria to excluded/<reason>/."""
+    data_dir = Path(data_dir)
+    media = data_dir / 'media'
+    years = load_years(data_dir)
+    posts = {p['id']: p for p in iter_posts(data_dir)}
+    moved = Counter()
+    for clip in list(media.glob('*.mp4')):
+        p = posts.get(int(clip.stem)) if clip.stem.isdigit() else None
+        reason = reject_reason(p, years, match, min_score) if p else None
+        if reason:
+            dest = data_dir / 'excluded' / reason
+            dest.mkdir(parents=True, exist_ok=True)
+            for f in media.glob(f'{clip.stem}.*'):
+                os.replace(f, dest / f.name)
+            moved[reason] += 1
+    print(f'제외로 이동: {dict(moved)}, 남은 클립 {len(list(media.glob("*.mp4")))}개')
+
+
+def cmd_media(client, data_dir, max_files, match='', min_score=0):
     data_dir = Path(data_dir)
     media = data_dir / 'media'
     media.mkdir(exist_ok=True)
     index = data_dir / 'index.csv'
     new_index = not index.exists()
+    years = load_years(data_dir)
     done = 0
     with open(index, 'a', newline='', encoding='utf-8-sig') as fh:
         writer = csv.writer(fh)
@@ -188,7 +301,7 @@ def cmd_media(client, data_dir, max_files, match=''):
         for p in iter_posts(data_dir):
             if done >= max_files:
                 break
-            if not p.get('file_url') or excluded(p) or not post_matches(p, match):
+            if not p.get('file_url') or reject_reason(p, years, match, min_score):
                 continue
             target = media / f"{p['id']}.{p.get('file_ext') or 'bin'}"
             meta = media / f"{p['id']}.json"
@@ -216,12 +329,13 @@ def cmd_media(client, data_dir, max_files, match=''):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument('command', choices=['tags', 'posts', 'stats', 'media'])
+    ap.add_argument('command', choices=['tags', 'posts', 'stats', 'years', 'media', 'curate'])
     ap.add_argument('data_dir')
     ap.add_argument('query', nargs='?', default='')
     ap.add_argument('--max', type=int, default=200)
     ap.add_argument('--delay', type=float, default=1.5)
-    ap.add_argument('--match', default='', help='media only: e.g. "fighting -cgi -mecha rating:s"')
+    ap.add_argument('--match', default='', help='years/media/curate: e.g. "~fighting ~impact_frames -cgi rating:s"')
+    ap.add_argument('--min-score', type=int, default=0, help='media/curate: minimum Sakugabooru score')
     a = ap.parse_args(argv)
     if hasattr(sys.stdout, 'reconfigure'):
         sys.stdout.reconfigure(errors='replace')    # Windows cp949 pipes cannot print every tag name
@@ -233,8 +347,12 @@ def main(argv=None):
         cmd_posts(client, a.data_dir, a.query, a.max)
     elif a.command == 'stats':
         cmd_stats(a.data_dir)
+    elif a.command == 'years':
+        cmd_years(a.data_dir, a.match)
+    elif a.command == 'curate':
+        cmd_curate(a.data_dir, a.match, a.min_score)
     else:
-        cmd_media(client, a.data_dir, a.max, a.match)
+        cmd_media(client, a.data_dir, a.max, a.match, a.min_score)
 
 
 if __name__ == '__main__':

@@ -75,7 +75,20 @@ python -m pipeline.setup_env            # --dry-run 이면 고를 PyTorch 빌드
 .venv\Scripts\python -m pipeline.shots data_sakuga
 ```
 
-`western` 태그(서양 카툰)는 사용자 결정으로 받지 않는다.
+`western` 태그(서양 카툰)와 2010년 이전 작품은 사용자 결정으로 받지 않는다. 연도는 먼저 한 번 조회해 둔다(AniList, `data_sakuga\copyright_years.json`). `~태그`는 "그중 하나 이상"이다.
+
+```powershell
+python -m pipeline.collect_sakuga years data_sakuga --match "~fighting ~impact_frames -cgi -mecha -creatures rating:s"
+python -m pipeline.collect_sakuga media data_sakuga --max 200 --min-score 점수 --match "~fighting ~impact_frames -cgi -mecha -creatures rating:s"
+python -m pipeline.collect_sakuga curate data_sakuga --min-score 점수 --match "같은 조건"   # 기준이 바뀌면 이미 받은 클립을 excluded\이유\로 옮김
+```
+
+`motion`(관절 정리→공통 표현)과 `to_sfa`(스틱맨 SFA)는 포즈 추출 뒤에 쓴다:
+
+```powershell
+.venv\Scripts\python -m pipeline.motion data_sakuga
+.venv\Scripts\python -m pipeline.to_sfa data_sakuga\media\번호.motion.json 결과.sfa --shot 샷번호
+```
 
 받은 클립마다 `번호.shots.json`이 생긴다. 컷 경계, 같은 그림 반복(1s/2s/3s 작화), 한 장 그림에 카메라만 움직이는 샷(`camera_only`), 정지샷(`still`), 원화처럼 보이는 선화(`lineart_like`)를 기록한다. 이어서 실행하면 분석한 클립은 건너뛴다.
 

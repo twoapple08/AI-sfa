@@ -98,6 +98,44 @@ class Collector(unittest.TestCase):
             self.assertEqual(stats['posts'], 4)
 
 
+    def test_any_of_terms(self):
+        self.assertTrue(cs.post_matches({'tags': 'impact_frames smears'}, '~fighting ~impact_frames -cgi'))
+        self.assertFalse(cs.post_matches({'tags': 'character_acting'}, '~fighting ~impact_frames'))
+
+    def test_old_titles_score_and_curate(self):
+        years = {'old_show': 2004, 'franchise': 1979, 'new_season': 2016}
+        new = {'id': 1, 'score': 50, 'width': 1920, 'height': 1080, 'tags': 'fighting',
+               'typed_tags': {'copyright': ['franchise', 'new_season']}}
+        old = dict(new, id=2, typed_tags={'copyright': ['old_show']})
+        unknown_43 = dict(new, id=3, width=640, height=480, typed_tags={'copyright': ['nobody_knows']})
+        low = dict(new, id=4, score=3)
+        self.assertEqual(cs.post_year(new, years), 2016)                 # newest season wins
+        self.assertEqual([cs.reject_reason(p, years, 'fighting', 10) for p in (new, old, unknown_43, low)],
+                         [None, 'old', 'old', 'score'])
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, 'posts.jsonl').write_text(''.join(json.dumps(p) + '\n' for p in (new, old, unknown_43, low)),
+                                              encoding='utf-8')
+            Path(d, cs.YEARS_FILE).write_text(json.dumps(years), encoding='utf-8')
+            Path(d, 'media').mkdir()
+            for i in (1, 2, 3, 4):
+                Path(d, 'media', f'{i}.mp4').write_bytes(b'x')
+                Path(d, 'media', f'{i}.shots.json').write_text('{}')
+            cs.cmd_curate(d, 'fighting', 10)
+            self.assertEqual(sorted(p.name for p in Path(d, 'media').iterdir()), ['1.mp4', '1.shots.json'])
+            self.assertTrue(Path(d, 'excluded', 'old', '2.shots.json').exists())
+
+    def test_anilist_batch_parsing(self):
+        seen = []
+
+        def fake_post(payload, delay):
+            seen.append(payload['query'])
+            return {'data': {'a0': {'media': [{'startDate': {'year': 2013}}]}, 'a1': {'media': []}}}
+        out = cs.anilist_years(['attack_on_titan', 'no_such_show_series'], post=fake_post)
+        self.assertEqual(out, {'attack_on_titan': 2013, 'no_such_show_series': None})
+        self.assertIn('"attack on titan"', seen[0])
+        self.assertIn('"no such show"', seen[0])                       # "_series" suffix dropped
+
+
 class Hardware(unittest.TestCase):
     def test_tiers_follow_vram_not_names(self):
         self.assertEqual(hwprofile.tier_for(None, 16), 'cpu')

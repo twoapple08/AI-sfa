@@ -41,6 +41,16 @@ class Shots(unittest.TestCase):
         self.assertEqual(b['drawing_hold_mode'], 16)                    # pan = one drawing, not on 1s
         self.assertEqual((c['kind'], c['drawings']), ('still', 1))
 
+    def test_cross_dissolve_is_split(self):
+        a = moving_square(16, hold=2)
+        b = [np.full((180, 320, 3), (40, 90, 160), np.uint8) for _ in range(16)]
+        for f in b:
+            cv2.circle(f, (220, 90), 50, (230, 230, 230), -1)
+        fade = [cv2.addWeighted(a[-1], 1 - k / 11, b[0], k / 11, 0) for k in range(1, 11)]
+        result = shots.analyse_frames(a + fade + b, 24.0)
+        self.assertEqual(len(result['shots']), 2)
+        self.assertTrue(16 <= result['shots'][1]['start'] <= 26)
+
     def test_flash_frame_is_an_event_not_a_shot(self):
         frames = moving_square(24, hold=2)
         frames[11] = np.full_like(frames[11], 255)
