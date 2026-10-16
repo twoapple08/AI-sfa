@@ -31,8 +31,9 @@ from pipeline import to_sfa  # noqa: E402
 AW, AH = 480, 270                 # analysis size
 SX = md.W / AW                    # analysis px -> SFA px (1920x1080)
 K_BG, K_ROTO = 7, 8               # palette sizes (brightness levels) per shot
-BUDGET = {'mosaku': 80, 'roto': 160}      # curve objects per frame for colour regions
+BUDGET = {'mosaku': 56, 'roto': 96}      # curve objects per frame for colour regions
 MIN_AREA = 40                     # analysis px^2
+FIT_TOLS = (1.2, 3.0)             # curve fit tolerances (analysis px): fine, coarse
 
 
 def argb_of(rgb):
@@ -162,6 +163,56 @@ def curve_loop(contour):
     return out
 
 
+def _fit_quad(P):
+    """Least-squares quadratic Bezier with fixed ends through points P (chord-length t)."""
+    a, b = P[0], P[-1]
+    d = np.r_[0, np.cumsum(np.hypot(*np.diff(P, axis=0).T))]
+    if d[-1] < 1e-9:
+        return (a + b) / 2, 0.0
+    t = d / d[-1]
+    w = 2 * t * (1 - t)
+    rest = P - np.outer((1 - t) ** 2, a) - np.outer(t * t, b)
+    den = (w * w).sum()
+    c = (w[:, None] * rest).sum(0) / den if den > 1e-9 else (a + b) / 2
+    fit = np.outer((1 - t) ** 2, a) + np.outer(w, c) + np.outer(t * t, b)
+    return c, float(np.hypot(*(fit - P).T).max())
+
+
+def fit_loop(contour, tol):
+    """Closed contour -> fewest quadratic pieces within `tol` px (analysis px): split at corners,
+    then grow each piece as long as one quadratic fits. Returns [on0, ctrl0, on1, ...] in SFA px."""
+    P = cv2.approxPolyDP(contour, 0.7, True).reshape(-1, 2).astype(float)
+    n = len(P)
+    if n < 3:
+        return None
+    v1 = P - np.roll(P, 1, 0)
+    v2 = np.roll(P, -1, 0) - P
+    cosang = (v1 * v2).sum(1) / (np.hypot(*v1.T) * np.hypot(*v2.T) + 1e-9)
+    corners = list(np.flatnonzero(cosang < 0.35))           # turn sharper than ~70 degrees
+    start = corners[0] if corners else 0
+    P = np.roll(P, -start, 0)
+    corners = sorted({(c - start) % n for c in corners} | {0})
+    ring = np.vstack([P, P[:1]])
+    stops = corners[1:] + [n]
+    out, i = [], 0
+    for stop in stops:
+        while i < stop:
+            j = min(i + 2, stop)
+            best = (j, *_fit_quad(ring[i:j + 1]))
+            while j < stop:
+                j2 = j + 1
+                c, err = _fit_quad(ring[i:j2 + 1])
+                if err > tol:
+                    break
+                j, best = j2, (j2, c, err)
+            j, c, _ = best
+            out += [tuple(ring[i] * SX), tuple(c * SX)]
+            i = j
+    if len(out) < 4:                                       # at least two pieces for a closed loop
+        return curve_loop(contour)
+    return out
+
+
 def level_regions(labels, order):
     """Stacked level sets: level r = every pixel whose colour is at rank >= r (ranks dark -> light).
     Each level is drawn over the one below, so bright structures stay whole shapes."""
@@ -235,9 +286,10 @@ def candidates(img_bgr, cb, valid=None):
         cs, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for c in cs:
             if cv2.contourArea(c) >= MIN_AREA:
-                loop = curve_loop(c)
-                if loop:
-                    out.append(loop)
+                for tol in FIT_TOLS:                       # fine and coarse versions; the selector picks
+                    loop = fit_loop(c, tol)
+                    if loop:
+                        out.append(loop)
     return out
 
 
@@ -367,7 +419,6 @@ def stick_tracks(motion, frames, masks):
 HEAD_FILL = md.argb(246, 240, 234)
 
 
-RATIO, _ = to_sfa._template_geometry()          # bone length / torso length of the app stickman
 
 
 def lum(rgb):
@@ -375,22 +426,16 @@ def lum(rgb):
 
 
 def draw_stick(f2d, st, t, frame_bgr):
-    """App stickman with depth cues: a translucent torso plane through both shoulders and hips, limbs
-    thicker the more they are foreshortened (pointing at the camera), a white-ish head fill, and a
-    contrasting outline underneath when the hair colour would vanish into the background."""
+    """App stickman, line colour = hair colour, white-ish head fill, and a contrasting outline
+    underneath when the hair colour would vanish into the background. (Depth cues removed on the
+    user's request; another method will be specified.)"""
     pts, thick, rgb = st['fr'][t], st['thick'], st['hair'].get(t, (45, 10, 10))
     color = argb_of(rgb)
     px = [(x / 100 * md.W, y / 100 * md.H) for x, y in pts]
     head_top, neck = px[0], px[1]
     c = ((head_top[0] + neck[0]) / 2, (head_top[1] + neck[1]) / 2)
     r = np.hypot(head_top[0] - neck[0], head_top[1] - neck[1]) / 2
-    segs = []
-    for a, b in to_sfa.AO_POINTS[1:]:
-        child = a if to_sfa.PARENT.get(a) == b else b
-        want = RATIO[child] * st['torso']
-        have = np.hypot(px[a][0] - px[b][0], px[a][1] - px[b][1])
-        k = float(np.clip(want / max(have, 1.0), 1.0, 2.5)) ** 0.8 if child != 2 else 1.0
-        segs.append((px[a], px[b], thick * k))
+    segs = [(px[a], px[b]) for a, b in to_sfa.AO_POINTS[1:]]
     xs = [q[0] for q in px]
     ys = [q[1] for q in px]
     x0, x1 = int(max(min(xs) / SX, 0)), int(min(max(xs) / SX + 1, AW))
@@ -401,20 +446,14 @@ def draw_stick(f2d, st, t, frame_bgr):
             oc = md.argb(235, 215, 205) if lum(rgb) < 128 else md.argb(20, 8, 8)
             f2d.layer = 'outline'
             f2d.circle(c, r, oc, thick * 2.2)
-            for p0, p1, th in segs:
-                f2d.line(p0, p1, oc, th * 2.2)
-    j = st['raw'].get(t)
-    if j is not None:                                    # torso plane: shoulders and hips as drawn
-        quad = [j[k] for k in (5, 6, 12, 11)]
-        if all(q[0] is not None for q in quad):
-            f2d.layer = 'body'
-            f2d.poly([(q[0], q[1]) for q in quad], md.argb(*rgb, 150))
+            for p0, p1 in segs:
+                f2d.line(p0, p1, oc, thick * 2.2)
     f2d.layer = 'head'                                     # white-ish head fill under the outline (user request)
     f2d.circle(c, r, md.CLEAR, 0.1, fill=HEAD_FILL)
     f2d.layer = 'fig'
     f2d.circle(c, r, color, thick)
-    for p0, p1, th in segs:
-        f2d.line(p0, p1, color, th)
+    for p0, p1 in segs:
+        f2d.line(p0, p1, color, thick)
 
 
 # ----------------------------------------------------------------------------- build
@@ -430,7 +469,7 @@ def build(mode, frames, masks, shots, sticks):
     from multiprocessing import Pool
     layers = [(f'g{r}', f'면 {r + 1}') for r in range(MAX_DEPTH)]
     if mode == 'mosaku':
-        layers += [('outline', '테두리'), ('body', '몸통 면'), ('head', '머리 채우기'), ('fig', '스틱맨')]
+        layers += [('outline', '테두리'), ('head', '머리 채우기'), ('fig', '스틱맨')]
     jobs, src_all = [], []
     for s in shots:
         span = range(s['start'], min(s['end'], len(frames)))

@@ -103,7 +103,7 @@ def write_sfa(root, path):
     fd, temporary = tempfile.mkstemp(dir=path.parent, suffix='.tmp')
     os.close(fd)
     try:
-        with ZipFile(temporary, 'w', ZIP_DEFLATED) as archive:
+        with ZipFile(temporary, 'w', ZIP_DEFLATED, compresslevel=9) as archive:
             archive.writestr(path.stem + '.xml', raw)
         os.replace(temporary, path)
     finally:
