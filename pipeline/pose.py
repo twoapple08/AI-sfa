@@ -139,7 +139,9 @@ def main(argv=None):
                     raise
                 imgsz_i += 1
                 print(f'  메모리 부족: imgsz {IMGSZ_STEPS[imgsz_i]}로 낮춰 재시도')
-        np.savez_compressed(out, imgsz=IMGSZ_STEPS[imgsz_i], model=name, **data)
+        tmp = out.with_name(out.name.replace('.pose.npz', '.pose_tmp.npz'))
+        np.savez_compressed(tmp, imgsz=IMGSZ_STEPS[imgsz_i], model=name, **data)
+        tmp.replace(out)                                # whole file or nothing if the PC is turned off
         for _, rows in track_segments(data):
             runs = pose_runs(data['kpts'][rows], data['box'][rows])
             timing[Counter(runs).most_common(1)[0][0]] += 1

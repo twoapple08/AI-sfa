@@ -119,7 +119,9 @@ def main(argv=None):
         if out.exists():
             continue
         m = clip_motion(npz, npz.with_name(npz.name.replace('.pose.npz', '.shots.json')))
-        out.write_text(json.dumps(m, separators=(',', ':')), encoding='utf-8')
+        tmp = out.with_suffix('.tmp')
+        tmp.write_text(json.dumps(m, separators=(',', ':')), encoding='utf-8')
+        tmp.replace(out)
         done += 1
         tracks += len(m['characters'])
         frames += sum(len(c['joints']) for c in m['characters'])

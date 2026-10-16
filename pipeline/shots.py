@@ -212,7 +212,9 @@ def main(argv=None):
         if not out.exists():
             if a.max and done >= a.max:
                 continue
-            out.write_text(json.dumps(analyse_clip(clip), indent=1), encoding='utf-8')
+            tmp = out.with_suffix('.tmp')
+            tmp.write_text(json.dumps(analyse_clip(clip), indent=1), encoding='utf-8')
+            tmp.replace(out)                            # never leave a half-written result
             done += 1
         for s in json.loads(out.read_text(encoding='utf-8')).get('shots', []):
             kinds[s['kind']] += 1

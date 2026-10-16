@@ -103,3 +103,13 @@ python -m pipeline.collect_sakuga curate data_sakuga --min-score 점수 --match 
 ## Claude Code를 PC에서 쓰는 경우
 
 PC에 Claude Code를 설치하면, 이 저장소 폴더에서 대화하며 PC의 GPU로 명령을 직접 실행할 수 있다. 설치 방법은 공식 안내(https://code.claude.com/docs)를 따른다. 설치하지 않아도 위 명령을 직접 실행하고 결과를 붙여 주는 방식으로 진행할 수 있다.
+
+## PC를 껐다 켰을 때 (이어하기)
+
+긴 작업 중에 PC를 꺼도 된다. 끝난 결과는 그대로 남고, 다시 켠 뒤 저장소 폴더에서 아래 한 줄이면 남은 단계(받기 → 선별 → 샷 → 관절 → 정리)를 이어서 한다. 받던 영상 1개와 분석 중이던 클립 1개만 다시 처리한다. 결과 파일은 다 쓴 뒤에 이름을 바꾸므로 반쯤 쓴 파일이 남지 않는다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\stage2_resume.ps1
+```
+
+절전(잠자기)은 작업이 멈췄다가 깨어나면 계속된다. 완전 종료·재시작은 위 명령으로 이어 간다.
