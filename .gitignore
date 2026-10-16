@@ -3,3 +3,9 @@ __pycache__/
 .venv/
 .env
 examples/priority_probes_v2/AI-sfa-priority-tests-v2.zip
+# private pipeline data (never commit collected media/metadata or local profiles)
+data_*/
+datasets/
+hardware_profile.json
+__pycache__/
+*.part
