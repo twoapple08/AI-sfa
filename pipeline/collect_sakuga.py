@@ -6,6 +6,7 @@ Usage (run from the repository root):
   python -m pipeline.collect_sakuga posts DATA_DIR "fighting" --max 500   # post metadata -> posts.jsonl
   python -m pipeline.collect_sakuga stats DATA_DIR                 # tag/artist counts from collected posts
   python -m pipeline.collect_sakuga media DATA_DIR --max 200       # download files for collected posts
+  python -m pipeline.collect_sakuga media DATA_DIR --max 200 --match "fighting -cgi rating:s"   # only matching posts
 
 Everything resumes: re-running skips posts/files already stored (md5 checked). Requests are
 spaced (default 1.5 s). Standard library only.
@@ -153,7 +154,22 @@ def cmd_stats(data_dir, top=30):
             print(f"[{kind}]", ', '.join(f'{n}({c})' for n, c in report['top'][kind][:15]))
 
 
-def cmd_media(client, data_dir, max_files):
+def post_matches(post, spec):
+    """Local filter in Sakugabooru search syntax: `tag` required, `-tag` excluded, `rating:s,q` allowed."""
+    tags = set(post.get('tags', '').split())
+    for term in spec.split():
+        if term.startswith('rating:'):
+            if (post.get('rating') or '?')[0] not in {r[:1] for r in term[7:].split(',')}:
+                return False
+        elif term.startswith('-'):
+            if term[1:] in tags:
+                return False
+        elif term not in tags:
+            return False
+    return True
+
+
+def cmd_media(client, data_dir, max_files, match=''):
     data_dir = Path(data_dir)
     media = data_dir / 'media'
     media.mkdir(exist_ok=True)
@@ -167,7 +183,7 @@ def cmd_media(client, data_dir, max_files):
         for p in iter_posts(data_dir):
             if done >= max_files:
                 break
-            if not p.get('file_url'):
+            if not p.get('file_url') or not post_matches(p, match):
                 continue
             target = media / f"{p['id']}.{p.get('file_ext') or 'bin'}"
             meta = media / f"{p['id']}.json"
@@ -200,7 +216,10 @@ def main(argv=None):
     ap.add_argument('query', nargs='?', default='')
     ap.add_argument('--max', type=int, default=200)
     ap.add_argument('--delay', type=float, default=1.5)
+    ap.add_argument('--match', default='', help='media only: e.g. "fighting -cgi -mecha rating:s"')
     a = ap.parse_args(argv)
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(errors='replace')    # Windows cp949 pipes cannot print every tag name
     Path(a.data_dir).mkdir(parents=True, exist_ok=True)
     client = Client(delay=a.delay)
     if a.command == 'tags':
@@ -210,7 +229,7 @@ def main(argv=None):
     elif a.command == 'stats':
         cmd_stats(a.data_dir)
     else:
-        cmd_media(client, a.data_dir, a.max)
+        cmd_media(client, a.data_dir, a.max, a.match)
 
 
 if __name__ == '__main__':

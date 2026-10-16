@@ -9,6 +9,7 @@ from pathlib import Path
 
 from pipeline import collect_sakuga as cs
 from pipeline import hwprofile
+from pipeline import setup_env
 
 VIDEO = b'fake-video-bytes' * 100
 POSTS = [{'id': i, 'md5': hashlib.md5(VIDEO).hexdigest(), 'file_url': f'https://files.example/{i}.mp4',
@@ -76,6 +77,21 @@ class Collector(unittest.TestCase):
             self.assertEqual(list(Path(d, 'media').glob('*.mp4')), [])
 
 
+    def test_media_match_filters_tags_and_rating(self):
+        posts = [dict(POSTS[0], id=1), dict(POSTS[1], id=2, rating='e'),
+                 dict(POSTS[2], id=3, tags=POSTS[2]['tags'] + ' cgi'), dict(POSTS[3], id=4, tags='running')]
+        self.assertTrue(cs.post_matches(posts[0], 'fighting -cgi rating:s,q'))
+        self.assertTrue(cs.post_matches(posts[0], 'rating:safe'))
+        self.assertFalse(cs.post_matches(posts[1], 'rating:s'))
+        self.assertFalse(cs.post_matches(posts[2], '-cgi'))
+        self.assertFalse(cs.post_matches(posts[3], 'fighting'))
+        client = cs.Client(delay=0, opener=fake_opener)
+        with tempfile.TemporaryDirectory() as d:
+            Path(d, 'posts.jsonl').write_text(''.join(json.dumps(p) + '\n' for p in posts), encoding='utf-8')
+            cs.cmd_media(client, d, max_files=10, match='fighting -cgi rating:s')
+            self.assertEqual([p.name for p in Path(d, 'media').glob('*.mp4')], ['1.mp4'])
+
+
 class Hardware(unittest.TestCase):
     def test_tiers_follow_vram_not_names(self):
         self.assertEqual(hwprofile.tier_for(None, 16), 'cpu')
@@ -84,6 +100,15 @@ class Hardware(unittest.TestCase):
         self.assertEqual(hwprofile.tier_for(16.0, 32), 'high')
         profile = hwprofile.detect('.')
         self.assertIn(profile['tier'], hwprofile.TIER_DEFAULTS)
+
+    def test_torch_channel_follows_driver_and_architecture(self):
+        self.assertEqual(setup_env.torch_channel(None, None), 'cpu')
+        self.assertEqual(setup_env.torch_channel(6.1, 12.6), 'cu126')    # GTX 1050 Ti, driver 560
+        self.assertEqual(setup_env.torch_channel(6.1, 13.0), 'cu126')    # Pascal dropped from cu128+
+        self.assertEqual(setup_env.torch_channel(8.9, 12.6), 'cu126')    # RTX 4070 on an old driver
+        self.assertEqual(setup_env.torch_channel(8.9, 13.0), 'cu130')
+        self.assertEqual(setup_env.torch_channel(12.0, 12.8), 'cu128')   # RTX 5060 needs cu128+
+        self.assertEqual(setup_env.torch_channel(12.0, 12.6), 'cpu')     # driver too old for Blackwell
 
 
 if __name__ == '__main__':

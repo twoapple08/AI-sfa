@@ -55,6 +55,28 @@ python -m pipeline.collect_sakuga media data_sakuga --max 200
 
 `data_sakuga\media\`에 `번호.mp4`와 `번호.json`(태그 종류별, 학습용 태그에서 작품명 제외)이 생긴다. `index.csv`에 목록이 쌓인다. 중간에 꺼도 다시 실행하면 받은 파일은 md5를 확인한 뒤 건너뛴다. 요청은 1.5초 간격이다(`--delay`로 조정).
 
+받을 클립은 `--match`로 고른다. 문법은 사쿠가부루 검색과 같다(`태그`=필수, `-태그`=제외, `rating:s`=등급). 이미 받아 둔 post 목록 안에서만 거른다.
+
+```powershell
+python -m pipeline.collect_sakuga media data_sakuga --max 200 --match "fighting -cgi -mecha -creatures rating:s"
+```
+
+## 6. 2단계 환경 (한 번만, PC가 바뀌면 다시)
+
+```powershell
+python -m pipeline.setup_env            # --dry-run 이면 고를 PyTorch 빌드만 보여 준다
+```
+
+`.venv`를 만들고, 이 PC의 GPU 세대와 드라이버가 지원하는 PyTorch CUDA 빌드를 골라 설치한다. 예: GTX 1050 Ti(Pascal)는 cu126, RTX 50 계열은 드라이버 CUDA 12.8 이상이 필요하다. 끝에 GPU 검증 결과가 나오고 `.venv\aisfa_env.json`에 남는다.
+
+## 7. 샷 분할·홀드 판별
+
+```powershell
+.venv\Scripts\python -m pipeline.shots data_sakuga
+```
+
+받은 클립마다 `번호.shots.json`이 생긴다. 컷 경계, 같은 그림 반복(1s/2s/3s 작화), 한 장 그림에 카메라만 움직이는 샷(`camera_only`), 정지샷(`still`), 원화처럼 보이는 선화(`lineart_like`)를 기록한다. 이어서 실행하면 분석한 클립은 건너뛴다.
+
 ## Claude Code를 PC에서 쓰는 경우
 
 PC에 Claude Code를 설치하면, 이 저장소 폴더에서 대화하며 PC의 GPU로 명령을 직접 실행할 수 있다. 설치 방법은 공식 안내(https://code.claude.com/docs)를 따른다. 설치하지 않아도 위 명령을 직접 실행하고 결과를 붙여 주는 방식으로 진행할 수 있다.

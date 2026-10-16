@@ -1,0 +1,6 @@
+# Stage 2 (shot split, frame reading). PyTorch is installed separately by pipeline/setup_env.py
+# because its CUDA build depends on the GPU and driver of the current PC.
+numpy
+opencv-python
+scenedetect
+tqdm
