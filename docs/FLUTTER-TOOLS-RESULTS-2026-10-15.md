@@ -2,67 +2,105 @@
 
 ## 결과
 
-**Blutter는 스파51.0.0의AOT를 실제로 읽고 추출에 성공했다. reFlutter는 스냅샷을 인식했으나 해당 덤프 엔진 배포가 없어 수정APK제작에 실패했다.** Blutter의출력은 원래Dart소스복원이 아니라 메타데이터와 함수별어셈블리다. 추출성공을 전체알고리즘의해석완료로세지않는다.
-
-입력체크섬/도구커밋/수량/검증은[FLUTTER-TOOLS-AUDIT-2026-10-15.json](FLUTTER-TOOLS-AUDIT-2026-10-15.json). 제공APK/공유라이브러리/어셈블리/객체풀/후킹템플릿은공개저장소에올리지않았다. 이번원본분석을위해사용자에게재출력/추가작품/개발자문의를요청하지않았다.
+- **Blutter는 스파 51.0.0의 AOT를 실제로 읽고 추출에 성공했다.**
+- **reFlutter는 스냅샷을 인식했으나, 해당 덤프 엔진 배포가 없어 수정 APK 제작에 실패했다.**
+- Blutter의 출력은 원래 Dart 소스 복원이 아니라 메타데이터와 함수별 어셈블리다. 추출 성공을 전체 알고리즘 해석 완료로 세지 않는다.
+- 입력 체크섬·도구 커밋·수량·검증: [FLUTTER-TOOLS-AUDIT-2026-10-15.json](FLUTTER-TOOLS-AUDIT-2026-10-15.json)
+- 제공 APK·공유 라이브러리·어셈블리·객체 풀·후킹 템플릿은 공개 저장소에 올리지 않았다.
+- 이번 원본 분석을 위해 사용자에게 재출력·추가 작품·개발자 문의를 요청하지 않았다.
 
 ## 입력과 환경
 
-- 기존캐시의ARM64분할APK에서libapp.so/libflutter.so를추출. libapp SHA는기존기록과일치.
-- 도구로확인한Dart3.12.0,스냅샷41be3daaabd524b8aa7423bc24584957,android/arm64/compressed-pointers/product.
-- Ubuntu24.04/g++13.3. CMake/Ninja/Python모듈을작업폴더venv에설치. ICU74헤더와기존시스템ICU74라이브러리,Python wheel에포함된실물Capstone라이브러리/헤더를사용.
-- Blutter의로컬변경은CMake의Capstone검색경로와Ninja병렬작업수2뿐이다. 도구의AOT계산/해석알고리즘에기능패치를가하지않았다. Blutter가원래수행하는Dart VM분석용패치는그대로사용.
+- 기존 캐시의 ARM64 분할 APK에서 libapp.so / libflutter.so를 추출했다. libapp SHA는 기존 기록과 일치한다.
+- 도구로 확인: Dart 3.12.0, 스냅샷 41be3daaabd524b8aa7423bc24584957, android/arm64/compressed-pointers/product.
+- Ubuntu 24.04 / g++ 13.3.
+  - CMake/Ninja/Python 모듈을 작업 폴더 venv에 설치했다.
+  - ICU74 헤더와 기존 시스템 ICU74 라이브러리, Python wheel에 포함된 실물 Capstone 라이브러리·헤더를 사용했다.
+- Blutter의 로컬 변경은 CMake의 Capstone 검색 경로와 Ninja 병렬 작업 수 2뿐이다.
+  - 도구의 AOT 계산·해석 알고리즘에 기능 패치를 가하지 않았다.
+  - Blutter가 원래 수행하는 Dart VM 분석용 패치는 그대로 사용했다.
 
 ## 1. Blutter
 
-공식저장소:[worawit/blutter](https://github.com/worawit/blutter). 실제소스커밋은집계JSON참조.
+공식 저장소: [worawit/blutter](https://github.com/worawit/blutter). 실제 소스 커밋은 집계 JSON 참조.
 
-1. 버전검출성공.
-2. 해당Dart SDK를받아분석용Dart VM과Blutter빌드성공.
-3. 첫자동실행은Capstone SONAME라이브러리탐색문제로실행되지않음. 실제라이브러리로의로컬심볼릭링크와LD_LIBRARY_PATH설정후재실행.
-4. libapp로드→애플리케이션분석→객체풀덤프→어셈블리→후킹템플릿생성,종료코드0.
+1. 버전 검출 성공.
+2. 해당 Dart SDK를 받아 분석용 Dart VM과 Blutter 빌드 성공.
+3. 첫 자동 실행은 Capstone SONAME 라이브러리 탐색 문제로 실행되지 않았다. 실제 라이브러리로의 로컬 심볼릭 링크와 LD_LIBRARY_PATH 설정 후 재실행했다.
+4. libapp 로드 → 애플리케이션 분석 → 객체 풀 덤프 → 어셈블리 → 후킹 템플릿 생성, 종료 코드 0.
 
-출력671파일/86,508,012바이트. 그중asm파일666개,주소·크기선언블록12,752개. 선언블록수는독립함수나완전히복원된함수의개수와같다고가정하지않는다. 같은버전의빌드/추출은다시실행할필요없으며캐시를재사용한다.
+출력:
+- 671 파일 / 86,508,012 바이트. 그중 asm 파일 666개, 주소·크기 선언 블록 12,752개.
+- 선언 블록 수가 독립 함수나 완전히 복원된 함수의 개수와 같다고 가정하지 않는다.
+- 같은 버전의 빌드·추출은 다시 실행할 필요가 없으며 캐시를 재사용한다.
 
 ### 우선 추적할 함수 위치
 
-아래는Blutter가표시한코드주소다. 이전문서의**ELF문자열바이트오프셋과다르다**. ASLR런타임절대주소로사용하지않는다.
+- 아래는 Blutter가 표시한 코드 주소다.
+- 이전 문서의 **ELF 문자열 바이트 오프셋과 다르다.**
+- ASLR 런타임 절대 주소로 사용하지 않는다.
 
-| 파일(asm/sfa 아래) | 함수 | 코드주소 |
+| 파일(asm/sfa 아래) | 함수 | 코드 주소 |
 |---|---|---|
-|original_port/activities/import_animation_activity.dart|importSequenceXmlText|0x505c44|
-|같은파일|_ImportSequenceXmlHandler 생성자|0x50e174|
-|original_port/data/android_database_recovery.dart|_importSequence|0x34e224|
-|main.dart|compareDrawOrder closure|0x5b9c54|
-|main.dart|resolveDrawOrder closure|0x5b9d5c|
-|original_port/data/data_access.dart|UpdateAnimationObjectDrawOrder|0x50ce88|
-|original_port/sequences/tween_link.dart|resolveTweenLinks|0x632d74|
-|original_port/sequences/frame.dart|_buildFillRegionInterpolationSegmentKey|0x632930|
-|original_port/sequences/frame.dart|FrameDrawPlan.drawUnit|0x414ee8|
-|original_port/sequences/frame_fill_region.dart|drawFrameFillRegionsForLayer|0x41548c|
+| original_port/activities/import_animation_activity.dart | importSequenceXmlText | 0x505c44 |
+| 같은 파일 | _ImportSequenceXmlHandler 생성자 | 0x50e174 |
+| original_port/data/android_database_recovery.dart | _importSequence | 0x34e224 |
+| main.dart | compareDrawOrder closure | 0x5b9c54 |
+| main.dart | resolveDrawOrder closure | 0x5b9d5c |
+| original_port/data/data_access.dart | UpdateAnimationObjectDrawOrder | 0x50ce88 |
+| original_port/sequences/tween_link.dart | resolveTweenLinks | 0x632d74 |
+| original_port/sequences/frame.dart | _buildFillRegionInterpolationSegmentKey | 0x632930 |
+| original_port/sequences/frame.dart | FrameDrawPlan.drawUnit | 0x414ee8 |
+| original_port/sequences/frame_fill_region.dart | drawFrameFillRegionsForLayer | 0x41548c |
 
-glow_shader.dart, frame_fill_region.dart, fill_path_clipping.dart, perspective_overlay.dart, frame.dart, animation_object.dart도추출됐다. 이름발견만으로알고리즘의해석완료를선언하지않는다.
+- glow_shader.dart, frame_fill_region.dart, fill_path_clipping.dart, perspective_overlay.dart, frame.dart, animation_object.dart도 추출됐다.
+- 이름 발견만으로 알고리즘 해석 완료를 선언하지 않는다.
 
-검증: 4코드위치를ELF PT_LOAD매핑으로원래libapp의실제바이트에대응시키고,독립Capstone역어셈블러의명령종류와비교했다. drawUnit내0x414f78에서채우기함수0x41548c를호출하는대상주소도실제바이트와일치했다. 추출주소의표본검증이며전체12,752블록의정확성을보장하는검사는아니다.
+검증:
+- 4개 코드 위치를 ELF PT_LOAD 매핑으로 원래 libapp의 실제 바이트에 대응시키고, 독립 Capstone 역어셈블러의 명령 종류와 비교했다.
+- drawUnit 내 0x414f78에서 채우기 함수 0x41548c를 호출하는 대상 주소도 실제 바이트와 일치했다.
+- 추출 주소의 표본 검증이며, 전체 12,752 블록의 정확성을 보장하는 검사는 아니다.
 
-첫한정관찰: drawUnit에는composite glow호출분기와채우기호출로진행하는분기가있다. 실제영상의함수경로나plan의unit정렬규칙은아직끝까지추적하지않았다.01의겹침규칙을짧은분기만으로확정하지않는다.
+첫 한정 관찰:
+- drawUnit에는 composite glow 호출 분기와 채우기 호출로 진행하는 분기가 있다.
+- 실제 영상의 함수 경로나 plan의 unit 정렬 규칙은 아직 끝까지 추적하지 않았다.
+- 01의 겹침 규칙을 짧은 분기만으로 확정하지 않는다.
 
 ## 2. reFlutter
 
-공식:[Impact-I/reFlutter](https://github.com/Impact-I/reFlutter). clone한0.9.8을실제로설치하고ARM64분할APK에dump mode `-p -n`을실행했다.
+공식: [Impact-I/reFlutter](https://github.com/Impact-I/reFlutter). clone한 0.9.8을 실제로 설치하고 ARM64 분할 APK에 dump mode `-p -n`을 실행했다.
 
-- 스냅샷인식성공. enginehash.csv에는같은hash가Flutter3.44계열로기록돼있다. **Dart3.12와Flutter3.12를혼동하지않는다**.
-- 덤프엔진다운로드실패,종료코드1. 대상release tag `android-v3-41be3daaabd524b8aa7423bc24584957`을GitHub REST API로도조회해404확인. 버전인식실패나사용자APK불량으로판정하지않는다.
-- `-b`의commit해결모드는성공하지만그것만으로엔진빌드/덤프성공이아니다. 같은hash의여러행이있고첫후보는beta engine commit이다. 자체빌드시실물engine revision/호환성확인이필요하다.
-- 제공된local-release의v3/build-only도시도했지만brew부재guard에서종료1. 스크립트는macOS용환경을요구한다. depot_tools는받아bootstrap후gclient응답까지확인했지만Linux수동engine checkout/sync/GN컴파일까지진행하지않았다.
-- 현재환경에adb/Android emulator가없어재패키징해도실제앱실행/JSONL dump검증에는실행환경이필요하다. 분할APK이므로engine분할만단독설치가능한APK로취급하지않는다. 서명/전체분할일관성도미검증이다.
+- 스냅샷 인식 성공. enginehash.csv에는 같은 hash가 Flutter 3.44 계열로 기록돼 있다. **Dart 3.12와 Flutter 3.12를 혼동하지 않는다.**
+- 덤프 엔진 다운로드 실패, 종료 코드 1.
+  - 대상 release tag `android-v3-41be3daaabd524b8aa7423bc24584957`을 GitHub REST API로도 조회해 404를 확인했다.
+  - 버전 인식 실패나 사용자 APK 불량으로 판정하지 않는다.
+- `-b`의 commit 해결 모드는 성공하지만, 그것만으로 엔진 빌드·덤프 성공이 아니다.
+  - 같은 hash의 행이 여러 개 있고 첫 후보는 beta engine commit이다.
+  - 자체 빌드 시 실물 engine revision·호환성 확인이 필요하다.
+- 제공된 local-release의 v3/build-only도 시도했지만 brew 부재 guard에서 종료 1. 스크립트는 macOS용 환경을 요구한다.
+  - depot_tools는 받아 bootstrap 후 gclient 응답까지 확인했다.
+  - Linux 수동 engine checkout/sync/GN 컴파일까지는 진행하지 않았다.
+- 당시 환경에 adb/Android emulator가 없어, 재패키징해도 실제 앱 실행·JSONL dump 검증에는 실행 환경이 필요하다.
+  - 분할 APK이므로 engine 분할만 단독 설치 가능한 APK로 취급하지 않는다.
+  - 서명·전체 분할 일관성도 미검증이다.
 
-**이번에는변경APK도dump.dart도생성되지않았다.** 원본APK/사용자설치앱은변경하지않았다. reFlutter소스에서전용engine을만드는방법은남지만이번에빌드성공했다고주장하지않는다.
+결과:
+- **이번에는 변경 APK도 dump.dart도 생성되지 않았다.**
+- 원본 APK·사용자 설치 앱은 변경하지 않았다.
+- reFlutter 소스에서 전용 engine을 만드는 방법은 남지만, 이번에 빌드에 성공했다고 주장하지 않는다.
 
-## 다음의 정확한 행동
+## 다음의 정확한 행동 (작성 당시)
 
-먼저성공한Blutter출력에서XML importer의DrawOrder/ObjectScale가져오기·갱신→FrameDrawPlan의unit정렬/FR위치→glow uniform/합성→FrameInterpolationPlan/TweenLink대응을필요한함수만읽는다. 전체재덤프/원본영상재분석을반복하지않는다. reFlutter custom engine build와Android실행환경은별도미완항목으로남긴다.
+- 성공한 Blutter 출력에서 필요한 함수만 읽는다: XML importer의 DrawOrder/ObjectScale 가져오기·갱신 → FrameDrawPlan의 unit 정렬·FR 위치 → glow uniform·합성 → FrameInterpolationPlan / TweenLink 대응.
+- 전체 재덤프·원본 영상 재분석을 반복하지 않는다.
+- reFlutter custom engine build와 Android 실행 환경은 별도 미완 항목으로 남긴다.
 
-현재private루트:/workspace/scratch/e23c9fd610d3/private/. blutter_out/추출물,blutter/bin/실행가능한분석기,venv/와depsroot/의존, reFlutter/소스,input/arm64-v8a/입력2라이브러리. 실행시LD_LIBRARY_PATH=depsroot/lib. 옛private캐시도유지한다. 환경변경후존재는보장되지않는다.
+**당시 private 루트:** `/workspace/scratch/e23c9fd610d3/private/`
+- `blutter_out/` 추출물, `blutter/bin/` 실행 가능한 분석기, `venv/`와 `depsroot/` 의존, `reFlutter/` 소스, `input/arm64-v8a/` 입력 2 라이브러리.
+- 실행 시 `LD_LIBRARY_PATH=depsroot/lib`.
+- 옛 private 캐시도 유지한다. 환경 변경 후 존재는 보장되지 않는다.
 
-이번은문서/집계만공개. 고정예측·File-2최적화·학습·AI연결계속보류. 기존SFA/영상/22생성검사재실행없음. 새로4명령위치검증실행.
+기타:
+- 이번은 문서·집계만 공개.
+- 고정 예측·File-2 최적화·학습·AI 연결은 계속 보류(정리 메모: 이후 학습·AI 연결은 사용자 결정으로 허용됐다).
+- 기존 SFA·영상·22개 생성 검사 재실행 없음. 새로 4개 명령 위치 검증을 실행했다.
