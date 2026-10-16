@@ -12,7 +12,8 @@ parent bone straight at its usual length, beyond the canvas edge when it left th
 A person whose track broke into pieces keeps one slot (one set of AO IDs): pieces that do not
 overlap in time are chained into the slot whose neighbouring piece ends/starts nearest to them.
 
-Usage:  .venv\\Scripts\\python -m pipeline.to_sfa data_sakuga\\media\\123.motion.json OUT.sfa [--shot N]
+Usage:  .venv\\Scripts\\python -m pipeline.to_sfa data_sakuga\\media\\123.motion.json OUT.sfa [--shot N | --clip]
+        .venv\\Scripts\\python -m pipeline.to_sfa data_sakuga        (every clip -> data_sakuga\\sfa\\<id>.sfa)
 """
 import argparse
 import copy
@@ -216,25 +217,9 @@ def assign_slots(chars, frame_height, max_slots=2):
     return [sorted(slot, key=lambda c: c['start']) for slot in slots]
 
 
-def build(motion, shot=None, max_chars=2, world=False):
-    """world=False: as filmed (camera zoom/pan baked into the points, the app has no camera).
-    world=True: camera removed, the whole composition fitted once, so a camera move can be
-    added by hand in the editor (move/scale everything together)."""
+def _slot_tracks(motion, slots, world):
+    """Slots of one shot -> per slot ({video frame: canvas points}, line thickness)."""
     from pipeline import camera
-    tree = ET.parse(TEMPLATE)
-    root = tree.getroot()
-    proto = root.find('Frame')
-    root.remove(proto)
-    chars = [c for c in motion['characters'] if shot is None or c['shot'] == shot]
-    if shot is None and chars:
-        shot = max({c['shot'] for c in chars}, key=lambda s: sum(len(c['joints']) for c in chars if c['shot'] == s))
-        chars = [c for c in chars if c['shot'] == shot]
-    slots = assign_slots(chars, motion['size'][1], max_chars)
-    if not slots:
-        raise ValueError('no character track in this shot')
-    chars = [c for slot in slots for c in slot]
-    start = min(c['start'] for c in chars)
-    end = max(c['start'] + len(c['joints']) for c in chars)
     raws, torsos = {}, {}
     for k, slot in enumerate(slots):                       # one body size per slot, not per piece
         seen = []
@@ -262,8 +247,12 @@ def build(motion, shot=None, max_chars=2, world=False):
             seq = [to_pct(p) for p in pts]
             tracks[k][0][c['start'] + t] = seq
             tracks[k][1].append(max(p[1] for p in seq) - min(p[1] for p in seq))
-    tracks = [(frames, float(np.clip(0.8 * np.median(h) / TEMPLATE_HEIGHT, 0.25, 1.5))) for frames, h in tracks]
-    root.set('Name', f"{motion['clip']}_shot{shot}")
+    return [(frames, float(np.clip(0.8 * np.median(h) / TEMPLATE_HEIGHT, 0.25, 1.5))) for frames, h in tracks]
+
+
+def _write_frames(root, proto, tracks, start, end):
+    """One SFA frame per video frame in [start, end); a slot keeps its AO IDs (base 100*k).
+    thick: one value per slot, or {video frame: value} when it changes per shot."""
     point_id = 1
     for n, vf in enumerate(range(start, end)):
         frame = ET.SubElement(root, 'Frame', {'BackgroundColor': proto.get('BackgroundColor'),
@@ -273,6 +262,7 @@ def build(motion, shot=None, max_chars=2, world=False):
             pts = frames.get(vf)
             if pts is None:
                 continue                                       # character not in this frame
+            th = thick[vf] if isinstance(thick, dict) else thick
             body = copy.deepcopy(proto.findall('AO'))
             remap = {}
             for ao in body:
@@ -282,7 +272,7 @@ def build(motion, shot=None, max_chars=2, world=False):
             for ao, (a, b) in zip(body, AO_POINTS):
                 ao.set('ID', str(int(ao.get('ID')) + 100 * k))
                 ao.set('DrawOrder', str(int(ao.get('DrawOrder')) + 100 * k))
-                ao.set('ThicknessScale', f'{thick:.3f}')
+                ao.set('ThicknessScale', f'{th:.3f}')
                 for ap, idx in zip(ao.findall('AP'), (a, b)):
                     ap.set('ID', remap[ap.get('ID')])
                     ap.set('X', f'{pts[idx][0]:.4f}')
@@ -291,8 +281,84 @@ def build(motion, shot=None, max_chars=2, world=False):
                         ac.set('ConnPtId', remap[ac.get('ConnPtId')])
                 frame.append(ao)
     root.set('FrameCount', str(end - start))
+
+
+def _template_root():
+    root = ET.parse(TEMPLATE).getroot()
+    proto = root.find('Frame')
+    root.remove(proto)
+    return root, proto
+
+
+def build(motion, shot=None, max_chars=2, world=False):
+    """One shot (default: the shot with the most tracked frames).
+    world=False: as filmed (camera zoom/pan baked into the points, the app has no camera).
+    world=True: camera removed, the whole composition fitted once, so a camera move can be
+    added by hand in the editor (move/scale everything together)."""
+    root, proto = _template_root()
+    chars = [c for c in motion['characters'] if shot is None or c['shot'] == shot]
+    if shot is None and chars:
+        shot = max({c['shot'] for c in chars}, key=lambda s: sum(len(c['joints']) for c in chars if c['shot'] == s))
+        chars = [c for c in chars if c['shot'] == shot]
+    slots = assign_slots(chars, motion['size'][1], max_chars)
+    if not slots:
+        raise ValueError('no character track in this shot')
+    chars = [c for slot in slots for c in slot]
+    start = min(c['start'] for c in chars)
+    end = max(c['start'] + len(c['joints']) for c in chars)
+    tracks = _slot_tracks(motion, slots, world)
+    root.set('Name', f"{motion['clip']}_shot{shot}")
+    _write_frames(root, proto, tracks, start, end)
     return root, {'shot': shot, 'frames': end - start, 'characters': len(tracks), 'pieces': len(chars),
                   'fps': motion['fps']}
+
+
+def build_clip(motion, n_frames=None, max_chars=2, world=False):
+    """Whole clip, every shot, frame n = video frame n (so it lines up with the video; frames
+    without a tracked person stay empty). n_frames: clip length (shots.json); default: last
+    tracked frame. Slots are chosen per shot; world mode fits each shot separately."""
+    root, proto = _template_root()
+    tracks, pieces = [], 0
+    for shot in sorted({c['shot'] for c in motion['characters']}):
+        slots = assign_slots([c for c in motion['characters'] if c['shot'] == shot], motion['size'][1], max_chars)
+        pieces += sum(len(s) for s in slots)
+        for k, (frames, thick) in enumerate(_slot_tracks(motion, slots, world)):
+            if k == len(tracks):
+                tracks.append(({}, {}))
+            tracks[k][0].update(frames)
+            tracks[k][1].update(dict.fromkeys(frames, thick))   # line width follows each shot's framing
+    if not tracks:
+        raise ValueError('no character track in this clip')
+    end = max(max(f) + 1 for f, _ in tracks)
+    end = max(end, n_frames or 0)
+    root.set('Name', f"{motion['clip']}")
+    _write_frames(root, proto, tracks, 0, end)
+    return root, {'frames': end, 'characters': len(tracks), 'pieces': pieces, 'fps': motion['fps']}
+
+
+def convert_all(data_dir, max_chars=2, world=False):
+    """media/<id>.motion.json -> sfa/<id>.sfa (whole clip), skipping files already made."""
+    import sys
+    sys.path.insert(0, str(ROOT))
+    import sfa
+    media, out_dir = Path(data_dir, 'media'), Path(data_dir, 'sfa')
+    out_dir.mkdir(exist_ok=True)
+    done = empty = 0
+    for path in sorted(media.glob('*.motion.json')):
+        stem = path.name.replace('.motion.json', '')
+        out = out_dir / f'{stem}.sfa'
+        if out.exists():
+            continue
+        shots = media / f'{stem}.shots.json'
+        n = json.loads(shots.read_text(encoding='utf-8')).get('frames') if shots.exists() else None
+        try:
+            root, _ = build_clip(json.loads(path.read_text(encoding='utf-8')), n, max_chars, world)
+        except ValueError:                                     # nobody tracked in the whole clip
+            empty += 1
+            continue
+        sfa.write_sfa(root, out)                               # atomic (temp file + replace)
+        done += 1
+    print(f'새로 변환 {done}개, 인물 없음 {empty}개 → {out_dir}')
 
 
 def main(argv=None):
@@ -300,17 +366,28 @@ def main(argv=None):
     sys.path.insert(0, str(ROOT))
     import sfa
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument('motion')
-    ap.add_argument('out')
+    ap.add_argument('motion', help='<id>.motion.json, or the data folder (data_sakuga) to convert every clip')
+    ap.add_argument('out', nargs='?')
     ap.add_argument('--shot', type=int)
+    ap.add_argument('--clip', action='store_true', help='whole clip, every shot, aligned with the video')
     ap.add_argument('--world', action='store_true', help='camera removed: whole composition, fixed framing')
     a = ap.parse_args(argv)
-    root, info = build(json.loads(Path(a.motion).read_text(encoding='utf-8')), a.shot, world=a.world)
+    if Path(a.motion).is_dir():
+        convert_all(a.motion, world=a.world)
+        return
+    if not a.out:
+        ap.error('out is required for a single motion file')
+    motion = json.loads(Path(a.motion).read_text(encoding='utf-8'))
+    if a.clip:
+        root, info = build_clip(motion, world=a.world)
+        label = '클립 전체'
+    else:
+        root, info = build(motion, a.shot, world=a.world)
+        label = f"샷 {info['shot']}"
     sfa.write_sfa(root, a.out)
     fps = round(info['fps'])
-    print(f"샷 {info['shot']}: {info['frames']}프레임, 인물 {info['characters']}명 → {a.out} "
+    print(f"{label}: {info['frames']}프레임, 인물 {info['characters']}명(조각 {info['pieces']}) → {a.out} "
           f"(트위닝·재생 FPS = {fps},{fps})")
-
 
 if __name__ == '__main__':
     main()

@@ -194,5 +194,44 @@ class Slots(unittest.TestCase):
         self.assertEqual((info['characters'], info['pieces']), (2, 2))
 
 
+@unittest.skipIf(motion is None, 'numpy not installed (use .venv)')
+class ClipSfa(unittest.TestCase):
+    def piece(self, shot, start, n, dx):
+        return {'shot': shot, 'track': shot, 'start': start, 'joints': [coco_pose(dx) for _ in range(n)],
+                'runs': [1] * n, 'uncertain': []}
+
+    def test_every_shot_aligned_with_the_video(self):
+        import sfa
+        mo = {'clip': '7', 'fps': 24.0, 'size': [1920, 1080],
+              'characters': [self.piece(0, 2, 6, -300), self.piece(1, 12, 8, 300)]}   # frames 8-11: nobody
+        root, info = to_sfa.build_clip(mo, n_frames=24)
+        self.assertEqual(sfa.validate(root), [])
+        frames = root.findall('Frame')
+        self.assertEqual((len(frames), info['frames']), (24, 24))     # same length as the clip
+        drawn = [len(f.findall('AO')) // 10 for f in frames]
+        self.assertEqual(drawn, [0, 0] + [1] * 6 + [0] * 4 + [1] * 8 + [0] * 4)
+        x = lambda f: float(f.findall('AO')[1].findall('AP')[0].get('X'))
+        self.assertLess(x(frames[2]), 50)                             # shot 0 person on the left
+        self.assertGreater(x(frames[12]), 50)                         # shot 1 person on the right
+
+    def test_batch_converts_each_clip_once(self):
+        import json
+        import tempfile
+        mo = {'clip': '7', 'fps': 24.0, 'size': [1920, 1080], 'characters': [self.piece(0, 0, 4, 0)]}
+        with tempfile.TemporaryDirectory() as d:
+            media = Path(d, 'media')
+            media.mkdir()
+            (media / '7.motion.json').write_text(json.dumps(mo), encoding='utf-8')
+            (media / '7.shots.json').write_text(json.dumps({'fps': 24.0, 'frames': 10, 'shots': []}), encoding='utf-8')
+            (media / '8.motion.json').write_text(json.dumps(dict(mo, clip='8', characters=[])), encoding='utf-8')
+            to_sfa.convert_all(d)
+            out = Path(d, 'sfa', '7.sfa')
+            self.assertTrue(out.exists())
+            self.assertFalse(Path(d, 'sfa', '8.sfa').exists())       # nobody tracked: no file
+            stamp = out.stat().st_mtime_ns
+            to_sfa.convert_all(d)                                     # re-run skips finished clips
+            self.assertEqual(out.stat().st_mtime_ns, stamp)
+
+
 if __name__ == '__main__':
     unittest.main()
