@@ -31,6 +31,11 @@ USER_AGENT = 'AI-sfa-personal-research/0.1 (personal, non-commercial)'
 # techniques (kanada_light_flare, itano_circus), so it is labelled 'technique'.
 TAG_TYPES = {0: 'general', 1: 'artist', 3: 'copyright', 4: 'technique', 5: 'meta'}
 TRAINING_EXCLUDED_TYPES = {'copyright'}      # user decision: work titles are not learned
+EXCLUDED_TAGS = {'western'}                  # user decision 2026-10-16: no western cartoons (Tom and Jerry etc.)
+
+
+def excluded(post):
+    return not EXCLUDED_TAGS.isdisjoint(post.get('tags', '').split())
 
 
 class Client:
@@ -138,7 +143,7 @@ def iter_posts(data_dir):
 
 
 def cmd_stats(data_dir, top=30):
-    posts = list(iter_posts(data_dir))
+    posts = [p for p in iter_posts(data_dir) if not excluded(p)]
     tag_table = load_tags(data_dir)
     by_kind = {}
     for p in posts:
@@ -183,7 +188,7 @@ def cmd_media(client, data_dir, max_files, match=''):
         for p in iter_posts(data_dir):
             if done >= max_files:
                 break
-            if not p.get('file_url') or not post_matches(p, match):
+            if not p.get('file_url') or excluded(p) or not post_matches(p, match):
                 continue
             target = media / f"{p['id']}.{p.get('file_ext') or 'bin'}"
             meta = media / f"{p['id']}.json"

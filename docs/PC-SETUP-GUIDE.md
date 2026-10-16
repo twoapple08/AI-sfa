@@ -75,7 +75,17 @@ python -m pipeline.setup_env            # --dry-run 이면 고를 PyTorch 빌드
 .venv\Scripts\python -m pipeline.shots data_sakuga
 ```
 
+`western` 태그(서양 카툰)는 사용자 결정으로 받지 않는다.
+
 받은 클립마다 `번호.shots.json`이 생긴다. 컷 경계, 같은 그림 반복(1s/2s/3s 작화), 한 장 그림에 카메라만 움직이는 샷(`camera_only`), 정지샷(`still`), 원화처럼 보이는 선화(`lineart_like`)를 기록한다. 이어서 실행하면 분석한 클립은 건너뛴다.
+
+## 8. 관절 추출(층①)
+
+```powershell
+.venv\Scripts\python -m pipeline.pose data_sakuga
+```
+
+`animated` 샷마다 사람별 트랙(ID 유지, 컷마다 초기화)과 COCO 관절 17개를 `번호.pose.npz`에 저장한다. 모델 크기·fp16은 사양 등급을 따르고, GPU 메모리가 부족하면 입력 크기를 낮춰 다시 한다. 1050 Ti 기준 클립당 약 25초. 그림 타이밍(on 1s/2s/3s)은 관절이 움직였는지로 다시 잰다(카메라·이펙트 영향 없음). 가중치는 `models\`에 받으며 커밋하지 않는다.
 
 ## Claude Code를 PC에서 쓰는 경우
 

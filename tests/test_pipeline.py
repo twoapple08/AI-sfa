@@ -85,11 +85,17 @@ class Collector(unittest.TestCase):
         self.assertFalse(cs.post_matches(posts[1], 'rating:s'))
         self.assertFalse(cs.post_matches(posts[2], '-cgi'))
         self.assertFalse(cs.post_matches(posts[3], 'fighting'))
+        posts.append(dict(POSTS[4], id=5, tags=POSTS[4]['tags'] + ' western'))     # cartoons never taken
         client = cs.Client(delay=0, opener=fake_opener)
         with tempfile.TemporaryDirectory() as d:
             Path(d, 'posts.jsonl').write_text(''.join(json.dumps(p) + '\n' for p in posts), encoding='utf-8')
             cs.cmd_media(client, d, max_files=10, match='fighting -cgi rating:s')
             self.assertEqual([p.name for p in Path(d, 'media').glob('*.mp4')], ['1.mp4'])
+            cs.cmd_media(client, d, max_files=10)
+            self.assertNotIn('5.mp4', [p.name for p in Path(d, 'media').glob('*.mp4')])
+            cs.cmd_stats(d)
+            stats = json.loads(Path(d, 'stats.json').read_text(encoding='utf-8'))
+            self.assertEqual(stats['posts'], 4)
 
 
 class Hardware(unittest.TestCase):

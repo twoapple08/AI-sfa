@@ -4,3 +4,5 @@ numpy
 opencv-python
 scenedetect
 tqdm
+ultralytics          # YOLO pose + ByteTrack on the PyTorch above (weights go to models/, not committed)
+lap                  # ByteTrack assignment (ultralytics would otherwise auto-install it mid-run)
