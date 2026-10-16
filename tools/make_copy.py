@@ -408,7 +408,7 @@ def stick_tracks(motion, frames, masks):
             for c in slot:
                 col = pink_rgb if info[id(c)]['pink'] else dark_rgb
                 for t in range(c['start'], c['start'] + len(c['joints'])):
-                    cols[t] = col
+                    cols[t] = (col, 'spiky' if info[id(c)]['pink'] else 'slick')
                     raw[t] = c['joints'][t - c['start']]
             torsos = [np.hypot(p[2][0] - p[1][0], p[2][1] - p[1][1]) * md.W / 100 for p in fr.values()]
             out.append({'fr': fr, 'thick': thick, 'hair': cols, 'raw': raw,
@@ -417,6 +417,7 @@ def stick_tracks(motion, frames, masks):
 
 
 HEAD_FILL = md.argb(246, 240, 234)
+HEAD_SCALE = 0.72
 
 
 
@@ -425,17 +426,54 @@ def lum(rgb):
     return 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]
 
 
+def _through(a, mid, b):
+    """Quadratic control point so the curve a->b passes through `mid` at t = 0.5."""
+    return (2 * mid[0] - (a[0] + b[0]) / 2, 2 * mid[1] - (a[1] + b[1]) / 2)
+
+
+def hair_shape(c, r, up, style):
+    """Hair silhouette on the head circle as a curve loop. spiky: four pointed tufts (pink-haired
+    fighter); slick: a swept-back cap (dark-haired fighter with the gavel)."""
+    ux, uy = up
+    vx, vy = -uy, ux                                         # head's right
+    at = lambda ang, rad: (c[0] + rad * (np.cos(ang) * vx + np.sin(ang) * ux),
+                           c[1] + rad * (np.cos(ang) * vy + np.sin(ang) * uy))
+    left, right = at(np.radians(160), r * 1.02), at(np.radians(20), r * 1.02)
+    if style == 'spiky':
+        ons = [left] + [at(np.radians(a), r * 1.08) for a in (125, 90, 55)] + [right]
+        tips = [at(np.radians(a), r * 1.6) for a in (150, 108, 72, 30)]
+        loop = []
+        for k in range(4):
+            loop += [ons[k], _through(ons[k], tips[k], ons[k + 1])]
+    else:
+        top = at(np.radians(95), r * 1.22)
+        back = at(np.radians(150), r * 1.18)
+        loop = [left, _through(left, back, top), top, _through(top, at(np.radians(50), r * 1.15), right)]
+    brow = at(np.radians(90), r * 0.45)                     # close along the brow line
+    loop += [right, _through(right, brow, left)]
+    return loop
+
+
 def draw_stick(f2d, st, t, frame_bgr):
-    """App stickman, line colour = hair colour, white-ish head fill, and a contrasting outline
-    underneath when the hair colour would vanish into the background. (Depth cues removed on the
-    user's request; another method will be specified.)"""
-    pts, thick, rgb = st['fr'][t], st['thick'], st['hair'].get(t, (45, 10, 10))
+    """Stick-figure deformation of a character (not necessarily the app stickman object): curved
+    limbs through elbows and knees, white-ish head with the character's hair silhouette, line colour =
+    hair colour, and a contrasting outline underneath when it would vanish into the background."""
+    pts, thick = st['fr'][t], st['thick']
+    rgb, style = st['hair'].get(t, ((45, 10, 10), 'slick'))
     color = argb_of(rgb)
     px = [(x / 100 * md.W, y / 100 * md.H) for x, y in pts]
-    head_top, neck = px[0], px[1]
-    c = ((head_top[0] + neck[0]) / 2, (head_top[1] + neck[1]) / 2)
-    r = np.hypot(head_top[0] - neck[0], head_top[1] - neck[1]) / 2
-    segs = [(px[a], px[b]) for a, b in to_sfa.AO_POINTS[1:]]
+    head_top, neck, hip = px[0], px[1], px[2]
+    full = np.hypot(head_top[0] - neck[0], head_top[1] - neck[1])
+    up = ((head_top[0] - neck[0]) / (full + 1e-9), (head_top[1] - neck[1]) / (full + 1e-9))
+    r = HEAD_SCALE * full / 2                               # smaller head than the app stickman's
+    c = (neck[0] + up[0] * r, neck[1] + up[1] * r)
+    limbs = [(neck, px[3], px[4]), (neck, px[5], px[6]), (hip, px[7], px[8]), (hip, px[9], px[10])]
+
+    def body(col, k):
+        f2d.line(neck, hip, col, thick * k)
+        for a, m, b in limbs:
+            f2d.curve(a, _through(a, m, b), b, col, thick * k)
+
     xs = [q[0] for q in px]
     ys = [q[1] for q in px]
     x0, x1 = int(max(min(xs) / SX, 0)), int(min(max(xs) / SX + 1, AW))
@@ -445,15 +483,15 @@ def draw_stick(f2d, st, t, frame_bgr):
         if abs(lum(bg) - lum(rgb)) < 70:                 # would vanish: outline in the opposite tone
             oc = md.argb(235, 215, 205) if lum(rgb) < 128 else md.argb(20, 8, 8)
             f2d.layer = 'outline'
-            f2d.circle(c, r, oc, thick * 2.2)
-            for p0, p1 in segs:
-                f2d.line(p0, p1, oc, thick * 2.2)
-    f2d.layer = 'head'                                     # white-ish head fill under the outline (user request)
+            f2d.circle(c, r * 1.15, oc, thick * 2.2)
+            body(oc, 2.2)
+    f2d.layer = 'head'                                     # white-ish face
     f2d.circle(c, r, md.CLEAR, 0.1, fill=HEAD_FILL)
     f2d.layer = 'fig'
     f2d.circle(c, r, color, thick)
-    for p0, p1 in segs:
-        f2d.line(p0, p1, color, thick)
+    body(color, 1.0)
+    f2d.layer = 'hair'
+    f2d.cpoly(hair_shape(c, r, up, style), color)
 
 
 # ----------------------------------------------------------------------------- build
@@ -469,7 +507,7 @@ def build(mode, frames, masks, shots, sticks):
     from multiprocessing import Pool
     layers = [(f'g{r}', f'면 {r + 1}') for r in range(MAX_DEPTH)]
     if mode == 'mosaku':
-        layers += [('outline', '테두리'), ('head', '머리 채우기'), ('fig', '스틱맨')]
+        layers += [('outline', '테두리'), ('head', '얼굴 채우기'), ('fig', '인물 선'), ('hair', '머리카락')]
     jobs, src_all = [], []
     for s in shots:
         span = range(s['start'], min(s['end'], len(frames)))
