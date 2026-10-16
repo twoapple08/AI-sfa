@@ -22,6 +22,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / 'tools'))
 import make_duel as md  # noqa: E402
 import make_copy as mc  # noqa: E402
+import impact_raster as IR  # noqa: E402
 
 W, H = md.W, md.H
 N = 120
@@ -43,8 +44,8 @@ LAYERS = [('ground', '땅·그림자'), ('dust_b_shade', '뒤 먼지 실루엣')
           ('dust_b_base', '뒤 먼지 테두리·그림자 혀'), ('dust_b_tail', '뒤 먼지 줄무늬'), ('cube', '큐브·잔해'),
           ('blast', '폭발'), ('dust_f_shade', '앞 먼지 실루엣'), ('dust_f_lite', '앞 먼지 밝은 몸통'),
           ('dust_f_base', '앞 먼지 테두리·그림자 혀'), ('dust_f_tail', '앞 먼지 줄무늬'), ('debris', '돌 파편'),
-          ('fx', '바람·줄무늬'), ('imp_bg', '반전 면(알파)'), ('imp_bgtex', '임팩트 바탕 연필 결'),
-          ('imp_fg', '임팩트 흑백 형태'), ('imp_tex', '임팩트 연필 결·잔털'), ('imp_glow', '임팩트 빛(글로우)')]
+          ('fx', '바람·줄무늬'), ('imp_bg', '반전 면(알파)'), ('imp_l1', '임팩트 연필 1(옅음)'),
+          ('imp_l2', '임팩트 연필 2'), ('imp_l3', '임팩트 연필 3'), ('imp_l4', '임팩트 먹(불투명)')]
 
 
 def ease_out(s):
@@ -687,173 +688,91 @@ def grain_over(fr, poly, rgb, alpha, seed, ang=.9, gap=9):
     hatch_poly(fr, poly, ang, gap, 5, rgb, alpha, seed)
 
 
+def _loops(mask, tol, min_area):
+    """마스크(960x540) → 곡선 고리(SFA px). 안쪽 구멍은 1px 틈으로 바깥 고리에 이어 하나의 고리로."""
+    cs, hier = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
+    if hier is not None and (hier[0][:, 3] >= 0).any():
+        for c, h in zip(cs, hier[0]):
+            if h[3] >= 0 and cv2.contourArea(c) >= min_area:
+                x, y = c[c[:, 0, 1].argmax(), 0]
+                col = mask[y:, x]
+                stop = np.flatnonzero(col == 0)
+                stop = stop[stop > 0]
+                end = y + (stop[0] if len(stop) else len(col))
+                mask[y:end, x:x + 1] = 0
+        cs, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    out, sx0 = [], mc.SX
+    mc.SX = DS
+    try:
+        for c in cs:
+            if cv2.contourArea(c) >= min_area:
+                lp = mc.fit_loop(c, tol)
+                if lp:
+                    out.append(lp)
+    finally:
+        mc.SX = sx0
+    return out
+
+
+def _poly_loops(mask, eps, min_area):
+    """마스크 → 직선 고리(곡선 객체에 조절점을 변 중점에 두어 곧은 변으로). 털·결 같은 가는 가닥에서
+    곡선 맞춤이 튀어나가지 않게 한다. 구멍은 폭 0인 다리(같은 선을 갔다 돌아옴)로 바깥 고리에 이어
+    even-odd 채우기에서 구멍으로 남긴다(틈 선이 보이지 않게)."""
+    cs, hier = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
+    if hier is None:
+        return []
+    hier = hier[0]
+
+    def simp(c):
+        P = cv2.approxPolyDP(c, eps, True).reshape(-1, 2).astype(float) * DS
+        return P if len(P) >= 3 else None
+
+    out = []
+    for i, c in enumerate(cs):
+        if hier[i][3] >= 0 or cv2.contourArea(c) < min_area:
+            continue
+        P = simp(c)
+        if P is None:
+            continue
+        ring = [p for p in P]
+        j = hier[i][2]
+        while j >= 0:                                       # 자식(구멍)들
+            if cv2.contourArea(cs[j]) >= min_area:
+                Q = simp(cs[j])
+                if Q is not None:
+                    R = np.array(ring)
+                    d = np.hypot(R[:, None, 0] - Q[None, :, 0], R[:, None, 1] - Q[None, :, 1])
+                    oi, qi = np.unravel_index(np.argmin(d), d.shape)
+                    hole = [Q[(qi + k) % len(Q)] for k in range(len(Q))] + [Q[qi]]
+                    ring = ring[:oi + 1] + hole + ring[oi:]
+            j = hier[j][0]
+        lp = []
+        for k in range(len(ring)):
+            a, b = ring[k], ring[(k + 1) % len(ring)]
+            lp += [tuple(a), tuple((a + b) / 2)]
+        out.append(lp)
+    return out
+
+
+IMP_LEVELS = ((.12, 70), (.35, 80), (.6, 110), (.82, 255))   # (잉크 농도 문턱, 알파): 반투명 단계가 겹쳐 연필 그라데이션
+
+
 def impact(fr, cam, k, sub):
-    """나카무라식 임팩트(87편·후보 611장 참고): 흑백 2톤이지만 검정은 4B 연필 획이 겹친 결(회색 결이 비침),
-    경계는 털처럼 갈라지는 잔털, 흰 쪽은 글로우로 빛이 번짐(블룸)·십자 플레어·빛나는 가는 광선.
-    k: 0..5 = IF1..IF6, sub: 같은 그림의 2번째 프레임(획이 다시 그려져 끓음)."""
-    c = cam(0, 0, 1.2)
-    z = cam.sc / 168
-    sd = 40 + k * 10 + sub * 997
+    """나카무라식 임팩트(래스터 설계 → 반투명 단계 곡선). 흰 면 위에 잉크 농도 단계마다 검정 곡선 덩어리를
+    알파 70/80/110/255로 겹쳐 연필 결·그라데이션을 만든다. 파편 없음. k: IF1..IF6, sub: 2번째 장(결이 다시 그려짐)."""
     full = [(-80, -80), (W + 80, -80), (W + 80, H + 80), (-80, H + 80)]
-    dark_bg = k in (0, 2, 3)
     fr.layer = 'imp_bg'
-    fr.poly(full, argb(*(GRAPHITE if dark_bg else Wt), {0: 238, 1: 255, 2: 250, 3: 245, 4: 255, 5: 252}[k]))
-    WH, BK = argb(*Wt), argb(*K)
-    top = [cam(-1, -1, 2), cam(1, -1, 2), cam(1, 1, 2), cam(-1, 1, 2)]
-    right = [cam(1, -1, 2), cam(1, 1, 2), cam(1, 1, 0), cam(1, -1, 0)]
-    front = [cam(-1, 1, 2), cam(1, 1, 2), cam(1, 1, 0), cam(-1, 1, 0)]
-    if dark_bg:                                            # 어두운 화면 자체가 연필로 칠한 결 + 종이 결처럼 비치는 밝은 긁힘
-        fr.layer = 'imp_bgtex'
-        stroke_grad(fr, c, 0, 1100 * z, 160, 110, (255, 250, 238), 16, sd + 21)     # 중심이 밝은 빛 그라데이션(연필 획)
-        smudge(fr, c, 200 * z, 1600, 70, 90, (12, 12, 12), 26, sd + 2)            # 흑연 문지름
-        pencil_rays(fr, c, 120 * z, 1500, 520, 9, K, 235, sd + 1)
-        pencil_rays(fr, c, 160 * z, 1500, 140, 4, (120, 117, 110), 110, sd + 11)
-    else:
-        fr.layer = 'imp_bgtex'
-        stroke_grad(fr, c, 300 * z, 1700, 200, 120, K, 16, sd + 21, outward=False)  # 가장자리가 어두운 그라데이션(연필 획)
-        smudge(fr, c, 300 * z, 1600, 60, 80, (40, 40, 40), 22, sd + 2)
-    if k == 0:                                             # IF1 흑·집중선 + 빛나는 윗면
-        fr.layer = 'imp_fg'
-        fr.poly(top, WH)
-        fr.poly(right, BK)
-        fr.poly(front, BK)
-        fr.layer = 'imp_tex'
-        grain_over(fr, top, (120, 116, 108), 40, sd + 31, .4, 11)
-        for f, ang in ((right, 1.2), (front, 2.0)):
-            hatch_poly(fr, f, ang, 7 * z, 6, (70, 68, 64), 150, sd + 3)
-        fringe(fr, right + front, c, 90, 70 * z, 7, K, 230, sd + 4)
-        fr.layer = 'imp_glow'
-        for a_, b_ in zip(top, top[1:] + top[:1]):
-            glow_line(fr, a_, b_, .5, 22 * z, 40)
-        r = random.Random(sd)
-        for _ in range(70):                                 # 빛나는 가는 광선
-            a = r.uniform(0, 2 * math.pi)
-            p0 = (c[0] + 180 * z * math.cos(a), c[1] + 150 * z * math.sin(a))
-            p1 = (c[0] + r.uniform(500, 1500) * math.cos(a), c[1] + r.uniform(500, 1500) * math.sin(a))
-            glow_line(fr, p0, p1, r.uniform(.12, .4), r.uniform(4, 10), 10, (255, 253, 245), r.randint(150, 230))
-        flare(fr, tuple(np.mean(top, 0)), 520 * z, z, sd + 5)
-    elif k == 1:                                           # IF2 반전: 흰 화면 + 검은 큐브, 큐브에서 연필 털 폭발
-        fr.layer = 'imp_fg'
-        for f in (right, front, top):
-            fr.poly(f, BK)
-        fr.layer = 'imp_tex'
-        pencil_rays(fr, c, 300 * z, 1600, 360, 14, K, 245, sd + 1)
-        fringe(fr, right + front + top, c, 260, 160 * z, 9, K, 240, sd + 2)
-        hatch_poly(fr, top, .3, 9 * z, 5, (90, 88, 84), 120, sd + 3)
-        for f in (right, front):
-            grain_over(fr, f, (150, 146, 138), 34, sd + 32, 1.3, 12)
-        fr.layer = 'imp_glow'
-        tc = tuple(np.mean(top, 0))
-        r = random.Random(sd)
-        for _ in range(26):
-            a = r.uniform(0, 2 * math.pi)
-            u = (math.cos(a), math.sin(a))
-            dmax = _ray_to_poly(tc, u, top)
-            if dmax:
-                glow_line(fr, tc, (tc[0] + u[0] * dmax * r.uniform(.6, .95), tc[1] + u[1] * dmax * r.uniform(.6, .95)), r.uniform(.2, .5), 8 * z, 16)
-        flare(fr, tc, 260 * z, z, sd + 4)
-    elif k == 2:                                           # IF3 십자 분할: 빛줄기(글로우) + 연필로 칠한 검은 4덩어리
-        r = random.Random(sd)
-        fr.layer = 'imp_fg'
-        arms = []
-        for ax in ((1, 0), (0, 1)):
-            for sg in (-1, 1):
-                q = cam(sg * 9 * ax[0], sg * 9 * ax[1], 1.2)
-                dx, dy = q[0] - c[0], q[1] - c[1]
-                L = math.hypot(dx, dy)
-                ux, uy = dx / L, dy / L
-                nx, ny = -uy, ux
-                g0, g1 = 90 * z, 30 * z
-                far = (c[0] + ux * 2600, c[1] + uy * 2600)
-                arm = [(c[0] + nx * g0, c[1] + ny * g0), (far[0] + nx * g1, far[1] + ny * g1),
-                       (far[0] - nx * g1, far[1] - ny * g1), (c[0] - nx * g0, c[1] - ny * g0)]
-                fr.poly(arm, WH)
-                arms.append((arm, ux, uy, nx, ny))
-        fr.layer = 'imp_tex'
-        for arm, ux, uy, nx, ny in arms:                   # 빛에 먹힌 가장자리 = 안쪽으로 파고드는 검은 연필 털
-            for side in (0, 3):
-                a_, b_ = arm[side], arm[side + 1] if side == 0 else arm[2]
-                fringe(fr, [a_, b_], c, 70, 60 * z, 8, K, 235, sd + side + int(ux * 10), inward=False)
-        fr.layer = 'imp_glow'
-        for arm, ux, uy, nx, ny in arms:
-            glow_line(fr, c, (c[0] + ux * 1800, c[1] + uy * 1800), .9, 40 * z, 90, (255, 252, 240), 200)
-        flare(fr, c, 700 * z, z, sd + 6)
-    elif k == 3:                                           # IF4 톱니 폭발: 블룸 + 연필 결
-        rim = jag_pts(c, 380 * z, sd)
-        fr.layer = 'imp_fg'
-        fr.poly(rim, WH)
-        fr.layer = 'imp_tex'
-        pencil_rays(fr, c, 110 * z, 420 * z, 160, 8, K, 210, sd + 2, inward=True)
-        fringe(fr, rim, c, 220, 140 * z, 9, K, 235, sd + 3)
-        grain_over(fr, rim, (110, 106, 100), 32, sd + 33, .7, 14)
-        r = random.Random(sd + 3)
-        for _ in range(10):
-            a, rr, s_ = r.uniform(0, 6.3), r.uniform(120, 380) * z, r.uniform(22, 54) * z
-            ch = chunk((c[0] + rr * math.cos(a) * 1.2, c[1] + rr * math.sin(a) * .8), s_, a)
-            fr.poly(ch, BK)
-            fringe(fr, ch, (c[0], c[1]), 8, s_ * 1.6, 6, K, 220, sd + int(rr), inward=True)
-        fr.layer = 'imp_glow'
-        for a_, b_ in zip(rim, rim[1:] + rim[:1]):          # 테두리 블룸
-            glow_line(fr, a_, b_, .4, 34 * z, 60, (255, 250, 236), 220)
-        r = random.Random(sd + 9)
-        for _ in range(80):
-            a = r.uniform(0, 2 * math.pi)
-            p0 = (c[0] + 400 * z * 1.25 * math.cos(a), c[1] + 400 * z * .85 * math.sin(a))
-            p1 = (c[0] + r.uniform(700, 1600) * math.cos(a), c[1] + r.uniform(700, 1600) * math.sin(a))
-            glow_line(fr, p0, p1, r.uniform(.12, .45), r.uniform(5, 12), 12, (255, 252, 240), r.randint(150, 230))
-        flare(fr, c, 600 * z, z, sd + 7)
-    elif k == 4:                                           # IF5 쐐기 가시: 연필로 칠한 검은 쐐기 + 빛나는 중심
-        r = random.Random(sd)
-        wedges = []
-        fr.layer = 'imp_fg'
-        for i in range(16):
-            a = 2 * math.pi * i / 16 + r.uniform(-.12, .12)
-            wd, r0 = r.uniform(.06, .16), r.uniform(180, 320) * z
-            wg = [(c[0] + r0 * math.cos(a), c[1] + r0 * .8 * math.sin(a)),
-                  (c[0] + 2400 * math.cos(a - wd), c[1] + 2400 * math.sin(a - wd)),
-                  (c[0] + 2400 * math.cos(a + wd), c[1] + 2400 * math.sin(a + wd))]
-            fr.poly(wg, BK)
-            wedges.append((wg, a))
-        fr.layer = 'imp_tex'
-        for wg, a in wedges:
-            hatch_poly(fr, wg, a, 10, 7, (84, 82, 78), 140, sd + int(a * 100))
-            fringe(fr, wg[1:] + wg[:1], c, 40, 50 * z, 8, K, 230, sd + int(a * 50))
-        pencil_rays(fr, c, 80 * z, 320 * z, 90, 7, K, 200, sd + 1, inward=True)
-        for _ in range(12):
-            a, rr, s_ = r.uniform(0, 6.3), r.uniform(150, 520) * z, r.uniform(24, 64) * z
-            p = (c[0] + rr * math.cos(a), c[1] + rr * .8 * math.sin(a))
-            fr.poly(chunk(p, s_, a), BK)
-            pencil_rays(fr, p, s_ * .3, s_ * 2.2, 10, 10, K, 220, sd + int(rr), spread=(a + math.pi - .35, a + math.pi + .35))
-        fr.layer = 'imp_glow'
-        flare(fr, c, 760 * z, z, sd + 8)
-    else:                                                  # IF6 먹 얼룩 먼지: 곡선 덩어리 + 연필 털 + 빛나는 흰 중심
-        r = random.Random(sd)
-        fr.layer = 'imp_fg'
-        blobs = []
-        for i in range(14):
-            a = 2 * math.pi * i / 14 + r.uniform(-.1, .1)
-            rr, s_ = r.uniform(330, 520) * z, r.uniform(120, 200) * z
-            p = (c[0] + rr * math.cos(a) * 1.25, c[1] + rr * .7 * math.sin(a))
-            P = np.array([(p[0] + s_ * math.cos(t), p[1] + s_ * .8 * math.sin(t)) for t in np.linspace(0, 2 * math.pi, 24, endpoint=False)])
-            bul = cloud_bulges(P, sd + i, s_ / 160)
-            ring = _ring(bul)
-            fr.cpoly(ring, BK)
-            blobs.append((p, [tuple(b['P']) for b in bul]))
-        rim = jag_pts(c, 240 * z, sd + 2, 1.3, .8)
-        fr.poly(rim, WH)
-        fr.layer = 'imp_tex'
-        for p, peaks in blobs:
-            fringe(fr, peaks, c, 26, 120 * z, 10, K, 235, sd + int(p[0]))
-            pencil_rays(fr, p, 10, 140 * z, 12, 6, (96, 94, 90), 150, sd + int(p[1]))
-        fr.layer = 'imp_glow'
-        for a_, b_ in zip(rim, rim[1:] + rim[:1]):
-            glow_line(fr, a_, b_, .4, 30 * z, 55, (255, 250, 236), 220)
-        for _ in range(8):
-            a, rr, s_ = r.uniform(0, 6.3), r.uniform(340, 600) * z, r.uniform(28, 60) * z
-            ch = chunk((c[0] + rr * math.cos(a) * 1.25, c[1] + rr * .7 * math.sin(a)), s_, a)
-            for a_, b_ in zip(ch, ch[1:] + ch[:1]):
-                glow_line(fr, a_, b_, .45, 10 * z, 18)
-        flare(fr, c, 480 * z, z, sd + 9)
+    fr.poly(full, argb(*Wt))
+    faces = [[cam(-1, -1, 2), cam(1, -1, 2), cam(1, 1, 2), cam(-1, 1, 2)],
+             [cam(1, -1, 2), cam(1, 1, 2), cam(1, 1, 0), cam(1, -1, 0)],
+             [cam(-1, 1, 2), cam(1, 1, 2), cam(1, 1, 0), cam(-1, 1, 0)]]
+    ink = IR.compose(k, sub, cam, faces)
+    for li, (thr, al) in enumerate(IMP_LEVELS):
+        m = ((ink > thr) * 255).astype(np.uint8)
+        m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((2, 2), np.uint8))
+        fr.layer = f'imp_l{li + 1}'
+        for lp in _poly_loops(m, .8, 6):
+            fr.cpoly(lp, argb(*K, al))
 
 
 def _ray_to_poly(o, u, poly):
