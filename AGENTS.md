@@ -3,7 +3,7 @@
 Read HANDOFF.md first for current scope and evidence. Keep it current at meaningful checkpoints.
 
 - User-facing communication and project guides: Korean.
-- Priority: full Stick Fighter feature analysis and app-verified feature probes. Dataset collection/training is deferred.
+- Priority (2026-10-16 사용자 전환): (나) 분석형 스타일 학습 — 이펙트·연출·배경 우선, 뿌리 yutaka_nakamura·nian41. 현재 계획은 docs/STYLE-LEARNING-PLAN-2026-10-16.md, 후보는 docs/ARTIST-CANDIDATES-2026-10-16.md. 추가 애니메이터는 사용자 승낙 후에만 포함. 영상 원본은 저장소에 넣지 않고 분석 뒤 임시본을 지운다. Stick Fighter 기능 분석 결과는 생성 제약으로 재사용한다.
 - Distinguish stored-state probes, inferred algorithms, and actual app/UI verification.
 - Do not publish provided APKs, other users' animation/video originals, or decompiled app source.
 - FPS order is (tween_fps, playback_fps).
