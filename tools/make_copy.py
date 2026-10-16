@@ -31,7 +31,7 @@ from pipeline import to_sfa  # noqa: E402
 AW, AH = 480, 270                 # analysis size
 SX = md.W / AW                    # analysis px -> SFA px (1920x1080)
 K_BG, K_ROTO = 7, 8               # palette sizes (brightness levels) per shot
-BUDGET = {'mosaku': 40, 'roto': 60}      # curve objects per frame for colour regions
+BUDGET = {'mosaku': 80, 'roto': 160}      # curve objects per frame for colour regions
 MIN_AREA = 40                     # analysis px^2
 
 
@@ -199,6 +199,95 @@ def pick(regs, budget, weight=None):
     return keep
 
 
+# ----------------------------------------------------------------------------- greedy (error-driven) shapes
+EW, EH = 192, 108                 # error-evaluation grid
+MAX_DEPTH = 10                    # stacking layers for greedy shapes
+
+
+def loop_polygon(loop, scale):
+    """Curve loop (SFA px) -> dense polygon at `scale` (px per SFA px) for rasterising."""
+    pts = []
+    n = len(loop)
+    for j in range(0, n, 2):
+        a, c, b = np.array(loop[j]), np.array(loop[j + 1]), np.array(loop[(j + 2) % n])
+        for u in np.linspace(0, 1, 8, endpoint=False):
+            pts.append((1 - u) ** 2 * a + 2 * u * (1 - u) * c + u * u * b)
+    return (np.array(pts) * scale).round().astype(np.int32)
+
+
+def candidates(img_bgr, cb, valid=None):
+    """Shapes worth trying: connected pieces of every palette colour and of every brightness level
+    set (both directions), each as a curve loop."""
+    labels = label(img_bgr, cb)
+    order = list(np.argsort(cb[:, 0]))
+    rank = np.zeros(256, np.uint8)
+    for r, li in enumerate(order):
+        rank[li] = r
+    rk = rank[labels]
+    masks = [(labels == li) for li in range(len(cb))]
+    masks += [(rk >= r) for r in range(1, len(order))] + [(rk <= r) for r in range(len(order) - 1)]
+    kernel = np.ones((3, 3), np.uint8)
+    out = []
+    for m in masks:
+        m = cv2.morphologyEx(m.astype(np.uint8), cv2.MORPH_OPEN, kernel)
+        if valid is not None:
+            m &= valid
+        cs, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for c in cs:
+            if cv2.contourArea(c) >= MIN_AREA:
+                loop = curve_loop(c)
+                if loop:
+                    out.append(loop)
+    return out
+
+
+def greedy_shapes(img_bgr, cb, budget, valid=None):
+    """Pick shapes that cut the colour error (Lab, on a coarse grid) most per curve spent. Each shape
+    is painted with the mean colour under it; later shapes go on higher layers where they overlap."""
+    small = cv2.resize(img_bgr, (EW, EH), interpolation=cv2.INTER_AREA)
+    target = cv2.cvtColor(small, cv2.COLOR_BGR2LAB).astype(np.float32)
+    flat = target.reshape(-1, 3)
+    bg = np.median(flat, 0)
+    cur = np.broadcast_to(bg, target.shape).copy()
+    scale = EW / md.W
+    cands = []
+    for loop in candidates(img_bgr, cb, valid):
+        m = np.zeros((EH, EW), np.uint8)
+        cv2.fillPoly(m, [loop_polygon(loop, scale)], 1)
+        idx = np.flatnonzero(m)
+        if len(idx) >= 3:
+            cands.append((loop, idx, len(loop) // 2))
+    depth = np.zeros(EH * EW, np.int16)
+    err = np.linalg.norm(cur.reshape(-1, 3) - flat, axis=1)
+    curf = cur.reshape(-1, 3)
+    picked, used = [], 0
+    while cands and used < budget:
+        best, best_s = None, 0.0
+        for n, (loop, idx, cost) in enumerate(cands):
+            if used + cost > budget:
+                continue
+            col = flat[idx].mean(0)
+            gain = err[idx].sum() - np.linalg.norm(flat[idx] - col, axis=1).sum()
+            s = gain / cost
+            if s > best_s:
+                best, best_s = n, s
+        if best is None:
+            break
+        loop, idx, cost = cands.pop(best)
+        lay = int(depth[idx].max())
+        if lay >= MAX_DEPTH:
+            continue
+        col = flat[idx].mean(0)
+        curf[idx] = col
+        err[idx] = np.linalg.norm(flat[idx] - col, axis=1)
+        depth[idx] = lay + 1
+        rgb = cv2.cvtColor(col.reshape(1, 1, 3).clip(0, 255).astype(np.uint8), cv2.COLOR_LAB2RGB).reshape(3)
+        picked.append((lay, loop, tuple(int(v) for v in rgb)))
+        used += cost
+    bg_rgb = cv2.cvtColor(bg.reshape(1, 1, 3).clip(0, 255).astype(np.uint8), cv2.COLOR_LAB2RGB).reshape(3)
+    return tuple(int(v) for v in bg_rgb), picked
+
+
 # ----------------------------------------------------------------------------- stickmen (모작)
 PINK_MIN = 0.06                   # share of pink-hair pixels around the head that marks pink hair
 
@@ -329,12 +418,20 @@ def draw_stick(f2d, st, t, frame_bgr):
 
 
 # ----------------------------------------------------------------------------- build
+def _greedy_job(args):
+    img, cb, budget = args
+    return greedy_shapes(img, cb, budget)
+
+
 def build(mode, frames, masks, shots, sticks):
-    k = K_BG if mode == 'mosaku' else K_ROTO
-    layers = [(f'lv{r}', f'밝기 {r + 1}') for r in range(k - 1)]
+    """Per shot: palette for the candidate shapes, then error-driven shapes per frame (a held drawing,
+    i.e. a frame equal to the previous one, reuses its shapes). 모작 works on the frame with the
+    people painted out; 로토 on the whole frame."""
+    from multiprocessing import Pool
+    layers = [(f'g{r}', f'면 {r + 1}') for r in range(MAX_DEPTH)]
     if mode == 'mosaku':
         layers += [('outline', '테두리'), ('body', '몸통 면'), ('head', '머리 채우기'), ('fig', '스틱맨')]
-    out = []
+    jobs, src_all = [], []
     for s in shots:
         span = range(s['start'], min(s['end'], len(frames)))
         if not len(span):
@@ -346,22 +443,34 @@ def build(mode, frames, masks, shots, sticks):
                 img = cv2.inpaint(img, cv2.dilate(masks[t], np.ones((11, 11), np.uint8)) * 255, 9, cv2.INPAINT_TELEA)
             src.append(img)
         sample = np.concatenate([b[::3, ::3].reshape(-1, 3) for b in src[::max(1, len(src) // 8)]])
-        cb = palette(sample, k)
-        cols = rgb_of(cb)
-        order = list(np.argsort(cb[:, 0]))                  # Lab L: dark -> light; rank 0 = frame background
-        step = {r: 1.0 + float(np.linalg.norm(cb[order[r + 1]] - cb[order[r]])) / 20 for r in range(k - 1)}
-        for i, t in enumerate(span):
-            f2d = md.Frame2D(argb_of(cols[order[0]]))
-            keep = pick(level_regions(label(src[i], cb), order), BUDGET[mode], step)
-            for r, loop in sorted(keep, key=lambda x: x[0]):
-                f2d.layer = f'lv{r}'
-                f2d.cpoly(loop, argb_of(cols[order[r + 1]]))
-            if mode == 'mosaku':
-                f2d.layer = 'fig'
-                for st in sticks:
-                    if t in st['fr']:
-                        draw_stick(f2d, st, t, frames[t])
-            out.append(f2d)
+        cb = palette(sample, 8)
+        for t, img in zip(span, src):
+            jobs.append((img, cb, BUDGET[mode]))
+            src_all.append(t)
+    results, prev = [None] * len(jobs), None
+    todo = []
+    for n, (img, cb, b) in enumerate(jobs):
+        if prev is not None and np.abs(img.astype(np.int16) - jobs[prev][0]).mean() < 0.8:
+            results[n] = prev                               # held drawing: reuse
+        else:
+            todo.append(n)
+            prev = n
+    with Pool() as pool:
+        for n, res in zip(todo, pool.imap(_greedy_job, [jobs[n] for n in todo], chunksize=4)):
+            results[n] = res
+    out = []
+    for n, t in enumerate(src_all):
+        res = results[n]
+        bg, picked = results[res] if isinstance(res, int) else res
+        f2d = md.Frame2D(argb_of(bg))
+        for lay, loop, rgb in picked:
+            f2d.layer = f'g{lay}'
+            f2d.cpoly(loop, argb_of(rgb))
+        if mode == 'mosaku':
+            for st in sticks:
+                if t in st['fr']:
+                    draw_stick(f2d, st, t, frames[t])
+        out.append(f2d)
     return out, layers
 
 
