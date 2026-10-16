@@ -9,6 +9,8 @@ repeated frames, so export with tween = playback = clip fps. Video pixels are fi
 thickness follows character height (thin by default). Joints still missing after clean-up:
 a briefly hidden limb keeps its last shape; an off-screen (or long-hidden) one continues its
 parent bone straight at its usual length, beyond the canvas edge when it left the picture.
+A person whose track broke into pieces keeps one slot (one set of AO IDs): pieces that do not
+overlap in time are chained into the slot whose neighbouring piece ends/starts nearest to them.
 
 Usage:  .venv\\Scripts\\python -m pipeline.to_sfa data_sakuga\\media\\123.motion.json OUT.sfa [--shot N]
 """
@@ -161,6 +163,59 @@ def _cams(c):
     return [np.asarray(m, float).reshape(2, 3) for m in cams] if cams and len(cams) == len(c['joints']) else None
 
 
+JOIN_DIST = 1.5          # max neck jump (x the piece's torso) to chain a piece onto an occupied slot
+
+
+def _anchor(c, last):
+    """Screen position of a piece at its first/last frame with a known neck or hip, and its torso."""
+    frames = c['joints'][::-1] if last else c['joints']
+    for f in frames:
+        pts = skeleton(f)
+        if pts[1] is not None and pts[2] is not None:
+            return pts[1], float(np.hypot(pts[2][0] - pts[1][0], pts[2][1] - pts[1][1]))
+        if pts[1] is not None or pts[2] is not None:
+            return pts[1] or pts[2], None
+    return None, None
+
+
+def assign_slots(chars, frame_height, max_slots=2):
+    """Track pieces of one shot -> at most max_slots people, each a list of pieces that never
+    overlap in time. Longest pieces first; a piece joins the free-in-time slot whose neighbouring
+    piece (just before or after it) is nearest at the junction, or opens a new slot when every
+    such slot is far (another person) and a slot is still free. Pieces that overlap every slot
+    are dropped (a third person, or a duplicate detection)."""
+    slots = []
+    for c in sorted(chars, key=lambda c: -len(c['joints'])):
+        a, b = c['start'], c['start'] + len(c['joints'])
+        best = None
+        for slot in slots:
+            if any(a < d['start'] + len(d['joints']) and d['start'] < b for d in slot):
+                continue
+            before = [d for d in slot if d['start'] + len(d['joints']) <= a]
+            after = [d for d in slot if d['start'] >= b]
+            dists = []
+            if before:
+                d = max(before, key=lambda d: d['start'])
+                p, _ = _anchor(d, last=True)
+                q, torso = _anchor(c, last=False)
+                if p is not None and q is not None:
+                    dists.append(np.hypot(p[0] - q[0], p[1] - q[1]) / (torso or 0.25 * frame_height))
+            if after:
+                d = min(after, key=lambda d: d['start'])
+                p, _ = _anchor(d, last=False)
+                q, torso = _anchor(c, last=True)
+                if p is not None and q is not None:
+                    dists.append(np.hypot(p[0] - q[0], p[1] - q[1]) / (torso or 0.25 * frame_height))
+            dist = min(dists) if dists else float('inf')
+            if best is None or dist < best[0]:
+                best = (dist, slot)
+        if len(slots) < max_slots and (best is None or best[0] > JOIN_DIST):
+            slots.append([c])
+        elif best is not None:
+            best[1].append(c)
+    return [sorted(slot, key=lambda c: c['start']) for slot in slots]
+
+
 def build(motion, shot=None, max_chars=2, world=False):
     """world=False: as filmed (camera zoom/pan baked into the points, the app has no camera).
     world=True: camera removed, the whole composition fitted once, so a camera move can be
@@ -174,41 +229,50 @@ def build(motion, shot=None, max_chars=2, world=False):
     if shot is None and chars:
         shot = max({c['shot'] for c in chars}, key=lambda s: sum(len(c['joints']) for c in chars if c['shot'] == s))
         chars = [c for c in chars if c['shot'] == shot]
-    chars = sorted(chars, key=lambda c: -len(c['joints']))[:max_chars]
-    if not chars:
+    slots = assign_slots(chars, motion['size'][1], max_chars)
+    if not slots:
         raise ValueError('no character track in this shot')
+    chars = [c for slot in slots for c in slot]
     start = min(c['start'] for c in chars)
     end = max(c['start'] + len(c['joints']) for c in chars)
+    raws, torsos = {}, {}
+    for k, slot in enumerate(slots):                       # one body size per slot, not per piece
+        seen = []
+        for c in slot:
+            cams = _cams(c)
+            raw = [skeleton(f) for f in c['joints']]
+            if cams is not None:                           # geometry in world units: lengths and head fixed
+                raw = [[None if p is None else tuple(camera.to_world(m, [p])[0]) for p in pts]
+                       for pts, m in zip(raw, cams)]
+            raws[id(c)] = raw
+            seen += [np.hypot(f[2][0] - f[1][0], f[2][1] - f[1][1]) for f in raw if f[1] is not None and f[2] is not None]
+        torsos[k] = float(np.median(seen)) if seen else 0.25 * motion['size'][1]
     worlds = []
-    for c in chars:
-        cams = _cams(c)
-        raw = [skeleton(f) for f in c['joints']]
-        if cams is not None:                               # geometry in world units: lengths and head fixed
-            raw = [[None if p is None else tuple(camera.to_world(m, [p])[0]) for p in pts]
-                   for pts, m in zip(raw, cams)]
-        torsos = [np.hypot(f[2][0] - f[1][0], f[2][1] - f[1][1]) for f in raw if f[1] is not None and f[2] is not None]
-        torso = float(np.median(torsos)) if torsos else 0.25 * motion['size'][1]
-        px = place_heads(fill_missing(raw, c.get('offscreen'), motion['size'][1]), torso)
-        if cams is not None and not world:
-            px = [[tuple(camera.to_screen(m, [p])[0]) for p in pts] for pts, m in zip(px, cams)]
-        worlds.append(px)
-    to_pct = fit_box([p for px in worlds for pts in px for p in pts]) if world else fit(motion['size'])
-    tracks = []
-    for c, px in zip(chars, worlds):
-        seq = [[to_pct(p) for p in pts] for pts in px]
-        height = np.median([max(p[1] for p in pts) - min(p[1] for p in pts) for pts in seq])
-        tracks.append((c, seq, float(np.clip(0.8 * height / TEMPLATE_HEIGHT, 0.25, 1.5))))
+    for k, slot in enumerate(slots):
+        for c in slot:
+            cams = _cams(c)
+            px = place_heads(fill_missing(raws[id(c)], c.get('offscreen'), motion['size'][1]), torsos[k])
+            if cams is not None and not world:
+                px = [[tuple(camera.to_screen(m, [p])[0]) for p in pts] for pts, m in zip(px, cams)]
+            worlds.append((k, c, px))
+    to_pct = fit_box([p for _, _, px in worlds for pts in px for p in pts]) if world else fit(motion['size'])
+    tracks = [({}, []) for _ in slots]                     # per slot: video frame -> points, heights
+    for k, c, px in worlds:
+        for t, pts in enumerate(px):
+            seq = [to_pct(p) for p in pts]
+            tracks[k][0][c['start'] + t] = seq
+            tracks[k][1].append(max(p[1] for p in seq) - min(p[1] for p in seq))
+    tracks = [(frames, float(np.clip(0.8 * np.median(h) / TEMPLATE_HEIGHT, 0.25, 1.5))) for frames, h in tracks]
     root.set('Name', f"{motion['clip']}_shot{shot}")
     point_id = 1
     for n, vf in enumerate(range(start, end)):
         frame = ET.SubElement(root, 'Frame', {'BackgroundColor': proto.get('BackgroundColor'),
                                               'ID': str(n + 1), 'Position': str(n)})
         frame.append(copy.deepcopy(proto.find('LayerDef')))
-        for k, (c, seq, thick) in enumerate(tracks):
-            t = vf - c['start']
-            if not 0 <= t < len(seq):
+        for k, (frames, thick) in enumerate(tracks):
+            pts = frames.get(vf)
+            if pts is None:
                 continue                                       # character not in this frame
-            pts = seq[t]
             body = copy.deepcopy(proto.findall('AO'))
             remap = {}
             for ao in body:
@@ -227,7 +291,8 @@ def build(motion, shot=None, max_chars=2, world=False):
                         ac.set('ConnPtId', remap[ac.get('ConnPtId')])
                 frame.append(ao)
     root.set('FrameCount', str(end - start))
-    return root, {'shot': shot, 'frames': end - start, 'characters': len(tracks), 'fps': motion['fps']}
+    return root, {'shot': shot, 'frames': end - start, 'characters': len(tracks), 'pieces': len(chars),
+                  'fps': motion['fps']}
 
 
 def main(argv=None):

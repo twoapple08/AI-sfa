@@ -142,5 +142,57 @@ class StickmanSfa(unittest.TestCase):
         self.assertGreater(int((img.sum(axis=2) < 200).sum()), 50)   # dark stick lines drawn
 
 
+@unittest.skipIf(motion is None, 'numpy not installed (use .venv)')
+class Slots(unittest.TestCase):
+    """Test clip 317969 5-10s: a fighter whose track broke into pieces vanished, because only
+    the two longest pieces of the shot were drawn."""
+    @staticmethod
+    def piece(track, start, n, dx):
+        return {'shot': 0, 'track': track, 'start': start, 'joints': [coco_pose(dx) for _ in range(n)],
+                'runs': [1] * n, 'uncertain': []}
+
+    def mo(self, *pieces):
+        return {'clip': '1', 'fps': 24.0, 'size': [1920, 1080], 'characters': list(pieces)}
+
+    def necks(self, root):
+        """Per frame: {slot AO ID base: neck x %}."""
+        return [{int(f.findall('AO')[k].get('ID')) // 100: float(f.findall('AO')[k + 1].findall('AP')[0].get('X'))
+                 for k in range(0, len(f.findall('AO')), 10)} for f in root.findall('Frame')]
+
+    def test_broken_track_keeps_one_slot(self):
+        import sfa
+        left = self.piece(1, 0, 20, -400)                            # whole shot
+        right_a = self.piece(2, 0, 8, 400)                           # the other fighter, track broke
+        right_b = self.piece(3, 9, 11, 410)
+        root, info = to_sfa.build(self.mo(left, right_a, right_b))
+        self.assertEqual(sfa.validate(root), [])
+        self.assertEqual((info['characters'], info['pieces']), (2, 3))
+        necks = self.necks(root)
+        self.assertEqual(len(necks[15]), 2)                          # both fighters drawn after the break
+        self.assertEqual(set(necks[3]), set(necks[15]))              # same AO IDs -> the app tweens them
+        self.assertEqual(len(necks[8]), 1)                           # the one-frame gap stays empty
+
+    def test_far_piece_is_another_person(self):
+        a = self.piece(1, 0, 10, -400)
+        b = self.piece(2, 10, 10, 400)                               # starts where a ends, far away
+        root, info = to_sfa.build(self.mo(a, b))
+        self.assertEqual(info['characters'], 2)
+        necks = self.necks(root)
+        self.assertNotEqual(set(necks[0]), set(necks[15]))           # no jump across the screen
+
+    def test_far_piece_joins_when_slots_are_full(self):
+        a = self.piece(1, 0, 20, -400)
+        b = self.piece(2, 0, 10, 400)
+        c = self.piece(3, 10, 10, 0)                                 # third pose, only time-free slot is b
+        _, info = to_sfa.build(self.mo(a, b, c))
+        self.assertEqual((info['characters'], info['pieces']), (2, 3))
+
+    def test_overlapping_extra_piece_is_dropped(self):
+        a, b = self.piece(1, 0, 20, -400), self.piece(2, 0, 20, 400)
+        extra = self.piece(3, 5, 5, 0)                               # a third person / duplicate
+        _, info = to_sfa.build(self.mo(a, b, extra))
+        self.assertEqual((info['characters'], info['pieces']), (2, 2))
+
+
 if __name__ == '__main__':
     unittest.main()
