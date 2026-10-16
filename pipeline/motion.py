@@ -4,9 +4,11 @@
 Reads <id>.pose.npz (+ <id>.shots.json) and writes <id>.motion.json:
   {"clip", "fps", "size": [w, h], "characters": [
      {"shot", "track", "start": first video frame, "joints": [[[x, y, conf] x17] per frame],
-      "runs": drawing hold runs, "uncertain": frame offsets with implausible bone lengths}]}
+      "runs": drawing hold runs, "uncertain": frame offsets with implausible bone lengths,
+      "offscreen": per-frame bitmask of COCO joints that left the picture (bit j = joint j)}]}
 Clean-up, in order (no smoothing: smears and impact frames are intentional deformations):
-  1. joints below MIN_CONF are missing;
+  1. joints below MIN_CONF are missing; joints pinned to the frame border are off-screen
+     (the detector clamps them to the edge) and are missing too, flagged in "offscreen";
   2. left/right swap when the mirrored pose matches the previous frame much better;
   3. gaps up to MAX_GAP frames are linearly filled (conf marked 0.01 = interpolated);
   4. frames inside a hold run are snapped to the run's first frame (exact holds, no jitter);
@@ -28,6 +30,7 @@ MIN_CONF = 0.3
 MAX_GAP = 4
 SWAP_GAIN = 0.6      # swap when the mirrored error is below 60% of the direct error
 BONE_MAX = 1.6
+EDGE_FRAC = 0.01     # joints within 1% of the border are clamped, i.e. off-screen
 MIRROR = [0, 2, 1, 4, 3, 6, 5, 8, 7, 10, 9, 12, 11, 14, 13, 16, 15]
 BONES = [(5, 7), (7, 9), (6, 8), (8, 10), (11, 13), (13, 15), (12, 14), (14, 16), (5, 11), (6, 12)]
 
@@ -85,27 +88,41 @@ def uncertain_frames(k):
     return [int(t) for t in np.flatnonzero(bad)]
 
 
-def clean_track(kpts, boxes):
+def edge_mask(kpts, size):
+    """Joints pinned to the frame border. The detector never reports a joint outside the frame:
+    a leg leaving the picture is clamped to the edge with a confident score, so treat it as off-screen."""
+    w, h = size
+    mx, my = EDGE_FRAC * w, EDGE_FRAC * h
+    x, y = kpts[..., 0], kpts[..., 1]
+    return (kpts[..., 2] >= MIN_CONF) & ((x <= mx) | (x >= w - 1 - mx) | (y <= my) | (y >= h - 1 - my))
+
+
+def clean_track(kpts, boxes, size=None):
     k = kpts.astype(np.float64).copy()
-    k[k[..., 2] < MIN_CONF, :2] = np.nan
+    off = edge_mask(k, size) if size else np.zeros(k.shape[:2], bool)
+    k[(k[..., 2] < MIN_CONF) | off, :2] = np.nan
     k = fill_gaps(fix_swaps(k))
+    k[off, :2] = np.nan                            # never interpolate through the off-screen stretch
     runs = pose_runs(np.nan_to_num(k, nan=0.0), boxes)
     k = snap_holds(k, runs)
-    return k, runs, uncertain_frames(k)
+    off = snap_holds(off[..., None], runs)[..., 0]
+    bits = [int(sum(1 << j for j in np.flatnonzero(f))) for f in off]
+    return k, runs, uncertain_frames(k), bits
 
 
 def clip_motion(npz_path, shots_path):
     data = dict(np.load(npz_path))
     meta = json.loads(Path(shots_path).read_text(encoding='utf-8'))
+    size = meta.get('size', [1920, 1080])
     chars = []
     for track, rows in track_segments(data):
-        k, runs, unsure = clean_track(data['kpts'][rows], data['box'][rows])
+        k, runs, unsure, off = clean_track(data['kpts'][rows], data['box'][rows], size)
         joints = [[[None, None, 0.0] if np.isnan(x) else [round(float(x), 1), round(float(y), 1), round(float(c), 2)]
                    for x, y, c in frame] for frame in k]
         chars.append({'shot': int(data['shot'][rows[0]]), 'track': track, 'start': int(data['frame'][rows[0]]),
-                      'joints': joints, 'runs': runs, 'uncertain': unsure})
+                      'joints': joints, 'runs': runs, 'uncertain': unsure, 'offscreen': off})
     return {'clip': Path(npz_path).name.split('.')[0], 'fps': meta.get('fps', 24.0),
-            'size': meta.get('size', [1920, 1080]), 'characters': chars}
+            'size': size, 'characters': chars}
 
 
 def main(argv=None):

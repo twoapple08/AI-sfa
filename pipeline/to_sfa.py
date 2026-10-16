@@ -6,8 +6,9 @@ arms from the neck, two-part legs). Each character keeps its AO IDs in every fra
 pairs them for tweening; point IDs are unique per frame, as in sfa.make_wave. Holds become
 repeated frames, so export with tween = playback = clip fps. Video pixels are fitted into the
 16:9 canvas (centre, uniform scale); X/Y are percentages of canvas width/height. Line
-thickness follows character height (thin by default). Joints still missing after clean-up
-reuse the last known offset from their parent joint, or the template pose.
+thickness follows character height (thin by default). Joints still missing after clean-up:
+a briefly hidden limb keeps its last shape; an off-screen (or long-hidden) one continues its
+parent bone straight at its usual length, beyond the canvas edge when it left the picture.
 
 Usage:  .venv\\Scripts\\python -m pipeline.to_sfa data_sakuga\\media\\123.motion.json OUT.sfa [--shot N]
 """
@@ -67,20 +68,66 @@ def fit(size):
     return lambda p: ((p[0] * s + ox) / CANVAS[0] * 100, (p[1] * s + oy) / CANVAS[1] * 100)
 
 
-def fill_missing(seq, rest):
-    """Fill None points from the parent using the last known offset (or the template pose)."""
-    last = {i: (rest[i][0] - rest[PARENT[i]][0], rest[i][1] - rest[PARENT[i]][1]) for i in PARENT}
-    out = []
-    for pts in seq:
+ORDER = (2, 0, 3, 5, 7, 9, 4, 6, 8, 10)          # parents before children (neck handled first)
+RECENT = 6                                       # frames a briefly hidden limb keeps its last shape
+
+
+def offscreen_points(bits):
+    """COCO off-screen bitmask -> set of stickman point indices."""
+    off = {i for i, j in COCO_FOR.items() if bits >> j & 1}
+    if bits >> 5 & 1 and bits >> 6 & 1:
+        off.add(1)
+    if bits >> 11 & 1 and bits >> 12 & 1:
+        off.add(2)
+    return off
+
+
+def _template_geometry():
+    """Bone length / torso length and unit direction of each bone in the template (canvas units)."""
+    phys = [(x * CANVAS[0] / 100, y * CANVAS[1] / 100) for x, y in template_points()]
+    torso = float(np.hypot(phys[2][0] - phys[1][0], phys[2][1] - phys[1][1]))
+    ratio, direction = {}, {}
+    for i, p in PARENT.items():
+        v = (phys[i][0] - phys[p][0], phys[i][1] - phys[p][1])
+        n = float(np.hypot(*v)) or 1.0
+        ratio[i], direction[i] = n / torso, (v[0] / n, v[1] / n)
+    return ratio, direction
+
+
+def fill_missing(seq, offscreen=None, frame_height=1080):
+    """Fill unknown points in video pixels (isotropic, so lengths are real).
+    A limb hidden for a moment keeps its last shape; a limb that left the picture (or stays
+    hidden) continues its parent bone straight at its usual length, past the frame edge if
+    needed (the app keeps off-canvas coordinates)."""
+    ratio, tdir = _template_geometry()
+    lengths = {}
+    for i, p in PARENT.items():
+        seen = [np.hypot(f[i][0] - f[p][0], f[i][1] - f[p][1]) for f in seq if f[i] is not None and f[p] is not None]
+        if seen:
+            lengths[i] = float(np.median(seen))
+    torso = lengths.get(2, 0.25 * frame_height)
+    for i in PARENT:
+        lengths.setdefault(i, ratio[i] * torso)
+    first_neck = next((f[1] for f in seq if f[1] is not None), (0.0, 0.0))
+    last, age, out = {}, {}, []
+    for t, pts in enumerate(seq):
         pts = list(pts)
+        off = offscreen_points(offscreen[t]) if offscreen else set()
         if pts[1] is None:
-            pts[1] = out[-1][1] if out else rest[1]
-        for i in (2, 0, 3, 5, 7, 9, 4, 6, 8, 10):              # parents before children
+            pts[1] = out[-1][1] if out else first_neck
+        for i in ORDER:
             p = PARENT[i]
-            if pts[i] is None:
+            if pts[i] is not None:
+                last[i], age[i] = (pts[i][0] - pts[p][0], pts[i][1] - pts[p][1]), 0
+                continue
+            age[i] = age.get(i, RECENT) + 1
+            if i not in off and i in last and age[i] <= RECENT:
                 pts[i] = (pts[p][0] + last[i][0], pts[p][1] + last[i][1])
-            else:
-                last[i] = (pts[i][0] - pts[p][0], pts[i][1] - pts[p][1])
+                continue
+            gp = PARENT.get(p)
+            v = (pts[p][0] - pts[gp][0], pts[p][1] - pts[gp][1]) if gp is not None else last.get(i, tdir[i])
+            n = float(np.hypot(*v)) or 1.0
+            pts[i] = (pts[p][0] + v[0] / n * lengths[i], pts[p][1] + v[1] / n * lengths[i])
         out.append(pts)
     return out
 
@@ -98,13 +145,12 @@ def build(motion, shot=None, max_chars=2):
     if not chars:
         raise ValueError('no character track in this shot')
     to_pct = fit(motion['size'])
-    rest = template_points()
     start = min(c['start'] for c in chars)
     end = max(c['start'] + len(c['joints']) for c in chars)
     tracks = []
     for c in chars:
-        seq = [[None if p is None else to_pct(p) for p in skeleton(f)] for f in c['joints']]
-        seq = fill_missing(seq, rest)
+        px = fill_missing([skeleton(f) for f in c['joints']], c.get('offscreen'), motion['size'][1])
+        seq = [[to_pct(p) for p in pts] for pts in px]
         height = np.median([max(p[1] for p in pts) - min(p[1] for p in pts) for pts in seq])
         tracks.append((c, seq, float(np.clip(0.8 * height / TEMPLATE_HEIGHT, 0.25, 1.5))))
     root.set('Name', f"{motion['clip']}_shot{shot}")

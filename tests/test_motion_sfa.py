@@ -38,6 +38,42 @@ class Cleanup(unittest.TestCase):
 
 
 @unittest.skipIf(motion is None, 'numpy not installed (use .venv)')
+class OffScreen(unittest.TestCase):
+    def frames(self):
+        out = []
+        for i in range(8):
+            f = coco_pose()
+            if i >= 4:                                               # walks down: feet leave the picture
+                f = [[x, y + 400, c] for x, y, c in f]
+                for j in (15, 16):
+                    f[j][1] = 1079.0                                 # detector clamps them to the edge
+            out.append(f)
+        return np.array(out, float)
+
+    def test_clamped_joints_are_off_screen_not_real(self):
+        k = self.frames()
+        boxes = np.tile(np.array([800, 300, 1100, 1079], float), (8, 1))
+        cleaned, _, _, bits = motion.clean_track(k, boxes, (1920, 1080))
+        self.assertTrue(np.isnan(cleaned[5, 15, 0]))
+        self.assertEqual(bits[5], (1 << 15) | (1 << 16))
+        self.assertEqual(bits[0], 0)
+
+    def test_off_screen_leg_continues_past_the_canvas(self):
+        k = self.frames()
+        boxes = np.tile(np.array([800, 300, 1100, 1079], float), (8, 1))
+        cleaned, runs, unsure, bits = motion.clean_track(k, boxes, (1920, 1080))
+        joints = [[[None, None, 0.0] if np.isnan(x) else [x, y, c] for x, y, c in f] for f in cleaned]
+        mo = {'clip': '1', 'fps': 24.0, 'size': [1920, 1080], 'characters': [
+            {'shot': 0, 'track': 1, 'start': 0, 'joints': joints, 'runs': runs, 'uncertain': unsure,
+             'offscreen': bits}]}
+        root, _ = to_sfa.build(mo)
+        shin = root.findall('Frame')[6].findall('AO')[7].findall('AP')
+        knee_y, ankle_y = float(shin[0].get('Y')), float(shin[1].get('Y'))
+        self.assertGreater(ankle_y, 100.0)                           # below the canvas, not squashed at the edge
+        self.assertAlmostEqual((ankle_y - knee_y) * 1080 / 100, 94.4, delta=3)   # usual shin length, straight
+
+
+@unittest.skipIf(motion is None, 'numpy not installed (use .venv)')
 class StickmanSfa(unittest.TestCase):
     def setUp(self):
         joints = [coco_pose(10 * (i // 2)) for i in range(8)]
