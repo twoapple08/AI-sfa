@@ -1,73 +1,132 @@
-# AI-sfa 현행 인수인계 — 2026-10-16
+# AI-sfa 현행 인수인계 — 2026-10-16 (정리판)
 
-## 목표·사용자 지시
+새 대화는 AGENTS.md → 이 문서 → 필요한 링크 순서로 읽는다.
+정리 전의 상세 기록은 [history/HANDOFF-2026-10-16-before-cleanup](docs/history/HANDOFF-2026-10-16-before-cleanup.md)에 원문 그대로 있다.
 
-- 한국어. Stick Fighter51.0.0의 모든 창작/편집 기능을 전문가 수준으로 분석하고 실제 검증하는 목표 유지. 학습·AI 연결·사쿠가 수집은 보류. 최소 생성기/근사 렌더로 목표 축소 금지.
-- 사용자는 혼자 가능한 일을 전부 자율 진행하라고 반복했다. 작은 문서/커밋마다 다음 안내로 멈추거나 같은 허용을 다시 묻지 않는다. 완료/미수행/실제 차단을 구분하고 완벽한 전체 이해나 모든 독립 작업 완료를 거짓 주장하지 않는다.
-- **02:06 KST 정정:** “이미 분석완료했고 할필요없는 작업을 너의 오판으로 또하지 말라는 뜻”. 설치/페어링/영상 분석 등 작업 종류를 일률적으로 금지한 것이 아니다. 기존 완료 근거를 우선 재사용하고, 환경 소실·새 미해결 질문 등 실제 필요가 있는 재작업만 이유/범위를 확인해 진행한다. 과거 문서의 포괄적인 ‘반복 금지’ 표현보다 이 정정이 우선한다.
-- **02:02 KST 상시 허용:** 서버 분석 도구 복구에 필요한 설치·다운로드·AOT 재추출은 명시적 예외로 허용하며 다음 대화/인수인계에도 유지한다. 현재 유효한 cache/백업이 있으면 불필요한 전체 추출은 하지 않는다. 과거 자동 검토 거절은 이 허용 이전 이력이고 이후 설치/추출은 실제 성공했다.
-- 휴대폰 재설치·페어링·기존00–05 영상/SFA 재분석이 현재 필요한 근거는 없으므로 반복/요청하지 않는다. 과거 실제 UI/출력 표본은 있으므로 ‘실물 시험 전혀 없음’으로 쓰지 않는다.
+## 1. 지금 상태 한눈에
 
-## 보호·공개 권한
+| 축 | 상태 | 기준 문서 |
+|---|---|---|
+| 앱 이해(정적 분석 + 실물 검증) | **마감.** 남은 항목은 소규모(렌더 오차 상한 약 3.4/255) | [APP-UNDERSTANDING-STATUS](docs/APP-UNDERSTANDING-STATUS-2026-10-16.md) |
+| SFA 직접 생성(수작업 생성기) | 결투 시연 v3가 **앱 출력 = 미리보기**(프레임 MAE 평균 1.39) | [APP-D1](docs/APP-D1-DUEL-IMPORT-FINDING-2026-10-16.md) |
+| 영상 → 모작·로토스코핑 | 43초 클립 결과 전달, **앱 확인 전**. 10초 최고품질 로토 시도는 사용자 지시로 중단 | 아래 4절 |
+| 학습용 데이터 파이프라인 | 관절 추출 330/761에서 **일시정지**(사용자 PC 꺼짐). 월요일 재개 예정 | 아래 5절 |
 
-- 직접 작성 보고서·집계/audit·작업지침은 main 반영 상시 승인. 최신 remote SHA/tree·expected_sha 보호, 다른 작업 보존/reset 금지. 자동 검토의 새 거절은 우회하지 않는다.
-- APK/SFA/영상 원본·역컴파일 소스/assembly·키·전체 로그 공개 금지. 비공개 분석 cache 백업과 공개 집계를 구분한다.
-- PREVIDEO 예측3278146 고정. File-2 최초100%조건 미충족: 최적화/재압축/삭제/병합/원본 수정 금지. 음수/화면 밖 좌표 임의 삭제/재중앙화 금지. FPS=(트위닝,재생). ‘굽힘’ 기능 없음.
+**다음 할 일 (우선순위 순)**
+1. **사용자가 앱 결과를 주면:** 모작·로토 결과(`1_mosaku` 3.3MB, `1_roto` 4.5MB)를 미리보기와 대조한다. 두 파일 모두 앱에서 확인된 크기(XML 19.6MB)를 넘는다.
+2. **월요일 사용자 PC 재개:** 5절 순서대로 진행한다.
+3. **로토 최고품질을 다시 요청받으면:** 4절의 "위로 쌓기 + 복원 패스" 설계부터 이어 간다.
 
-## 현행 환경 — 2026-10-16 Claude Code 클라우드
+## 2. 상시 사용자 지시 (원문은 AGENTS.md)
 
-- 사용자가 환경 Network access에 Drive 도메인을 허용한 뒤 같은 세션에서 백업 다운로드 성공: 40,381,872bytes·SHA256 `d6d5f1ff…cff676` 일치, ELF/셰이더 hash3 일치, asm666. 압축해제 위치는 세션 scratchpad의 `cache/`(세션 종료 시 소멸). 새 세션은 환경 Setup script가 `/root/sfa-cache`로 자동 복구하도록 사용자에게 안내함(적용 여부는 새 세션에서 확인). 도구: 시스템 Python3.13+`PYTHONPATH=cache/python`의 capstone5.0.7 동작. 환경변수 추가 불필요.
-- 이번에는 새 AOT 분석 없이 [APP-V3 시간축 명령 검사](docs/APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md)를 추가했다: 정적 결과의 SFA 관측 가능성 대조, 시드 `examples/frame_commands_v3/`, `tools/check_frame_commands.py`, 단위시험6개. 앱 결과는 없음.
+- 한국어로 대화한다. 혼자 가능한 일은 자율로 진행한다. 다만 이미 끝난 작업을 오판으로 반복하지 않는다.
+- **도구:** 품질 향상·토큰 절감 목적이면 어떤 외부 도구·프로그램·스킬이든 허용한다. 서버 분석 도구 복구(설치·다운로드·AOT 재추출)도 허용한다.
+- **결과물:** 용량 제한은 없다. 목표는 "최상급 품질이면서 최대한 가볍게"이고, 크면 나눠서 전달한다. 최적화는 품질을 깎는 것이 아니다.
+- **레이어 기능은 항상 쓴다.** 앞뒤 순서를 레이어로 나눈다.
+- **모작**
+  - 인물은 스틱맨처럼 데포르메한다. 앱 스틱맨 오브젝트를 꼭 쓸 필요는 없다.
+  - 선 색 = 머리카락 색이다.
+  - 머리는 흰색 계열로 채울 수 있다.
+  - 배경에 묻히면 필요할 때만 테두리를 넣는다.
+  - 원근감은 장면에 맞게 판단해 정한다.
+  - 입은 요청할 때만 넣는다.
+  - 배경·이펙트는 원본과 최대한 같게 만든다.
+- **로토스코핑:** 화면 전체를 원본 그대로 따라 그린다.
+- **학습 범위:** 개인용(개발자 합의)이다. 서양 카툰, 옛날 애니(첫 방영 2010년 이전), 일상 장면은 제외한다. 점수 상위 액션 장면 위주다. [AI-PIPELINE-PLAN](docs/AI-PIPELINE-PLAN-2026-10-16.md)
+- 다른 AI에게 맡길 때는 [GPT-SFA-GUIDE](docs/GPT-SFA-GUIDE-2026-10-16.md)를 쓴다.
 
-## 이전 환경(ChatGPT) — 복구 완료 기록
+## 3. 보호·공개
 
-사용자 PC는 현재 없고 폰 학교 Wi-Fi는 제약이 있다. 서버 cache는 한때 소실됐지만 **현재는 도구/AOT 복구 및 비공개 백업 완료**다. 과거의 ‘cache 없음/설치 검토 거절’을 현행 차단으로 재사용하지 않는다.
+- 공개하지 않는 것: APK, 사용자 SFA, 영상 원본, 역컴파일 소스·assembly, 키, 전체 로그, 수집 원본·추출 데이터·모델, 다른 사람의 작품.
+- 직접 작성한 보고서·집계·작업 지침은 main 반영이 상시 승인돼 있다. 단, 이 세션의 git 지시는 작업 브랜치 `ccr-becc4804-hi3rk1`에 push하는 것이다.
+- PREVIDEO 예측 3278146은 고정이다. File-2 최적화·재압축·수정은 금지다.
+- FPS 순서는 (트위닝, 재생)이다. 앱에 '굽힘' 기능은 없다.
 
-- 활성 repo: `/workspace/scratch/5a16c98ed7ee/AI-sfa-publish`.
-- 현행 private root: `/workspace/scratch/5a16c98ed7ee/private-recovery`.
-- `blutter_out/asm/sfa`, `blutter_out/{pp.txt,objs.txt,ida_script}`; `evidence/{libapp.so,libflutter.so,glow.frag}`; `venv/bin/python`; `blutter/bin`; `depsroot` 재사용. shader는 binary, 전체 cat 금지.
-- `dispatch_out/dispatch-targets.csv`는 **복구된 실제 VM dispatch 표**. origin4096/length57043. 특정 수신 cid+selector로 조회한다. selector 단독으로 공통 메서드명 단정 금지.
-- AOT 복구: 원본 hash3 일치/추출종료0/671파일·666asm·86,508,012bytes·선언12,752 대조. [복구 결과](docs/ANALYSIS-RECOVERY-RESULT-2026-10-16.md). 과거 분석 실행 주소는 기준 snapshot 상대주소이며 ASLR 절대주소가 아니다.
-- 비공개 `AI-sfa-analysis-cache-2026-10-16.zip` 저장. 현재 경로가 사라지면 이 이름의 기존 백업부터 찾아 복구한다. AOT/입력/도구·디코더/dispatch표/manifest 포함. 원본 공개 금지는 유지한다. 현재 최신 백업 크기·hash는 복구 audit를 따른다.
-- 기존 계측 앱 Gadget/Flutter/libapp 로드 성공 이력은 있으나 Play license응답4로 지속 편집 차단. 정확한 서버 의미 미확인/우회 없음. 서버는 x86_64이며 현재 adb/Android emulator 실행 환경이 없다. 따라서 새 실제 렌더·pixel 검증은 미완이다.
+## 4. SFA 생성: 확인된 규칙과 도구
 
-## 읽기 순서와 최신 성과
+**앱에서 확인된 규칙** (근거: [APP-D1](docs/APP-D1-DUEL-IMPORT-FINDING-2026-10-16.md))
+1. AO ID는 시퀀스 전체의 오브젝트 정체성이다. 같은 ID는 모든 프레임에서 TypeId·점 수·AC 모양·LayerId가 같아야 한다.
+   - 어긴 첫 duel.sfa를 불러오자 **앱 전체의 선 그리기가 망가졌고 재설치로 복구**했다.
+2. Frame ID는 500000+n, 점 ID는 10000000+n·10000+k를 쓴다.
+3. 앞뒤 순서는 레이어로 나눈다. LayerDef 목록 순서가 아래→위다.
+   - 같은 레이어 안에서는 채우기와 선의 순서가 보장되지 않는다.
+   - 프레임별 DrawOrder 변경은 반영되지 않는다.
+4. 채우기는 캔버스 근처로 자른다. 편집 화면에는 캔버스 밖도 보인다.
+5. 도형은 선(1), 원(2, 지름 두 점), 2차 곡선(3, 점 정확히 3개)뿐이다.
+   - 곡선 오브젝트 하나는 약 510바이트다(속성·점 3개·AC·FS 포함).
+   - 미검증 형식 축약은 쓰지 않는다.
 
-AGENTS → 이 문서 → [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md). 필요한 보고서만 읽는다. [기능표](docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md)/[근거 색인](docs/FEATURE-CONTRACT-INDEX-2026-10-16.json)은 전체 기능 목록 완성을 뜻하지 않는다. 종전 상세 handoff는 [역사](docs/history/HANDOFF-2026-10-16-before-restored-analysis.md)에 보존했다.
+**도구**
 
-| 새 보고서 | 닫은 정상 정적 범위 |
+| 파일 | 용도 |
 |---|---|
-| [UNUSED-AO-FAST-HASH](docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md) | unused 후보 C에서 다른 비root frame 실제 점 A와 가상 기반 잔존 R을 제외해 삭제. 화면 layer 가시성 아님. FastHash는 Position/FR색+segment수/AO ID·색·DrawOrder/점round(xy×10000)·Flags를 순서대로fold. 자체 hash cache 없음/전체 상태 동등성 아님. 73명령 대조. |
-| [TIMELINE-FRAME-COMMANDS](docs/AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md) | 실제 sequence-action layout callback→insert/paste 전후위치·clipboard deep snapshot/별도배경·같은/다른sequence 복사·ID/연결/group/fill map·정렬/DB/preview. 마지막frame 삭제 시 새frame0 생성.146명령. |
-| [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md) | 실제 table로 cid90/91/92의+85e4는first 확인. 상세변형fallback=첫AO의첫점,Adopt layer fallback=목록첫layer,merge/copy목록getter도first(정상목록계열). cid92+bc49 removeLast/+9780 last/+8cb1 iterator.6mapping+16명령 확인. |
+| `sfa.py`, `sfa_render.py`, `sfa_tween.py` | 읽기·쓰기·검사, 근사 렌더러(레이어 분리 시 앱과 일치), 보간 |
+| `tools/make_duel.py` | 3D 장면 → SFA 결투 시연. 공용 작성기 포함: `Frame2D`, `IdPlan`(형태별 고정 ID 풀), 레이어 목록, `cpoly` 곡선 다각형, `clip_poly` |
+| `tools/make_copy.py` | 영상 → 모작·로토스코핑(아래 설명) |
+| `pipeline/to_sfa.py` | 관절(motion.json) → 앱 스틱맨 SFA. 끊긴 트랙 슬롯 잇기, `--clip` 클립 전체, 폴더 일괄 변환 |
 
-상세 변형 fallback/Adopt getter가 미확정이라는 이전 항목은 위 목록 계열에서 해소됐으므로 같은 탐색을 반복하지 않는다. 다른 수신 클래스까지 일반화하지 않는다. 모든 audit는 제한된 명령/metadata 대조이지 전체 의미·앱 동작·pixel 증명이 아니며 표본 중복 합산 금지.
+**`make_copy.py` 현재 방식**
+- **인물 영역:** pipeline 관절 + YOLO11 seg를 합친다. 분할 모델이 놓친 인물은 관절로 보충한다.
+- **색 면:**
+  - 샷별 팔레트를 만들고, "곡선 하나당 원본 색 오차를 가장 많이 줄이는 도형"을 차례로 고른다(탐욕 선택).
+  - 겹치면 나중 도형을 위 레이어에 둔다.
+  - 윤곽은 모서리에서 끊고, 그 사이를 최소 개수의 2차 곡선으로 맞춘다(정밀·거친 후보 둘 다).
+  - 같은 그림이 이어지는 홀드는 결과를 재사용한다.
+  - 프레임당 곡선 예산: 모작 56 / 로토 96.
+- **모작 인물:** 곡선 팔다리, 작은 흰 얼굴(72%), 머리 실루엣을 그린다.
+  - 판사봉 든 인물 = 검은 넘긴 머리, 맨손 = 분홍 뾰족 머리(사용자 지정).
+  - 분홍은 "B>G인 밝은 붉은색" 기준으로 판별하고, 동시에 등장하면 한 명만 분홍으로 둔다.
+  - 배경에 묻히면 반대 톤 테두리를 넣는다.
+  - 원근 굵기·몸통 면은 사용자 지시로 폐지했다.
+- **남은 문제:** 자세가 안 잡힌 신체 부위(주먹 클로즈업)는 모작에서 지운 흔적으로 남는다. 겹친 인물은 추적이 섞인다.
+- **로토 최고품질 시도(중단 시점의 판단):**
+  - vtracer는 부드러운 그라데이션(연기)을 어두운 배경과 합쳐 버려 이 영상에 맞지 않았다.
+  - 대안 설계: 960×540·16색 밝기 층을 아래→위로 쌓고, 원본과 다른 곳을 2회 복원 패스로 다시 그린다. 곡선 맞춤은 갤럽+이분 탐색으로 가속했다.
+  - **품질·용량은 측정 전에 중단했다.** 스크립트는 세션 scratchpad에만 있었고 저장소에는 없다.
+- **결투 시연:** v3는 레이어 5개(땅 채우기 / 배경 선 / 큐브·미사일 / 인물 / 효과). 앱 내보내기와 미리보기가 일치한다.
 
-## 기존 근거 재사용
+## 5. 학습 데이터 파이프라인 (사용자 PC, `D:\aisfa`)
 
-그룹 glow→객체별 backend→shader 수학→timeline/FPS→raw/PNG/Java encoder는 GROUP-SHADER-TIMELINE/EXPORT-DISPATCH. DRAW-GLOW/FILL-PATH/FILL-TWEEN/OBJECT-TWEEN-PAIR로 채우기·순서·보간 연결. 원근/선택/custom·MODIFY-PANEL/CONNECTED-TARGET/ALLGROUP/MOVEMENT·SAVED-VALUES/SHARED-RESTORE는 편집/저장. GROUP-REPAIR/FILL-PRUNE-HISTORY/ROOT-REBASE-IDLE/DB-REWRITE/COMPACTION-PHASES/LAYER-MEMORY/LAYER-MERGE-DELETE-ADD/EDITOR-MENU-DELETE-CALLER도 재사용한다. 기존00–05 영상/시험·같은 정상 경로 재분석으로 진행량을 부풀리지 않는다.
+- **지금까지 한 것**
+  - 메타데이터 15,897개를 모았고, 기준 통과 클립 761개를 수집했다(점수 상위 30% 액션, 서양·옛날 애니 제외, AniList 연도 캐시).
+  - 샷 분석을 마쳤다.
+  - 관절 추출은 **330/761에서 클립 경계로 정지**했다(임시 파일 없음). motion은 아직 안 돌렸다.
+  - `pipeline/`: shots, pose(YOLO11s-pose+ByteTrack), camera, motion(월드 좌표 정리·One-Euro·화면 밖 관절 처리), to_sfa.
+- **PC 사양:** GTX 1050 Ti 4GB, RAM 15.9GB, low 등급. 사양은 가변이라 자동 감지한다.
+- **2026-10-16 15:42경 PC가 갑자기 꺼졌다.** 그때 만들던 USB 압축 스크립트(`pack_usb.ps1`)는 미푸시·실패 상태다. 남은 zip이 있으면 불완전하다.
+- **월요일 순서**
+  1. 이전 PC에서 `git pull origin ccr-becc4804-hi3rk1`
+  2. `.venv\Scripts\python tools\pack_usb.py --out E:\aisfa_data.zip`
+  3. 새 PC에 저장소를 받고 zip을 저장소 폴더에 푼다.
+  4. `powershell -ExecutionPolicy Bypass -File tools\stage2_resume.ps1`(남은 431개 관절 → motion)
+  5. `python -m pipeline.to_sfa data_sakuga`(클립별 SFA 일괄)
+  6. 317969 5–10s로 인물 슬롯 개선을 실제 클립에서 확인한다.
+  7. 오검출·뼈 길이 의심 비율을 점검한다.
+  8. 3단계(첫 생성 모델)로 넘어간다.
+- 모든 단계는 이미 있는 결과를 건너뛴다(코드로 확인).
 
-## 앱 이해 단계 마감 (2026-10-16)
+## 6. 환경
 
-[APP-UNDERSTANDING-STATUS](docs/APP-UNDERSTANDING-STATUS-2026-10-16.md)가 현재 기준. 사용자: "앱 이해를 완료하고 생각한 학습 방식을 얘기해 주겠다". 사용자 학습 방식 수령 → [AI-PIPELINE-PLAN](docs/AI-PIPELINE-PLAN-2026-10-16.md) 작성(개인용 확정·개발자 합의, 영상(사쿠가부루 등) 학습, 층①동작→②이펙트→③배경카메라→④스타일, 로컬 APK/EXE). 사용자 PC 복귀(2026-10-16). 0–1단계 도구 작성: `pipeline/hwprofile.py`(사양 자동 감지·등급), `pipeline/collect_sakuga.py`(태그 종류·이어받기·md5·작품명 학습 제외, 모의 응답 시험만), [PC-SETUP-GUIDE](docs/PC-SETUP-GUIDE.md). **0–1단계 첫 실행(2026-10-16, 클라우드 Linux 컨테이너 — 사용자 PC 아님):** 시험 43개 통과. hwprofile=cpu 등급(GPU 없음·RAM15.7GB·디스크29.8GB)이라 사용자 PC 사양 대표값 아님. 이번 컨테이너는 sakugabooru.com 접속 가능. 메타데이터만 수집(영상 없음, `data_sakuga/`는 git 제외): 태그 22,269개(type3 작품11,384/1 애니메이터9,702/0 일반1,171/4 10/5 메타2), `fighting` post500개(전부 mp4, rating s489·q5·e6, artist_unknown 364). 실제 응답 대조: yutaka_nakamura=1, 작품명=3, animated/effects=0(일반), presumed/remake=5. **수정:** type4는 등장인물이 아니라 작화 기법명(kanada_light_flare·itano_circus 등)이라 `technique`로 표기·stats/index.csv에 포함, stats는 tags.json으로 재분류. post 필드명은 가정과 일치(created_at은 Unix 정수). **다음:** 사용자가 stats를 보고 수집 대상/애니메이터 결정(필요 시 rating 필터 여부) → `media` 실행(아직 미실행) → 2단계(관절 추출) 환경 설치 스크립트. 사용자 PC에서는 hwprofile만 다시 실행해 실제 등급 확인. PC 사양 가변(1050Ti~4080/5060) → 실행 시 자동 감지·프로필·재개 설계. 학습·AI 통합은 이 계획 범위에서 사용자 지시로 진행 가능.
+- **이 클라우드 환경**
+  - AOT/PP 캐시: `/root/sfa-cache/extracted`(`.ok` 있음). Setup script로 복구한다.
+  - 이 세션에서 pip로 설치한 것: torch(cpu), ultralytics, opencv, vtracer, svgpathtools. 세션이 끝나면 사라질 수 있다.
+  - 모델 가중치는 `models/`(git 제외).
+- 앱 실물 확인은 사용자가 휴대폰에서 한다. 서버에는 에뮬레이터가 없다.
+- 과거 ChatGPT 환경의 경로·복구 기록은 history 문서에 있다.
 
-**사용자 PC 0–1단계(2026-10-16, Windows 11, `D:\aisfa`):** winget으로 Python 3.12.10·Git 2.55·FFmpeg 9.0.2 설치(nvidia-smi는 기존). hwprofile=**low** 등급: i7-8700 계열 12스레드, GTX 1050 Ti 4GB(드라이버 560.94), RAM 15.9GB, D: 여유 331GB → pose small·batch2·max_side960·fp16·workers2. 시험 43개 OK(numpy 없음으로 렌더 3개 skip). Windows cp949 기본 인코딩 때문에 `tests/test_sfa.py` preview 읽기가 실패해 utf-8 지정으로 수정(코드 쪽 쓰기는 이미 utf-8). 메타데이터 재수집 결과는 클라우드와 동일: 태그 22,269(type 1/3/0/4/5 = 9,702/11,384/1,171/10/2), `fighting` 500개 전부 mp4, rating s489·q5·e6. yutaka_nakamura=1, naruto·mob_psycho_100=3, presumed/remake=5, type4=기법 10개 — 수집기 가정·post 필드명 일치(source만 75개 빈값), 수집기 수정 없음. 상위 애니메이터: artist_unknown 364, atsushi_shigeta 9, akira_hamaguchi 8, nobuyoshi_nishimura 6, ryo_onishi·wonyeong_kang·hamil·masao_okubo·zelco 5. 기법: itano_circus 5, kanada_light_flare 4, kutsuna_lightning 3. `fighting` 검색만으로는 애니메이터별 표본이 10개 미만이라 스타일 대상 선정에는 애니메이터 이름 검색 추가 수집이 필요하다.
+## 7. 앱 분석 문서 지도 (마감된 축 — 같은 정상 경로를 다시 추적하지 않는다)
 
-**1–2단계 진행(2026-10-16, 같은 PC):** 메타데이터 15,897개(fighting/running/walk_cycle/impact_frames + 클립 400개 이상 애니메이터 25명). **사용자 결정: 서양 카툰(톰과 제리류) 학습 제외** → `EXCLUDED_TAGS={'western'}`(media·stats에서 제외, 15,897 중 662개). media는 `--match "fighting -cgi -mecha -creatures rating:s"`로 200개(1.9GB), 그중 western 17개는 `data_sakuga/excluded_western/`로 이동(삭제 아님) 후 보충. `pipeline/setup_env.py`: GPU 연산능력·드라이버로 PyTorch 채널 선택(1050 Ti sm_61·드라이버 CUDA12.6 → cu126, torch 2.14.1 GPU matmul 검증). `pipeline/shots.py`: 200개 881초, 샷 animated2916/still367/camera_only78, 플래시140. 픽셀 기준 홀드는 on1s가 다수인데, 실측(change_pct)상 캐릭터 2s 위에 배경·이펙트 1s가 겹친 경우라 **그림 타이밍은 관절 기준으로 잰다**. `pipeline/pose.py`: YOLO11s-pose+ByteTrack(컷마다 초기화), 클립당 약25초(1050 Ti), 3개 시험에서 트랙별 홀드 1s6/2s4/3s2. 시험 50개 통과(.venv). **학습 대상 재선별(2026-10-16 사용자 결정):** 서양 카툰·옛날 애니(첫 방영<2010, 단 2010년 이후까지 방영된 장기 시리즈의 16:9 클립은 포함; 연도 미상은 4:3이면 제외)·일상 장면 제외, 별 투표 점수 상위 30%(액션 후보 2,538개 중 score≥158 → 764개) 액션씬(`~fighting ~impact_frames`) 위주. 연도는 AniList 첫/끝 방영 연도 캐시(`data_sakuga/copyright_years.json`, 1,173/1,390 확인). 기존 200개 중 15개만 기준 통과, 나머지는 `data_sakuga/excluded/<이유>/`로 이동(삭제 아님). `motion.py`(좌우 뒤바뀜·짧은 결측 보간·홀드 고정·뼈 길이 의심 표시, 스미어 평활화 없음)와 `to_sfa.py`(기본 스틱맨, AO ID 고정, 16:9 맞춤, 인물 크기별 선 굵기) 구현. 실제 클립 1개(2000년대 작품, 지금은 제외 대상) 비교 영상에서 위치·자세 추종 확인, 줌아웃 연속 샷도 정상. shots에 디졸브 검출 추가(15클립에서 하드컷 279 대비 추가 4). 시험 58개. **화면 밖 관절(사용자 지적 2026-10-16):** YOLO pose는 화면 밖 관절을 가장자리에 붙여 높은 신뢰도로 낸다(317183에서 발목 284·무릎 174건) → 스틱맨 다리가 눌림. motion이 가장자리 1%(축별) 관절을 `offscreen` 비트로 표시·결측 처리하고, to_sfa는 픽셀 공간에서 화면 밖·장기 결측 관절을 부모 뼈 방향으로 평소 길이만큼 직선 연장(캔버스 밖 좌표 허용), 잠깐 가려진 관절은 직전 모양 유지. 비교 영상 v2에서 다리 눌림 해소 확인. 시험 61개. **머리(사용자 지적):** 스틱맨 머리는 강체 원 — 크기는 인물 트랙마다 고정(템플릿 머리/몸통 0.75 × 몸통 중앙값; 머리카락·큰 애니 머리·숙임에 따른 얼굴-목 거리 변화 무시), 방향만 목→얼굴 중심을 따름(숙임·올려다봄·기울임). v3 확인, 시험 62개. **깜빡임·떨림·줌(사용자 지적):** `pipeline/camera.py`(배경 ORB+RANSAC 닮음변환, 인물 상자 가림, 샷 누적 C_t 월드→화면), motion을 월드 좌표 처리로 재작성: 끊긴 트랙 잇기(8프레임·0.6상자), 결측 8프레임 보간, 안 보이는 관절은 앞뒤 보이는 프레임의 부모 대비 모양을 보간/가까운 쪽 복사(줌아웃 시 역방향으로 다리 채움), 그림(홀드) 단위 양방향 One-Euro(0.05, 2; 스미어 90% 보존). to_sfa는 월드 단위로 머리·뼈 길이 고정 후 카메라 적용, `--world`로 카메라 제거한 전체 구도 출력(사용자 제안: 구도 전체를 두고 카메라를 따로 — SFA에는 카메라/그룹 변환 필드가 없어 좌표에 반영, 실제 그룹 생성은 Flags 실물 미검증이라 보류). 합성 벤치 `tools/motion_bench.py`(정답 있는 4사례): 줌 노출 다리 오차 13.8→3.2% 몸높이, 트랙 끊김 사라짐 33→0프레임, 떨림 2.29→1.46(정답=1)·오차 1.52→1.23%, 15프레임 가린 팔 11.5%. 실제 317183 줌아웃 1.0→0.34 추정, 몸통/배율 ±10% 일관. 시험 65개. **인물 슬롯 개선(2026-10-16, 클라우드 컨테이너·데이터 없이 합성 시험만):** `to_sfa.assign_slots` — 긴 조각부터, 시간이 겹치지 않는 슬롯 중 이음매(앞 조각 끝/뒤 조각 시작)의 목 위치가 가장 가까운 슬롯에 이어 붙임(같은 AO ID라 앱이 트위닝), 거리>몸통×1.5이고 빈 슬롯이 있으면 다른 사람으로 새 슬롯, 모든 슬롯과 겹치는 조각은 버림. 몸통 길이·선 굵기는 슬롯 단위. 조각 사이 빈 프레임은 그대로 비움. 시험 69개(기존 코드로는 새 시험 3개 실패). 실제 클립 미확인. **클립 단위 변환(같은 날, 합성 시험만):** `to_sfa.build_clip`/`--clip` — 모든 샷, SFA 프레임 n = 영상 프레임 n(길이는 shots.json `frames`), 인물 없는 프레임은 AO 0개(앱 '새 프레임'과 같은 상태, APP-V3-FRAME-COMMANDS-PROTOCOL), 슬롯은 샷마다 배정, 선 굵기는 샷 단위, `--world`는 샷마다 따로 맞춤. 폴더를 주면 `media/*.motion.json` → `sfa/<id>.sfa` 일괄(이미 있으면 건너뜀, 인물 없는 클립은 파일 없음). 시험 71개. 앱에서 연 확인 없음. **일시정지(2026-10-16, 사용자 요청: USB로 이동 예정):** 기준 클립 761개 수집·샷 분석 완료, 관절 추출 330/761에서 클립 경계로 정지(임시 파일 없음), motion 미실행. **결투 시연(같은 날, 사용자 요청):** `tools/make_duel.py` 수작업 생성기. 첫 SFA는 앱에서 선·곡선·원 외곽선이 전부 사라지고 채우기만 보임(내보내기·편집 화면 모두). 가져오기 AO ID map이 시퀀스 전체에서 유지됨을 AOT로 확인 → v2에서 AO ID를 형태별 고정 풀·층별 DrawOrder·프로브식 ID 범위로 바꾸고 다각형을 캔버스로 자름. 이후 앱 전체에서 선이 사라짐 → 재설치로 복구. 사용자 확인: **첫 duel.sfa(같은 AO ID에 프레임마다 다른 도형)가 앱의 선 그리기를 망가뜨림** → AO ID별 형태 고정은 필수. v2 앱 출력은 미리보기와 대체로 일치하나 같은 층 안에서 땅 채우기가 선·인물을 덮음 → 사용자 지시대로 레이어 5개(땅 채우기/배경 선/큐브·미사일/인물/효과)로 나눈 v3. **v3 앱 출력 = 미리보기**(480×270 프레임 MAE 평균 1.39, 최대 2.02). 생성 규칙: AO ID별 형태 고정, 프로브식 ID, 앞뒤는 레이어, 채우기는 캔버스로 자르기: [APP-D1](docs/APP-D1-DUEL-IMPORT-FINDING-2026-10-16.md). **모작·로토스코핑(같은 날, 사용자 클립 43초·1036프레임, (24,24)):** `tools/make_copy.py`. 기존 pipeline(shots/pose/motion)으로 인물 관절, YOLO seg∪관절 영역으로 인물 영역. 모작=인물 지운 화면(inpaint)의 샷별 팔레트 밝기 계층(어두움→밝음, 계층마다 레이어)을 2차 곡선 고리로 + 스틱맨(선 색=머리색: 분홍 머리는 B>G 기준, 동시 등장 시 한 명만 분홍, 머리 원은 흰색 계열 채우기를 아래 레이어에), 로토=화면 전체 밝기 계층. 가벼운 파일: 프레임당 곡선 예산(모작 40/로토 60), 좌표 소수 1자리, 최대 면적색=프레임 배경색. 사용자 지정: 판사봉 든 인물=검은 머리, 맨손=분홍 머리(판별 결과와 일치). 모작 스틱맨 입체감: 어깨·골반 4점 반투명 몸통 면, 원근으로 짧아진 팔다리일수록 굵게(최대 2.5배^0.8), 머리색이 주변 배경과 밝기 차 70 미만이면 반대 톤 테두리 레이어. 레이어: 밝기 계층 / 테두리 / 몸통 면 / 머리 채우기 / 스틱맨. 이후 사용자 지시로 품질 우선 재작성: 오차 최소화 탐욕 도형 선택 + 모서리 분할 최소 2차곡선 맞춤(정밀/거친 후보), 스틱맨 원근 효과 폐지, 인물은 데포르메(곡선 팔다리·작은 흰 얼굴·분홍 뾰족/검은 넘긴 머리 실루엣). 예산 모작 56/로토 96 곡선. 결과 XML 35.1/48.5MB(SFA 3.3/4.5MB) — 앱 확인된 19.6MB 초과, 앱 확인 전. 남은 문제: 자세 미검출 인물 부위(주먹 클로즈업 등)는 모작에서 지워진 흔적으로 남음, 겹친 인물 추적 섞임. 원본·결과는 저장소에 넣지 않음. **다른 AI용 지침:** [GPT-SFA-GUIDE](docs/GPT-SFA-GUIDE-2026-10-16.md)(SFA 작성 규칙·사용자 제작 지침만, 현재 작업 지시 없음). **상시 지침(2026-10-16, AGENTS.md):** 품질·토큰 절감 목적이면 어떤 외부 도구든 허용, 용량 제한 없음(최상급 품질이면서 최대한 가볍게, 크면 분할), 모작 원근감은 판단껏. **PC 급종료(2026-10-16 15:42 KST경):** USB 압축 중 PC가 꺼짐(PC에서 쓰던 pack_usb.ps1은 미푸시·실패, 남은 zip이 있으면 불완전). 이전 PC는 월요일에만 켤 수 있음. 대신 `tools/pack_usb.py`(영상·excluded·.part/.tmp 제외, zip 검사 후 완성, 시험 있음). 모든 단계(media md5·shots·pose·motion·to_sfa 일괄)는 기존 결과를 건너뜀을 코드로 확인. **월요일 순서:** 이전 PC에서 `git pull origin ccr-becc4804-hi3rk1`(PC는 claude/stick-fighter-ai-analysis-2knx37에 있음; 이 브랜치는 그 위에 빨리감기 가능) → `.venv\Scripts\python tools\pack_usb.py --out E:\aisfa_data.zip` → 새 PC에서 저장소 받고 zip을 저장소 폴더에 풀기 → **다음:** `powershell -ExecutionPolicy Bypass -File tools\stage2_resume.ps1`(환경 없으면 자동 설치, 남은 431개 관절 → motion) → **317969 5–10s를 다시 변환해 인물 슬롯 개선을 실제 클립으로 확인** → 액션 클립에서 오검출·뼈 길이 의심 비율 점검 → 일괄 변환 `python -m pipeline.to_sfa data_sakuga` 실행 → 3단계(첫 생성 모델). 이펙트·배경·스타일 추출과 모델 학습은 아직 시작 전.
+- **전체:** [APP-UNDERSTANDING-STATUS](docs/APP-UNDERSTANDING-STATUS-2026-10-16.md), [기능표](docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md), [근거 색인](docs/FEATURE-CONTRACT-INDEX-2026-10-16.json)
+- **렌더·보간 실물 기준:**
+  - [APP-R1](docs/APP-R1-RENDER-REFERENCE-PROTOCOL-2026-10-16.md)
+  - [APP-T1](docs/APP-T1-TWEEN-REFERENCE-PROTOCOL-2026-10-16.md)
+  - [RENDERER-V0](docs/RENDERER-V0-2026-10-16.md)
+  - [USER-ARTWORK-1](docs/USER-ARTWORK-1-RENDER-CHECK-2026-10-16.md): 작품 평균 MAE 0.908
+- **시간축 명령 실물:** [APP-V3](docs/APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md)
+- **정적 추적:** `docs/AOT-*`(dispatch·fill·glow·tween·group·layer·DB·compaction 등). 근거를 다시 써야 하면 해당 보고서만 읽는다.
+- **남은 정적 미완**(실제 필요할 때만): 비정상 입력·오류 원자성, 위젯 receiver, 전체 UI coverage, InterpolatedFrame 그리기 본문 전체, 큰 glow raster 경로.
 
-## 실제 미완과 다음의 좁은 작업
+## 8. 검증 상태
 
-추가로 [ROOT-COPY-DB-BRANCHES](docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)(49명령)를 확인했다. source base의 원점 ID/AO rank 연속prefix p가 2(N−p)≤N이면 그 root를 p개만재사용,아니면새root생성→조건부source rebase시도→targetbase삽입. ID예약은 AUTOINCREMENT schema에따라sqlite_sequence상향 vs가상base꼬리정리. 같은sequence AO ID유지/다른sequence새ID/DB점·상세복사 상위단계확인. 정상분기를다시미수행으로세지않는다.
-
-0-1. **APP-V3 실물 결과(2026-10-16):** 사용자 SFA 6개, 연속 5쌍 실패0. 같은 sequence 붙여넣기(AO ID 유지/새 점 ID/연결·그룹·fill 재작성/배경·레이어)와 ‘앞에 붙여넣기’, 새 프레임(레이어 복제), 단일 삭제가 실물과 부합. 가져오기 단계 그룹 사슬 평탄화 실물 확인. 휴지통 개별 삭제로 마지막 삭제 시 AO0/기본레이어1 새 frame 생성 확인(ID2297 재사용은 비AUTOINCREMENT 기존DB 추정). 하단 버튼(←붙여넣기/◂새프레임/수정/복사/▸새프레임/→붙여넣기/휴지통)↔callback 대응 사용자 화면으로 확인. 결과는 APP-V3 문서 말미.
-0. **완료(2026-10-16):** [AXIS-FIX-DRAWORDER-WRITERS](docs/AOT-AXIS-FIX-DRAWORDER-WRITERS-TRACE-2026-10-16.md) — DrawOrder SQL쓰기5함수/메모리store 전수, 잠금 스키마(layer만), 축고정·회전스냅 UI→드래그 연결. 일반 앞뒤/별도 lock 항목은 이 쓰기경로 근거로 대체하고 같은 탐색을 반복하지 않는다. 편집 보조 환경설정 7키는 [EDITOR-AIDS-PREFS](docs/AOT-EDITOR-AIDS-PREFS-TRACE-2026-10-16.md)로 DB/SFA/출력 무관 정리. 렌더 기준 시험 [APP-R1](docs/APP-R1-RENDER-REFERENCE-PROTOCOL-2026-10-16.md) 실물 MP4 측정 완료: 출력 좌표 x=10.65+18.987x,y=5.98+10.68y(여백P≈10.65px, DrawInformation 식과 부합), 화면밖 여백에도 그림, 색 오차≤3, 선 FWHM 9px/scale1, glow σ≈R px·W≈0.75T px(일부 모델 오차), fill src-over 일치, 그룹은 심지가 glow 위(그룹 단위 순서). 기준 렌더러 [RENDERER-V0](docs/RENDERER-V0-2026-10-16.md)(sfa_render.py, numpy) 완료: APP-R1 9장면 MAE 0.05–0.76, p99≤12(맞춤에 쓴 장면이라 일반화 미측정). 좌표=중앙 균일축소(x=10.708+18.99x,y=5.81+10.685y). 보간 `sfa_tween.py`(PlaybackEnumeration 시간축·객체/점/속성/채우기 규칙)와 `tools/render_video.py` 구현, 시험 [APP-T1](docs/APP-T1-TWEEN-REFERENCE-PROTOCOL-2026-10-16.md)(examples/tween_v1, (30,12)→예측 35프레임) 생성·사용자 MP4 요청. APP-T1 실물 판정 완료: 35프레임/30fps 일치, 렌더 수정(숨긴 레이어 미출력·채우기는 테두리 아래) 후 35프레임 MAE≤0.256. 7사례 중 hidden_layer만 예측 수정. 실제 사용자 작품 1(122→244프레임, (24,12)) 종합 대조: 평균 MAE 5.10→1.155([USER-ARTWORK-1](docs/USER-ARTWORK-1-RENDER-CHECK-2026-10-16.md)). 확정: 배경색 보간, AC연결 glow 묶음(glow→fill→본체), 레이어 목록순 적층, ObjectScale 선굵기 무반영, 선폭 정수 반올림, 선굵기→glow·여백. 이후 [DRAW-PLAN-GROUPS](docs/AOT-DRAW-PLAN-GROUPS-TRACE-2026-10-16.md)(20명령) 정적 추적과 glow 폭×ThicknessScale 발견으로 작품 평균 MAE 0.908(최대 3.38, 98%<2). **다음:** 사용자가 앱 이해 완료 후 학습 방식을 설명할 예정. FillRegionsByFigure 배정(첫 outer 객체 레이어, outer 객체 첫 구성원) 확인. 남은 앱 이해 항목(InterpolatedFrame 그리기 본문 전체 읽기, glow 끝 모양 세부, 큰 글로우의 raster 경로 실물)은 소규모이며 렌더 오차 상한 약3.4/255.
-1. frame copy의 상위·ID/연결/group/fill·rootprefix/예약schema·AO DB복사 정상 경로는 확인했다. 원시 DB helper 전체 수명/실패 원자성·비정상 입력을 이 결과만으로 완료 처리하지 않는다. 해당 질문에 실제 필요한 새 branch가 있을 때만 추가한다. 다음 기능 단계는 기존 기능표에 아직 직접 연결하지 않은 실제 UI callback을 구체적으로 식별해 coverage를 보충하는 것이다. 완료한 정상copy/root 경로를 다시 따라가지 않는다.
-2. 일반 AO 앞뒤/별도 lock: 쓰기경로 전수로 정리(위 완료). 위젯 receiver 미확정·계산값 bit0 경로는 미배제. 전체 UI coverage는 미완.
-3. codec malformed/overflow, 전체 객체 수명·동시 DB 변경·오류 원자성 보장은 정상 정적 경로와 별도 미완이다. 정적 미수행을 실물에서만 가능한 항목으로 바꾸지 않는다.
-4. 실제 렌더/backend pixel·곡선/링/그룹 합성·기기codec/색/전체UI 결과는 아직 미완. 원본을 사용할 실행 환경에 실제 접근이 필요하다. 원본앱/사용자자료를 변경하거나 license 우회로 해결하지 않는다.
-
-## 효율·검증
-
-주소창 기본0x200/약128명령, 긴 SQL/PP는 먼저 개수·길이 확인. rawtree/도우미/fullmetadata 출력 금지. float32/64·Smi·분기 실제 명령 우선, 공유 Flutter getterannotation에 속지 않는다. 새metadata를 얻으면 같은 정상경로 재덤프 대신 새근거만 대조한다.
-
-이번(APP-V3)은 코드·시드 추가로 `python -m unittest discover -s tests -v` 28개 통과. 기존 probe 재생성 없음. 코드 변경시에만 필요한 검사 `python -m unittest discover -s tests -v`. 주간 잔여량 조회 불가. 인수인계가 필요하면 최신 프롬프트를 제공하며 자율진행·서버복구 허용·반복방지 정정 유지.
+- `python -m unittest discover -s tests -v` → 72개 통과(2026-10-16 정리 시점).
+- 문서만 고칠 때는 probe를 재생성하지 않는다.
