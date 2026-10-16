@@ -1,10 +1,14 @@
 # APP-R1 렌더 기준 영상 — 시험 파일과 요청 — 2026-10-16
 
-목적: 앱과 같은 결과를 내는 기준 렌더러를 만들기 위한 **실제 앱 출력 정답 자료**를 확보한다. 정적 분석으로 식은 확인했지만 실제 픽셀은 아직 측정하지 않은 항목을 대상으로 한다. 곡선 분할, 링 node, glow 반폭/sigma, 그룹 glow, 채우기 알파 겹침, 화면 경계가 여기에 해당한다([CURVE-RING](AOT-CURVE-RING-TRACE-2026-10-15.md), [DRAW-GLOW](AOT-DRAW-GLOW-TRACE-2026-10-15.md), [GLOW-BACKEND](AOT-GLOW-BACKEND-TRACE-2026-10-15.md), [EDITOR-OUTPUT-BOUNDS](EDITOR-OUTPUT-BOUNDS.md)). **이 문서 시점에는 앱 결과가 없다.**
+- 목적: 앱과 같은 결과를 내는 기준 렌더러를 만들기 위한 **실제 앱 출력 정답 자료**를 확보한다.
+- 정적 분석으로 식은 확인했지만 실제 픽셀은 아직 측정하지 않은 항목을 대상으로 한다.
+- 곡선 분할, 링 node, glow 반폭/sigma, 그룹 glow, 채우기 알파 겹침, 화면 경계가 여기에 해당한다([CURVE-RING](AOT-CURVE-RING-TRACE-2026-10-15.md), [DRAW-GLOW](AOT-DRAW-GLOW-TRACE-2026-10-15.md), [GLOW-BACKEND](AOT-GLOW-BACKEND-TRACE-2026-10-15.md), [EDITOR-OUTPUT-BOUNDS](EDITOR-OUTPUT-BOUNDS.md)). **이 문서 시점에는 앱 결과가 없다.**
 
 ## 파일
 
-`examples/render_v1/07_render_reference.sfa`는 `python build_render_probe.py`로 다시 만들 수 있다. 9구간 × 12프레임 = 108프레임이다. 각 구간은 12프레임 동안 같은 그림을 유지해, 영상 압축 잡음을 평균으로 줄일 수 있게 했다.
+- `examples/render_v1/07_render_reference.sfa`는 `python build_render_probe.py`로 다시 만들 수 있다.
+- 9구간 × 12프레임 = 108프레임이다.
+- 각 구간은 12프레임 동안 같은 그림을 유지해, 영상 압축 잡음을 평균으로 줄일 수 있게 했다.
 
 | 프레임 | 구간 | 내용 |
 |---|---|---|
@@ -38,7 +42,11 @@
 
 ## 실제 앱 결과 — 2026-10-16
 
-사용자가 보낸 파일은 MP4 1개와, 수정 없이 다시 내보낸 SFA 1개다. 원본은 공개하지 않는다. 측정 집계는 [APP-R1-RENDER-MEASUREMENTS](APP-R1-RENDER-MEASUREMENTS-2026-10-16.json)에 있다. 아래 측정은 **실제 앱 출력 픽셀**이다. 다만 대상은 이 9개 장면뿐이다.
+- 사용자가 보낸 파일은 MP4 1개와, 수정 없이 다시 내보낸 SFA 1개다.
+- 원본은 공개하지 않는다.
+- 측정 집계는 [APP-R1-RENDER-MEASUREMENTS](APP-R1-RENDER-MEASUREMENTS-2026-10-16.json)에 있다.
+- 아래 측정은 **실제 앱 출력 픽셀**이다.
+- 다만 대상은 이 9개 장면뿐이다.
 
 - **형식:** 1920×1080, H.264, yuv420p, BT.709 TV 범위, 24FPS, 108프레임, 4.5초. (24,24)에서 프레임 수와 길이가 기대값과 같다.
 - **재내보내기 SFA:** 108프레임, 검사 오류 없음, 모든 좌표 차이 0이다. AO ID는 재배정됐고, 그룹 Flags는 새 부모 점 ID로 다시 쓰였다.

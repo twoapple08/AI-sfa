@@ -1,7 +1,6 @@
 # AI-sfa 현행 인수인계 — 2026-10-16 (정리판)
 
-새 대화는 AGENTS.md → 이 문서 → 필요한 링크 순서로 읽는다.
-정리 전의 상세 기록은 [history/HANDOFF-2026-10-16-before-cleanup](docs/history/HANDOFF-2026-10-16-before-cleanup.md)에 원문 그대로 있다.
+새 대화는 AGENTS.md → 이 문서 → 필요한 링크 순서로 읽는다. 정리 전의 상세 기록은 [history/HANDOFF-2026-10-16-before-cleanup](docs/history/HANDOFF-2026-10-16-before-cleanup.md)에 원문 그대로 있다.
 
 ## 1. 지금 상태 한눈에
 

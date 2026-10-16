@@ -1,6 +1,9 @@
 # APP-T1 트위닝 기준 영상 — 시험 파일·예측·요청 — 2026-10-16
 
-목적: `sfa_tween.py`에 옮긴 정적 보간 규칙을 실제 앱 영상으로 판정하고, 기준 렌더러에 보간을 더한다. 근거는 [GROUP-SHADER-TIMELINE](AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md)(PlaybackEnumeration), [OBJECT-TWEEN-PAIR](AOT-OBJECT-TWEEN-PAIR-TRACE-2026-10-15.md), [FILL-TWEEN](AOT-FILL-TWEEN-TRACE-2026-10-15.md)이다. 기존 실물 표본 03(생성·삭제·FR 유지·알파 보간)과 05(수동 링크)는 이미 확인된 결과로 재사용한다. **이 문서 시점에는 앱 결과가 없다.**
+- 목적: `sfa_tween.py`에 옮긴 정적 보간 규칙을 실제 앱 영상으로 판정하고, 기준 렌더러에 보간을 더한다.
+- 근거는 [GROUP-SHADER-TIMELINE](AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md)(PlaybackEnumeration), [OBJECT-TWEEN-PAIR](AOT-OBJECT-TWEEN-PAIR-TRACE-2026-10-15.md), [FILL-TWEEN](AOT-FILL-TWEEN-TRACE-2026-10-15.md)이다.
+- 기존 실물 표본 03(생성·삭제·FR 유지·알파 보간)과 05(수동 링크)는 이미 확인된 결과로 재사용한다.
+- **이 문서 시점에는 앱 결과가 없다.**
 
 ## 코드
 
@@ -18,7 +21,9 @@
 
 `examples/tween_v1/08_tween_reference.sfa`(`python build_tween_probe.py`로 다시 만들 수 있다): 원본 14프레임(사례 7개 × A/B), (트위닝,재생)=(30,12).
 
-**예측:** 출력 30FPS, **35프레임**(약 1.167초), K=3이다. 각 사례 A→B에는 t=1/3, 2/3 중간 프레임이 2장씩 있다. 사례 사이(B→다음 A)는 ID가 달라 짝이 없으므로 중간 1장이 빈 화면이다.
+- **예측:** 출력 30FPS, **35프레임**(약 1.167초), K=3이다.
+- 각 사례 A→B에는 t=1/3, 2/3 중간 프레임이 2장씩 있다.
+- 사례 사이(B→다음 A)는 ID가 달라 짝이 없으므로 중간 1장이 빈 화면이다.
 
 | 사례 | 출력 A / 중간 / B | 정적 예측 |
 |---|---|---|
@@ -46,7 +51,9 @@ hidden_layer 예측은 APP-V1 13번 관찰(숨긴 레이어가 원본 출력에 
 
 ## 실제 앱 결과 — 2026-10-16
 
-사용자가 MP4 1개를 반환했다. 원본은 공개하지 않는다. 프레임별 집계는 [APP-T1-TWEEN-METRICS](APP-T1-TWEEN-METRICS-2026-10-16.json)에 있다.
+- 사용자가 MP4 1개를 반환했다.
+- 원본은 공개하지 않는다.
+- 프레임별 집계는 [APP-T1-TWEEN-METRICS](APP-T1-TWEEN-METRICS-2026-10-16.json)에 있다.
 
 - **시간축:** 30FPS, **35프레임**, 1.166667초로 예측과 같다. 모든 출력 프레임이 예측한 (앞, 뒤, t) 위치의 그림과 일치했다. K=round(2.5)=3과 t=0, 1/3, 2/3 양자화가 실물로 확인됐다.
 - **픽셀 대조:** 렌더러를 아래 두 가지로 고친 뒤, 35프레임 전부에서 예측 렌더와 앱 영상의 **MAE가 0.256 이하(평균 0.086)**다. 이 시험은 맞춤에 쓰지 않은 새 장면이므로, 렌더러의 일반화 오차로 볼 수 있는 첫 근거다(다만 장면 유형은 제한적이다).

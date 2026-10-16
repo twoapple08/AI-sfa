@@ -44,4 +44,6 @@
 - https://github.com/facebookresearch/co-tracker
 - https://github.com/facebookresearch/sam2
 
-웹 데모는 시험 편의 기능이다. 서버 가용성·대기열·무료 사용량은 보장하지 않는다. 모델과 코드의 배포 조건은 채택 전에 각각 확인한다.
+- 웹 데모는 시험 편의 기능이다.
+- 서버 가용성·대기열·무료 사용량은 보장하지 않는다.
+- 모델과 코드의 배포 조건은 채택 전에 각각 확인한다.

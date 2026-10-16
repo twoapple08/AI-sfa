@@ -1,10 +1,14 @@
 # 편집 보조(양파 스킨·앵커 크기·점 표시·어두운 배경) 저장 위치와 출력 영향 — 2026-10-16
 
-같은 복구 ELF/AOT에서 확인했다. 새 앱 시험은 없다. [감사](AOT-EDITOR-AIDS-PREFS-AUDIT-2026-10-16.json)는 선택 명령 10곳의 Capstone/AOT 대조다.
+- 같은 복구 ELF/AOT에서 확인했다.
+- 새 앱 시험은 없다.
+- [감사](AOT-EDITOR-AIDS-PREFS-AUDIT-2026-10-16.json)는 선택 명령 10곳의 Capstone/AOT 대조다.
 
 ## 결론
 
-양파 스킨, 앵커 크기, 점 표시, 어두운 배경은 **편집기 환경설정**이다. 프로젝트 DB·SFA·영상 출력의 입력이 아니다. AI가 생성할 SFA에 이 값들을 넣을 필요는 없고, 학습 자료의 SFA에도 이 정보는 들어 있지 않다.
+- 양파 스킨, 앵커 크기, 점 표시, 어두운 배경은 **편집기 환경설정**이다.
+- 프로젝트 DB·SFA·영상 출력의 입력이 아니다.
+- AI가 생성할 SFA에 이 값들을 넣을 필요는 없고, 학습 자료의 SFA에도 이 정보는 들어 있지 않다.
 
 ## 근거
 
@@ -32,7 +36,9 @@ SFA 내보내기·DB 함수는 이 키를 참조하지 않는다.
 
 **그리기 경로.** `DrawOnionSkin`은 `_paintEditorUnderlay`(0x42f598) 안에서만 호출된다(0x42f970, 0x42fabc). `_paintEditorUnderlay`의 호출자는 `_EditFrameUnderlayPainter.paint`(0x430d2c)와 `_EditFramePainter`의 closure 두 곳(0x40fd30, 0x430cbc)이다. 모두 편집 화면 painter다.
 
-반면 시퀀스·미리보기 프레임 그림을 만드는 `renderSequenceActionFramePicture`의 호출자는 메인 메뉴 미리보기, 프레임 개요, 프레임 목록, 시퀀스 미니 미리보기다. 이들은 편집기 underlay를 호출하지 않는다. 따라서 양파 스킨은 영상 출력 경로에 섞이지 않는다는 정적 근거가 된다.
+- 반면 시퀀스·미리보기 프레임 그림을 만드는 `renderSequenceActionFramePicture`의 호출자는 메인 메뉴 미리보기, 프레임 개요, 프레임 목록, 시퀀스 미니 미리보기다.
+- 이들은 편집기 underlay를 호출하지 않는다.
+- 따라서 양파 스킨은 영상 출력 경로에 섞이지 않는다는 정적 근거가 된다.
 
 ## 남은 것
 

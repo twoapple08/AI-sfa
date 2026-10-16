@@ -1,6 +1,9 @@
 # 축 고정 UI 연결과 DrawOrder·잠금 쓰기 경로 전수 조사 — 2026-10-16
 
-Claude Code 환경에서 비공개 백업(SHA256 `d6d5f1ff…cff676`)을 복구해 같은 ELF/AOT를 사용했다. 이전에 반복하지 말라고 한 이름·문자열 검색 대신, **값을 쓰는 쪽(SQL 쓰기·필드 store·비트 연산)을 전수 조사**했다. 새 앱·영상 시험은 없다. [감사](AOT-AXIS-FIX-DRAWORDER-WRITERS-AUDIT-2026-10-16.json)는 선택 명령 49곳의 Capstone/AOT 대조다.
+- Claude Code 환경에서 비공개 백업(SHA256 `d6d5f1ff…cff676`)을 복구해 같은 ELF/AOT를 사용했다.
+- 이전에 반복하지 말라고 한 이름·문자열 검색 대신, **값을 쓰는 쪽(SQL 쓰기·필드 store·비트 연산)을 전수 조사**했다.
+- 새 앱·영상 시험은 없다.
+- [감사](AOT-AXIS-FIX-DRAWORDER-WRITERS-AUDIT-2026-10-16.json)는 선택 명령 49곳의 Capstone/AOT 대조다.
 
 ## 1. 일반 AO 앞뒤 순서: DrawOrder를 쓰는 경로 전수
 
@@ -16,7 +19,9 @@ Claude Code 환경에서 비공개 백업(SHA256 `d6d5f1ff…cff676`)을 복구�
 
 열 이름 문자열 `draw_order`를 직접 참조하는 나머지 함수는 행 읽기(`_createAnimationObjectFromRowWithAnchors`, `_readObjectLayers`)와 마이그레이션이다. 따라서 저장되는 순서 변경은 **메모리 AO의 DrawOrder(field_2f)를 바꾼 뒤 일반 저장으로 쓰는 방식**일 수밖에 없다.
 
-**메모리 쓰기.** `->field_2f =` store 367곳 가운데 237곳은 `layout/`의 위젯 build로, 위젯 필드다. 나머지 가운데 정수 DrawOrder로 읽히는 곳은 이미 근거가 있는 경로뿐이었다: 생성자, DB 행 적재, import, 복사 세 helper(`_copyAnimationObjectUnstored`·`CopyAnimationObject`·`CopyAnimationObjectToSequence`), `_cloneFrameDeep`, history `_copyFigure`, `AdoptLiveLayerState`(live LayerId/DrawOrder 보존, 0x604764–0x604770), `_mergeLayerDown`(0x5b9524, 병합 슬롯 재배정). 편집 화면 State 안의 이름 없는 closure 여섯 곳(0x5b23e4, 0x5b2e40, 0x5b4358, 0x5b4508, 0x5b47a8, 0x5f4d6c)은 true/false 또는 좌표 객체를 State 필드에 쓰며, AO DrawOrder가 아니다. `DataAccess` 안의 field_2f store는 SQL 인수 배열·Context 슬롯이다.
+- **메모리 쓰기.** `->field_2f =` store 367곳 가운데 237곳은 `layout/`의 위젯 build로, 위젯 필드다.
+- 나머지 가운데 정수 DrawOrder로 읽히는 곳은 이미 근거가 있는 경로뿐이었다: 생성자, DB 행 적재, import, 복사 세 helper(`_copyAnimationObjectUnstored`·`CopyAnimationObject`·`CopyAnimationObjectToSequence`), `_cloneFrameDeep`, history `_copyFigure`, `AdoptLiveLayerState`(live LayerId/DrawOrder 보존, 0x604764–0x604770), `_mergeLayerDown`(0x5b9524, 병합 슬롯 재배정). 편집 화면 State 안의 이름 없는 closure 여섯 곳(0x5b23e4, 0x5b2e40, 0x5b4358, 0x5b4508, 0x5b47a8, 0x5f4d6c)은 true/false 또는 좌표 객체를 State 필드에 쓰며, AO DrawOrder가 아니다.
+- `DataAccess` 안의 field_2f store는 SQL 인수 배열·Context 슬롯이다.
 
 **결론(정적):** 51.0.0 AOT에서 DrawOrder를 바꾸는 경로는 생성·복사·import·병합·undo 복원뿐이며, 일반 AO의 앞뒤 순서를 바꾸는 별도 UI handler는 이 조사에서 나오지 않았다. 다음은 확인하지 않았다.
 
@@ -65,13 +70,20 @@ Claude Code 환경에서 비공개 백업(SHA256 `d6d5f1ff…cff676`)을 복구�
 - mode 2: `Offset(현재.dx, 시작.dy)`, 즉 y를 고정해 가로로만 움직인다.
 - 그 외: 현재점을 그대로 쓴다.
 
-결과는 context.field_27에 저장된다(0x5e9dd0). 이 값이 직전 점과 같으면(`==`, 0x5e9df4) 갱신 없이 반환한다. 다르면 `measureSync` closure(0x5ef920)가 `DoMovementAction`에 직전 점(field_23)과 고정된 점(field_27)을 넘긴다(0x5ef9f0, 0x5efa18). 그 뒤의 pose/늘이기 분기는 [MOVEMENT-DISPATCH](AOT-MOVEMENT-DISPATCH-TRACE-2026-10-15.md)를 재사용한다. 같은 드래그의 삭제 영역 hover 판정도 이어진다.
+- 결과는 context.field_27에 저장된다(0x5e9dd0). 이 값이 직전 점과 같으면(`==`, 0x5e9df4) 갱신 없이 반환한다.
+- 다르면 `measureSync` closure(0x5ef920)가 `DoMovementAction`에 직전 점(field_23)과 고정된 점(field_27)을 넘긴다(0x5ef9f0, 0x5efa18). 그 뒤의 pose/늘이기 분기는 [MOVEMENT-DISPATCH](AOT-MOVEMENT-DISPATCH-TRACE-2026-10-15.md)를 재사용한다.
+- 같은 드래그의 삭제 영역 hover 판정도 이어진다.
 
-**데이터 영향.** 축 고정은 저장 형식에 새 값을 남기지 않는다. 드래그의 목표점만 바꾸므로 결과는 일반 점 좌표 변경으로 저장된다. 예를 들어 세로 고정으로 드래그한 점은 X가 터치 시작 위치로 투영되어, 이론상 Y만 바뀐다. 다만 연결된 점·늘이기 분기의 파생 이동까지 한 축으로 제한된다는 보장은 아니다.
+- **데이터 영향.** 축 고정은 저장 형식에 새 값을 남기지 않는다.
+- 드래그의 목표점만 바꾸므로 결과는 일반 점 좌표 변경으로 저장된다.
+- 예를 들어 세로 고정으로 드래그한 점은 X가 터치 시작 위치로 투영되어, 이론상 Y만 바뀐다.
+- 다만 연결된 점·늘이기 분기의 파생 이동까지 한 축으로 제한된다는 보장은 아니다.
 
 ## 실물 검증으로 남긴 것
 
-축 고정은 SFA로 관측할 수 있다. 한 점을 세로 고정으로 비스듬히 드래그한 전후 내보내기에서 그 점의 X 불변·Y 변화를 보면 된다. [APP-V3](APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md) 절차의 선택 항목으로 추가했다.
+- 축 고정은 SFA로 관측할 수 있다.
+- 한 점을 세로 고정으로 비스듬히 드래그한 전후 내보내기에서 그 점의 X 불변·Y 변화를 보면 된다.
+- [APP-V3](APP-V3-FRAME-COMMANDS-PROTOCOL-2026-10-16.md) 절차의 선택 항목으로 추가했다.
 
 다음은 실제 앱 결과가 아직 없다.
 

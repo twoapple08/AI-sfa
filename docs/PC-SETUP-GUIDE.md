@@ -1,6 +1,9 @@
 # PC 준비와 첫 수집 — Windows 안내
 
-[AI-PIPELINE-PLAN](AI-PIPELINE-PLAN-2026-10-16.md)의 0–1단계다. PC 사양은 매번 달라도 된다. 도구가 실행할 때마다 자동으로 감지한다. 수집한 영상·메타데이터는 개인용이며 저장소에 올리지 않는다(`.gitignore`로 막아 두었다).
+- [AI-PIPELINE-PLAN](AI-PIPELINE-PLAN-2026-10-16.md)의 0–1단계다.
+- PC 사양은 매번 달라도 된다.
+- 도구가 실행할 때마다 자동으로 감지한다.
+- 수집한 영상·메타데이터는 개인용이며 저장소에 올리지 않는다(`.gitignore`로 막아 두었다).
 
 ## 1. 설치 (한 번만)
 
@@ -12,7 +15,9 @@ winget install --id Python.Python.3.11 -e
 winget install --id Gyan.FFmpeg -e
 ```
 
-설치 후 **터미널을 새로 연다.** `python --version`, `git --version`, `ffmpeg -version`이 모두 나오면 성공이다. winget이 없으면 각 공식 사이트 설치 파일을 써도 된다. Python 설치 시 "Add to PATH"에 체크한다.
+- 설치 후 **터미널을 새로 연다.** `python --version`, `git --version`, `ffmpeg -version`이 모두 나오면 성공이다.
+- winget이 없으면 각 공식 사이트 설치 파일을 써도 된다.
+- Python 설치 시 "Add to PATH"에 체크한다.
 
 NVIDIA 그래픽카드가 있으면 드라이버를 최신으로 업데이트한다. GeForce Experience 또는 NVIDIA 사이트를 쓴다.
 
@@ -53,7 +58,10 @@ python -m pipeline.collect_sakuga stats data_sakuga
 python -m pipeline.collect_sakuga media data_sakuga --max 200
 ```
 
-`data_sakuga\media\`에 `번호.mp4`와 `번호.json`(태그 종류별, 학습용 태그에서 작품명 제외)이 생긴다. `index.csv`에 목록이 쌓인다. 중간에 꺼도 다시 실행하면 받은 파일은 md5를 확인한 뒤 건너뛴다. 요청은 1.5초 간격이다(`--delay`로 조정).
+- `data_sakuga\media\`에 `번호.mp4`와 `번호.json`(태그 종류별, 학습용 태그에서 작품명 제외)이 생긴다.
+- `index.csv`에 목록이 쌓인다.
+- 중간에 꺼도 다시 실행하면 받은 파일은 md5를 확인한 뒤 건너뛴다.
+- 요청은 1.5초 간격이다(`--delay`로 조정).
 
 받을 클립은 `--match`로 고른다. 문법은 사쿠가부루 검색과 같다(`태그`=필수, `-태그`=제외, `rating:s`=등급). 이미 받아 둔 post 목록 안에서만 거른다.
 
@@ -67,7 +75,9 @@ python -m pipeline.collect_sakuga media data_sakuga --max 200 --match "fighting 
 python -m pipeline.setup_env            # --dry-run 이면 고를 PyTorch 빌드만 보여 준다
 ```
 
-`.venv`를 만들고, 이 PC의 GPU 세대와 드라이버가 지원하는 PyTorch CUDA 빌드를 골라 설치한다. 예: GTX 1050 Ti(Pascal)는 cu126, RTX 50 계열은 드라이버 CUDA 12.8 이상이 필요하다. 끝에 GPU 검증 결과가 나오고 `.venv\aisfa_env.json`에 남는다.
+- `.venv`를 만들고, 이 PC의 GPU 세대와 드라이버가 지원하는 PyTorch CUDA 빌드를 골라 설치한다.
+- 예: GTX 1050 Ti(Pascal)는 cu126, RTX 50 계열은 드라이버 CUDA 12.8 이상이 필요하다.
+- 끝에 GPU 검증 결과가 나오고 `.venv\aisfa_env.json`에 남는다.
 
 ## 7. 샷 분할·홀드 판별
 
@@ -92,7 +102,9 @@ python -m pipeline.collect_sakuga curate data_sakuga --min-score 점수 --match 
 .venv\Scripts\python tools\motion_bench.py   # 정답 있는 합성 사례로 정리 품질 측정
 ```
 
-받은 클립마다 `번호.shots.json`이 생긴다. 컷 경계, 같은 그림 반복(1s/2s/3s 작화), 한 장 그림에 카메라만 움직이는 샷(`camera_only`), 정지샷(`still`), 원화처럼 보이는 선화(`lineart_like`)를 기록한다. 이어서 실행하면 분석한 클립은 건너뛴다.
+- 받은 클립마다 `번호.shots.json`이 생긴다.
+- 컷 경계, 같은 그림 반복(1s/2s/3s 작화), 한 장 그림에 카메라만 움직이는 샷(`camera_only`), 정지샷(`still`), 원화처럼 보이는 선화(`lineart_like`)를 기록한다.
+- 이어서 실행하면 분석한 클립은 건너뛴다.
 
 ## 8. 관절 추출(층①)
 
@@ -100,15 +112,22 @@ python -m pipeline.collect_sakuga curate data_sakuga --min-score 점수 --match 
 .venv\Scripts\python -m pipeline.pose data_sakuga
 ```
 
-`animated` 샷마다 사람별 트랙(ID 유지, 컷마다 초기화)과 COCO 관절 17개를 `번호.pose.npz`에 저장한다. 모델 크기·fp16은 사양 등급을 따르고, GPU 메모리가 부족하면 입력 크기를 낮춰 다시 한다. 1050 Ti 기준 클립당 약 25초. 그림 타이밍(on 1s/2s/3s)은 관절이 움직였는지로 다시 잰다(카메라·이펙트 영향 없음). 가중치는 `models\`에 받으며 커밋하지 않는다.
+- `animated` 샷마다 사람별 트랙(ID 유지, 컷마다 초기화)과 COCO 관절 17개를 `번호.pose.npz`에 저장한다.
+- 모델 크기·fp16은 사양 등급을 따르고, GPU 메모리가 부족하면 입력 크기를 낮춰 다시 한다.
+- 1050 Ti 기준 클립당 약 25초. 그림 타이밍(on 1s/2s/3s)은 관절이 움직였는지로 다시 잰다(카메라·이펙트 영향 없음). 가중치는 `models\`에 받으며 커밋하지 않는다.
 
 ## Claude Code를 PC에서 쓰는 경우
 
-PC에 Claude Code를 설치하면, 이 저장소 폴더에서 대화하며 PC의 GPU로 명령을 직접 실행할 수 있다. 설치 방법은 공식 안내(https://code.claude.com/docs)를 따른다. 설치하지 않아도 위 명령을 직접 실행하고 결과를 붙여 주는 방식으로 진행할 수 있다.
+- PC에 Claude Code를 설치하면, 이 저장소 폴더에서 대화하며 PC의 GPU로 명령을 직접 실행할 수 있다.
+- 설치 방법은 공식 안내(https://code.claude.com/docs)를 따른다.
+- 설치하지 않아도 위 명령을 직접 실행하고 결과를 붙여 주는 방식으로 진행할 수 있다.
 
 ## PC를 껐다 켰을 때 (이어하기)
 
-긴 작업 중에 PC를 꺼도 된다. 끝난 결과는 그대로 남고, 다시 켠 뒤 저장소 폴더에서 아래 한 줄이면 남은 단계(받기 → 선별 → 샷 → 관절 → 정리)를 이어서 한다. 받던 영상 1개와 분석 중이던 클립 1개만 다시 처리한다. 결과 파일은 다 쓴 뒤에 이름을 바꾸므로 반쯤 쓴 파일이 남지 않는다.
+- 긴 작업 중에 PC를 꺼도 된다.
+- 끝난 결과는 그대로 남고, 다시 켠 뒤 저장소 폴더에서 아래 한 줄이면 남은 단계(받기 → 선별 → 샷 → 관절 → 정리)를 이어서 한다.
+- 받던 영상 1개와 분석 중이던 클립 1개만 다시 처리한다.
+- 결과 파일은 다 쓴 뒤에 이름을 바꾸므로 반쯤 쓴 파일이 남지 않는다.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\stage2_resume.ps1
