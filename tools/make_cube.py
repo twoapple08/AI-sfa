@@ -326,18 +326,18 @@ def _q(a, c, b, t):
     return (1 - t) ** 2 * a + 2 * t * (1 - t) * c + t * t * b
 
 
-def cloud_bulges(P, seed, scale, width=1.0, height=(.26, .42)):
-    """윤곽을 따라 비대칭 볼록들을 곡선으로 설계: 골(뾰족) → 어깨 → 꼭대기 → 어깨 → 다음 골.
-    볼록마다 폭·높이·기울기가 다르고, 가끔 납작한 볼록과 길게 뻗은 가시 볼록이 섞인다."""
+def cloud_bulges(P, seed, scale, width=1.0, height=(.34, .52)):
+    """윤곽을 따라 볼록들을 곡선 4개씩으로 설계(조절점을 이음점에서 반사해 매끄럽게 이음):
+    골 A →(뒤로 걸치는 갈고리)→ 어깨 S1 → 꼭대기 → 어깨 S2 → 다음 골 B.
+    볼록마다 폭·높이·기울기·어깨 높이·둥근 정도가 다르고, 골은 뾰족하게 남아 앞 덩어리가 뒤 덩어리를 덮는다."""
     r = random.Random(seed)
     seg = np.vstack([P, P[:1]])
     cum = np.concatenate([[0], np.cumsum(np.hypot(*np.diff(seg, axis=0).T))])
     L = cum[-1]
     mean_w = max(40.0, 125 * scale * width)
     n = max(4, int(round(L / mean_w)))
-    x0 = int(np.argmin(P[:, 0]))                           # 시작점: 가장 왼쪽(프레임 사이 안정)
-    s0 = cum[x0]
-    cuts = sorted(s0 + L * (k + r.uniform(-.28, .28)) / n for k in range(n))
+    s0 = cum[int(np.argmin(P[:, 0]))]                      # 시작점: 가장 왼쪽(프레임 사이 안정)
+    cuts = sorted(s0 + L * (k + r.uniform(-.3, .3)) / n for k in range(n))
     bul = []
     for k in range(n):
         sa, sb = cuts[k], cuts[(k + 1) % n] + (L if k == n - 1 else 0)
@@ -348,20 +348,25 @@ def cloud_bulges(P, seed, scale, width=1.0, height=(.26, .42)):
         tg = tg / w
         nrm = np.array([tg[1], -tg[0]])                    # 시계 방향 윤곽의 바깥쪽
         kind = r.random()
-        h = w * (r.uniform(*height) if kind < .82 else (r.uniform(.14, .22) if kind < .95 else r.uniform(.65, .85)))
-        lean = r.uniform(-.22, .22)
-        Pk = M + nrm * h + tg * w * lean                   # 꼭대기(비대칭)
-        # 꼭대기에서 두 곡선의 접선이 이어지게(둥근 꼭대기), 골은 뾰족하게 남김
-        c1 = Pk - tg * w * r.uniform(.36, .46) + nrm * h * .05
-        c2 = Pk + tg * w * r.uniform(.36, .46) + nrm * h * .05
-        bul.append(dict(A=A, B=B, P=Pk, c1=c1, c2=c2, n=nrm, h=h, w=w))
+        h = w * (r.uniform(*height) if kind < .8 else (r.uniform(.15, .22) if kind < .93 else r.uniform(.55, .75)))
+        lean = r.uniform(-.2, .2)
+        hook = r.uniform(.0, .07)                           # 골에서 뒤로 걸치는 정도(작게: 고리 생기지 않게)
+        Pk = M + nrm * h + tg * w * lean
+        S1 = A + nrm * h * r.uniform(.55, .8) + tg * w * (.08 - hook * .6)
+        S2 = B + nrm * h * r.uniform(.3, .55) + tg * w * r.uniform(-.04, .06)
+        cA = A + nrm * h * r.uniform(.3, .45) - tg * w * hook           # 골에서 바깥으로 곧게 솟음
+        c1 = S1 + (S1 - cA) / (np.hypot(*(S1 - cA)) or 1) * w * r.uniform(.12, .2)   # S1에서 매끄럽게
+        c2 = Pk + (Pk - c1) / (np.hypot(*(Pk - c1)) or 1) * w * r.uniform(.14, .24)  # 꼭대기에서 매끄럽게
+        cB = S2 + (S2 - c2) / (np.hypot(*(S2 - c2)) or 1) * w * r.uniform(.1, .18)   # S2에서 매끄럽게, 골로 들어감
+        seq = [A, cA, S1, c1, Pk, c2, S2, cB]
+        bul.append(dict(A=A, B=B, P=Pk, S1=S1, S2=S2, c1=c1, c2=c2, n=nrm, h=h, w=w, seq=seq, tg=tg))
     return bul
 
 
 def _ring(bul):
     ring = []
     for b in bul:
-        ring += [tuple(b['A']), tuple(b['c1']), tuple(b['P']), tuple(b['c2'])]
+        ring += [tuple(q) for q in b['seq']]
     return ring
 
 
@@ -383,8 +388,19 @@ def draw_dust(fr, lobes, side):
     lit = cv2.bitwise_and(lit, cv2.erode(body, np.ones((5, 5), np.uint8)))
     base_seed = int(len(lobes)) * 7 + (1 if side == 'f' else 0)
     fr.layer = f'dust_{side}_shade'
-    for ci, P in enumerate(_outlines(body)):
-        fr.cpoly(_ring(cloud_bulges(P, base_seed + ci, scale)), D_SHADE, D_LINE, .7)
+    sil = [cloud_bulges(P, base_seed + ci, scale) for ci, P in enumerate(_outlines(body))]
+    for bul in sil:
+        fr.cpoly(_ring(bul), D_SHADE, D_LINE, .7)          # 곡선이 이어진 커스텀 오브젝트 하나
+    overlaps = []
+    for ci, bul in enumerate(sil):                         # 겹침선: 골에서 앞 덩어리 윤곽이 몸통 안으로 이어짐
+        r = random.Random(base_seed + 50 + ci)
+        for b in bul:
+            if r.random() < .6:
+                A, cA, nrm, tg, w, h = b['A'], b['seq'][1], b['n'], b['tg'], b['w'], b['h']
+                d0 = (A - cA) / (np.hypot(*(A - cA)) or 1)     # 갈고리를 반대로 이어 안쪽으로
+                c = A + d0 * w * r.uniform(.12, .2)
+                e = A - nrm * h * r.uniform(.45, .8) + tg * w * r.uniform(.05, .2)
+                overlaps.append((A, c, e))
     for ci, P in enumerate(_outlines(lit, 30)):
         seed = base_seed + 100 + ci
         bul = cloud_bulges(P, seed, scale, .8, (.28, .42))
@@ -393,16 +409,16 @@ def draw_dust(fr, lobes, side):
         r = random.Random(seed + 7)
         for i, b in enumerate(bul):
             face = float(np.dot(b['n'], L2))
-            A, B, Pk, c1, c2, nrm = b['A'], b['B'], b['P'], b['c1'], b['c2'], b['n']
-            if face > .4:                                   # 밝은 테두리(꼭대기 쪽 얇은 초승달)
-                d = b['h'] * r.uniform(.18, .28)
-                a2, b2 = _q(A, c1, Pk, .3), _q(Pk, c2, B, .7)
-                ca, cb = _q(A, c1, Pk, .68), _q(Pk, c2, B, .32)
+            A, B, Pk, S1, S2, c1, c2, nrm, tg = b['A'], b['B'], b['P'], b['S1'], b['S2'], b['c1'], b['c2'], b['n'], b['tg']
+            if face > .35:                                  # 밝은 테두리: 어깨~꼭대기~어깨를 따라가는 초승달
+                d = b['h'] * r.uniform(.16, .26)
+                a2, b2 = _q(S1, c1, Pk, .25), _q(Pk, c2, S2, .75)
+                ca, cb = _q(S1, c1, Pk, .65), _q(Pk, c2, S2, .35)
+                inner = Pk - nrm * d + tg * b['w'] * r.uniform(-.06, .06)
                 fr.layer = f'dust_{side}_base'
-                fr.cpoly([tuple(a2), tuple(ca), tuple(Pk), tuple(cb), tuple(b2), tuple(Pk - nrm * d)], D_LITE)
-            elif face < -.1 and r.random() < .55:            # 그림자 혀: 골에서 짧게 휘어 들어감
+                fr.cpoly([tuple(a2), tuple(ca), tuple(Pk), tuple(cb), tuple(b2), tuple(inner)], D_LITE)
+            elif face < -.1 and r.random() < .5:             # 그림자 혀: 골에서 휘어 들어감
                 ln = b['w'] * r.uniform(.25, .45)
-                tg = (B - A) / (b['w'] or 1)
                 inn = -(nrm + bul[i - 1]['n']) / 2
                 inn /= np.hypot(*inn) or 1
                 tip = A + inn * ln + tg * ln * r.uniform(-.3, .3)
@@ -411,6 +427,13 @@ def draw_dust(fr, lobes, side):
                 bend = r.uniform(-.2, .2) * ln
                 fr.layer = f'dust_{side}_base'
                 fr.cpoly([tuple(a1), tuple((a1 + tip) / 2 + tg * bend), tuple(tip), tuple((a2_ + tip) / 2 + tg * bend)], D_SHADE)
+    fr.layer = f'dust_{side}_base'
+    for A, c, e in overlaps:                               # 겹침선은 몸통 위에(굵게 → 가늘게)
+        m = _q(A, c, e, .5)
+        cm1 = _q(A, c, e, .25) * 2 - (A + m) / 2
+        cm2 = _q(A, c, e, .75) * 2 - (m + e) / 2
+        fr.curve(tuple(A), tuple(cm1), tuple(m), D_LINE, .55)
+        fr.curve(tuple(m), tuple(cm2), tuple(e), D_LINE, .25)
     fr.layer = f'dust_{side}_tail'
     r = random.Random(int(sum(l[0] for l in lobes)))
     for x, y, s, w, _ in lobes:                             # 흩어지는 줄무늬 꼬리: 휘며 가늘어지는 곡선
@@ -697,6 +720,27 @@ def build_frame(t):
     return fr
 
 
+def fast_fill_coverage(contours, cv, ss=3):
+    """미리보기 전용: sfa_render.fill_polygon_coverage와 같은 even-odd·3x3 표본을 OpenCV로 계산.
+    기준 렌더러(sfa_render.py)는 바꾸지 않고 미리보기 때만 바꿔 끼운다."""
+    pts = [p for c in contours for p in c]
+    box = cv.box(pts, 1)
+    if box is None:
+        return None, None
+    y0, y1, x0, x1 = box
+    ox, oy = float(cv.X[y0, x0]), float(cv.Y[y0, x0])
+    h, w = y1 - y0, x1 - x0
+    acc = np.zeros((h * ss, w * ss), np.uint8)
+    for c in contours:
+        if len(c) < 3:
+            continue
+        q = np.array([((x - ox + .5) * ss - .5, (y - oy + .5) * ss - .5) for x, y in c]) * 16
+        tmp = np.zeros_like(acc)
+        cv2.fillPoly(tmp, [np.round(q).astype(np.int32)], 1, lineType=cv2.LINE_8, shift=4)
+        acc ^= tmp
+    return acc.reshape(h, ss, w, ss).mean((1, 3)), box
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument('out')
@@ -710,6 +754,8 @@ def main(argv=None):
     xml_bytes = len(ET.tostring(root))
     print(f'{N}프레임, XML {xml_bytes / 2**20:.1f} MB, AO 최대 {max(len(f.findall("AO")) for f in root.findall("Frame"))}개/프레임 → {a.out} (24,24)')
     if a.preview:
+        import sfa_render
+        sfa_render.fill_polygon_coverage = fast_fill_coverage
         md.preview(root, a.preview, tuple(int(v) for v in a.size.split('x')))
         print('미리보기 →', a.preview)
 
