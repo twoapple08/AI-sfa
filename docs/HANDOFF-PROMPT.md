@@ -18,6 +18,8 @@ AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상�
 
 - 자료 출처 조사(사용자 공통 지시: Claude=nian41, GPT=yutaka_nakamura): docs/NIAN41-SOURCES-2026-10-17.md, data/sources/nian41_sources.csv. 핵심 A등급=본인 Bilibili lo 업로드(JJK S3#09 虎杖vs日車, BV1A9PyzfExr). Bilibili 목록은 비로그인 위험 제어로 차단(우회 안 함). GPT용 지시서 docs/GPT-TASK-YUTAKA-SOURCES-2026-10-17.md.
 
+- 사용자 제공 nian41 X 영상 12개(본인 게시, 담당 명시) 메타데이터·타이밍·시트 확보. Sakugabooru 제작자료 9개+216085+301142가 본인 그린 부분으로 확정(observations `proof`). 영상 원본은 서버 임시 폴더뿐 — Drive 01 저장은 자동 승인 거부(2회째, 'Auto-Mode Bypass')로 사용자 권한 설정 대기.
+
 다음 할 일:
 1. 01 수집 허용 여부를 사용자에게 확인(허용 시 위 순서).
 2. (GPT 결과 대기 중이면) nian41 몸 움직임 표본 확대: 다른 제작자료(280833·280835·287139 등)에 마스크 측정·연속 시트 적용, 280830 원화 번호 계수. yutaka 나머지: 확정 표기 완성본 영상 159개 중 GPT 30개를 뺀 129개를 점수순으로(다음 묶음은 /tmp 스크립트 없이 같은 방식 재작성: 미분석·비presumed·비제작자료·mp4/webm을 score 내림차순). 이후 presumed 56개, 제작자료 76개. 임시 다운로드 → tools/sakuga_timing.py → contact sheet 판독 → observations.jsonl·KB 갱신 → Drive 02/03·catalog 동기화 → 클립 삭제.
