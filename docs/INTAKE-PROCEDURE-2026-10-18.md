@@ -55,14 +55,14 @@
 | riooo | **승낙** | 이펙트·연출. **규모가 큰 전투씬만** | 인체(몸 움직임·그림체), **불 이펙트 전부** |
 | optical-core | **승낙** | 이펙트·연출 | 인체 |
 | katsumi_ishizuka | **반려** | — | — |
-| yukina_kosaka | 미정 | (Claude 추천: 이펙트·연필 임팩트) | |
-| sota_shigetsugu | 미정 | (반려 추천) | |
-| isuta_meister | 미정 | (반려 추천) | |
+| yukina_kosaka | **승낙**(2026-10-18) | 이펙트·연출·연필 임팩트 (Claude 추천 범위 적용, 사용자 조정 가능) | 인체, 디지털 임팩트 |
+| sota_shigetsugu | **반려** | — | — |
+| isuta_meister | **반려** | — | — |
 
 공통 적용: impact_frames는 연필만 학습하고 디지털은 제외한다. 에반게리온은 제외한다. presumed는 근거로 쓰지 않는다.
 
 - riooo의 "규모가 큰 전투씬" 판정: 태그 `fighting`에 `debris`/`explosions`/`destruction`/`beams`/`lightning`/`background_animation` 중 하나가 있는 클립을 1차 후보로 보고, contact sheet에서 화면을 크게 쓰는 대규모 충돌이 보여야 최종 포함한다. 불(`fire` 태그나 화염 장면)은 관찰·태그 보정·SFA 제안에서 모두 뺀다(불이 섞인 클립은 불이 아닌 요소만 본다).
-- katsumi_ishizuka 원본(Drive `_후보검토/katsumi_ishizuka/`, 81파일)은 학습에서 쓰지 않는다. 삭제는 사용자 승인 후에만 한다.
+- 반려 3명(katsumi_ishizuka 81, sota_shigetsugu 75, isuta_meister 146파일)의 `_후보검토` 원본은 사용자 승인으로 2026-10-18 삭제했다(rclone purge → Drive 휴지통, 30일 내 복구 가능). 145064는 yukina_kosaka 폴더 사본이 남아 있다. manifest에 `deleted`를 기록했다.
 
 ### 3단계 색인 결과 [실측, 메타데이터]
 
