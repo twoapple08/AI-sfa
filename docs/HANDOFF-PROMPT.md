@@ -35,7 +35,7 @@ AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상�
 
 - 2026-10-17 후반: **nian41 원본 48개 Drive 보관 완료**(Sakugabooru 36 + X 12, md5 검증, manifest `data/sources/nian41_drive_manifest_2026-10-17.jsonl`). 사용자 재허가 후 업로드 통과. 자체 태그 규칙 `docs/TAG-RULES-2026-10-17.md`(impact_frames_pencil/digital, 누락 태그 add 방식). 디지털 기준 예시=302394 0–13프레임, 연필 예시=사용자 원화 사진(Drive 03/impact_reference). **사용자 지시: 이 범위 외 작업은 대기.**
 
-- **현재 단계: docs/COORDINATION-PHASE2-2026-10-17.md 작업표가 기준.** 1·2·3·6·7·8·9·10 완료. 4(Gemini 작업 A, 메시지 docs/GEMINI-TASK-A-PROMPT-2026-10-17.md) 진행 중. 11a(GPT 최근작 97) 시작 가능, 11b(Claude 구작·미확인 144, 목록 Drive 02/작업목록_11b_Claude) 시작 가능. 13은 GPT 30건분 완료(docs/IMPACT-PENCIL-CROSSCHECK-2026-10-17.md: 연필 8 confirmed, 290900 157 보류).
+- **현재 단계: docs/COORDINATION-PHASE2-2026-10-17.md 작업표가 기준.** 1·2·3·6·7·8·9·10 완료. 4(Gemini 작업 A, 메시지 docs/GEMINI-TASK-A-PROMPT-2026-10-17.md) 진행 중. 11a(GPT 최근작 97) 시작 가능, 11b(Claude 구작·미확인 144, 목록 Drive 02/작업목록_11b_Claude) 시작 가능. 13은 GPT 30건분 완료(docs/IMPACT-PENCIL-CROSSCHECK-2026-10-17.md: 연필 9 모두 confirmed, 290900 157은 사용자 판정).
 
 - **PC방 GPU 포즈 추정은 다음 PC방 이용 때로 연기(사용자 2026-10-17 19시).** 준비 완료: tools/pose_extract.py(YOLO11-pose 추론만, 허가됨), 설치 순서는 Python 3.11을 H: 등 여유 드라이브에, TEMP/PIP_CACHE도 그 드라이브로, torch cu126 + ultralytics. 사양 예: RTX 4060 8GB, C: 여유 적음.
 
