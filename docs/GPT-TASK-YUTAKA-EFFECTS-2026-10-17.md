@@ -1,5 +1,7 @@
 # GPT 작업 지시서 — yutaka_nakamura 이펙트·배경·연출 관찰 (2026-10-17)
 
+> **2026-10-17 사용자 변경:** GPT 작업은 'yutaka_nakamura 30클립 관찰'에서 **'세상에 공개된 yutaka_nakamura 자료를 모두 수집한 뒤 분석 진행'**으로 바뀌었다. 30클립 contact sheet는 GPT의 출발 자료로 Drive 02에 그대로 둔다. 순서: 출처 수집([지시서 2](GPT-TASK-YUTAKA-SOURCES-2026-10-17.md)) → 이 문서의 관찰 형식으로 분석.
+
 > Claude가 작성했다. 사용자가 이 글 전체를 GPT에게 붙여 넣거나, GPT에게 Google Drive의 이 파일을 읽게 한다. Claude는 같은 시간에 nian41의 사람 몸 움직임을 분석한다.
 
 ## 1. 프로젝트 요약

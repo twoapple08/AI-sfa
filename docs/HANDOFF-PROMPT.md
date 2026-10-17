@@ -14,7 +14,7 @@ AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상�
 
 2026-10-17 후반:
 - nian41 학습 범위 축소 반영(KB D절·부록, observations.jsonl `learn_scope`). 몸 움직임 v1: 인물 색 마스크 측정으로 '몸 그림은 2s 기본 + 순간 1s'로 정정, 예비→순간→후속, 스미어 형태 정리(`tools/sakuga_timing.py --run` 연속 프레임 시트 추가).
-- GPT 분담: docs/GPT-TASK-YUTAKA-EFFECTS-2026-10-17.md. yutaka 다음 30클립(점수순 21–50위) contact sheet·timing·작업목록 CSV를 Drive 02에 올림. GPT 결과(JSONL)가 오면 몇 클립을 직접 대조한 뒤 KB에 'GPT 시각 판독'으로 합친다. 이 30개는 Claude가 중복 분석하지 않는다.
+- GPT 분담(2026-10-17 사용자 변경): 공개된 yutaka_nakamura 자료 전부 수집 → 분석 진행. 지시서 docs/GPT-TASK-YUTAKA-SOURCES(1순위)·GPT-TASK-YUTAKA-EFFECTS(분석 형식). 이전 안: yutaka 다음 30클립(점수순 21–50위) contact sheet·timing·작업목록 CSV를 Drive 02에 올림. GPT 결과(JSONL)가 오면 몇 클립을 직접 대조한 뒤 KB에 'GPT 시각 판독'으로 합친다. 이 30개는 Claude가 중복 분석하지 않는다.
 
 - 자료 출처 조사(사용자 공통 지시: Claude=nian41, GPT=yutaka_nakamura): docs/NIAN41-SOURCES-2026-10-17.md, data/sources/nian41_sources.csv. 핵심 A등급=본인 Bilibili lo 업로드(JJK S3#09 虎杖vs日車, BV1A9PyzfExr). Bilibili 목록은 비로그인 위험 제어로 차단(우회 안 함). GPT용 지시서 docs/GPT-TASK-YUTAKA-SOURCES-2026-10-17.md.
 

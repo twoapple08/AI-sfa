@@ -4,6 +4,8 @@
 
 참고 예시(Claude의 nian41 결과): https://github.com/twoapple08/AI-sfa/blob/ccr-bccf15a6-d6ee46/docs/NIAN41-SOURCES-2026-10-17.md
 
+> **2026-10-17 사용자 변경:** GPT 작업은 'yutaka_nakamura 30클립 관찰'에서 **'세상에 공개된 yutaka_nakamura 자료를 모두 수집한 뒤 분석 진행'**으로 바뀌었다. 30클립 contact sheet는 GPT의 출발 자료로 Drive 02에 그대로 둔다. 이 문서가 GPT의 첫 작업이다. 수집이 끝나면 [지시서 1](GPT-TASK-YUTAKA-EFFECTS-2026-10-17.md)의 관찰 형식으로 분석을 이어 간다.
+
 ## 할 일
 
 1. yutaka_nakamura가 담당한 컷·작품을 증명하는 자료가 있는 사이트를 찾는다. 예: Sakugabooru(이미 368개 색인됨), 作画@wiki(atwiki), seesaawiki 스태프 DB, 공식 사이트·공식 SNS 스태프 코멘트, 인터뷰, 원화집·설정집, 블루레이 해설, 크레딧 DB(MyAnimeList, AniDB, ANN, AniList), 본인 SNS가 있다면 그것.
