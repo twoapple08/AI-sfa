@@ -35,6 +35,8 @@ AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상�
 
 - 2026-10-17 후반: **nian41 원본 48개 Drive 보관 완료**(Sakugabooru 36 + X 12, md5 검증, manifest `data/sources/nian41_drive_manifest_2026-10-17.jsonl`). 사용자 재허가 후 업로드 통과. 자체 태그 규칙 `docs/TAG-RULES-2026-10-17.md`(impact_frames_pencil/digital, 누락 태그 add 방식). 디지털 기준 예시=302394 0–13프레임, 연필 예시=사용자 원화 사진(Drive 03/impact_reference). **사용자 지시: 이 범위 외 작업은 대기.**
 
+- **현재 단계: docs/COORDINATION-PHASE2-2026-10-17.md** (Gemini=후보 평가 진행 중, Claude=임팩트 후보 검출·시트·240건 자료·GPT 30건 병합, GPT=358건 연도표·자기 30건 임팩트 재분류 → 연도로 240건 분할).
+
 다음 할 일:
 1. 01 수집 허용 여부를 사용자에게 확인(허용 시 위 순서).
 2. (GPT 결과 대기 중이면) nian41 몸 움직임 표본 확대: 다른 제작자료(280833·280835·287139 등)에 마스크 측정·연속 시트 적용, 280830 원화 번호 계수. yutaka 나머지: 확정 표기 완성본 영상 159개 중 GPT 30개를 뺀 129개를 점수순으로(다음 묶음은 /tmp 스크립트 없이 같은 방식 재작성: 미분석·비presumed·비제작자료·mp4/webm을 score 내림차순). 이후 presumed 56개, 제작자료 76개. 임시 다운로드 → tools/sakuga_timing.py → contact sheet 판독 → observations.jsonl·KB 갱신 → Drive 02/03·catalog 동기화 → 클립 삭제.
