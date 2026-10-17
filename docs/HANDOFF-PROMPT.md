@@ -30,6 +30,9 @@ AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상�
 - 사용자 지시(2026-10-17, GPT에도 전달됨): (1) **최중요** impact_frames는 4B 연필로 직접 그린 느낌만 학습, 디지털 단색 느낌 제외. (2) yutaka 구작·최신작 비교 — 양쪽 모두에 있는 방식(yutapon_cubes 등) 중요도 상향. (3) 에반게리온 제외. KB 상단 '학습 범위' 참조. 기존 임팩트 관찰은 아직 연필/디지털 미분류.
 - 계획(담당 미정): GPT 업로드가 끝나면 Drive 원본의 중복·오류·누락 점검(ZIP manifest md5 대조, catalog 대비 누락, 같은 장면 다른 인코딩 중복).
 
+- **조정 권한은 Claude(사용자 지시).** 현재 배정: docs/COORDINATION-2026-10-17.md. GPT=nian41 원본 보관(Claude 업로드 차단 대체)·yutaka 외부 7개 검토·yutaka 분석 계속(최근작부터, era·old_new_common)·impact 분류. Claude=GPT 30건 교차 판독·병합, nian41 몸 움직임, 결과 통합. Gemini=후보 평가·nian41 규칙 검증.
+- 메타데이터 감사 완료: GPT manifest 368 ↔ catalog 368, 누락·md5 불일치·중복 0. parent_id 장면 중복 71건(삭제 안 함, 한 장면으로 계산).
+
 다음 할 일:
 1. 01 수집 허용 여부를 사용자에게 확인(허용 시 위 순서).
 2. (GPT 결과 대기 중이면) nian41 몸 움직임 표본 확대: 다른 제작자료(280833·280835·287139 등)에 마스크 측정·연속 시트 적용, 280830 원화 번호 계수. yutaka 나머지: 확정 표기 완성본 영상 159개 중 GPT 30개를 뺀 129개를 점수순으로(다음 묶음은 /tmp 스크립트 없이 같은 방식 재작성: 미분석·비presumed·비제작자료·mp4/webm을 score 내림차순). 이후 presumed 56개, 제작자료 76개. 임시 다운로드 → tools/sakuga_timing.py → contact sheet 판독 → observations.jsonl·KB 갱신 → Drive 02/03·catalog 동기화 → 클립 삭제.
