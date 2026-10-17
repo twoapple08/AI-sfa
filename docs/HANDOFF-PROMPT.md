@@ -1,48 +1,78 @@
-https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다(필요하면 fetch 후 이 브랜치에서 계속).
-AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상태' 절) → docs/STYLE-KB-ROOTS-2026-10-16.md 순서로 읽는다. 후보는 필요할 때만 docs/ARTIST-CANDIDATES-2026-10-16.md.
+https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. fetch 후 이 브랜치에서 계속한다(시스템이 다른 브랜치를 배정해도 사용자 지정이 우선).
 
-현재 우선순위: (나) 분석형 스타일 학습. 뿌리 yutaka_nakamura(이펙트·배경·연출)·nian41(**사람 몸 움직임만**; 표정 같은 그림체·머리카락·이펙트·연출은 학습 제외, 옷자락은 확인 대기). nian41 몸 움직임은 docs/NIAN41-BODY-MOTION-2026-10-17.md. 추가 작가는 사용자 승낙 후에만(1차 후보 6명 승낙/반려 대기). 개인 사용. 추가 지출은 가성비가 매우 좋을 때만.
+읽기 순서: AGENTS.md → 이 문서 → docs/COORDINATION-PHASE2-2026-10-17.md(작업표가 현재 기준) → docs/STYLE-KB-ROOTS-2026-10-16.md. 주제 문서는 필요할 때만 연다. HANDOFF.md는 이전 AOT 분석 단계의 기록이다. 이전 인수인계 상세: docs/history/HANDOFF-PROMPT-2026-10-17-archive.md.
 
-2026-10-17 완료 [실측]:
-- rclone v1.75.2 설치(SHA256 대조), 환경 변수 RCLONE_CONFIG_GDRIVE_{TYPE,SCOPE,TOKEN}로 `gdrive:` 연결. 공용 client_id 폐지 예정 경고 있음 → 인증 오류가 나면 개인 client_id 생성 안내.
-- Drive `AI-sfa/{00_목록,01_원본영상,02_분석자료,03_스타일지식베이스,04_SFA시험작}` 생성. 00=catalog.csv, 02=<post_id>/{timing.json,contact_sheet.jpg} 55개, 03=지식베이스 문서·observations.jsonl.
-- nian41 36클립 전부 분석(완성본 24 + 색 지정 레이아웃 제작자료 12), yutaka_nakamura 확정 표기 완성본 점수 상위 20클립 추가(누적 28). observations.jsonl 64건, catalog analyzed 64. 지식베이스 v1(D 캐릭터, E 제작자료, F yutaka 확장 절).
+## 현재 우선순위
 
-차단:
-- 01 원본 수집(`tools/sakuga_collect.py`, Drive 직접 스트리밍 + md5 대조)은 Claude Code 자동 승인 검토에서 거부됐다(사유 미표시). 우회하지 않는다. 사용자가 명시 허용하거나 권한 규칙을 추가하면 `python tools/sakuga_collect.py data/catalog.csv --limit 2`로 시험 후 전체(404개, 약 3.9GB) 진행.
-- 분석용 임시 다운로드(받아서 측정 후 즉시 삭제)는 허용됐다.
+(나) 분석형 스타일 학습. Stick Fighter용 스타일 지식베이스를 만든다.
+- **yutaka_nakamura:** 이펙트·배경·연출. 에반게리온 제외. 구작·최신작 공통 기법 가중.
+- **impact_frames는 4B 연필 느낌만 학습하고 디지털 단색은 제외한다(최중요).** 섞인 프레임은 비중이 큰 쪽으로 분류하고 '섞임(연필 우세)'처럼 표기한다(사용자 판정 290900 157).
+- **nian41:** 사람 몸 움직임만. 표정·그림체·머리카락·이펙트·연출 제외. 옷자락은 사용자 확인 대기. 규칙: docs/NIAN41-BODY-MOTION-2026-10-17.md.
+- 추가 작가는 사용자 승낙 후에만 편입한다. 학습(모델 훈련)·AI 연결은 하지 않는다. 포즈 추론(YOLO11-pose, tools/pose_extract.py)만 허가됐고, PC방 실행은 다음으로 연기됐다.
+- 조정 권한은 Claude에게 있다(GPT·Gemini 역할 배정과 기록).
 
-2026-10-17 후반:
-- nian41 학습 범위 축소 반영(KB D절·부록, observations.jsonl `learn_scope`). 몸 움직임 v1: 인물 색 마스크 측정으로 '몸 그림은 2s 기본 + 순간 1s'로 정정, 예비→순간→후속, 스미어 형태 정리(`tools/sakuga_timing.py --run` 연속 프레임 시트 추가).
-- GPT 분담(2026-10-17 사용자 변경): 공개된 yutaka_nakamura 자료 전부 수집 → 분석 진행. 지시서 docs/GPT-TASK-YUTAKA-SOURCES(1순위)·GPT-TASK-YUTAKA-EFFECTS(분석 형식). 이전 안: yutaka 다음 30클립(점수순 21–50위) contact sheet·timing·작업목록 CSV를 Drive 02에 올림. GPT 결과(JSONL)가 오면 몇 클립을 직접 대조한 뒤 KB에 'GPT 시각 판독'으로 합친다. 이 30개는 Claude가 중복 분석하지 않는다.
+## 현재 상태 (2026-10-17 끝) [실측 수치]
 
-- 자료 출처 조사(사용자 공통 지시: Claude=nian41, GPT=yutaka_nakamura): docs/NIAN41-SOURCES-2026-10-17.md, data/sources/nian41_sources.csv. 핵심 A등급=본인 Bilibili lo 업로드(JJK S3#09 虎杖vs日車, BV1A9PyzfExr). Bilibili 목록은 비로그인 위험 제어로 차단(우회 안 함). GPT용 지시서 docs/GPT-TASK-YUTAKA-SOURCES-2026-10-17.md.
+- `data/style_kb/observations.jsonl` 289건. yutaka 미분석 241건 분석을 마쳤다.
+  - 11a: GPT 신규 51건 + 같은 장면 병합 18건.
+  - 11b: Claude 하위 에이전트 144건. 표본 감사 3/3 일치.
+- catalog analyzed 335 / indexed 69.
+- `data/style_kb/tag_overrides.csv` 296행.
+  - impact_frames_pencil: confirmed 16, candidate 22.
+  - impact_frames_digital: confirmed 1, candidate 207.
+  - 그 외 태그 보정 candidate.
+- 연필 confirmed 16구간은 모두 두 AI 일치 또는 사용자 판정이다.
+  - 구성: GPT30분 9 + 11a분 5 + 후보 작가 85724분 2.
+  - 85724는 승낙 전 학습 제외.
+  - 상세: docs/IMPACT-PENCIL-CROSSCHECK-2026-10-17.md.
+- Gemini 작업 A(후보 6명 평가)는 대조를 마쳤다(docs/GEMINI-A-CHECK-2026-10-17.md).
+  - 프레임 판정은 정확했다.
+  - 회차·연도·클립 설명은 믿을 수 없다(19727 오기 확인).
+- Claude 의견: yukina_kosaka 승낙 추천(이펙트·연필 임팩트 한정), katsumi_ishizuka 보류, sota_shigetsugu·isuta_meister 반려 추천, riooo·optical-core 보류.
 
-- 사용자 제공 nian41 X 영상 12개(본인 게시, 담당 명시) 메타데이터·타이밍·시트 확보. Sakugabooru 제작자료 9개+216085+301142가 본인 그린 부분으로 확정(observations `proof`). 영상 원본은 서버 임시 폴더뿐 — Drive 01 저장은 자동 승인 거부(2회째, 'Auto-Mode Bypass')로 사용자 권한 설정 대기.
+## 다음 할 일 (순서대로)
 
-- Gemini 합류: docs/GEMINI-PASTE-2026-10-17.md(붙여 넣기용 현행 요약). Gemini 몫=후보 6명 평가 + nian41 몸 움직임 규칙 교차 검증. 결과가 오면 대조 후 병합.
+1. **사용자 응답 반영**(답이 오면 바로 처리):
+   - (a) 후보 6명 승낙·반려.
+   - (b) 셀 시대 단색 섬광(313715 등) 태그 처리. 제안은 `impact_frames_digital` 뜻을 '디지털·셀 단색 평면'으로 넓히는 것.
+   - (c) 연필 질감 정지 자료(11b 일러스트 7·409·232580·24634, 11a 정지 연필 7행)를 '연필 질감 참고'로 표시할지.
+   - (d) 귀속 의심: 1475(원화 크레딧 佐藤雅弘로 보임), 430(다른 작품 그림으로 보임).
+2. **작업 13 남은 것:** 11a 연필 보류 12구간. 400px로는 흑연·잉크·디지털 브러시를 가르기 어렵다(Claude는 흐린 결을 블러로 오판한 전력이 있음).
+   - 할 일: 원 해상도 프레임 묶음을 만들어 사용자에게 보내 판정받는다.
+   - 대상 목록: 크로스체크 문서 2차 표.
+3. **작업 14:** 구작·최신작 공통 기법표.
+   - 재료: observations의 `old_new_common`(true 다수)과 `old_new_common_note/source_posts`.
+   - 산출: 기법별 구작 표본·최신작 표본·빈도 표를 만들고 STYLE-KB-ROOTS에 '공통 기법' 절로 통합한다. 단일 표본은 표시한다.
+4. **Gemini 작업 C 결과**(지시문 docs/GEMINI-TASK-C-PROMPT-2026-10-17.md, 사용자가 보낼 예정)가 오면 대조하고 편입 절차를 확정한다(작업 12).
+5. 11b 확인 대기 구간(디지털/불확실 경계 20곳, 학습 제외 쪽)과 프레임 번호 없는 태그 보정 행 정리. 우선순위는 낮다.
 
-- GPT 진행(2026-10-17 사용자 보고): yutaka_nakamura 원본을 직접 내려받아 검증하고 90MiB 이하 독립 ZIP 42개로 Drive에 올리는 중. 서버 rclone은 drive.file 범위라 GPT 파일이 **보이지 않는다**(정상). 받는 법: GPT 폴더를 '링크가 있는 모든 사용자-뷰어'로 공유받아 공개 다운로드하거나, GPT가 CSV/JSONL을 텍스트로 붙여 넣게 한다. yutaka 원본은 Claude가 중복 수집하지 않는다.
-- 미완: nian41 본인 작화 3개(X 1913589758644908348 초능입방 원화3, 1943223713455051062 곤탄천하, 1613887197383622656 PF1) 마스크 측정은 끝(1s 35–52%, 2s 24–31%), 연속 프레임 판독은 미착수. 컬러 완성본·이펙트색이 섞여 수치 신뢰도는 280544보다 낮음.
+## 환경·자료 위치
 
-- GPT 결과 1차 확인: docs/GPT-RESULTS-CHECK-2026-10-17.md. 사용자가 Drive AI-sfa 폴더를 링크 공개(https://drive.google.com/drive/folders/1M8Fk05crDvs42R9Eqt7FdJv2fPSiX8Xy)로 바꿔 embeddedfolderview·drive.usercontent 공개 다운로드로 확인 가능. ZIP 32개(진행 중), 표본 2개 무결성·md5 일치.
+- **Drive:** rclone `gdrive:` remote를 환경 변수 RCLONE_CONFIG_GDRIVE_{TYPE,SCOPE,TOKEN}로 쓴다.
+  - 범위가 drive.file이라 GPT가 올린 파일은 rclone으로 안 보인다.
+  - 공개 폴더 https://drive.google.com/drive/folders/1M8Fk05crDvs42R9Eqt7FdJv2fPSiX8Xy 를 `embeddedfolderview?id=`로 나열하고, `drive.usercontent.google.com/download?id=..&export=download&confirm=t`로 받는다.
+  - 공용 client_id 폐지 예정 경고가 있다.
+- **rclone 설치:** 새 컨테이너에는 rclone이 없을 수 있다. 공식 릴리스를 받아 SHA256을 대조한 뒤 설치한다(서버 분석 도구 복구 허용 범위).
+- **Drive 구조 `AI-sfa/`:**
+  - 00_목록: catalog, manifest, 연도표, 분할표.
+  - 01_원본영상: yutaka GPT ZIP, nian41 48개, `_후보검토/<작가>/{tagged,presumed}`.
+  - 02_분석자료: `<post>/contact_sheet.jpg,timing.json`, `impact/<post>/f시작-끝.jpg`, `impact_candidates_*.csv`.
+  - 03_스타일지식베이스: 문서, observations, tag_overrides, impact_reference.
+- **원본 확인:** Sakugabooru 공개 URL `https://www.sakugabooru.com/data/<md5>.<ext>`에서 임시로 받고 확인 뒤 지운다. md5는 catalog.csv 또는 후보 manifest에 있다.
+- **도구:** tools/sakuga_timing.py(`--run S:E` 연속 시트), tools/impact_scan.py, tools/sakuga_collect.py, tools/pose_extract.py.
+- **서버 임시 폴더(scratchpad)는 새 세션에 없다.** 필요한 시트는 Drive 02에서 다시 받는다.
 
-- 사용자 지시(2026-10-17, GPT에도 전달됨): (1) **최중요** impact_frames는 4B 연필로 직접 그린 느낌만 학습, 디지털 단색 느낌 제외. (2) yutaka 구작·최신작 비교 — 양쪽 모두에 있는 방식(yutapon_cubes 등) 중요도 상향. (3) 에반게리온 제외. KB 상단 '학습 범위' 참조. 기존 임팩트 관찰은 아직 연필/디지털 미분류.
-- 계획(담당 미정): GPT 업로드가 끝나면 Drive 원본의 중복·오류·누락 점검(ZIP manifest md5 대조, catalog 대비 누락, 같은 장면 다른 인코딩 중복).
+## 검증 상태
 
-- **조정 권한은 Claude(사용자 지시).** 현재 배정: docs/COORDINATION-2026-10-17.md. GPT=nian41 원본 보관(Claude 업로드 차단 대체)·yutaka 외부 7개 검토·yutaka 분석 계속(최근작부터, era·old_new_common)·impact 분류. Claude=GPT 30건 교차 판독·병합, nian41 몸 움직임, 결과 통합. Gemini=후보 평가·nian41 규칙 검증.
-- 메타데이터 감사 완료: GPT manifest 368 ↔ catalog 368, 누락·md5 불일치·중복 0. parent_id 장면 중복 71건(삭제 안 함, 한 장면으로 계산).
+- `python -m unittest discover -s tests -v` 통과(마지막 실행 2026-10-17).
+- 모든 시각 판독은 [추론]이고 timing.json 수치는 [실측]이다. 하위 에이전트 단독 판독은 `cross_check`에 표시돼 있다.
 
-- 2026-10-17 후반: **nian41 원본 48개 Drive 보관 완료**(Sakugabooru 36 + X 12, md5 검증, manifest `data/sources/nian41_drive_manifest_2026-10-17.jsonl`). 사용자 재허가 후 업로드 통과. 자체 태그 규칙 `docs/TAG-RULES-2026-10-17.md`(impact_frames_pencil/digital, 누락 태그 add 방식). 디지털 기준 예시=302394 0–13프레임, 연필 예시=사용자 원화 사진(Drive 03/impact_reference). **사용자 지시: 이 범위 외 작업은 대기.**
+## 규칙
 
-- **현재 단계: docs/COORDINATION-PHASE2-2026-10-17.md 작업표가 기준.** 1·2·3·6·7·8·9·10 완료. 4(Gemini 작업 A, 메시지 docs/GEMINI-TASK-A-PROMPT-2026-10-17.md) 진행 중. 11a(GPT 최근작 97) 시작 가능, 11b 완료(docs/CLAUDE-11B-REPORT-2026-10-17.md: 관찰 144 병합, 영상 연필 0; 사용자 결정 2건·귀속 확인 2건 대기). 13은 GPT 30건분 완료(docs/IMPACT-PENCIL-CROSSCHECK-2026-10-17.md: 연필 9 모두 confirmed, 290900 157은 사용자 판정).
-
-- **PC방 GPU 포즈 추정은 다음 PC방 이용 때로 연기(사용자 2026-10-17 19시).** 준비 완료: tools/pose_extract.py(YOLO11-pose 추론만, 허가됨), 설치 순서는 Python 3.11을 H: 등 여유 드라이브에, TEMP/PIP_CACHE도 그 드라이브로, torch cu126 + ultralytics. 사양 예: RTX 4060 8GB, C: 여유 적음.
-
-다음 할 일:
-1. 01 수집 허용 여부를 사용자에게 확인(허용 시 위 순서).
-2. (GPT 결과 대기 중이면) nian41 몸 움직임 표본 확대: 다른 제작자료(280833·280835·287139 등)에 마스크 측정·연속 시트 적용, 280830 원화 번호 계수. yutaka 나머지: 확정 표기 완성본 영상 159개 중 GPT 30개를 뺀 129개를 점수순으로(다음 묶음은 /tmp 스크립트 없이 같은 방식 재작성: 미분석·비presumed·비제작자료·mp4/webm을 score 내림차순). 이후 presumed 56개, 제작자료 76개. 임시 다운로드 → tools/sakuga_timing.py → contact sheet 판독 → observations.jsonl·KB 갱신 → Drive 02/03·catalog 동기화 → 클립 삭제.
-3. 280830 원화 번호로 키 포즈 간격 측정.
-4. 후보 승낙/반려가 오면 해당 작가 색인·분석.
-
-규칙: 토큰·키를 채팅/로그/커밋에 출력하지 않는다. 영상 원본·contact sheet는 GitHub에 올리지 않는다(contact sheet는 Drive 02에만). 근거 등급([실측]/[추론]/[실물])을 구분한다. 출처가 "SB/ED"인 클립은 콘티·연출 근거로만 쓰고 작화 필치를 단정하지 않는다. FPS는 (트위닝,재생). 혼자 가능한 일은 자율 진행.
+- 토큰·키를 출력하지 않는다.
+- 영상 원본·contact sheet·남의 작화는 GitHub(공개)에 올리지 않고 Drive에만 둔다.
+- Drive 삭제는 사용자 승인 후에만 한다.
+- 자동 승인 거부·로그인/위험 제어 차단은 우회하지 않는다.
+- 사용자 대화와 문서는 한국어로 쓰고, 중간 진행 안내도 한국어로 쓴다.
+- 문서·aggregate 메타데이터 커밋은 상시 허가돼 있다.
+- 혼자 가능한 일은 자율 진행한다. 표를 갱신할 때 완료 행은 선행 조건·상태 칸 모두 **완료**, 진행 중 행은 선행 조건 칸에 **진행 중**으로 적는다.
