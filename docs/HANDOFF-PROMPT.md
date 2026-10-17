@@ -25,6 +25,8 @@ AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상�
 - GPT 진행(2026-10-17 사용자 보고): yutaka_nakamura 원본을 직접 내려받아 검증하고 90MiB 이하 독립 ZIP 42개로 Drive에 올리는 중. 서버 rclone은 drive.file 범위라 GPT 파일이 **보이지 않는다**(정상). 받는 법: GPT 폴더를 '링크가 있는 모든 사용자-뷰어'로 공유받아 공개 다운로드하거나, GPT가 CSV/JSONL을 텍스트로 붙여 넣게 한다. yutaka 원본은 Claude가 중복 수집하지 않는다.
 - 미완: nian41 본인 작화 3개(X 1913589758644908348 초능입방 원화3, 1943223713455051062 곤탄천하, 1613887197383622656 PF1) 마스크 측정은 끝(1s 35–52%, 2s 24–31%), 연속 프레임 판독은 미착수. 컬러 완성본·이펙트색이 섞여 수치 신뢰도는 280544보다 낮음.
 
+- GPT 결과 1차 확인: docs/GPT-RESULTS-CHECK-2026-10-17.md. 사용자가 Drive AI-sfa 폴더를 링크 공개(https://drive.google.com/drive/folders/1M8Fk05crDvs42R9Eqt7FdJv2fPSiX8Xy)로 바꿔 embeddedfolderview·drive.usercontent 공개 다운로드로 확인 가능. ZIP 32개(진행 중), 표본 2개 무결성·md5 일치.
+
 다음 할 일:
 1. 01 수집 허용 여부를 사용자에게 확인(허용 시 위 순서).
 2. (GPT 결과 대기 중이면) nian41 몸 움직임 표본 확대: 다른 제작자료(280833·280835·287139 등)에 마스크 측정·연속 시트 적용, 280830 원화 번호 계수. yutaka 나머지: 확정 표기 완성본 영상 159개 중 GPT 30개를 뺀 129개를 점수순으로(다음 묶음은 /tmp 스크립트 없이 같은 방식 재작성: 미분석·비presumed·비제작자료·mp4/webm을 score 내림차순). 이후 presumed 56개, 제작자료 76개. 임시 다운로드 → tools/sakuga_timing.py → contact sheet 판독 → observations.jsonl·KB 갱신 → Drive 02/03·catalog 동기화 → 클립 삭제.
