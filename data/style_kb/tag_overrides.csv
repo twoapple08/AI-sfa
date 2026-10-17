@@ -2,4 +2,5 @@ post_id,tag,action,frames,basis,grade,status,by,date
 302394,impact_frames_digital,add,0-13,흰 가시 섬광 면(0·2·3)·검정 전면(1·5·13)·흰 전면(8·11). 사용자가 디지털 예시로 지정,사용자 확인+실측 프레임,confirmed,Claude,2026-10-17
 280210,impact_frames_pencil,add,시트 1행7열 부근,흰 바탕 회흑 거친 스케치 선 실루엣. GPT·Claude 시트 판독 일치,추론,candidate,Claude,2026-10-17
 280210,impact_frames_digital,add,시트 1행8열·2행1–2열 부근,다색 점묘 색면,추론,candidate,Claude,2026-10-17
-281565,impact_frames_pencil,add,시트 2행6열 부근,무채색 건물 스케치 겹친 선·해칭. GPT·Claude 시트 판독 일치,추론,candidate,Claude,2026-10-17
+281565,impact_frames_pencil,add,63-66,"연속 프레임 시트(02_분석자료/impact/281565/f00053-00072.jpg): 거친 손그림 선·해칭의 무채색 선화 4프레임. Claude 육안 판정, GPT 동의 대기",추론(연속 프레임 육안),candidate,Claude,2026-10-17
+281565,impact_frames_digital,add,60-62,"60 흰 전면, 61–62 청백 평면 섬광. 연속 프레임 시트",추론(연속 프레임 육안),candidate,Claude,2026-10-17
