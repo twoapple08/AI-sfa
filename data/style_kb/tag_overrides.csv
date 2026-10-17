@@ -180,3 +180,8 @@ post_id,tag,action,frames,basis,grade,status,by,date
 174315,fire,add,,Claude(11b 하위 에이전트): 다층 화염 폭발(시트 1–4행),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
 48004,effects,add,,"Claude(11b 하위 에이전트): 적색 발광 궤적·흑백 반전 그래픽(437–449, 615–625)",추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
 48004,fire,add,,Claude(11b 하위 에이전트): 배경 화염 무늬(382–436),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+85724,impact_frames_pencil,add,13-15,"Gemini 작업 A + Claude 원본 프레임 대조 일치: 13 스케치 선화, 14 방사 흑연 해칭, 15 해칭 폭발 / 후보 작가 게시물 — 편입 승낙 전 학습 제외",추론(두 AI 시각 판독 일치),confirmed,Gemini+Claude,2026-10-17
+85724,impact_frames_pencil,add,48-51,"Gemini 작업 A + Claude 원본 프레임 대조 일치: 48 건물 해칭 선화, 49–50 방사 흑연 해칭, 51 해칭 파편 / 후보 작가 게시물 — 편입 승낙 전 학습 제외",추론(두 AI 시각 판독 일치),confirmed,Gemini+Claude,2026-10-17
+85724,impact_frames_digital,add,16,Claude 원본 프레임: 검은 전면 / 후보 작가 게시물 — 편입 승낙 전 학습 제외,추론(원본 프레임),candidate,Claude,2026-10-17
+85724,impact_frames_digital,add,52,Claude 원본 프레임: 검은 전면 / 후보 작가 게시물 — 편입 승낙 전 학습 제외,추론(원본 프레임),candidate,Claude,2026-10-17
+115390,impact_frames_digital,add,314-321,"Claude 원본 프레임: 흑백 평면 실루엣, 결 없음 / 후보 작가 게시물 — 편입 승낙 전 학습 제외",추론(원본 프레임),candidate,Claude,2026-10-17
