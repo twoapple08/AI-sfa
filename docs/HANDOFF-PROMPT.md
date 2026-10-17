@@ -42,8 +42,9 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
 1. **작업 15 — 승낙 3명 편입**(절차 v1의 4–10단계).
    - riooo: tagged 46개의 contact sheet로 "큰 전투씬"인지 판정한다(태그 1차 후보 13개). 불은 관찰에서 뺀다.
    - optical-core: 28개.
-   - yukina_kosaka: tagged 43개, presumed 18개는 제외한다.
-   - 색인: `data/sakuga/candidates/intake_index_riooo_optical-core_2026-10-18.csv`. yukina 색인은 아직 없다.
+   - yukina_kosaka: 43개(presumed 18개 제외). impact_frames 태그가 있는 24개부터 연필 임팩트를 판정한다.
+   - 색인(3단계 완료): `data/sakuga/candidates/intake_index_riooo_optical-core_2026-10-18.csv`, `intake_index_yukina_kosaka_2026-10-18.csv`.
+   - 다음 단계는 4(회차·연도 검증, Sakugabooru source 기준) → 7(contact sheet·timing, impact_scan) → 8–10.
    - 원본은 Drive `01_원본영상/_후보검토/<작가>/tagged/`.
    - 판정 결과는 원 해상도로 확인하고, 연필은 두 AI 일치나 사용자 판정이 있어야 확정한다.
 2. **작업 14 — 구작·최신작 공통 기법표.**

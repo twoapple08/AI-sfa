@@ -70,3 +70,4 @@
 - optical-core: 32파일. presumed 4건을 빼고 28건 포함(fire 태그 5건 포함, 불은 승낙 범위 안).
 - riooo: 49파일(tagged 46 + presumed 3). 태그 1차 필터로 큰 전투 후보 13건(이 중 fire 태그 3건은 불을 뺀 나머지 요소만 본다).
 - 태그만으로는 규모를 다 알 수 없다. 나머지 riooo tagged 클립도 contact sheet로 규모를 확인해 포함 여부를 확정한다(다음 단계).
+- yukina_kosaka(2026-10-18): `data/sakuga/candidates/intake_index_yukina_kosaka_2026-10-18.csv`. 61파일 중 presumed 18건을 빼고 43건 포함, 에반게리온 0건. 포함 43건 중 Sakugabooru `impact_frames` 태그가 있는 것은 24건으로, 연필 임팩트 판정은 여기부터 한다. 145064는 반려된 isuta_meister와 공동 태그다(학습 범위는 yukina 승낙 범위로 본다).
