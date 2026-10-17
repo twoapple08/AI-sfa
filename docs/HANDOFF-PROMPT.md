@@ -1,13 +1,14 @@
-https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
-최신 HANDOFF.md, AGENTS.md, docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md를 읽고 재개해. 기능표/FEATURE-CONTRACT-INDEX와 필요한 보고서만 추가로 읽는다.
+https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다(필요하면 fetch 후 이 브랜치에서 계속).
+AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md 순서로 읽고, 필요할 때만 docs/STYLE-KB-ROOTS-2026-10-16.md, docs/ARTIST-CANDIDATES-2026-10-16.md를 읽는다.
 
-사용자 지시: 혼자 가능한 일을 전부 자율 진행. 작은 보고서/커밋마다 멈추거나 같은 허용을 다시 묻지마. 02:06정정: 작업종류의 일률금지가 아니라 ‘이미 완료했고 필요없는 작업을 오판해 반복하지말라’는 뜻이다. 환경소실·새미해결질문 등 실제필요가 있는 작업은 범위를 좁혀 진행. 02:02서버도구복구 설치·다운로드·AOT재추출 상시허용은 다음인수인계에도 유지. 현재폰재설치/페어링/기존00–05영상재분석이 필요한 근거는 없으므로 반복하지마.
+현재 우선순위: (나) 분석형 스타일 학습. 이펙트·연출·배경 먼저, 뿌리 yutaka_nakamura(이펙트·배경·연출)·nian41(인체 움직임). 추가 작가는 사용자 승낙 후에만 포함(1차 후보 6명 승낙/반려 대기). 개인 사용. 추가 지출은 가성비가 매우 좋을 때만.
 
-서버복구/비공개백업완료: /workspace/scratch/5a16c98ed7ee/private-recovery/{blutter_out,evidence,venv,blutter/bin,depsroot,dispatch_out}. AOT671/asm666/86508012bytes/선언12752,입력hash3일치,추출종료0. 없어지면 기존비공개 AI-sfa-analysis-cache-2026-10-16.zip 먼저복구. 과거‘캐시없음/도구설치검토거절’을현행차단으로재사용하지마. 캐시가있는데다시전체빌드/덤프하지마.
+바로 할 일 — Google Drive 연결:
+1. 환경 변수 RCLONE_CONFIG_GDRIVE_TYPE/SCOPE/TOKEN 존재만 확인(값 출력 금지). 사용자가 2026-10-17에 넣었다고 함.
+2. rclone 설치(서버 도구 설치 허용 범위) → `rclone lsd gdrive:`로 연결 확인. 공용 client_id 경고가 있었으므로 인증 오류면 개인 client_id 생성 안내.
+3. drive.file 범위라 폴더는 서버가 만든다: AI-sfa/{00_목록,01_원본영상,02_분석자료,03_스타일지식베이스,04_SFA시험작}.
+4. data/catalog.csv → 00_목록, 지식베이스 문서·observations.jsonl → 03에 올린다.
+5. 원본 수집: 01_원본영상/<작가>/<post_id>_<md5>.<ext>. 1초 이상 간격, 이미 있는 md5는 건너뜀. 뿌리 두 명 404개(약 3.9GB)부터.
+6. 이후 nian41 나머지 클립 분석(캐릭터 축)과 지식베이스 확장. 결과는 02/03과 저장소 양쪽에.
 
-새완료: UNUSED-AO-FAST-HASH(73명령): 후보C에서실제비root점A·가상기반R을제외해삭제. FastHash=Position/FR색·segment수/AO ID·색·DrawOrder/점round(xy*10000)·Flags;자체hashcache없음/전체상태동등성아님. TIMELINE-FRAME-COMMANDS(146):실제layoutcallback→insert/paste전후/clipboard/배경/ID·연결·그룹·fill map/DB순서·preview/마지막삭제새frame. DISPATCH-TARGETS: 실제표origin4096,len57043/cid90·91·92 +85e4 first. 상세변형fallback첫AO첫점·Adopt첫layer/merge·copy목록first 정상계열확인. cid92+bc49 removeLast,+9780last,+8cb1iterator.6mapping+16명령. 이전미확정반복금지/다른cid일반화금지/실제앱시험아님.
-
-ROOT-COPY-DB-BRANCHES(49명령)도추가완료:source기반의원점ID/AOrank연속prefix p가2(N−p)≤N이면기존root를p개재사용,아니면새root/조건부source rebase시도/targetbase. ID예약은AUTOINCREMENT schema따라sqlite_sequence상향 또는가상base꼬리정리. 같은sequence ID유지/다른sequence새AOID·DB복사상위단계확인. 이정상경로재분석반복금지.
-다음은기능표의아직직접연결하지않은구체UIcallback을식별해coverage보충. 원시DB수명/실패·codec비정상/overflow/동시DB·전체UI·실제pixel미완. 일반앞뒤/별도lockUI미식별은같은PP/이름검색반복하지말고새구체caller만. 정적미수행을실물전용으로바꾸거나전체독립작업완료로주장하지마.
-
-원본00–05실제표본존재/기존계측Gadget·Flutter로드성공이나license4지속편집차단. PC현재없음/학교Wi-Fi제약,서버x86_64/adb·emulator없음. license우회안함. PREVIDEO3278146/File-2원본·최적화보호/FPS=(트위닝,재생)/굽힘없음/화면밖좌표보존/학습AI통합보류. 원본APK/SFA/영상/역컴파일·assembly/키/전체로그공개금지. 작성보고서·집계·인계main상시승인/최신head·tree·expected_sha보호/다른작업보존. 문서만변경시기존unit/probe반복금지. 전체분석완료/완성AI주장금지.
+규칙: 토큰·키를 채팅/로그/커밋에 출력하지 않는다. 영상 원본·contact sheet는 GitHub에 올리지 않는다. 근거 등급([실측]/[추론]/[실물])을 구분한다. FPS는 (트위닝,재생). 혼자 가능한 일은 자율 진행.
