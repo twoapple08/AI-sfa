@@ -3,7 +3,7 @@
 Read HANDOFF.md first for current scope and evidence. Keep it current at meaningful checkpoints.
 
 - User-facing communication and project guides: Korean.
-- Priority (2026-10-16 사용자 전환): (나) 분석형 스타일 학습 — 이펙트·연출·배경 우선, 뿌리 yutaka_nakamura(이펙트·배경·연출)·nian41(**사람 몸 움직임만**; 표정·그림체·머리카락·이펙트·연출은 학습 제외, 2026-10-17 사용자 지시). 현재 계획은 docs/STYLE-LEARNING-PLAN-2026-10-16.md, 후보는 docs/ARTIST-CANDIDATES-2026-10-16.md. 추가 애니메이터는 사용자 승낙 후에만 포함. 영상 원본은 저장소에 넣지 않고 분석 뒤 임시본을 지운다. Stick Fighter 기능 분석 결과는 생성 제약으로 재사용한다.
+- Priority (2026-10-16 사용자 전환): (나) 분석형 스타일 학습 — 이펙트·연출·배경 우선, 뿌리 yutaka_nakamura(이펙트·배경·연출; 에반게리온 클립 학습 제외, 다른 구작은 표시 후 최근작 근거 우선)·nian41(**사람 몸 움직임만**; 표정·그림체·머리카락·이펙트·연출은 학습 제외, 2026-10-17 사용자 지시). 현재 계획은 docs/STYLE-LEARNING-PLAN-2026-10-16.md, 후보는 docs/ARTIST-CANDIDATES-2026-10-16.md. 추가 애니메이터는 사용자 승낙 후에만 포함. 영상 원본은 저장소에 넣지 않고 분석 뒤 임시본을 지운다. Stick Fighter 기능 분석 결과는 생성 제약으로 재사용한다.
 - Distinguish stored-state probes, inferred algorithms, and actual app/UI verification.
 - Do not publish provided APKs, other users' animation/video originals, or decompiled app source.
 - FPS order is (tween_fps, playback_fps).
