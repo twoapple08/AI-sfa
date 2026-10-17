@@ -1,6 +1,6 @@
 # Gemini 작업 A 시작 메시지 (2026-10-17)
 
-권장 설정: Gemini 최상위 Pro 모델, 생각(Thinking) 켬. 작업 B를 한 같은 대화에 보낸다. 새 대화라면 `GEMINI-NEW-SESSION-PROMPT-2026-10-17.md`를 먼저 붙이고, 연필 예시 이미지를 다시 첨부한다.
+권장 설정: Gemini 최상위 Pro 모델, 생각(Thinking) 켬. 작업 B를 한 같은 대화에 보낸다. 새 대화라면 `GEMINI-NEW-SESSION-PROMPT-2026-10-17.md`를 먼저 붙인다. 연필·디지털 예시는 Drive에 있어 따로 첨부하지 않아도 된다.
 
 ---
 
@@ -10,7 +10,9 @@
 - 원본: `AI-sfa/01_원본영상/_후보검토/<작가>/tagged/` — yukina_kosaka, katsumi_ishizuka, sota_shigetsugu, riooo, optical-core, isuta_meister
 - 목록: `AI-sfa/00_목록/candidates_drive_manifest_2026-10-17.jsonl` (post_id, md5, 경로). 145064·298617·237891은 두 작가 공동 태그라 두 폴더에 같은 파일이 있다. 한 번만 세어 줘.
 - `presumed/` 폴더 영상은 **근거로 쓰지 마.** 작가 귀속이 추정이라서야.
-- 디지털 임팩트 기준 예시: `AI-sfa/03_스타일지식베이스/impact_reference/` (302394 프레임 0–13 = 디지털). 연필 기준은 첨부 이미지(4B 연필 손그림 질감).
+- 기준 예시: `AI-sfa/03_스타일지식베이스/impact_reference/`
+  - `pencil_example_user_2026-10-17.jpg` = 학습할 연필 임팩트(4B 연필 손그림 질감, 해칭·필압이 보임)
+  - `digital_example_302394_f0-17.jpg` = 학습에서 뺄 디지털 단색 임팩트(302394 프레임 0–13)
 
 **작가마다 할 일**
 1. tagged/에서 단독 작가 표기 클립으로 **최근작 2개 이상 + 구작 1개 이상**(있으면)을 골라 영상 파일을 직접 프레임 단위로 열어 봐. 에반게리온 클립은 고르지 마. 처음 프롬프트 표의 "이미 본 클립"보다 다른 클립을 우선해.
