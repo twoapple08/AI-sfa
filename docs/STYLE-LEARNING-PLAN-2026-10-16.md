@@ -104,3 +104,11 @@
 2. 게시물이 30개 이상인 작가(1,206명)마다 최근 게시물 최대 100개의 태그를 모아 general 태그 비율 벡터를 만든다. 뿌리와의 cosine 유사도와 중앙 점수(즐겨찾기 수 성격, 인기·최신작 편향 있음)를 표로 낸다.
 3. 태그 유사도는 '다루는 소재'의 유사도이지 그림체 유사도가 아니다. 상위 후보는 대표 클립의 contact sheet로 시각 비교를 덧붙인 뒤 사용자에게 추천한다.
 4. 사용자가 승낙한 작가만 수집·분석 대상에 넣는다.
+
+## 보관 위치 확정 — 2026-10-17 (사용자 결정)
+
+- 영상과 학습 자료는 **사용자의 Google Drive(5TB)**에 보관한다. 위의 '보관하지 않음' 추천은 이 결정으로 대체한다. GitHub 저장소에는 지금처럼 메타데이터와 분석 결과만 둔다.
+- 서버 → Drive 업로드는 rclone을 쓴다. 권한은 `drive.file` 범위로 제한한다. 이 범위에서는 rclone이 직접 만든 파일만 보이고, Drive의 기존 개인 파일은 읽거나 지울 수 없다.
+- 인증 정보는 채팅에 붙여넣지 않는다. 사용자가 환경 설정의 비밀값으로 다음 변수를 넣는다: `RCLONE_CONFIG_GDRIVE_TYPE=drive`, `RCLONE_CONFIG_GDRIVE_SCOPE=drive.file`, `RCLONE_CONFIG_GDRIVE_TOKEN=<rclone이 만든 token JSON>`. 새 세션부터 적용된다.
+- Drive 폴더 구조(안): `AI-sfa/raw/<artist>/<post_id>_<md5>.<ext>`(원본), `AI-sfa/sheets/`(contact sheet), `AI-sfa/kb/`(지식베이스 사본). 원본 파일명에 md5를 넣어 중복 다운로드를 막는다.
+- 현재 상태: 서버에서 googleapis.com 접속은 확인했다(인증 전이라 401 응답). rclone은 아직 설치하지 않았다. 토큰이 들어오기 전까지 업로드는 하지 않는다.
