@@ -43,7 +43,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
 3. **작업 14:** 구작·최신작 공통 기법표.
    - 재료: observations의 `old_new_common`(true 다수)과 `old_new_common_note/source_posts`.
    - 산출: 기법별 구작 표본·최신작 표본·빈도 표를 만들고 STYLE-KB-ROOTS에 '공통 기법' 절로 통합한다. 단일 표본은 표시한다.
-4. **Gemini 작업 C 결과**(지시문 docs/GEMINI-TASK-C-PROMPT-2026-10-17.md, 사용자가 보낼 예정)가 오면 대조하고 편입 절차를 확정한다(작업 12).
+4. Gemini 작업 C 대조 완료 → 편입 절차 v1(docs/INTAKE-PROCEDURE-2026-10-18.md). 승낙이 오면 이 절차대로 진행한다. 반려 추천 2명(sota_shigetsugu·isuta_meister)의 근거 임팩트 4개 중 2개는 Gemini 오판이었다. 연필 부재는 전수 검사 전이다.
 5. 11b 확인 대기 구간(디지털/불확실 경계 20곳, 학습 제외 쪽)과 프레임 번호 없는 태그 보정 행 정리. 우선순위는 낮다.
 
 ## 환경·자료 위치
