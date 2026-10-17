@@ -5,8 +5,8 @@ AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상�
 
 2026-10-17 완료 [실측]:
 - rclone v1.75.2 설치(SHA256 대조), 환경 변수 RCLONE_CONFIG_GDRIVE_{TYPE,SCOPE,TOKEN}로 `gdrive:` 연결. 공용 client_id 폐지 예정 경고 있음 → 인증 오류가 나면 개인 client_id 생성 안내.
-- Drive `AI-sfa/{00_목록,01_원본영상,02_분석자료,03_스타일지식베이스,04_SFA시험작}` 생성. 00=catalog.csv, 02=<post_id>/{timing.json,contact_sheet.jpg} 35개, 03=지식베이스 문서·observations.jsonl.
-- nian41 36클립 전부 분석(완성본 24 + 색 지정 레이아웃 제작자료 12). observations.jsonl 44건, catalog analyzed 44. 지식베이스 v1(D 캐릭터, E 제작자료 절).
+- Drive `AI-sfa/{00_목록,01_원본영상,02_분석자료,03_스타일지식베이스,04_SFA시험작}` 생성. 00=catalog.csv, 02=<post_id>/{timing.json,contact_sheet.jpg} 55개, 03=지식베이스 문서·observations.jsonl.
+- nian41 36클립 전부 분석(완성본 24 + 색 지정 레이아웃 제작자료 12), yutaka_nakamura 확정 표기 완성본 점수 상위 20클립 추가(누적 28). observations.jsonl 64건, catalog analyzed 64. 지식베이스 v1(D 캐릭터, E 제작자료, F yutaka 확장 절).
 
 차단:
 - 01 원본 수집(`tools/sakuga_collect.py`, Drive 직접 스트리밍 + md5 대조)은 Claude Code 자동 승인 검토에서 거부됐다(사유 미표시). 우회하지 않는다. 사용자가 명시 허용하거나 권한 규칙을 추가하면 `python tools/sakuga_collect.py data/catalog.csv --limit 2`로 시험 후 전체(404개, 약 3.9GB) 진행.
@@ -14,7 +14,7 @@ AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상�
 
 다음 할 일:
 1. 01 수집 허용 여부를 사용자에게 확인(허용 시 위 순서).
-2. yutaka_nakamura 나머지 클립 분석(이펙트·배경 축 표본 확대). 임시 다운로드 → tools/sakuga_timing.py → contact sheet 판독 → observations.jsonl·KB 갱신 → Drive 02/03·catalog 동기화 → 클립 삭제.
+2. yutaka_nakamura 나머지 분석: 확정 표기 완성본 영상 159개를 점수순으로(다음 묶음은 /tmp 스크립트 없이 같은 방식 재작성: 미분석·비presumed·비제작자료·mp4/webm을 score 내림차순). 이후 presumed 56개, 제작자료 76개. 임시 다운로드 → tools/sakuga_timing.py → contact sheet 판독 → observations.jsonl·KB 갱신 → Drive 02/03·catalog 동기화 → 클립 삭제.
 3. 280830 원화 번호로 키 포즈 간격 측정.
 4. 후보 승낙/반려가 오면 해당 작가 색인·분석.
 
