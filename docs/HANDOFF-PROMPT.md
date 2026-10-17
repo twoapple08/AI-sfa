@@ -37,6 +37,8 @@ AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상�
 
 - **현재 단계: docs/COORDINATION-PHASE2-2026-10-17.md** (Gemini=후보 평가 진행 중, Claude=임팩트 후보 검출·시트·240건 자료·GPT 30건 병합, GPT=358건 연도표·자기 30건 임팩트 재분류 → 연도로 240건 분할).
 
+- **PC방 GPU 포즈 추정은 다음 PC방 이용 때로 연기(사용자 2026-10-17 19시).** 준비 완료: tools/pose_extract.py(YOLO11-pose 추론만, 허가됨), 설치 순서는 Python 3.11을 H: 등 여유 드라이브에, TEMP/PIP_CACHE도 그 드라이브로, torch cu126 + ultralytics. 사양 예: RTX 4060 8GB, C: 여유 적음.
+
 다음 할 일:
 1. 01 수집 허용 여부를 사용자에게 확인(허용 시 위 순서).
 2. (GPT 결과 대기 중이면) nian41 몸 움직임 표본 확대: 다른 제작자료(280833·280835·287139 등)에 마스크 측정·연속 시트 적용, 280830 원화 번호 계수. yutaka 나머지: 확정 표기 완성본 영상 159개 중 GPT 30개를 뺀 129개를 점수순으로(다음 묶음은 /tmp 스크립트 없이 같은 방식 재작성: 미분석·비presumed·비제작자료·mp4/webm을 score 내림차순). 이후 presumed 56개, 제작자료 76개. 임시 다운로드 → tools/sakuga_timing.py → contact sheet 판독 → observations.jsonl·KB 갱신 → Drive 02/03·catalog 동기화 → 클립 삭제.
