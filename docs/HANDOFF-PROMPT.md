@@ -16,6 +16,8 @@ AGENTS.md → HANDOFF.md → docs/STYLE-LEARNING-PLAN-2026-10-16.md('현재 상�
 - nian41 학습 범위 축소 반영(KB D절·부록, observations.jsonl `learn_scope`). 몸 움직임 v1: 인물 색 마스크 측정으로 '몸 그림은 2s 기본 + 순간 1s'로 정정, 예비→순간→후속, 스미어 형태 정리(`tools/sakuga_timing.py --run` 연속 프레임 시트 추가).
 - GPT 분담: docs/GPT-TASK-YUTAKA-EFFECTS-2026-10-17.md. yutaka 다음 30클립(점수순 21–50위) contact sheet·timing·작업목록 CSV를 Drive 02에 올림. GPT 결과(JSONL)가 오면 몇 클립을 직접 대조한 뒤 KB에 'GPT 시각 판독'으로 합친다. 이 30개는 Claude가 중복 분석하지 않는다.
 
+- 자료 출처 조사(사용자 공통 지시: Claude=nian41, GPT=yutaka_nakamura): docs/NIAN41-SOURCES-2026-10-17.md, data/sources/nian41_sources.csv. 핵심 A등급=본인 Bilibili lo 업로드(JJK S3#09 虎杖vs日車, BV1A9PyzfExr). Bilibili 목록은 비로그인 위험 제어로 차단(우회 안 함). GPT용 지시서 docs/GPT-TASK-YUTAKA-SOURCES-2026-10-17.md.
+
 다음 할 일:
 1. 01 수집 허용 여부를 사용자에게 확인(허용 시 위 순서).
 2. (GPT 결과 대기 중이면) nian41 몸 움직임 표본 확대: 다른 제작자료(280833·280835·287139 등)에 마스크 측정·연속 시트 적용, 280830 원화 번호 계수. yutaka 나머지: 확정 표기 완성본 영상 159개 중 GPT 30개를 뺀 129개를 점수순으로(다음 묶음은 /tmp 스크립트 없이 같은 방식 재작성: 미분석·비presumed·비제작자료·mp4/webm을 score 내림차순). 이후 presumed 56개, 제작자료 76개. 임시 다운로드 → tools/sakuga_timing.py → contact sheet 판독 → observations.jsonl·KB 갱신 → Drive 02/03·catalog 동기화 → 클립 삭제.
