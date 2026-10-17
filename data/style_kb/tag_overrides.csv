@@ -65,3 +65,118 @@ post_id,tag,action,frames,basis,grade,status,by,date
 290900,impact_frames_digital,add,906,GPT: 판정=디지털 단색; 전면 백색 플래시; 근거=290900/f00900-00912.jpg https://drive.google.com/file/d/1GFM8rP7YrDY8eHxp1BdGFqS6fdIqsbAa/view?usp=drivesdk,추론(연속 프레임 시각 판독),candidate,GPT,2026-10-17
 290900,impact_frames_digital,add,1049,GPT: 판정=디지털 단색; 전면 백색 플래시; 근거=290900/f01043-01059.jpg https://drive.google.com/file/d/1fbB4bmnF3WxxvlUopGPUCq1Rm9uJAaiX/view?usp=drivesdk,추론(연속 프레임 시각 판독),candidate,GPT,2026-10-17
 306898,impact_frames_digital,add,92,GPT: 판정=디지털 단색; 도시·구름 쇼트에서 거의 전면 백색 한 프레임 전환. 연필 결 없음; 근거=306898/f00086-00098.jpg https://drive.google.com/file/d/1_jxaDRWVlDWyJBY_iAmCzGuxY6NYkoLH/view?usp=drivesdk,추론(연속 프레임 시각 판독),candidate,GPT,2026-10-17
+181174,impact_frames_digital,add,110,"Claude(11b 하위 에이전트): 연청·흰 단색 전면 + 흰 X자 베기선, 매끈한 평면",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+181174,impact_frames_digital,add,114,Claude(11b 하위 에이전트): 110과 같은 연청·흰 전면 + X자 선 반복,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+181174,impact_frames_digital,add,162,"Claude(11b 하위 에이전트): 흰 전면 섬광 + 가장자리 번개(자동 구간 밖, 시트에서 확인)",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+294834,impact_frames_digital,add,628,Claude(11b 하위 에이전트): 흰 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+294834,impact_frames_digital,add,637,Claude(11b 하위 에이전트): 흰 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+11222,impact_frames_digital,add,53,"Claude(11b 하위 에이전트): 흰 단색 전면 1프레임, 청색 빔 발사 직전",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+119371,impact_frames_digital,add,144-147,Claude(11b 하위 에이전트): 144 흰 단색 전면 + 145·147 흰 덮개 교대 깜박임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+119371,impact_frames_digital,add,221-222,Claude(11b 하위 에이전트): 반투명 흰 덮개 전면 2프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+119371,impact_frames_digital,add,341,Claude(11b 하위 에이전트): 흰 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+119371,impact_frames_digital,add,364,Claude(11b 하위 에이전트): 흰 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+119371,impact_frames_digital,add,490-491,Claude(11b 하위 에이전트): 흰 전면(490 주황 잔상 희미),추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+119371,impact_frames_digital,add,495-497,Claude(11b 하위 에이전트): 흰 단색 전면 3프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+119371,impact_frames_digital,add,512,Claude(11b 하위 에이전트): 검정 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+313715,impact_frames_digital,add,122,Claude(11b 하위 에이전트): 연분홍 단색 전면 1프레임(셀 시대 단색 플래시) / 주의: 1992년 셀 작업의 단색 섬광. 태그 이름 처리 사용자 결정 대기,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+313715,impact_frames_digital,add,165,Claude(11b 하위 에이전트): 크림 단색 전면 1프레임 / 주의: 1992년 셀 작업의 단색 섬광. 태그 이름 처리 사용자 결정 대기,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+313715,impact_frames_digital,add,201,Claude(11b 하위 에이전트): 연보라 단색 전면 1프레임 / 주의: 1992년 셀 작업의 단색 섬광. 태그 이름 처리 사용자 결정 대기,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307580,impact_frames_digital,add,385,Claude(11b 하위 에이전트): 흰 반투명 전면 1프레임(아래 선 희미),추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+174260,impact_frames_digital,add,611-617,"Claude(11b 하위 에이전트): 흰 평면 전면 + 검은 평면 파편 실루엣, 매끈한 가장자리",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+82913,explosions,add,시트 2행 3–5열,Claude(11b 하위 에이전트): 노랑 가시 섬광 후 검은 연기 폭발,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+82913,smoke,add,시트 2행 4–5열,Claude(11b 하위 에이전트): 검은 연기 퍼프 덩어리,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+181174,lightning,add,158-163,Claude(11b 하위 에이전트): 청록·흰 번개 가지가 기체 주위로 뻗음,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+11222,beams,add,54-57; 시트 1–6행,Claude(11b 하위 에이전트): 청색 빔(흰 core) + 노랑 빔 줄기 반복,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+119371,explosions,add,342-345; 128-131,"Claude(11b 하위 에이전트): 주황 폭발 덩어리, 공중 소폭발",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+119371,lightning,add,215-220; 513-526,Claude(11b 하위 에이전트): 청색 전기 선 망,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+313715,debris,add,121-128; 197-207,Claude(11b 하위 에이전트): 어두운 작은 파편 칩 흩어짐,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+80,sparks,add,시트 5행 6–7열,Claude(11b 하위 에이전트): 칼 충돌 지점 청색 별 불티,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+69069,impact_frames_digital,add,37-40,"Claude(11b 하위 에이전트): 37·40 흰 전면, 38–39 매끈한 흰 방사 섬광 그라데이션, 결 없음",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+294835,impact_frames_digital,add,138-140,"Claude(11b 하위 에이전트): 138 흰 전면 1장, 140 반투명 흰 겹침",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+294835,impact_frames_digital,add,173,Claude(11b 하위 에이전트): 회색 반투명 전면 1장 깜박임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+11224,impact_frames_digital,add,88-89,"Claude(11b 하위 에이전트): 흰 전면 + 청 가장자리, 매끈",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+11224,impact_frames_digital,add,367-369,"Claude(11b 하위 에이전트): 367–368 흰 방사 섬광 전면, 369 검은 전면 1장",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+11224,impact_frames_digital,add,449,Claude(11b 하위 에이전트): 검은 전면 1장(연기 컷과 파편 컷 사이),추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+71272,impact_frames_digital,add,64-81,"Claude(11b 하위 에이전트): 64·65·76·81 흰 전면, 68 검은 전면 교대 삽입",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+71272,impact_frames_digital,add,116-127,"Claude(11b 하위 에이전트): 116–117 흑백 반전 평면, 118·121·127 반투명 흰 섬광",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+71272,impact_frames_digital,add,325-333,Claude(11b 하위 에이전트): 325·327·328·330·332·333 흰 전면 교대 깜박임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307588,impact_frames_digital,add,1356,Claude(11b 하위 에이전트): 흰 전면 1장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+306268,lightning,add,27-39,Claude(11b 하위 에이전트): 청색 번개 빔 지그재그 가지,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+306268,smoke,add,시트 r2c2-r2c4,Claude(11b 하위 에이전트): 우주 흰 연기 구름 덩어리,추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+306268,explosions,add,시트 r5c5,Claude(11b 하위 에이전트): 흰 섬광 원형 폭발,추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+210214,wind,add,시트 r7c3-r8c4,Claude(11b 하위 에이전트): 반투명 바람 띠 + 회오리 기둥,추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+167784,fire,add,시트 r2c4-r2c5,Claude(11b 하위 에이전트): 주황 화염 분사,추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+294835,fire,add,시트 r3c4-r4c8,Claude(11b 하위 에이전트): 노랑 화염 덩어리 화면 가득,추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+11224,explosions,add,361-368,Claude(11b 하위 에이전트): 노랑·흰 방사 섬광 폭발,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+11224,smoke,add,443-448,Claude(11b 하위 에이전트): 갈색·베이지 둥근 연기 덩어리 대량,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+71272,yutapon_cubes,add,69-82,Claude(11b 하위 에이전트): 녹색 밝은/어두운 2톤 각진 결정 파편 회전 비산,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+174308,debris,add,시트 r3c6-r3c8,Claude(11b 하위 에이전트): 차량 충돌 눈·흙 파편 비산,추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+308183,lightning,add,시트 r2c1-r2c4,Claude(11b 하위 에이전트): 얼굴 위 노랑 전격 선,추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+114258,impact_frames_digital,add,90-96,"Claude(11b 하위 에이전트): 검정 바탕 크림 단색 지그재그 실루엣, 매끈한 가장자리·결 없음",추론(원본 확대),candidate,Claude,2026-10-17
+114258,impact_frames_digital,add,98-109,"Claude(11b 하위 에이전트): 시안 단색 전면 + 보라 줄기 streak, 면 농도 균일",추론(원본 확대),candidate,Claude,2026-10-17
+306593,impact_frames_digital,add,1-17,"Claude(11b 하위 에이전트): 회색·검정 평면(1·7·11) + 흑백 반전 포스터화(2·3·8·9·16·17) 교대, 결 없음",추론(원본 확대),candidate,Claude,2026-10-17
+306973,impact_frames_digital,add,272,Claude(11b 하위 에이전트): 검정 전면 1프레임(271 방사 집중선 직후),추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+165675,impact_frames_digital,add,1100-1102,"Claude(11b 하위 에이전트): 1100 흰 전면, 1101–1102 검정 바탕 적색 단색 실루엣",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+228636,impact_frames_digital,add,263-278,Claude(11b 하위 에이전트): 검정(263·266·272·278)·흰(264·269·275) 전면 교대 깜박임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+228636,impact_frames_digital,add,291-299,Claude(11b 하위 에이전트): 291 검정 전면 → 292–299 흰 전면 + 방사 잔광,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+70207,impact_frames_digital,add,832,Claude(11b 하위 에이전트): 흰(연분홍) 전면 1프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307581,impact_frames_digital,add,44,Claude(11b 하위 에이전트): 흰(연분홍) 전면 1프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307581,impact_frames_digital,add,1401,Claude(11b 하위 에이전트): 흰 전면 1프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307581,impact_frames_digital,add,1411-1414,Claude(11b 하위 에이전트): 회색·흰 평면 전면,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307703,impact_frames_digital,add,791-795,Claude(11b 하위 에이전트): 연청 평면(791–792)·검정(793·795)·흰(794) 전면 교대,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+306593,impact_frames,add,1-17,Claude(11b 하위 에이전트): 태그 없음; 회색·검정 평면·흑백 반전 프레임 교대,추론(원본 확대),candidate,Claude,2026-10-17
+306973,impact_frames,add,271-272,Claude(11b 하위 에이전트): 태그 없음; 방사 집중선 후 검정 전면,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+228636,impact_frames,add,263-299,Claude(11b 하위 에이전트): 태그 없음; 검/흰 전면 교대 + 화이트아웃,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307703,impact_frames,add,791-795,Claude(11b 하위 에이전트): 태그 없음; 연청·검·흰 전면 교대,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307581,impact_frames,add,44;1401;1411-1414,Claude(11b 하위 에이전트): 태그 없음; 흰·회색 전면 섬광,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+70207,yutapon_cubes,add,833-842,"Claude(11b 하위 에이전트): 회색 밝은 면·어두운 면 2톤 각진 잔해, 크기 다양하게 비산",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+70207,explosions,add,시트 1–2칸(≈21–43 추정),Claude(11b 하위 에이전트): 주황·노랑 평면 덩어리 폭발,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+11217,debris,add,56-65,Claude(11b 하위 에이전트): 회색 각진 암석 파편 비산,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+239750,explosions,add,시트 12–13칸(≈101–110 추정),Claude(11b 하위 에이전트): 흰·노랑 평면 화구 섬광 전면,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+82,liquid,add,시트 3–4행 하단(완성 화면),Claude(11b 하위 에이전트): 회색·흰 평면 물보라,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+306599,impact_frames_digital,add,823,"Claude(11b 하위 에이전트): 전면 흰 노출 1장(반투명 흰 덮개), 매끈 면",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+306599,impact_frames_digital,add,833,"Claude(11b 하위 에이전트): 전면 흰 노출 1장, 결 없음",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+306599,impact_frames_digital,add,843,"Claude(11b 하위 에이전트): 전면 흰 노출 1장, 결 없음",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+82912,impact_frames_digital,add,275-277,Claude(11b 하위 에이전트): 검정 평면 바탕+단색 실루엣·녹색 글로우,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+82912,impact_frames_digital,add,282-283,Claude(11b 하위 에이전트): 전면 흰 포화,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+82912,impact_frames_digital,add,285-286,Claude(11b 하위 에이전트): 전면 흰 포화,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+82912,impact_frames_digital,add,900-901,Claude(11b 하위 에이전트): 검정 프레임 2장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307321,impact_frames_digital,add,94-99,"Claude(11b 하위 에이전트): 전면 청백 포화, 매끈 면",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307321,impact_frames_digital,add,917,Claude(11b 하위 에이전트): 검정 프레임 1장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307321,impact_frames_digital,add,1338-1341,"Claude(11b 하위 에이전트): 흑백 평면 반전 그래픽+검정 1장, 매끈 가장자리",추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+269863,impact_frames_digital,add,84-85,Claude(11b 하위 에이전트): 전면 흰 노출 2장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+11220,impact_frames_digital,add,249-250,Claude(11b 하위 에이전트): 검정 프레임 2장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+11220,impact_frames_digital,add,280-284,Claude(11b 하위 에이전트): 검정 바탕 회색 발광 2장+전면 흰 3장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+307589,impact_frames_digital,add,1145-1147,Claude(11b 하위 에이전트): 흰 1장+검정 2장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+308943,impact_frames_digital,add,5-7,Claude(11b 하위 에이전트): 전면 흰·노랑 섬광 포화(0-4는 일반 컷),추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+308943,impact_frames_digital,add,53-55,Claude(11b 하위 에이전트): 반투명 흰 섬광 덮개,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+308943,impact_frames_digital,add,339,Claude(11b 하위 에이전트): 전면 흰 노출 1장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+308943,impact_frames_digital,add,342,Claude(11b 하위 에이전트): 흰 반전 노출 1장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+308943,impact_frames_digital,add,350-365,Claude(11b 하위 에이전트): 밝은 섬광/어두운 실루엣 프레임 교대 깜박임(357·360·363 포함),추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+308943,impact_frames_digital,add,583-585,Claude(11b 하위 에이전트): 흰·검·흰 프레임,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+48004,impact_frames_digital,add,193-194,Claude(11b 하위 에이전트): 전면 흰 2장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+48004,impact_frames_digital,add,261,Claude(11b 하위 에이전트): 전면 흰 1장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+48004,impact_frames_digital,add,273-274,Claude(11b 하위 에이전트): 전면 흰 2장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+48004,impact_frames_digital,add,388,Claude(11b 하위 에이전트): 회백 단색 평면 1장(종이 결 노이즈),추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+48004,impact_frames_digital,add,437-443,Claude(11b 하위 에이전트): 검정 프레임+적색 단색 발광 곡선,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+48004,impact_frames_digital,add,615-617,Claude(11b 하위 에이전트): 흑백 평면 실루엣 반전 2장+흰 1장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+48004,impact_frames_digital,add,622-625,Claude(11b 하위 에이전트): 흑백 평면 실루엣 반전 3장+검정 1장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+48004,impact_frames_digital,add,910-913,Claude(11b 하위 에이전트): 노랑·청 평면 충격 그래픽 2장+흰 2장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+48004,impact_frames_digital,add,1026,Claude(11b 하위 에이전트): 검정 1장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+48004,impact_frames_digital,add,1062,Claude(11b 하위 에이전트): 흰 1장,추론(연속 프레임 시각 판독),candidate,Claude,2026-10-17
+306508,beams,add,,Claude(11b 하위 에이전트): 노랑 레이저 직선 다발(시트 4–5행),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+306599,impact_frames,add,,Claude(11b 하위 에이전트): 823·833·843 전면 흰 노출 프레임,추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+185908,fireworks,add,,Claude(11b 하위 에이전트): 불꽃놀이 방사 점 폭발(시트 3·7·8행),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+82912,smoke,add,,Claude(11b 하위 에이전트): 검은 연기 덩어리(시트 1·4행),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+82912,beams,add,,Claude(11b 하위 에이전트): 분홍 기 빔(시트 8행·902–907),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+167785,sparks,add,,Claude(11b 하위 에이전트): 노랑 충돌 섬광·불티(시트 3·5·7행),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+11220,impact_frames,add,,"Claude(11b 하위 에이전트): 249–250 검정, 282–284 흰 프레임",추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+11220,explosions,add,,Claude(11b 하위 에이전트): 폭발 화구(시트 7행),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+11225,effects,add,,Claude(11b 하위 에이전트): 노랑 발광 덩어리(시트 1–3행),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+307321,fire,add,,"Claude(11b 하위 에이전트): 적·주황 화염 덩어리(시트 5–6행, 911–923)",추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+307589,impact_frames,add,,Claude(11b 하위 에이전트): 1145–1147 흰·검 프레임,추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+308943,impact_frames,add,,"Claude(11b 하위 에이전트): 583–585 흰·검·흰 프레임, 5–7 섬광 포화",추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+174237,beams,add,,Claude(11b 하위 에이전트): 황록 포 사격 빔(시트 1·6행),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+174315,fire,add,,Claude(11b 하위 에이전트): 다층 화염 폭발(시트 1–4행),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+48004,effects,add,,"Claude(11b 하위 에이전트): 적색 발광 궤적·흑백 반전 그래픽(437–449, 615–625)",추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
+48004,fire,add,,Claude(11b 하위 에이전트): 배경 화염 무늬(382–436),추론(contact sheet 시각 판독),candidate,Claude,2026-10-17
