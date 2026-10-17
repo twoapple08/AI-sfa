@@ -75,7 +75,7 @@ Gemini는 Drive에 있는 영상을 직접 프레임 단위로 잴 수 있다(ff
 | 12 | 승낙 작가 편입 준비 | Claude | **완료** | **완료** — 승낙 yukina_kosaka·riooo·optical-core, 반려 3명 원본 삭제 |
 | 13 | 연필 교차 확정 | Claude + GPT | **완료** | **완료** — 영상 연필 confirmed 28구간(보류 12구간은 사용자가 비질란테 이전 시기로 연필 인정) |
 | 15 | yukina_kosaka·riooo·optical-core 편입(절차 v1 4–10단계) | Claude 배정 | 12(완료) | **시작 가능** |
-| 14 | 구작·최신작 공통 기법표, 지식베이스 통합 | Claude | 11a·11b·13(완료) | **시작 가능** |
+| 14 | 구작·최신작 공통 기법표, 지식베이스 통합 | Claude | **완료** | **완료** — STYLE-KB-ROOTS H절, `old_new_common_table_2026-10-18.csv`. 공통 상위: 방사 집중선·역광 실루엣·불티·전경 가림·2톤 연기·번개·다층 화염·각진 파편 |
 
 ## 전달 규칙
 

@@ -24,7 +24,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
 
 ## 현재 상태 (2026-10-18) [실측 수치]
 
-- 작업표 1–13은 완료했다(docs/COORDINATION-PHASE2-2026-10-17.md).
+- 작업표 1–14는 완료했다(docs/COORDINATION-PHASE2-2026-10-17.md).
 - `data/style_kb/observations.jsonl` 289건. yutaka는 1475·430을 사용자 지시로 폐기했다.
 - catalog: analyzed 333 / indexed 69 / discarded 2.
 - `data/style_kb/tag_overrides.csv` 316행.
@@ -47,9 +47,11 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
    - 다음 단계는 4(회차·연도 검증, Sakugabooru source 기준) → 7(contact sheet·timing, impact_scan) → 8–10.
    - 원본은 Drive `01_원본영상/_후보검토/<작가>/tagged/`.
    - 판정 결과는 원 해상도로 확인하고, 연필은 두 AI 일치나 사용자 판정이 있어야 확정한다.
-2. **작업 14 — 구작·최신작 공통 기법표.**
-   - 재료: observations의 `old_new_common`, `old_new_common_note`, `old_new_common_source_posts`.
-   - 기법별로 구작 표본·최신작 표본·빈도를 정리해 docs/STYLE-KB-ROOTS-2026-10-16.md에 '공통 기법' 절로 넣는다. 단일 표본은 표시한다.
+2. **작업 14 완료(2026-10-18):** docs/STYLE-KB-ROOTS-2026-10-16.md H절, `data/style_kb/old_new_common_table_2026-10-18.csv`.
+   - 세 시기(셀 ≤1999 / 2000–2008 / 2009+)에 모두 나오는 상위 기법: 방사 집중선, 역광 실루엣, 불티, 전경 가림, 2톤 연기, 번개, 다층 화염, 각진 파편.
+   - 최신 위주: 별 섬광, 제한 팔레트.
+   - 연필 임팩트는 2010–2020년에만 있어 공통 기법이 아니라 그 시기의 특징으로 기록했다.
+   - 키워드 집계 기반 근사치다. 다음 개선: 편입 3명 자료가 들어오면 다시 집계한다.
 3. **임팩트 정의 재적용.**
    - 1–8프레임 디지털 구간의 흑백 교대(극성 전환)를 측정한다. 방법은 TAG-RULES 끝 절.
    - 전환이 1–2회뿐인 5구간(281184 75–84, 290900 462–471, 228636 291–299, 182469 350–362, 210085 106–125)을 다시 나눈다.
