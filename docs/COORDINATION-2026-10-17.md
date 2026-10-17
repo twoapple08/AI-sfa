@@ -94,6 +94,12 @@ GPT 답변(`docs/GPT-TO-CLAUDE-RECONCILIATION-2026-10-17.md`)은 이 조정안 �
 - **임팩트 예비 분류(GPT 30건, [추론]):** `data/style_kb/impact_prelim_gpt_2026-10-17.csv`. 연필 느낌 후보 2(280210, 281565), 디지털 단색 9, 불확실 18, 에반게리온 제외 1. 사용자 예시와 대조한 최종 채택은 0건. 3절 ④에서 예시 도착 후 확정한다. 분류 단위는 프레임이며 클립 전체 제외가 아니다.
 - **감사 역할:** GPT 답변의 "담당 미정"은 이 조정안으로 대체된다. 메타데이터 감사는 Claude가 끝냈고(2절), 장면 중복 시각 대조·전체 디코딩 검사는 아직 미배정이다 — 필요해지면 Claude가 추가 배정한다.
 
+## 4-2. 변경 (v1.2, 2026-10-17)
+
+- **GPT 담당 ① 취소 — nian41 원본은 Claude가 보관 완료.** 사용자가 Drive 업로드·수정 권한을 다시 허가했고, 이번에는 서버 업로드가 통과했다. `01_원본영상/nian41/`에 Sakugabooru 36(catalog md5와 Drive md5 일치) + 본인 X 영상 12(`x_self_posts/`, 로컬과 Drive md5 일치) = 48개, 753.4 MB [실측]. 목록: `00_목록/nian41_drive_manifest_2026-10-17.jsonl`(저장소 `data/sources/`). GPT는 nian41 원본을 다시 받지 않는다.
+- **자체 태그 규칙 추가:** `docs/TAG-RULES-2026-10-17.md`, `data/style_kb/tag_overrides.csv`. 새 태그 `impact_frames_pencil`(학습)·`impact_frames_digital`(제외). 영상에 보이는데 Sakugabooru 태그가 없으면(예: yutapon_cubes) 보정 파일에 add. GPT 담당 ④(impact 분류)와 ③(분석)은 이 태그와 파일 형식을 쓴다.
+- 사용자 지시로 위 범위 외 작업은 대기한다.
+
 ## 5. 공통 규칙
 
 - 사용자 최신 기준: impact_frames 연필 느낌만(최중요), 구작·최신작 공통 기법 가중, 에반게리온 제외, nian41은 몸 움직임만.
