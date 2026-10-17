@@ -100,6 +100,10 @@ GPT 답변(`docs/GPT-TO-CLAUDE-RECONCILIATION-2026-10-17.md`)은 이 조정안 �
 - **자체 태그 규칙 추가:** `docs/TAG-RULES-2026-10-17.md`, `data/style_kb/tag_overrides.csv`. 새 태그 `impact_frames_pencil`(학습)·`impact_frames_digital`(제외). 영상에 보이는데 Sakugabooru 태그가 없으면(예: yutapon_cubes) 보정 파일에 add. GPT 담당 ④(impact 분류)와 ③(분석)은 이 태그와 파일 형식을 쓴다.
 - 사용자 지시로 위 범위 외 작업은 대기한다.
 
+## 4-3. Gemini 지시 갱신 (v1.3)
+
+Gemini 최신 기준은 `docs/GEMINI-UPDATE-PROMPT-2026-10-17.md`. 작업 A 후보 6명 평가(임팩트 연필/디지털·구작·최신작 지속성 추가), B nian41 규칙 검증(대상 영상이 본인 작화 확정임을 명시), C 승낙 작가 편입 절차 검토. 앞선 GEMINI-PASTE는 대체된다.
+
 ## 5. 공통 규칙
 
 - 사용자 최신 기준: impact_frames 연필 느낌만(최중요), 구작·최신작 공통 기법 가중, 에반게리온 제외, nian41은 몸 움직임만.
