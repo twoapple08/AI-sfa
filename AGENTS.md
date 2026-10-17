@@ -3,7 +3,7 @@
 Read HANDOFF.md first for current scope and evidence. Keep it current at meaningful checkpoints.
 
 - User-facing communication and project guides: Korean.
-- Priority (2026-10-16 사용자 전환): (나) 분석형 스타일 학습 — 이펙트·연출·배경 우선, 뿌리 yutaka_nakamura(이펙트·배경·연출; 에반게리온 제외, 구작·최신작 공통 방식 가중; **impact_frames는 4B 연필 느낌만 학습, 디지털 단색 제외 — 최중요**)·nian41(**사람 몸 움직임만**; 표정·그림체·머리카락·이펙트·연출은 학습 제외, 2026-10-17 사용자 지시). 현재 계획은 docs/STYLE-LEARNING-PLAN-2026-10-16.md, 후보는 docs/ARTIST-CANDIDATES-2026-10-16.md. 추가 애니메이터는 사용자 승낙 후에만 포함. 영상 원본은 저장소에 넣지 않고 분석 뒤 임시본을 지운다. Stick Fighter 기능 분석 결과는 생성 제약으로 재사용한다.
+- Priority (2026-10-16 사용자 전환): (나) 분석형 스타일 학습 — 이펙트·연출·배경 우선, 뿌리 yutaka_nakamura(이펙트·배경·연출; 에반게리온 제외, 구작·최신작 공통 방식 가중; **impact_frames는 4B 연필 느낌만 학습, 디지털 단색 제외 — 최중요**)·nian41(**사람 몸 움직임만**; 표정·그림체·머리카락·이펙트·연출은 학습 제외, 2026-10-17 사용자 지시). 현재 계획은 docs/STYLE-LEARNING-PLAN-2026-10-16.md, 후보는 docs/ARTIST-CANDIDATES-2026-10-16.md. 추가 애니메이터는 사용자 승낙 후에만 포함(2026-10-18 승낙: riooo — 규모 큰 전투씬의 이펙트·연출만, 인체·불 이펙트 제외; optical-core — 이펙트·연출만, 인체 제외. 반려: katsumi_ishizuka. 미정: yukina_kosaka·sota_shigetsugu·isuta_meister. 범위는 docs/INTAKE-PROCEDURE-2026-10-18.md §4). 영상 원본은 저장소에 넣지 않고 분석 뒤 임시본을 지운다. Stick Fighter 기능 분석 결과는 생성 제약으로 재사용한다.
 - Distinguish stored-state probes, inferred algorithms, and actual app/UI verification.
 - Do not publish provided APKs, other users' animation/video originals, or decompiled app source.
 - FPS order is (tween_fps, playback_fps).

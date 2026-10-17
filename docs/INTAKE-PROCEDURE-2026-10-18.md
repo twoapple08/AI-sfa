@@ -47,3 +47,26 @@
 8. **판독:** 이펙트·배경·연출(또는 승낙 범위). 연필/디지털을 프레임 구간으로 판정하고, 섞이면 우세 쪽으로 분류한다.
 9. **교차 확인:** 서로 다른 두 AI가 같은 구간을 연필로 보면 confirmed. 불일치·애매는 원 해상도 크롭 묶음으로 만들어 사용자가 판정한다. 하위 에이전트 판독은 표본 감사를 거친다.
 10. **지식베이스 반영(Claude):** era·old_new_common(표본 연도가 몰리면 지속성 미입증), portability·근사 방법, 증거 등급, 단일 표본 표시.
+
+## 4. 사용자 승낙 기록 (2026-10-18)
+
+| 작가 | 결정 | scope | exclude |
+|---|---|---|---|
+| riooo | **승낙** | 이펙트·연출. **규모가 큰 전투씬만** | 인체(몸 움직임·그림체), **불 이펙트 전부** |
+| optical-core | **승낙** | 이펙트·연출 | 인체 |
+| katsumi_ishizuka | **반려** | — | — |
+| yukina_kosaka | 미정 | (Claude 추천: 이펙트·연필 임팩트) | |
+| sota_shigetsugu | 미정 | (반려 추천) | |
+| isuta_meister | 미정 | (반려 추천) | |
+
+공통 적용: impact_frames는 연필만 학습하고 디지털은 제외한다. 에반게리온은 제외한다. presumed는 근거로 쓰지 않는다.
+
+- riooo의 "규모가 큰 전투씬" 판정: 태그 `fighting`에 `debris`/`explosions`/`destruction`/`beams`/`lightning`/`background_animation` 중 하나가 있는 클립을 1차 후보로 보고, contact sheet에서 화면을 크게 쓰는 대규모 충돌이 보여야 최종 포함한다. 불(`fire` 태그나 화염 장면)은 관찰·태그 보정·SFA 제안에서 모두 뺀다(불이 섞인 클립은 불이 아닌 요소만 본다).
+- katsumi_ishizuka 원본(Drive `_후보검토/katsumi_ishizuka/`, 81파일)은 학습에서 쓰지 않는다. 삭제는 사용자 승인 후에만 한다.
+
+### 3단계 색인 결과 [실측, 메타데이터]
+
+`data/sakuga/candidates/intake_index_riooo_optical-core_2026-10-18.csv`
+- optical-core: 32파일. presumed 4건을 빼고 28건 포함(fire 태그 5건 포함, 불은 승낙 범위 안).
+- riooo: 49파일(tagged 46 + presumed 3). 태그 1차 필터로 큰 전투 후보 13건(이 중 fire 태그 3건은 불을 뺀 나머지 요소만 본다).
+- 태그만으로는 규모를 다 알 수 없다. 나머지 riooo tagged 클립도 contact sheet로 규모를 확인해 포함 여부를 확정한다(다음 단계).
