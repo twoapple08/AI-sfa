@@ -62,6 +62,12 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
    - nian41 옷자락 범위 결정
    - PC방 포즈 추론
 
+## 향후 계획 (사용자 2026-10-18, 미착수)
+
+현재 단계가 끝난 뒤에 한다. 상세: docs/FUTURE-PLAN-2026-10-18.md.
+1. 캐릭터 디자인(파일·사진)을 주면 그 캐릭터를 등장인물로 만든다.
+2. BGM 파일과 분량·타이밍을 주면 음악에 맞춰 애니메이션을 만든다.
+
 ## 환경·자료 위치
 
 - **Drive:** rclone `gdrive:` remote를 환경 변수 RCLONE_CONFIG_GDRIVE_{TYPE,SCOPE,TOKEN}로 쓴다.
