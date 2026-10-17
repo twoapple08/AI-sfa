@@ -58,3 +58,17 @@ Sakugabooru 원본을 임시로 받아 각 구간 앞뒤 2프레임을 0기준 �
 - 정지 이미지 연필 7행(frames=all)은 "연필 질감 참고" 표시 여부 사용자 결정 대기.
 - 디지털 78행·태그 보정 5행은 candidate로 `tag_overrides.csv`에 넣었다. 불확실 159행은 GPT CSV에만 있다.
 - 누적 연필 confirmed: 16구간(GPT30 9 + 11a 5 + 후보 작가 85724 2). 85724는 후보 작가라 승낙 전 학습 제외.
+
+## 보류 12구간 사용자 판정용 자료 (2026-10-18)
+
+Drive `AI-sfa/02_분석자료/연필보류_12구간/`. 폴더마다 원 해상도 PNG(구간 앞뒤 2프레임 포함, 파일명 f<프레임>.png)와 `slow_quarter.mp4`(구간 앞뒤 24프레임, 1/4 속도, 왼쪽 위 프레임 번호)가 있다. 원본 영상은 GPT ZIP 안에 있다.
+
+| 폴더 | 원본 ZIP |
+|---|---|
+| 01_75672_f54-56 | yutaka_tagged_reference_003.zip |
+| 02_196873_f457-458 | yutaka_tagged_reference_009.zip |
+| 03_210085_f516-516 | yutaka_tagged_reference_012.zip |
+| 04_239055_f944-944, 05_239055_f947-948, 06_239055_f952-952 | yutaka_tagged_reference_017.zip |
+| 07_272649_f224-227, 08_272649_f578-578 | yutaka_tagged_reference_021.zip |
+| 09_272715_f1082-1082, 10_272715_f1085-1087 | yutaka_tagged_reference_021.zip |
+| 11_285111_f120-120, 12_285111_f395-396 | yutaka_tagged_reference_024.zip |
