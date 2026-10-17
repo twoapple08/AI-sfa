@@ -102,7 +102,7 @@ GPT 답변(`docs/GPT-TO-CLAUDE-RECONCILIATION-2026-10-17.md`)은 이 조정안 �
 
 ## 4-3. Gemini 지시 갱신 (v1.3)
 
-Gemini 최신 기준은 `docs/GEMINI-UPDATE-PROMPT-2026-10-17.md`. 작업 A 후보 6명 평가(임팩트 연필/디지털·구작·최신작 지속성 추가), B nian41 규칙 검증(대상 영상이 본인 작화 확정임을 명시), C 승낙 작가 편입 절차 검토. 앞선 GEMINI-PASTE는 대체된다.
+Gemini 최신 기준은 `docs/GEMINI-NEW-SESSION-PROMPT-2026-10-17.md`(새 대화용 단독 프롬프트, UPDATE-PROMPT를 대체). 작업 A 후보 6명 평가(임팩트 연필/디지털·구작·최신작 지속성 추가), B nian41 규칙 검증(대상 영상이 본인 작화 확정임을 명시), C 승낙 작가 편입 절차 검토. 앞선 GEMINI-PASTE는 대체된다.
 
 ## 5. 공통 규칙
 
