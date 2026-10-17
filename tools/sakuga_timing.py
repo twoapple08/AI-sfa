@@ -3,6 +3,7 @@
 
 사용 예:
   python tools/sakuga_timing.py clip.mp4 --sheet out.jpg --json out.json
+  python tools/sakuga_timing.py clip.mp4 --run 120:168 --sheet run.jpg   # 연속 프레임 시트
 
 방법: ffmpeg로 프레임을 축소 회색조로 읽고 이전 프레임과의 평균 절대차를 잰다.
 차이가 임계값 이하이면 같은 그림의 유지(hold)로 보고, 새 그림 사이 간격으로
@@ -32,13 +33,16 @@ def frames(path, w=W, h=H, gray=True):
     p = subprocess.Popen(['ffmpeg', '-v', 'error', '-i', path, '-vf', f'scale={w}:{h}',
                           '-f', 'rawvideo', '-pix_fmt', fmt, '-'], stdout=subprocess.PIPE)
     size = w * h * ch
-    while True:
-        buf = p.stdout.read(size)
-        if len(buf) < size:
-            break
-        yield np.frombuffer(buf, np.uint8).reshape(h, w, ch) if not gray else \
-            np.frombuffer(buf, np.uint8).reshape(h, w)
-    p.wait()
+    try:
+        while True:
+            buf = p.stdout.read(size)
+            if len(buf) < size:
+                break
+            yield np.frombuffer(buf, np.uint8).reshape(h, w, ch) if not gray else \
+                np.frombuffer(buf, np.uint8).reshape(h, w)
+    finally:  # 중간에 멈추면(run 시트) ffmpeg를 끝내 broken pipe 출력을 막는다
+        p.kill()
+        p.wait()
 
 
 def analyze(path, thresh):
@@ -71,6 +75,26 @@ def sheet(path, idx, out, cols=8, w=213, h=120, limit=64):
     Image.fromarray(canvas).save(out, quality=85)
 
 
+def run_sheet(path, start, end, out, step=1, cols=6, w=320, h=180):
+    """연속 프레임 [start, end)를 step 간격으로 깐다. 몸 동작 간격(spacing)을 보기 위한 시트."""
+    from PIL import Image, ImageDraw
+    pick = list(range(start, end, step))[:48]
+    tiles = []
+    for i, f in enumerate(frames(path, w, h, gray=False)):
+        if i in pick:
+            im = Image.fromarray(f.copy())
+            ImageDraw.Draw(im).text((4, 2), str(i), fill=(255, 255, 0))
+            tiles.append(im)
+        if i >= pick[-1]:
+            break
+    rows = (len(tiles) + cols - 1) // cols
+    canvas = Image.new('RGB', (cols * w, rows * h))
+    for k, t in enumerate(tiles):
+        r, c = divmod(k, cols)
+        canvas.paste(t, (c * w, r * h))
+    canvas.save(out, quality=85)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument('video')
@@ -78,7 +102,12 @@ def main():
     ap.add_argument('--sheet')
     ap.add_argument('--start', type=int, default=0, help='sheet에 넣을 첫 고유 그림 순번')
     ap.add_argument('--json')
+    ap.add_argument('--run', help='START:END[:STEP] 연속 프레임 시트만 만든다(--sheet에 저장, 프레임 번호 표시)')
     a = ap.parse_args()
+    if a.run:
+        start, end, *step = map(int, a.run.split(':'))
+        run_sheet(a.video, start, end, a.sheet, step[0] if step else 1)
+        return
     r = analyze(a.video, a.thresh)
     print({k: v for k, v in r.items() if k != 'new_frame_index'})
     if a.sheet:
