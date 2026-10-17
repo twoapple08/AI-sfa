@@ -6,47 +6,58 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
 
 (나) 분석형 스타일 학습. Stick Fighter용 스타일 지식베이스를 만든다.
 - **yutaka_nakamura:** 이펙트·배경·연출. 에반게리온 제외. 구작·최신작 공통 기법 가중.
-- **impact_frames는 4B 연필 느낌만 학습하고 디지털 단색은 제외한다(최중요).** 섞인 프레임은 비중이 큰 쪽으로 분류하고 '섞임(연필 우세)'처럼 표기한다(사용자 판정 290900 157).
+- **impact_frames는 4B 연필 느낌만 학습하고 디지털은 제외한다(최중요).**
+  - 임팩트 프레임의 정의: 흑백(반전)이 짧게 번갈아 바뀌며 번쩍이는 것. 흑백 처리가 이어지기만 하면 연출(`bw_direction`)이다.
+  - 섞인 프레임은 비중이 큰 쪽으로 분류하고 '섞임(연필 우세)'처럼 표기한다.
+  - 셀 시대(era 1999 이하)의 단색 섬광은 실제 빛을 비추는 방식이라 제외한다(`impact_frames_cel_light`).
+  - 정지 일러스트·원화의 흑연 질감은 `pencil_texture_reference`(참고 전용)다.
+  - 상세: docs/TAG-RULES-2026-10-17.md.
 - **nian41:** 사람 몸 움직임만. 표정·그림체·머리카락·이펙트·연출 제외. 옷자락은 사용자 확인 대기. 규칙: docs/NIAN41-BODY-MOTION-2026-10-17.md.
-- 추가 작가는 사용자 승낙 후에만 편입한다. 학습(모델 훈련)·AI 연결은 하지 않는다. 포즈 추론(YOLO11-pose, tools/pose_extract.py)만 허가됐고, PC방 실행은 다음으로 연기됐다.
+- **승낙 작가(2026-10-18):**
+  - yukina_kosaka: 이펙트·연출·연필 임팩트, 인체 제외.
+  - riooo: 규모가 큰 전투씬의 이펙트·연출만. 인체와 불 이펙트 전부 제외.
+  - optical-core: 이펙트·연출, 인체 제외.
+  - 반려(원본 삭제됨): katsumi_ishizuka·sota_shigetsugu·isuta_meister.
+  - 범위와 절차: docs/INTAKE-PROCEDURE-2026-10-18.md.
+- 학습(모델 훈련)·AI 연결은 하지 않는다. 포즈 추론(YOLO11-pose, tools/pose_extract.py)만 허가됐고, PC방 실행은 연기됐다.
 - 조정 권한은 Claude에게 있다(GPT·Gemini 역할 배정과 기록).
 
-## 현재 상태 (2026-10-17 끝) [실측 수치]
+## 현재 상태 (2026-10-18) [실측 수치]
 
-- `data/style_kb/observations.jsonl` 289건. yutaka 미분석 241건 분석을 마쳤다.
-  - 11a: GPT 신규 51건 + 같은 장면 병합 18건.
-  - 11b: Claude 하위 에이전트 144건. 표본 감사 3/3 일치.
-- catalog analyzed 335 / indexed 69.
-- `data/style_kb/tag_overrides.csv` 296행.
-  - impact_frames_pencil: confirmed 16, candidate 22.
-  - impact_frames_digital: confirmed 1, candidate 207.
-  - 그 외 태그 보정 candidate.
-- 연필 confirmed 16구간은 모두 두 AI 일치 또는 사용자 판정이다.
-  - 구성: GPT30분 9 + 11a분 5 + 후보 작가 85724분 2.
-  - 85724는 승낙 전 학습 제외.
+- 작업표 1–13은 완료했다(docs/COORDINATION-PHASE2-2026-10-17.md).
+- `data/style_kb/observations.jsonl` 289건. yutaka는 1475·430을 사용자 지시로 폐기했다.
+- catalog: analyzed 333 / indexed 69 / discarded 2.
+- `data/style_kb/tag_overrides.csv` 316행.
+  - impact_frames_pencil confirmed **28**: 두 AI 일치 16 + 사용자 판정 12. 85724(yukina)는 이제 학습 대상이다.
+  - impact_frames_digital candidate 163, confirmed 1(302394 0–13).
+  - impact_frames_cel_light 40, bw_direction 4, bw_silhouette_direction 1, pencil_texture_reference 17.
   - 상세: docs/IMPACT-PENCIL-CROSSCHECK-2026-10-17.md.
-- Gemini 작업 A(후보 6명 평가)는 대조를 마쳤다(docs/GEMINI-A-CHECK-2026-10-17.md).
-  - 프레임 판정은 정확했다.
-  - 회차·연도·클립 설명은 믿을 수 없다(19727 오기 확인).
-- Claude 의견: yukina_kosaka 승낙 추천(이펙트·연필 임팩트 한정), katsumi_ishizuka 보류, sota_shigetsugu·isuta_meister 반려 추천, riooo·optical-core 보류.
+- 302394(비질란테 S2 #12, 2026-03) 이후 방영된 작품에는 임팩트 프레임이 없다. 309107은 흑백 연출이다.
+- 사용자 관찰(가설): 나카무라의 디지털 임팩트는 비교적 최근이고, 그 이전 작품은 연필선이다.
+  - 재검토 목록: `data/style_kb/digital_impact_before_302394_2026-10-18.csv`(디지털 시대 134행).
+  - 기준 연도는 사용자 결정을 기다린다.
 
 ## 다음 할 일 (순서대로)
 
-1. **사용자 응답 반영**(답이 오면 바로 처리):
-   - (a) 후보 승낙·반려: 2026-10-18 riooo 승낙(큰 전투씬의 이펙트·연출만, 인체·불 제외), optical-core 승낙(이펙트·연출만, 인체 제외), katsumi_ishizuka 반려. 2026-10-18 추가: yukina_kosaka 승낙(이펙트·연출·연필 임팩트, 인체 제외), sota·isuta 반려, 반려 3명 `_후보검토` 원본 삭제(Drive 휴지통). 범위와 색인은 docs/INTAKE-PROCEDURE-2026-10-18.md §4. 다음: riooo tagged 전체 contact sheet로 규모 판정 → 절차 4–10단계.
-   - (b) 셀 시대 단색 섬광(313715 등) 태그 처리. 제안은 `impact_frames_digital` 뜻을 '디지털·셀 단색 평면'으로 넓히는 것.
-   - (c) 연필 질감 정지 자료(11b 일러스트 7·409·232580·24634, 11a 정지 연필 7행)를 '연필 질감 참고'로 표시할지.
-   - (d) 귀속 의심: 1475(원화 크레딧 佐藤雅弘로 보임), 430(다른 작품 그림으로 보임).
-2. **2026-10-18 사용자 지시 반영됨:** 셀 시대(era≤1999) 단색 섬광 → `impact_frames_cel_light`(학습 제외, 40행). 1475·430 폐기. 연필 질감 정지 자료 17건 `pencil_texture_reference`. 사용자 가설: 나카무라의 디지털 임팩트는 비교적 최근이고, 몇 년 된 작품은 연필선 → 302394 이전 디지털 분류 재검토 목록 `data/style_kb/digital_impact_before_302394_2026-10-18.csv`(199행, 디지털 시대 134행) 사용자 검토 대기.
-3. **작업 13 완료:** 보류 12구간은 사용자가 '비질란테 이전 시기라 연필'로 인정했다 → 영상 연필 confirmed 28. 임팩트 정의(흑백 번갈아 번쩍임)가 확정됐다. 짧은 구간(1–8프레임)의 흑백 교대 재측정과 전환 1–2회 5구간 재분할은 남았다(TAG-RULES 끝 절).
-   (이전 메모) 11a 연필 보류 12구간. 400px로는 흑연·잉크·디지털 브러시를 가르기 어렵다(Claude는 흐린 결을 블러로 오판한 전력이 있음).
-   - 할 일: 원 해상도 프레임 묶음을 만들어 사용자에게 보내 판정받는다.
-   - 대상 목록: 크로스체크 문서 2차 표.
-3. **작업 14:** 구작·최신작 공통 기법표.
-   - 재료: observations의 `old_new_common`(true 다수)과 `old_new_common_note/source_posts`.
-   - 산출: 기법별 구작 표본·최신작 표본·빈도 표를 만들고 STYLE-KB-ROOTS에 '공통 기법' 절로 통합한다. 단일 표본은 표시한다.
-4. Gemini 작업 C 대조 완료 → 편입 절차 v1(docs/INTAKE-PROCEDURE-2026-10-18.md). 승낙이 오면 이 절차대로 진행한다. 반려 추천 2명(sota_shigetsugu·isuta_meister)의 근거 임팩트 4개 중 2개는 Gemini 오판이었다. 연필 부재는 전수 검사 전이다.
-5. 11b 확인 대기 구간(디지털/불확실 경계 20곳, 학습 제외 쪽)과 프레임 번호 없는 태그 보정 행 정리. 우선순위는 낮다.
+1. **작업 15 — 승낙 3명 편입**(절차 v1의 4–10단계).
+   - riooo: tagged 46개의 contact sheet로 "큰 전투씬"인지 판정한다(태그 1차 후보 13개). 불은 관찰에서 뺀다.
+   - optical-core: 28개.
+   - yukina_kosaka: tagged 43개, presumed 18개는 제외한다.
+   - 색인: `data/sakuga/candidates/intake_index_riooo_optical-core_2026-10-18.csv`. yukina 색인은 아직 없다.
+   - 원본은 Drive `01_원본영상/_후보검토/<작가>/tagged/`.
+   - 판정 결과는 원 해상도로 확인하고, 연필은 두 AI 일치나 사용자 판정이 있어야 확정한다.
+2. **작업 14 — 구작·최신작 공통 기법표.**
+   - 재료: observations의 `old_new_common`, `old_new_common_note`, `old_new_common_source_posts`.
+   - 기법별로 구작 표본·최신작 표본·빈도를 정리해 docs/STYLE-KB-ROOTS-2026-10-16.md에 '공통 기법' 절로 넣는다. 단일 표본은 표시한다.
+3. **임팩트 정의 재적용.**
+   - 1–8프레임 디지털 구간의 흑백 교대(극성 전환)를 측정한다. 방법은 TAG-RULES 끝 절.
+   - 전환이 1–2회뿐인 5구간(281184 75–84, 290900 462–471, 228636 291–299, 182469 350–362, 210085 106–125)을 다시 나눈다.
+4. **사용자 결정 대기:** 디지털 임팩트를 쓰기 시작한 경계 연도. 결정되면 그 이전 '디지털' 구간을 연필 쪽으로 다시 판정한다.
+5. 우선순위 낮음:
+   - 11b 확인 대기 구간(경계 20곳)
+   - 프레임 번호가 없는 태그 보정 행
+   - nian41 옷자락 범위 결정
+   - PC방 포즈 추론
 
 ## 환경·자료 위치
 
@@ -57,7 +68,8 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
 - **rclone 설치:** 새 컨테이너에는 rclone이 없을 수 있다. 공식 릴리스를 받아 SHA256을 대조한 뒤 설치한다(서버 분석 도구 복구 허용 범위).
 - **Drive 구조 `AI-sfa/`:**
   - 00_목록: catalog, manifest, 연도표, 분할표.
-  - 01_원본영상: yutaka GPT ZIP, nian41 48개, `_후보검토/<작가>/{tagged,presumed}`.
+  - 01_원본영상: yutaka GPT ZIP(`yutaka_tagged_reference_NNN.zip`, 목록 00_목록/GPT-YUTAKA-ZIP-CONTENTS-2026-10-17.csv), nian41 48개, `_후보검토/{yukina_kosaka,riooo,optical-core}/{tagged,presumed}`.
+  - 02_분석자료/연필보류_12구간: 사용자 판정용 원 해상도 묶음(판정 완료).
   - 02_분석자료: `<post>/contact_sheet.jpg,timing.json`, `impact/<post>/f시작-끝.jpg`, `impact_candidates_*.csv`.
   - 03_스타일지식베이스: 문서, observations, tag_overrides, impact_reference.
 - **원본 확인:** Sakugabooru 공개 URL `https://www.sakugabooru.com/data/<md5>.<ext>`에서 임시로 받고 확인 뒤 지운다. md5는 catalog.csv 또는 후보 manifest에 있다.
@@ -66,7 +78,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
 
 ## 검증 상태
 
-- `python -m unittest discover -s tests -v` 통과(마지막 실행 2026-10-17).
+- `python -m unittest discover -s tests -v` 통과(마지막 실행 2026-10-18).
 - 모든 시각 판독은 [추론]이고 timing.json 수치는 [실측]이다. 하위 에이전트 단독 판독은 `cross_check`에 표시돼 있다.
 
 ## 규칙
