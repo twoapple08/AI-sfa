@@ -119,6 +119,7 @@
   - **주의:** `drive.file` 범위에서는 rclone이 직접 만든 폴더와 파일만 보인다. 이 폴더들은 사용자가 손으로 만들지 말고 서버가 만들게 둔다. 손으로 만든 같은 이름의 폴더는 서버가 보지 못해서 이름이 중복될 수 있다.
 - 현재 상태 (2026-10-17 [실측]):
   - rclone v1.75.2를 공식 배포본 SHA256 대조 후 설치했다. 환경 변수 3개로 `gdrive:` 연결이 된다. 다만 rclone 공용 client_id가 2026년 중 폐지된다는 경고가 나온다. 인증이 끊기면 개인 client_id를 만들어 토큰을 다시 받아야 한다(https://rclone.org/drive/#making-your-own-client-id).
+  - Drive 용량 [실측, rclone about]: 전체 5 TiB, 사용 35 GiB, 남은 4.78 TiB.
   - 서버가 `AI-sfa/00_목록 … 04_SFA시험작` 5개 폴더를 만들었다.
   - 00에 `catalog.csv`, 03에 지식베이스 문서 3개와 `observations.jsonl`, 02에 nian41 35클립의 `timing.json`·`contact_sheet.jpg`를 올렸다.
   - **01 원본 수집은 하지 못했다.** `tools/sakuga_collect.py`(Drive로 직접 스트리밍 + Drive md5 대조 + 중복 건너뜀)를 만들었지만, 첫 실행(2개 시험)이 Claude Code 자동 승인 검토에서 거부됐다(사유 미표시). 지침대로 우회하지 않았다. 사용자가 명시적으로 허용하거나 권한 규칙을 추가해야 진행할 수 있다.
