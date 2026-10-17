@@ -110,5 +110,11 @@
 - 영상과 학습 자료는 **사용자의 Google Drive(5TB)**에 보관한다. 위의 '보관하지 않음' 추천은 이 결정으로 대체한다. GitHub 저장소에는 지금처럼 메타데이터와 분석 결과만 둔다.
 - 서버 → Drive 업로드는 rclone을 쓴다. 권한은 `drive.file` 범위로 제한한다. 이 범위에서는 rclone이 직접 만든 파일만 보이고, Drive의 기존 개인 파일은 읽거나 지울 수 없다.
 - 인증 정보는 채팅에 붙여넣지 않는다. 사용자가 환경 설정의 비밀값으로 다음 변수를 넣는다: `RCLONE_CONFIG_GDRIVE_TYPE=drive`, `RCLONE_CONFIG_GDRIVE_SCOPE=drive.file`, `RCLONE_CONFIG_GDRIVE_TOKEN=<rclone이 만든 token JSON>`. 새 세션부터 적용된다.
-- Drive 폴더 구조(안): `AI-sfa/raw/<artist>/<post_id>_<md5>.<ext>`(원본), `AI-sfa/sheets/`(contact sheet), `AI-sfa/kb/`(지식베이스 사본). 원본 파일명에 md5를 넣어 중복 다운로드를 막는다.
+- **Drive 폴더 구조 (2026-10-17 확정, GPT 제안을 사용자가 채택):** 최상위 폴더는 `AI-sfa/`.
+  - `00_목록/` — 출처 URL, 작가·태그, 담당 근거, 중복 여부, 분석 상태. 원본은 `tools/sakuga_catalog.py`가 만드는 `catalog.csv`(저장소에는 `data/catalog.csv`).
+  - `01_원본영상/<작가>/<post_id>_<md5>.<ext>` — 수집한 원본 보존. 파일명에 md5를 넣어 중복 다운로드를 막는다.
+  - `02_분석자료/<post_id>/` — 구간별 클립, 추출 프레임·contact sheet, 타이밍 측정 JSON.
+  - `03_스타일지식베이스/` — 기법 설명, 관찰 근거, SFA 구현 규칙. 저장소의 STYLE-KB 문서와 `observations.jsonl` 사본.
+  - `04_SFA시험작/` — 생성한 SFA, 미리보기, 앱 결과 비교.
+  - **주의:** `drive.file` 범위에서는 rclone이 직접 만든 폴더와 파일만 보인다. 이 폴더들은 사용자가 손으로 만들지 말고 서버가 만들게 둔다. 손으로 만든 같은 이름의 폴더는 서버가 보지 못해서 이름이 중복될 수 있다.
 - 현재 상태: 서버에서 googleapis.com 접속은 확인했다(인증 전이라 401 응답). rclone은 아직 설치하지 않았다. 토큰이 들어오기 전까지 업로드는 하지 않는다.
