@@ -22,7 +22,10 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
    rclone lsf -R --files-only --include '*/impact.json' gdrive:AI-sfa/02_분석자료/impact_v2 | wc -l   # 목표 411
    rclone lsf -R --files-only --include '*/done.json' gdrive:AI-sfa/02_분석자료/기법 | wc -l        # 목표 821
    ```
-   - 2026-10-18 세션 종료 직전 기준: ① 173, ② 88(서버에는 더 진행된 결과가 있었고 9분마다 Drive로 동기화 중이었다).
+   - **① 임팩트 재검사는 2026-10-18에 411/411 완료**됐다(실패 0).
+     - 후보 구간 2,625개: yutaka 1,933, riooo 291, yukina 215, optical-core 186.
+     - 후보가 있는 게시물은 332, 시트는 1,777장이다.
+   - ② 기법 수집은 같은 날 285/821에서 새 드라이버로 다시 시작했다. 위 명령으로 현재 수를 확인한다.
    - 다운로드 실패(DOWNLOAD_FAIL)는 결과가 없어 목표에 못 미칠 수 있다. 드라이버를 다시 돌리면 재시도한다.
 3. 덜 끝났으면 드라이버를 실행해 이어서 처리한다.
    - 두 드라이버 모두 Drive에 완료 파일이 있는 항목은 건너뛰고, 처리한 항목은 바로 Drive에 올린다.
