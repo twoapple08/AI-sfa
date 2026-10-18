@@ -39,7 +39,7 @@ def jobs():
 
 
 def done_on_drive():
-    r = subprocess.run(['rclone', 'lsf', '-R', '--include', '*/impact.json', DRIVE],
+    r = subprocess.run(['rclone', 'lsf', '-R', '--files-only', '--include', '*/impact.json', DRIVE],
                        capture_output=True, text=True, env=ENV, stdin=subprocess.DEVNULL)
     return {line.split('/')[0] for line in r.stdout.split()}
 

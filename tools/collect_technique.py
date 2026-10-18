@@ -72,7 +72,7 @@ def main():
     ap.add_argument('--workers', type=int, default=2)
     a = ap.parse_args()
     os.makedirs(a.work, exist_ok=True)
-    done = {x.split('/')[0] for x in lsf(ANAL, '-R', '--include', '*/done.json')}
+    done = {x.split('/')[0] for x in lsf(ANAL, '-R', '--files-only', '--include', '*/done.json')}
     have_orig = set(lsf(f'{ORIG}/기법_itano_circus')) | set(lsf(f'{ORIG}/기법_kutsuna_lightning'))
     ours = existing()
     todo = [j for j in jobs() if str(j[1]['id']) not in done]
