@@ -68,6 +68,8 @@ Sakugabooru 태그 옆의 '?'는 그 태그의 **위키(정의) 페이지** 링�
 
 - presumed는 작가 귀속에 관한 표시라 기법 학습에는 쓴다.
 - 에반게리온은 받지 않고 표시만 한다.
-- 반려 작가(isuta_meister 등) 공동 태그 클립도 받지 않고 표시만 한다(itano 1, kutsuna 21). 사용자 확인이 필요하다.
+- 반려 작가(isuta_meister 등) 공동 태그 클립 처리(사용자 결정 2026-10-18):
+  - kutsuna 21건은 쿠츠나 번개 기법 학습용으로만 받는다. manifest의 `scope`에 표시한다.
+  - itano 1건은 받지 않는다.
 - 원본 위치: Drive `01_원본영상/기법_<태그>/<post>_<md5>.<ext>`
 - contact sheet·timing은 수집 뒤 `02_분석자료/<post>/`에 올린다.
