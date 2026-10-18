@@ -1,4 +1,4 @@
-# 인수인계 (2026-10-18, 판정·관찰 단계 완료 시점)
+# 인수인계 (2026-10-18, 사용자 판정 묶음 A·B·C 준비 완료 시점)
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. fetch 후 이 브랜치에서 계속한다(시스템이 다른 브랜치를 배정해도 사용자 지정이 우선).
 
@@ -29,12 +29,13 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 | C v2 미검출 기존 후보 | `사용자판정_C_v2미검출_기존후보84/` | 84(1행은 frames=all, PNG 없음) | `data/style_kb/judge_lists/C_v2_undetected_84.csv` |
 
    - 각 묶음: 구간 폴더(앞뒤 2프레임 원 해상도 PNG + slow_quarter.mp4) + `판정표.csv`(user_judgement 칸)
-   - **묶음이 Drive에 없거나 불완전하면** 다시 만든다(세션 종료 직전까지 B·C를 생성·업로드하는 중이었다):
+   - **2026-10-18 세 묶음 모두 완성·업로드 확인:** A 폴더 50, B 303, C 83(+frames=all 1행). 모든 폴더에 PNG와 slow_quarter.mp4가 있고, 판정표.csv도 있다.
+   - 혹시 Drive에서 사라졌거나 불완전하면 다시 만든다:
      ```
      python tools/make_judge_bundle.py data/style_kb/judge_lists/B_new_impact_candidates_303.csv <작업폴더>/B "gdrive:AI-sfa/02_분석자료/사용자판정_B_신규임팩트후보303"
      python tools/make_judge_bundle.py data/style_kb/judge_lists/C_v2_undetected_84.csv <작업폴더>/C "gdrive:AI-sfa/02_분석자료/사용자판정_C_v2미검출_기존후보84"
      ```
-     - 완성 확인 기준: 구간 폴더 수가 B 302(+frames 미지정 0), C 83, 판정표.csv 존재
+     - 완성 확인 기준: 구간 폴더 수 A 50, B 303, C 83, 각 판정표.csv 존재
      - 오래 걸리면 run_in_background로 실행한다.
    - 사용자가 판정을 주면 tag_overrides를 갱신한다.
      - 임팩트 → confirmed(연필; 302394만 디지털)
