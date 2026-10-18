@@ -71,3 +71,20 @@
 - riooo: 49파일(tagged 46 + presumed 3). 태그 1차 필터로 큰 전투 후보 13건(이 중 fire 태그 3건은 불을 뺀 나머지 요소만 본다).
 - 태그만으로는 규모를 다 알 수 없다. 나머지 riooo tagged 클립도 contact sheet로 규모를 확인해 포함 여부를 확정한다(다음 단계).
 - yukina_kosaka(2026-10-18): `data/sakuga/candidates/intake_index_yukina_kosaka_2026-10-18.csv`. 61파일 중 presumed 18건을 빼고 43건 포함, 에반게리온 0건. 포함 43건 중 Sakugabooru `impact_frames` 태그가 있는 것은 24건으로, 연필 임팩트 판정은 여기부터 한다. 145064는 반려된 isuta_meister와 공동 태그다(학습 범위는 yukina 승낙 범위로 본다).
+
+### 4·5단계 회차·연도·출처 등급 결과 (2026-10-18) [실측 메타데이터 + Wikipedia 원문 대조]
+
+`data/sakuga/candidates/intake_step4_era_2026-10-18.csv` (117건 = riooo 46 + optical-core 28 + yukina_kosaka 43). 재현: `tools/intake_step4_era.py`.
+
+| 작가 | high | medium | 미확인 |
+|---|---|---|---|
+| riooo | 32 | 6 | 8 |
+| optical-core | 5 | 6 | 17 |
+| yukina_kosaka | 35 | 6 | 2 |
+
+- **방법:** source의 `#NN`과 작품(copyright) 태그로 회차를 정하고, Wikipedia(en, OP 사용 화수는 ja) 회차 목록의 최초 방영·공개일을 적었다. 극장판·TV 스페셜은 개봉·방영일이다.
+- **medium:** 회차별 날짜가 없고 방영 기간만 있는 경우(flip_flappers #08, NCOP류), parent_id 상속, 본인 SNS 게시일(개인작). 트위터 게시일은 status ID(snowflake)에서 계산했다.
+- **미확인 27건:** optical-core 개인작·중국 웹 작품(bilibili·weibo 출처)과 MV 등. `booru_posted`(Sakugabooru 등록일)는 상한일 뿐이고 연도로 쓰지 않는다. dog_days #06은 2011/2012/2015 중 어느 시리즈인지, garo_-_vanishing_line #13은 2017/2018 중 어느 해인지 모른다.
+- **등급:** 본인 계정(reurangel_·riooorangel·OpticalCore) 게시 = A, 나머지 = C(Sakugabooru 작가 태그). 계정과 작가의 동일성은 계정명 대조에 의한 추정이다. B(공식 크레딧)는 이번에 대조하지 않았다.
+- **확인된 모순 1건:** 208725(Mob III #04) 방영일 2022-10-27이 Sakugabooru 등록일(UTC 2022-10-26)보다 하루 늦다. 시차·심야 편성 표기 차이로 보이며 연도에는 영향이 없다.
+- **연도 분포:** 연도가 정해진 90건은 모두 2012–2026이다(가장 이른 것: yukina 316863 Magi #02, 2012-10-14). 미확인 27건도 Sakugabooru 등록일이 2015년 이후다. 이 3명 자료로 셀 시대(≤1999)·2000–2008과의 공통성은 검증할 수 없다.
