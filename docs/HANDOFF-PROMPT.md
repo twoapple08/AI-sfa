@@ -31,7 +31,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
   - riooo 큰 전투 판정: `riooo_big_battle_2026-10-18.csv`. 포함 22, 제외 24.
   - catalog 상태: `candidates_catalog.csv` analyzed_intake15 89, out_of_scope_intake15 28.
   - 상세: docs/INTAKE-PROCEDURE-2026-10-18.md 4–10단계 결과.
-- `data/style_kb/tag_overrides.csv` 349행(+33).
+- `data/style_kb/tag_overrides.csv` 356행. 작업 15에서 +33, 5구간 재분할에서 +7을 더했고 기존 5행은 superseded로 바꿨다.
   - impact_frames_pencil confirmed는 **28 그대로**다.
   - 작업 15에서 연필 candidate 16, `impact_frames` 판단 보류 12, 디지털 candidate 5를 추가했다.
   - 임팩트 판정표: `data/style_kb/impact_intake15_claude_2026-10-18.csv`.
@@ -53,7 +53,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
    - riooo의 마력 오라·폭발 섬광을 '불'에서 뺀 판단이 맞는지.
 3. **임팩트 정의 재적용(기존 3번).**
    - 1–8프레임 디지털 구간의 극성 전환을 측정한다.
-   - 전환 1–2회 5구간(281184 75–84, 290900 462–471, 228636 291–299, 182469 350–362, 210085 106–125)을 다시 나눈다.
+   - 전환 1–2회 5구간은 재분할을 마쳤다(2026-10-18, TAG-RULES 끝 절, tag_overrides 356행). 남은 것은 1–8프레임 구간 전체의 극성 측정이다.
    - 400px에서 디지털로 본 기존 candidate 163건도 원 해상도로 일부 표본 감사를 하는 것이 좋다. 작업 15에서 오판 4/9가 나왔다.
 4. **사용자 결정 대기:** 디지털 임팩트 경계 연도.
 5. 우선순위 낮음:
