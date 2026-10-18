@@ -145,3 +145,12 @@
 - `tag_overrides.csv`: +33. 연필 후보 16, `impact_frames` 보류 12, 디지털 5. 모두 candidate다.
 - `candidates_catalog.csv`: 117건 상태 갱신. analyzed_intake15 89, out_of_scope_intake15 28.
 - 기법 집계는 docs/STYLE-KB-ROOTS-2026-10-16.md H2절에 있다.
+
+### 사용자 판정·결정 반영 (2026-10-18)
+
+- **9단계 교차 확인:** 사용자가 28구간을 원 해상도로 판정했다. 연필 24 → confirmed, 부분 임팩트 2, 연출 2. 상세: docs/IMPACT-PENCIL-CROSSCHECK-2026-10-17.md 끝 절.
+- **6단계 원본 이동(사용자 지시 "옮겨"):** `_후보검토/<작가>/tagged` 117개를 `01_원본영상/<작가>/`로 옮겼다. presumed 25개는 `01_원본영상/<작가>/presumed/`로 옮겼다.
+  - 이동 뒤 Drive md5와 파일명 md5를 대조했고 모두 일치했다.
+  - 빈 폴더는 정리했다. `_후보검토`에는 반려 3명 기록만 남는다.
+  - catalog·manifest·색인의 drive_path를 고쳤다.
+- **riooo 불 기준(사용자 승인 "그렇게 해"):** 마력 오라와 폭발 섬광은 불로 보지 않고 관찰에 포함한다. 화염 자체만 제외한다.

@@ -22,46 +22,36 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 작업 �
 - 학습(모델 훈련)·AI 연결은 하지 않는다. 포즈 추론(YOLO11-pose, tools/pose_extract.py)만 허가됐고, PC방 실행은 연기됐다.
 - 조정 권한은 Claude에게 있다(GPT·Gemini 역할 배정과 기록).
 
-## 현재 상태 (2026-10-18, 작업 15 반영) [실측 수치]
+## 현재 상태 (2026-10-18, 작업 15·16 완료) [실측 수치]
 
-- 작업표 1–14는 완료했다. 15는 9단계(교차 확인)만 남았다. 작업표: docs/COORDINATION-PHASE2-2026-10-17.md.
-- `data/style_kb/observations.jsonl` 378건. 기존 289건에 작업 15 편입분 89건을 더했다. 편입분은 Claude 단독 판독이다.
-- 편입 3명 117건 처리 결과:
-  - 회차·연도: `data/sakuga/candidates/intake_step4_era_2026-10-18.csv`. high 72 / medium 18 / 미확인 27.
-  - riooo 큰 전투 판정: `riooo_big_battle_2026-10-18.csv`. 포함 22, 제외 24.
-  - catalog 상태: `candidates_catalog.csv` analyzed_intake15 89, out_of_scope_intake15 28.
-  - 상세: docs/INTAKE-PROCEDURE-2026-10-18.md 4–10단계 결과.
-- `data/style_kb/tag_overrides.csv` 356행. 작업 15에서 +33, 5구간 재분할에서 +7을 더했고 기존 5행은 superseded로 바꿨다.
-  - impact_frames_pencil confirmed는 **28 그대로**다.
-  - 작업 15에서 연필 candidate 16, `impact_frames` 판단 보류 12, 디지털 candidate 5를 추가했다.
-  - 임팩트 판정표: `data/style_kb/impact_intake15_claude_2026-10-18.csv`.
-- 원 해상도 재확인으로 400px 시트의 '디지털' 4구간을 판단 보류로 정정했다. 거친 손그림 해칭을 2치로 처리한 화면이었다. 400px 판독만으로 디지털을 확정하지 않는다.
-- impact_scan은 무채색 문맥, 16프레임을 넘는 흑백, 일부 연필 프레임(85724 13–15)을 놓친다. 임팩트 태그 클립은 시트를 직접 본다.
-- 이전 관찰은 유지한다.
-  - 302394(2026-03) 이후 작품에는 임팩트 프레임이 없다.
-  - 나카무라 디지털 임팩트 경계 연도는 사용자 결정을 기다린다(재검토 목록 `digital_impact_before_302394_2026-10-18.csv`).
-- yukina 연필 후보는 2015–2022에 걸친다(단독 판독).
+- 작업표 1–16을 완료했다(docs/COORDINATION-PHASE2-2026-10-17.md).
+- `data/style_kb/observations.jsonl` 378건(작업 15 편입 89건 포함). 편입분 관찰 문장은 Claude 단독 판독이다.
+- 편입 3명 원본은 `01_원본영상/<작가>/`(presumed는 하위 `presumed/`)에 있다. 회차·연도 표: `data/sakuga/candidates/intake_step4_era_2026-10-18.csv`.
+- `data/style_kb/tag_overrides.csv` 356행.
+  - **impact_frames_pencil confirmed 52**: 기존 28 + 작업 15 사용자 판정 24.
+  - `impact_frames_partial` confirmed 2(새 태그, 화면 일부만 임팩트).
+  - 디지털 candidate 165, 연필 candidate 3(기존).
+  - 판정 기록: `data/style_kb/impact_intake15_claude_2026-10-18.csv`, docs/IMPACT-PENCIL-CROSSCHECK-2026-10-17.md 끝 절.
+- **판정 기준 정정(사용자):** 흑백 2치로 처리된 거친 손그림 결도 연필이다. 회색 중간톤이 없다고 디지털이나 보류로 보지 않는다(TAG-RULES 끝 절).
+  - 400px 시트로 매긴 기존 디지털 candidate(GPT·Claude 11a/11b)에도 같은 오판이 있을 가능성이 크다.
+- impact_scan은 무채색 문맥, 16프레임을 넘는 흑백, 일부 연필 프레임을 놓친다. 임팩트 태그 클립은 시트를 직접 본다.
+- 302394(2026-03) 이후 작품에는 임팩트 프레임이 없다. 나카무라 디지털 경계 연도는 사용자 결정을 기다린다.
+- yukina 연필 confirmed는 2015–2022 작품에 걸친다.
 
 ## 다음 할 일 (순서대로)
 
-1. **작업 16 — 작업 15 연필 후보 교차 판독.**
-   - Drive `02_분석자료/연필판정_작업15_28구간/`에 묶음이 있다. 구간마다 PNG(앞뒤 2프레임)와 1/4속 영상, `판정표.csv`가 들어 있다.
-   - GPT/Gemini 판독이나 사용자 판정을 받아 일치하는 구간을 tag_overrides에서 confirmed로 올린다. 섞인 프레임은 우세 쪽으로 분류한다.
-   - 결과를 `impact_intake15_claude_2026-10-18.csv`와 대조해 반영한다.
-2. **사용자 확인 대기(작업 15):**
-   - 원본을 `_후보검토/<작가>/tagged`에서 `01_원본영상/<작가>/`로 옮길지.
-   - riooo의 마력 오라·폭발 섬광을 '불'에서 뺀 판단이 맞는지.
-3. **임팩트 정의 재적용(기존 3번).**
-   - 1–8프레임 디지털 구간의 극성 전환을 측정한다.
-   - 전환 1–2회 5구간은 재분할을 마쳤다(2026-10-18, TAG-RULES 끝 절, tag_overrides 356행). 남은 것은 1–8프레임 구간 전체의 극성 측정이다.
-   - 400px에서 디지털로 본 기존 candidate 163건도 원 해상도로 일부 표본 감사를 하는 것이 좋다. 작업 15에서 오판 4/9가 나왔다.
-4. **사용자 결정 대기:** 디지털 임팩트 경계 연도.
-5. 우선순위 낮음:
+1. **기존 디지털 candidate 원 해상도 재검토.**
+   - 연필 판정 기준이 정정됐으므로 400px 판독으로 '디지털'이 된 yutaka 구간을 원 해상도로 다시 본다. 대상은 `digital_impact_before_302394_2026-10-18.csv` 134행부터다.
+   - 원본은 Sakugabooru에서 임시로 받고, 확인한 뒤 지운다.
+   - 2치 손그림 결로 보이는 구간은 사용자 판정 묶음(PNG + 1/4속 영상)으로 만든다.
+2. **임팩트 정의 재적용 계속:** 1–8프레임 디지털 구간의 극성 전환을 측정한다. 1번 작업과 함께 하면 원본을 한 번만 받으면 된다. 5구간 재분할은 끝났다(TAG-RULES).
+3. **사용자 결정 대기:** 디지털 임팩트 경계 연도. 1번 결과가 판단 근거가 된다.
+4. 우선순위 낮음:
    - 11b 확인 대기 구간(경계 20곳)
    - 프레임 번호가 없는 태그 보정 행
    - nian41 옷자락 범위 결정
    - PC방 포즈 추론
-   - impact_scan 검출 조건 개선(무채색 문맥·긴 흑백)
+   - impact_scan 검출 조건 개선
 
 ## 향후 계획 (사용자 2026-10-18, 미착수)
 
