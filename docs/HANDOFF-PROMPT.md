@@ -20,23 +20,36 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 ## 1. 다음 할 일 (순서대로)
 
-1. **사용자 판정 받기: 임팩트 '애매' 50구간.**
-   - 묶음: Drive `02_분석자료/임팩트판정_v2_애매50구간/`
-     - 구간마다 앞뒤 2프레임 PNG + 1/4속 영상
-     - `판정표.csv`의 user_judgement 칸
-   - 받은 판정으로 tag_overrides를 갱신한다(임팩트 → confirmed, 아님 → not_impact, 부분 → impact_frames_partial).
-2. **새 임팩트 후보 확정 방식 정하기(사용자).**
-   - 대상: 연필 후보 216 + 부분 26 + 기존 후보 66(v2에서 다시 임팩트로 나온 것)
-   - 사용자 표본 판정으로 일괄 확정할지, 묶음을 만들어 전부 판정받을지 묻는다.
-   - 기존 후보 중 'v2 미검출' 84행은 흰 섬광·컬러 색면일 가능성이 크다. 제외할지 확인한다.
-3. **'학습'의 다음 형태 결정(사용자).**
-   - SFA 규칙·시험작(04_SFA시험작)으로 검증할지, 모델 훈련으로 갈지 정해야 한다. 모델 훈련은 아직 허가되지 않았다.
+1. **사용자 판정 결과 반영(최우선).** 사용자가 세 묶음을 직접 보고 판정한다(2026-10-18 지시: "셋 다 따로 정리해, 내가 다 직접 보고 검증할게").
+
+| 묶음 | Drive `AI-sfa/02_분석자료/` | 구간 | 목록(저장소) |
+|---|---|---|---|
+| A 애매 | `사용자판정_A_애매50/` | 50 | `data/style_kb/judge_lists/A_unsure_50.csv` |
+| B 신규 임팩트 후보 | `사용자판정_B_신규임팩트후보303/` | 303(연필 277 + 부분 26) | `data/style_kb/judge_lists/B_new_impact_candidates_303.csv` |
+| C v2 미검출 기존 후보 | `사용자판정_C_v2미검출_기존후보84/` | 84(1행은 frames=all, PNG 없음) | `data/style_kb/judge_lists/C_v2_undetected_84.csv` |
+
+   - 각 묶음: 구간 폴더(앞뒤 2프레임 원 해상도 PNG + slow_quarter.mp4) + `판정표.csv`(user_judgement 칸)
+   - **묶음이 Drive에 없거나 불완전하면** 다시 만든다(세션 종료 직전까지 B·C를 생성·업로드하는 중이었다):
+     ```
+     python tools/make_judge_bundle.py data/style_kb/judge_lists/B_new_impact_candidates_303.csv <작업폴더>/B "gdrive:AI-sfa/02_분석자료/사용자판정_B_신규임팩트후보303"
+     python tools/make_judge_bundle.py data/style_kb/judge_lists/C_v2_undetected_84.csv <작업폴더>/C "gdrive:AI-sfa/02_분석자료/사용자판정_C_v2미검출_기존후보84"
+     ```
+     - 완성 확인 기준: 구간 폴더 수가 B 302(+frames 미지정 0), C 83, 판정표.csv 존재
+     - 오래 걸리면 run_in_background로 실행한다.
+   - 사용자가 판정을 주면 tag_overrides를 갱신한다.
+     - 임팩트 → confirmed(연필; 302394만 디지털)
+     - 부분 → impact_frames_partial confirmed
+     - 아님 → not_impact
+     - A의 임팩트·부분은 새 행으로 추가한다.
+   - 사용자 판정이 하위 에이전트 판정과 다른 경우를 세어, 하위 에이전트 판정의 정확도를 기록한다(STYLE-KB H3).
+2. **'학습'의 다음 형태 결정(사용자).**
+   - SFA 규칙·시험작(04_SFA시험작)으로 검증할지, 모델 훈련으로 갈지 정한다. 모델 훈련은 아직 허가되지 않았다.
    - SFA로 가면 H·H2·H3절의 '이식 제안'을 시험작 사양으로 만든다.
-4. 보완(필요할 때):
-   - 기법 클립의 정밀 프레임 구간은 원본에서 다시 잰다(현재는 16칸 표본 기준 근사).
-   - yutaka 인물 타이밍(1s/2s)은 인물 영역만 재는 방법(포즈 추론, PC방)이 필요하다.
-   - 판정판에서 빠진 yutaka 8클립(contact sheet 없음)이 있다.
-5. 우선순위 낮음: 11b 경계 20곳, 프레임 번호 없는 태그 보정 행, impact_scan2 오검출 개선.
+3. 보완(필요할 때):
+   - 기법 클립의 정밀 프레임 구간 재측정(지금은 16칸 표본 근사)
+   - yutaka 인물 타이밍(인물 영역만 재는 포즈 추론, PC방)
+   - 판정판에서 빠진 yutaka 8클립(contact sheet 없음)
+4. 우선순위 낮음: 11b 경계 20곳, 프레임 번호 없는 태그 보정 행, impact_scan2 오검출 개선.
 
 ## 2. 학습 범위와 임팩트 규칙 (2026-10-18 기준)
 
@@ -93,11 +106,12 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - **Drive 구조 `AI-sfa/`:**
   - 00_목록: catalog·manifest·연도표·색인
   - 01_원본영상: yutaka GPT ZIP, nian41, yukina_kosaka·riooo·optical-core(presumed는 하위 폴더), 기법_itano_circus·기법_kutsuna_lightning, `_후보검토`(반려 기록만)
-  - 02_분석자료: `<post>/`(contact_sheet·timing), `impact/`(v1), `impact_v2/`, `기법/`, 임팩트판정_v2_애매50구간, 연필판정_작업15_28구간, 연필보류_12구간
+  - 02_분석자료: `<post>/`(contact_sheet·timing), `impact/`(v1), `impact_v2/`, `기법/`, 사용자판정_A_애매50·B_신규임팩트후보303·C_v2미검출_기존후보84, 연필판정_작업15_28구간, 연필보류_12구간
   - 03_스타일지식베이스: 문서·observations·tag_overrides
 - **도구:**
   - tools/impact_scan2.py(개정 정의 검출), tools/run_impact_v2.py, tools/collect_technique.py(Drive 기준 재개, 둘 다 완료됨)
   - 판정 기준: docs/IMPACT-V2-CRITERIA-2026-10-18.md(하위 에이전트용 임팩트 판정 기준)
+  - tools/make_judge_bundle.py(사용자 판정 묶음 생성)
   - tools/sakuga_timing.py(`--run S:E` 연속 시트), tools/sakuga_index.py(태그 색인), tools/intake_step4_era.py, tools/pose_extract.py
   - tools/impact_scan.py(v1, 연필 누락이 있어 대체됨)
 - **주의:**
