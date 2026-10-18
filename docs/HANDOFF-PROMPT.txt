@@ -2,7 +2,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘. 브랜�
 
 가장 먼저 지난 세션에서 돌린 백그라운드 작업 2개가 끝났는지 확인해 줘.
 1) 임팩트 프레임 전체 재검사 411개: Drive AI-sfa/02_분석자료/impact_v2/<post>/impact.json (지난 세션에 411/411 완료됨, 확인만)
-2) 이타노 서커스·쿠츠나 번개 기법 자료 수집 821개: 원본 Drive AI-sfa/01_원본영상/기법_itano_circus, 기법_kutsuna_lightning / 분석 AI-sfa/02_분석자료/기법/<post>/done.json
+2) 이타노 서커스·쿠츠나 번개 기법 자료 수집 821개(지난 세션에 821/821 완료됨, 확인만): 원본 Drive AI-sfa/01_원본영상/기법_itano_circus, 기법_kutsuna_lightning / 분석 AI-sfa/02_분석자료/기법/<post>/done.json
 완료 개수는 rclone lsf -R --files-only --include 로 세고, 덜 끝났으면 tools/run_impact_v2.py와 tools/collect_technique.py를 백그라운드로 실행해 남은 것만 이어서 처리해 줘(2시간 제한으로 멈추면 다시 실행).
 
 둘 다 끝나면 이 순서로 진행해 줘: 임팩트 후보 판정 → 기법 구간 관찰 → yutaka 인체 범위 보충 관찰 → 지식베이스 재집계.
