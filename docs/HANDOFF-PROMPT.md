@@ -1,8 +1,21 @@
-# 인수인계 (2026-10-18, 사용자 판정 묶음 A·B·C 준비 완료 시점)
+# 인수인계 (2026-10-19, 사용자 A 판정 31건 반영·묶음 애니메이터별 정리 시점)
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. fetch 후 이 브랜치에서 계속한다(시스템이 다른 브랜치를 배정해도 사용자 지정이 우선).
 
-**읽기 순서:** AGENTS.md → 이 문서 → docs/STYLE-KB-ROOTS-2026-10-16.md H3절(최신 결과) → docs/TAG-RULES-2026-10-17.md(끝 세 절: 임팩트 정의 개정, 연필/디지털 경계). 작업표는 docs/COORDINATION-PHASE2-2026-10-17.md다. 주제 문서는 필요할 때만 연다. 직전 인수인계: docs/history/HANDOFF-PROMPT-2026-10-18b-archive.md.
+**읽기 순서:** AGENTS.md → 이 문서 → docs/IMPACT-V2-CRITERIA-2026-10-18.md 3차 보완(최신 판정 규칙) → docs/STYLE-KB-ROOTS-2026-10-16.md H3절 4)(A 판정 결과). 작업표는 docs/COORDINATION-PHASE2-2026-10-17.md다. 주제 문서는 필요할 때만 연다. 직전 인수인계: docs/history/HANDOFF-PROMPT-2026-10-19a-archive.md.
+
+## 0-1. 이번 세션에서 끝낸 일 (2026-10-19)
+
+| 작업 | 결과 | 기록 |
+|---|---|---|
+| 사용자 A(애매) 판정 31/50 반영 | 아님 22, 옆 프레임에 실제 임팩트 3, 임팩트 4, 반반 2. 32–50번 19건 미판정 | `data/style_kb/judge_lists/A_user_judgement_2026-10-19.csv`, tag_overrides(629행, `train_weight` 열·`borderline` 상태 신설) |
+| 실제 임팩트 위치 재측정(Claude 원본 확인) | 24304 f203–209, 162980 f310, 70207 f394–398(학습 제외), 78337 f378–379, 253949 f32–33 | 같은 CSV `corrected_frames` |
+| 하위 에이전트 비교 | 최종은 50건 모두 unsure라 비교 불가. 기울었던 15건 중 일치 13·불일치 2 | STYLE-KB H3 4) |
+| 판정 기준 3차 보완 | 앞뒤 연속(동화) 확인 필수, 먼지·섬광·집중선·옷 가림 등 '아님' 유형, 반반·학습 비중 | IMPACT-V2-CRITERIA 3차, TAG-RULES 끝 절 |
+| 연속성 지표·문맥 시트 도구 | tools/judge_context.py(경계 에지 상관 ≥0.6 = 동화 의심 경고) | STYLE-KB H3 4) 보정 수치 |
+| Drive 묶음 애니메이터별 정리 | `사용자판정_{A,B,C}/<애니메이터>/<구간 폴더>/` + 폴더마다 `문맥시트_f…jpg` + 판정표.csv에 animator·cont·continuity_warning·nearby_impact_rows 열 | 아래 1절 |
+
+- 사용자 지적(2026-10-19): 영상에는 임팩트가 있는데 사진(PNG)에는 없는 경우가 많다(1/4속 영상이 앞뒤 12프레임을 더 담기 때문, 프레임 번호 어긋남은 아님). 애매 구간은 절반 이상이 아님. 앞뒤 장면과 이어지는 동화를 한 장만 보고 임팩트로 본 경우가 많다.
 
 ## 0. 지난 세션에서 끝낸 일 (2026-10-18)
 
@@ -20,30 +33,26 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 ## 1. 다음 할 일 (순서대로)
 
-1. **사용자 판정 결과 반영(최우선).** 사용자가 세 묶음을 직접 보고 판정한다(2026-10-18 지시: "셋 다 따로 정리해, 내가 다 직접 보고 검증할게").
+1. **사용자 판정 나머지 반영(최우선).** 사용자가 세 묶음을 직접 보고 판정 중이다(2026-10-18 지시: "셋 다 따로 정리해, 내가 다 직접 보고 검증할게"). 2026-10-19에 A 1–31번을 받아 반영했다.
 
-| 묶음 | Drive `AI-sfa/02_분석자료/` | 구간 | 목록(저장소) |
-|---|---|---|---|
-| A 애매 | `사용자판정_A_애매50/` | 50 | `data/style_kb/judge_lists/A_unsure_50.csv` |
-| B 신규 임팩트 후보 | `사용자판정_B_신규임팩트후보303/` | 303(연필 277 + 부분 26) | `data/style_kb/judge_lists/B_new_impact_candidates_303.csv` |
-| C v2 미검출 기존 후보 | `사용자판정_C_v2미검출_기존후보84/` | 84(1행은 frames=all, PNG 없음) | `data/style_kb/judge_lists/C_v2_undetected_84.csv` |
+| 묶음 | Drive `AI-sfa/02_분석자료/` | 구간 | 목록(저장소) | 상태 |
+|---|---|---|---|---|
+| A 애매 | `사용자판정_A_애매50/` | 50 | `judge_lists/A_unsure_50.csv` → 판정 기록 `A_user_judgement_2026-10-19.csv` | 31 반영, 32–50 대기 |
+| B 신규 임팩트 후보 | `사용자판정_B_신규임팩트후보303/` | 303(연필 277 + 부분 26) | `judge_lists/B_new_impact_candidates_303.csv` | 대기(3건은 A에서 사용자 확인, 판정표에 미리 기입) |
+| C v2 미검출 기존 후보 | `사용자판정_C_v2미검출_기존후보84/` | 84(1행은 frames=all, PNG 없음) | `judge_lists/C_v2_undetected_84.csv` | 대기 |
 
-   - 각 묶음: 구간 폴더(앞뒤 2프레임 원 해상도 PNG + slow_quarter.mp4) + `판정표.csv`(user_judgement 칸)
-   - **2026-10-18 세 묶음 모두 완성·업로드 확인:** A 폴더 50, B 303, C 83(+frames=all 1행). 모든 폴더에 PNG와 slow_quarter.mp4가 있고, 판정표.csv도 있다.
-   - 혹시 Drive에서 사라졌거나 불완전하면 다시 만든다:
-     ```
-     python tools/make_judge_bundle.py data/style_kb/judge_lists/B_new_impact_candidates_303.csv <작업폴더>/B "gdrive:AI-sfa/02_분석자료/사용자판정_B_신규임팩트후보303"
-     python tools/make_judge_bundle.py data/style_kb/judge_lists/C_v2_undetected_84.csv <작업폴더>/C "gdrive:AI-sfa/02_분석자료/사용자판정_C_v2미검출_기존후보84"
-     ```
-     - 완성 확인 기준: 구간 폴더 수 A 50, B 303, C 83, 각 판정표.csv 존재
-     - 오래 걸리면 run_in_background로 실행한다.
-   - **2026-10-19:** 사용자는 아직 판정하지 않았고, 먼저 Gemini에게 맡긴다. 지시서: docs/GEMINI-TASK-JUDGE-ABC-2026-10-19.md. Gemini 판정은 사용자 판정이 아니므로 별도 기록하고, 사용자 확인 전까지 candidate로 둔다.
-   - 사용자가 판정을 주면 tag_overrides를 갱신한다.
-     - 임팩트 → confirmed(연필; 302394만 디지털)
-     - 부분 → impact_frames_partial confirmed
-     - 아님 → not_impact
-     - A의 임팩트·부분은 새 행으로 추가한다.
-   - 사용자 판정이 하위 에이전트 판정과 다른 경우를 세어, 하위 에이전트 판정의 정확도를 기록한다(STYLE-KB H3).
+   - **Drive 구조(2026-10-19 사용자 지시로 애니메이터별 정리):** `<묶음>/<애니메이터>/<번호_post_f구간>/`. 애니메이터 폴더는 yutaka_nakamura·riooo·optical-core·yukina_kosaka, C에만 `기타_katsumi_ishizuka(반려)` 1건. 폴더 이름의 번호는 판정표 no와 같다.
+   - 각 구간 폴더: 앞뒤 2프레임 PNG + slow_quarter.mp4(앞뒤 12프레임 더) + `문맥시트_f…jpg`(영상과 같은 범위, 프레임 번호, 후보=노란 테두리, 다른 임팩트 행=하늘색 테두리).
+   - 판정표.csv(묶음 최상위, 애니메이터 순): animator, cont, continuity_warning(≥0.6 '앞뒤와 이어짐(동화 의심)'), nearby_impact_rows 열 추가. A는 user_judgement·user_note·train_weight·corrected_frames를 채웠다.
+   - 묶음이 사라지면: `tools/make_judge_bundle.py <list.csv> <작업폴더> <Drive 대상>`으로 만든 뒤 `tools/judge_context.py <판정표.csv> <원본폴더> <출력>`으로 문맥 시트·열을 붙이고 애니메이터 폴더로 올린다(원본은 Sakugabooru md5 대조로 받는다).
+   - 사용자가 판정을 주면 tag_overrides를 갱신한다(방식은 TAG-RULES 끝 절).
+     - 임팩트 → confirmed(연필; 302394만 디지털), 비중 언급이 있으면 train_weight low/exclude
+     - 부분 → impact_frames_partial confirmed, 반반 → borderline(low)
+     - 아님 → `impact_frames` not_impact(원문·분류)
+     - 사진엔 없고 영상에만 있다고 하면 문맥 원본에서 실제 위치를 찾아 confirmed로 넣고 후보 구간은 not_impact
+     - A의 임팩트·부분은 새 행으로 추가한다(기존 후보 행이 같은 구간이면 그 행을 갱신).
+   - 판정마다 하위 에이전트 판정과 다른 건수를 세어 STYLE-KB H3에 기록한다(B는 v2 최종 impact/partial, C는 v2 미검출이 비교 기준).
+   - Gemini 판정(docs/GEMINI-TASK-JUDGE-ABC-2026-10-19.md)은 사용자 판정이 아니므로 별도 기록, 사용자 확인 전까지 candidate.
 2. **'학습'의 다음 형태 결정(사용자).**
    - SFA 규칙·시험작(04_SFA시험작)으로 검증할지, 모델 훈련으로 갈지 정한다. 모델 훈련은 아직 허가되지 않았다.
    - SFA로 가면 H·H2·H3절의 '이식 제안'을 시험작 사양으로 만든다.
@@ -51,7 +60,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
    - 기법 클립의 정밀 프레임 구간 재측정(지금은 16칸 표본 근사)
    - yutaka 인물 타이밍(인물 영역만 재는 포즈 추론, PC방)
    - 판정판에서 빠진 yutaka 8클립(contact sheet 없음)
-4. 우선순위 낮음: 11b 경계 20곳, 프레임 번호 없는 태그 보정 행, impact_scan2 오검출 개선.
+4. 우선순위 낮음: 11b 경계 20곳, 프레임 번호 없는 태그 보정 행, impact_scan2 오검출 개선(사용자 지적: 동화 연속 장면 오검출 많음 → judge_context.py 연속성 지표를 검출 단계에 넣는 안. 단 컷이 바뀌는 먼지·섬광은 못 거른다), 239055 f213(앞 프레임과 같음 — 확정 구간 번호 어긋남 의심, 원본 확인 필요).
 
 ## 2. 학습 범위와 임팩트 규칙 (2026-10-18 기준)
 
@@ -79,6 +88,8 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
   - 밝은 상태로 실루엣이 이어지기만 하는 것, 앞뒤와 차이 없는 장면은 아니다.
   - Sakugabooru 위키: ショックコマ(쇼크 코마). 컬러 쇼크 프레임은 학습 범위 밖이다.
 - **연필/디지털:** 비질란테(302394)만 디지털이고, 나머지 임팩트 프레임은 전부 연필이다. 흑백 2색으로 처리된 거친 손그림 결도 연필이다.
+- **판정은 한 장이 아니라 앞뒤 ±12프레임 연속으로 한다(2026-10-19).** 앞뒤와 이어지는 동화, 먼지·연기·충격파, 섬광, 집중선·고속 이동 배경, 옷이 화면을 가림, 물·전기 이펙트, 실루엣 연출만 빌린 장면은 흑백이어도 아니다(IMPACT-V2-CRITERIA 3차).
+- 학습 비중: 실루엣·강조 없는 단색 번쩍임·수준 낮음·추구미 아님 = low, 추구미 전혀 아님 = exclude, 사용자 "반은 맞음" = borderline.
 - 부분 임팩트(화면 일부만)는 `impact_frames_partial`로 따로 센다.
 - 셀 시대(≤1999) 단색 섬광은 `impact_frames_cel_light`로 학습에서 제외한다.
 - TV판에서 명도가 낮아진 임팩트(218857 등)는 학습할 때 밝은 흰색·검정 조합으로 변환한다.
@@ -91,7 +102,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 | nian41 분석 | 36 |
 | 편입 3명 | 117(+ presumed 25 별도 보관), 연도표 `data/sakuga/candidates/intake_step4_era_2026-10-18.csv` |
 | observations.jsonl | 378: yutaka 250, nian41 36, 편입 89, 제외 기록 3 |
-| tag_overrides.csv | 598행: 연필 confirmed 52, 부분 confirmed 2, v2 신규 후보 242, 기존 후보 annotate, cel_light 40 (상세 STYLE-KB H3) |
+| tag_overrides.csv | 629행(2026-10-19): 연필 confirmed 59·candidate 361, 부분 confirmed 2·candidate 26, borderline 2, `impact_frames` not_impact 34, cel_light 40, 디지털 confirmed 1. `train_weight` 열 추가 |
 | 기법 태그 목록 | itano_circus 462, kutsuna_lightning 362(`data/sakuga/techniques/`) |
 
 ## 향후 계획 (사용자 2026-10-18, 미착수)
