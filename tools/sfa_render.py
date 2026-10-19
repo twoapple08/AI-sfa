@@ -18,7 +18,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import skia
 
-PARAMS = dict(pad=6.0, base=8.0, stab=1.14, layer_order='normal', glow=True, fill_first=True, objscale_thick=False, circ_off=0, circ_dir=1, evenodd=True, gap=1.5, split_strict=False, gsig=1.0, gw=1.0, glow_mode='cv', groups=True)
+PARAMS = dict(pad=6.0, base=8.0, stab=1.14, layer_order='normal', glow=True, fill_first=True, objscale_thick=False, circ_off=0, circ_dir=1, evenodd=True, gap=1.5, split_strict=False, gsig=1.0, gw=1.0, glow_mode='cv', groups=True, hole_mode='difference')
 
 
 def argb(v):
@@ -154,35 +154,53 @@ def render_frame(seq, fr, W=1920, H=1080):
         fr_owner.setdefault(first, []).append(r)
     drawn = set()
 
-    def draw_fill(r):
-        # FR 하나에 여러 닫힌 윤곽(바깥선·구멍)이 이어져 있다. 끝점이 끊기는 곳에서 새 윤곽을 시작한다.
-        subs, cur = [], []
-        for s in r.findall('FS'):
+    def contour_path(segs):
+        # 앱 규칙(AOT-FILL-PATH 4·5절): 첫 시작점 moveTo, 조각 사이 간격이 0.1보다 크면 lineTo로 잇고 마지막에 닫는다.
+        # 곡선 T는 0–1로 자르고, 직선·원 T는 자르지 않는다. 각 윤곽은 짝홀 규칙.
+        pts = []
+        for s in segs:
             o = by_id.get(s.get('ObjId'))
             if not o:
                 continue
             t0 = float(s.get('StartT') or 0)
             t1 = float(s.get('EndT') if s.get('EndT') is not None else 1)
-            seg = seg_points(o[0], o[1], t0, t1)
-            if cur and math.hypot(seg[0][0] - cur[-1][0], seg[0][1] - cur[-1][1]) > PARAMS['gap']:
-                if math.hypot(cur[0][0] - cur[-1][0], cur[0][1] - cur[-1][1]) <= PARAMS['gap'] or not PARAMS['split_strict']:
-                    subs.append(cur); cur = []
-            cur += seg
-        if cur:
-            subs.append(cur)
+            if o[0] == '3':
+                t0, t1 = min(max(t0, 0), 1), min(max(t1, 0), 1)
+                if abs(t1 - t0) <= 1e-6:
+                    continue
+            pts += seg_points(o[0], o[1], t0, t1)
+        if len(pts) < 3:
+            return None
+        p = skia.Path()
+        p.moveTo(*pts[0])
+        for q in pts[1:]:
+            p.lineTo(*q)
+        p.close()
+        p.setFillType(skia.PathFillType.kEvenOdd)
+        return p
+
+    def draw_fill(r):
         if alpha(r.get('Color')) == 0:
             return
-        p = skia.Path()
-        for poly in subs:
-            if len(poly) < 3:
+        groups = {}
+        for s in r.findall('FS'):
+            groups.setdefault(int(s.get('Contour') or 0), []).append(s)
+        outer = contour_path(groups.get(0, []))
+        if outer is None:
+            return
+        for k in sorted(g for g in groups if g > 0):
+            hole = contour_path(groups[k])
+            if hole is not None and PARAMS['hole_mode'] == 'evenodd':
+                outer.addPath(hole)
                 continue
-            p.moveTo(*poly[0])
-            for q in poly[1:]:
-                p.lineTo(*q)
-            p.close()
-        if PARAMS['evenodd']:
-            p.setFillType(skia.PathFillType.kEvenOdd)
-        c.drawPath(p, skia.Paint(Color=argb(r.get('Color')), AntiAlias=True, Style=skia.Paint.kFill_Style))
+            if hole is not None:
+                try:
+                    res = skia.Op(outer, hole, skia.PathOp.kDifference_PathOp)
+                except RuntimeError:
+                    res = None
+                if res is not None:
+                    outer = res
+        c.drawPath(outer, skia.Paint(Color=argb(r.get('Color')), AntiAlias=True, Style=skia.Paint.kFill_Style))
 
     S = geo.S
     # 연결 그룹: AP의 AC(ConnPtId)로 이어진 AO끼리 묶는다(정적 분석: _BuildLayerObjectGroups).

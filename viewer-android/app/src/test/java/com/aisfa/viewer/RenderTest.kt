@@ -25,7 +25,7 @@ class RenderTest {
             for (f in fr.split(",").map { it.toInt() }) {
                 val t0 = System.nanoTime()
                 r.render(f, bmp)
-                println("render $name $f ${(System.nanoTime() - t0) / 1e6}ms")
+                println("render $name $f ${(System.nanoTime() - t0) / 1e6}ms glow=${r.tGlow/1e6} fill=${r.tFill/1e6} base=${r.tBase/1e6} bigGlow=${r.nGlowBig}"); r.tGlow=0; r.tFill=0; r.tBase=0; r.nGlowBig=0
                 File(out, "${name}_$f.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
             }
         }

@@ -100,31 +100,39 @@ class FrameRenderer(private val doc: SfaDoc) {
         }
     }
 
-    private fun drawFill(fl: Int, c: Canvas) {
-        val col = doc.flColor[fl]
-        if ((col ushr 24) == 0) return
-        fpath.rewind(); fpath.fillType = Path.FillType.EVEN_ODD
-        var started = false; var startIdx = 0
+    /** 앱 규칙(AOT-FILL-PATH): 윤곽마다 조각을 잇고(간격은 직선으로) 닫아 짝홀 규칙, 외곽(윤곽 0)에서 나머지 윤곽을 차례로 뺀다. 곡선 T는 0–1로 자른다. */
+    private fun contourPath(fl: Int, cont: Int, out: Path): Boolean {
+        out.rewind(); out.fillType = Path.FillType.EVEN_ODD
         sn = 0
         val s0 = doc.flSegStart[fl]
         for (k in s0 until s0 + doc.flSegCount[fl]) {
+            if (doc.sCont[k] != cont) continue
             val o = doc.sObj[k]; if (o < 0) continue
-            val before = sn
-            segPoints(o, doc.sT0[k], doc.sT1[k])
-            if (sn == before) continue
-            if (started && hypot(sx[before] - sx[before - 1], sy[before] - sy[before - 1]) > GAP) {
-                emit(startIdx, before); startIdx = before
+            var t0 = doc.sT0[k]; var t1 = doc.sT1[k]
+            if (doc.oType[o].toInt() == 3) {
+                t0 = t0.coerceIn(0f, 1f); t1 = t1.coerceIn(0f, 1f)
+                if (kotlin.math.abs(t1 - t0) <= 1e-6f) continue
             }
-            started = true
+            segPoints(o, t0, t1)
         }
-        if (sn > startIdx) emit(startIdx, sn)
-        fill.color = col
-        c.drawPath(fpath, fill)
+        if (sn < 3) return false
+        out.moveTo(sx[0], sy[0]); for (i in 1 until sn) out.lineTo(sx[i], sy[i]); out.close()
+        return true
     }
 
-    private fun emit(a: Int, b: Int) {
-        if (b - a < 3) return
-        fpath.moveTo(sx[a], sy[a]); for (i in a + 1 until b) fpath.lineTo(sx[i], sy[i]); fpath.close()
+    private val holePath = Path()
+    private fun drawFill(fl: Int, c: Canvas) {
+        val col = doc.flColor[fl]
+        if ((col ushr 24) == 0) return
+        if (!contourPath(fl, 0, fpath)) return
+        var maxC = 0
+        val s0 = doc.flSegStart[fl]
+        for (k in s0 until s0 + doc.flSegCount[fl]) if (doc.sCont[k] > maxC) maxC = doc.sCont[k]
+        // 구멍 빼기(difference)는 휴대폰에서 매우 느리다(한 프레임 수 초). 구멍을 같은 짝홀 경로에 더하는 방식과
+        // 기준 렌더러 대조 결과가 같았으므로(p0·p2·p3) 이 방식을 쓴다. 구멍끼리 겹치는 경우만 다를 수 있다.
+        for (h in 1..maxC) if (contourPath(fl, h, holePath)) fpath.addPath(holePath)
+        fill.color = col
+        c.drawPath(fpath, fill)
     }
 
     private fun drawBase(o: Int, c: Canvas) {
@@ -156,6 +164,7 @@ class FrameRenderer(private val doc: SfaDoc) {
             glowPaint.maskFilter = null
             return
         }
+        nGlowBig++
         // 큰 번짐: 축소 비트맵에 띠를 그려 박스 블러 3회(가우스 근사) 후 확대해 합성
         path.computeBounds(tmpRect, true)
         val m = wg / 2 + 4 * sig + 2
@@ -175,6 +184,7 @@ class FrameRenderer(private val doc: SfaDoc) {
         a.recycle()
     }
 
+    var tGlow = 0L; var tFill = 0L; var tBase = 0L; var nGlowBig = 0
     private fun draw(f: Int, c: Canvas, s: Float) {
         val o0 = doc.fObjStart[f]; val on = doc.fObjCount[f]
         val f0 = doc.fFillStart[f]; val fn = doc.fFillCount[f]
@@ -194,15 +204,16 @@ class FrameRenderer(private val doc: SfaDoc) {
             val units = LinkedHashMap<Int, MutableList<Int>>()
             for (o in objs) units.getOrPut(doc.oGroup[o]) { ArrayList(4) }.add(o)
             for (u in units.values) {
-                for (o in u) drawGlow(o, c, s)
+                var t = System.nanoTime(); for (o in u) drawGlow(o, c, s); tGlow += System.nanoTime() - t
                 for (o in u) {
+                    t = System.nanoTime()
                     owned[o]?.forEach { fl -> if (!drawn[fl - f0]) { drawn[fl - f0] = true; drawFill(fl, c) } }
-                    drawBase(o, c)
+                    tFill += System.nanoTime() - t; t = System.nanoTime()
+                    drawBase(o, c); tBase += System.nanoTime() - t
                 }
             }
         }
         for (fl in f0 until f0 + fn) if (!drawn[fl - f0]) drawFill(fl, c)
     }
 
-    companion object { const val GAP = 1.5f }
 }

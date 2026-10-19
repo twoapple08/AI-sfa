@@ -41,6 +41,8 @@ class MainActivity : Activity() {
     private lateinit var exportBtn: Button
     private var doc: SfaDoc? = null
     private var renderer: FrameRenderer? = null
+    private var cache: FrameCache? = null
+    private var cacheKey = ""
     private var fileName = "sfa"
     private val playing = AtomicBoolean(false)
     private val wanted = AtomicInteger(0)
@@ -110,6 +112,7 @@ class MainActivity : Activity() {
                 val (name, size) = meta(uri)
                 fileName = name.substringBeforeLast('.')
                 val key = (name + "_" + size).hashCode().toUInt().toString(16)
+                cacheKey = key
                 val cache = File(cacheDir, "$key.sfab")
                 var d: SfaDoc? = null
                 var how = "캐시"
@@ -132,6 +135,8 @@ class MainActivity : Activity() {
 
     private fun onLoaded(d: SfaDoc, msg: String) {
         doc = d; renderer = FrameRenderer(d)
+        cache?.close()
+        cache = FrameCache(d, File(cacheDir, "frames_${cacheKey}_1280"), 1280).also { it.prefetchFrom(0) }
         status.text = msg
         seek.max = maxOf(d.frameCount - 1, 0); seek.progress = 0
         playBtn.isEnabled = true; exportBtn.isEnabled = true
@@ -142,32 +147,38 @@ class MainActivity : Activity() {
     private val lock = Object()
     private fun kick() { synchronized(lock) { lock.notifyAll() } }
 
-    /** 그리기 전용 스레드: 원하는 프레임을 그려 화면에 넘긴다. 재생 중이면 24fps에 맞춰 다음 프레임으로 간다. */
+    /** 표시 스레드: 미리 그려 둔 프레임(JPEG 캐시)을 읽어 보여 준다. 재생 중이면 24fps 간격으로 넘기고, 준비 안 된 프레임은 기다린다. */
     private fun startRenderLoop() {
         renderThread?.interrupt()
-        val d = doc ?: return; val r = renderer ?: return
+        val d = doc ?: return; val fc = cache ?: return
         renderThread = Thread {
             var last = -1
-            var bmpA: Bitmap? = null; var bmpB: Bitmap? = null
+            var spare: Bitmap? = null
+            var nextAt = SystemClock.elapsedRealtime()
             try {
                 while (!Thread.currentThread().isInterrupted) {
-                    val vw = view.width.coerceAtLeast(2)
-                    val w = minOf(vw, 1280); val h = maxOf(2, (w * d.ratio).toInt())
-                    if (bmpA == null || bmpA.width != w || bmpA.height != h) {
-                        bmpA = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888); bmpB = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-                    }
                     val f = wanted.get().coerceIn(0, d.frameCount - 1)
-                    if (f == last && !playing.get()) { synchronized(lock) { lock.wait(200) }; continue }
-                    val t0 = SystemClock.elapsedRealtime()
-                    r.render(f, bmpA!!)
-                    val shown = bmpA; bmpA = bmpB; bmpB = shown
+                    if (f == last && !playing.get()) {
+                        view.post { if (!playing.get()) status.text = "${f + 1}/${d.frameCount} · 미리 그리기 ${fc.done.get()}/${d.frameCount}" }
+                        synchronized(lock) { lock.wait(300) }; continue
+                    }
+                    val bmp = fc.get(f, 200, spare)
+                    if (bmp == null) {
+                        view.post { status.text = "${f + 1}/${d.frameCount} · 그리는 중… (미리 그리기 ${fc.done.get()}/${d.frameCount})" }
+                        continue
+                    }
+                    val now = SystemClock.elapsedRealtime()
+                    if (playing.get() && nextAt > now) Thread.sleep(nextAt - now)
+                    val shown = bmp
+                    spare = view.swap(shown)
                     last = f
-                    val took = SystemClock.elapsedRealtime() - t0
-                    view.post { view.show(shown) ; seek.progress = f; if (playing.get()) status.text = "${f + 1}/${d.frameCount} · ${if (took > 0) minOf(1000 / took, 99) else 99}fps 그리기" }
+                    view.post { seek.progress = f; if (playing.get()) status.text = "${f + 1}/${d.frameCount} · 미리 그리기 ${fc.done.get()}/${d.frameCount}" }
                     if (playing.get()) {
-                        val wait = 1000L / fps - took
-                        if (wait > 0) Thread.sleep(wait)
+                        nextAt = maxOf(nextAt + 1000L / fps, SystemClock.elapsedRealtime() - 1000L / fps)
                         wanted.set(if (f + 1 >= d.frameCount) 0 else f + 1)
+                    } else {
+                        fc.prefetchFrom(f)
+                        nextAt = SystemClock.elapsedRealtime()
                     }
                 }
             } catch (_: InterruptedException) {}
@@ -218,7 +229,7 @@ class MainActivity : Activity() {
         }
     }
 
-    override fun onDestroy() { renderThread?.interrupt(); io.shutdownNow(); super.onDestroy() }
+    override fun onDestroy() { renderThread?.interrupt(); cache?.close(); io.shutdownNow(); super.onDestroy() }
 }
 
 /** 현재 프레임 비트맵을 비율 유지해 가운데에 그린다. */
@@ -226,7 +237,14 @@ class FrameView(ctx: android.content.Context) : View(ctx) {
     private var bmp: Bitmap? = null
     private val paint = Paint(Paint.FILTER_BITMAP_FLAG)
     private val dst = RectF()
-    fun show(b: Bitmap?) { bmp = b; invalidate() }
+    /** 새 비트맵을 보여 주고, 화면에 더 이상 쓰이지 않는 이전 비트맵을 돌려준다(다음 디코딩에 재사용). */
+    @Volatile private var prev: Bitmap? = null
+    fun swap(b: Bitmap): Bitmap? {
+        val old = prev
+        prev = bmp; bmp = b
+        postInvalidate()
+        return if (old !== b) old else null
+    }
     override fun onDraw(c: Canvas) {
         c.drawColor(Color.BLACK)
         val b = bmp ?: return

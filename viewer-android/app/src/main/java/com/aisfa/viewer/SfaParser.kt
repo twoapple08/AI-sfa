@@ -34,7 +34,7 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
     private val oPS = GI(); private val oPC = GB(); private val oGroup = GI()
     private val px = GF(); private val py = GF()
     private val flColor = GI(); private val flSS = GI(); private val flSC = GI()
-    private val sObjRaw = GI(); private val sObjHi = GI(); private val sT0 = GF(); private val sT1 = GF()
+    private val sObjRaw = GI(); private val sCont = GI(); private val sT0 = GF(); private val sT1 = GF()
 
     // 프레임 안 임시
     private val aoIdToLocal = HashMap<Long, Int>()
@@ -67,7 +67,7 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
         s.oPtStart = oPS.trim(); s.oPtCount = oPC.trim(); s.oGroup = oGroup.trim()
         s.ptCount = px.n; s.px = px.trim(); s.py = py.trim()
         s.fillCount = flColor.n; s.flColor = flColor.trim(); s.flSegStart = flSS.trim(); s.flSegCount = flSC.trim()
-        s.segCount = sT0.n; s.sObj = sObjRaw.trim(); s.sT0 = sT0.trim(); s.sT1 = sT1.trim()
+        s.segCount = sT0.n; s.sObj = sObjRaw.trim(); s.sT0 = sT0.trim(); s.sT1 = sT1.trim(); s.sCont = sCont.trim()
         return s
     }
 
@@ -122,7 +122,7 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
             "FS" -> {
                 if (flColor.n > frameFill0) {
                     val objId = attrs.long("ObjId", -1)
-                    sObjRaw.add(0); sObjHi.add(0)
+                    sObjRaw.add(0); sCont.add(attrs.int("Contour", 0))
                     pendingSegObj.add(objId)
                     sT0.add(attrs.float("StartT", 0f)); sT1.add(attrs.float("EndT", 1f))
                     flSC.a[flColor.n - 1]++

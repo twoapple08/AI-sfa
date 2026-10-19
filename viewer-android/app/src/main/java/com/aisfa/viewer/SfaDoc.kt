@@ -39,7 +39,7 @@ class SfaDoc {
     var fillCount = 0
     var flColor = IntArray(0); var flSegStart = IntArray(0); var flSegCount = IntArray(0)
     var segCount = 0
-    var sObj = IntArray(0); var sT0 = FloatArray(0); var sT1 = FloatArray(0)
+    var sObj = IntArray(0); var sT0 = FloatArray(0); var sT1 = FloatArray(0); var sCont = IntArray(0)
 
     fun write(out: OutputStream) {
         val d = DataOutputStream(out.buffered(1 shl 16))
@@ -54,13 +54,13 @@ class SfaDoc {
         wI(d, oPtStart, objCount); d.write(oPtCount, 0, objCount); wI(d, oGroup, objCount)
         d.writeInt(ptCount); wF(d, px, ptCount); wF(d, py, ptCount)
         d.writeInt(fillCount); wI(d, flColor, fillCount); wI(d, flSegStart, fillCount); wI(d, flSegCount, fillCount)
-        d.writeInt(segCount); wI(d, sObj, segCount); wF(d, sT0, segCount); wF(d, sT1, segCount)
+        d.writeInt(segCount); wI(d, sObj, segCount); wF(d, sT0, segCount); wF(d, sT1, segCount); wI(d, sCont, segCount)
         d.flush()
     }
 
     companion object {
         const val MAGIC = 0x53464131 // "SFA1"
-        const val VERSION = 1
+        const val VERSION = 2
 
         private fun wI(d: DataOutputStream, a: IntArray, n: Int) { for (i in 0 until n) d.writeInt(a[i]) }
         private fun wF(d: DataOutputStream, a: FloatArray, n: Int) { for (i in 0 until n) d.writeFloat(a[i]) }
@@ -83,7 +83,7 @@ class SfaDoc {
             s.oPtStart = rI(d, o); s.oPtCount = ByteArray(o).also { d.readFully(it) }; s.oGroup = rI(d, o)
             val p = d.readInt(); s.ptCount = p; s.px = rF(d, p); s.py = rF(d, p)
             val f = d.readInt(); s.fillCount = f; s.flColor = rI(d, f); s.flSegStart = rI(d, f); s.flSegCount = rI(d, f)
-            val g = d.readInt(); s.segCount = g; s.sObj = rI(d, g); s.sT0 = rF(d, g); s.sT1 = rF(d, g)
+            val g = d.readInt(); s.segCount = g; s.sObj = rI(d, g); s.sT0 = rF(d, g); s.sT1 = rF(d, g); s.sCont = rI(d, g)
             return s
         }
     }

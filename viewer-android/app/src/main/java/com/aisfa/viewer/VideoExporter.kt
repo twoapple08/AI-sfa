@@ -15,8 +15,23 @@ class VideoExporter(private val doc: SfaDoc, private val fps: Int = 24, private 
     private val height = ((width * doc.ratio).toInt() + 1) and 1.inv()
 
     fun export(out: FileDescriptor, progress: (Int, Int) -> Unit, cancelled: () -> Boolean): Boolean {
-        val renderer = FrameRenderer(doc)
-        val bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        // 여러 스레드가 앞 프레임들을 미리 그리고(픽셀 배열), 인코더는 순서대로 받아 쓴다.
+        val threads = (Runtime.getRuntime().availableProcessors() - 1).coerceIn(1, 4)
+        val pool = java.util.concurrent.Executors.newFixedThreadPool(threads)
+        val renderers = ThreadLocal.withInitial { FrameRenderer(doc) }
+        val bitmaps = ThreadLocal.withInitial { Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888) }
+        val pending = java.util.ArrayDeque<java.util.concurrent.Future<IntArray>>()
+        var submitted = 0
+        fun fill() {
+            while (submitted < doc.frameCount && pending.size < threads + 1) {
+                val f = submitted++
+                pending.add(pool.submit<IntArray> {
+                    val b = bitmaps.get()!!
+                    renderers.get()!!.render(f, b)
+                    IntArray(width * height).also { b.getPixels(it, 0, width, 0, 0, width, height) }
+                })
+            }
+        }
         val fmt = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height).apply {
             setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible)
             setInteger(MediaFormat.KEY_BIT_RATE, 16_000_000)
@@ -29,7 +44,6 @@ class VideoExporter(private val doc: SfaDoc, private val fps: Int = 24, private 
         val muxer = MediaMuxer(out, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
         var track = -1; var muxStarted = false
         val info = MediaCodec.BufferInfo()
-        val argb = IntArray(width * height)
         var next = 0; var inputDone = false; var ok = true
         try {
             while (true) {
@@ -40,8 +54,9 @@ class VideoExporter(private val doc: SfaDoc, private val fps: Int = 24, private 
                             codec.queueInputBuffer(ii, 0, 0, ptsUs(next), MediaCodec.BUFFER_FLAG_END_OF_STREAM)
                             inputDone = true; if (cancelled()) ok = false
                         } else {
-                            renderer.render(next, bmp)
-                            bmp.getPixels(argb, 0, width, 0, 0, width, height)
+                            fill()
+                            val argb = pending.poll()!!.get()
+                            fill()
                             val img = codec.getInputImage(ii)!!
                             Yuv.fill(img, argb, width, height)
                             codec.queueInputBuffer(ii, 0, width * height * 3 / 2, ptsUs(next), 0)
@@ -64,7 +79,7 @@ class VideoExporter(private val doc: SfaDoc, private val fps: Int = 24, private 
         } finally {
             codec.stop(); codec.release()
             if (muxStarted) muxer.stop()
-            muxer.release(); bmp.recycle()
+            muxer.release(); pool.shutdownNow()
         }
         return ok
     }
