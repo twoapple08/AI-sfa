@@ -48,7 +48,10 @@ def runs_of(flags):
 def salient(M, i, j):
     seg = M[i:j + 1]
     ext_med, edge_med = np.median(seg[:, I_EXT]), np.median(seg[:, I_EDGE])
-    hit = [k for k in range(i, j + 1) if M[k, I_RNG] >= 8 and (M[k, I_EXT] - ext_med >= 0.2 or M[k, I_EDGE] - edge_med >= 0.06)]
+    mean_med = np.median(seg[:, I_MEAN])
+    # 그림 있는 프레임은 극단·선 밀도가 튀는 것, 그림 없는 단색 프레임은 밝기가 크게 튀는 것(흰·검정 번쩍임, 78337 f378-379)
+    hit = [k for k in range(i, j + 1) if (M[k, I_RNG] >= 8 and (M[k, I_EXT] - ext_med >= 0.2 or M[k, I_EDGE] - edge_med >= 0.06))
+           or (M[k, I_RNG] < 8 and abs(M[k, I_MEAN] - mean_med) >= 60)]
     out, s = [], None
     for n, k in enumerate(hit):
         s = k if s is None else s
