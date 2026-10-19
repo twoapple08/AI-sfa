@@ -18,7 +18,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import skia
 
-PARAMS = dict(pad=6.0, base=8.0, stab=1.14, layer_order='normal', glow=True, fill_first=True, objscale_thick=False, circ_off=0, circ_dir=1, evenodd=True, gap=1.5, split_strict=False)
+PARAMS = dict(pad=6.0, base=8.0, stab=1.14, layer_order='normal', glow=True, fill_first=True, objscale_thick=False, circ_off=0, circ_dir=1, evenodd=True, gap=1.5, split_strict=False, gsig=1.0, gw=1.0, glow_mode='cv', groups=True)
 
 
 def argb(v):
@@ -106,6 +106,37 @@ def seg_points(kind, pts, t0, t1, step=2.0):
     return out
 
 
+def glow_cv(surf, path, Wg, sig, gc, ga, W, H):
+    """띠(폭 Wg)를 Gaussian(sig)으로 흐린 커버리지 x GlowColor x GlowAlpha 를 현재 화면 위에 합성(srcOver).
+    큰 sigma도 정확하도록 OpenCV로 블러한다(축소 래스터에서 계산 후 확대)."""
+    import cv2
+    b = path.computeTightBounds()
+    m = Wg / 2 + 4 * sig + 2
+    x0, y0 = max(int(b.left() - m), 0), max(int(b.top() - m), 0)
+    x1, y1 = min(int(b.right() + m) + 1, W), min(int(b.bottom() + m) + 1, H)
+    if x1 <= x0 or y1 <= y0:
+        return
+    q = 1.0 if sig < 6 else max(0.1, 3.0 / sig)
+    w, h = max(1, int((x1 - x0) * q)), max(1, int((y1 - y0) * q))
+    ms = skia.Surface(w, h)
+    mc = ms.getCanvas()
+    mc.clear(skia.ColorTRANSPARENT)
+    mc.scale(w / (x1 - x0), h / (y1 - y0))
+    mc.translate(-x0, -y0)
+    mc.drawPath(path, skia.Paint(Color=skia.ColorWHITE, AntiAlias=True, Style=skia.Paint.kStroke_Style, StrokeWidth=max(Wg, 0.01),
+                                 StrokeCap=skia.Paint.kRound_Cap, StrokeJoin=skia.Paint.kRound_Join))
+    a = ms.makeImageSnapshot().toarray()[..., 3].astype(np.float32) / 255
+    a = cv2.GaussianBlur(a, (0, 0), sig * q) if sig * q > 0.05 else a
+    a = cv2.resize(a, (x1 - x0, y1 - y0), interpolation=cv2.INTER_LINEAR)
+    a = np.clip(a, 0, 1) * ga
+    img = surf.makeImageSnapshot().toarray()
+    reg = img[y0:y1, x0:x1].astype(np.float32)
+    col = np.array([gc & 255, (gc >> 8) & 255, (gc >> 16) & 255], np.float32)  # BGRA 순서
+    reg[..., :3] = reg[..., :3] * (1 - a[..., None]) + col * a[..., None]
+    img[y0:y1, x0:x1] = np.clip(reg, 0, 255).astype(np.uint8)
+    surf.getCanvas().drawImage(skia.Image.fromarray(img, colorType=skia.kBGRA_8888_ColorType), 0, 0)
+
+
 def render_frame(seq, fr, W=1920, H=1080):
     geo = Geo(seq, W, H)
     surf = skia.Surface(W, H)
@@ -154,42 +185,82 @@ def render_frame(seq, fr, W=1920, H=1080):
         c.drawPath(p, skia.Paint(Color=argb(r.get('Color')), AntiAlias=True, Style=skia.Paint.kFill_Style))
 
     S = geo.S
+    # 연결 그룹: AP의 AC(ConnPtId)로 이어진 AO끼리 묶는다(정적 분석: _BuildLayerObjectGroups).
+    ap_owner = {}
+    for a in aos:
+        for p_ in a.findall('AP'):
+            ap_owner[p_.get('ID')] = a.get('ID')
+    parent = {a.get('ID'): a.get('ID') for a in aos}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+    for a in aos:
+        for p_ in a.findall('AP'):
+            for ac in p_.findall('AC'):
+                o = ap_owner.get(ac.get('ConnPtId'))
+                if o and o in parent:
+                    ra, rb = find(a.get('ID')), find(o)
+                    if ra != rb:
+                        parent[ra] = rb
+
+    def draw_glow(a, path):
+        T = float(a.get('ThicknessScale') or 1)
+        gr, gt, ga = float(a.get('GlowRadius') or 0), float(a.get('GlowThickness') or 0), float(a.get('GlowAlpha') or 0)
+        if not (PARAMS['glow'] and gr > 0 and gt > 0 and ga > 0):
+            return
+        Wg = PARAMS['base'] * max(S * T, 0) * max(gt / 10, 0) * PARAMS['gw']
+        sig = math.sqrt((gr * S * PARAMS['gsig']) ** 2 + 0.29 ** 2)
+        gc = int(a.get('GlowColor')) & 0xFFFFFFFF
+        ga_ = min(max(ga if ga <= 1 else ga / 255, 0), 1)
+        if PARAMS['glow_mode'] == 'cv':
+            glow_cv(surf, path, Wg, sig, gc, ga_, W, H)
+        else:
+            col = skia.Color((gc >> 16) & 255, (gc >> 8) & 255, gc & 255, int(round(255 * ga_)))
+            c.drawPath(path, skia.Paint(Color=col, AntiAlias=True, Style=skia.Paint.kStroke_Style, StrokeWidth=Wg,
+                                        StrokeCap=skia.Paint.kRound_Cap, StrokeJoin=skia.Paint.kRound_Join,
+                                        MaskFilter=skia.MaskFilter.MakeBlur(skia.kNormal_BlurStyle, sig)))
+
+    def draw_base(a, path):
+        T = float(a.get('ThicknessScale') or 1)
+        if PARAMS['objscale_thick']:
+            T *= float(a.get('ObjectScale') or 1)
+        if alpha(a.get('Color')) > 0:
+            w = PARAMS['base'] * max(S * T, 0)
+            if w > 0:
+                sw = round(PARAMS['stab'] * w)
+                c.drawPath(path, skia.Paint(Color=argb(a.get('Color')), AntiAlias=True, Style=skia.Paint.kStroke_Style,
+                                            StrokeWidth=max(sw, 0.5), StrokeCap=skia.Paint.kRound_Cap,
+                                            StrokeJoin=skia.Paint.kRound_Join))
+
+    def fills_of(a):
+        for r in fr_owner.get(a.get('ID'), []):
+            if id(r) not in drawn:
+                drawn.add(id(r)); draw_fill(r)
+
     for layer in layers:
         if layer.get('Visible') == 'false':
             continue
         objs = sorted((a for a in aos if a.get('LayerId') == layer.get('ID')), key=lambda a: int(a.get('DrawOrder') or a.get('ID')))
-        for a in objs:
-            kind, pts, _ = by_id[a.get('ID')]
-            path = geom_path(kind, pts)
-            T = float(a.get('ThicknessScale') or 1)
-            if PARAMS['objscale_thick']:
-                T *= float(a.get('ObjectScale') or 1)
-            gr, gt, ga = float(a.get('GlowRadius') or 0), float(a.get('GlowThickness') or 0), float(a.get('GlowAlpha') or 0)
-            if PARAMS['glow'] and gr > 0 and gt > 0 and ga > 0:
-                Wg = PARAMS['base'] * max(S * T, 0) * max(gt / 10, 0)
-                sig = math.sqrt((gr * S) ** 2 + 0.29 ** 2)
-                gc = int(a.get('GlowColor')) & 0xFFFFFFFF
-                ga_ = ga if ga <= 1 else ga / 255
-                col = skia.Color((gc >> 16) & 255, (gc >> 8) & 255, gc & 255, int(round(255 * min(max(ga_, 0), 1))))
-                gp = skia.Paint(Color=col, AntiAlias=True, Style=skia.Paint.kStroke_Style, StrokeWidth=Wg,
-                                StrokeCap=skia.Paint.kRound_Cap, StrokeJoin=skia.Paint.kRound_Join,
-                                MaskFilter=skia.MaskFilter.MakeBlur(skia.kNormal_BlurStyle, sig))
-                c.drawPath(path, gp)
-            if PARAMS['fill_first']:
-                for r in fr_owner.get(a.get('ID'), []):
-                    if id(r) not in drawn:
-                        drawn.add(id(r)); draw_fill(r)
-            if alpha(a.get('Color')) > 0:
-                w = PARAMS['base'] * max(S * T, 0)
-                if w > 0:
-                    sw = round(PARAMS['stab'] * w)
-                    c.drawPath(path, skia.Paint(Color=argb(a.get('Color')), AntiAlias=True, Style=skia.Paint.kStroke_Style,
-                                                StrokeWidth=max(sw, 0.5), StrokeCap=skia.Paint.kRound_Cap,
-                                                StrokeJoin=skia.Paint.kRound_Join))
-            if not PARAMS['fill_first']:
-                for r in fr_owner.get(a.get('ID'), []):
-                    if id(r) not in drawn:
-                        drawn.add(id(r)); draw_fill(r)
+        if PARAMS['groups']:
+            groups = {}
+            for a in objs:
+                groups.setdefault(find(a.get('ID')), []).append(a)
+            units = list(groups.values())
+        else:
+            units = [[a] for a in objs]
+        for g in units:
+            paths = [(a, geom_path(by_id[a.get('ID')][0], by_id[a.get('ID')][1])) for a in g]
+            for a, path in paths:
+                draw_glow(a, path)
+            for a, path in paths:
+                if PARAMS['fill_first']:
+                    fills_of(a)
+                draw_base(a, path)
+                if not PARAMS['fill_first']:
+                    fills_of(a)
     for r in frs:
         if id(r) not in drawn:
             draw_fill(r)
