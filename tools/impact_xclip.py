@@ -4,6 +4,7 @@
 사용: python tools/impact_xclip.py <rows.csv> <원본 폴더> <예시 이미지 폴더> <out.csv>
 rows.csv 열: key,post_id,frames (그 밖의 열은 그대로 출력에 붙는다).
 모델 훈련 없음(추론만). 모델: microsoft/xclip-base-patch32(8프레임, CPU 가능).
+GPU: IMPACT_DEVICE=cuda 로 돌린다(GTX 1050 Ti 같은 Pascal은 FP32 그대로. docs/GPU-1050TI-FILTERING-2026-10-19.md).
 
 좁힌 정의(2026-10-19 사용자): 실루엣(또는 빛에 의한 그림자) 표현, 고대비 또는 색상 반전 프레임.
 지표(후보 구간 프레임 기준, 문맥=구간 앞뒤 12프레임):
@@ -91,13 +92,14 @@ def main():
     torch.set_num_threads(os.cpu_count())
     name = 'microsoft/xclip-base-patch32'
     proc = AutoProcessor.from_pretrained(name)
-    model = XCLIPModel.from_pretrained(name).eval()
+    dev = os.environ.get('IMPACT_DEVICE', 'cpu')
+    model = XCLIPModel.from_pretrained(name).eval().to(dev)
     texts = POS + NEG
 
     def video_emb(fr8):
         with torch.no_grad():
-            inp = proc(videos=[list(fr8)], return_tensors='pt')
-            return torch.nn.functional.normalize(model.get_video_features(**inp).pooler_output, dim=-1)[0]
+            inp = proc(videos=[list(fr8)], return_tensors='pt').to(dev)
+            return torch.nn.functional.normalize(model.get_video_features(**inp).pooler_output, dim=-1)[0].cpu()
 
     with torch.no_grad():
         tin = proc(text=texts, return_tensors='pt', padding=True)
@@ -129,8 +131,8 @@ def main():
         post = F[a - s + (b - a + 1)] if len(F) > a - s + (b - a + 1) else None
         ve = video_emb(pick8(cand))
         with torch.no_grad():
-            inp = proc(text=texts, videos=[pick8(cand)], return_tensors='pt', padding=True)
-            pr = model(**inp).logits_per_video.softmax(-1)[0]
+            inp = proc(text=texts, videos=[pick8(cand)], return_tensors='pt', padding=True).to(dev)
+            pr = model(**inp).logits_per_video.softmax(-1)[0].cpu()
         res = dict(r)
         res['xclip_pos'] = round(float(pr[:len(POS)].sum()), 3)
         res['ref_sim'] = round(float((R @ ve).max()), 3)

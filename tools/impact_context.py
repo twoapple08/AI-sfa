@@ -20,8 +20,13 @@ IMPACT_CACHE=<폴더>를 주면 디코딩한 프레임을 npy로 보관해 재�
 - nov_max: 위 네 값의 최대값. 작으면 '앞뒤 둘 다와 같은 그림 방식'이다.
 - drawn: 그림이 있는 후보 프레임 수/후보 프레임 수(Canny 에지 화소 0.2% 이상). 그림 없는 단색 번쩍임은 그림 방식
   비교가 성립하지 않아 기존 규칙에 맡긴다(253949 f32-33처럼 흰 섬광+실루엣이 섞인 임팩트를 살리려고 전부 그림일 때만 판정).
-- same_style: nov_max<0.2 이고 후보 프레임이 전부 그림 있음이고 앞뒤 두 쪽 모두 계산됨 → 1. '같은 컷 안의 클로즈업·줌·이동·동화'
-  쪽 신호. 보정(2026-10-19, 확정 임팩트 63·아님 47): 임팩트 0건, 아님 8건이 1, 32488 f121-122도 1.
+- bilevel: 후보 프레임에서 어두운(L<35)·밝은(L>70) 화소가 합쳐 85% 이상일 때 둘 중 작은 쪽 비율(최대값).
+- dark_solid: 7x7 침식 뒤에도 남는 어두운 면적 비율(최대값). 선이 아니라 검은 덩어리(실루엣)가 있는가.
+- same_style: nov_max<0.3 이고 후보 프레임이 전부 그림 있음이고 앞뒤 두 쪽 모두 계산됨이고 흑백 두 색 실루엣
+  (bilevel>=0.05 이면서 dark_solid>=0.15)이 아님 → 1. 셀 시대처럼 문맥에도 크림·검정이 있는 장면에서 흑백 실루엣
+  삽입(163174·258730·141149)을 '같은 그림'으로 오판한 것을 막는 조건(2026-10-19 육안 291건 대조로 추가). '같은 컷 안의 클로즈업·줌·이동·동화'
+  쪽 신호. 보정(2026-10-19): 확정 임팩트 63 중 0, 아님 47 중 7, 32488 f121-122는 1. 육안 291건 대조는
+  docs/IMPACT-CONTEXT-2026-10-19.md.
 - invert: 후보 첫/끝 프레임과 바로 앞/뒤 프레임 반전본의 밝기 상관 최대값(참고).
 시험했으나 뺀 것(2026-10-19): X-CLIP에 '앞 문맥 2+후보 4+뒤 문맥 2' 창과 '같은 장면 클로즈업' 등 반대 문구를 넣은
   점수(AUC 0.54), 면적 기반 무채색·고대비 증가량(줌에서 오판), SIFT 정합 수(AUC 0.45–0.65), 색 분포 컷 경계 자르기.
@@ -33,7 +38,7 @@ import cv2
 
 CTX, W, H = 24, 256, 144
 Q, AREA, MAJ, SKIP, SIDE, MINF, DE, LM = 6.0, 0.01, 0.4, 2, 12, 3, 18.0, 15.0
-NOV_T, EDGE_T = 0.2, 0.002
+NOV_T, EDGE_T, BIL_T, SOLID_T = 0.3, 0.002, 0.05, 0.15
 
 
 def frames(path, s, e):
@@ -126,8 +131,16 @@ def features(F, a, s, b):
     vals = [r[k] for k in ('pre_fill', 'post_fill', 'pre_line', 'post_line') if r[k] != '']
     r['nov_max'] = max(vals) if vals else ''
     r['drawn'] = f'{len(drawn)}/{len(cand)}'
+    bil, sol = [], []
+    for c in creg:
+        L = c[0][..., 0]
+        d, br = float((L < 35).mean()), float((L > 70).mean())
+        bil.append(min(d, br) if d + br >= 0.85 else 0.0)
+        sol.append(float(cv2.erode((L < 35).astype(np.uint8), np.ones((7, 7), np.uint8)).mean()))
+    r['bilevel'], r['dark_solid'] = round(max(bil), 3), round(max(sol), 3)
+    two_tone = r['bilevel'] >= BIL_T and r['dark_solid'] >= SOLID_T
     r['same_style'] = int(vals != [] and r['pre_fill'] != '' and r['post_fill'] != ''
-                          and r['nov_max'] < NOV_T and len(drawn) == len(cand))
+                          and r['nov_max'] < NOV_T and len(drawn) == len(cand) and not two_tone)
     g = lambda f: cv2.cvtColor(f, cv2.COLOR_RGB2GRAY).astype(np.float32)
     inv = [corr(g(c), 255 - g(F[j])) for c, j in ((cand[0], i0 - 1), (cand[-1], i1)) if 0 <= j < len(F)]
     r['invert'] = round(max(inv), 3) if inv else ''
@@ -142,7 +155,7 @@ def main():
     done = set()
     if os.path.exists(out_csv):
         done = {r['key'] for r in csv.DictReader(open(out_csv, encoding='utf-8'))}
-    cols = ['pre_fill', 'post_fill', 'pre_line', 'post_line', 'nov_max', 'drawn', 'same_style', 'invert']
+    cols = ['pre_fill', 'post_fill', 'pre_line', 'post_line', 'nov_max', 'drawn', 'bilevel', 'dark_solid', 'same_style', 'invert']
     fo = open(out_csv, 'a', newline='', encoding='utf-8')
     w = csv.DictWriter(fo, fieldnames=list(rows[0]) + [c for c in cols if c not in rows[0]])
     if not done:
