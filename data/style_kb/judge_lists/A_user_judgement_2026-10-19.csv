@@ -1,0 +1,51 @@
+no,folder,post_id,animator,frames,subagent_pass1,subagent_pass2,subagent_final,subagent_reason,user_verdict,train_weight,corrected_frames,reason_category,user_note,vs_subagent_lean
+01,01_11220_f280-284,11220,yutaka_nakamura,280-284,unsure,unsure,unsure,검정 바탕 흰 곡면 불명,impact,low,,추구미아님,임팩트프레임이기는 한데 추구미는 아님 학습비중이 낮은 학습자료,판단보류(양 단계 unsure)
+02,02_24304_f67-79,24304,optical-core,67-79,unsure,unsure,unsure,문맥도 무채색 집중선,not,,,배경효과(고속이동),임팩트프레임이 아님 빠른속도로 이동하는걸 보여주는 배경효과임 가운데는 캐릭터,판단보류(양 단계 unsure)
+03,03_24304_f179-200,24304,optical-core,179-200,unsure,unsure,unsure,회색 벽 장면 애매,not_adjacent,normal,203-209,인접 실제임팩트,사진으로는 없는데 슬로우모션 영상 후반부(슬로우 영상 기준 6초때)에 나옴,판단보류(양 단계 unsure)
+04,04_42108_f15-19,42108,optical-core,15-19,unsure,unsure,unsure,흐린 회색 번짐,not,,,먼지·충격파,임팩트프레임 아님 골렘의 공격의 의한 먼지/충격파 이펙트임,판단보류(양 단계 unsure)
+05,05_70207_f384-385,70207,yutaka_nakamura,384-385,not,unsure,unsure,저채도 평면 형태,not_adjacent,exclude,394-398,인접 실제임팩트(추구미아님),임팩트프레임임 슬로우 모션 영상에서만 나옴 하지만 추구미가 전혀 아닌지라 저부분은 학습에서 빼도 될것같음,일치
+06,06_73405_f564-564,73405,yutaka_nakamura,564-564,not,unsure,unsure,어두운 평면 형태,not,,,먼지·다른각도,임팩트프레임이 아님 그냥 로봇이 쏘는 레이저 쏘는것대한 먼지 이펙트와 다른각도에서도 쏘는걸 보여주는것뿐임,일치
+07,07_73405_f942-949,73405,yutaka_nakamura,942-949,not,unsure,unsure,분홍 연기 애매,not,,,폭발섬광·먼지(장면전환),임팩트프레임이 아님 그냥 폭발로 인한 선광과 장면 전환 먼지이펙트가 겉히는 장면임,일치
+08,08_78337_f371-379,78337,yukina_kosaka,371-379,impact,unsure,unsure,무채색 장면 애매,impact,low,378-379,단색 번쩍임,임팩트프레임이 맞음 흑백으로 2프레임을 통해 번쩍임 단 강조를 준다든지 하는 실루엣이나 그런게 없고 단색 임팩트프레임이라 비중을 낮추면 좋을 듯 함,일치
+09,09_78337_f491-491,78337,yukina_kosaka,491-491,unsure,unsure,unsure,무채색 장면 애매,borderline,low,,섬광 전면,임팩트프레임이 반정도 맞음 섬광 이펙트가 화면전체를 덮으면서 비슷한 효과를 준거 같음 비중을 낮추면 좋을 듯 함,판단보류(양 단계 unsure)
+10,10_85371_f346-346,85371,yutaka_nakamura,346-346,not,unsure,unsure,문맥과 같은 옅은 장면,not,,,연출,임팩트프레임이 아님 그냥 연출임,일치
+11,11_85371_f349-349,85371,yutaka_nakamura,349-349,not,unsure,unsure,문맥과 같은 옅은 장면,not,,,연출,10_85371_f346-346과 같은 영상임,일치
+12,12_110883_f565-565,110883,riooo,565-565,unsure,unsure,unsure,흐린 회청 형태,not,,,먼지(장면전환),임팩트프레임아님 그냥 먼지이펙트가 앞에 나오도록 장면이 정환된것임,판단보류(양 단계 unsure)
+13,13_119371_f499-499,119371,yutaka_nakamura,499-499,not,unsure,unsure,흰 바탕 노란 선,not,,,섬광,임팩트프레임보다는 섬광 이펙트에 가까움,일치
+14,14_119371_f527-535,119371,yutaka_nakamura,527-535,impact,unsure,unsure,무채색 파도 애매,not,,,캐릭터 공격동작,임팩트 프레임이 아님 등장 캐릭터가 공격하는거임,불일치
+15,15_137055_f289-290,137055,riooo,289-290,not,unsure,unsure,어두운 문맥 연속,not,,,옷이 화면 가림,임팩트 프레임이 아님 등장인물의 옷이 화면을 잠깐 가린것임,일치
+16,16_141149_f770-770,141149,riooo,770-770,unsure,unsure,unsure,검정 바탕 흰 덩어리,impact,low,,수준 낮음,임팩트 프레임이 맞음 그러나 수준이 그렇게 높은 임팩트 프레임은 아님,판단보류(양 단계 unsure)
+17,17_162980_f319-319,162980,yutaka_nakamura,319-319,not,unsure,unsure,매우 어두운 해칭,not_adjacent,normal,310,인접 실제임팩트,임팩트 프레임이 맞음 근데 사진 목록을 보아하니 잘못 인식한것 같음 위치를 다시 찍어보셈(눈 나오기 직전 프레임과 내려찍기 공격후 나오는 나오는 프레임에 위치함),일치
+18,18_181174_f792-814,181174,yutaka_nakamura,792-814,unsure,unsure,unsure,베이지 평면 형태,not,,,먼지,임팩트 프레임이 아님 그냥 먼지 이펙트임,판단보류(양 단계 unsure)
+19,19_190943_f188-189,190943,yutaka_nakamura,188-189,unsure,unsure,unsure,어두운 회색 형태,not,,,먼지,임팩트 프레임이 아님 그냥 먼지 이펙트임,판단보류(양 단계 unsure)
+20,20_200380_f346-351,200380,yukina_kosaka,346-351,not,unsure,unsure,검정바탕 노란 선,borderline,low,,흰바탕없는 강조·실루엣,임팩트 프레임에 나오는 검은색 강조나 실루엣 이펙트를 흰색 배경없이 장면에 나오는 방식임 반은 맞음,불일치
+21,21_206441_f276-279,206441,yutaka_nakamura,276-279,not,unsure,unsure,검정바탕 흐린 형태,not,,,연출(검정바탕 인체),아님 그냥 검은색 배경에서 인체가 나오는 연출임,일치
+22,22_209678_f1303-1305,209678,riooo,1303-1305,not,unsure,unsure,검정바탕 방사선,not,,,집중선 연출,아님 그냥 집중선 같은 연출임,일치
+23,23_230354_f163-163,230354,riooo,163-163,unsure,unsure,unsure,회색 발광 형태,not,,,전기 공격,아님 그냥 전기 공격임,판단보류(양 단계 unsure)
+24,24_253949_f32-33,253949,yutaka_nakamura,32-33,unsure,unsure,unsure,흐린 검은 형태,impact,normal,32-33,,맞음,판단보류(양 단계 unsure)
+25,25_266757_f861-868,266757,yutaka_nakamura,861-868,not,unsure,unsure,어두운 화면 분홍 형태,not,,,옷,아님 그냥 캐릭터의 옷 부분임,일치
+26,26_271632_f887-889,271632,yutaka_nakamura,887-889,not,unsure,unsure,밝은바탕 손 컬러잔존,not,,,물(연출),아님 물이 떨어지는걸 보여주는 연출임,일치
+27,27_271632_f1190-1212,271632,yutaka_nakamura,1190-1212,unsure,unsure,unsure,회색 거품 형태,not,,,물 이펙트,아님 그냥 물 이펙트임,판단보류(양 단계 unsure)
+28,28_271642_f885-886,271642,yutaka_nakamura,885-886,unsure,unsure,unsure,갈색조 얼굴 적색눈,not,,,실루엣 연출,임팩트 프레임에 나오는 실루엣 연출이 사용된거지 임팩트 프레임은 아님,판단보류(양 단계 unsure)
+29,29_272649_f437-449,272649,yutaka_nakamura,437-449,unsure,unsure,unsure,회색 건물 CG 가능,not,,,배경·낙하 이펙트,아님 건물들 천장들 배경임 그리고 이펙트가 떨어지는거,판단보류(양 단계 unsure)
+30,30_272649_f453-457,272649,yutaka_nakamura,453-457,unsure,unsure,unsure,흑백 기계 그림 소량불꽃,not,,,섬광,아님 섬광 이펙트에 가까움,판단보류(양 단계 unsure)
+31,31_272649_f695-704,272649,yutaka_nakamura,695-704,unsure,unsure,unsure,회색 연기 2색 형태,not,,,먼지,아님 그냥 먼지 이펙트임,판단보류(양 단계 unsure)
+32,32_273325_f169-170,273325,yutaka_nakamura,169-170,not,unsure,unsure,검정바탕 흰 발광형,(미판정),,,,,
+33,33_280456_f887-887,280456,yutaka_nakamura,887-887,not,unsure,unsure,검정바탕 작은 별,(미판정),,,,,
+34,34_280456_f1325-1327,280456,yutaka_nakamura,1325-1327,not,unsure,unsure,어두운 회색 결,(미판정),,,,,
+35,35_281184_f1152-1152,281184,yutaka_nakamura,1152-1152,not,unsure,unsure,흰 섬광 청색 잔존,(미판정),,,,,
+36,36_281565_f167-170,281565,yutaka_nakamura,167-170,unsure,unsure,unsure,검정바탕 흰 발광형,(미판정),,,,,
+37,37_290849_f37-37,290849,yutaka_nakamura,37-37,not,unsure,unsure,흰바탕 황색 잔존,(미판정),,,,,
+38,38_290849_f80-81,290849,yutaka_nakamura,80-81,not,unsure,unsure,흰 섬광 황색조,(미판정),,,,,
+39,39_294835_f178-179,294835,yutaka_nakamura,178-179,not,unsure,unsure,흰바탕 형태 색잔존,(미판정),,,,,
+40,40_294835_f181-184,294835,yutaka_nakamura,181-184,not,unsure,unsure,흰 화면 성긴 형태,(미판정),,,,,
+41,41_294835_f257-259,294835,yutaka_nakamura,257-259,not,unsure,unsure,흰바탕 연보라 형태,(미판정),,,,,
+42,42_299654_f136-137,299654,yutaka_nakamura,136-137,not,unsure,unsure,흰바탕 청록 파편,(미판정),,,,,
+43,43_301777_f300-302,301777,yutaka_nakamura,300-302,not,unsure,unsure,거의 검정 흐린 형태,(미판정),,,,,
+44,44_306329_f3261-3281,306329,yutaka_nakamura,3261-3281,unsure,unsure,unsure,회색 평면 형태,(미판정),,,,,
+45,45_306713_f147-149,306713,yutaka_nakamura,147-149,not,unsure,unsure,분홍조 형태 문맥유사,(미판정),,,,,
+46,46_306885_f907-907,306885,yutaka_nakamura,907-907,not,unsure,unsure,어두운 화면 흐린형태,(미판정),,,,,
+47,47_307110_f113-116,307110,yutaka_nakamura,113-116,not,unsure,unsure,회백 장면 탈색,(미판정),,,,,
+48,48_307590_f632-643,307590,yutaka_nakamura,632-643,not,unsure,unsure,저채도 인물 근접,(미판정),,,,,
+49,49_308943_f313-316,308943,yutaka_nakamura,313-316,not,unsure,unsure,회색 칼날 평면,(미판정),,,,,
+50,50_309103_f413-418,309103,yukina_kosaka,413-418,unsure,unsure,unsure,회색 세로 형태,(미판정),,,,,
