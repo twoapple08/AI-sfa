@@ -1,0 +1,66 @@
+# SFA 뷰어(안드로이드) v0.1 — 2026-10-20
+
+Stick Fighter 원래 앱은 SFA를 열 때 내부 DB로 옮기느라 느리고 '응답 없음'이 뜬다(사용자 보고). 그래서 보기·재생·MP4 내보내기만 하는 별도 앱을 만들었다. 편집 기능은 없다. 원래 앱의 코드는 쓰지 않았고, 우리가 분석한 파일 형식·그리기 규칙으로 새로 작성했다.
+
+## 구성
+
+| 파일 | 역할 |
+|---|---|
+| `viewer-android/` | 안드로이드 앱(Kotlin, minSdk 26). `gradle assembleRelease`로 빌드 |
+| `SfaParser.kt` | SFA(ZIP 안 XML)를 형식 전용 바이트 스캐너로 한 번 읽어 숫자 배열로 변환 |
+| `SfaDoc.kt` | 변환 결과와 캐시 파일(.sfab) 읽기·쓰기. 두 번째부터는 캐시로 바로 연다 |
+| `FrameRenderer.kt` · `Blur.kt` | 한 프레임 그리기(아래 규칙) |
+| `VideoExporter.kt` · `Yuv.kt` | 휴대폰 내장 H.264 인코더로 MP4 저장(동영상/SfaViewer) |
+| `MainActivity.kt` | 열기·재생/정지·프레임 이동 막대·내보내기 화면 |
+| `tools/sfa_render.py` | 서버용 기준 렌더러. 앱 내보내기 영상과 픽셀을 대조해 규칙을 정한다 |
+
+## 그리기 규칙 (앱 영상 대조로 확인)
+
+정적 분석(AOT-RENDER-CONTEXT·PAINT-DISPATCH·DRAW-GLOW·GLOW-BACKEND·GROUP-SHADER-TIMELINE)으로 얻은 식을 실제 앱 내보내기 영상과 비교해 확인했다.
+
+| 규칙 | 근거 |
+|---|---|
+| 기준 화면 1920×(1920×비율). 여백 6px 안쪽에 비율 맞춤, `x = ox + uw·X/100` | 여백 0이면 차이가 5배 커진다. 6이 가장 잘 맞음 |
+| 선 폭 `round(1.14 × 8 × ThicknessScale)`, 둥근 끝·이음 | 1.0/1.3배보다 1.14가 가장 잘 맞음 |
+| ObjectScale은 선 폭에 영향 없음 | 곱하면 차이가 커짐 |
+| 곡선(TypeId 3) = 2차 베지어, 원(2) = 두 점이 지름 끝 | |
+| 채우기: FS마다 `[StartT, EndT]` 구간을 이어 붙이고, 끊긴 곳에서 새 윤곽, 짝홀 규칙 | 얼굴 그늘 구멍이 맞음. p2 60번 프레임 차이 6.5→0.8 |
+| 원 위 t: 첫 점에서 시작해 시계 방향(화면 기준) | 8가지 경우 중 최소 |
+| 레이어: 목록 순서대로, 첫 레이어가 맨 아래 | 반대로 하면 VSSG가 크게 틀림(차이 6.9→0.7) |
+| 레이어 안: DrawOrder순. 연결 그룹(AC로 이어진 오브젝트)마다 글로우를 먼저, 그다음 오브젝트별 채우기·선 | p3 글로우 고리 차이 2.7→1.6 |
+| 글로우: 폭 `8·ThicknessScale·GlowThickness/10` 띠를 Gaussian(`sigma=√(GlowRadius²+0.29²)`)으로 흐림 × GlowColor × GlowAlpha | sigma 배율 0.5·1.5·2보다 1이 가장 잘 맞음 |
+
+검증 수치(프레임 평균 절대차, 0–255, 영상 압축 노이즈 포함):
+- 서버 기준 렌더러: 0.08–1.7
+- 안드로이드 코드(Robolectric 네이티브 그래픽으로 서버에서 실행): 0.25–2.3
+
+검증 자료: 사용자 제공 SFA 4개와 그 앱 내보내기 영상(비공개, 서버에만 둠).
+
+## 성능 (서버 JVM 측정, 휴대폰은 다를 수 있음)
+
+| 파일 | XML | 첫 변환 | 캐시 크기 | 캐시 읽기 |
+|---|---|---|---|---|
+| VSSGTOILET(114프레임, 오브젝트 45만) | 372MB | 4.2초 | 52MB | 0.4초 |
+| 작은 파일(90–122프레임) | 수 MB | 0.04–0.2초 | 0.3–1.3MB | 수 ms |
+
+- 프레임 그리기(1920×1080): 10–470ms. 큰 글로우가 많은 프레임이 느리다.
+- 재생은 화면 폭 최대 1280으로 그리고, 그리기가 24fps보다 느리면 느리게 재생된다(화면에 실제 fps 표시).
+
+## 아직 안 된 것
+
+- 트위닝: 사용자 방침(24/24, 트위닝 없음)에 맞춰 넣지 않았다. 다른 사람 파일 중 트위닝(T>P)을 쓰는 것은 원래 앱과 다르게 보일 수 있다.
+- 글로우의 세부(셰이더 끝단 cap, 링 적분, 원래 앱의 축소 래스터)는 근사다. 큰 글로우 고리에서 차이가 가장 크다(2.3).
+- 실제 휴대폰에서의 설치·속도·인코더 호환은 사용자 확인이 필요하다.
+- 서명: 서버의 디버그 키로 서명했다. 새 세션에서 다시 빌드하면 키가 달라져 덮어 설치가 안 될 수 있다(그때는 지우고 다시 설치).
+
+## 재현
+
+```
+cd viewer-android
+echo "sdk.dir=<Android SDK>" > local.properties
+gradle assembleRelease                                   # APK
+SFA_TEST_DIR=<sfa 폴더> gradle testReleaseUnitTest        # 파서 개수·캐시 왕복
+SFA_ROBO_DIR=<android-all jar 폴더> SFA_TEST_DIR=... SFA_OUT_DIR=... SFA_FRAMES="p1:0,30" \
+  gradle testReleaseUnitTest --tests com.aisfa.viewer.RenderTest   # 안드로이드 그리기 결과 PNG
+python tools/sfa_render.py <file.sfa> --compare <app.mp4> --frames 0,30  # 앱 영상과 차이
+```
