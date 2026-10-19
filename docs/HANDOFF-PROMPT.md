@@ -4,6 +4,13 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 **읽기 순서:** AGENTS.md → 이 문서 → docs/IMPACT-V2-CRITERIA-2026-10-18.md 3차 보완(최신 판정 규칙) → docs/STYLE-KB-ROOTS-2026-10-16.md H3절 4)(A 판정 결과). 작업표는 docs/COORDINATION-PHASE2-2026-10-17.md다. 주제 문서는 필요할 때만 연다. 직전 인수인계: docs/history/HANDOFF-PROMPT-2026-10-19a-archive.md.
 
+## 0-0. 최신 (2026-10-19 후반): 임팩트 정의 좁힘 + X-CLIP 재분류 + 영상 통합
+
+- 사용자: "검사를 다 하긴 힘들고 이상하게 인식하는 것 같으니 범위를 좁히자." 정의 = 실루엣(빛에 의한 그림자) 표현, 고대비 또는 색상 반전(IMPACT-V2-CRITERIA 4차, 예시 5장은 Drive `03_스타일지식베이스/참고_임팩트예시/`).
+- X-CLIP 재판정(tools/impact_xclip.py → tools/impact_narrow_classify.py): 미판정 406 → 유력 73, 재검사 290, 아님유력 43. 표 `data/style_kb/impact_narrow_2026-10-19.csv`, 수치·한계 STYLE-KB H3 5).
+- **Drive 새 구조(A·B·C 묶음 대체):** `02_분석자료/임팩트_재분류_2026-10-19/<애니메이터>/<게시물>/` — `<게시물>_1-4속_프레임번호.mp4`(통합 영상) + `<분류>_f<구간>_<이전묶음번호>/`(PNG·문맥시트). 루트에 읽어보기.txt·판정표_전체.csv·재검사목록.csv, 애니메이터 폴더마다 판정표. 구간별 slow_quarter.mp4는 사용자 지시("중복 영상은 하나로 통합")로 지웠다. 옛 묶음 판정표는 `_이전_묶음_판정표/`로 옮겼다.
+- **다음 행동:** 사용자가 재검사목록(우선 임팩트쪽 111)과 유력 73을 확인해 주면 tag_overrides에 반영한다(유력·아님유력도 사용자 확인 전에는 confirmed/not_impact로 넣지 않는다). 학습 형태는 여전히 미결정.
+
 ## 0-1. 이번 세션에서 끝낸 일 (2026-10-19)
 
 | 작업 | 결과 | 기록 |
