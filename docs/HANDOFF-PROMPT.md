@@ -37,6 +37,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
      ```
      - 완성 확인 기준: 구간 폴더 수 A 50, B 303, C 83, 각 판정표.csv 존재
      - 오래 걸리면 run_in_background로 실행한다.
+   - **2026-10-19:** 사용자는 아직 판정하지 않았고, 먼저 Gemini에게 맡긴다. 지시서: docs/GEMINI-TASK-JUDGE-ABC-2026-10-19.md. Gemini 판정은 사용자 판정이 아니므로 별도 기록하고, 사용자 확인 전까지 candidate로 둔다.
    - 사용자가 판정을 주면 tag_overrides를 갱신한다.
      - 임팩트 → confirmed(연필; 302394만 디지털)
      - 부분 → impact_frames_partial confirmed
