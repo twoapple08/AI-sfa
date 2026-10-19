@@ -43,7 +43,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
    - **Drive 구조(2026-10-19 사용자 지시로 애니메이터별 정리):** `<묶음>/<애니메이터>/<번호_post_f구간>/`. 애니메이터 폴더는 yutaka_nakamura·riooo·optical-core·yukina_kosaka, C에만 `기타_katsumi_ishizuka(반려)` 1건. 폴더 이름의 번호는 판정표 no와 같다.
    - 각 구간 폴더: 앞뒤 2프레임 PNG + slow_quarter.mp4(앞뒤 12프레임 더) + `문맥시트_f…jpg`(영상과 같은 범위, 프레임 번호, 후보=노란 테두리, 다른 임팩트 행=하늘색 테두리).
-   - 판정표.csv(묶음 최상위, 애니메이터 순): animator, cont, continuity_warning(≥0.6 '앞뒤와 이어짐(동화 의심)'), nearby_impact_rows 열 추가. A는 user_judgement·user_note·train_weight·corrected_frames를 채웠다.
+   - 판정표.csv(묶음 최상위, 애니메이터 순): animator, cont, continuity_warning(≥0.6 '앞뒤와 이어짐(동화 의심)'), nearby_impact_rows 열 추가. A는 user_judgement·user_note·train_weight·corrected_frames를 채웠다. 애니메이터 폴더마다 `판정표_<애니메이터>.csv`도 있다. 동화 의심 경고: A 8, B 34, C 4건. 업로드 확인(2026-10-19): 문맥 시트 A 50·B 303·C 83장, 구간 폴더 수 일치.
    - 묶음이 사라지면: `tools/make_judge_bundle.py <list.csv> <작업폴더> <Drive 대상>`으로 만든 뒤 `tools/judge_context.py <판정표.csv> <원본폴더> <출력>`으로 문맥 시트·열을 붙이고 애니메이터 폴더로 올린다(원본은 Sakugabooru md5 대조로 받는다).
    - 사용자가 판정을 주면 tag_overrides를 갱신한다(방식은 TAG-RULES 끝 절).
      - 임팩트 → confirmed(연필; 302394만 디지털), 비중 언급이 있으면 train_weight low/exclude
@@ -130,6 +130,8 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - **주의:**
   - 반복문 안 ffmpeg는 표준입력을 가로챈다(`-nostdin`, stdin=DEVNULL).
   - `pkill -f <이름>`은 그 이름이 든 자기 셸까지 죽인다. PID로 kill한다.
+  - `until ! pgrep -f <이름>` 대기도 자기 셸 명령줄을 잡아 끝나지 않는다. `pgrep -f "python3 tools/<이름>"`처럼 좁히거나 PID로 기다린다.
+  - rclone moveto를 병렬로 돌리면 같은 이름 폴더가 중복 생성된다. 끝난 뒤 `rclone dedupe --dedupe-mode rename <경로> --max-depth 1`로 병합한다(파일 삭제 없음).
   - `rclone lsf --include`로 셀 때는 `--files-only`를 붙인다.
   - Wikipedia API는 429로 막혀 WebFetch로 확인했다. YouTube는 oEmbed만 된다.
   - scratchpad는 새 세션에 없다.
