@@ -3,6 +3,7 @@
 사용: python tools/auto_detect.py <목록 csv(post_id, animator)> <영상 루트(animator/post_id.mp4)> <출력 폴더>
 출력: <출력>/<post_id>.json
 - tags: 0.5초 간격 프레임의 태그 확률(TAGS 순서, 소수 3자리)
+- all: 0.5초 간격 프레임마다 일반 태그(8106개) 중 확률 0.05 이상인 것 {태그: 확률}. 요소 목록(산·바다·대포 등)을 넓게 세는 데 쓴다
 - cv: 0.125초 간격 지표 [밝기, 채도, 회전도, 배율, 이동량]
   - 회전도·배율·이동량은 앞 프레임과의 전역 유사변환(ORB+RANSAC) 추정값
 - 이미 있는 json은 건너뛴다(이어하기).
@@ -33,13 +34,16 @@ class Tagger:
         import onnxruntime as rt
         d = glob.glob(os.path.expanduser('~/.cache/huggingface/hub/models--SmilingWolf--wd-vit-tagger-v3/snapshots/*'))[0]
         names = [r['name'] for r in csv.DictReader(open(os.path.join(d, 'selected_tags.csv')))]
+        cats = [r['category'] for r in csv.DictReader(open(os.path.join(d, 'selected_tags.csv')))]
+        self.names = names
+        self.gen = [i for i, c in enumerate(cats) if c == '0']
         self.idx = [names.index(t) for t in TAGS]
         self.sess = rt.InferenceSession(os.path.join(d, 'model.onnx'), providers=['CPUExecutionProvider'])
         self.inp = self.sess.get_inputs()[0]
         self.size = self.inp.shape[1]
 
     def __call__(self, frames):
-        out = []
+        out, full = [], []
         for s in range(0, len(frames), 16):
             batch = []
             for f in frames[s:s + 16]:
@@ -51,7 +55,8 @@ class Tagger:
                 batch.append(sq[:, :, ::-1].astype(np.float32))
             pr = self.sess.run(None, {self.inp.name: np.stack(batch)})[0]
             out += [[round(float(p[i]), 3) for i in self.idx] for p in pr]
-        return out
+            full += [{self.names[i]: round(float(p[i]), 3) for i in self.gen if p[i] >= 0.05} for p in pr]
+        return out, full
 
 
 def frames(path, fps, w):
@@ -98,9 +103,9 @@ def main():
         src = os.path.join(root, an, pid + '.mp4')
         if os.path.exists(dst) or not os.path.exists(src):
             continue
-        tags = tg(list(frames(src, 2, 448)))
+        tags, full = tg(list(frames(src, 2, 448)))
         cvr = cvstats(frames(src, 8, 320))
-        json.dump({'post_id': pid, 'animator': an, 'tags': tags, 'cv': cvr}, open(dst, 'w'))
+        json.dump({'post_id': pid, 'animator': an, 'tags': tags, 'all': full, 'cv': cvr}, open(dst, 'w'))
         print(k + 1, len(jobs), pid, len(tags), f'{time.time() - t0:.0f}s', flush=True)
 
 
