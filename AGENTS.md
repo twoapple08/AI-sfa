@@ -86,3 +86,5 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 **조정 권한 (2026-10-17 사용자 지시):** "조정사항이 있을 시 조정은 모두 Claude에게 맡김." GPT·Claude·Gemini 역할 배정과 충돌 조정은 Claude가 결정하고 docs/COORDINATION-*.md에 기록한다. 사용자의 새 지시가 항상 우선한다.
 
 **로컬 포즈 추정 허가 (2026-10-17 19시 KST 사용자):** PC방 GPU(RTX 4060)에서 "가장 빨리 되는 것" — 이미 만들어진 포즈 모델(YOLO11-pose)로 nian41 영상의 관절 좌표를 **추론만** 하는 것을 허가. 모델 학습(분류기·스타일 AI)은 이 허가에 포함되지 않는다. 공용 PC에 계정·토큰을 남기지 않는다. 실행 파일: tools/pose_extract.py.
+
+- 하위 판정자(Agent) 대량 투입 전 토큰 비용을 먼저 추정해 사용자에게 알린다. 이미지 시트 판정은 판정자 1명당 약 75k–120k 토큰이 들었다(2026-10-20 동작 세기 36명 계획 → 사용자 중단). 표본 먼저, 간격·인원 최소화.
