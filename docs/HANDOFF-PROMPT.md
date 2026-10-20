@@ -60,8 +60,9 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
   - GPT용 시트: `00_목록/제미나이_동작종류/_GPT용_시트/G03–G12/` (`tools/gpt_sheets.py`)
   - 목록: `묶음목록_v3.csv` (저장소 `data/style_kb/judge_lists/gemini_action_batches_v3_2026-10-20.csv`)
 - **서버에서 다시 준비할 것:**
+  - rclone이 기본 설치돼 있지 않을 수 있다: downloads.rclone.org의 linux-amd64 zip을 받아 /usr/local/bin에 둔다.
   - 저용량 영상(위 Drive에서 rclone copy)
-  - `pip install opencv-python-headless`
+  - `pip install opencv-python-headless onnxruntime huggingface_hub`
   - WD Tagger: `~/.cache/huggingface/hub/models--SmilingWolf--wd-vit-tagger-v3`. 없으면 hf_hub_download로 받는다.
   - 탐지 목록: `data/style_kb/judge_lists/auto_detect_list_2026-10-20.csv`(377행, 남은 128개가 앞).
   - CPU 4코어 기준 영상 1개에 약 30초가 걸린다.
