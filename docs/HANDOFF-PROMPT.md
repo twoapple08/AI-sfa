@@ -2,7 +2,13 @@
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. fetch 후 이 브랜치에서 계속한다(시스템이 다른 브랜치를 배정해도 사용자 지정이 우선).
 
-**읽기 순서:** AGENTS.md → 이 문서 → **docs/IMPACT-CONTEXT-2026-10-19.md**(문맥 판정·재분류 결과) → docs/GPU-1050TI-FILTERING-2026-10-19.md → 필요하면 docs/IMPACT-V2-CRITERIA-2026-10-18.md 4차·3차. 직전 인수인계: docs/history/HANDOFF-PROMPT-2026-10-19c-archive.md(문맥 문제 원문, 그 전 19b·19a).
+**2026-10-20 최신:** 임팩트 전수 분류를 끝내고 Drive `05_임팩트 프레임 분류/`에 올렸다. 결과·한계는 **docs/IMPACT-CLASSIFY-RESULT-2026-10-20.md**에 있다.
+- 다음 할 일 1: 연필/디지털 기준을 사용자에게 확인한다(그 문서 4절).
+- 다음 할 일 2: 애매 138건을 확인한다.
+- 다음 할 일 3: 범위 밖 채점 표본 100개를 판정한다.
+- 아래 1·2절은 10-19 기록이다. 옛 `05_임팩트 프레임 재검사` 폴더는 지웠다.
+
+**읽기 순서:** AGENTS.md → 이 문서 → **docs/IMPACT-CLASSIFY-RESULT-2026-10-20.md** → docs/IMPACT-CONTEXT-2026-10-19.md(문맥 판정·재분류 결과) → docs/GPU-1050TI-FILTERING-2026-10-19.md → 필요하면 docs/IMPACT-V2-CRITERIA-2026-10-18.md 4차·3차. 직전 인수인계: docs/history/HANDOFF-PROMPT-2026-10-19c-archive.md(문맥 문제 원문, 그 전 19b·19a).
 
 ## 0. 현재 우선순위
 
@@ -85,7 +91,10 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
   - 02_분석자료: `<post>/`(contact_sheet·timing), `impact/`(v1), `impact_v2/`, `기법/`, **`임팩트_재분류_2026-10-19/`(옛 사용자판정 A·B·C 통합, 아래 1절)**, 연필판정_작업15_28구간, 연필보류_12구간
   - 03_스타일지식베이스/참고_임팩트예시/: 사용자 예시 연필 임팩트 5장(공개 금지)
   - 03_스타일지식베이스: 문서·observations·tag_overrides
-  - 05_임팩트 프레임 재검사: 재검사 289 폴더를 결과별(맞음·아님·애매)로 모음
+  - 05_임팩트 프레임 분류(2026-10-20): 전수 분류 3,247구간
+    - 맞음/단색섬광·맞음/실루엣이미지·애매·아님 아래 애니메이터 폴더로 나눴다.
+    - 판정표·연필 목록이 함께 있다.
+    - 옛 05_임팩트 프레임 재검사는 지웠다.
 - **도구:**
   - tools/impact_scan2.py(개정 정의 검출), tools/run_impact_v2.py, tools/collect_technique.py(Drive 기준 재개, 둘 다 완료됨)
   - 판정 기준: docs/IMPACT-V2-CRITERIA-2026-10-18.md(하위 에이전트용 임팩트 판정 기준)
