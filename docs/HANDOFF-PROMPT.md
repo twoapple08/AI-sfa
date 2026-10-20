@@ -2,6 +2,20 @@
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. fetch 후 이 브랜치에서 계속한다(시스템이 다른 브랜치를 배정해도 사용자 지정이 우선).
 
+**2026-10-20 저녁 체크포인트 (이어서 할 때 여기부터):**
+- 진행 중(Claude 판정자, 결과 파일):
+  - nian41 제작 자료 12개 형식 순위: `/home/user/n41/tier/tiers.csv`. 결과를 `data/style_kb/priority_tiers_genga_2026-10-20.csv`에 합치고 PRIORITY-TIERS에 반영한다.
+  - 빈칸 지도: `docs/GAP-MAP-2026-10-20.md`, `data/style_kb/gap_map_2026-10-20.csv`. 판정자가 쓰고, Claude가 검토한 뒤 커밋한다.
+  - 서버 작업 폴더는 새 세션에 없을 수 있다. 그때는 위 두 작업을 다시 실행한다.
+- 사용자 진행 중:
+  - 셀 폐기 검사: Drive `08_셀 폐기 확인`. 사용자가 직접 정하고, AI 역할이 아니다.
+  - Gemini 동작 종류 세기(B15부터): `docs/GEMINI-TASK-ACTION-TYPES-2026-10-20.md`
+  - GPT 보충 후보 조사: `docs/COORDINATION-2026-10-20.md`
+  - 결과 CSV가 오면 Claude가 합치고 검증한다.
+- 역할: `docs/COORDINATION-2026-10-20.md`. 순위: `docs/PRIORITY-TIERS-2026-10-20.md`. 부족 요소: `docs/ACTION-GAP-2026-10-20.md`.
+- SFA 뷰어 1.0 배포 완료(Drive `07_도구/SFA뷰어`). 사용자의 실기기 확인을 기다린다. 기록: `docs/SFA-VIEWER-2026-10-20.md`.
+- 나카무라 디지털 영상 224개를 Drive `01_원본영상/yutaka_nakamura_디지털/`에 올렸다. 업로드 대조 결과 일치했다.
+
 **2026-10-20 최신:** 임팩트 전수 분류를 끝내고 Drive `05_임팩트 프레임 분류/`에 올렸다. 결과·한계는 **docs/IMPACT-CLASSIFY-RESULT-2026-10-20.md**에 있다.
 - 끝난 일:
   - 사용자가 애매 138건을 전수검사했다. 맞음 27, 아님 111이다.
