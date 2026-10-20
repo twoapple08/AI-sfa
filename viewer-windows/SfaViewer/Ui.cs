@@ -13,6 +13,10 @@ namespace SfaViewer
         public static readonly Color Icon = Color.FromArgb(0x55, 0x55, 0x55);
         public static readonly Color Track = Color.FromArgb(0xDA, 0xDD, 0xE1);
 
+        /// <summary>Windows 화면 배율(100%=1, 150%=1.5). 글꼴(pt)은 배율에 맞춰 커지므로 픽셀 위치·크기도 같이 키운다.</summary>
+        public static float S = 1f;
+        public static int P(float v) => (int)Math.Round(v * S);
+
         public static Font Bold(float pt) => new("Segoe UI", pt, FontStyle.Bold);
         public static Font Regular(float pt) => new("Segoe UI", pt);
         /// <summary>가장 굵은 제목 글꼴(사용자 요청: SFA VIEWER 굵게). 없으면 Segoe UI 굵게.</summary>
@@ -45,7 +49,7 @@ namespace SfaViewer
     sealed class IconButton : Painted
     {
         IconKind kind; public Color Color = Theme.Icon; public Color? Fill;
-        public IconButton(IconKind k) { kind = k; Cursor = Cursors.Hand; Size = new Size(44, 44); }
+        public IconButton(IconKind k) { kind = k; Cursor = Cursors.Hand; Size = new Size(Theme.P(44), Theme.P(44)); }
         public IconKind Kind { get => kind; set { if (kind != value) { kind = value; Invalidate(); } } }
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -79,7 +83,7 @@ namespace SfaViewer
     sealed class PillButton : Painted
     {
         public Color Fill = Theme.Orange, Fore = Color.White;
-        public PillButton(string text) { Text = text; Font = Theme.Bold(11); Cursor = Cursors.Hand; Height = 46; }
+        public PillButton(string text) { Text = text; Font = Theme.Bold(11); Cursor = Cursors.Hand; Height = Theme.P(46); }
         protected override void OnTextChanged(EventArgs e) { Invalidate(); base.OnTextChanged(e); }
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -98,7 +102,7 @@ namespace SfaViewer
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias; g.Clear(Parent?.BackColor ?? Theme.Bg);
-            using var p = Theme.Round(new RectangleF(0, 0, Width - 1, Height - 1), Radius); using var b = new SolidBrush(Fill); g.FillPath(b, p);
+            using var p = Theme.Round(new RectangleF(0, 0, Width - 1, Height - 1), Radius * Theme.S); using var b = new SolidBrush(Fill); g.FillPath(b, p);
         }
     }
 
@@ -107,10 +111,10 @@ namespace SfaViewer
     {
         int max, val; bool drag;
         public event Action<int> Scrubbed;
-        public SeekBar() { Height = 28; Cursor = Cursors.Hand; }
+        public SeekBar() { Height = Theme.P(28); Cursor = Cursors.Hand; }
         public int Maximum { get => max; set { max = Math.Max(0, value); val = Math.Min(val, max); Invalidate(); } }
         public int Value { get => val; set { int v = Math.Clamp(value, 0, max); if (v != val) { val = v; Invalidate(); } } }
-        const float Pad = 10;
+        static float Pad => 10 * Theme.S;
         float X(int v) => Pad + (Width - 2 * Pad) * (max == 0 ? 0 : (float)v / max);
         void Hit(int x) { if (!Enabled) return; int v = (int)Math.Round((x - Pad) / Math.Max(1, Width - 2 * Pad) * max); v = Math.Clamp(v, 0, max); if (v != val) { val = v; Invalidate(); Scrubbed?.Invoke(v); } }
         protected override void OnMouseDown(MouseEventArgs e) { drag = true; Hit(e.X); base.OnMouseDown(e); }
@@ -119,10 +123,10 @@ namespace SfaViewer
         protected override void OnPaint(PaintEventArgs e)
         {
             var g = Prep(e); float cy = Height / 2f;
-            using (var p = new Pen(Theme.Track, 4) { StartCap = LineCap.Round, EndCap = LineCap.Round }) g.DrawLine(p, Pad, cy, Width - Pad, cy);
+            using (var p = new Pen(Theme.Track, 4 * Theme.S) { StartCap = LineCap.Round, EndCap = LineCap.Round }) g.DrawLine(p, Pad, cy, Width - Pad, cy);
             var oc = Enabled ? Theme.Orange : Color.FromArgb(110, Theme.Orange);
-            using (var p = new Pen(oc, 4) { StartCap = LineCap.Round, EndCap = LineCap.Round }) if (val > 0) g.DrawLine(p, Pad, cy, X(val), cy);
-            float r = drag || hover ? 9 : 8; using var b = new SolidBrush(oc); g.FillEllipse(b, X(val) - r, cy - r, 2 * r, 2 * r);
+            using (var p = new Pen(oc, 4 * Theme.S) { StartCap = LineCap.Round, EndCap = LineCap.Round }) if (val > 0) g.DrawLine(p, Pad, cy, X(val), cy);
+            float r = (drag || hover ? 9 : 8) * Theme.S; using var b = new SolidBrush(oc); g.FillEllipse(b, X(val) - r, cy - r, 2 * r, 2 * r);
         }
     }
 

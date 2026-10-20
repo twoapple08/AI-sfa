@@ -28,7 +28,8 @@ namespace SfaViewer
             var menu = new ContextMenuStrip(); menu.Items.Add("목록에서 지우기", null, (_, _) => Remove?.Invoke());
             ContextMenuStrip = menu;
         }
-        Rectangle MoreRect => new(Width - 40, Height - 58, 40, 40);
+        static int P(float v) => Theme.P(v);
+        Rectangle MoreRect => new(Width - P(40), Height - P(58), P(40), P(40));
         protected override void OnMouseEnter(EventArgs e) { hover = true; Invalidate(); base.OnMouseEnter(e); }
         protected override void OnMouseLeave(EventArgs e) { hover = false; Invalidate(); base.OnMouseLeave(e); }
         protected override void OnMouseClick(MouseEventArgs e)
@@ -40,8 +41,8 @@ namespace SfaViewer
         protected override void OnPaint(PaintEventArgs e)
         {
             var g = e.Graphics; g.SmoothingMode = SmoothingMode.AntiAlias; g.Clear(Theme.Bg);
-            int th = Height - 66;
-            using (var p = Theme.Round(new RectangleF(0, 0, Width - 1, th), 22))
+            int th = Height - P(66);
+            using (var p = Theme.Round(new RectangleF(0, 0, Width - 1, th), 22 * Theme.S))
             {
                 using (var b = new SolidBrush(Theme.Surface)) g.FillPath(b, p);
                 if (thumb != null)
@@ -53,10 +54,10 @@ namespace SfaViewer
                 if (hover) using (var b = new SolidBrush(Color.FromArgb(25, 0, 0, 0))) g.FillPath(b, p);
             }
             using var fn = Theme.Bold(12); using var fs = Theme.Regular(10);
-            TextRenderer.DrawText(g, item.Name, fn, new Rectangle(2, th + 12, Width - 46, 26), Theme.Text, TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-            TextRenderer.DrawText(g, $"{item.Frames} frames", fs, new Rectangle(2, th + 40, Width - 46, 22), Theme.Sub, TextFormatFlags.NoPadding);
-            var m = MoreRect; using var br = new SolidBrush(Theme.Text);
-            for (int i = -1; i <= 1; i++) g.FillEllipse(br, m.X + m.Width / 2 + i * 7 - 2.5f, m.Y + m.Height / 2 - 2.5f, 5, 5);
+            TextRenderer.DrawText(g, item.Name, fn, new Rectangle(2, th + P(12), Width - P(46), P(26)), Theme.Text, TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+            TextRenderer.DrawText(g, $"{item.Frames} frames", fs, new Rectangle(2, th + P(40), Width - P(46), P(22)), Theme.Sub, TextFormatFlags.NoPadding);
+            var m = MoreRect; using var br = new SolidBrush(Theme.Text); float S = Theme.S;
+            for (int i = -1; i <= 1; i++) g.FillEllipse(br, m.X + m.Width / 2 + i * 7 * S - 2.5f * S, m.Y + m.Height / 2 - 2.5f * S, 5 * S, 5 * S);
         }
     }
 }

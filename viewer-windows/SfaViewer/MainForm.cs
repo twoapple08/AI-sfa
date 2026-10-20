@@ -23,7 +23,8 @@ namespace SfaViewer
         readonly CardPanel pillBg = new() { Radius = 26 };
         readonly PillButton pill = new("최근 파일") { Fill = Color.White, Fore = Theme.Text, Cursor = Cursors.Default };
         readonly TextLabel empty = new(Theme.Regular(11), Theme.Sub, ContentAlignment.MiddleCenter) { Text = "아래 + 버튼으로 SFA 파일을 여세요" };
-        readonly IconButton fab = new(IconKind.Plus) { Color = Color.White, Fill = Theme.Orange, Size = new Size(68, 68) };
+        readonly IconButton fab = new(IconKind.Plus) { Color = Color.White, Fill = Theme.Orange, Size = new Size(Theme.P(68), Theme.P(68)) };
+        readonly Control homeSpacer = new() { Size = new Size(1, 1) }; // 마지막 카드 아래 여유(+ 버튼에 가리지 않게 스크롤 범위를 늘림)
         readonly List<RecentCard> cards = new();
         // 플레이어
         readonly Panel player = new() { Dock = DockStyle.Fill, BackColor = Theme.Bg, Visible = false };
@@ -54,9 +55,9 @@ namespace SfaViewer
 
         public MainForm()
         {
-            Text = "SFA 뷰어"; Width = 1280; Height = 860; MinimumSize = new Size(420, 560); BackColor = Theme.Bg; KeyPreview = true;
+            Text = "SFA 뷰어"; Width = Theme.P(1280); Height = Theme.P(860); MinimumSize = new Size(Theme.P(340), Theme.P(380)); BackColor = Theme.Bg; KeyPreview = true;
             try { Icon = new Icon(typeof(MainForm).Assembly.GetManifestResourceStream("SfaViewer.app.ico")); } catch { }
-            home.Controls.AddRange(new Control[] { homeTitle, homeSub, pillBg, empty });
+            home.Controls.AddRange(new Control[] { homeTitle, homeSub, pillBg, empty, homeSpacer });
             pillBg.Controls.Add(pill);
             Controls.Add(fab); Controls.Add(player); Controls.Add(home);
             player.Controls.AddRange(new Control[] { backBtn, title, openIcon, exportIcon, fpsBtn, view, frameLabel, timeLabel, seek, prevBtn, playBtn, nextBtn, status, infoCard });
@@ -124,67 +125,112 @@ namespace SfaViewer
             LayoutHome();
         }
 
+        static int P(float v) => Theme.P(v);
+        bool homeCompact;
+
+        /// <summary>
+        /// 첫 화면 배치. 창 크기를 마음대로 바꿔도(작은 창·화면 반쪽 배치) 맞춘다(안드로이드 멀티윈도우 대응과 같은 방식).
+        /// 카드 열 수는 창 폭으로, 창이 작으면 글자·여백을 줄인다. + 버튼은 넓은 창에서 오른쪽 아래, 좁은 창에서 가운데 아래.
+        /// </summary>
         void LayoutHome()
         {
-            int W = home.ClientSize.Width, y = 44 - (home.AutoScrollPosition.Y < 0 ? -home.AutoScrollPosition.Y : 0);
-            homeTitle.SetBounds(0, y, W, 60); y += 64;
-            homeSub.SetBounds(0, y, W, 24); y += 46;
-            pillBg.SetBounds((W - 170) / 2, y, 170, 54); pill.SetBounds(5, 5, 160, 44); y += 78;
-            empty.SetBounds(0, y + 30, W, 30);
-            int cols = Math.Max(2, (W - 32) / 280), gap = 22, cw = (W - 48 - gap * (cols - 1)) / cols, ch = (int)(cw * 0.62f) + 66;
-            for (int i = 0; i < cards.Count; i++) cards[i].SetBounds(24 + (i % cols) * (cw + gap), y + (i / cols) * (ch + gap), cw, ch);
-            fab.Location = new Point((ClientSize.Width - fab.Width) / 2, ClientSize.Height - fab.Height - 28);
+            int W = home.ClientSize.Width, H = ClientSize.Height;
+            if (W <= 0) return;
+            bool compact = H < P(600) || W < P(480);
+            if (compact != homeCompact || homeTitle.Tag == null)
+            {
+                homeCompact = compact; homeTitle.Tag = 1;
+                homeTitle.Font = Theme.Black(compact ? 22 : 30);
+                fab.Size = new Size(P(compact ? 56 : 68), P(compact ? 56 : 68));
+            }
+            int y = P(compact ? 14 : 44) + home.AutoScrollPosition.Y;
+            homeTitle.SetBounds(0, y, W, P(compact ? 44 : 60)); y += P(compact ? 46 : 64);
+            // Visible 값은 창이 보이기 전에는 늘 false라서 따로 둔 값으로 판단한다
+            bool showSub = W >= P(420);
+            homeSub.Visible = showSub;
+            if (showSub) { homeSub.SetBounds(0, y, W, P(24)); y += P(compact ? 30 : 46); }
+            pillBg.SetBounds((W - P(170)) / 2, y, P(170), P(54)); pill.SetBounds(P(5), P(5), P(160), P(44)); y += P(compact ? 66 : 78);
+            empty.SetBounds(0, y + P(30), W, P(30));
+            int side = P(compact ? 14 : 24), gap = P(compact ? 14 : 22);
+            int cols = Math.Clamp((W - 2 * side + gap) / (P(240) + gap), 1, 6);
+            int cw = (W - 2 * side - gap * (cols - 1)) / cols, ch = (int)(cw * 0.62f) + P(66);
+            for (int i = 0; i < cards.Count; i++) cards[i].SetBounds(side + (i % cols) * (cw + gap), y + (i / cols) * (ch + gap), cw, ch);
+            int rows = (cards.Count + cols - 1) / cols;
+            homeSpacer.Location = new Point(0, y + rows * (ch + gap) + fab.Height + P(24));
+            PlaceFab();
+        }
+
+        void PlaceFab()
+        {
+            if (fab == null) return;
+            int W = ClientSize.Width, H = ClientSize.Height, m = P(homeCompact ? 14 : 24);
+            bool wide = W > H * 1.2f;
+            fab.Location = wide ? new Point(W - fab.Width - m - SystemInformation.VerticalScrollBarWidth, H - fab.Height - m)
+                                : new Point((W - fab.Width) / 2, H - fab.Height - m - P(4));
             fab.BringToFront();
         }
 
-        protected override void OnResize(EventArgs e) { base.OnResize(e); if (fab != null) fab.Location = new Point((ClientSize.Width - fab.Width) / 2, ClientSize.Height - fab.Height - 28); }
+        protected override void OnResize(EventArgs e) { base.OnResize(e); if (fab != null && home != null && home.Visible) LayoutHome(); }
 
         // ───────── 플레이어 배치: 창이 세로로 길면 세로 보기(영상 위, 조작 아래), 아니면 가로 보기 ─────────
 
+        /// <summary>
+        /// 플레이어 배치. 창이 세로로 길고 충분히 높으면 세로 보기(영상 위, 조작·정보 카드 아래),
+        /// 그 밖(가로 창, 작은 창·팝업처럼 낮은 창)은 가로 보기(영상 + 아래 조작 막대)로 모든 버튼이 보이게 한다.
+        /// 좁으면 덜 중요한 글자(상태·시간)를 숨긴다.
+        /// </summary>
         void LayoutPlayer()
         {
             int W = player.ClientSize.Width, H = player.ClientSize.Height;
             if (W <= 0 || H <= 0) return;
             float ratio = doc?.Ratio ?? 0.5625f;
-            bool portrait = H > W;
-            backBtn.SetBounds(8, 6, 48, 48);
-            exportIcon.SetBounds(W - 56, 6, 48, 48);
-            openIcon.SetBounds(W - 104, 6, 48, 48);
+            bool portrait = H > W && H >= P(640);
+            int hb = P(48), top = P(60);
+            backBtn.SetBounds(P(8), P(6), hb, hb);
+            exportIcon.SetBounds(W - P(56), P(6), hb, hb);
+            openIcon.SetBounds(W - P(104), P(6), hb, hb);
             if (!portrait)
             {
-                title.TextAlign = ContentAlignment.MiddleLeft; title.SetBounds(60, 6, Math.Min(520, W / 2), 48);
                 if (fpsBtn.Parent != player) { infoCard.Controls.Remove(fpsBtn); player.Controls.Add(fpsBtn); }
-                fpsBtn.SetBounds(openIcon.Left - 104, 10, 96, 40);
-                status.TextAlign = ContentAlignment.MiddleRight; status.SetBounds(title.Right + 8, 6, Math.Max(10, fpsBtn.Left - title.Right - 16), 48);
-                int barH = 64, top = 60;
-                view.SetBounds(0, top, W, H - top - barH);
-                int by = H - barH + 8;
-                playBtn.SetBounds(16, by, 48, 48);
-                timeLabel.TextAlign = ContentAlignment.MiddleLeft; timeLabel.SetBounds(70, by, 120, 48);
-                nextBtn.SetBounds(W - 56, by + 2, 44, 44); prevBtn.SetBounds(W - 102, by + 2, 44, 44);
-                frameLabel.TextAlign = ContentAlignment.MiddleRight; frameLabel.SetBounds(W - 210, by, 104, 48);
-                seek.SetBounds(196, by + 10, Math.Max(20, frameLabel.Left - 206), 28);
+                fpsBtn.SetBounds(openIcon.Left - P(104), P(10), P(96), P(40));
+                title.TextAlign = ContentAlignment.MiddleLeft;
+                int titleW = Math.Max(P(40), Math.Min(P(520), Math.Min(W / 2, fpsBtn.Left - P(68))));
+                title.SetBounds(P(60), P(6), titleW, hb);
+                status.Visible = fpsBtn.Left - title.Right > P(120);
+                status.TextAlign = ContentAlignment.MiddleRight; status.SetBounds(title.Right + P(8), P(6), Math.Max(10, fpsBtn.Left - title.Right - P(16)), hb);
+                int barH = P(64);
+                view.SetBounds(0, top, W, Math.Max(P(40), H - top - barH));
+                int by = H - barH + P(8);
+                playBtn.SetBounds(P(16), by, hb, hb);
+                bool narrow = W < P(520);
+                timeLabel.Visible = !narrow;
+                timeLabel.TextAlign = ContentAlignment.MiddleLeft; timeLabel.SetBounds(P(70), by, P(120), hb);
+                nextBtn.SetBounds(W - P(56), by + P(2), P(44), P(44)); prevBtn.SetBounds(W - P(102), by + P(2), P(44), P(44));
+                frameLabel.TextAlign = ContentAlignment.MiddleRight; frameLabel.SetBounds(W - P(210), by, P(104), hb);
+                int sx = narrow ? P(70) : P(196);
+                seek.SetBounds(sx, by + P(10), Math.Max(20, frameLabel.Left - sx - P(10)), P(28));
                 infoCard.Visible = false;
             }
             else
             {
-                title.TextAlign = ContentAlignment.MiddleCenter; title.SetBounds(60, 6, Math.Max(10, openIcon.Left - 64), 48);
-                int top = 60, vh = (int)Math.Min(W * ratio, H * 0.55f);
+                status.Visible = true; timeLabel.Visible = true;
+                title.TextAlign = ContentAlignment.MiddleCenter; title.SetBounds(P(60), P(6), Math.Max(10, openIcon.Left - P(64)), hb);
+                int vh = (int)Math.Min(W * ratio, H * (H < P(900) ? 0.45f : 0.55f));
                 view.SetBounds(0, top, W, vh);
-                int y = top + vh + 18, px = 26;
-                frameLabel.TextAlign = ContentAlignment.MiddleLeft; frameLabel.SetBounds(px, y, W / 2 - px, 28);
-                timeLabel.TextAlign = ContentAlignment.MiddleRight; timeLabel.SetBounds(W / 2, y, W / 2 - px, 28); y += 34;
-                seek.SetBounds(px - 8, y, W - 2 * px + 16, 28); y += 40;
-                int ps = 76; playBtn.SetBounds((W - ps) / 2, y, ps, ps);
-                prevBtn.SetBounds(playBtn.Left - 36 - 56, y + 10, 56, 56); nextBtn.SetBounds(playBtn.Right + 36, y + 10, 56, 56); y += ps + 6;
-                status.TextAlign = ContentAlignment.MiddleCenter; status.SetBounds(px, y, W - 2 * px, 22); y += 36;
-                int ch = Math.Min(260, Math.Max(200, H - y - 20));
+                int y = top + vh + P(18), px = P(26);
+                frameLabel.TextAlign = ContentAlignment.MiddleLeft; frameLabel.SetBounds(px, y, W / 2 - px, P(28));
+                timeLabel.TextAlign = ContentAlignment.MiddleRight; timeLabel.SetBounds(W / 2, y, W / 2 - px, P(28)); y += P(34);
+                seek.SetBounds(px - P(8), y, W - 2 * px + P(16), P(28)); y += P(40);
+                int ps = P(H < P(900) ? 60 : 76); playBtn.SetBounds((W - ps) / 2, y, ps, ps);
+                int sb = P(56); prevBtn.SetBounds(playBtn.Left - P(36) - sb, y + (ps - sb) / 2, sb, sb); nextBtn.SetBounds(playBtn.Right + P(36), y + (ps - sb) / 2, sb, sb); y += ps + P(6);
+                status.TextAlign = ContentAlignment.MiddleCenter; status.SetBounds(px, y, W - 2 * px, P(22)); y += P(30);
+                int ch = Math.Min(P(260), Math.Max(P(200), H - y - P(16)));
                 infoCard.Visible = true; infoCard.SetBounds(px, y, W - 2 * px, ch);
-                int iw = infoCard.Width - 40;
+                int iw = infoCard.Width - P(40);
                 if (fpsBtn.Parent != infoCard) { player.Controls.Remove(fpsBtn); infoCard.Controls.Add(fpsBtn); }
-                infoHead.SetBounds(20, 16, iw, 24); info.SetBounds(20, 46, iw, ch - 46 - 124);
-                fpsHead.SetBounds(20, ch - 112, iw - 110, 40); fpsBtn.SetBounds(20 + iw - 100, ch - 112, 100, 40);
-                exportBtn.SetBounds(20, ch - 66, iw, 48);
+                infoHead.SetBounds(P(20), P(16), iw, P(24)); info.SetBounds(P(20), P(46), iw, Math.Max(P(20), ch - P(46) - P(124)));
+                fpsHead.SetBounds(P(20), ch - P(112), iw - P(110), P(40)); fpsBtn.SetBounds(P(20) + iw - P(100), ch - P(112), P(100), P(40));
+                exportBtn.SetBounds(P(20), ch - P(66), iw, P(48));
             }
             infoCard.Invalidate();
         }
@@ -480,7 +526,10 @@ namespace SfaViewer
                 if (args.Length == 4) { var a = args[3].Split(','); t = int.Parse(a[0]); p = int.Parse(a[1]); }
                 Environment.Exit(MainForm.ExportCli(args[1], args[2], t, p)); return;
             }
-            ApplicationConfiguration.Initialize(); Application.Run(new MainForm());
+            ApplicationConfiguration.Initialize();
+            // 화면 배율(시스템 DPI)을 읽어 위치·크기 계산에 쓴다. 글꼴(pt)은 Windows가 배율대로 키운다
+            try { using var g = Graphics.FromHwnd(IntPtr.Zero); Theme.S = Math.Max(1f, g.DpiX / 96f); } catch { }
+            Application.Run(new MainForm());
         }
     }
 }
