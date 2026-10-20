@@ -50,8 +50,12 @@ def salient(M, i, j):
     ext_med, edge_med = np.median(seg[:, I_EXT]), np.median(seg[:, I_EDGE])
     mean_med = np.median(seg[:, I_MEAN])
     # 그림 있는 프레임은 극단·선 밀도가 튀는 것, 그림 없는 단색 프레임은 밝기가 크게 튀는 것(흰·검정 번쩍임, 78337 f378-379)
+    # 영상 전체가 흑백인 경우(203326 f60-63 흰 바탕 해칭)는 구간 중앙값이 아니라 주변 ±12프레임 밝기와 비교한다
+    def local_jump(k):
+        w = np.r_[M[max(i, k - 12):max(i, k - 2), I_MEAN], M[min(j + 1, k + 3):min(j + 1, k + 13), I_MEAN]]
+        return len(w) >= 4 and abs(M[k, I_MEAN] - np.median(w)) >= 60
     hit = [k for k in range(i, j + 1) if (M[k, I_RNG] >= 8 and (M[k, I_EXT] - ext_med >= 0.2 or M[k, I_EDGE] - edge_med >= 0.06))
-           or (M[k, I_RNG] < 8 and abs(M[k, I_MEAN] - mean_med) >= 60)]
+           or (M[k, I_RNG] < 8 and abs(M[k, I_MEAN] - mean_med) >= 60) or local_jump(k)]
     out, s = [], None
     for n, k in enumerate(hit):
         s = k if s is None else s
