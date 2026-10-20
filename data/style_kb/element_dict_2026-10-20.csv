@@ -1,109 +1,109 @@
-분류,요소,태그
-무기,검,sword katana holding_sword unsheathing sheath
-무기,단검·칼,dagger knife
-무기,창·봉,spear polearm naginata
-무기,도끼·둔기,axe hammer mace club_(weapon)
-무기,낫,scythe
-무기,활·화살,bow_(weapon) arrow_(projectile)
-무기,권총,handgun revolver
-무기,소총·기관총,rifle assault_rifle machine_gun submachine_gun shotgun sniper_rifle
-무기,대포·포탑,cannon turret
-무기,미사일·폭탄,missile bomb grenade rocket_launcher
-무기,방패,shield
-무기,사슬·채찍,chain whip
-무기,손톱·발톱,claws
-무기,촉수,tentacles
-지형·자연,산,mountain mountainous_horizon
-지형·자연,강,river
-지형·자연,바다,ocean
-지형·자연,호수,lake
-지형·자연,폭포,waterfall
-지형·자연,해변,beach shore
-지형·자연,섬,island
-지형·자연,바위,rock
-지형·자연,절벽,cliff
-지형·자연,동굴,cave
-지형·자연,숲,forest
-지형·자연,나무,tree
-지형·자연,풀밭·들판,grass field
-지형·자연,사막,desert sand
-지형·자연,설원·얼음,snow ice
-지형·자연,화산·용암,volcano lava
-지형·자연,하늘,sky
-지형·자연,구름,cloud cloudy_sky
-지형·자연,밤하늘·별,night_sky starry_sky
-지형·자연,우주,space
-지형·자연,행성·달,planet moon
-지형·자연,해·노을,sun sunset
-인공 배경,도시,city cityscape
-인공 배경,건물,building
-인공 배경,고층 빌딩,skyscraper
-인공 배경,폐허,ruins
-인공 배경,도로·거리,road street
-인공 배경,다리,bridge
-인공 배경,철로,railroad_tracks
-인공 배경,실내,indoors
-인공 배경,복도,hallway
-인공 배경,옥상,rooftop
-인공 배경,성·탑,castle tower
-인공 배경,공장·기계,machinery
-탈것,자동차,car
-탈것,오토바이,motorcycle
-탈것,기차,train
-탈것,배,ship boat watercraft
-탈것,군함,warship
-탈것,비행기,airplane aircraft
-탈것,헬기,helicopter
-탈것,우주선,spacecraft
-탈것,전차,tank
-상대·생물,로봇·메카,mecha robot
-상대·생물,괴물,monster
-상대·생물,거대,giant
-상대·생물,용,dragon
-상대·생물,늑대·짐승,wolf animal
-상대·생물,새·날개,bird wings
-상대·생물,해골,skeleton skull
-상대·생물,군중·군대,crowd army
-이펙트,불,fire burning
-이펙트,푸른 불,blue_fire
-이펙트,폭발,explosion
-이펙트,연기,smoke
-이펙트,번개,lightning
-이펙트,전기,electricity
-이펙트,레이저·광선,energy_beam laser
-이펙트,에너지 구,energy_ball
-이펙트,에너지,energy glowing
-이펙트,오라,aura
-이펙트,마법진,magic_circle
-이펙트,마법,magic
-이펙트,섬광·빛줄기,light_rays lens_flare light_particles
-이펙트,불티·스파크,sparks embers
-이펙트,파편,debris rubble
-이펙트,먼지,dust dust_cloud
-이펙트,깨진 유리,broken_glass
-이펙트,파괴,destruction
-이펙트,물,water
-이펙트,물보라,splashing
-이펙트,비,rain
-이펙트,눈(날씨),snow snowing
-이펙트,바람,wind
-이펙트,얼음,ice
-이펙트,결정,crystal
-이펙트,부유 바위,floating_rock
-이펙트,피,blood blood_splatter
-이펙트,총구 화염,muzzle_flash
-이펙트,총알·탄피,bullet shell_casing
-이펙트,안개,fog
-이펙트,꽃잎·잎,petals falling_leaves
-연출,스미어,motion_blur
-연출,속도선,speed_lines motion_lines
-연출,잔상,afterimage
-연출,흑백,monochrome greyscale
-연출,실루엣,silhouette
-연출,어안,fisheye
-연출,기울인 구도,dutch_angle
-연출,올려다보기,from_below
-연출,내려다보기,from_above
-연출,원근 강조,perspective foreshortening
-연출,색수차,chromatic_aberration
-연출,역광,backlighting
+분류,요소,난이도,태그
+무기,검,2_형태참고,sword katana holding_sword unsheathing sheath
+무기,단검·칼,1_지식없이,dagger knife
+무기,창·봉,1_지식없이,spear polearm naginata
+무기,도끼·둔기,1_지식없이,axe hammer mace club_(weapon)
+무기,낫,1_지식없이,scythe
+무기,활·화살,1_지식없이,bow_(weapon) arrow_(projectile)
+무기,권총,1_지식없이,handgun revolver
+무기,소총·기관총,1_지식없이,rifle assault_rifle machine_gun submachine_gun shotgun sniper_rifle
+무기,대포·포탑,2_형태참고,cannon turret
+무기,미사일·폭탄,2_형태참고,missile bomb grenade rocket_launcher
+무기,방패,1_지식없이,shield
+무기,사슬·채찍,1_지식없이,chain whip
+무기,손톱·발톱,2_형태참고,claws
+무기,촉수,2_형태참고,tentacles
+지형·자연,산,2_형태참고,mountain mountainous_horizon
+지형·자연,강,3_기술필요,river
+지형·자연,바다,3_기술필요,ocean
+지형·자연,호수,1_지식없이,lake
+지형·자연,폭포,3_기술필요,waterfall
+지형·자연,해변,1_지식없이,beach shore
+지형·자연,섬,1_지식없이,island
+지형·자연,바위,3_기술필요,rock
+지형·자연,절벽,2_형태참고,cliff
+지형·자연,동굴,2_형태참고,cave
+지형·자연,숲,2_형태참고,forest
+지형·자연,나무,2_형태참고,tree
+지형·자연,풀밭·들판,1_지식없이,grass field
+지형·자연,사막,1_지식없이,desert sand
+지형·자연,설원·얼음,3_기술필요,snow ice
+지형·자연,화산·용암,3_기술필요,volcano lava
+지형·자연,하늘,1_지식없이,sky
+지형·자연,구름,3_기술필요,cloud cloudy_sky
+지형·자연,밤하늘·별,1_지식없이,night_sky starry_sky
+지형·자연,우주,1_지식없이,space
+지형·자연,행성·달,1_지식없이,planet moon
+지형·자연,해·노을,1_지식없이,sun sunset
+인공 배경,도시,2_형태참고,city cityscape
+인공 배경,건물,1_지식없이,building
+인공 배경,고층 빌딩,1_지식없이,skyscraper
+인공 배경,폐허,2_형태참고,ruins
+인공 배경,도로·거리,1_지식없이,road street
+인공 배경,다리,1_지식없이,bridge
+인공 배경,철로,1_지식없이,railroad_tracks
+인공 배경,실내,1_지식없이,indoors
+인공 배경,복도,1_지식없이,hallway
+인공 배경,옥상,1_지식없이,rooftop
+인공 배경,성·탑,1_지식없이,castle tower
+인공 배경,공장·기계,2_형태참고,machinery
+탈것,자동차,2_형태참고,car
+탈것,오토바이,2_형태참고,motorcycle
+탈것,기차,2_형태참고,train
+탈것,배,2_형태참고,ship boat watercraft
+탈것,군함,2_형태참고,warship
+탈것,비행기,2_형태참고,airplane aircraft
+탈것,헬기,2_형태참고,helicopter
+탈것,우주선,2_형태참고,spacecraft
+탈것,전차,2_형태참고,tank
+상대·생물,로봇·메카,2_형태참고,mecha robot
+상대·생물,괴물,2_형태참고,monster
+상대·생물,거대,2_형태참고,giant
+상대·생물,용,2_형태참고,dragon
+상대·생물,늑대·짐승,2_형태참고,wolf animal
+상대·생물,새·날개,2_형태참고,bird wings
+상대·생물,해골,2_형태참고,skeleton skull
+상대·생물,군중·군대,2_형태참고,crowd army
+이펙트,불,3_기술필요,fire burning
+이펙트,푸른 불,3_기술필요,blue_fire
+이펙트,폭발,3_기술필요,explosion
+이펙트,연기,3_기술필요,smoke
+이펙트,번개,3_기술필요,lightning
+이펙트,전기,3_기술필요,electricity
+이펙트,레이저·광선,3_기술필요,energy_beam laser
+이펙트,에너지 구,3_기술필요,energy_ball
+이펙트,에너지,3_기술필요,energy glowing
+이펙트,오라,3_기술필요,aura
+이펙트,마법진,3_기술필요,magic_circle
+이펙트,마법,3_기술필요,magic
+이펙트,섬광·빛줄기,3_기술필요,light_rays lens_flare light_particles
+이펙트,불티·스파크,3_기술필요,sparks embers
+이펙트,파편,3_기술필요,debris rubble
+이펙트,먼지,3_기술필요,dust dust_cloud
+이펙트,깨진 유리,3_기술필요,broken_glass
+이펙트,파괴,3_기술필요,destruction
+이펙트,물,3_기술필요,water
+이펙트,물보라,3_기술필요,splashing
+이펙트,비,3_기술필요,rain
+이펙트,눈(날씨),3_기술필요,snow snowing
+이펙트,바람,3_기술필요,wind
+이펙트,얼음,3_기술필요,ice
+이펙트,결정,3_기술필요,crystal
+이펙트,부유 바위,3_기술필요,floating_rock
+이펙트,피,3_기술필요,blood blood_splatter
+이펙트,총구 화염,3_기술필요,muzzle_flash
+이펙트,총알·탄피,2_형태참고,bullet shell_casing
+이펙트,안개,3_기술필요,fog
+이펙트,꽃잎·잎,3_기술필요,petals falling_leaves
+연출,스미어,3_기술필요,motion_blur
+연출,속도선,3_기술필요,speed_lines motion_lines
+연출,잔상,3_기술필요,afterimage
+연출,흑백,1_지식없이,monochrome greyscale
+연출,실루엣,1_지식없이,silhouette
+연출,어안,1_지식없이,fisheye
+연출,기울인 구도,1_지식없이,dutch_angle
+연출,올려다보기,1_지식없이,from_below
+연출,내려다보기,1_지식없이,from_above
+연출,원근 강조,3_기술필요,perspective foreshortening
+연출,색수차,1_지식없이,chromatic_aberration
+연출,역광,1_지식없이,backlighting
