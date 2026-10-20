@@ -37,7 +37,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 | 항목 | 상태 |
 |---|---|
 | 동작·이펙트 판정 | Claude 124개 (`data/style_kb/action_counts/NN.csv`, 장면 단위)<br>GPT G01(장면 단위), G02·G03·G04(영상당 한 줄, 동작+이펙트), G07·G08(이펙트·연출만) (`data/style_kb/ai_results/gpt_G0*.csv`)<br>Gemini B15 v2 / GPT B15 시험 |
-| **남은 판정** | **G05·G06(nian41, 프롬프트 A)과 G09–G12(optical-core·yukina, 프롬프트 B)를 사용자가 GPT에 맡기는 중이다.** 결과는 사용자가 GitHub `claude/eager-clarke-lz1z9m`의 `data/style_kb/ai_results/`에 올린다. 그 뒤 `gpt_GNN_2026-10-20.csv`로 이름을 맞추고, 목록 대조(빠짐·추가)를 한다. 프롬프트 원문은 이전 대화에 있다. 형식은 G02–G04·G07·G08 파일 머리줄과 같다 |
+| **남은 판정** | **G05·G06(nian41, 프롬프트 A)과 G09–G12(optical-core·yukina, 프롬프트 B)를 사용자가 GPT에 맡기는 중이다(사용자 지시 2026-10-21: 영상 판정은 GPT, Claude는 인수인계). GPT가 이미 만들어 둔 묶음이 있으면 다시 시키지 않고 그 파일을 올린다.** 결과는 사용자가 GitHub `claude/eager-clarke-lz1z9m`의 `data/style_kb/ai_results/`에 올린다. 그 뒤 `gpt_GNN_2026-10-20.csv`로 이름을 맞추고, 목록 대조(빠짐·추가)를 한다. 프롬프트 원문은 이전 대화에 있다. 형식은 G02–G04·G07·G08 파일 머리줄과 같다 |
 | 자동 탐지 | `tools/auto_detect.py`. WD Tagger 일반 태그 8,106개를 0.5초 간격으로 기록한다(확률 ≥0.05, `all`). 주요 97태그(`tags`), 밝기·채도·회전·배율·이동량(0.125초, `cv`)도 기록한다.<br>**377개 중 263개 완료 후 사용자 지시로 중지했다.** G05·G06·G09–G12는 전부 완료했다. 미완은 G03 일부·G04·G07·G08과 Claude 판정분 38개(채점용)다.<br>결과: Drive `AI-sfa/02_분석자료/자동탐지/autodet_263.tgz`(5.3MB). 새 세션에서 받아 풀면 된다.<br>목록 순서: 남은 128개 → 채점용 249개. 이미 있는 json은 건너뛰며 이어서 실행된다 |
 | 중간 채점 | `tools/auto_calibrate.py`, 69개 기준 AUC: 총 0.95, 검 0.93, 광선 0.92, 메카 0.91, 화염 0.83, 폭발 0.78, 스미어 0.66, 흑백 임팩트 0.54.<br>Claude 124개는 이펙트 칸이 비어 있는 경우가 많아 정밀도가 낮게 나온다. GPT 결과만으로 따로 채점할 것 |
 
