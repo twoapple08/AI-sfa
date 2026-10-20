@@ -70,7 +70,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
   - 저용량 영상(위 Drive에서 rclone copy)
   - `pip install opencv-python-headless`
   - WD Tagger: `~/.cache/huggingface/hub/models--SmilingWolf--wd-vit-tagger-v3`. 없으면 hf_hub_download로 받는다.
-  - 탐지 목록: 저장소에 없다. v2 목록에서 폐기 28개를 빼고, G05·G06·G09–G12를 앞에 두어 다시 만든다(`post_id,animator`).
+  - 탐지 목록: `data/style_kb/judge_lists/auto_detect_list_2026-10-20.csv`(377행, 남은 128개가 앞).
   - CPU 4코어 기준 영상 1개에 약 30초가 걸린다.
 - **주의:**
   - 대기는 PID로 한다(`pgrep -f` 자기 일치 주의).
