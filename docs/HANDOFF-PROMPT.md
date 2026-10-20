@@ -1,8 +1,8 @@
-# 인수인계 (2026-10-21 새벽, 요소 순위 작업 중)
+# 인수인계 (2026-10-21, 요소 순위 초안 완료)
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다(같은 내용이 `claude/eager-clarke-lz1z9m`에도 있다). fetch 후 이 브랜치에서 계속한다. 시스템이 다른 브랜치를 배정해도 사용자 지정이 우선이다.
 
-**읽기 순서:** AGENTS.md → 이 문서 → docs/ELEMENT-RANKING-PLAN-2026-10-20.md → 필요할 때만 docs/GEMINI-TASK-ACTION-TYPES-2026-10-20.md(동작 세기 경과)와 docs/SOURCE-FORMAT-2026-10-20.md(셀 폐기). 직전 긴 인수인계(임팩트 분류·뷰어·셀 판정 경과)는 docs/history/HANDOFF-PROMPT-2026-10-20-archive.md에 있다.
+**읽기 순서:** AGENTS.md → 이 문서 → docs/ELEMENT-RANK-DRAFT-2026-10-21.md(현재 결과) → docs/ELEMENT-RANKING-PLAN-2026-10-20.md → 필요할 때만 docs/GEMINI-TASK-ACTION-TYPES-2026-10-20.md(동작 세기 경과)와 docs/SOURCE-FORMAT-2026-10-20.md(셀 폐기). 직전 긴 인수인계(임팩트 분류·뷰어·셀 판정 경과)는 docs/history/HANDOFF-PROMPT-2026-10-20-archive.md에 있다.
 
 ## 0. 현재 우선순위
 
@@ -36,31 +36,24 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 | 항목 | 상태 |
 |---|---|
-| 동작·이펙트 판정 | Claude 124개 (`data/style_kb/action_counts/NN.csv`, 장면 단위)<br>GPT G01(장면 단위), G02·G03·G04(영상당 한 줄, 동작+이펙트), G07·G08(이펙트·연출만) (`data/style_kb/ai_results/gpt_G0*.csv`)<br>Gemini B15 v2 / GPT B15 시험 |
-| **남은 판정** | **GPT 작업은 G01–G04·G07·G08로 끝났다(사용자 2026-10-21: '이게 GPT 작업 마지막'). G05·G06(nian41)과 G09–G12(optical-core·yukina, 128개)는 사람·AI 판정이 없다.** 이 128개는 자동 탐지가 끝나 있다. 그래서 새 세션에서는 자동 탐지 결과와 채점 신뢰도로 처리한다. 신뢰도가 약한 요소만 작은 확인 시트로 본다. 시트를 보기 전에 예상 토큰을 알리고 승낙을 받는다. GPT용 시트는 Drive `_GPT용_시트/`에 있고, 프롬프트 A·B는 이전 대화에 있다 |
-| 자동 탐지 | `tools/auto_detect.py`. WD Tagger 일반 태그 8,106개를 0.5초 간격으로 기록한다(확률 ≥0.05, `all`). 주요 97태그(`tags`), 밝기·채도·회전·배율·이동량(0.125초, `cv`)도 기록한다.<br>**377개 중 263개 완료 후 사용자 지시로 중지했다.** G05·G06·G09–G12는 전부 완료했다. 미완은 G03 일부·G04·G07·G08과 Claude 판정분 38개(채점용)다.<br>결과: Drive `AI-sfa/02_분석자료/자동탐지/autodet_263.tgz`(5.3MB). 새 세션에서 받아 풀면 된다.<br>목록 순서: 남은 128개 → 채점용 249개. 이미 있는 json은 건너뛰며 이어서 실행된다 |
-| 중간 채점 | `tools/auto_calibrate.py`, 69개 기준 AUC: 총 0.95, 검 0.93, 광선 0.92, 메카 0.91, 화염 0.83, 폭발 0.78, 스미어 0.66, 흑백 임팩트 0.54.<br>Claude 124개는 이펙트 칸이 비어 있는 경우가 많아 정밀도가 낮게 나온다. GPT 결과만으로 따로 채점할 것 |
+| 판정 | Claude 124개(`action_counts/`), GPT G01–G04·G07·G08, **G13(nian41 3)·G14(optical-core 8)**, **G15–G17(판정만 있던 나카무라 49·nian41 6의 배경·사물·연출, 이름:초:주/배)** (`ai_results/gpt_G*.csv`). GPT 프롬프트: `docs/GPT-PROMPT-G13-G14-2026-10-21.md`, `docs/GPT-PROMPT-G15-G17-2026-10-21.md` |
+| 자동 탐지 | 377개 중 **265개**(사용자 지시로 중지, 남은 112개는 판정으로 대체). 결과 Drive `AI-sfa/02_분석자료/자동탐지/autodet_265.tgz` |
+| 채점 | `tools/auto_calibrate.py` 수정 완료: 시간 비율(확률 평균), 흑백은 cv 지표(AUC 0.70), 정답원 all/gpt/claude 분리. 결과 `data/style_kb/auto_detect/calibration_*_2026-10-21.csv` |
+| 요소 집계 | `tools/element_aggregate.py` → `element_aggregate_2026-10-21.csv`. 377개 전부(탐지·판정 합집합, 판정 어휘는 TERM으로 트리에 대응) |
+| 순위 초안 | `tools/element_rank.py` → `element_rank_2026-10-21.csv`, 보고서 `docs/ELEMENT-RANK-DRAFT-2026-10-21.md`. 충분 84 / 보충 필요 63 / 공백 86 / CLIP 대기 91 / 접기 4. 신뢰도 약함 204 |
 
 ## 3. 다음 할 일 (순서)
 
-1. GPT 결과 정리는 끝났다(G03·G04·G07·G08 첨부본이 저장소 파일과 같음을 확인).
-2. 자동 탐지 결과를 받아 푼다. 남은 114개를 이어서 탐지할지는 서버 시간과 필요를 보고 정한다. 채점은 263개로도 가능하다.
-3. 채점을 고친다.
-   - 영상 점수를 '최고 확률'에서 '나온 시간 비율'로 바꾼다.
-   - 흑백 임팩트는 `cv`의 채도·밝기 급변으로 잰다.
-   - GPT만 정답으로 쓴 채점을 따로 낸다.
-4. 요소 트리 집계를 한다.
-   - 377개(또는 탐지된 영상)를 대상으로 요소별 나온 시간·화면 비중을 계산한다.
-   - 나카무라 구작·신작의 등비중항을 내고, nian41·보충 애니메이터는 따로 센다.
-   - 규칙: riooo·optical-core·yukina 영상의 몸동작은 세지 않는다.
-   - 동반확률을 함께 계산한다.
-5. CLIP 보충을 한다. 태그에 없는 123개 요소, 그리고 작은 소품은 확대 조각으로 찾는다. torch 설치가 필요하며 서버 복구 예외에 해당한다. 방법은 기존 X-CLIP 설치 줄(아카이브 문서의 '환경·자료 위치')을 참고한다.
-6. 순위 초안을 만든다. 점수 = (필요도) × 부족도 × 난이도. `docs/ACTION-GAP-2026-10-20.md`와 `docs/GAP-MAP-2026-10-20.md`를 다시 쓴다. 약한 요소의 육안 확인은 토큰 추정을 먼저 알린다.
+1. **사용자 결정 받기:** (a) 신뢰도 약함 요소의 육안 확인 범위와 토큰(아래 추정), (b) 필요도 가중, (c) 2차 움직임·장비·의상 포함, (d) 2004–05 셀 느낌 22개.
+   - 육안 확인 추정: '충분'인데 약함 63개를 요소당 상위 확률 프레임 6장 시트 1장으로 보면 약 10만–15만 토큰(직접 확인, 판정자 없음). 공백·보충 필요의 약함 141개는 '없음' 확인이라 시트로는 비효율이고 CLIP 단계에서 다룬다.
+2. **CLIP 보충(5단계):** 태그 없는 요소(CLIP 대기 91 + CLIP 보충 41)와 작은 소품을 확대 조각으로 찾는다. torch·open_clip 설치(서버 복구 예외). 저용량 영상은 Drive에서 받는다. 시작 전에 서버 작업을 사용자에게 짧게 설명한다.
+3. CLIP 결과를 `element_aggregate.py`에 넣고 순위를 다시 낸 뒤 ACTION-GAP·GAP-MAP을 다시 쓴다(지금은 맨 위에 새 초안 우선 안내만 있다).
+4. 동반조건·'위로 필요' 칸 초안.
 
 ## 4. 환경
 
 - **Drive:** rclone `gdrive:`. 환경 변수 `RCLONE_CONFIG_GDRIVE_{TYPE,SCOPE,TOKEN}`가 설정 파일보다 우선한다.
-  - 지금 범위는 drive.file이라, 사용자나 GPT가 올린 파일은 안 보인다.
+  - 2026-10-21 확인: 범위는 아직 drive.file이다(토큰 갱신 후 tokeninfo). 사용자나 GPT가 올린 파일은 안 보인다. Claude가 올린 파일(저용량 영상·autodet)은 보인다.
   - 사용자에게 재인증을 안내했다: `rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlLnJlYWRvbmx5LGRyaXZlLmZpbGUifQ=="`. 그다음 환경 변수 SCOPE=`drive.readonly,drive.file`과 새 TOKEN을 넣는다. 새 세션에서 `oauth2.googleapis.com/tokeninfo`로 범위를 확인한다(토큰은 출력하지 않는다).
 - **Drive 자료:**
   - 저용량 영상: `01_원본영상/_Gemini용_저용량/<animator>/<post>.mp4`. 폐기 28개는 `_폐기예정(셀·믹스)/_저용량/`에 있다.
@@ -84,11 +77,12 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 ## 검증 상태
 
-- 이번 구간은 문서·데이터·도구 추가만 했다. 단위 테스트는 다시 돌리지 않았다(마지막 통과: 2026-10-19 밤).
+- 2026-10-21 단위 테스트 22개 통과.
 - 새 도구는 단위 테스트가 없고, 실행 결과로 확인했다.
   - `auto_detect`: 263개 정상 json
   - `gpt_sheets`: 시트 649개 업로드, 표본 1장 육안 확인
   - `element_tree`: 337행 생성
+  - `element_aggregate`·`element_rank`: 377개 집계 실행, G15–G17 형식 검사(55행) 통과
 
 ## 규칙
 
