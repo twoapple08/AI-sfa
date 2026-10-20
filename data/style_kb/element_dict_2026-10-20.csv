@@ -107,3 +107,17 @@
 연출,원근 강조,3_기술필요,perspective foreshortening
 연출,색수차,1_지식없이,chromatic_aberration
 연출,역광,1_지식없이,backlighting
+소품·부속(파편 종류),유리 조각,2_형태참고,glass shards glass_shards broken_glass
+소품·부속(파편 종류),돌·콘크리트 조각,2_형태참고,rubble brick rock
+소품·부속(파편 종류),나무 조각,2_형태참고,wood log CLIP:wood_splinters
+소품·부속(파편 종류),얼음 조각·고드름,2_형태참고,ice crystal CLIP:icicle CLIP:ice_shards
+소품·부속(파편 종류),금속 조각·부품,2_형태참고,gears bolt screw wire cable CLIP:metal_scrap
+소품·부속(탄),총알,1_지식없이,bullet ammunition
+소품·부속(탄),탄피,1_지식없이,shell_casing
+소품·부속(탄),탄창·탄띠,1_지식없이,magazine_(weapon) ammunition_belt
+소품·부속(탄),포탄·대포알,1_지식없이,CLIP:cannonball CLIP:artillery_shell
+소품·부속(탄),미사일 궤적,3_기술필요,smoke_trail contrail
+소품·부속(낙하·비산물),깃털,2_형태참고,feathers
+소품·부속(낙하·비산물),종이,1_지식없이,paper
+소품·부속(낙하·비산물),밧줄,1_지식없이,rope
+소품·부속(낙하·비산물),재·불씨,3_기술필요,embers CLIP:ash
