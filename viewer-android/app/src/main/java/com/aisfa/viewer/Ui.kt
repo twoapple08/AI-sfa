@@ -68,7 +68,8 @@ class AspectBox(ctx: Context) : FrameLayout(ctx) {
         val w = MeasureSpec.getSize(widthMeasureSpec)
         // 가로 화면처럼 부모가 높이를 정해 주면(weight) 그대로 쓰고, 세로 화면에서는 폭×비율로 정한다
         val h = if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.EXACTLY) MeasureSpec.getSize(heightMeasureSpec)
-        else minOf((w * ratio).toInt(), (resources.displayMetrics.heightPixels * maxFrac).toInt())
+        // 멀티윈도우·팝업 창에서는 화면 전체가 아니라 지금 창 높이를 기준으로 한다
+        else minOf((w * ratio).toInt(), (resources.configuration.screenHeightDp * resources.displayMetrics.density * maxFrac).toInt())
         super.onMeasure(MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(h, MeasureSpec.EXACTLY))
     }
 }

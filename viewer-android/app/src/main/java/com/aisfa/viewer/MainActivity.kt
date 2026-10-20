@@ -28,10 +28,12 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
+import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.NumberPicker
 import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -61,6 +63,7 @@ class MainActivity : Activity() {
     private lateinit var backBtn: IconView
     private lateinit var exportIcon: IconView
     private lateinit var exportBtn: TextView
+    private lateinit var fpsBtn: TextView
     private val videoBox by lazy { AspectBox(this).apply { setBackgroundColor(Color.BLACK) } }
     private var onPlayer = false
     private var doc: SfaDoc? = null
@@ -74,11 +77,35 @@ class MainActivity : Activity() {
     private val busy = AtomicBoolean(false)
     private val exporting = AtomicBoolean(false)
     private val cancelExport = AtomicBoolean(false)
-    private val fps = 24
+    // 시간표 (T, P) = (트위닝 fps, 재생 fps). SFA에 저장되지 않아 파일마다 따로 기억한다. 기본 (24, 24)
+    private var tween = 24
+    private var play = 24
+    private var tl = Timeline(0, 24, 24)
+    private val fps get() = tl.fps
 
     private fun dp(v: Float) = (v * resources.displayMetrics.density).roundToInt()
     private fun dp(v: Int) = dp(v.toFloat())
-    private val landscape get() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    // 멀티윈도우·팝업 창에서는 기기 방향이 아니라 지금 창의 크기로 배치를 정한다
+    private val winW get() = resources.configuration.screenWidthDp
+    private val winH get() = resources.configuration.screenHeightDp
+    private val landscape get() = winW > winH
+    private val compact get() = winH < 480 || winW < 340
+
+    /** targetSdk 35는 화면이 상태 표시줄·홈 버튼 바 밑까지 그려진다. 그 높이만큼 안쪽 여백을 준다(+ 버튼 겹침 방지). */
+    private fun edge(root: View): View {
+        root.setOnApplyWindowInsetsListener { v, ins ->
+            if (Build.VERSION.SDK_INT >= 30) {
+                val b = ins.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+                v.setPadding(b.left, b.top, b.right, b.bottom)
+            } else {
+                @Suppress("DEPRECATION")
+                v.setPadding(ins.systemWindowInsetLeft, ins.systemWindowInsetTop, ins.systemWindowInsetRight, ins.systemWindowInsetBottom)
+            }
+            ins
+        }
+        root.requestApplyInsets()
+        return root
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -147,12 +174,17 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER; text = "MP4 내보내기"; background = Theme.round(Theme.ORANGE, dp(24).toFloat())
             setPadding(dp(24), dp(14), dp(24), dp(14)); setOnClickListener { exportOrCancel() }
         }
+        fpsBtn = text(14f, Theme.TEXT, true).apply {
+            gravity = Gravity.CENTER; background = Theme.round(Color.WHITE, dp(20).toFloat())
+            setPadding(dp(16), dp(10), dp(16), dp(10)); setOnClickListener { askFps() }
+        }
         view.setOnClickListener { togglePlay() }
         setControlsEnabled(false)
     }
 
     private fun setControlsEnabled(on: Boolean) {
-        for (v in listOf(playBtn, prevBtn, nextBtn, exportIcon, seek)) v.isEnabled = on
+        for (v in listOf(playBtn, prevBtn, nextBtn, exportIcon, seek, fpsBtn)) v.isEnabled = on
+        fpsBtn.alpha = if (on) 1f else 0.4f
         exportBtn.isEnabled = on; exportBtn.alpha = if (on) 1f else 0.4f
         exportIcon.invalidate(); playBtn.invalidate(); prevBtn.invalidate(); nextBtn.invalidate()
     }
@@ -162,25 +194,28 @@ class MainActivity : Activity() {
     private fun showHome() {
         onPlayer = false
         val root = FrameLayout(this).apply { setBackgroundColor(Theme.BG) }
-        val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(if (landscape) 20 else 56), dp(18), dp(120)) }
-        list.addView(text(if (landscape) 30f else 38f, Theme.ORANGE, true).apply {
+        val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(if (compact) 12 else if (landscape) 20 else 36), dp(18), dp(120)) }
+        list.addView(text(if (compact) 26f else if (landscape) 30f else 38f, Theme.ORANGE, true).apply {
             text = "SFA VIEWER"; gravity = Gravity.CENTER; letterSpacing = -0.02f
+            // 더 굵게(사용자 요청): 가장 굵은 글꼴 두께 + 굵게 그리기
+            typeface = if (Build.VERSION.SDK_INT >= 28) Typeface.create(Typeface.DEFAULT, 900, false) else Typeface.DEFAULT_BOLD
+            paint.isFakeBoldText = true
         }, LinearLayout.LayoutParams(-1, -2))
         list.addView(text(13f, Theme.SUB).apply { text = "Stick Fighter 애니메이션 미리보기 · 내보내기"; gravity = Gravity.CENTER },
-            LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+            LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(if (compact) 4 else 10) })
         // 탭 모양 머리말(질감만 가져옴)
         val pill = FrameLayout(this).apply { background = Theme.round(Theme.SURFACE, dp(28).toFloat()); setPadding(dp(5), dp(5), dp(5), dp(5)) }
         pill.addView(text(14f, Theme.TEXT, true).apply {
             text = "최근 파일"; gravity = Gravity.CENTER; background = Theme.round(Color.WHITE, dp(24).toFloat()); setPadding(dp(28), dp(12), dp(28), dp(12))
         }, FrameLayout.LayoutParams(-2, -2))
-        list.addView(pill, LinearLayout.LayoutParams(-2, -2).apply { gravity = Gravity.CENTER_HORIZONTAL; topMargin = dp(28); bottomMargin = dp(22) })
+        list.addView(pill, LinearLayout.LayoutParams(-2, -2).apply { gravity = Gravity.CENTER_HORIZONTAL; topMargin = dp(if (compact) 12 else 28); bottomMargin = dp(if (compact) 12 else 22) })
 
         val items = recent()
         if (items.isEmpty()) {
             list.addView(text(15f, Theme.SUB).apply { text = "아래 + 버튼으로 SFA 파일을 여세요"; gravity = Gravity.CENTER },
                 LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(48) })
         } else {
-            val cols = if (landscape) 4 else 2
+            val cols = (winW / 180).coerceIn(1, 6) // 창 폭에 맞춰 카드 열 수
             var row: LinearLayout? = null
             items.forEachIndexed { i, o ->
                 if (i % cols == 0) { row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }; list.addView(row, LinearLayout.LayoutParams(-1, -2)) }
@@ -193,11 +228,13 @@ class MainActivity : Activity() {
         val fab = IconView(this, IconView.Kind.PLUS, Color.WHITE).apply {
             background = Theme.oval(Theme.ORANGE); elevation = dp(8).toFloat(); isClickable = true; setOnClickListener { pick() }
         }
-        root.addView(fab, FrameLayout.LayoutParams(dp(68), dp(68)).apply {
+        val fabSize = if (compact) 56 else 68
+        root.addView(fab, FrameLayout.LayoutParams(dp(fabSize), dp(fabSize)).apply {
             gravity = if (landscape) Gravity.BOTTOM or Gravity.END else Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            setMargins(dp(24), dp(24), dp(24), dp(28))
+            val m = if (compact) 14 else 24
+            setMargins(dp(m), dp(m), dp(m), dp(m + 4))
         })
-        setContentView(root)
+        setContentView(edge(root))
     }
 
     private fun card(o: JSONObject): View {
@@ -244,18 +281,19 @@ class MainActivity : Activity() {
 
     private fun showPlayer() {
         onPlayer = true
-        for (v in listOf(view, title, status, frameLabel, timeLabel, info, seek, playBtn, prevBtn, nextBtn, backBtn, exportIcon, exportBtn, videoBox)) detach(v)
+        for (v in listOf(view, title, status, frameLabel, timeLabel, info, seek, playBtn, prevBtn, nextBtn, backBtn, exportIcon, exportBtn, fpsBtn, videoBox)) detach(v)
         videoBox.removeAllViews(); videoBox.addView(view, FrameLayout.LayoutParams(-1, -1))
         videoBox.ratio = doc?.ratio ?: 0.5625f
         val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(Theme.BG) }
         val header = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL; setPadding(dp(6), dp(4), dp(6), dp(4)) }
         header.addView(backBtn, LinearLayout.LayoutParams(dp(48), dp(48)))
-        val playSize = if (landscape) 48 else 76
+        val playSize = if (landscape || compact) 48 else 76
         if (landscape) {
             title.gravity = Gravity.START or Gravity.CENTER_VERTICAL; title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18f)
             header.addView(title, LinearLayout.LayoutParams(-2, -2).apply { marginStart = dp(4) })
             status.gravity = Gravity.END or Gravity.CENTER_VERTICAL
             header.addView(status, LinearLayout.LayoutParams(0, -2, 1f).apply { marginStart = dp(12); marginEnd = dp(8) })
+            header.addView(fpsBtn, LinearLayout.LayoutParams(-2, -2).apply { marginEnd = dp(4) })
             header.addView(exportIcon, LinearLayout.LayoutParams(dp(48), dp(48)))
             root.addView(header, LinearLayout.LayoutParams(-1, -2))
             root.addView(videoBox.also { it.maxFrac = 1f }, LinearLayout.LayoutParams(-1, 0, 1f))
@@ -275,8 +313,9 @@ class MainActivity : Activity() {
             header.addView(title, LinearLayout.LayoutParams(0, -2, 1f))
             header.addView(exportIcon, LinearLayout.LayoutParams(dp(48), dp(48)))
             root.addView(header, LinearLayout.LayoutParams(-1, -2))
-            root.addView(videoBox.also { it.maxFrac = 0.62f }, LinearLayout.LayoutParams(-1, -2))
-            val body = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(22), dp(18), dp(22), dp(24)) }
+            root.addView(videoBox.also { it.maxFrac = if (compact) 0.5f else 0.62f }, LinearLayout.LayoutParams(-1, -2))
+            val pd = if (compact) 12 else 22
+            val body = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(pd), dp(if (compact) 8 else 18), dp(pd), dp(24)) }
             val labels = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
             frameLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f)
             labels.addView(frameLabel, LinearLayout.LayoutParams(0, -2, 1f))
@@ -294,16 +333,20 @@ class MainActivity : Activity() {
             }
             card.addView(text(15f, Theme.TEXT, true).apply { text = "파일 정보" })
             card.addView(info, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+            val fpsRow = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL }
+            fpsRow.addView(text(14f, Theme.TEXT).apply { text = "FPS (트위닝, 재생)" }, LinearLayout.LayoutParams(0, -2, 1f))
+            fpsRow.addView(fpsBtn, LinearLayout.LayoutParams(-2, -2))
+            card.addView(fpsRow, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(14) })
             card.addView(exportBtn, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(18) })
             body.addView(card, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(24) })
             root.addView(ScrollView(this).apply { addView(body) }, LinearLayout.LayoutParams(-1, 0, 1f))
         }
-        setContentView(root)
+        setContentView(edge(root))
         updateLabels(seek.progress)
     }
 
     private fun updateLabels(f: Int) {
-        val n = doc?.frameCount ?: 0
+        val n = if (doc != null) tl.count else 0
         frameLabel.text = if (n > 0) "${f + 1} / $n" else "– / –"
         fun t(fr: Int) = "%02d:%02d".format(fr / fps / 60, fr / fps % 60)
         timeLabel.text = if (n > 0) "${t(f)} / ${t(n)}" else ""
@@ -388,21 +431,71 @@ class MainActivity : Activity() {
         remember(uri, fileName, d.frameCount)
         if (!onPlayer || curUri != uri) return
         doc = d
-        val fc = FrameCache(d, File(cacheDir, "frames_${cacheKey}_1280"), 1280).also { it.prefetchFrom(0) }
-        cache = fc
-        info.text = "${d.frameCount}프레임 · ${"%.1f".format(d.frameCount.toDouble() / fps)}초 (24fps)\n" +
-            "1920×${(1920 * d.ratio).roundToInt()} · 오브젝트 ${"%,d".format(d.objCount)}개\n$msg"
+        loadMsg = msg
+        val saved = getSharedPreferences("v", MODE_PRIVATE).getString("fps_$cacheKey", "24,24")!!.split(',')
+        tween = saved.getOrNull(0)?.toIntOrNull() ?: 24; play = saved.getOrNull(1)?.toIntOrNull() ?: 24
         videoBox.ratio = d.ratio
-        seek.max = maxOf(d.frameCount - 1, 0); seek.progress = 0
         setControlsEnabled(true)
-        wanted.set(0); updateLabels(0); startRenderLoop(); kick()
+        applyTimeline(0.0)
+    }
+
+    private var loadMsg = ""
+
+    /** (T, P)로 시간표를 만들고 미리 그리기 캐시·이동 막대·재생을 다시 맞춘다. pos는 0..1 위치(바꾸기 전 위치 유지). */
+    private fun applyTimeline(pos: Double) {
+        val d = doc ?: return
+        setPlaying(false)
+        renderThread?.interrupt(); renderThread = null
+        cache?.close()
+        tl = Timeline(d.frameCount, tween, play)
+        val fc = FrameCache(d, tl, File(cacheDir, "frames_${cacheKey}_1280_${tl.key}"), 1280)
+        val j = (pos * tl.count).toInt().coerceIn(0, tl.count - 1)
+        fc.prefetchFrom(j)
+        cache = fc
+        fpsBtn.text = "$tween, $play"
+        val how = if (tl.interp) "보간 ${tl.fps}fps · 원본 ${d.frameCount}프레임 → ${tl.count}프레임" else "보간 없음 · ${tl.fps}fps"
+        info.text = "${d.frameCount}프레임 · ${"%.1f".format(d.frameCount.toDouble() / play)}초 ($how)\n" +
+            "1920×${(1920 * d.ratio).roundToInt()} · 오브젝트 ${"%,d".format(d.objCount)}개\n$loadMsg"
+        seek.max = maxOf(tl.count - 1, 0); seek.progress = j
+        wanted.set(j); updateLabels(j); startRenderLoop(); kick()
         saveThumb(fc, cacheKey)
+    }
+
+    /** (T, P) 조정 창. 원래 앱과 같은 규칙: T > P이면 프레임 사이를 섞어 T fps로, 아니면 원본을 P fps로 보여 준다. */
+    private fun askFps() {
+        if (doc == null || exporting.get()) return
+        fun picker(v: Int) = NumberPicker(this).apply { minValue = 1; maxValue = 120; value = v.coerceIn(1, 120); wrapSelectorWheel = false }
+        val pt = picker(tween); val pp = picker(play)
+        val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(24), dp(12), dp(24), 0) }
+        box.addView(text(13f, Theme.SUB).apply {
+            text = "Stick Fighter에서 쓴 값을 넣으세요. SFA 파일에는 저장되지 않습니다.\n트위닝이 재생보다 크면 프레임 사이를 섞어 보여 줍니다."
+            setLineSpacing(0f, 1.3f)
+        })
+        val row = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER }
+        for ((label, p) in listOf("트위닝" to pt, "재생" to pp)) {
+            val col = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER_HORIZONTAL }
+            col.addView(text(14f, Theme.TEXT, true).apply { text = label })
+            col.addView(p)
+            row.addView(col, LinearLayout.LayoutParams(0, -2, 1f))
+        }
+        box.addView(row, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(8) })
+        AlertDialog.Builder(this).setTitle("FPS (트위닝, 재생)").setView(box)
+            .setPositiveButton("적용") { _, _ -> setFps(pt.value, pp.value) }
+            .setNeutralButton("24, 24") { _, _ -> setFps(24, 24) }
+            .setNegativeButton("취소", null).show()
+    }
+
+    private fun setFps(t: Int, p: Int) {
+        if (t == tween && p == play) return
+        val pos = if (tl.count > 0) seek.progress.toDouble() / tl.count else 0.0
+        tween = t; play = p
+        getSharedPreferences("v", MODE_PRIVATE).edit().putString("fps_$cacheKey", "$t,$p").apply()
+        applyTimeline(pos)
     }
 
     /** 첫 화면 카드용 미리보기(0번 프레임, 폭 480). */
     private fun saveThumb(fc: FrameCache, key: String) {
         val out = File(filesDir, "thumbs/$key.jpg")
-        if (out.exists()) return
         Thread {
             val b = fc.get(0, 60_000, null) ?: return@Thread
             runCatching {
@@ -421,22 +514,25 @@ class MainActivity : Activity() {
     private fun step(dir: Int) {
         val d = doc ?: return
         setPlaying(false)
-        val f = (seek.progress + dir).coerceIn(0, d.frameCount - 1)
+        if (d.frameCount == 0) return
+        val f = (seek.progress + dir).coerceIn(0, tl.count - 1)
         seek.progress = f; wanted.set(f); updateLabels(f); kick()
     }
 
-    /** 표시 스레드: 미리 그려 둔 프레임(JPEG 캐시)을 읽어 보여 준다. 재생 중이면 24fps 간격으로 넘기고, 준비 안 된 프레임은 기다린다. */
+    /** 표시 스레드: 미리 그려 둔 프레임(JPEG 캐시)을 읽어 보여 준다. 재생 중이면 시간표 fps 간격으로 넘기고, 준비 안 된 프레임은 기다린다. */
     private fun startRenderLoop() {
         renderThread?.interrupt()
-        val d = doc ?: return; val fc = cache ?: return
+        val fc = cache ?: return
+        val n = fc.tl.count; val step = 1000.0 / fc.tl.fps
+        if (n == 0) return
         renderThread = Thread {
             var last = -1
             var spare: Bitmap? = null
-            var nextAt = SystemClock.elapsedRealtime()
-            fun prep() = if (fc.done.get() >= d.frameCount) "미리 그리기 완료" else "미리 그리기 ${fc.done.get()}/${d.frameCount}"
+            var nextAt = SystemClock.elapsedRealtime().toDouble()
+            fun prep() = if (fc.done.get() >= n) "미리 그리기 완료" else "미리 그리기 ${fc.done.get()}/$n"
             try {
                 while (!Thread.currentThread().isInterrupted) {
-                    val f = wanted.get().coerceIn(0, d.frameCount - 1)
+                    val f = wanted.get().coerceIn(0, n - 1)
                     if (f == last && !playing.get()) {
                         view.post { if (!exporting.get()) status.text = prep() }
                         synchronized(lock) { lock.wait(300) }; continue
@@ -447,16 +543,16 @@ class MainActivity : Activity() {
                         continue
                     }
                     val now = SystemClock.elapsedRealtime()
-                    if (playing.get() && nextAt > now) Thread.sleep(nextAt - now)
+                    if (playing.get() && nextAt > now) Thread.sleep((nextAt - now).toLong())
                     spare = view.swap(bmp)
                     last = f
                     view.post { seek.progress = f; updateLabels(f) }
                     if (playing.get()) {
-                        nextAt = maxOf(nextAt + 1000L / fps, SystemClock.elapsedRealtime() - 1000L / fps)
-                        wanted.set(if (f + 1 >= d.frameCount) 0 else f + 1)
+                        nextAt = maxOf(nextAt + step, SystemClock.elapsedRealtime() - step)
+                        wanted.set(if (f + 1 >= n) 0 else f + 1)
                     } else {
                         fc.prefetchFrom(f)
-                        nextAt = SystemClock.elapsedRealtime()
+                        nextAt = SystemClock.elapsedRealtime().toDouble()
                     }
                 }
             } catch (_: InterruptedException) {}
@@ -485,7 +581,7 @@ class MainActivity : Activity() {
                 }
                 val t0 = SystemClock.elapsedRealtime()
                 val ok = fdHolder.use { pfd ->
-                    VideoExporter(d, fps).export(pfd.fileDescriptor, { i, n -> ui.post { status.text = "MP4 내보내는 중 $i/$n"; exportBtn.text = "취소 ($i/$n)" } }, { cancelExport.get() })
+                    VideoExporter(d, tl).export(pfd.fileDescriptor, { i, n -> ui.post { status.text = "MP4 내보내는 중 $i/$n"; exportBtn.text = "취소 ($i/$n)" } }, { cancelExport.get() })
                 }
                 if (Build.VERSION.SDK_INT >= 29) {
                     if (ok) contentResolver.update(uri, ContentValues().apply { put(MediaStore.Video.Media.IS_PENDING, 0) }, null, null)
@@ -507,9 +603,10 @@ class MainActivity : Activity() {
     /** 화면 배치 시험용(UiShotTest): 백그라운드 그리기 없이 문서와 첫 프레임만 넣어 플레이어를 띄운다. */
     internal fun showForTest(d: SfaDoc, first: Bitmap, name: String) {
         doc = d; fileName = name; title.text = name; videoBox.ratio = d.ratio
-        info.text = "${d.frameCount}프레임 · ${"%.1f".format(d.frameCount.toDouble() / fps)}초 (24fps)\n1920×${(1920 * d.ratio).roundToInt()} · 오브젝트 ${"%,d".format(d.objCount)}개"
+        tl = Timeline(d.frameCount, tween, play); fpsBtn.text = "$tween, $play"
+        info.text = "${d.frameCount}프레임 · ${"%.1f".format(d.frameCount.toDouble() / play)}초 (보간 없음 · ${tl.fps}fps)\n1920×${(1920 * d.ratio).roundToInt()} · 오브젝트 ${"%,d".format(d.objCount)}개"
         status.text = "미리 그리기 완료"
-        seek.max = d.frameCount - 1; setControlsEnabled(true); showPlayer(); view.swap(first)
+        seek.max = tl.count - 1; setControlsEnabled(true); showPlayer(); view.swap(first)
     }
 
     override fun onDestroy() { renderThread?.interrupt(); cache?.close(); io.shutdownNow(); super.onDestroy() }

@@ -8,15 +8,17 @@ namespace SfaViewer
 {
     /// <summary>
     /// SFA 보기·재생·MP4 내보내기(Windows). 안드로이드 뷰어와 같은 방식:
-    /// 처음 열 때 변환해 캐시(.sfab)로 저장 → 여러 스레드가 프레임을 미리 그려 JPEG로 메모리에 보관 → 재생은 24fps로 보여 주기만.
+    /// 처음 열 때 변환해 캐시(.sfab)로 저장 → 여러 스레드가 프레임을 미리 그려 JPEG로 메모리에 보관 → 재생은 시간표 fps로 보여 주기만.
+    /// 시간표 (트위닝, 재생) fps는 SFA에 저장되지 않아 파일마다 기억한다(기본 24, 24). 트위닝 &gt; 재생이면 프레임 사이를 섞는다.
     /// 내보내기는 exe 옆의 ffmpeg.exe에 원시 프레임을 넘겨 H.264 MP4로 만든다.
     /// </summary>
     public sealed class MainForm : Form
     {
-        const int Fps = 24, PreviewW = 1280;
+        const int PreviewW = 1280;
+        int tween = 24, play = 24; Timeline tl = new(0, 24, 24);
         // 첫 화면
         readonly Panel home = new() { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Theme.Bg };
-        readonly TextLabel homeTitle = new(Theme.Bold(30), Theme.Orange, ContentAlignment.MiddleCenter) { Text = "SFA VIEWER" };
+        readonly TextLabel homeTitle = new(Theme.Black(30), Theme.Orange, ContentAlignment.MiddleCenter) { Text = "SFA VIEWER" };
         readonly TextLabel homeSub = new(Theme.Regular(10), Theme.Sub, ContentAlignment.MiddleCenter) { Text = "Stick Fighter 애니메이션 미리보기 · 내보내기  (파일을 끌어다 놓아도 됩니다)" };
         readonly CardPanel pillBg = new() { Radius = 26 };
         readonly PillButton pill = new("최근 파일") { Fill = Color.White, Fore = Theme.Text, Cursor = Cursors.Default };
@@ -40,8 +42,10 @@ namespace SfaViewer
         readonly TextLabel infoHead = new(Theme.Bold(11), Theme.Text) { Text = "파일 정보", BackColor = Theme.Surface };
         readonly TextLabel info = new(Theme.Regular(10), Theme.Sub, ContentAlignment.TopLeft) { BackColor = Theme.Surface };
         readonly PillButton exportBtn = new("MP4 내보내기") { Enabled = false };
+        readonly PillButton fpsBtn = new("24, 24") { Fill = Color.White, Fore = Theme.Text, Enabled = false };
+        readonly TextLabel fpsHead = new(Theme.Regular(10), Theme.Text) { Text = "FPS (트위닝, 재생)", BackColor = Theme.Surface };
         readonly FrameView view = new();
-        readonly System.Windows.Forms.Timer timer = new() { Interval = 1000 / Fps };
+        readonly System.Windows.Forms.Timer timer = new() { Interval = 10 };
 
         SfaDoc doc; string fileName = "sfa", filePath, fileKey;
         byte[][] frames; int prepared; CancellationTokenSource prepCts;
@@ -55,8 +59,8 @@ namespace SfaViewer
             home.Controls.AddRange(new Control[] { homeTitle, homeSub, pillBg, empty });
             pillBg.Controls.Add(pill);
             Controls.Add(fab); Controls.Add(player); Controls.Add(home);
-            player.Controls.AddRange(new Control[] { backBtn, title, openIcon, exportIcon, view, frameLabel, timeLabel, seek, prevBtn, playBtn, nextBtn, status, infoCard });
-            infoCard.Controls.AddRange(new Control[] { infoHead, info, exportBtn });
+            player.Controls.AddRange(new Control[] { backBtn, title, openIcon, exportIcon, fpsBtn, view, frameLabel, timeLabel, seek, prevBtn, playBtn, nextBtn, status, infoCard });
+            infoCard.Controls.AddRange(new Control[] { infoHead, info, fpsHead, exportBtn });
             home.Resize += (_, _) => LayoutHome();
             player.Resize += (_, _) => LayoutPlayer();
 
@@ -69,6 +73,7 @@ namespace SfaViewer
             view.Click += (_, _) => TogglePlay();
             exportBtn.Click += (_, _) => ExportOrCancel();
             exportIcon.Click += (_, _) => ExportOrCancel();
+            fpsBtn.Click += (_, _) => AskFps();
             seek.Scrubbed += v => { StopPlay(); Show(v); };
             timer.Tick += (_, _) => Tick();
             AllowDrop = true;
@@ -148,7 +153,9 @@ namespace SfaViewer
             if (!portrait)
             {
                 title.TextAlign = ContentAlignment.MiddleLeft; title.SetBounds(60, 6, Math.Min(520, W / 2), 48);
-                status.TextAlign = ContentAlignment.MiddleRight; status.SetBounds(title.Right + 8, 6, Math.Max(10, openIcon.Left - title.Right - 16), 48);
+                if (fpsBtn.Parent != player) { infoCard.Controls.Remove(fpsBtn); player.Controls.Add(fpsBtn); }
+                fpsBtn.SetBounds(openIcon.Left - 104, 10, 96, 40);
+                status.TextAlign = ContentAlignment.MiddleRight; status.SetBounds(title.Right + 8, 6, Math.Max(10, fpsBtn.Left - title.Right - 16), 48);
                 int barH = 64, top = 60;
                 view.SetBounds(0, top, W, H - top - barH);
                 int by = H - barH + 8;
@@ -171,24 +178,27 @@ namespace SfaViewer
                 int ps = 76; playBtn.SetBounds((W - ps) / 2, y, ps, ps);
                 prevBtn.SetBounds(playBtn.Left - 36 - 56, y + 10, 56, 56); nextBtn.SetBounds(playBtn.Right + 36, y + 10, 56, 56); y += ps + 6;
                 status.TextAlign = ContentAlignment.MiddleCenter; status.SetBounds(px, y, W - 2 * px, 22); y += 36;
-                int ch = Math.Min(210, Math.Max(150, H - y - 20));
+                int ch = Math.Min(260, Math.Max(200, H - y - 20));
                 infoCard.Visible = true; infoCard.SetBounds(px, y, W - 2 * px, ch);
                 int iw = infoCard.Width - 40;
-                infoHead.SetBounds(20, 16, iw, 24); info.SetBounds(20, 46, iw, ch - 46 - 72); exportBtn.SetBounds(20, ch - 66, iw, 48);
+                if (fpsBtn.Parent != infoCard) { player.Controls.Remove(fpsBtn); infoCard.Controls.Add(fpsBtn); }
+                infoHead.SetBounds(20, 16, iw, 24); info.SetBounds(20, 46, iw, ch - 46 - 124);
+                fpsHead.SetBounds(20, ch - 112, iw - 110, 40); fpsBtn.SetBounds(20 + iw - 100, ch - 112, 100, 40);
+                exportBtn.SetBounds(20, ch - 66, iw, 48);
             }
             infoCard.Invalidate();
         }
 
         void UpdateLabels(int f)
         {
-            int n = doc?.FrameCount ?? 0;
+            int n = doc != null ? tl.Count : 0, fps = tl.Fps;
             frameLabel.Text = n > 0 ? $"{f + 1} / {n}" : "– / –";
-            string T(int fr) => $"{fr / Fps / 60:00}:{fr / Fps % 60:00}";
+            string T(int fr) => $"{fr / fps / 60:00}:{fr / fps % 60:00}";
             timeLabel.Text = n > 0 ? $"{T(f)} / {T(n)}" : "";
         }
 
-        void SetEnabled(bool on) { foreach (Control c in new Control[] { playBtn, prevBtn, nextBtn, seek, exportBtn, exportIcon }) c.Enabled = on; }
-        void Step(int d) { if (doc == null) return; StopPlay(); Show(Math.Clamp(current + d, 0, doc.FrameCount - 1)); }
+        void SetEnabled(bool on) { foreach (Control c in new Control[] { playBtn, prevBtn, nextBtn, seek, exportBtn, exportIcon, fpsBtn }) c.Enabled = on; }
+        void Step(int d) { if (doc == null || tl.Count == 0) return; StopPlay(); Show(Math.Clamp(current + d, 0, tl.Count - 1)); }
 
         static string CacheDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SfaViewer");
 
@@ -218,26 +228,76 @@ namespace SfaViewer
                     try { var tmp = cache + ".tmp"; using (var o = File.Create(tmp)) d.Write(o); File.Move(tmp, cache, true); } catch { }
                     return d;
                 });
-                info.Text = $"{doc.FrameCount}프레임 · {doc.FrameCount / (double)Fps:F1}초 (24fps)\n1920×{(int)Math.Round(1920 * doc.Ratio)} · 오브젝트 {doc.ObjCount:N0}개\n불러오기: {how} {sw.Elapsed.TotalSeconds:F1}초";
-                seek.Maximum = Math.Max(doc.FrameCount - 1, 0); seek.Value = 0;
+                loadMsg = $"불러오기: {how} {sw.Elapsed.TotalSeconds:F1}초";
+                (tween, play) = LoadFps(key);
                 SetEnabled(true);
-                LayoutPlayer();
-                StartPrepare();
-                Show(0);
+                ApplyTimeline(0);
                 Recent.Remember(new RecentItem { Path = path, Name = fileName, Frames = doc.FrameCount, Key = key });
-                SaveThumb(key, frames[0]);
+                SaveThumb(key, frames[0], true);
             }
             catch (Exception e) { status.Text = "열기 실패: " + e.Message; title.Text = "열기 실패"; }
             finally { openIcon.Enabled = true; }
         }
 
-        /// <summary>여러 스레드로 모든 프레임을 미리 그려 JPEG로 보관한다(현재 위치부터).</summary>
-        void StartPrepare()
+        string loadMsg = "";
+
+        // ───────── 시간표 (트위닝, 재생) ─────────
+
+        static string FpsFile(string key) => Path.Combine(CacheDir, "fps_" + key + ".txt");
+        static (int, int) LoadFps(string key)
         {
-            prepCts = new CancellationTokenSource(); var ct = prepCts.Token; var d = doc;
-            frames = new byte[d.FrameCount][]; prepared = 0;
+            try { var a = File.ReadAllText(FpsFile(key)).Split(','); return (Math.Clamp(int.Parse(a[0]), 1, 240), Math.Clamp(int.Parse(a[1]), 1, 240)); } catch { return (24, 24); }
+        }
+
+        /// <summary>(T, P)로 시간표를 만들고 미리 그리기·이동 막대·재생을 다시 맞춘다. pos는 0..1 위치(바꾸기 전 위치 유지).</summary>
+        void ApplyTimeline(double pos)
+        {
+            var d = doc; if (d == null) return;
+            StopPlay(); prepCts?.Cancel();
+            tl = new Timeline(d.FrameCount, tween, play);
+            fpsBtn.Text = $"{tween}, {play}"; fpsBtn.Invalidate();
+            string how = tl.Interp ? $"보간 {tl.Fps}fps · 원본 {d.FrameCount}프레임 → {tl.Count}프레임" : $"보간 없음 · {tl.Fps}fps";
+            info.Text = $"{d.FrameCount}프레임 · {d.FrameCount / (double)play:F1}초 ({how})\n1920×{(int)Math.Round(1920 * d.Ratio)} · 오브젝트 {d.ObjCount:N0}개\n{loadMsg}";
+            seek.Maximum = Math.Max(tl.Count - 1, 0);
+            int j = Math.Clamp((int)(pos * tl.Count), 0, Math.Max(tl.Count - 1, 0));
+            LayoutPlayer();
+            StartPrepare(j);
+            Show(j);
+        }
+
+        /// <summary>(T, P) 조정 창. 원래 앱과 같은 규칙: T &gt; P이면 프레임 사이를 섞어 T fps로, 아니면 원본을 P fps로 보여 준다.</summary>
+        void AskFps()
+        {
+            if (doc == null || exportCts != null) return;
+            using var f = new Form { Text = "FPS (트위닝, 재생)", FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false, StartPosition = FormStartPosition.CenterParent, ClientSize = new Size(380, 210), BackColor = Theme.Bg, Font = Theme.Regular(10) };
+            var note = new Label { Text = "Stick Fighter에서 쓴 값을 넣으세요. SFA 파일에는 저장되지 않습니다.\n트위닝이 재생보다 크면 프레임 사이를 섞어 보여 줍니다.", ForeColor = Theme.Sub, AutoSize = false };
+            note.SetBounds(16, 12, 350, 46);
+            var lt = new Label { Text = "트위닝", Font = Theme.Bold(10) }; lt.SetBounds(40, 70, 120, 24);
+            var lp = new Label { Text = "재생", Font = Theme.Bold(10) }; lp.SetBounds(210, 70, 120, 24);
+            var nt = new NumericUpDown { Minimum = 1, Maximum = 240, Value = tween }; nt.SetBounds(40, 96, 120, 28);
+            var np = new NumericUpDown { Minimum = 1, Maximum = 240, Value = play }; np.SetBounds(210, 96, 120, 28);
+            var ok = new Button { Text = "적용", DialogResult = DialogResult.OK }; ok.SetBounds(196, 160, 80, 32);
+            var cancel = new Button { Text = "취소", DialogResult = DialogResult.Cancel }; cancel.SetBounds(284, 160, 80, 32);
+            var reset = new Button { Text = "24, 24" }; reset.SetBounds(16, 160, 80, 32);
+            reset.Click += (_, _) => { nt.Value = 24; np.Value = 24; };
+            f.Controls.AddRange(new Control[] { note, lt, lp, nt, np, ok, cancel, reset });
+            f.AcceptButton = ok; f.CancelButton = cancel;
+            if (f.ShowDialog(this) != DialogResult.OK) return;
+            int t = (int)nt.Value, p = (int)np.Value;
+            if (t == tween && p == play) return;
+            double pos = tl.Count > 0 ? (double)current / tl.Count : 0;
+            tween = t; play = p;
+            try { File.WriteAllText(FpsFile(fileKey), $"{t},{p}"); } catch { }
+            ApplyTimeline(pos);
+        }
+
+        /// <summary>여러 스레드로 모든 출력 프레임을 미리 그려 JPEG로 보관한다(start부터).</summary>
+        void StartPrepare(int start)
+        {
+            prepCts = new CancellationTokenSource(); var ct = prepCts.Token; var d = doc; var tt = tl;
+            var fr = frames = new byte[tt.Count][]; prepared = 0;
             int threads = Math.Max(1, Environment.ProcessorCount - 1);
-            var queue = new ConcurrentQueue<int>(Enumerable.Range(0, d.FrameCount));
+            var queue = new ConcurrentQueue<int>(Enumerable.Range(0, tt.Count).Select(i => (start + i) % tt.Count));
             for (int t = 0; t < threads; t++)
                 Task.Run(() =>
                 {
@@ -247,27 +307,27 @@ namespace SfaViewer
                     using var c = new SKCanvas(bmp);
                     while (!ct.IsCancellationRequested && queue.TryDequeue(out int f))
                     {
-                        if (frames[f] != null) continue;
+                        if (fr[f] != null) continue;
                         try
                         {
-                            r.Render(f, c, PreviewW); c.Flush();
+                            r.Render(tt, f, c, PreviewW); c.Flush();
                             using var img = SKImage.FromBitmap(bmp); using var data = img.Encode(SKEncodedImageFormat.Jpeg, 92);
-                            frames[f] = data.ToArray(); Interlocked.Increment(ref prepared);
+                            if (ReferenceEquals(frames, fr)) { fr[f] = data.ToArray(); Interlocked.Increment(ref prepared); }
                         }
                         catch { }
                     }
                 }, ct);
         }
 
-        string PrepText() => doc == null ? "" : prepared >= doc.FrameCount ? "미리 그리기 완료" : $"미리 그리기 {prepared}/{doc.FrameCount}";
+        string PrepText() => doc == null ? "" : prepared >= tl.Count ? "미리 그리기 완료" : $"미리 그리기 {prepared}/{tl.Count}";
 
         /// <summary>첫 화면 카드용 미리보기(0번 프레임, 폭 480).</summary>
-        static void SaveThumb(string key, byte[] jpg)
+        static void SaveThumb(string key, byte[] jpg, bool overwrite = false)
         {
             try
             {
                 string f = Path.Combine(CacheDir, "thumbs", key + ".jpg");
-                if (jpg == null || File.Exists(f)) return;
+                if (jpg == null || (File.Exists(f) && !overwrite)) return;
                 Directory.CreateDirectory(Path.GetDirectoryName(f));
                 using var ms = new MemoryStream(jpg); using var src = new Bitmap(ms);
                 using var t = new Bitmap(480, Math.Max(2, 480 * src.Height / src.Width));
@@ -282,7 +342,8 @@ namespace SfaViewer
         void Show(int f)
         {
             if (doc == null) return;
-            current = Math.Clamp(f, 0, doc.FrameCount - 1);
+            if (tl.Count == 0) return;
+            current = Math.Clamp(f, 0, tl.Count - 1);
             seek.Value = current; UpdateLabels(current);
             var j = frames?[current];
             if (j != null) view.SetFrame(Decode(j));
@@ -292,7 +353,7 @@ namespace SfaViewer
                 var r = new FrameRenderer(doc);
                 int h = Math.Max(2, (int)(PreviewW * doc.Ratio));
                 using var bmp = new SKBitmap(PreviewW, h); using var c = new SKCanvas(bmp);
-                r.Render(current, c, PreviewW); c.Flush();
+                r.Render(tl, current, c, PreviewW); c.Flush();
                 using var img = SKImage.FromBitmap(bmp); using var data = img.Encode(SKEncodedImageFormat.Jpeg, 92);
                 frames[current] = data.ToArray(); view.SetFrame(Decode(frames[current]));
             }
@@ -306,7 +367,7 @@ namespace SfaViewer
         void Tick()
         {
             if (!playing || doc == null) return;
-            int want = (playStartFrame + (int)(clock.ElapsedMilliseconds * Fps / 1000)) % doc.FrameCount;
+            int want = (int)((playStartFrame + clock.ElapsedMilliseconds * tl.Fps / 1000) % tl.Count);
             if (frames[want] == null)
             {   // 준비 안 된 프레임에서는 시간을 멈추고 기다린다
                 status.Text = $"그리는 중… ({PrepText()})";
@@ -317,36 +378,37 @@ namespace SfaViewer
         }
 
         /// <summary>창 없이 내보낸다. 성공 0, 실패 1.</summary>
-        public static int ExportCli(string input, string output)
+        public static int ExportCli(string input, string output, int tween = 24, int play = 24)
         {
             try
             {
                 SfaDoc d; using (var s = File.OpenRead(input)) d = SfaDoc.Parse(s);
                 string ff = Path.Combine(AppContext.BaseDirectory, "ffmpeg.exe");
                 var sw = Stopwatch.StartNew();
-                bool ok = WriteMp4(d, ff, output, null, CancellationToken.None, out string err);
-                File.WriteAllText(output + ".log.txt", ok ? $"ok {sw.Elapsed.TotalSeconds:F1}s frames={d.FrameCount}" : "fail " + err);
+                var t = new Timeline(d.FrameCount, tween, play);
+                bool ok = WriteMp4(d, t, ff, output, null, CancellationToken.None, out string err);
+                File.WriteAllText(output + ".log.txt", ok ? $"ok {sw.Elapsed.TotalSeconds:F1}s frames={t.Count} fps={t.Fps}" : "fail " + err);
                 return ok ? 0 : 1;
             }
             catch (Exception e) { try { File.WriteAllText(output + ".log.txt", "fail " + e); } catch { } return 1; }
         }
 
-        static bool WriteMp4(SfaDoc d, string ff, string outPath, Action<int> progress, CancellationToken ct, out string error)
+        static bool WriteMp4(SfaDoc d, Timeline tl, string ff, string outPath, Action<int> progress, CancellationToken ct, out string error)
         {
             error = null;
             int W = 1920, H = ((int)(W * d.Ratio) + 1) & ~1;
-            var psi = new ProcessStartInfo(ff, $"-y -v error -f rawvideo -pix_fmt bgra -s {W}x{H} -r {Fps} -i - -c:v libx264 -preset medium -crf 16 -pix_fmt yuv420p -movflags +faststart \"{outPath}\"")
+            var psi = new ProcessStartInfo(ff, $"-y -v error -f rawvideo -pix_fmt bgra -s {W}x{H} -r {tl.Fps} -i - -c:v libx264 -preset medium -crf 16 -pix_fmt yuv420p -movflags +faststart \"{outPath}\"")
             { UseShellExecute = false, RedirectStandardInput = true, RedirectStandardError = true, CreateNoWindow = true };
             using var p = Process.Start(psi);
             var err = p.StandardError.ReadToEndAsync();
             int threads = Math.Clamp(Environment.ProcessorCount - 1, 1, 4);
             var renderers = new ThreadLocal<(FrameRenderer, SKBitmap, SKCanvas)>(() => { var b = new SKBitmap(W, H, SKColorType.Bgra8888, SKAlphaType.Premul); return (new FrameRenderer(d), b, new SKCanvas(b)); });
             var pending = new Queue<Task<byte[]>>(); int submitted = 0;
-            void Fill() { while (submitted < d.FrameCount && pending.Count < threads + 1) { int f = submitted++; pending.Enqueue(Task.Run(() => { var (r, b, c) = renderers.Value; r.Render(f, c, W); c.Flush(); return (byte[])b.Bytes.Clone(); })); } }
+            void Fill() { while (submitted < tl.Count && pending.Count < threads + 1) { int f = submitted++; pending.Enqueue(Task.Run(() => { var (r, b, c) = renderers.Value; r.Render(tl, f, c, W); c.Flush(); return (byte[])b.Bytes.Clone(); })); } }
             var stdin = p.StandardInput.BaseStream;
             try
             {
-                for (int f = 0; f < d.FrameCount; f++)
+                for (int f = 0; f < tl.Count; f++)
                 {
                     if (ct.IsCancellationRequested) { try { p.Kill(); } catch { } return false; }
                     Fill(); var bytes = pending.Dequeue().Result; Fill();
@@ -368,19 +430,20 @@ namespace SfaViewer
             using var dlg = new SaveFileDialog { Filter = "MP4 (*.mp4)|*.mp4", FileName = fileName + ".mp4" };
             if (dlg.ShowDialog(this) != DialogResult.OK) return;
             StopPlay();
-            exportCts = new CancellationTokenSource(); var ct = exportCts.Token; var d = doc; string outPath = dlg.FileName;
+            exportCts = new CancellationTokenSource(); var ct = exportCts.Token; var d = doc; var t = tl; string outPath = dlg.FileName;
+            fpsBtn.Enabled = false;
             exportBtn.Text = "취소"; exportIcon.Color = Theme.Orange; exportIcon.Invalidate(); openIcon.Enabled = false;
             var sw = Stopwatch.StartNew();
             Task.Run(() =>
             {
-                bool ok = WriteMp4(d, ff, outPath, n => BeginInvoke(() => { status.Text = $"MP4 내보내는 중 {n}/{d.FrameCount}"; exportBtn.Text = $"취소 ({n}/{d.FrameCount})"; }), ct, out string error);
+                bool ok = WriteMp4(d, t, ff, outPath, n => BeginInvoke(() => { status.Text = $"MP4 내보내는 중 {n}/{t.Count}"; exportBtn.Text = $"취소 ({n}/{t.Count})"; }), ct, out string error);
                 if (!ok) { try { File.Delete(outPath); } catch { } }
                 double sec = sw.Elapsed.TotalSeconds;
                 BeginInvoke(() =>
                 {
                     if (ok) status.Text = $"저장됨: {outPath} ({sec:F1}초)";
                     else status.Text = ct.IsCancellationRequested ? "내보내기 취소됨" : "내보내기 실패: " + error;
-                    exportBtn.Text = "MP4 내보내기"; exportIcon.Color = Theme.Icon; exportIcon.Invalidate(); openIcon.Enabled = true; exportCts = null;
+                    exportBtn.Text = "MP4 내보내기"; exportIcon.Color = Theme.Icon; exportIcon.Invalidate(); openIcon.Enabled = true; fpsBtn.Enabled = true; exportCts = null;
                 });
             });
         }
@@ -410,8 +473,13 @@ namespace SfaViewer
         [STAThread]
         static void Main(string[] args)
         {
-            // 명령줄 내보내기: SfaViewer.exe --export <입력.sfa> <출력.mp4>
-            if (args.Length == 3 && args[0] == "--export") { Environment.Exit(MainForm.ExportCli(args[1], args[2])); return; }
+            // 명령줄 내보내기: SfaViewer.exe --export <입력.sfa> <출력.mp4> [트위닝,재생]
+            if ((args.Length == 3 || args.Length == 4) && args[0] == "--export")
+            {
+                int t = 24, p = 24;
+                if (args.Length == 4) { var a = args[3].Split(','); t = int.Parse(a[0]); p = int.Parse(a[1]); }
+                Environment.Exit(MainForm.ExportCli(args[1], args[2], t, p)); return;
+            }
             ApplicationConfiguration.Initialize(); Application.Run(new MainForm());
         }
     }

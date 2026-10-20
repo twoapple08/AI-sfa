@@ -146,6 +146,9 @@ def render_frame(seq, fr, W=1920, H=1080):
     if PARAMS['layer_order'] == 'reverse':
         layers = layers[::-1]
     aos = fr.findall('AO')
+    if not layers:
+        # 옛 형식(LayerDef 없음): 원래 앱은 오브젝트 전체를 그린다. 오브젝트의 LayerId 값마다 보이는 레이어를 만든다.
+        layers = [{'ID': v} for v in dict.fromkeys(a.get('LayerId', '0') for a in aos)]
     by_id = {a.get('ID'): (a.get('TypeId'), obj_points(a, geo), a) for a in aos}
     frs = fr.findall('FR')
     fr_owner = {}
@@ -261,7 +264,7 @@ def render_frame(seq, fr, W=1920, H=1080):
     for layer in layers:
         if layer.get('Visible') == 'false':
             continue
-        objs = sorted((a for a in aos if a.get('LayerId') == layer.get('ID')), key=lambda a: int(a.get('DrawOrder') or a.get('ID')))
+        objs = sorted((a for a in aos if a.get('LayerId', '0') == layer.get('ID')), key=lambda a: int(a.get('DrawOrder') or a.get('ID')))
         if PARAMS['groups']:
             groups = {}
             for a in objs:

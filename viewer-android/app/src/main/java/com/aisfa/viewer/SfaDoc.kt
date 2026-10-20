@@ -30,10 +30,12 @@ class SfaDoc {
     var oThick = FloatArray(0); var oGlowR = FloatArray(0); var oGlowT = FloatArray(0)
     var oGlowColor = IntArray(0); var oGlowA = FloatArray(0)
     var oPtStart = IntArray(0); var oPtCount = ByteArray(0); var oGroup = IntArray(0)
+    var oId = IntArray(0) // AO ID: 보간 때 앞뒤 프레임의 같은 오브젝트를 찾는다
 
     // 점
     var ptCount = 0
     var px = FloatArray(0); var py = FloatArray(0)
+    var pIdx = IntArray(0) // AP Index: 보간 때 점 대응
 
     // 채우기와 경계 조각
     var fillCount = 0
@@ -51,8 +53,8 @@ class SfaDoc {
         d.writeInt(objCount)
         d.write(oType, 0, objCount); wI(d, oColor, objCount); wI(d, oLayer, objCount); wI(d, oOrder, objCount)
         wF(d, oThick, objCount); wF(d, oGlowR, objCount); wF(d, oGlowT, objCount); wI(d, oGlowColor, objCount); wF(d, oGlowA, objCount)
-        wI(d, oPtStart, objCount); d.write(oPtCount, 0, objCount); wI(d, oGroup, objCount)
-        d.writeInt(ptCount); wF(d, px, ptCount); wF(d, py, ptCount)
+        wI(d, oPtStart, objCount); d.write(oPtCount, 0, objCount); wI(d, oGroup, objCount); wI(d, oId, objCount)
+        d.writeInt(ptCount); wF(d, px, ptCount); wF(d, py, ptCount); wI(d, pIdx, ptCount)
         d.writeInt(fillCount); wI(d, flColor, fillCount); wI(d, flSegStart, fillCount); wI(d, flSegCount, fillCount)
         d.writeInt(segCount); wI(d, sObj, segCount); wF(d, sT0, segCount); wF(d, sT1, segCount); wI(d, sCont, segCount)
         d.flush()
@@ -60,7 +62,7 @@ class SfaDoc {
 
     companion object {
         const val MAGIC = 0x53464131 // "SFA1"
-        const val VERSION = 2
+        const val VERSION = 3
 
         private fun wI(d: DataOutputStream, a: IntArray, n: Int) { for (i in 0 until n) d.writeInt(a[i]) }
         private fun wF(d: DataOutputStream, a: FloatArray, n: Int) { for (i in 0 until n) d.writeFloat(a[i]) }
@@ -80,8 +82,8 @@ class SfaDoc {
             s.oType = ByteArray(o).also { d.readFully(it) }
             s.oColor = rI(d, o); s.oLayer = rI(d, o); s.oOrder = rI(d, o)
             s.oThick = rF(d, o); s.oGlowR = rF(d, o); s.oGlowT = rF(d, o); s.oGlowColor = rI(d, o); s.oGlowA = rF(d, o)
-            s.oPtStart = rI(d, o); s.oPtCount = ByteArray(o).also { d.readFully(it) }; s.oGroup = rI(d, o)
-            val p = d.readInt(); s.ptCount = p; s.px = rF(d, p); s.py = rF(d, p)
+            s.oPtStart = rI(d, o); s.oPtCount = ByteArray(o).also { d.readFully(it) }; s.oGroup = rI(d, o); s.oId = rI(d, o)
+            val p = d.readInt(); s.ptCount = p; s.px = rF(d, p); s.py = rF(d, p); s.pIdx = rI(d, p)
             val f = d.readInt(); s.fillCount = f; s.flColor = rI(d, f); s.flSegStart = rI(d, f); s.flSegCount = rI(d, f)
             val g = d.readInt(); s.segCount = g; s.sObj = rI(d, g); s.sT0 = rF(d, g); s.sT1 = rF(d, g); s.sCont = rI(d, g)
             return s

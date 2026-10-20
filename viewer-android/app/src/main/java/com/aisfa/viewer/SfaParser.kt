@@ -31,8 +31,8 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
     private val lId = GI(); private val lVis = GB()
     private val oType = GB(); private val oColor = GI(); private val oLayer = GI(); private val oOrder = GI()
     private val oThick = GF(); private val oGR = GF(); private val oGT = GF(); private val oGC = GI(); private val oGA = GF()
-    private val oPS = GI(); private val oPC = GB(); private val oGroup = GI()
-    private val px = GF(); private val py = GF()
+    private val oPS = GI(); private val oPC = GB(); private val oGroup = GI(); private val oIdA = GI()
+    private val px = GF(); private val py = GF(); private val pIdx = GI()
     private val flColor = GI(); private val flSS = GI(); private val flSC = GI()
     private val sObjRaw = GI(); private val sCont = GI(); private val sT0 = GF(); private val sT1 = GF()
 
@@ -64,8 +64,8 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
         s.objCount = oType.n
         s.oType = oType.trim(); s.oColor = oColor.trim(); s.oLayer = oLayer.trim(); s.oOrder = oOrder.trim()
         s.oThick = oThick.trim(); s.oGlowR = oGR.trim(); s.oGlowT = oGT.trim(); s.oGlowColor = oGC.trim(); s.oGlowA = oGA.trim()
-        s.oPtStart = oPS.trim(); s.oPtCount = oPC.trim(); s.oGroup = oGroup.trim()
-        s.ptCount = px.n; s.px = px.trim(); s.py = py.trim()
+        s.oPtStart = oPS.trim(); s.oPtCount = oPC.trim(); s.oGroup = oGroup.trim(); s.oId = oIdA.trim()
+        s.ptCount = px.n; s.px = px.trim(); s.py = py.trim(); s.pIdx = pIdx.trim()
         s.fillCount = flColor.n; s.flColor = flColor.trim(); s.flSegStart = flSS.trim(); s.flSegCount = flSC.trim()
         s.segCount = sT0.n; s.sObj = sObjRaw.trim(); s.sT0 = sT0.trim(); s.sT1 = sT1.trim(); s.sCont = sCont.trim()
         return s
@@ -100,12 +100,12 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
                 oThick.add(attrs.float("ThicknessScale", 1f))
                 oGR.add(attrs.float("GlowRadius", 0f)); oGT.add(attrs.float("GlowThickness", 0f))
                 oGC.add(attrs.argb("GlowColor", -1)); oGA.add(attrs.float("GlowAlpha", 0f))
-                oPS.add(px.n); oPC.add(0); oGroup.add(local)
+                oPS.add(px.n); oPC.add(0); oGroup.add(local); oIdA.add(attrs.int("ID", local))
                 curObjLocal = local
             }
             "AP" -> {
                 if (curObjLocal >= 0) {
-                    px.add(attrs.float("X", 0f)); py.add(attrs.float("Y", 0f))
+                    px.add(attrs.float("X", 0f)); py.add(attrs.float("Y", 0f)); pIdx.add(attrs.int("Index", oPC.a[frameObj0 + curObjLocal].toInt()))
                     val gi = frameObj0 + curObjLocal
                     oPC.a[gi] = (oPC.a[gi] + 1).toByte()
                     apIdToLocal[attrs.long("ID", -1)] = curObjLocal
@@ -150,6 +150,13 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
             if (a != b) parent[a] = b
         }
         for (i in 0 until n) oGroup.a[frameObj0 + i] = find(i)
+        // 옛 형식(2023 이전 등)은 LayerDef가 없다. 원래 앱은 레이어 목록이 없으면 오브젝트 전체를 그린다(AOT-OBJECT-TWEEN-PAIR).
+        // 오브젝트의 LayerId 값마다(대개 0 하나) 보이는 레이어를 만들어 준다.
+        if (lId.n == frameLayer0) {
+            val seen = LinkedHashSet<Int>()
+            for (i in frameObj0 until oType.n) seen.add(oLayer.a[i])
+            for (v in seen) { lId.add(v); lVis.add(1) }
+        }
         fLS.add(frameLayer0); fLC.add(lId.n - frameLayer0)
         fOS.add(frameObj0); fOC.add(n)
         fFS.add(frameFill0); fFC.add(flColor.n - frameFill0)

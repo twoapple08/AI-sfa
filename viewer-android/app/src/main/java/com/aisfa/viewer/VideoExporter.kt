@@ -11,7 +11,8 @@ import java.io.FileDescriptor
  * 프레임을 하나씩 그려 H.264 MP4로 저장한다(휴대폰 내장 인코더).
  * 프레임 시각을 정확히 주려고 Surface 대신 YUV 버퍼 입력을 쓴다.
  */
-class VideoExporter(private val doc: SfaDoc, private val fps: Int = 24, private val width: Int = 1920) {
+class VideoExporter(private val doc: SfaDoc, private val tl: Timeline, private val width: Int = 1920) {
+    private val fps = tl.fps
     private val height = ((width * doc.ratio).toInt() + 1) and 1.inv()
 
     fun export(out: FileDescriptor, progress: (Int, Int) -> Unit, cancelled: () -> Boolean): Boolean {
@@ -23,11 +24,11 @@ class VideoExporter(private val doc: SfaDoc, private val fps: Int = 24, private 
         val pending = java.util.ArrayDeque<java.util.concurrent.Future<IntArray>>()
         var submitted = 0
         fun fill() {
-            while (submitted < doc.frameCount && pending.size < threads + 1) {
+            while (submitted < tl.count && pending.size < threads + 1) {
                 val f = submitted++
                 pending.add(pool.submit<IntArray> {
                     val b = bitmaps.get()!!
-                    renderers.get()!!.render(f, b)
+                    renderers.get()!!.render(tl, f, b)
                     IntArray(width * height).also { b.getPixels(it, 0, width, 0, 0, width, height) }
                 })
             }
@@ -50,7 +51,7 @@ class VideoExporter(private val doc: SfaDoc, private val fps: Int = 24, private 
                 if (!inputDone) {
                     val ii = codec.dequeueInputBuffer(10_000)
                     if (ii >= 0) {
-                        if (next >= doc.frameCount || cancelled()) {
+                        if (next >= tl.count || cancelled()) {
                             codec.queueInputBuffer(ii, 0, 0, ptsUs(next), MediaCodec.BUFFER_FLAG_END_OF_STREAM)
                             inputDone = true; if (cancelled()) ok = false
                         } else {
@@ -61,7 +62,7 @@ class VideoExporter(private val doc: SfaDoc, private val fps: Int = 24, private 
                             Yuv.fill(img, argb, width, height)
                             codec.queueInputBuffer(ii, 0, width * height * 3 / 2, ptsUs(next), 0)
                             next++
-                            progress(next, doc.frameCount)
+                            progress(next, tl.count)
                         }
                     }
                 }

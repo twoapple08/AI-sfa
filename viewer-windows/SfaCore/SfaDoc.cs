@@ -17,11 +17,13 @@ namespace SfaCore
         public int ObjCount;
         public byte[] OType; public int[] OColor, OLayer, OOrder; public float[] OThick, OGlowR, OGlowT, OGlowA; public int[] OGlowColor;
         public int[] OPtStart; public byte[] OPtCount; public int[] OGroup;
+        public int[] OId; // AO ID: 보간 때 앞뒤 프레임의 같은 오브젝트를 찾는다
         public int PtCount; public float[] Px, Py;
+        public int[] PIdx; // AP Index: 보간 때 점 대응
         public int FillCount; public int[] FlColor, FlSegStart, FlSegCount;
         public int SegCount; public int[] SObj, SCont; public float[] ST0, ST1;
 
-        const int Magic = 0x53464131, Version = 2;
+        const int Magic = 0x53464131, Version = 3;
 
         public void Write(Stream s)
         {
@@ -32,8 +34,8 @@ namespace SfaCore
             w.Write(LayerCount); WI(w, LId); foreach (var b in LVisible) w.Write(b);
             w.Write(ObjCount); w.Write(OType); WI(w, OColor); WI(w, OLayer); WI(w, OOrder);
             WF(w, OThick); WF(w, OGlowR); WF(w, OGlowT); WI(w, OGlowColor); WF(w, OGlowA);
-            WI(w, OPtStart); w.Write(OPtCount); WI(w, OGroup);
-            w.Write(PtCount); WF(w, Px); WF(w, Py);
+            WI(w, OPtStart); w.Write(OPtCount); WI(w, OGroup); WI(w, OId);
+            w.Write(PtCount); WF(w, Px); WF(w, Py); WI(w, PIdx);
             w.Write(FillCount); WI(w, FlColor); WI(w, FlSegStart); WI(w, FlSegCount);
             w.Write(SegCount); WI(w, SObj); WF(w, ST0); WF(w, ST1); WI(w, SCont);
         }
@@ -48,8 +50,8 @@ namespace SfaCore
             int l = d.LayerCount = r.ReadInt32(); d.LId = RI(r, l); d.LVisible = new bool[l]; for (int i = 0; i < l; i++) d.LVisible[i] = r.ReadBoolean();
             int o = d.ObjCount = r.ReadInt32(); d.OType = r.ReadBytes(o); d.OColor = RI(r, o); d.OLayer = RI(r, o); d.OOrder = RI(r, o);
             d.OThick = RF(r, o); d.OGlowR = RF(r, o); d.OGlowT = RF(r, o); d.OGlowColor = RI(r, o); d.OGlowA = RF(r, o);
-            d.OPtStart = RI(r, o); d.OPtCount = r.ReadBytes(o); d.OGroup = RI(r, o);
-            int p = d.PtCount = r.ReadInt32(); d.Px = RF(r, p); d.Py = RF(r, p);
+            d.OPtStart = RI(r, o); d.OPtCount = r.ReadBytes(o); d.OGroup = RI(r, o); d.OId = RI(r, o);
+            int p = d.PtCount = r.ReadInt32(); d.Px = RF(r, p); d.Py = RF(r, p); d.PIdx = RI(r, p);
             int f = d.FillCount = r.ReadInt32(); d.FlColor = RI(r, f); d.FlSegStart = RI(r, f); d.FlSegCount = RI(r, f);
             int g = d.SegCount = r.ReadInt32(); d.SObj = RI(r, g); d.ST0 = RF(r, g); d.ST1 = RF(r, g); d.SCont = RI(r, g);
             return d;
@@ -82,8 +84,8 @@ namespace SfaCore
             LI fBg = new(), fLS = new(), fLC = new(), fOS = new(), fOC = new(), fFS = new(), fFC = new();
             LI lId = new(); LB lVis = new();
             LB oType = new(); LI oColor = new(), oLayer = new(), oOrder = new(); LF oThick = new(), oGR = new(), oGT = new(), oGA = new(); LI oGC = new();
-            LI oPS = new(); LB oPC = new(); LI oGroup = new();
-            LF px = new(), py = new();
+            LI oPS = new(); LB oPC = new(); LI oGroup = new(); LI oId = new();
+            LF px = new(), py = new(); LI pIdx = new();
             LI flColor = new(), flSS = new(), flSC = new();
             LI sObj = new(), sCont = new(); LF sT0 = new(), sT1 = new();
             var aoIdToLocal = new Dictionary<long, int>(); var apIdToLocal = new Dictionary<long, int>();
@@ -104,6 +106,13 @@ namespace SfaCore
                     for (int k = 0; k < acFrom.Count; k++)
                         if (apIdToLocal.TryGetValue(acTo[k], out var to)) { int a = Find(acFrom[k]), b = Find(to); if (a != b) parent[a] = b; }
                     for (int i = 0; i < n; i++) oGroup.A[frameObj0 + i] = Find(i);
+                    // 옛 형식(2023 이전 등)은 LayerDef가 없다. 원래 앱은 레이어 목록이 없으면 오브젝트 전체를 그린다(AOT-OBJECT-TWEEN-PAIR).
+                    if (lId.N == frameLayer0)
+                    {
+                        var seen = new List<int>();
+                        for (int i = frameObj0; i < oType.N; i++) if (!seen.Contains(oLayer.A[i])) seen.Add(oLayer.A[i]);
+                        foreach (var v in seen) { lId.Add(v); lVis.Add(1); }
+                    }
                     fLS.Add(frameLayer0); fLC.Add(lId.N - frameLayer0); fOS.Add(frameObj0); fOC.Add(n); fFS.Add(frameFill0); fFC.Add(flColor.N - frameFill0);
                     curObj = -1; curApOwner = -1;
                     continue;
@@ -128,12 +137,12 @@ namespace SfaCore
                         oLayer.Add((int)L(x.GetAttribute("LayerId"), 0)); oOrder.Add((int)L(x.GetAttribute("DrawOrder"), L(x.GetAttribute("ID"), 0)));
                         oThick.Add(F(x.GetAttribute("ThicknessScale"), 1)); oGR.Add(F(x.GetAttribute("GlowRadius"), 0)); oGT.Add(F(x.GetAttribute("GlowThickness"), 0));
                         oGC.Add((int)L(x.GetAttribute("GlowColor"), -1)); oGA.Add(F(x.GetAttribute("GlowAlpha"), 0));
-                        oPS.Add(px.N); oPC.Add(0); oGroup.Add(local); curObj = local; break;
+                        oPS.Add(px.N); oPC.Add(0); oGroup.Add(local); oId.Add((int)L(x.GetAttribute("ID"), local)); curObj = local; break;
                     }
                     case "AP":
                         if (curObj >= 0)
                         {
-                            px.Add(F(x.GetAttribute("X"), 0)); py.Add(F(x.GetAttribute("Y"), 0));
+                            px.Add(F(x.GetAttribute("X"), 0)); py.Add(F(x.GetAttribute("Y"), 0)); pIdx.Add((int)L(x.GetAttribute("Index"), oPC.A[frameObj0 + curObj]));
                             oPC.A[frameObj0 + curObj]++; apIdToLocal[L(x.GetAttribute("ID"), -1)] = curObj; curApOwner = curObj;
                         }
                         break;
@@ -156,8 +165,8 @@ namespace SfaCore
             d.LayerCount = lId.N; d.LId = lId.Trim(); d.LVisible = new bool[lVis.N]; for (int i = 0; i < lVis.N; i++) d.LVisible[i] = lVis.A[i] != 0;
             d.ObjCount = oType.N; d.OType = oType.Trim(); d.OColor = oColor.Trim(); d.OLayer = oLayer.Trim(); d.OOrder = oOrder.Trim();
             d.OThick = oThick.Trim(); d.OGlowR = oGR.Trim(); d.OGlowT = oGT.Trim(); d.OGlowColor = oGC.Trim(); d.OGlowA = oGA.Trim();
-            d.OPtStart = oPS.Trim(); d.OPtCount = oPC.Trim(); d.OGroup = oGroup.Trim();
-            d.PtCount = px.N; d.Px = px.Trim(); d.Py = py.Trim();
+            d.OPtStart = oPS.Trim(); d.OPtCount = oPC.Trim(); d.OGroup = oGroup.Trim(); d.OId = oId.Trim();
+            d.PtCount = px.N; d.Px = px.Trim(); d.Py = py.Trim(); d.PIdx = pIdx.Trim();
             d.FillCount = flColor.N; d.FlColor = flColor.Trim(); d.FlSegStart = flSS.Trim(); d.FlSegCount = flSC.Trim();
             d.SegCount = sT0.N; d.SObj = sObj.Trim(); d.ST0 = sT0.Trim(); d.ST1 = sT1.Trim(); d.SCont = sCont.Trim();
             return d;

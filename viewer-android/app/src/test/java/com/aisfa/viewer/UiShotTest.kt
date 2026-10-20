@@ -33,7 +33,8 @@ class UiShotTest {
     @Test fun screens() {
         val dir = System.getenv("SFA_TEST_DIR").takeUnless { it.isNullOrEmpty() } ?: return
         val out = File(System.getenv("SFA_OUT_DIR").takeUnless { it.isNullOrEmpty() } ?: return).apply { mkdirs() }
-        for (q in listOf("w411dp-h891dp-port-xxhdpi", "w891dp-h411dp-land-xxhdpi")) {
+        // 뒤의 셋은 멀티윈도우(화면 반)·팝업 창·낮은 가로 창
+        for (q in listOf("w411dp-h891dp-port-xxhdpi", "w891dp-h411dp-land-xxhdpi", "w411dp-h430dp-port-xxhdpi", "w300dp-h480dp-port-xhdpi", "w620dp-h300dp-land-xxhdpi")) {
             RuntimeEnvironment.setQualifiers(q)
             val home = Robolectric.buildActivity(MainActivity::class.java).setup().get()
             idle(300); shot(home, File(out, "home_$q.png"))

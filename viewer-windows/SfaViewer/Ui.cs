@@ -15,6 +15,8 @@ namespace SfaViewer
 
         public static Font Bold(float pt) => new("Segoe UI", pt, FontStyle.Bold);
         public static Font Regular(float pt) => new("Segoe UI", pt);
+        /// <summary>가장 굵은 제목 글꼴(사용자 요청: SFA VIEWER 굵게). 없으면 Segoe UI 굵게.</summary>
+        public static Font Black(float pt) { var f = new Font("Segoe UI Black", pt, FontStyle.Bold); return f.Name == "Segoe UI Black" ? f : Bold(pt); }
 
         public static GraphicsPath Round(RectangleF r, float rad)
         {

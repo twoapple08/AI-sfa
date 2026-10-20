@@ -12,8 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger
  * 재생용 프레임을 여러 스레드로 미리 그려 JPEG로 디스크에 저장한다.
  * 오브젝트가 많은 프레임은 한 장 그리는 데 수백 ms~수 초가 걸려 실시간 재생이 멈춘다(사용자 보고).
  * 미리 그려 두면 재생은 JPEG 디코딩(수 ms)만 하면 된다. 캐시는 다음에 같은 파일을 열 때도 쓴다.
+ * 프레임 번호는 시간표([Timeline])의 출력 번호다. 보간하면 원본보다 많다.
  */
-class FrameCache(private val doc: SfaDoc, private val dir: File, val width: Int,
+class FrameCache(private val doc: SfaDoc, val tl: Timeline, private val dir: File, val width: Int,
                  threads: Int = maxOf(1, Runtime.getRuntime().availableProcessors() - 1)) {
     val height = maxOf(2, (width * doc.ratio).toInt())
     private val state = ConcurrentHashMap<Int, Int>()   // 1 = 그리는 중, 2 = 완료
@@ -26,7 +27,7 @@ class FrameCache(private val doc: SfaDoc, private val dir: File, val width: Int,
 
     init {
         dir.mkdirs()
-        for (f in 0 until doc.frameCount) if (file(f).exists()) { state[f] = 2; done.incrementAndGet() }
+        for (f in 0 until tl.count) if (file(f).exists()) { state[f] = 2; done.incrementAndGet() }
     }
 
     private fun file(f: Int) = File(dir, "$f.jpg")
@@ -35,8 +36,8 @@ class FrameCache(private val doc: SfaDoc, private val dir: File, val width: Int,
 
     /** start 프레임부터 끝까지, 이어서 처음부터 start 전까지 아직 없는 프레임을 그린다. */
     fun prefetchFrom(start: Int) {
-        for (k in 0 until doc.frameCount) {
-            val f = (start + k) % doc.frameCount
+        for (k in 0 until tl.count) {
+            val f = (start + k) % tl.count
             if (state.putIfAbsent(f, 1) != null) continue
             pool.execute { renderOne(f) }
         }
@@ -46,7 +47,7 @@ class FrameCache(private val doc: SfaDoc, private val dir: File, val width: Int,
         if (stopped.get()) { state.remove(f); return }
         try {
             val bmp = bitmaps.get()!!
-            renderers.get()!!.render(f, bmp)
+            renderers.get()!!.render(tl, f, bmp)
             val tmp = File(dir, "$f.tmp")
             tmp.outputStream().buffered().use { bmp.compress(Bitmap.CompressFormat.JPEG, 92, it) }
             tmp.renameTo(file(f))
