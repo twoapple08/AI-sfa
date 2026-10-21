@@ -65,6 +65,10 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - 사용자 답(2026-10-21 밤): P1 노트북 실행함. Colab 유료 GPU(A100·L4) 못 씀·구매 불가 → **무료 T4 기준**으로 설계. AMASS 가입함 → `tools/colab_amass_build.py` → Drive `Colab Notebooks/AMASS_받기_colab.ipynb`(Colab 비밀값 AMASS_USER/PASS, download.is.tue.mpg.de POST; 잘못된 계정이면 401 확인. 파일 경로는 후보를 시도). SMPL-X 사이트 별도 가입 필요(안내함). Adobe 계정 있음 → Mixamo는 PC 브라우저에서 받는 방식이 필요(대기). 자동 태그 남은 112개 재개(사용자에게 설명, 반대 시 중지). HF 토큰은 필요할 때 안내.
 - CMU 변환본 Drive 백업 `02_분석자료/모캡_CMU/cmu_npz30.tgz`(387MB) 확인. LaFAN1(276분)·Bandai(234분) 변환본도 Drive 같은 폴더 `mocap_lafan1_bandai_npz30.tgz`(223MB)에 백업(사용자 확인).
 
+- P1 결과(2026-10-21 밤): 3모델 40구간 평가 — RTMW-x 검출 0.99·합의 0.73, ViTPose+-H 0.66·0.73, YOLO11x 0.46·0.67. 표본 그림 확인 결과 RTMW는 사람 없는 장면(상자 대체=전체 화면)에서도 거짓 뼈대를 그림 → **RTMW-x 선택(133점, 손·발 포함), 재추출은 대체 상자 없이 검출 상자만 + 시간 보간.** Sapiens2-1B는 T4 fp32에서 구간당 약 6분이고 첫 4구간 합의 0.36이라 제외.
+- AMASS: 사용자 Colab이 Drive `02_분석자료/모캡_AMASS/`에 SMPL-X 모델 + ACCAD·HDM05·KIT·BMLmovi·BMLrub·EyesJapanDataset·Transitions·SFU(약 13.6GB) 받음(나머지 계속 받는 중일 수 있음). `tools/amass_joints.py`(관절 회귀+순운동학, 22관절, Y 위, 30fps; ACCAD 252개 검증) 서버 변환 중 → scratch `amass/npz30`.
+- P2: v1은 초당 약 1프레임(검출기 CPUExecutionProvider). v2(검출 6프레임마다, RAFT 반복 6, 묶음 16, 나카무라·nian41 우선)는 영상당 약 130초(3~5fps, 전체 약 20시간). v3(정지 프레임 광류 생략 약 20%, 시간 내역 출력)는 Drive `P2_카메라광류_colab_v3.ipynb` — 세션이 끊기면 v3로 재개 안내함.
+
 **다음 할 일:** 사용자가 P1 노트북을 돌리면 Drive `02_분석자료/P1_포즈비교/`를 rclone으로 받아 `p1_pose_eval.py` → 표본 그림 소수 확인 → 모델 선택 → 전체 재추출 노트북. 그동안 서버에서 CMU 변환 완료·격투 동작 정리, P2 광류·P4 돌 파편 측정 준비.
 
 **사용자 확인 대기:**
