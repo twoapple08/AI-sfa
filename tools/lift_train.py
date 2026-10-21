@@ -207,7 +207,8 @@ def main():
                   f"{(time.time() - t0) / 60:.1f}분", flush=True)
             if not a.test:
                 torch.save({"model": model.state_dict(), "opt": opt.state_dict(), "sched": sched.state_dict(),
-                            "step": step + 1, "win": win, "joints": JN}, ck)
+                            "step": step + 1, "win": win, "joints": JN}, ck + ".tmp")
+                os.replace(ck + ".tmp", ck)  # 복사 중 반쯤 쓴 파일을 읽지 않도록
 
 
 if __name__ == "__main__":
