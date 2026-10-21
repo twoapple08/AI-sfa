@@ -17,7 +17,7 @@ import os
 
 from colab_p1_build import ROOT, code, md
 
-VIDEO_DIRS = ["nian41", "optical-core", "riooo", "yukina_kosaka", "yutaka_nakamura_디지털"]
+VIDEO_DIRS = ["yutaka_nakamura_디지털", "nian41", "riooo", "yukina_kosaka", "optical-core"]  # 몸 학습 우선순위 순
 
 
 def build():
@@ -53,7 +53,11 @@ raft = raft_large(weights=Raft_Large_Weights.C_T_SKHT_V2).to(DEV).eval()
 from rtmlib import Wholebody
 DET = Wholebody(mode='performance', backend='onnxruntime', device=DEV).det_model
 DET.score_thr = 0.3
+try: print('검출기 장치:', DET.session.get_providers()[0])
+except Exception: pass
 H = 368  # RAFT 입력 높이(8의 배수). 너비는 비율대로 8의 배수
+DET_EVERY = 6  # 캐릭터 상자는 6프레임마다 검출하고 사이 프레임은 앞 상자를 10퍼센트 넓혀 쓴다
+UPDATES = 6  # RAFT 반복 횟수(기본 12). 전역 카메라 추정에는 6으로 충분
 
 def prep(ims, w):
     t = torch.from_numpy(np.stack([cv2.cvtColor(cv2.resize(i, (w, H)), cv2.COLOR_BGR2RGB) for i in ims]))
@@ -80,15 +84,19 @@ def run(src, dst):
     ok, prev = cap.read()
     if not ok: return 0
     h0, w0 = prev.shape[:2]; w = int(round(w0 * H / h0 / 8)) * 8
-    def mask(im):
-        b = np.asarray(DET(im)).reshape(-1, 4)
+    last = [None]
+    def mask(im, i):
+        if i %% DET_EVERY == 0 or last[0] is None:
+            b = np.asarray(DET(im)).reshape(-1, 4)
+            c = (b[:, :2] + b[:, 2:]) / 2; hw = (b[:, 2:] - b[:, :2]) * 0.55
+            last[0] = np.concatenate([c - hw, c + hw], 1)
         mk = np.ones((H, w), bool)
-        for x1, y1, x2, y2 in b * [w / w0, H / h0, w / w0, H / h0]:
+        for x1, y1, x2, y2 in last[0] * [w / w0, H / h0, w / w0, H / h0]:
             mk[max(0, int(y1)):int(y2) + 1, max(0, int(x1)):int(x2) + 1] = False
-        return mk, len(b)
-    pm, n0 = mask(prev); nb = [n0]
+        return mk, len(last[0])
+    pm, n0 = mask(prev, 0); nb = [n0]; fi = 1
     cam = [[0] * 6]; grid = [np.zeros((9, 16, 2), np.float16)]
-    B = 8; done_ = False
+    B = 16; done_ = False
     while not done_:
         cur = []
         while len(cur) < B:
@@ -96,10 +104,10 @@ def run(src, dst):
             if not ok: done_ = True; break
             cur.append(im)
         if not cur: break
-        ms = [mask(im) for im in cur]
+        ms = [mask(im, fi + k) for k, im in enumerate(cur)]; fi += len(cur)
         a = prep([prev] + cur[:-1], w); b = prep(cur, w)
         with torch.no_grad():
-            fl = raft(a, b)[-1]
+            fl = raft(a, b, num_flow_updates=UPDATES)[-1]
         g = F.adaptive_avg_pool2d(fl, (9, 16)).permute(0, 2, 3, 1).cpu().numpy() / w
         fl = fl.permute(0, 2, 3, 1).cpu().numpy()
         masks = [pm] + [m for m, _ in ms]
