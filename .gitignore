@@ -5,3 +5,4 @@ __pycache__/
 examples/priority_probes_v2/AI-sfa-priority-tests-v2.zip
 data/sakuga/tag_types.json
 data/sakuga/artist_profiles.jsonl
+.cache_sakuga/
