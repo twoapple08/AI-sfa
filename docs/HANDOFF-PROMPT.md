@@ -37,7 +37,9 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
   7. 리그는 시안 A(머리 1 : 키 6.5, 균형형)로 정했다. 시안 그림은 scratch의 `rig/rig2.py`로 다시 만들 수 있다.
   8. 뼈대 재료
      - nian41: 서버 CPU에서 포즈 추론 중이다(`tools/pose_extract.py --src … --stride 2`).
-     - 나카무라 186개: 사용자가 Google Colab 무료 GPU로 돌린다(`tools/colab_pose_nakamura.ipynb`). 결과는 사용자가 Drive에서 zip을 받아 채팅에 첨부한다.
+     - 나카무라 186개: **완료(2026-10-21, Colab T4, yolo11m-pose, 모든 프레임).** 결과는 Drive `AI-sfa/02_분석자료/포즈_claude/nakamura_pose_yolo11m.zip`(Claude가 볼 수 있는 백업, 8.9MB)이다.
+       - 186파일, 118,176프레임. 사람이 검출된 프레임은 44.9%다(영상별 중앙값 0.43, 0.2 미만 영상 36개, 0.6 이상 46개). 한 프레임에 1명 41k, 2명 9.3k이고, conf 중앙값은 0.69다.
+     - nian41 48개: 사용자가 Colab으로 돌리는 중이다(`tools/colab_pose_nian41.ipynb`). 서버 CPU 추론은 사용자 지시로 멈췄다(11개분은 scratch에 있다).
   9. 이펙트 세기는 타격 세기에 따라 단계를 둔다(가벼움: 스미어·속도선 / 중간: + 타격 섬광·먼지 / 결정타: + 임팩트 프레임·충격파).
 
 ## 0. 현재 우선순위
