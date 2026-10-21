@@ -22,17 +22,18 @@ STEP = 1.0
 
 
 def frames(path, step):
+    """앞에서부터 차례로 읽어 step초마다 한 장(cap.set 탐색은 키프레임이 드문 영상에서 매우 느렸다)."""
     cap = cv2.VideoCapture(path)
     fps = cap.get(cv2.CAP_PROP_FPS) or 24
-    n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    t = 0.0
-    while t * fps < n:
-        cap.set(cv2.CAP_PROP_POS_FRAMES, int(t * fps))
-        ok, f = cap.read()
-        if not ok:
-            break
-        yield t, cv2.cvtColor(f, cv2.COLOR_BGR2RGB)
-        t += step
+    i, nxt = 0, 0.0
+    while cap.grab():
+        t = i / fps
+        if t + 1e-6 >= nxt:
+            ok, f = cap.retrieve()
+            if ok:
+                yield round(nxt, 3), cv2.cvtColor(f, cv2.COLOR_BGR2RGB)
+            nxt += step
+        i += 1
     cap.release()
 
 
