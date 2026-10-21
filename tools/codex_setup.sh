@@ -32,9 +32,12 @@ for h in homes:
     if not os.path.isdir(h):
         continue
     p = pathlib.Path(h) / ".config/rclone"
-    p.mkdir(parents=True, exist_ok=True)
-    (p / "rclone.conf").write_text(text)
-    os.chmod(p / "rclone.conf", 0o600)
+    try:
+        p.mkdir(parents=True, exist_ok=True)
+        (p / "rclone.conf").write_text(text)
+        os.chmod(p / "rclone.conf", 0o600)
+    except PermissionError:
+        continue  # 이 사용자로는 쓸 수 없는 홈(예: agent로 돌 때 /root)은 건너뛴다
     try:
         u = pwd.getpwnam(pathlib.Path(h).name) if h != "/root" else pwd.getpwnam("root")
         for q in (pathlib.Path(h) / ".config", p, p / "rclone.conf"):
@@ -42,6 +45,8 @@ for h in homes:
     except (KeyError, PermissionError):
         pass
     print("rclone 설정:", p / "rclone.conf")
+if raw and len(raw) < 200:
+    print("경고: 값이 너무 짧다(진짜 값은 약 720자). 도메인 제한 비밀값의 자리표시 값일 수 있다 → 일반 환경 변수로 넣을 것")
 print("rclone 설정 완료")
 EOF
 rclone lsd gdrive:AI-sfa 2>/dev/null | head -3
