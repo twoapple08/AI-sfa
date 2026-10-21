@@ -3,6 +3,7 @@ package com.aisfa.creator
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Looper
+import com.aisfa.creator.gen.EffectLib
 import com.aisfa.creator.gen.Generator
 import com.aisfa.creator.gen.MotionLib
 import com.aisfa.creator.gen.Request
@@ -37,7 +38,8 @@ class UiShotTest {
     @Test fun screens() {
         val out = File(System.getenv("SFA_OUT_DIR").takeUnless { it.isNullOrEmpty() } ?: return).apply { mkdirs() }
         val lib = File("src/main/assets/motion_lib.txt").inputStream().use { MotionLib.read(it) }
-        val g = Generator.generate(lib, Request("1v1", 12, 24, 24, 1, false))
+        val fx = File("src/main/assets/effects.txt").takeIf { it.exists() }?.inputStream()?.use { EffectLib.read(it) } ?: EffectLib.EMPTY
+        val g = Generator.generate(lib, fx, Request("1v1", 12, 24, 24, 1, false))
         val sfa = File(out, "ui_sample.sfa").apply { outputStream().use { Generator.writeSfa(g, 0 until g.frameCount, "sample", it) } }
         val d = sfa.inputStream().use { SfaParser().parse(it) }
         val fb = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888).also { FrameRenderer(d).render(53, it) }

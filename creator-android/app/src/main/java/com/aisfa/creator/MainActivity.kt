@@ -40,6 +40,7 @@ import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
+import com.aisfa.creator.gen.EffectLib
 import com.aisfa.creator.gen.Generated
 import com.aisfa.creator.gen.Generator
 import com.aisfa.creator.gen.MotionLib
@@ -62,6 +63,7 @@ class MainActivity : Activity() {
     private val ui = Handler(Looper.getMainLooper())
     private val io = Executors.newSingleThreadExecutor()
     private val lib by lazy { assets.open("motion_lib.txt").use { MotionLib.read(it) } }
+    private val fx by lazy { runCatching { assets.open("effects.txt").use { EffectLib.read(it) } }.getOrDefault(EffectLib.EMPTY) }
 
     // 플레이어 화면 부품: 회전할 때 다시 배치만 하고 새로 만들지 않는다
     private lateinit var view: FrameView
@@ -487,7 +489,7 @@ class MainActivity : Activity() {
         io.execute {
             try {
                 val t0 = SystemClock.elapsedRealtime()
-                val g: Generated = Generator.generate(lib, req)
+                val g: Generated = Generator.generate(lib, fx, req)
                 val stamp = SimpleDateFormat("MMdd_HHmmss", Locale.ROOT).format(Date())
                 val name = replace?.name ?: "1v1_$stamp"
                 val dir = replace?.dir ?: File(gensDir, stamp + "_" + req.seed)

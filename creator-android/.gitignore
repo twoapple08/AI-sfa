@@ -3,3 +3,6 @@ local.properties
 build/
 app/build/
 *.apk
+
+# 나카무라 그림에서 딴 이펙트 형태(공개 저장소 금지, Drive 07_도구/SFA크리에이터/에서 받는다)
+app/src/main/assets/effects.txt

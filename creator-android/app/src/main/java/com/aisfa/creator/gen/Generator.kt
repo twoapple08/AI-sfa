@@ -22,7 +22,7 @@ object Generator {
     /** NAI식 태그(쉼표 구분)를 읽는다. 지금은 1v1(맨손 둘, 배경·도구 없음)만 만든다. */
     fun tags(prompt: String) = prompt.split(',', '\n').map { it.trim().lowercase() }.filter { it.isNotEmpty() }
 
-    fun generate(lib: MotionLib, req: Request): Generated {
+    fun generate(lib: MotionLib, fx: EffectLib, req: Request): Generated {
         val notes = ArrayList<String>()
         val t = tags(req.prompt)
         val unknown = t.filter { it !in SUPPORTED }
@@ -30,7 +30,7 @@ object Generator {
         if (unknown.isNotEmpty()) notes += "아직 지원하지 않는 태그는 무시했습니다: ${unknown.joinToString(", ")}"
         val base = req.seconds * 24
         val ch = Choreo(lib, req.seed, base).run()
-        return Generated(req, Scene(ch, req.play, req.dark, req.seed), notes)
+        return Generated(req, Scene(ch, fx, req.play, req.dark, req.seed), notes)
     }
 
     /** 프레임 구간을 SFA(ZIP 안 XML 하나)로 쓴다. 형식은 원래 앱 내보내기와 같은 요소·속성 이름을 쓴다(sfa.py validate 기준). */
@@ -86,6 +86,16 @@ object Generator {
                     }
                 }
                 w.append("    </AO>\n")
+            }
+            // 채우기: 윤곽(0 바깥, 1… 구멍)마다 경계 곡선을 처음→끝(0–1)으로 잇는다
+            for (fl in fr.fills) {
+                w.append("    <FR Color=\"").append(fl.color.toString()).append("\">\n")
+                for ((ci, ids2) in fl.contours.withIndex()) for (oid in ids2) {
+                    val p0 = ids[oid] ?: continue
+                    w.append("      <FS Kind=\"0\" ObjId=\"").append(oid.toString()).append("\" StartPtId=\"").append(p0.toString())
+                        .append("\" EndPtId=\"").append((p0 + 2).toString()).append("\" StartT=\"0.0\" EndT=\"1.0\" Contour=\"").append(ci.toString()).append("\" />\n")
+                }
+                w.append("    </FR>\n")
             }
             check(ptId > start || fr.objs.isEmpty())
             w.append("  </Frame>\n")
