@@ -48,6 +48,10 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 1. **GPT 공백 확인 H01–H04 결과 받기:** 프롬프트는 `docs/GPT-PROMPT-H01-H04-2026-10-21.md`(A·B 두 창)이다. Codex가 rclone으로 Drive에서 받아 보는 방식으로 돌리고 있다. 2026-10-21 오전 기준으로 H03·H04는 94개 중 17개 완료, 11개 부분, 66개 미검토이고, GPT 사용 한도 때문에 12:39 이후 재개된다. 재개할 때는 '10개씩 끊어서' 지시를 쓴다.
    - 결과는 `ai_results/gpt_H0N_2026-10-21.csv`로 저장한다. 부분·미검토 행은 저장하지 않거나 특이사항에 '열람불가'로 둔다.
+   - **2026-10-21 16:30 KST 현황:** 저장 122/186(H01 45, H02 31, H03 24, H04 22). GPT는 사용량 한도로 **18:32 KST부터** 다시 쓸 수 있다.
+     - Codex가 Drive에서 받다가 403 RATE_LIMIT_EXCEEDED가 났다(rclone 공용 client_id).
+     - 그래서 남은 영상을 파트별 zip으로 사용자에게 주었다. Codex에는 "Drive에서 받지 말고 첨부 zip을 써"라는 지시와 함께 첨부한다.
+     - 남은 것: H03·H04 48개(167784·174312는 판정 정리만 남음), H01·H02 16개. 프롬프트는 `docs/GPT-PROMPT-H03H04-REST-2026-10-21.md`, `docs/GPT-PROMPT-H01H02-REST-2026-10-21.md`, 진행 기록은 `docs/GPT-H03-H04-PROGRESS-2026-10-21.md`.
    - `element_aggregate.py`(분류 칸 안에서 이름을 찾고, 열람불가는 뺀다)와 `element_rank.py`(측정상태·GPT_확인영상·GPT_나옴영상 칸)가 그대로 읽는다. 확인 목록은 `judge_lists/gpt_gapcheck_checklist_2026-10-21.csv`(166개)다.
 2. **CLIP:** 임베딩(`tools/clip_embed.py`, ViT-B-16, 1초 간격, 전체 화면 + 2×2 확대)이 scratch `clip/`에서 돌고 있다. G15–G17 55개를 먼저 처리하는 순서다. 컨테이너가 재시작되면 죽으므로 이어서 다시 실행한다.
    - 점수는 `tools/clip_score.py`가 낸다. 기준 문장과의 차이를 요소별 z 점수로 바꾼다.
