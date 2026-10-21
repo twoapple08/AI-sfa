@@ -16,7 +16,7 @@
 몸동작 규칙(riooo·optical-core·yukina 몸동작 제외)은 판정의 동작 칸을 이 애니메이터에서 읽지 않는 것으로 적용한다.
 
 판정만 있는 영상(자동 탐지 없음, 2026-10-21 추가):
-- GPT G15–G17·H01–H04(이름:초:주|배): 비율 = 초 × 화면 가중(주 1.0, 배 0.5) / 길이. GPT 추정값이다.
+- GPT G15–G17·H01–H04(이름:초:주|배, 분류 칸 안에서 이름을 찾는다. '열람불가' 행은 뺀다): 비율 = 초 × 화면 가중(주 1.0, 배 0.5) / 길이. GPT 추정값이다.
 - 나머지 판정(G01–G04·G07·G08·G13·G14·Claude)은 나옴/안 나옴만 있다. 비율은 같은 그룹의 탐지 영상 중 그 요소가 나온 영상의
   비율 중앙값으로 메운다(대입값). 판정 어휘는 TERM으로 트리 요소에 붙인다.
 - 상위 요소(0·1단계)의 판정 비율은 자기와 자손 가운데 최대값이다.
@@ -133,19 +133,28 @@ def is_desc(k, n, parent):
 
 def judgments(tree, anim):
     """post_id -> {요소번호: ('초', 비율) | ('있음', None)} (판정 파일 전체)."""
-    num = {}
+    num, by_cat = {}, {}
+    parent = {r['번호']: r['부모번호'] for r in tree}
+    name = {r['번호']: r['요소'] for r in tree}
     for r in tree:
         num.setdefault(r['요소'], r['번호'])
+        k = r['번호']
+        while parent[k]:
+            k = parent[k]
+        by_cat[(name[k], r['요소'])] = r['번호']
+
     def find(term, col=None):
         if (col, term) in TERM_BY_COL:
             return TERM_BY_COL[(col, term)]
-        return num.get(TERM.get(term, term))
+        return by_cat.get((col, term)) or num.get(TERM.get(term, term))
 
     out = {}
-    files = glob.glob(os.path.join(KB, 'action_counts', '[0-9]*.csv')) + glob.glob(os.path.join(KB, 'ai_results', 'gpt_G*.csv'))
+    files = glob.glob(os.path.join(KB, 'action_counts', '[0-9]*.csv')) + glob.glob(os.path.join(KB, 'ai_results', 'gpt_[GH]*.csv'))
     for f in files:
         for r in csv.DictReader(open(f, encoding='utf-8-sig')):
             pid = r['post_id']
+            if '열람불가' in (r.get('특이사항') or ''):
+                continue
             d = out.setdefault(pid, {})
             for col in JUDGE_COLS:
                 if col.startswith('동작') and anim.get(pid) in BODY_SKIP:
@@ -157,8 +166,12 @@ def judgments(tree, anim):
             dur = float(r.get('길이초') or 0)
             for col in SEC_COLS:
                 for t in filter(None, (x.strip() for x in (r.get(col) or '').split(';'))):
-                    name, sec, scr = t.rsplit(':', 2)
-                    n = find(name, col)
+                    if t.count(':') < 2:
+                        continue
+                    nm, sec, scr = t.rsplit(':', 2)
+                    if not sec.isdigit():
+                        continue
+                    n = find(nm, col)
                     if n and dur:
                         v = min(1.0, float(sec) * W_SCREEN.get(scr, 0.5) / dur)
                         old = d.get(n)

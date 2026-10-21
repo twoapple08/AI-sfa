@@ -1,6 +1,6 @@
 """요소 순위 초안: element_aggregate.py 결과로 요소마다 충분 / 보충 필요 / 공백을 정하고 부족분 순위를 매긴다.
 
-사용: python tools/element_rank.py <집계 csv> <출력 csv>
+사용: python tools/element_rank.py <집계 csv> <출력 csv> [CLIP 점수 npz(clip_score.py)]
 기준(docs/GAP-MAP-2026-10-20.md와 같은 건수 기준):
 - 나카무라 나온 영상 수 N = 구작 + 신작 + 경계·미상(탐지는 기대 1초 이상, 판정은 '있음').
 - 공백: N 0–2. 보충 필요: N 3–9, 또는 N ≥ 10이어도 한 시기에만 나옴(구작 전용·신작 전용). 충분: 나머지.
@@ -13,11 +13,22 @@
 - 2차 움직임과 장비·의상은 순위 포함 여부가 사용자 미정이라 '포함 미정'으로 표시한다.
 - 육안 보정(2026-10-21): auto_detect/visual_check_2026-10-21.csv가 있으면 N = (N − 태그로 나온 영상) + 태그로 나온 영상 × 정밀도.
   표본은 태그로 나온 나카무라 영상에서만 뽑았으므로 판정으로 센 몫은 그대로 둔다. 표본이 6개 이하라 정밀도 오차가 크다.
+- 측정상태(2026-10-21): 아래 순서로 처음 맞는 것을 적는다.
+  1. 확정(GPT 확인): 공백 확인 목록(judge_lists/gpt_gapcheck_checklist)에 있고, H01–H04가 나카무라 186개 중 90% 이상을 봤다('열람불가' 행 제외).
+     GPT가 일부만 봤으면 'GPT 부분 확인 n/186'.
+  2. 확정(육안): 육안 정밀도 0.67 이상.
+  3. 확정(채점): 신뢰도 약함이 아니다(채점 AUC 0.80 이상).
+  4. CLIP 보조(보정 전): CLIP 점수 npz가 있고 그 요소가 있다. 나카무라 영상 중 z ≥ CLIP_Z인 프레임이 2개 이상인 영상 수를 'CLIP_나카무라영상'에 적는다.
+     임계는 아직 G15–G17로 보정하지 않았다.
+  5. 미확정.
 """
 import csv
 import os
 import sys
 
+KB = os.path.join(os.path.dirname(__file__), '..', 'data', 'style_kb')
+CLIP_Z = 2.0
+N_NAK = 186
 VISUAL = os.path.join(os.path.dirname(__file__), '..', 'data', 'style_kb', 'auto_detect', 'visual_check_2026-10-21.csv')
 SUPP = ['nian41', 'optical-core', 'yukina_kosaka', 'riooo']
 EFFECT_CATS = {'원소 이펙트', '충격·파괴', '연출'}
@@ -35,8 +46,46 @@ def seen(v):
     return int(v.split('/')[0]) if v else 0
 
 
+def gpt_check():
+    """공백 확인(H01–H04): (확인한 나카무라 영상 집합, {요소번호: 나온 영상 집합}, 확인 목록 요소번호 집합)."""
+    import glob
+    ck = os.path.join(KB, 'judge_lists', 'gpt_gapcheck_checklist_2026-10-21.csv')
+    if not os.path.exists(ck):
+        return set(), {}, set()
+    key = {(r['분류'], r['요소']): r['번호'] for r in csv.DictReader(open(ck, encoding='utf-8'))}
+    checked, present = set(), {}
+    for f in glob.glob(os.path.join(KB, 'ai_results', 'gpt_H*.csv')):
+        for r in csv.DictReader(open(f, encoding='utf-8-sig')):
+            if '열람불가' in (r.get('특이사항') or ''):
+                continue
+            checked.add(r['post_id'])
+            for (cat, nm), n in key.items():
+                for t in (r.get(cat) or '').split(';'):
+                    if t.strip().rsplit(':', 2)[0] == nm:
+                        present.setdefault(n, set()).add(r['post_id'])
+    return checked, present, set(key.values())
+
+
+def clip_counts(path):
+    """요소번호 -> CLIP으로 나온 나카무라 영상 수(z ≥ CLIP_Z 프레임 2개 이상)."""
+    import numpy as np
+    if not path or not os.path.exists(path):
+        return {}
+    nak = {r['post_id'] for r in csv.DictReader(open(os.path.join(KB, 'judge_lists', 'auto_detect_list_2026-10-20.csv')))
+           if r['animator'] == 'yutaka_nakamura'}
+    d = np.load(path)
+    z = d['score'].astype(np.float32)
+    out = {}
+    for j, n in enumerate(d['elements']):
+        out[str(n)] = sum(1 for (a, b), p in zip(d['t_index'], d['post_ids'])
+                          if str(p) in nak and int((z[a:b, j] >= CLIP_Z).sum()) >= 2)
+    return out
+
+
 def main():
     src, out = sys.argv[1:3]
+    checked, present, cklist = gpt_check()
+    clip = clip_counts(sys.argv[3] if len(sys.argv) > 3 else '')
     rows = list(csv.DictReader(open(src, encoding='utf-8')))
     by = {r['번호']: r for r in rows}
     vis = {v['번호']: v for v in csv.DictReader(open(VISUAL, encoding='utf-8'))} if os.path.exists(VISUAL) else {}
@@ -102,12 +151,29 @@ def main():
                       '포함 미정' if cat == '장비·의상' or under(r, '2차 움직임') else '',
                       '태그 무효(육안 정밀도 0.2 미만) → CLIP 재측정' if v and float(v['정밀도']) < 0.2 else '') if x)})
         res.append(o)
+    for o in res:
+        n = o['번호']
+        v = vis.get(n)
+        st = '미확정'
+        if n in cklist and checked:
+            st = '확정(GPT 확인)' if len(checked) >= 0.9 * N_NAK else f'GPT 부분 확인 {len(checked)}/{N_NAK}'
+            o['GPT_확인영상'] = len(checked)
+            o['GPT_나옴영상'] = len(present.get(n, ()))
+        elif v and float(v['정밀도']) >= 0.67:
+            st = '확정(육안)'
+        elif '점수' in o and not o.get('신뢰도_약함'):
+            st = '확정(채점)'
+        elif n in clip:
+            st = 'CLIP 보조(보정 전)'
+        if n in clip:
+            o['CLIP_나카무라영상'] = clip[n]
+        o['측정상태'] = st
     ranked = sorted((o for o in res if '점수' in o), key=lambda o: (-o['점수'], -num(o['일반빈도']), -num(o['나카무라_점수%'])))
     for i, o in enumerate(ranked, 1):
         o['순위'] = i
     rest = [o for o in res if '점수' not in o]
     cols = ['순위', '점수', '판정', '분류', '상위', '요소', '관계', '난이도', '나카무라_영상수', '보정전_영상수', '육안_정밀도', '구작', '신작', '시기',
-            '나카무라_점수%', '보충_출처', '신뢰도_약함', '신뢰도', '동반확률', '일반빈도', '비고', '집계상태', '번호']
+            '나카무라_점수%', '보충_출처', '측정상태', 'GPT_확인영상', 'GPT_나옴영상', 'CLIP_나카무라영상', '신뢰도_약함', '신뢰도', '동반확률', '일반빈도', '비고', '집계상태', '번호']
     with open(out, 'w', newline='', encoding='utf-8') as f:
         w = csv.DictWriter(f, cols, extrasaction='ignore')
         w.writeheader()

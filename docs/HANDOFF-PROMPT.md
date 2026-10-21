@@ -46,9 +46,19 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 보충 계획 `docs/SUPPLEMENT-PLAN-2026-10-21.md`(층 구조·단계·분업)를 따른다. 0단계(출처 대장 `data/style_kb/supplement_ledger_2026-10-21.csv`, 들이는 절차 §5 승낙 양식)는 끝났다.
 
-1. **GPT 공백 확인 H01–H04 결과 받기:** 프롬프트 `docs/GPT-PROMPT-H01-H04-2026-10-21.md`(A·B 두 창). Drive `_GPT용_공백확인/H01–H04/`에 나카무라 186개 복사본이 있다. 결과는 `ai_results/gpt_H0N_2026-10-21.csv`로 저장하고 형식을 검사한다. `element_aggregate.py`는 분류 칸을 그대로 읽는다. 다시 집계·순위를 낸 뒤 '측정 확정' 칸을 만든다.
-2. **CLIP 재측정(서버):** 태그 없는 요소, 육안으로 태그 무효가 된 8개, 작은 소품이 대상이다. torch·open_clip을 설치한다(서버 복구 예외). 시작 전에 사용자에게 짧게 설명한다.
-3. 이웃 컷 재고 조사(목록만) → 번역 규칙 초안 → 이음새 시험(토큰 추정 먼저) → 외부 출처 승낙(프리렌·고수·3D·인공 배경 작품).
+1. **GPT 공백 확인 H01–H04 결과 받기:** 프롬프트는 `docs/GPT-PROMPT-H01-H04-2026-10-21.md`(A·B 두 창)이다. Codex가 rclone으로 Drive에서 받아 보는 방식으로 돌리고 있다. 2026-10-21 오전 기준으로 H03·H04는 94개 중 17개 완료, 11개 부분, 66개 미검토이고, GPT 사용 한도 때문에 12:39 이후 재개된다. 재개할 때는 '10개씩 끊어서' 지시를 쓴다.
+   - 결과는 `ai_results/gpt_H0N_2026-10-21.csv`로 저장한다. 부분·미검토 행은 저장하지 않거나 특이사항에 '열람불가'로 둔다.
+   - `element_aggregate.py`(분류 칸 안에서 이름을 찾고, 열람불가는 뺀다)와 `element_rank.py`(측정상태·GPT_확인영상·GPT_나옴영상 칸)가 그대로 읽는다. 확인 목록은 `judge_lists/gpt_gapcheck_checklist_2026-10-21.csv`(166개)다.
+2. **CLIP:** 임베딩(`tools/clip_embed.py`, ViT-B-16, 1초 간격, 전체 화면 + 2×2 확대)이 scratch `clip/`에서 돌고 있다. G15–G17 55개를 먼저 처리하는 순서다. 컨테이너가 재시작되면 죽으므로 이어서 다시 실행한다.
+   - 점수는 `tools/clip_score.py`가 낸다. 기준 문장과의 차이를 요소별 z 점수로 바꾼다.
+   - 다음 일은 G15–G17 판정과 육안 확인으로 요소별 z 임계를 보정하는 것이다. 지금 `element_rank.py`의 CLIP_Z는 2.0이고 보정 전이다. 보정이 끝나면 순위를 다시 내고 ACTION-GAP·GAP-MAP을 다시 쓴다.
+3. 끝난 것:
+   - 이웃 컷 재고와 후보 348개(`docs/NEIGHBOR-CUTS-2026-10-21.md`)
+   - 번역 규칙 초안과 검증 표본 54행(`docs/TRANSLATION-RULES-DRAFT-2026-10-21.md`)
+   - 블라인드 시험 설계(`docs/BLIND-TEST-DESIGN-2026-10-21.md`)
+   - 3D 라이선스 조사(`docs/3D-SOURCES-2026-10-21.md`)
+
+   고수 후보 통계(`tools/master_candidates.py` → `data/style_kb/master_candidates_2026-10-21.csv`)는 수집 중이다(scratch `sakuga_cache2`에 캐시가 있다). 번역 규칙을 Claude가 직접 검증하는 일(시트 9장, 약 2–3만 토큰)은 사용자 승낙을 기다리고 있다.
 4. 사용자 결정 대기: 필요도 가중, 2차 움직임·장비·의상 포함, 2004–05 셀 느낌 22개, 프리렌 승낙 범위, 고수 시험 다운로드 범위, 3D 사용 여부.
 
 ## 4. 환경
