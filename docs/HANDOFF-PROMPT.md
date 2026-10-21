@@ -59,6 +59,8 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - CMU 모캡 전체(ASF/AMC 2514개, 4.2GB) 서버에 받음. 색인 `cmu/index.json`(설명·fps 2379개, 격투·점프·구르기 등 273개). `tools/cmu_amc.py`로 31관절 3D 좌표(미터, Y 위, 30fps) 변환(걷기 02_01 검증: 뼈 길이 변화 0, 발 높이 0.005m).
 - P1 포즈 모델 비교 노트북: `tools/colab_p1_build.py` → `tools/colab_p1_pose_compare.ipynb`, Drive `Colab Notebooks/P1_포즈모델비교_colab.ipynb`에 올림. 표본 `data/p1/pose_compare_clips.json`(5명×영상4×연속32프레임×2 = 1280프레임). 모델: YOLO11x-pose, RTMW-x(133점), ViTPose+-H, Sapiens2-1B(308점), A100이면 Sapiens2-5B. 상자는 rtmlib HumanArt 검출기(그림·애니 포함 학습)로 통일. 서버 CPU에서 작은 변형으로 전 단계 실행 확인. 평가 `tools/p1_pose_eval.py`(검출률·떨림·좌우 뒤바뀜·합의도, 정답 없음).
 
+- P2 카메라 노트북: `tools/colab_p2_build.py` → `tools/colab_p2_camera_flow.ipynb`, Drive `Colab Notebooks/P2_카메라광류_colab.ipynb`. torchvision RAFT-large 광류 + 캐릭터 상자 가림 + 닮음 변환 RANSAC → 프레임별 [tx, ty, log_scale, rot, inlier, 중앙 흐름] + 9×16 흐름 격자. 원본 354개 전부, 흘려 읽기(최장 5540프레임). 합성 이동·확대 영상으로 서버 CPU에서 복원 확인(이동 기대 −0.0070 → −0.0064~−0.0077, 확대 log 기대 0.0099 → 0.008~0.011).
+
 **다음 할 일:** 사용자가 P1 노트북을 돌리면 Drive `02_분석자료/P1_포즈비교/`를 rclone으로 받아 `p1_pose_eval.py` → 표본 그림 소수 확인 → 모델 선택 → 전체 재추출 노트북. 그동안 서버에서 CMU 변환 완료·격투 동작 정리, P2 광류·P4 돌 파편 측정 준비.
 
 **사용자 확인 대기:**
