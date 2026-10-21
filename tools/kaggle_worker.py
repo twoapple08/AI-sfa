@@ -44,8 +44,52 @@ from rtmlib import Wholebody  # noqa: E402
 ODEV = "cuda" if "CUDAExecutionProvider" in ort.get_available_providers() else "cpu"
 WB = Wholebody(mode="performance", backend="onnxruntime", device=ODEV)
 WB.det_model.score_thr = 0.3
+
+
+class TorchSession:
+    """rtmlib이 쓰는 ONNX 세션 자리(get_inputs·get_outputs·run)에 GPU PyTorch 모델을 끼운다.
+    ONNX → 기본 최적화(상수 접기) → Clip의 빈 선택 입력 제거 → onnx2torch 변환. 서버에서 출력 차이 4e-6 이하 확인."""
+
+    def __init__(self, sess, path):
+        import onnx
+        from onnx2torch import convert
+        so = ort.SessionOptions()
+        so.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_BASIC
+        so.optimized_model_filepath = path + ".opt.onnx"
+        ort.InferenceSession(path, so, providers=["CPUExecutionProvider"])
+        m = onnx.load(so.optimized_model_filepath)
+        for node in m.graph.node:
+            if node.op_type == "Clip":
+                while len(node.input) > 1 and node.input[-1] == "":
+                    node.input.pop()
+        self.m = convert(m).cuda().eval()
+        self.sess = sess
+
+    def get_inputs(self):
+        return self.sess.get_inputs()
+
+    def get_outputs(self):
+        return self.sess.get_outputs()
+
+    def get_providers(self):
+        return ["TorchCUDA"]
+
+    def run(self, names, feed):
+        with torch.no_grad():
+            out = self.m(torch.from_numpy(next(iter(feed.values()))).cuda())
+        out = out if isinstance(out, (list, tuple)) else [out]
+        return [o.float().cpu().numpy() for o in out]
+
+
+if ODEV == "cpu" and torch.cuda.is_available():
+    import glob as _g
+    for tool, key in ((WB.det_model, "yolox"), (WB.pose_model, "rtmw")):
+        path = [f for f in _g.glob(os.path.expanduser("~/.cache/rtmlib/hub/checkpoints/*.onnx"))
+                if os.path.basename(f).startswith(key) and not f.endswith(".opt.onnx")][0]
+        tool.session = TorchSession(tool.session, path)
 try:
-    log("ONNX 장치", WB.det_model.session.get_providers()[0], "torch", torch.cuda.get_device_name(0))
+    log("ONNX 장치", WB.det_model.session.get_providers()[0], WB.pose_model.session.get_providers()[0],
+        "torch", torch.cuda.get_device_name(0))
 except Exception:
     log("ONNX 장치", ODEV)
 

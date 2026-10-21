@@ -40,7 +40,7 @@ lines.append('token = ' + d['token'])
 del raw, d, lines
 !cd /tmp && curl -sSLo rc.zip https://downloads.rclone.org/rclone-current-linux-amd64.zip && unzip -qo rc.zip && cp rclone-*/rclone /usr/local/bin/
 !rclone lsd gdrive:AI-sfa 2>/dev/null | head -3
-!pip -q install rtmlib onnxruntime-gpu
+!pip -q install rtmlib onnxruntime-gpu onnx onnx2torch
 import torch; print('GPU 수:', torch.cuda.device_count(), [torch.cuda.get_device_name(i) for i in range(torch.cuda.device_count())])
 """),
         code("""
