@@ -69,6 +69,11 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - AMASS: 사용자 Colab이 Drive `02_분석자료/모캡_AMASS/`에 SMPL-X 모델 + ACCAD·HDM05·KIT·BMLmovi·BMLrub·EyesJapanDataset·Transitions·SFU(약 13.6GB) 받음(나머지 계속 받는 중일 수 있음). `tools/amass_joints.py`(관절 회귀+순운동학, 22관절, Y 위, 30fps; ACCAD 252개 검증) 서버 변환 중 → scratch `amass/npz30`.
 - P2: v1은 초당 약 1프레임(검출기 CPUExecutionProvider). v2(검출 6프레임마다, RAFT 반복 6, 묶음 16, 나카무라·nian41 우선)는 영상당 약 130초(3~5fps, 전체 약 20시간). v3(정지 프레임 광류 생략 약 20%, 시간 내역 출력)는 Drive `P2_카메라광류_colab_v3.ipynb` — 세션이 끊기면 v3로 재개 안내함.
 
+- Kaggle(주 30시간 무료 T4×2): `tools/kaggle_worker.py`+`kaggle_build.py` → Drive `07_도구/Kaggle/AI-sfa_P1P2_kaggle_v3.ipynb`. GPU0=P2, GPU1=P1 동시, Drive 직접 입출력(rclone, Kaggle 비밀값 RCLONE_GDRIVE_AUTH_B64), 끝난 영상 건너뜀. v1 문제: 두 작업자 rtmlib 모델 동시 다운로드 충돌(P2 실패), ONNX가 CPU(617프레임 426초). v3: 모델 미리 받기 + onnx2torch로 RTMW·YOLOX를 PyTorch GPU 실행(서버 대조 관절 차이 0). 사용자 v3 실행 중(2026-10-21 17:2x UTC~). P2 첫 결과 111284 정상(2218프레임, 정지 47%).
+- Colab 무료 GPU는 사용량 한도 도달(2026-10-21 16:2x UTC). 풀리면 Colab에서도 P2 v4 병행 가능.
+- 모캡 통합: `tools/mocap_unify.py` → scratch `mocap_unified/{cmu,lafan1,bandai,amass}.npz`(공통 18관절, 30fps), 목록 `data/mocap/mocap_index_2026-10-21.csv`(키워드 태그, 대략값). 합계 약 25.5시간(AMASS 변환 진행 중이면 다시 실행). Bandai 어깨 폭이 좁음 → 재타깃에서 표준 뼈대로 맞출 것.
+- P3 시제품: `tools/effect_layers.py`, `docs/P3-EFFECT-LAYERS-2026-10-21.md`(표본 ΔE 평균 3.9–10.7, 남은 문제 5개).
+
 **다음 할 일:** 사용자가 P1 노트북을 돌리면 Drive `02_분석자료/P1_포즈비교/`를 rclone으로 받아 `p1_pose_eval.py` → 표본 그림 소수 확인 → 모델 선택 → 전체 재추출 노트북. 그동안 서버에서 CMU 변환 완료·격투 동작 정리, P2 광류·P4 돌 파편 측정 준비.
 
 **사용자 확인 대기:**
@@ -128,7 +133,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 1. **GPT 공백 확인 H01–H04 결과 받기:** 프롬프트는 `docs/GPT-PROMPT-H01-H04-2026-10-21.md`(A·B 두 창)이다. Codex가 rclone으로 Drive에서 받아 보는 방식으로 돌리고 있다. 2026-10-21 오전 기준으로 H03·H04는 94개 중 17개 완료, 11개 부분, 66개 미검토이고, GPT 사용 한도 때문에 12:39 이후 재개된다. 재개할 때는 '10개씩 끊어서' 지시를 쓴다.
    - 결과는 `ai_results/gpt_H0N_2026-10-21.csv`로 저장한다. 부분·미검토 행은 저장하지 않거나 특이사항에 '열람불가'로 둔다.
-   - **완료(2026-10-21 밤):** 마지막 7세션 전부 반영, 저장 **186/186**(H01 46, H02 46, H03 47, H04 47). 겹침·중복 없음, 근거 `evidence/gap_last_s1–s7_*`. CLIP 재보정 결과: 보정 요소 101→126, AUC 중앙값 0.75→0.785, 0.75 이상 51→76(`clip_calibration_2026-10-21.csv` 갱신). 다음: 자동 태그 377개 완료 후 element_aggregate → element_rank(점수 npz) → ACTION-GAP·GAP-MAP 갱신.
+   - **완료(2026-10-21 밤):** 마지막 7세션 전부 반영, 저장 **186/186**(H01 46, H02 46, H03 47, H04 47). 겹침·중복 없음, 근거 `evidence/gap_last_s1–s7_*`. CLIP 재보정 결과: 보정 요소 101→126, AUC 중앙값 0.75→0.785, 0.75 이상 51→76(`clip_calibration_2026-10-21.csv` 갱신). 자동 태그 377개 완료(사용자에게 재개 설명, 반대 없음) → element_aggregate(들여쓰기 오류 수정) → element_rank 갱신: 충분 59→128, 보충 필요 75→49, 공백 87→42, 미측정 88→90. 결과 `docs/ELEMENT-RANK-DRAFT-2026-10-21.md` 8절. 남은 일: GAP-MAP·ACTION-GAP 문서를 8절 기준으로 다시 쓰기, 자동 탐지 377 json Drive 백업.
    - (과거) **2026-10-21 16:30 KST 현황:** 저장 122/186(H01 45, H02 31, H03 24, H04 22). GPT는 사용량 한도로 **18:32 KST부터** 다시 쓸 수 있다.
      - Codex가 Drive에서 받다가 403 RATE_LIMIT_EXCEEDED가 났다(rclone 공용 client_id).
      - 그래서 남은 영상을 파트별 zip으로 사용자에게 주었다. Codex에는 "Drive에서 받지 말고 첨부 zip을 써"라는 지시와 함께 첨부한다.
