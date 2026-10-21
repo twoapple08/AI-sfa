@@ -1,0 +1,402 @@
+[
+{
+"animator": "nian41",
+"id": "216073",
+"path": "01_원본영상/nian41/216073_f63b8906f518f9f4322928c5441f48f1.mp4",
+"start": 60,
+"count": 32,
+"fps": "24000/1001",
+"w": 852,
+"h": 480
+},
+{
+"animator": "nian41",
+"id": "216073",
+"path": "01_원본영상/nian41/216073_f63b8906f518f9f4322928c5441f48f1.mp4",
+"start": 131,
+"count": 32,
+"fps": "24000/1001",
+"w": 852,
+"h": 480
+},
+{
+"animator": "nian41",
+"id": "280556",
+"path": "01_원본영상/nian41/280556_5db093050985f3330778698b999a1df8.mp4",
+"start": 1263,
+"count": 32,
+"fps": "24/1",
+"w": 854,
+"h": 480
+},
+{
+"animator": "nian41",
+"id": "280556",
+"path": "01_원본영상/nian41/280556_5db093050985f3330778698b999a1df8.mp4",
+"start": 2737,
+"count": 32,
+"fps": "24/1",
+"w": 854,
+"h": 480
+},
+{
+"animator": "nian41",
+"id": "301142",
+"path": "01_원본영상/nian41/301142_95bd08a7d77433834c6d677b7d59764b.mp4",
+"start": 576,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "nian41",
+"id": "301142",
+"path": "01_원본영상/nian41/301142_95bd08a7d77433834c6d677b7d59764b.mp4",
+"start": 1248,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "nian41",
+"id": "280534",
+"path": "01_원본영상/nian41/280534_427f5038c2eb53f02c10e2985526c09c.mp4",
+"start": 254,
+"count": 32,
+"fps": "24/1",
+"w": 854,
+"h": 480
+},
+{
+"animator": "nian41",
+"id": "280534",
+"path": "01_원본영상/nian41/280534_427f5038c2eb53f02c10e2985526c09c.mp4",
+"start": 551,
+"count": 32,
+"fps": "24/1",
+"w": 854,
+"h": 480
+},
+{
+"animator": "yutaka_nakamura",
+"id": "224077",
+"path": "01_원본영상/yutaka_nakamura_디지털/224077_2017_완성.mp4",
+"start": 126,
+"count": 32,
+"fps": "24000/1001",
+"w": 852,
+"h": 480
+},
+{
+"animator": "yutaka_nakamura",
+"id": "224077",
+"path": "01_원본영상/yutaka_nakamura_디지털/224077_2017_완성.mp4",
+"start": 273,
+"count": 32,
+"fps": "24000/1001",
+"w": 852,
+"h": 480
+},
+{
+"animator": "yutaka_nakamura",
+"id": "69067",
+"path": "01_원본영상/yutaka_nakamura_디지털/69067_2004_완성.mp4",
+"start": 40,
+"count": 32,
+"fps": "24000/1001",
+"w": 640,
+"h": 480
+},
+{
+"animator": "yutaka_nakamura",
+"id": "69067",
+"path": "01_원본영상/yutaka_nakamura_디지털/69067_2004_완성.mp4",
+"start": 87,
+"count": 32,
+"fps": "24000/1001",
+"w": 640,
+"h": 480
+},
+{
+"animator": "yutaka_nakamura",
+"id": "41027",
+"path": "01_원본영상/yutaka_nakamura_디지털/41027_2017_원화.mp4",
+"start": 36,
+"count": 32,
+"fps": "24/1",
+"w": 860,
+"h": 480
+},
+{
+"animator": "yutaka_nakamura",
+"id": "41027",
+"path": "01_원본영상/yutaka_nakamura_디지털/41027_2017_원화.mp4",
+"start": 78,
+"count": 32,
+"fps": "24/1",
+"w": 860,
+"h": 480
+},
+{
+"animator": "yutaka_nakamura",
+"id": "196315",
+"path": "01_원본영상/yutaka_nakamura_디지털/196315_2021_완성.mp4",
+"start": 219,
+"count": 32,
+"fps": "24000/1001",
+"w": 1146,
+"h": 480
+},
+{
+"animator": "yutaka_nakamura",
+"id": "196315",
+"path": "01_원본영상/yutaka_nakamura_디지털/196315_2021_완성.mp4",
+"start": 475,
+"count": 32,
+"fps": "24000/1001",
+"w": 1146,
+"h": 480
+},
+{
+"animator": "optical-core",
+"id": "47588",
+"path": "01_원본영상/optical-core/47588_ca61835e7a2762b3b27ca05f1b458f45.mp4",
+"start": 145,
+"count": 32,
+"fps": "25/1",
+"w": 400,
+"h": 224
+},
+{
+"animator": "optical-core",
+"id": "47588",
+"path": "01_원본영상/optical-core/47588_ca61835e7a2762b3b27ca05f1b458f45.mp4",
+"start": 315,
+"count": 32,
+"fps": "25/1",
+"w": 400,
+"h": 224
+},
+{
+"animator": "optical-core",
+"id": "86099",
+"path": "01_원본영상/optical-core/presumed/86099_663db98332eb9d1389d888dcdcb87089.mp4",
+"start": 63,
+"count": 32,
+"fps": "30/1",
+"w": 1032,
+"h": 480
+},
+{
+"animator": "optical-core",
+"id": "86099",
+"path": "01_원본영상/optical-core/presumed/86099_663db98332eb9d1389d888dcdcb87089.mp4",
+"start": 138,
+"count": 32,
+"fps": "30/1",
+"w": 1032,
+"h": 480
+},
+{
+"animator": "optical-core",
+"id": "32636",
+"path": "01_원본영상/optical-core/32636_88aeeafce36103ddfecdd567f6a3cc35.mp4",
+"start": 239,
+"count": 32,
+"fps": "37/2",
+"w": 854,
+"h": 480
+},
+{
+"animator": "optical-core",
+"id": "32636",
+"path": "01_원본영상/optical-core/32636_88aeeafce36103ddfecdd567f6a3cc35.mp4",
+"start": 518,
+"count": 32,
+"fps": "37/2",
+"w": 854,
+"h": 480
+},
+{
+"animator": "optical-core",
+"id": "284200",
+"path": "01_원본영상/optical-core/284200_d6730c1693258fd80ed37c814c90f7e1.mp4",
+"start": 461,
+"count": 32,
+"fps": "24/1",
+"w": 854,
+"h": 480
+},
+{
+"animator": "optical-core",
+"id": "284200",
+"path": "01_원본영상/optical-core/284200_d6730c1693258fd80ed37c814c90f7e1.mp4",
+"start": 999,
+"count": 32,
+"fps": "24/1",
+"w": 854,
+"h": 480
+},
+{
+"animator": "riooo",
+"id": "112572",
+"path": "01_원본영상/riooo/112572_57039fe98f8c1d36fe0787f7456b80cb.mp4",
+"start": 163,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "riooo",
+"id": "112572",
+"path": "01_원본영상/riooo/112572_57039fe98f8c1d36fe0787f7456b80cb.mp4",
+"start": 354,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "riooo",
+"id": "209782",
+"path": "01_원본영상/riooo/209782_f34e60c11f609c7179f85712a504ecdd.mp4",
+"start": 189,
+"count": 32,
+"fps": "24/1",
+"w": 1132,
+"h": 480
+},
+{
+"animator": "riooo",
+"id": "209782",
+"path": "01_원본영상/riooo/209782_f34e60c11f609c7179f85712a504ecdd.mp4",
+"start": 410,
+"count": 32,
+"fps": "24/1",
+"w": 1132,
+"h": 480
+},
+{
+"animator": "riooo",
+"id": "230407",
+"path": "01_원본영상/riooo/230407_50b6884c679d0672e3bbe8b4aa68cd68.mp4",
+"start": 122,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "riooo",
+"id": "230407",
+"path": "01_원본영상/riooo/230407_50b6884c679d0672e3bbe8b4aa68cd68.mp4",
+"start": 265,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "riooo",
+"id": "128305",
+"path": "01_원본영상/riooo/128305_b1a4edf0bf7a8ca9503be736331ca824.mp4",
+"start": 203,
+"count": 32,
+"fps": "24000/1001",
+"w": 852,
+"h": 480
+},
+{
+"animator": "riooo",
+"id": "128305",
+"path": "01_원본영상/riooo/128305_b1a4edf0bf7a8ca9503be736331ca824.mp4",
+"start": 441,
+"count": 32,
+"fps": "24000/1001",
+"w": 852,
+"h": 480
+},
+{
+"animator": "yukina_kosaka",
+"id": "200394",
+"path": "01_원본영상/yukina_kosaka/presumed/200394_a1d223d17f7b834c96781fbd2f1d058a.mp4",
+"start": 36,
+"count": 32,
+"fps": "24000/1001",
+"w": 852,
+"h": 480
+},
+{
+"animator": "yukina_kosaka",
+"id": "200394",
+"path": "01_원본영상/yukina_kosaka/presumed/200394_a1d223d17f7b834c96781fbd2f1d058a.mp4",
+"start": 78,
+"count": 32,
+"fps": "24000/1001",
+"w": 852,
+"h": 480
+},
+{
+"animator": "yukina_kosaka",
+"id": "316879",
+"path": "01_원본영상/yukina_kosaka/presumed/316879_cb6ebbbb371247c5945d6487eb93bbaf.mp4",
+"start": 180,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "yukina_kosaka",
+"id": "316879",
+"path": "01_원본영상/yukina_kosaka/presumed/316879_cb6ebbbb371247c5945d6487eb93bbaf.mp4",
+"start": 391,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "yukina_kosaka",
+"id": "174523",
+"path": "01_원본영상/yukina_kosaka/174523_fef0864c32df138adf4776000c59669e.mp4",
+"start": 123,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "yukina_kosaka",
+"id": "174523",
+"path": "01_원본영상/yukina_kosaka/174523_fef0864c32df138adf4776000c59669e.mp4",
+"start": 267,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "yukina_kosaka",
+"id": "236403",
+"path": "01_원본영상/yukina_kosaka/presumed/236403_7a81433c8099ee659f729de267592182.mp4",
+"start": 536,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+},
+{
+"animator": "yukina_kosaka",
+"id": "236403",
+"path": "01_원본영상/yukina_kosaka/presumed/236403_7a81433c8099ee659f729de267592182.mp4",
+"start": 1161,
+"count": 32,
+"fps": "24000/1001",
+"w": 854,
+"h": 480
+}
+]

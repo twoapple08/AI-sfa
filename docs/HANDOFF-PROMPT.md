@@ -1,4 +1,4 @@
-# 인수인계 (2026-10-21 저녁, 전체 학습 준비 단계 시작 직전)
+# 인수인계 (2026-10-21 밤, 전체 학습 준비 P0 완료·P1 노트북 대기)
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다(같은 내용이 `claude/eager-clarke-lz1z9m`에도 있다). fetch 후 이 브랜치에서 계속한다. 시스템이 다른 브랜치를 배정해도 사용자 지정이 우선이다.
 
@@ -50,11 +50,16 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 **전체 학습 준비 단계(P0–P6) — `docs/PREP-PLAN-2026-10-21.md`.** 사용자: "모든 걸 다 학습, 기존 학습 방식도 바꿔, 제한 두지 말고 최대한, Colab GPU 포함 모든 수단, 부탁할 건 전부 말해."
 
-**새 세션 첫 일(Drive 재인증 반영 확인):**
-1. 사용자가 클라우드 환경 변수를 바꿨다: `RCLONE_CONFIG_GDRIVE_SCOPE=drive.readonly,drive.file`, 새 인증값은 `RCLONE_GDRIVE_AUTH_B64`(rclone 1.75 `authorize`가 낸 base64 묶음), 옛 `RCLONE_CONFIG_GDRIVE_TOKEN`은 지우라고 안내했다.
-2. `RCLONE_GDRIVE_AUTH_B64`를 base64로 풀어(값은 출력 금지) 토큰 JSON을 꺼낸다. 형식이 `{"token":"{...}"}`처럼 한 번 더 감싸져 있을 수 있으니 구조만(키 이름) 확인한다. rclone 설정(`rclone config update gdrive token '<json>' scope drive.readonly,drive.file` 또는 conf 파일)에 넣는다. 환경 변수 TOKEN이 아직 있으면 그쪽이 우선하므로 명령마다 `env -u RCLONE_CONFIG_GDRIVE_TOKEN`으로 뺀다.
-3. `oauth2.googleapis.com/tokeninfo`로 범위 확인, `rclone lsd gdrive:`로 사용자 Drive(예: `AI-sfa/02_분석자료/포즈/` — 사용자 Colab이 만든 nakamura_pose.zip)가 보이는지 확인.
-4. 실패하면 원인을 사용자에게 짧게 알리고 다시 인증 안내(명령: `rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlLnJlYWRvbmx5LGRyaXZlLmZpbGUifQ"`, 패딩 `==` 없음).
+**P0 결과(2026-10-21 밤, 이 세션):**
+- Drive 재인증 반영 확인: `RCLONE_GDRIVE_AUTH_B64`를 풀면 `{client_id, client_secret, token(문자열 JSON)}` 구조다(client_id·secret은 빈 값 → rclone 공용 client_id). `~/.config/rclone/rclone.conf`에 `[gdrive] type=drive, scope=drive.readonly,drive.file, token=…`으로 썼다. 옛 TOKEN 환경 변수는 이미 없다. tokeninfo 범위 = `drive.file drive.readonly`. 사용자 파일(Classroom·Takeout·Colab Notebooks·`02_분석자료/포즈/` 사용자 Colab 결과)이 보인다.
+- 주의: rclone이 "공용 client_id가 2026년 중 중단된다"는 안내를 낸다. 중단되면 사용자 자신의 client_id(Google Cloud 콘솔 OAuth 클라이언트)로 다시 인증해야 한다.
+- 복구(서버 scratch `data/`): 백업 tgz(autodet 265·CLIP 377·clip_score·fx·motion_lib), 포즈 zip 4개, 돌 파편 영상, 저용량 영상 377개(1.3GB), **원본 영상 354개**(nian41 48·optical-core 24·riooo 49·yukina 61·나카무라 디지털 172; 원본도 480p급).
+- 사용자 Colab 나카무라 포즈(68개)는 Claude YOLO11m 결과(186개)의 부분집합이고 검출 프레임 수가 같다 → Claude 세트를 기준으로 쓴다.
+- 자동 태그 남은 112개는 사용자 중지 결정을 유지했다(잠깐 재실행했다가 새 파일 없이 멈춤). 다시 돌릴지는 사용자 결정.
+- CMU 모캡 전체(ASF/AMC 2514개, 4.2GB) 서버에 받음. 색인 `cmu/index.json`(설명·fps 2379개, 격투·점프·구르기 등 273개). `tools/cmu_amc.py`로 31관절 3D 좌표(미터, Y 위, 30fps) 변환(걷기 02_01 검증: 뼈 길이 변화 0, 발 높이 0.005m).
+- P1 포즈 모델 비교 노트북: `tools/colab_p1_build.py` → `tools/colab_p1_pose_compare.ipynb`, Drive `Colab Notebooks/P1_포즈모델비교_colab.ipynb`에 올림. 표본 `data/p1/pose_compare_clips.json`(5명×영상4×연속32프레임×2 = 1280프레임). 모델: YOLO11x-pose, RTMW-x(133점), ViTPose+-H, Sapiens2-1B(308점), A100이면 Sapiens2-5B. 상자는 rtmlib HumanArt 검출기(그림·애니 포함 학습)로 통일. 서버 CPU에서 작은 변형으로 전 단계 실행 확인. 평가 `tools/p1_pose_eval.py`(검출률·떨림·좌우 뒤바뀜·합의도, 정답 없음).
+
+**다음 할 일:** 사용자가 P1 노트북을 돌리면 Drive `02_분석자료/P1_포즈비교/`를 rclone으로 받아 `p1_pose_eval.py` → 표본 그림 소수 확인 → 모델 선택 → 전체 재추출 노트북. 그동안 서버에서 CMU 변환 완료·격투 동작 정리, P2 광류·P4 돌 파편 측정 준비.
 
 **사용자 확인 대기:**
 - Colab: 사용자 계정(Google AI 최고 요금제 가족 구성원)은 A100·L4를 못 고른다. 가족 요금제는 Colab 혜택이 관리자 계정에만 있는 것으로 보인다. 관리자 계정이 사용자 소유인지, 아니면 컴퓨트 단위 구매($9.99/100)인지 답을 기다린다. 관리자 계정을 쓰면 rclone도 그 계정으로 다시 인증해야 한다.
@@ -169,7 +174,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 ## 검증 상태
 
-- 2026-10-21 단위 테스트 22개 통과.
+- 2026-10-21 밤 단위 테스트 23개 통과(`test_p1_pose_eval` 추가).
 - 새 도구는 단위 테스트가 없고, 실행 결과로 확인했다.
   - `auto_detect`: 263개 정상 json
   - `gpt_sheets`: 시트 649개 업로드, 표본 1장 육안 확인
