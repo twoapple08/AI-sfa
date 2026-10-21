@@ -1,8 +1,8 @@
-# 인수인계 (2026-10-21, 요소 순위 초안 완료)
+# 인수인계 (2026-10-21 저녁, 전체 학습 준비 단계 시작 직전)
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다(같은 내용이 `claude/eager-clarke-lz1z9m`에도 있다). fetch 후 이 브랜치에서 계속한다. 시스템이 다른 브랜치를 배정해도 사용자 지정이 우선이다.
 
-**읽기 순서:** AGENTS.md → 이 문서 → docs/SUPPLEMENT-PLAN-2026-10-21.md(현재 계획) → docs/ELEMENT-RANK-DRAFT-2026-10-21.md(현재 결과) → docs/ELEMENT-RANKING-PLAN-2026-10-20.md → 필요할 때만 docs/GEMINI-TASK-ACTION-TYPES-2026-10-20.md(동작 세기 경과)와 docs/SOURCE-FORMAT-2026-10-20.md(셀 폐기). 직전 긴 인수인계(임팩트 분류·뷰어·셀 판정 경과)는 docs/history/HANDOFF-PROMPT-2026-10-20-archive.md에 있다.
+**읽기 순서:** AGENTS.md(특히 끝의 '이펙트 그리기 원칙'·'전체 학습 결정') → 이 문서 §0 → **docs/PREP-PLAN-2026-10-21.md(현재 계획)** → docs/SFA-CREATOR-2026-10-21.md(앱 v0.1) → 필요할 때만 docs/SUPPLEMENT-PLAN-2026-10-21.md → docs/ELEMENT-RANK-DRAFT-2026-10-21.md(현재 결과) → docs/ELEMENT-RANKING-PLAN-2026-10-20.md → 필요할 때만 docs/GEMINI-TASK-ACTION-TYPES-2026-10-20.md(동작 세기 경과)와 docs/SOURCE-FORMAT-2026-10-20.md(셀 폐기). 직전 긴 인수인계(임팩트 분류·뷰어·셀 판정 경과)는 docs/history/HANDOFF-PROMPT-2026-10-20-archive.md에 있다.
 
 ## 최종 목표 (사용자 2026-10-21)
 
@@ -46,15 +46,26 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
   12. **중간 상태(2026-10-21, 사용자 지적 후):** `tools/effect_vectorize.py`(윤곽 → 포물선 조각, IoU 0.95–0.996)·`effect_library.py`·`effect_palette.py`로 나카무라 임팩트 장면 사전을 만들어 앱에 연결했다(assets/effects.txt는 gitignore, 저장소 금지). 사용자 판정: 덩어리를 찍어 붙이는 방식도 틀렸다. **다음 방향(사용자 확인 대기):** 사람이 그리듯 선 레이어(곡선 테두리) + 색 레이어 여러 장(바탕·그림자·밝은 면, 반투명 그라데이션) + 검은 배경 레이어로 그린다. 나카무라 컬러 이펙트를 색 영역별 테두리·칠로 따서 레이어 그림 사전을 만든다. 조각 수 제한(600·80)은 임의값이라 없앤다(깎인 장면 44/154프레임, 버린 덩어리 190/2741). 사용자 제공 돌 파편 영상(stone_cube_burst_4.mp4, 업로드 폴더)은 아직 미분석.
   13. **전체 학습 준비 계획(사용자 승인 대기 → 시작):** `docs/PREP-PLAN-2026-10-21.md`. 결정: 라이선스 무관·최고 품질, 나카무라 관절도 몸 학습, 보충 애니메이터 이펙트 전부, 생성 시간 무제한, Colab GPU 사용, 사용자 요청 목록(Drive 권한 전체/읽기 재인증, Colab Pro 여부, HF 토큰은 Colab 비밀 값에만, 휴대폰 확인). VideoPose3D 가중치는 서버 scratch `vp3d/`에 받아 둠.
 
-## 0. 현재 우선순위
+## 0. 현재 우선순위 (2026-10-21 저녁)
 
-**요소 순위 매기기.** 나카무라 중심 자료에서 무엇이 충분하고 무엇이 부족한지(충분 / 보충 필요 / 공백)를 정한다.
-- 요소는 동작 종류만이 아니다. 화면에 나올 수 있는 모든 것이다: 무기, 원소 이펙트, 충격·파괴, 연출, 지형, 인공 배경, 탈것, 생물, 장비.
-- 요소 트리: `data/style_kb/element_tree_2026-10-20.csv` (`tools/element_tree.py`로 생성)
-  - 9분류 → 요소 → 하위 요소(부품·탄·부산물·이펙트), 337행
-  - 난이도 1 지식없이 / 2 형태참고 / 3 기술필요
-  - 영어 이름 가운데 WD Tagger 태그에 없는 123개는 'CLIP' 칸에 있다.
-- 모델 훈련: 2026-10-21부터 허용한다(최종 목표 절 참조).
+**전체 학습 준비 단계(P0–P6) — `docs/PREP-PLAN-2026-10-21.md`.** 사용자: "모든 걸 다 학습, 기존 학습 방식도 바꿔, 제한 두지 말고 최대한, Colab GPU 포함 모든 수단, 부탁할 건 전부 말해."
+
+**새 세션 첫 일(Drive 재인증 반영 확인):**
+1. 사용자가 클라우드 환경 변수를 바꿨다: `RCLONE_CONFIG_GDRIVE_SCOPE=drive.readonly,drive.file`, 새 인증값은 `RCLONE_GDRIVE_AUTH_B64`(rclone 1.75 `authorize`가 낸 base64 묶음), 옛 `RCLONE_CONFIG_GDRIVE_TOKEN`은 지우라고 안내했다.
+2. `RCLONE_GDRIVE_AUTH_B64`를 base64로 풀어(값은 출력 금지) 토큰 JSON을 꺼낸다. 형식이 `{"token":"{...}"}`처럼 한 번 더 감싸져 있을 수 있으니 구조만(키 이름) 확인한다. rclone 설정(`rclone config update gdrive token '<json>' scope drive.readonly,drive.file` 또는 conf 파일)에 넣는다. 환경 변수 TOKEN이 아직 있으면 그쪽이 우선하므로 명령마다 `env -u RCLONE_CONFIG_GDRIVE_TOKEN`으로 뺀다.
+3. `oauth2.googleapis.com/tokeninfo`로 범위 확인, `rclone lsd gdrive:`로 사용자 Drive(예: `AI-sfa/02_분석자료/포즈/` — 사용자 Colab이 만든 nakamura_pose.zip)가 보이는지 확인.
+4. 실패하면 원인을 사용자에게 짧게 알리고 다시 인증 안내(명령: `rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlLnJlYWRvbmx5LGRyaXZlLmZpbGUifQ"`, 패딩 `==` 없음).
+
+**사용자 확인 대기:**
+- Colab: 사용자 계정(Google AI 최고 요금제 가족 구성원)은 A100·L4를 못 고른다. 가족 요금제는 Colab 혜택이 관리자 계정에만 있는 것으로 보인다. 관리자 계정이 사용자 소유인지, 아니면 컴퓨트 단위 구매($9.99/100)인지 답을 기다린다. 관리자 계정을 쓰면 rclone도 그 계정으로 다시 인증해야 한다.
+- 보충 애니메이터(riooo·optical-core·yukina)의 몸 동작 포함 여부는 Claude 판단으로 '부족하니 포함'을 제안했다(사용자: 부족하면 포함하라). AMASS 가입, Mixamo 사용 여부 대기.
+- Hugging Face 토큰: 필요할 때 Colab 비밀 값에만 넣도록 자세히 안내(대화에 붙이지 않음).
+
+**준비 단계 순서:** P0 보존·환경(서버 scratch 자료 Drive 백업: autodet 26MB, CLIP npz 52MB, 포즈) → P1 몸(포즈 모델 비교·재추출, 정리, 3D 올리기, 분류, 발 접지; 실사 모캡 CMU/AMASS) · P2 카메라(광류) · P3 이펙트 그림(SAM 2 분리, 선·밑색·반투명 명암 층, DiffVG/LIVE 벡터화, 상한 없음) · P4 파편(사용자 돌 파편 영상 측정값: 19–21프레임 섬광, 22–71 비행·정지, 조각 66–74, 면 3색) → P5 SFA 출력 시험(레이어·배경색 무제한, 사용자 휴대폰 확인) → P6 학습 설계.
+
+**앱:** `creator-android/` v0.1(APK Drive `07_도구/SFA크리에이터/`). 사용자 판정: 구도 고정·평면·어색한 포즈·도형 이펙트는 모두 틀렸다. 이펙트 사전 실험(`tools/effect_vectorize.py`·`effect_library.py`·`effect_palette.py`, assets/effects.txt는 gitignore)은 중간 단계이고, 새 방식(그림 과정 그대로)으로 바꾼다.
+
+**서버 scratch(사라질 수 있음):** 원본 영상 `allvid/<animator>/`(377개), 포즈 `pose_nak`·`pose_nian`, 자동 태그 `autodet/autodet`, CLIP `clip/`, VideoPose3D `vp3d/`, 돌 파편 영상은 업로드 폴더 `c0406812-stone_cube_burst_4.mp4`. Android SDK `/opt/android-sdk`, skia·scikit-image·playwright 설치(새 컨테이너면 다시 설치).
 
 ## 1. 사용자 결정 (2026-10-20 밤)
 
