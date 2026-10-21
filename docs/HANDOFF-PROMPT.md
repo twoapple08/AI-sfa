@@ -2,7 +2,7 @@
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다(같은 내용이 `claude/eager-clarke-lz1z9m`에도 있다). fetch 후 이 브랜치에서 계속한다. 시스템이 다른 브랜치를 배정해도 사용자 지정이 우선이다.
 
-**읽기 순서:** AGENTS.md → 이 문서 → docs/ELEMENT-RANK-DRAFT-2026-10-21.md(현재 결과) → docs/ELEMENT-RANKING-PLAN-2026-10-20.md → 필요할 때만 docs/GEMINI-TASK-ACTION-TYPES-2026-10-20.md(동작 세기 경과)와 docs/SOURCE-FORMAT-2026-10-20.md(셀 폐기). 직전 긴 인수인계(임팩트 분류·뷰어·셀 판정 경과)는 docs/history/HANDOFF-PROMPT-2026-10-20-archive.md에 있다.
+**읽기 순서:** AGENTS.md → 이 문서 → docs/SUPPLEMENT-PLAN-2026-10-21.md(현재 계획) → docs/ELEMENT-RANK-DRAFT-2026-10-21.md(현재 결과) → docs/ELEMENT-RANKING-PLAN-2026-10-20.md → 필요할 때만 docs/GEMINI-TASK-ACTION-TYPES-2026-10-20.md(동작 세기 경과)와 docs/SOURCE-FORMAT-2026-10-20.md(셀 폐기). 직전 긴 인수인계(임팩트 분류·뷰어·셀 판정 경과)는 docs/history/HANDOFF-PROMPT-2026-10-20-archive.md에 있다.
 
 ## 0. 현재 우선순위
 
@@ -44,10 +44,12 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 ## 3. 다음 할 일 (순서)
 
-1. **사용자 결정 받기:** (b) 필요도 가중, (c) 2차 움직임·장비·의상 포함, (d) 2004–05 셀 느낌 22개. (a) 육안 확인은 2026-10-21 완료: '충분'·약함 63개 중 태그 기반 54개, `visual_check_2026-10-21.csv`, 보고서 7절. 태그 무효 8개(구름·숲·물가·우주·계단·어둠·그림자·임팩트 프레임/흑백 태그 몫)는 CLIP 재측정 대상.
-2. **CLIP 보충(5단계):** 태그 없는 요소(CLIP 대기 91 + CLIP 보충 41), 육안으로 태그 무효가 된 8개, 작은 소품을 확대 조각으로 찾는다. torch·open_clip 설치(서버 복구 예외). 저용량 영상은 Drive에서 받는다. 시작 전에 서버 작업을 사용자에게 짧게 설명한다.
-3. CLIP 결과를 `element_aggregate.py`에 넣고 순위를 다시 낸 뒤 ACTION-GAP·GAP-MAP을 다시 쓴다(지금은 맨 위에 새 초안 우선 안내만 있다).
-4. 동반조건·'위로 필요' 칸 초안.
+보충 계획 `docs/SUPPLEMENT-PLAN-2026-10-21.md`(층 구조·단계·분업)를 따른다. 0단계(출처 대장 `data/style_kb/supplement_ledger_2026-10-21.csv`, 들이는 절차 §5 승낙 양식)는 끝났다.
+
+1. **GPT 공백 확인 H01–H04 결과 받기:** 프롬프트 `docs/GPT-PROMPT-H01-H04-2026-10-21.md`(A·B 두 창). Drive `_GPT용_공백확인/H01–H04/`에 나카무라 186개 복사본이 있다. 결과는 `ai_results/gpt_H0N_2026-10-21.csv`로 저장하고 형식을 검사한다. `element_aggregate.py`는 분류 칸을 그대로 읽는다. 다시 집계·순위를 낸 뒤 '측정 확정' 칸을 만든다.
+2. **CLIP 재측정(서버):** 태그 없는 요소, 육안으로 태그 무효가 된 8개, 작은 소품이 대상이다. torch·open_clip을 설치한다(서버 복구 예외). 시작 전에 사용자에게 짧게 설명한다.
+3. 이웃 컷 재고 조사(목록만) → 번역 규칙 초안 → 이음새 시험(토큰 추정 먼저) → 외부 출처 승낙(프리렌·고수·3D·인공 배경 작품).
+4. 사용자 결정 대기: 필요도 가중, 2차 움직임·장비·의상 포함, 2004–05 셀 느낌 22개, 프리렌 승낙 범위, 고수 시험 다운로드 범위, 3D 사용 여부.
 
 ## 4. 환경
 
