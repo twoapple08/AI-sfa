@@ -56,6 +56,8 @@ def start(task, gpu):
     env = dict(os.environ, CUDA_VISIBLE_DEVICES=str(gpu))
     return subprocess.Popen(['python', '/kaggle/working/kaggle_worker.py', task, '0', '1'], env=env,
                             stdout=open(f'/kaggle/working/{task}.log', 'w'), stderr=subprocess.STDOUT)
+# 두 작업자가 같은 모델 파일을 동시에 받다 충돌하지 않도록 먼저 한 번 받아 둔다
+subprocess.run(['python', '-c', "from rtmlib import Wholebody; Wholebody(mode='performance', backend='onnxruntime', device='cpu')"], check=True)
 plan = [('p2', 0), ('p1', 1)] if ng >= 2 else [('p2', 0)]
 procs = {t: start(t, g) for t, g in plan}
 t0 = time.time()
