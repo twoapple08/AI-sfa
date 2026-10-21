@@ -96,28 +96,41 @@ def run(src, dst):
         return mk, len(last[0])
     pm, n0 = mask(prev, 0); nb = [n0]; fi = 1
     cam = [[0] * 6]; grid = [np.zeros((9, 16, 2), np.float16)]
-    B = 16; done_ = False
+    B = 16; done_ = False; nstill = 0; T = dict(읽기=0., 검출=0., 광류=0., 맞춤=0.)
+    small = lambda im: cv2.resize(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY), (160, 90), interpolation=cv2.INTER_AREA).astype(np.int16)
     while not done_:
-        cur = []
+        t0 = time.time(); cur = []
         while len(cur) < B:
             ok, im = cap.read()
             if not ok: done_ = True; break
             cur.append(im)
         if not cur: break
+        T['읽기'] += time.time() - t0; t0 = time.time()
         ms = [mask(im, fi + k) for k, im in enumerate(cur)]; fi += len(cur)
-        a = prep([prev] + cur[:-1], w); b = prep(cur, w)
-        with torch.no_grad():
-            fl = raft(a, b, num_flow_updates=UPDATES)[-1]
-        g = F.adaptive_avg_pool2d(fl, (9, 16)).permute(0, 2, 3, 1).cpu().numpy() / w
-        fl = fl.permute(0, 2, 3, 1).cpu().numpy()
-        masks = [pm] + [m for m, _ in ms]
+        T['검출'] += time.time() - t0; t0 = time.time()
+        pairs = [prev] + cur
+        # 애니의 정지 프레임(같은 그림 유지)은 광류를 계산하지 않고 카메라 정지로 기록한다
+        moving = [k for k in range(len(cur)) if np.abs(small(pairs[k]) - small(pairs[k + 1])).mean() > 0.6]
+        fl = g = None
+        if moving:
+            a = prep([pairs[k] for k in moving], w); b = prep([pairs[k + 1] for k in moving], w)
+            with torch.no_grad():
+                fl = raft(a, b, num_flow_updates=UPDATES)[-1]
+            g = F.adaptive_avg_pool2d(fl, (9, 16)).permute(0, 2, 3, 1).cpu().numpy() / w
+            fl = fl.permute(0, 2, 3, 1).cpu().numpy()
+        T['광류'] += time.time() - t0; t0 = time.time()
+        masks = [pm] + [m for m, _ in ms]; pos = {k: j for j, k in enumerate(moving)}
         for k in range(len(cur)):
-            cam.append(fit(fl[k], masks[k] & masks[k + 1], w)); grid.append(g[k].astype(np.float16))
+            if k in pos:
+                j = pos[k]; cam.append(fit(fl[j], masks[k] & masks[k + 1], w)); grid.append(g[j].astype(np.float16))
+            else:
+                nstill += 1; cam.append([0, 0, 0, 0, 1.0, 0]); grid.append(np.zeros((9, 16, 2), np.float16))
         nb += [n for _, n in ms]; prev = cur[-1]; pm = ms[-1][0]
+        T['맞춤'] += time.time() - t0
     cap.release()
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     np.savez_compressed(dst, cam=np.array(cam, np.float32), grid=np.stack(grid), boxes=np.array(nb), fps=fps, size=[w0, h0])
-    return len(cam)
+    return f"{len(cam)} 프레임(정지 {nstill}) " + ' '.join(f'{k} {v:.0f}' for k, v in T.items())
 """ % json.dumps(VIDEO_DIRS, ensure_ascii=False)),
         code("""
 # 4. 전체 실행
@@ -134,7 +147,7 @@ for k, (p, dst) in enumerate(vids):
     t = time.time()
     try: n = run(p, dst)
     except Exception: traceback.print_exc(); continue
-    print(k + 1, '/', len(vids), os.path.basename(dst), n, '프레임', round(time.time() - t), '초', '누적', round((time.time() - t0) / 60), '분')
+    print(k + 1, '/', len(vids), os.path.basename(dst), n, '| 합계', round(time.time() - t), '초', '누적', round((time.time() - t0) / 60), '분')
 """),
     ]
     nb = {"cells": cells, "metadata": {"accelerator": "GPU", "colab": {"provenance": []},
