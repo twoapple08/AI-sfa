@@ -133,7 +133,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - **사용자 PC GPU(2026-10-21 10:22 KST 기준 약 5시간 사용 가능, 일시적):** NVIDIA GTX 1050 Ti(VRAM 4GB), RAM 16GB, Windows. 사용자가 "지금 있는 상태"로 알려 둔 정보이고, 사용 지시는 아직 없다. 쓸 때는 공용 PC 여부와 토큰을 남기지 않는 규칙을 먼저 확인한다.
 - **Drive:** rclone `gdrive:`. 환경 변수 `RCLONE_CONFIG_GDRIVE_{TYPE,SCOPE,TOKEN}`가 설정 파일보다 우선한다.
   - 2026-10-21 확인: 범위는 아직 drive.file이다(토큰 갱신 후 tokeninfo). 사용자나 GPT가 올린 파일은 안 보인다. Claude가 올린 파일(저용량 영상·autodet)은 보인다.
-  - 사용자에게 재인증을 안내했다: `rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlLnJlYWRvbmx5LGRyaXZlLmZpbGUifQ=="`. 그다음 환경 변수 SCOPE=`drive.readonly,drive.file`과 새 TOKEN을 넣는다. 새 세션에서 `oauth2.googleapis.com/tokeninfo`로 범위를 확인한다(토큰은 출력하지 않는다).
+  - 사용자에게 재인증을 안내했다: `rclone authorize "drive" "eyJzY29wZSI6ImRyaXZlLnJlYWRvbmx5LGRyaXZlLmZpbGUifQ"`. 그다음 환경 변수 SCOPE=`drive.readonly,drive.file`과 새 TOKEN을 넣는다. 새 세션에서 `oauth2.googleapis.com/tokeninfo`로 범위를 확인한다(토큰은 출력하지 않는다).
 - **Drive 자료:**
   - 저용량 영상: `01_원본영상/_Gemini용_저용량/<animator>/<post>.mp4`. 폐기 28개는 `_폐기예정(셀·믹스)/_저용량/`에 있다.
   - GPT용 시트: `00_목록/제미나이_동작종류/_GPT용_시트/G03–G12/` (`tools/gpt_sheets.py`)
