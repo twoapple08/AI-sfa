@@ -17,17 +17,31 @@ python3 - <<'EOF'
 import base64, json, os, pathlib
 raw = os.environ.get("RCLONE_GDRIVE_AUTH_B64", "").strip()
 if not raw:
-    raise SystemExit("RCLONE_GDRIVE_AUTH_B64 비밀값이 없다")
+    raise SystemExit("RCLONE_GDRIVE_AUTH_B64 비밀값을 읽지 못했다(이름 철자, 이 환경에 연결했는지, 도메인 제한 방식인지 확인)")
 d = json.loads(base64.b64decode(raw + "=" * (-len(raw) % 4)))
-p = pathlib.Path.home() / ".config/rclone"
-p.mkdir(parents=True, exist_ok=True)
-lines = ["[gdrive]", "type = drive", "scope = drive.readonly,drive.file"]
+text = ["[gdrive]", "type = drive", "scope = drive.readonly,drive.file"]
 for k in ("client_id", "client_secret"):
     if d.get(k):
-        lines.append(f"{k} = {d[k]}")
-lines.append("token = " + d["token"])
-(p / "rclone.conf").write_text("\n".join(lines) + "\n")
-os.chmod(p / "rclone.conf", 0o600)
+        text.append(f"{k} = {d[k]}")
+text.append("token = " + d["token"])
+text = "\n".join(text) + "\n"
+# 설정 스크립트와 작업이 다른 사용자(root / agent)로 돌 수 있어 두 곳 모두에 쓰고 주인을 맞춘다
+import pwd
+homes = {str(pathlib.Path.home()), "/home/agent", "/root"}
+for h in homes:
+    if not os.path.isdir(h):
+        continue
+    p = pathlib.Path(h) / ".config/rclone"
+    p.mkdir(parents=True, exist_ok=True)
+    (p / "rclone.conf").write_text(text)
+    os.chmod(p / "rclone.conf", 0o600)
+    try:
+        u = pwd.getpwnam(pathlib.Path(h).name) if h != "/root" else pwd.getpwnam("root")
+        for q in (pathlib.Path(h) / ".config", p, p / "rclone.conf"):
+            os.chown(q, u.pw_uid, u.pw_gid)
+    except (KeyError, PermissionError):
+        pass
+    print("rclone 설정:", p / "rclone.conf")
 print("rclone 설정 완료")
 EOF
 rclone lsd gdrive:AI-sfa 2>/dev/null | head -3
@@ -36,11 +50,11 @@ rclone lsd gdrive:AI-sfa 2>/dev/null | head -3
 pip install -q opencv-python-headless numpy scipy scikit-image pillow onnxruntime huggingface_hub
 
 # 4. 작업 자료 미리 받기
-DATA="$HOME/ai-sfa-data"
+DATA=/tmp/ai-sfa-data  # 설정(root)과 작업(agent) 사용자가 달라도 읽을 수 있는 곳
 mkdir -p "$DATA"
 case "${CODEX_TASK:-}" in
   T01) rclone copy "gdrive:AI-sfa/00_목록/_GPT용_시트/T01_포즈추적" "$DATA/T01" ;;
   *) echo "CODEX_TASK 없음: 자료는 작업 중 rclone으로 받는다(인터넷 허용 필요)" ;;
 esac
-ls "$DATA" || true
+chmod -R a+rX "$DATA"; ls "$DATA" || true
 echo "설정 끝. 자료: $DATA"
