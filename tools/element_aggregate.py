@@ -272,7 +272,7 @@ def main():
         table.append((g, '판정', judged(pid, g), None, pid))
         n_judge += 1
 
-        durs = [t[3] for t in table if t[3]]
+    durs = [t[3] for t in table if t[3]]
     med_dur = float(np.median(durs)) if durs else 1.0
     rows = []
     for r in tree:
