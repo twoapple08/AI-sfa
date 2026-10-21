@@ -7,6 +7,7 @@
 실행:
   python pose_extract.py            # 전부(Sakugabooru 36 + 본인 X 12)
   python pose_extract.py --test     # 1개만 시험
+  python pose_extract.py --src <영상 폴더> --out <출력 폴더>   # 이미 받은 mp4(<post_id>.mp4)를 그대로 처리(서버 CPU, 2026-10-21)
 
 - 이미 만들어진 YOLO11 포즈 모델로 추론만 한다(학습 없음, 2026-10-17 사용자 허가).
 - 영상은 공개 주소에서 받아 md5를 대조하고, 끝나면 지운다.
@@ -61,9 +62,9 @@ def fetch(url, path, md5):
             raise RuntimeError(f'md5 불일치 {got}')
 
 
-def run(model, vid, video, outdir):
+def run(model, vid, video, outdir, half=True, stride=1):
     import cv2
-    res_iter = model.predict(video, stream=True, verbose=False, half=True, imgsz=640, conf=0.25)
+    res_iter = model.predict(video, stream=True, verbose=False, half=half, imgsz=640, conf=0.25, vid_stride=stride)
     n = det = 0
     keep = {}
     with gzip.open(os.path.join(outdir, f'{vid}.jsonl.gz'), 'wt', encoding='utf-8') as f:
@@ -74,7 +75,7 @@ def run(model, vid, video, outdir):
                 b = res.boxes.xyxy.cpu().numpy().round(1).tolist()
                 c = res.boxes.conf.cpu().numpy().round(3).tolist()
                 people = [{'box': b[j], 'conf': c[j], 'kpts': k[j]} for j in range(len(b))]
-            f.write(json.dumps({'f': i, 'p': people}) + '\n')
+            f.write(json.dumps({'f': i * stride, 'p': people}) + '\n')
             n += 1
             det += bool(people)
             if people and len(keep) < 6 and i % 25 == 0:
@@ -92,10 +93,28 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--test', action='store_true')
     ap.add_argument('--model', default='yolo11m-pose.pt')
+    ap.add_argument('--src', help='이미 받은 영상 폴더(<post_id>.mp4). 주면 다운로드하지 않는다')
+    ap.add_argument('--out', default='out')
+    ap.add_argument('--limit', type=int, default=0)
+    ap.add_argument('--stride', type=int, default=1, help='N프레임마다 1장(애니는 2컷이 많아 서버 CPU에서는 2)')
     a = ap.parse_args()
     from ultralytics import YOLO
     import torch
-    print('GPU:', torch.cuda.is_available() and torch.cuda.get_device_name(0))
+    gpu = torch.cuda.is_available()
+    print('GPU:', gpu and torch.cuda.get_device_name(0))
+    if a.src:
+        model = YOLO(a.model)
+        os.makedirs(a.out, exist_ok=True)
+        files = sorted(f for f in os.listdir(a.src) if f.endswith('.mp4'))
+        if a.limit:
+            files = files[:a.limit]
+        for k, fn in enumerate(files):
+            vid = fn[:-4]
+            if os.path.exists(os.path.join(a.out, f'{vid}.jsonl.gz')):
+                continue
+            n, det = run(model, vid, os.path.join(a.src, fn), a.out, half=gpu, stride=a.stride)
+            print(k + 1, len(files), vid, n, det, flush=True)
+        return
     os.makedirs('out', exist_ok=True)
     os.makedirs('tmp_video', exist_ok=True)
     model = YOLO(a.model)
