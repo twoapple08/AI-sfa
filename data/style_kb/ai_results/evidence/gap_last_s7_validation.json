@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "target_count": 8,
+  "groups": {
+    "H02": 3,
+    "H03": 2,
+    "H04": 3
+  },
+  "csv_columns": 13,
+  "missing_ids": [],
+  "duplicate_ids": [],
+  "invalid_names": [],
+  "invalid_times": [],
+  "invalid_roles": [],
+  "csv_bom": true,
+  "all_frames_total": 9684,
+  "specified_total_seconds": 405,
+  "measured_total_seconds": 403.903499,
+  "complete": 8,
+  "partial": 0,
+  "unreviewed": 0,
+  "inaccessible": 0,
+  "ambiguous_elements": 10,
+  "visual_accuracy_note": "구조 검증 통과는 시각적 판정의 무오류를 보증하지 않음"
+}

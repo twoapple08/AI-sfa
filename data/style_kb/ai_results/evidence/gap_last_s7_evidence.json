@@ -1,0 +1,3096 @@
+{
+  "session": 7,
+  "scope": [
+    [
+      "H02",
+      "203291",
+      "101"
+    ],
+    [
+      "H02",
+      "203293",
+      "46"
+    ],
+    [
+      "H02",
+      "250896",
+      "77"
+    ],
+    [
+      "H03",
+      "210214",
+      "35"
+    ],
+    [
+      "H03",
+      "281196",
+      "54"
+    ],
+    [
+      "H04",
+      "203327",
+      "52"
+    ],
+    [
+      "H04",
+      "229832",
+      "22"
+    ],
+    [
+      "H04",
+      "250125",
+      "18"
+    ]
+  ],
+  "method": {
+    "access": "rclone 미설치로 첨부 ZIP 사용",
+    "visual": "원본 24000/1001 fps의 모든 디코딩 프레임을 시간순 콘택트시트로 검토",
+    "thumbnail_size": "160x90 pixels; 144 consecutive frames per sheet",
+    "detail_review": "불명확한 대상은 854x480 또는 640x480 원본 프레임 확대 및 전후 연속 프레임을 대조",
+    "limitations": "영상 직접 재생·음성 검토 없음. 축소 프레임 및 원본 해상도로 식별되지 않는 세부 요소는 애매에 기록. 시간은 시각적 추정 구간으로 정밀 분할 정답 아님",
+    "time": "시작 포함·끝 제외 [start,end); 동일 요소 구간 합집합 후 반올림; 1초 미만 양수는 1초",
+    "role": "각 요소의 모든 구간은 entry.role을 상속. 화면 중심·대형 노출이 있는 주요 피사체는 주; 배경·작은 주변물은 배. 구간에 따라 크기가 바뀌는 요소는 영상 단위 대표 판정",
+    "csv_duration": "길이초는 요청 문서의 정수 길이 유지. 실측 길이는 각 항목 duration에 별도 기록"
+  },
+  "validation": {
+    "status": "PASS",
+    "target_count": 8,
+    "groups": {
+      "H02": 3,
+      "H03": 2,
+      "H04": 3
+    },
+    "csv_columns": 13,
+    "missing_ids": [],
+    "duplicate_ids": [],
+    "invalid_names": [],
+    "invalid_times": [],
+    "invalid_roles": [],
+    "csv_bom": true,
+    "all_frames_total": 9684,
+    "specified_total_seconds": 405,
+    "measured_total_seconds": 403.903499,
+    "complete": 8,
+    "partial": 0,
+    "unreviewed": 0,
+    "inaccessible": 0,
+    "ambiguous_elements": 10,
+    "visual_accuracy_note": "구조 검증 통과는 시각적 판정의 무오류를 보증하지 않음"
+  },
+  "videos": [
+    {
+      "group": "H02",
+      "id": "203291",
+      "expected_duration": 101,
+      "duration": 100.85075,
+      "fps": "24000/1001",
+      "width": 854,
+      "height": 480,
+      "frames": "2418",
+      "sha256": "f2b49aa8f050bb270be494fb96cd3ddc10dfaf00e85df1d58337baf256a88072",
+      "status": "complete",
+      "reviewed_ranges": [
+        [
+          0,
+          100.85075
+        ]
+      ],
+      "unresolved": [
+        {
+          "element": "기 모으기 빛",
+          "intervals": [
+            [
+              0,
+              2.211
+            ],
+            [
+              28.528,
+              29.821
+            ],
+            [
+              33.158,
+              37.079
+            ]
+          ],
+          "reason": "몸을 감싸는 붉은 빛은 확인되지만 충전 동작으로 단정하기 어려움"
+        }
+      ],
+      "method": "全 native frames in chronological contact sheets; selected full resolution frames for ambiguous detail",
+      "entries": [
+        {
+          "category": "원소 이펙트",
+          "element": "흰 연기·증기",
+          "role": "주",
+          "intervals": [
+            [
+              2.878,
+              7.508
+            ],
+            [
+              17.392,
+              17.684
+            ],
+            [
+              55.264,
+              56.181
+            ],
+            [
+              59.977,
+              61.061
+            ]
+          ],
+          "seconds_unrounded": 6.923,
+          "seconds": 7,
+          "evidence": "충돌 뒤 회백색 먼지·연무가 화면을 덮음. 날씨 안개·구름으로 세지 않음"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "폭발 파편",
+          "role": "주",
+          "intervals": [
+            [
+              2.878,
+              5.214
+            ]
+          ],
+          "seconds_unrounded": 2.336,
+          "seconds": 2,
+          "evidence": "충돌 직후 붉은 기둥 조각이 비산"
+        },
+        {
+          "category": "충격·파괴",
+          "element": "붕괴",
+          "role": "주",
+          "intervals": [
+            [
+              2.878,
+              5.214
+            ],
+            [
+              55.055,
+              55.264
+            ]
+          ],
+          "seconds_unrounded": 2.545,
+          "seconds": 3,
+          "evidence": "기둥 파편이 무너져 내리는 동작"
+        },
+        {
+          "category": "충격·파괴",
+          "element": "지면 균열",
+          "role": "배",
+          "intervals": [
+            [
+              7.007,
+              13.388
+            ],
+            [
+              17.309,
+              18.352
+            ],
+            [
+              87.546,
+              93.26
+            ],
+            [
+              96.346,
+              100.1
+            ]
+          ],
+          "seconds_unrounded": 16.892,
+          "seconds": 17,
+          "evidence": "석재 바닥의 방사형 균열. 새로 갈라지는 동작에 한정하지 않고 노출 시간 기록"
+        },
+        {
+          "category": "연출",
+          "element": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              2.211,
+              2.878
+            ],
+            [
+              14.89,
+              16.266
+            ]
+          ],
+          "seconds_unrounded": 2.043,
+          "seconds": 2,
+          "evidence": "원근 속도선 및 급격한 전후 크기 변화"
+        },
+        {
+          "category": "연출",
+          "element": "단색",
+          "role": "주",
+          "intervals": [
+            [
+              2.211,
+              2.878
+            ],
+            [
+              16.308,
+              17.309
+            ]
+          ],
+          "seconds_unrounded": 1.668,
+          "seconds": 2,
+          "evidence": "붉은 바탕과 검은 형상으로 축약되는 충격·속도 컷"
+        },
+        {
+          "category": "연출",
+          "element": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              14.89,
+              16.266
+            ],
+            [
+              26.151,
+              29.821
+            ],
+            [
+              44.753,
+              55.264
+            ]
+          ],
+          "seconds_unrounded": 15.557,
+          "seconds": 16,
+          "evidence": "기둥의 수직축이 화면 대각선으로 기울어지는 구도"
+        },
+        {
+          "category": "연출",
+          "element": "머리카락 휘날림",
+          "role": "주",
+          "intervals": [
+            [
+              18.727,
+              22.689
+            ],
+            [
+              79.329,
+              81.999
+            ],
+            [
+              87.546,
+              93.26
+            ]
+          ],
+          "seconds_unrounded": 12.346,
+          "seconds": 12,
+          "evidence": "긴 검은 머리카락의 연속적인 흔들림"
+        },
+        {
+          "category": "인공 배경",
+          "element": "무너진 잔해 더미",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              7.007
+            ],
+            [
+              13.388,
+              40.874
+            ],
+            [
+              44.753,
+              56.181
+            ],
+            [
+              59.977,
+              79.329
+            ],
+            [
+              81.999,
+              87.546
+            ],
+            [
+              93.26,
+              96.346
+            ]
+          ],
+          "seconds_unrounded": 73.906,
+          "seconds": 74,
+          "evidence": "붉은 부러진 목재·기둥들이 누적된 실내 잔해"
+        },
+        {
+          "category": "인공 배경",
+          "element": "기둥",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              5.214
+            ],
+            [
+              13.388,
+              40.874
+            ],
+            [
+              43.377,
+              55.264
+            ],
+            [
+              56.181,
+              87.546
+            ],
+            [
+              93.26,
+              96.346
+            ]
+          ],
+          "seconds_unrounded": 79.038,
+          "seconds": 79,
+          "evidence": "실내의 붉은 대형 지지 기둥"
+        }
+      ],
+      "notes": "애매:기 모으기 빛",
+      "decisions": [
+        "흰 띠는 끝이 갈라진 의복·붕대이므로 촉수·사슬·채찍으로 치환하지 않음",
+        "해골처럼 보이는 얼굴은 붕대로 감싼 인물의 얼굴 표현이므로 해골·언데드에 넣지 않음",
+        "붉은 기운을 어둠·그림자 또는 불덩이로 바꾸지 않음"
+      ]
+    },
+    {
+      "group": "H02",
+      "id": "203293",
+      "expected_duration": 46,
+      "duration": 45.837458,
+      "fps": "24000/1001",
+      "width": 854,
+      "height": 480,
+      "frames": "1099",
+      "sha256": "887d9b4d55287129f32bb1a1de3bea160a7a1e9bb2b6ede1e218fdf647d61238",
+      "status": "complete",
+      "reviewed_ranges": [
+        [
+          0,
+          45.837458
+        ]
+      ],
+      "unresolved": [],
+      "method": "全 native frames in chronological contact sheets; selected full resolution frames for ambiguous detail",
+      "entries": [
+        {
+          "category": "원소 이펙트",
+          "element": "핏자국",
+          "role": "주",
+          "intervals": [
+            [
+              29.238,
+              33.242
+            ],
+            [
+              42.876,
+              45.837
+            ]
+          ],
+          "seconds_unrounded": 6.965,
+          "seconds": 7,
+          "evidence": "베인 뒤 흩어지는 혈액과 바닥의 붉은 피 웅덩이"
+        },
+        {
+          "category": "충격·파괴",
+          "element": "지면 균열",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              5.214
+            ],
+            [
+              11.553,
+              16.266
+            ],
+            [
+              37.454,
+              41.291
+            ],
+            [
+              42.876,
+              45.837
+            ]
+          ],
+          "seconds_unrounded": 16.725,
+          "seconds": 17,
+          "evidence": "노출된 바닥의 큰 균열"
+        },
+        {
+          "category": "연출",
+          "element": "단색",
+          "role": "주",
+          "intervals": [
+            [
+              22.523,
+              26.735
+            ]
+          ],
+          "seconds_unrounded": 4.212,
+          "seconds": 4,
+          "evidence": "붉은 단색과 검은 선으로 바뀌는 공격 연출"
+        },
+        {
+          "category": "연출",
+          "element": "선화만",
+          "role": "주",
+          "intervals": [
+            [
+              22.856,
+              26.735
+            ]
+          ],
+          "seconds_unrounded": 3.879,
+          "seconds": 4,
+          "evidence": "완성 채색 화면 중간에 검은 해칭 선화와 붉은 바탕으로 전환"
+        },
+        {
+          "category": "연출",
+          "element": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              5.214
+            ],
+            [
+              11.553,
+              16.266
+            ],
+            [
+              26.735,
+              30.781
+            ],
+            [
+              37.454,
+              41.291
+            ]
+          ],
+          "seconds_unrounded": 17.81,
+          "seconds": 18,
+          "evidence": "지면 수평선이 기울어진 낮은 시점 구도"
+        },
+        {
+          "category": "연출",
+          "element": "머리카락 휘날림",
+          "role": "주",
+          "intervals": [
+            [
+              24.316,
+              30.781
+            ],
+            [
+              33.242,
+              37.454
+            ]
+          ],
+          "seconds_unrounded": 10.677,
+          "seconds": 11,
+          "evidence": "검사의 긴 은발이 동작과 함께 크게 휘날림"
+        }
+      ],
+      "notes": "",
+      "decisions": [
+        "여러 자루의 일반 장검은 지정 목록에 없어서 단검·칼로 치환하지 않음",
+        "노란 경고 띠는 전선·케이블이 아님",
+        "붉은 단색 컷은 완성 영상 내 연출이며 원화 작업 영상이 아님",
+        "지면에 박힌 검의 흩어진 자루를 일반적인 잔해 더미로 세지 않음"
+      ]
+    },
+    {
+      "group": "H02",
+      "id": "250896",
+      "expected_duration": 77,
+      "duration": 77.118708,
+      "fps": "24000/1001",
+      "width": 854,
+      "height": 480,
+      "frames": "1849",
+      "sha256": "1cfe8c2e111c77d42b5277b74d78b6861378be3ff5adcc83962c12d3ea776daf",
+      "status": "complete",
+      "reviewed_ranges": [
+        [
+          0,
+          77.118708
+        ]
+      ],
+      "unresolved": [
+        {
+          "element": "충격파 고리",
+          "intervals": [
+            [
+              41.958,
+              42.543
+            ]
+          ],
+          "reason": "도끼·발톱 부근 청백색 원호가 충격파인지 접촉 섬광인지 불명확하여 이 구간만 합산 제외"
+        }
+      ],
+      "method": "全 native frames in chronological contact sheets; selected full resolution frames for ambiguous detail",
+      "entries": [
+        {
+          "category": "무기",
+          "element": "도끼·둔기",
+          "role": "주",
+          "intervals": [
+            [
+              4.505,
+              8.383
+            ],
+            [
+              10.885,
+              16.892
+            ],
+            [
+              20.145,
+              29.905
+            ],
+            [
+              41.708,
+              47.673
+            ],
+            [
+              50.55,
+              53.845
+            ],
+            [
+              58.85,
+              59.393
+            ],
+            [
+              60.31,
+              67.151
+            ]
+          ],
+          "seconds_unrounded": 36.289,
+          "seconds": 36,
+          "evidence": "전사의 긴 자루 양날 도끼. 작은 원경 노출도 함께 합산"
+        },
+        {
+          "category": "무기",
+          "element": "발톱·손톱",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              0.959
+            ],
+            [
+              16.058,
+              19.937
+            ],
+            [
+              41.708,
+              44.711
+            ],
+            [
+              47.673,
+              48.382
+            ],
+            [
+              60.018,
+              61.77
+            ]
+          ],
+          "seconds_unrounded": 10.302,
+          "seconds": 10,
+          "evidence": "용의 발톱을 내밀거나 휘두르는 공격"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "기 모으기 빛",
+          "role": "주",
+          "intervals": [
+            [
+              2.586,
+              3.42
+            ],
+            [
+              61.77,
+              62.813
+            ]
+          ],
+          "seconds_unrounded": 1.877,
+          "seconds": 2,
+          "evidence": "용의 입안에 불빛이 응축된 뒤 발사 준비"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "불덩이",
+          "role": "주",
+          "intervals": [
+            [
+              3.42,
+              5.506
+            ]
+          ],
+          "seconds_unrounded": 2.086,
+          "seconds": 2,
+          "evidence": "용이 입에서 내뿜은 응축 화염 및 착탄 화염"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "폭발 섬광",
+          "role": "주",
+          "intervals": [
+            [
+              3.92,
+              4.213
+            ],
+            [
+              4.838,
+              5.255
+            ],
+            [
+              68.819,
+              69.069
+            ],
+            [
+              70.612,
+              70.904
+            ]
+          ],
+          "seconds_unrounded": 1.252,
+          "seconds": 1,
+          "evidence": "화염 발사·착탄과 마지막 타격의 짧은 섬광"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "폭발 파편",
+          "role": "주",
+          "intervals": [
+            [
+              5.005,
+              8.383
+            ],
+            [
+              18.81,
+              23.482
+            ],
+            [
+              41.958,
+              44.711
+            ],
+            [
+              68.819,
+              69.403
+            ]
+          ],
+          "seconds_unrounded": 11.387,
+          "seconds": 11,
+          "evidence": "착탄·발톱 충돌로 비산하는 각진 암석"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "모래",
+          "role": "주",
+          "intervals": [
+            [
+              5.255,
+              6.506
+            ],
+            [
+              13.472,
+              16.225
+            ],
+            [
+              16.892,
+              23.065
+            ],
+            [
+              41.958,
+              43.168
+            ],
+            [
+              70.32,
+              74.7
+            ]
+          ],
+          "seconds_unrounded": 15.767,
+          "seconds": 16,
+          "evidence": "황갈색 흙먼지와 지면을 훑는 모래 띠"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "흰 연기·증기",
+          "role": "주",
+          "intervals": [
+            [
+              59.977,
+              61.77
+            ]
+          ],
+          "seconds_unrounded": 1.793,
+          "seconds": 2,
+          "evidence": "용의 입·턱 주변의 흰 숨 연무"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "바람",
+          "role": "주",
+          "intervals": [
+            [
+              52.928,
+              53.845
+            ],
+            [
+              65.274,
+              67.151
+            ]
+          ],
+          "seconds_unrounded": 2.794,
+          "seconds": 3,
+          "evidence": "상승·낙하 동작에 따라 생기는 굽은 백색 공기 궤적"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "충격파 고리",
+          "role": "주",
+          "intervals": [
+            [
+              68.819,
+              70.987
+            ]
+          ],
+          "seconds_unrounded": 2.168,
+          "seconds": 2,
+          "evidence": "타격 축을 따라 생긴 고리 및 착지점에서 퍼지는 원형 파동"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "빛줄기",
+          "role": "주",
+          "intervals": [
+            [
+              69.528,
+              70.404
+            ]
+          ],
+          "seconds_unrounded": 0.876,
+          "seconds": 1,
+          "evidence": "지면 타격점을 관통하는 가는 황금빛 수직선"
+        },
+        {
+          "category": "충격·파괴",
+          "element": "지면 균열",
+          "role": "주",
+          "intervals": [
+            [
+              5.172,
+              8.383
+            ],
+            [
+              18.977,
+              20.145
+            ],
+            [
+              68.819,
+              69.403
+            ]
+          ],
+          "seconds_unrounded": 4.963,
+          "seconds": 5,
+          "evidence": "착탄점과 발톱 앞 지면이 갈라지며 조각이 들림"
+        },
+        {
+          "category": "충격·파괴",
+          "element": "붕괴",
+          "role": "주",
+          "intervals": [
+            [
+              18.977,
+              20.145
+            ],
+            [
+              41.958,
+              44.711
+            ]
+          ],
+          "seconds_unrounded": 3.921,
+          "seconds": 4,
+          "evidence": "지면·암벽 일부가 부서져 쏟아짐"
+        },
+        {
+          "category": "연출",
+          "element": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              6.256,
+              8.383
+            ],
+            [
+              13.472,
+              16.225
+            ],
+            [
+              44.711,
+              46.755
+            ],
+            [
+              58.85,
+              59.393
+            ],
+            [
+              65.274,
+              67.151
+            ]
+          ],
+          "seconds_unrounded": 9.344,
+          "seconds": 9,
+          "evidence": "근접 암석·인물 크기 변화와 급격한 전후 이동"
+        },
+        {
+          "category": "연출",
+          "element": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              4.505,
+              8.383
+            ],
+            [
+              20.145,
+              28.403
+            ],
+            [
+              50.55,
+              53.845
+            ],
+            [
+              68.652,
+              69.403
+            ]
+          ],
+          "seconds_unrounded": 16.182,
+          "seconds": 16,
+          "evidence": "지평선과 지면 기준축을 대각선으로 기울인 액션 구도"
+        },
+        {
+          "category": "연출",
+          "element": "머리카락 휘날림",
+          "role": "주",
+          "intervals": [
+            [
+              29.905,
+              33.867
+            ],
+            [
+              34.826,
+              41.708
+            ],
+            [
+              44.962,
+              45.462
+            ],
+            [
+              50.55,
+              53.845
+            ],
+            [
+              62.98,
+              64.273
+            ]
+          ],
+          "seconds_unrounded": 15.932,
+          "seconds": 16,
+          "evidence": "은발 인물의 머리카락과 전사 머리카락의 분명한 휘날림"
+        },
+        {
+          "category": "연출",
+          "element": "빛 번짐(블룸)",
+          "role": "주",
+          "intervals": [
+            [
+              3.92,
+              4.213
+            ],
+            [
+              4.838,
+              5.255
+            ],
+            [
+              69.528,
+              70.404
+            ]
+          ],
+          "seconds_unrounded": 1.586,
+          "seconds": 2,
+          "evidence": "밝은 발사광·착탄광·타격선 주변 광 번짐"
+        },
+        {
+          "category": "지형·자연",
+          "element": "절벽",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              2.586
+            ],
+            [
+              4.505,
+              8.383
+            ],
+            [
+              10.385,
+              20.145
+            ],
+            [
+              28.403,
+              29.905
+            ],
+            [
+              41.541,
+              58.558
+            ],
+            [
+              60.018,
+              61.77
+            ],
+            [
+              68.652,
+              77.118
+            ]
+          ],
+          "seconds_unrounded": 44.961,
+          "seconds": 45,
+          "evidence": "모래색 협곡의 수직 암벽과 절벽 가장자리"
+        },
+        {
+          "category": "지형·자연",
+          "element": "숲",
+          "role": "배",
+          "intervals": [
+            [
+              41.541,
+              44.711
+            ],
+            [
+              51.718,
+              53.512
+            ],
+            [
+              57.641,
+              58.558
+            ],
+            [
+              60.018,
+              61.77
+            ]
+          ],
+          "seconds_unrounded": 7.633,
+          "seconds": 8,
+          "evidence": "협곡 상단에 연속해서 보이는 여러 나무의 수관"
+        },
+        {
+          "category": "상대·생물",
+          "element": "용",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              4.505
+            ],
+            [
+              8.383,
+              20.145
+            ],
+            [
+              28.403,
+              29.905
+            ],
+            [
+              41.708,
+              44.711
+            ],
+            [
+              45.462,
+              62.813
+            ],
+            [
+              67.151,
+              68.652
+            ]
+          ],
+          "seconds_unrounded": 39.624,
+          "seconds": 40,
+          "evidence": "붉은 비늘·긴 꼬리·막 날개를 가진 용"
+        },
+        {
+          "category": "상대·생물",
+          "element": "거대 생물",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              4.505
+            ],
+            [
+              8.383,
+              20.145
+            ],
+            [
+              28.403,
+              29.905
+            ],
+            [
+              41.708,
+              44.711
+            ],
+            [
+              45.462,
+              62.813
+            ],
+            [
+              67.151,
+              68.652
+            ]
+          ],
+          "seconds_unrounded": 39.624,
+          "seconds": 40,
+          "evidence": "사람과 대비되는 용의 거대한 크기"
+        },
+        {
+          "category": "상대·생물",
+          "element": "비늘",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              4.505
+            ],
+            [
+              8.383,
+              16.892
+            ],
+            [
+              28.403,
+              29.905
+            ],
+            [
+              45.462,
+              53.845
+            ],
+            [
+              57.641,
+              58.85
+            ],
+            [
+              60.018,
+              62.813
+            ],
+            [
+              67.151,
+              68.652
+            ]
+          ],
+          "seconds_unrounded": 28.404,
+          "seconds": 28,
+          "evidence": "용의 붉은 겹비늘이 식별되는 근접·중경"
+        },
+        {
+          "category": "상대·생물",
+          "element": "날개",
+          "role": "주",
+          "intervals": [
+            [
+              0.959,
+              4.505
+            ],
+            [
+              18.977,
+              19.937
+            ],
+            [
+              41.708,
+              44.711
+            ],
+            [
+              48.382,
+              50.55
+            ],
+            [
+              53.845,
+              57.266
+            ],
+            [
+              59.977,
+              61.77
+            ]
+          ],
+          "seconds_unrounded": 14.891,
+          "seconds": 15,
+          "evidence": "용의 붉은 막 날개"
+        }
+      ],
+      "notes": "애매:충격파 고리",
+      "decisions": [
+        "황갈색 분진을 하늘 구름·날씨 안개로 분류하지 않음",
+        "협곡 바닥의 실제 그림자를 어둠·그림자 이펙트로 세지 않음",
+        "화염 브레스를 에너지 포·빛줄기로 치환하지 않음",
+        "용이 보이는 전체 시간과 개별 비늘·날개가 식별되는 시간은 구분"
+      ]
+    },
+    {
+      "group": "H03",
+      "id": "210214",
+      "expected_duration": 35,
+      "duration": 34.951583,
+      "fps": "24000/1001",
+      "width": 640,
+      "height": 480,
+      "frames": "838",
+      "sha256": "cfd0a7d7447beeedf5367194a975f2eea0144cdab12128de2d16966fb838b952",
+      "status": "complete",
+      "reviewed_ranges": [
+        [
+          0,
+          34.951583
+        ]
+      ],
+      "unresolved": [
+        {
+          "element": "호수",
+          "intervals": [
+            [
+              9.384,
+              22.397
+            ],
+            [
+              25.734,
+              29.238
+            ]
+          ],
+          "reason": "산으로 둘러싸인 수면이나 수역 종류는 확정하기 어려워 물가로 기록"
+        }
+      ],
+      "method": "全 native frames in chronological contact sheets; selected full resolution frames for ambiguous detail",
+      "entries": [
+        {
+          "category": "원소 이펙트",
+          "element": "바람",
+          "role": "주",
+          "intervals": [
+            [
+              27.027,
+              32.741
+            ]
+          ],
+          "seconds_unrounded": 5.714,
+          "seconds": 6,
+          "evidence": "흰 공기 궤적이 회전하며 이동하고 공중 곡선으로 남음"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "회오리",
+          "role": "주",
+          "intervals": [
+            [
+              27.527,
+              31.24
+            ]
+          ],
+          "seconds_unrounded": 3.713,
+          "seconds": 4,
+          "evidence": "배경에서 솟아 화면을 가로지르는 뚜렷한 나선형 소용돌이"
+        },
+        {
+          "category": "연출",
+          "element": "머리카락 휘날림",
+          "role": "주",
+          "intervals": [
+            [
+              3.795,
+              6.59
+            ],
+            [
+              7.466,
+              8.508
+            ]
+          ],
+          "seconds_unrounded": 3.837,
+          "seconds": 4,
+          "evidence": "긴 녹흑색 머리카락이 격투·착지에 따라 휘날림"
+        },
+        {
+          "category": "연출",
+          "element": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              31.24,
+              32.741
+            ]
+          ],
+          "seconds_unrounded": 1.501,
+          "seconds": 2,
+          "evidence": "날아오는 인물들이 원경에서 얼굴 클로즈업까지 급격히 커짐"
+        },
+        {
+          "category": "지형·자연",
+          "element": "구름",
+          "role": "배",
+          "intervals": [
+            [
+              2.002,
+              32.741
+            ]
+          ],
+          "seconds_unrounded": 30.739,
+          "seconds": 31,
+          "evidence": "파란 하늘에 분포하는 흰 구름. 바람 소용돌이와 별개"
+        },
+        {
+          "category": "지형·자연",
+          "element": "절벽",
+          "role": "배",
+          "intervals": [
+            [
+              1.835,
+              3.795
+            ],
+            [
+              32.741,
+              34.951
+            ]
+          ],
+          "seconds_unrounded": 4.17,
+          "seconds": 4,
+          "evidence": "수직으로 솟은 녹갈색 암벽"
+        },
+        {
+          "category": "지형·자연",
+          "element": "숲",
+          "role": "배",
+          "intervals": [
+            [
+              7.466,
+              9.384
+            ],
+            [
+              22.397,
+              25.734
+            ]
+          ],
+          "seconds_unrounded": 5.255,
+          "seconds": 5,
+          "evidence": "인물 뒤 여러 나무로 이루어진 수관"
+        },
+        {
+          "category": "지형·자연",
+          "element": "산",
+          "role": "배",
+          "intervals": [
+            [
+              9.384,
+              22.397
+            ],
+            [
+              25.734,
+              29.238
+            ]
+          ],
+          "seconds_unrounded": 16.517,
+          "seconds": 17,
+          "evidence": "물 건너편에 이어진 산줄기"
+        },
+        {
+          "category": "지형·자연",
+          "element": "물가",
+          "role": "배",
+          "intervals": [
+            [
+              9.384,
+              22.397
+            ],
+            [
+              25.734,
+              29.238
+            ]
+          ],
+          "seconds_unrounded": 16.517,
+          "seconds": 17,
+          "evidence": "잔잔한 수면과 맞은편 산지의 물·땅 경계"
+        }
+      ],
+      "notes": "애매:호수",
+      "decisions": [
+        "둥근 선글라스는 고글로 치환하지 않음",
+        "맨손 격투의 주먹·손가락을 발톱·손톱 무기로 세지 않음",
+        "말미의 기형적인 인간 인물을 짐승·거대 생물로 추측 분류하지 않음",
+        "하늘 구름과 회전 공기 효과를 구분"
+      ]
+    },
+    {
+      "group": "H03",
+      "id": "281196",
+      "expected_duration": 54,
+      "duration": 53.928875,
+      "fps": "24000/1001",
+      "width": 854,
+      "height": 480,
+      "frames": "1293",
+      "sha256": "cb67f7abb01f6506fa6e3a518ca7e263f85329af68aa6882e9784fc777b0f6a4",
+      "status": "complete",
+      "reviewed_ranges": [
+        [
+          0,
+          53.928875
+        ]
+      ],
+      "unresolved": [
+        {
+          "element": "대포·포탑",
+          "intervals": [
+            [
+              0,
+              1.96
+            ]
+          ],
+          "reason": "붉은 발광점이 달린 원통·상자형 장비가 보이지만 포구인지 센서인지 영상만으로 불명확"
+        }
+      ],
+      "method": "全 native frames in chronological contact sheets; selected full resolution frames for ambiguous detail",
+      "entries": [
+        {
+          "category": "원소 이펙트",
+          "element": "얼음",
+          "role": "주",
+          "intervals": [
+            [
+              2.502,
+              3.212
+            ],
+            [
+              7.257,
+              11.428
+            ],
+            [
+              14.681,
+              16.6
+            ],
+            [
+              17.434,
+              23.357
+            ],
+            [
+              27.361,
+              33.367
+            ],
+            [
+              38.497,
+              45.546
+            ]
+          ],
+          "seconds_unrounded": 25.778,
+          "seconds": 26,
+          "evidence": "발밑 결빙·지면에서 솟는 얼음 기둥·기계를 덮는 거대한 얼음"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "얼음 조각",
+          "role": "주",
+          "intervals": [
+            [
+              7.716,
+              9.551
+            ],
+            [
+              11.428,
+              14.681
+            ],
+            [
+              16.058,
+              16.6
+            ],
+            [
+              20.312,
+              23.357
+            ],
+            [
+              40.749,
+              42.918
+            ]
+          ],
+          "seconds_unrounded": 10.844,
+          "seconds": 11,
+          "evidence": "비산하는 청백색 얼음 결정과 파편"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "냉기",
+          "role": "주",
+          "intervals": [
+            [
+              2.502,
+              3.212
+            ],
+            [
+              3.795,
+              7.257
+            ],
+            [
+              11.428,
+              14.681
+            ],
+            [
+              25.234,
+              27.361
+            ],
+            [
+              30.739,
+              38.497
+            ],
+            [
+              42.918,
+              45.546
+            ]
+          ],
+          "seconds_unrounded": 19.938,
+          "seconds": 20,
+          "evidence": "손 주변의 서리빛과 얼음 공격 뒤 지면을 덮은 낮은 냉기"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "흰 연기·증기",
+          "role": "주",
+          "intervals": [
+            [
+              25.234,
+              27.361
+            ],
+            [
+              33.367,
+              38.497
+            ],
+            [
+              42.918,
+              45.546
+            ]
+          ],
+          "seconds_unrounded": 9.885,
+          "seconds": 10,
+          "evidence": "얼굴 옆과 얼어붙은 지면 위에 흘러가는 흰 응결 연무"
+        },
+        {
+          "category": "연출",
+          "element": "빛 번짐(블룸)",
+          "role": "주",
+          "intervals": [
+            [
+              3.795,
+              7.257
+            ],
+            [
+              14.681,
+              16.6
+            ]
+          ],
+          "seconds_unrounded": 5.381,
+          "seconds": 5,
+          "evidence": "손과 결빙 접점 주변 청백색 광 번짐"
+        },
+        {
+          "category": "연출",
+          "element": "머리카락 휘날림",
+          "role": "주",
+          "intervals": [
+            [
+              16.6,
+              17.434
+            ],
+            [
+              23.357,
+              27.361
+            ],
+            [
+              37.12,
+              38.497
+            ],
+            [
+              44.92,
+              47.923
+            ]
+          ],
+          "seconds_unrounded": 9.218,
+          "seconds": 9,
+          "evidence": "달리기·고개 전환에 맞춰 움직이는 붉고 흰 머리카락"
+        },
+        {
+          "category": "연출",
+          "element": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              9.551,
+              11.428
+            ],
+            [
+              18.56,
+              20.646
+            ],
+            [
+              40.749,
+              42.918
+            ]
+          ],
+          "seconds_unrounded": 6.132,
+          "seconds": 6,
+          "evidence": "얼음 기둥과 떨어지는 기계 파편이 전경으로 빠르게 확대"
+        },
+        {
+          "category": "연출",
+          "element": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              1.96
+            ],
+            [
+              8.05,
+              11.428
+            ],
+            [
+              18.56,
+              20.646
+            ],
+            [
+              38.497,
+              42.918
+            ]
+          ],
+          "seconds_unrounded": 11.845,
+          "seconds": 12,
+          "evidence": "로봇과 얼음 기둥 축이 대각선으로 배치된 액션 컷"
+        },
+        {
+          "category": "충격·파괴",
+          "element": "균열",
+          "role": "주",
+          "intervals": [
+            [
+              38.747,
+              40.749
+            ]
+          ],
+          "seconds_unrounded": 2.002,
+          "seconds": 2,
+          "evidence": "얼어붙은 기계 외장에 금이 가고 분리되기 직전"
+        },
+        {
+          "category": "충격·파괴",
+          "element": "붕괴",
+          "role": "주",
+          "intervals": [
+            [
+              40.749,
+              42.918
+            ]
+          ],
+          "seconds_unrounded": 2.169,
+          "seconds": 2,
+          "evidence": "기계 몸체가 블록 형태로 부서져 떨어짐"
+        },
+        {
+          "category": "지형·자연",
+          "element": "구름",
+          "role": "배",
+          "intervals": [
+            [
+              3.212,
+              6.048
+            ],
+            [
+              9.551,
+              11.428
+            ],
+            [
+              17.434,
+              18.185
+            ],
+            [
+              20.854,
+              30.739
+            ],
+            [
+              33.367,
+              37.12
+            ],
+            [
+              38.497,
+              46.338
+            ]
+          ],
+          "seconds_unrounded": 26.943,
+          "seconds": 27,
+          "evidence": "짙은 파란 하늘에 떠 있는 흰 구름"
+        },
+        {
+          "category": "지형·자연",
+          "element": "숲",
+          "role": "배",
+          "intervals": [
+            [
+              47.923,
+              53.928
+            ]
+          ],
+          "seconds_unrounded": 6.005,
+          "seconds": 6,
+          "evidence": "마지막 항공 시점에서 훈련장 둘레를 감싼 연속 수관"
+        },
+        {
+          "category": "인공 배경",
+          "element": "공장·기계",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              1.96
+            ],
+            [
+              9.551,
+              11.428
+            ],
+            [
+              18.56,
+              23.357
+            ],
+            [
+              27.361,
+              30.739
+            ],
+            [
+              38.497,
+              45.546
+            ]
+          ],
+          "seconds_unrounded": 19.061,
+          "seconds": 19,
+          "evidence": "초록색 거대 로봇의 기계 몸체 및 부서지는 외장"
+        },
+        {
+          "category": "상대·생물",
+          "element": "군중·군대",
+          "role": "배",
+          "intervals": [
+            [
+              33.367,
+              37.12
+            ]
+          ],
+          "seconds_unrounded": 3.753,
+          "seconds": 4,
+          "evidence": "냉기 너머에 서 있는 여러 사람의 무리"
+        }
+      ],
+      "notes": "애매:대포·포탑",
+      "decisions": [
+        "로봇은 생물이 아니므로 거대 생물·짐승에 넣지 않음",
+        "인공적으로 솟은 얼음은 빙하·빙산이나 설원이 아님",
+        "추위에 생긴 지면 연무는 날씨 안개가 아님",
+        "기계 분해를 연쇄 폭발로 세지 않음",
+        "프레임 확대에서도 발사체나 탄피는 확인되지 않음"
+      ]
+    },
+    {
+      "group": "H04",
+      "id": "203327",
+      "expected_duration": 52,
+      "duration": 51.885167,
+      "fps": "24000/1001",
+      "width": 854,
+      "height": 480,
+      "frames": "1244",
+      "sha256": "16f0ddeca3f9db5305af19b38a778fb6579c17afb8224686093727ed8b4d8dc6",
+      "status": "complete",
+      "reviewed_ranges": [
+        [
+          0,
+          51.885167
+        ]
+      ],
+      "unresolved": [
+        {
+          "element": "갈고리·와이어",
+          "intervals": [
+            [
+              22.314,
+              23.19
+            ],
+            [
+              23.398,
+              24.316
+            ],
+            [
+              24.525,
+              30.53
+            ]
+          ],
+          "reason": "분신을 매단 가는 선이 보이나 금속 와이어인지 마법·붕대의 가는 부분인지 불명확"
+        },
+        {
+          "element": "구름",
+          "intervals": [
+            [
+              0,
+              2.211
+            ],
+            [
+              11.886,
+              17.434
+            ],
+            [
+              26.193,
+              31.866
+            ],
+            [
+              36.412,
+              42.334
+            ],
+            [
+              43.919,
+              46.296
+            ]
+          ],
+          "reason": "붉은 배경의 보라색 띠가 하늘 구름인지 초현실적 배경 무늬인지 확정하기 어려움"
+        }
+      ],
+      "method": "全 native frames in chronological contact sheets; selected full resolution frames for ambiguous detail",
+      "entries": [
+        {
+          "category": "무기",
+          "element": "에너지 포",
+          "role": "주",
+          "intervals": [
+            [
+              36.37,
+              38.539
+            ]
+          ],
+          "seconds_unrounded": 2.169,
+          "seconds": 2,
+          "evidence": "거대한 인물의 입에서 발사되어 검으로 받아내는 붉은 에너지 광선"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "기 모으기 빛",
+          "role": "주",
+          "intervals": [
+            [
+              30.53,
+              30.864
+            ],
+            [
+              35.994,
+              36.37
+            ]
+          ],
+          "seconds_unrounded": 0.71,
+          "seconds": 1,
+          "evidence": "입앞에 붉은 발광점이 커지며 응축"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "에너지 구",
+          "role": "주",
+          "intervals": [
+            [
+              35.994,
+              36.37
+            ]
+          ],
+          "seconds_unrounded": 0.376,
+          "seconds": 1,
+          "evidence": "광선 발사 직전 입앞에 모인 붉은 구형 에너지"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "빛줄기",
+          "role": "주",
+          "intervals": [
+            [
+              36.412,
+              38.539
+            ]
+          ],
+          "seconds_unrounded": 2.127,
+          "seconds": 2,
+          "evidence": "붉은 에너지 빔이 화면을 대각선으로 가로지름"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "폭발 섬광",
+          "role": "주",
+          "intervals": [
+            [
+              36.37,
+              36.537
+            ]
+          ],
+          "seconds_unrounded": 0.167,
+          "seconds": 1,
+          "evidence": "발사 순간 순백 프레임과 붉은 광폭발"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "폭발 파편",
+          "role": "주",
+          "intervals": [
+            [
+              30.864,
+              31.866
+            ]
+          ],
+          "seconds_unrounded": 1.002,
+          "seconds": 1,
+          "evidence": "발밑 충격 후 보라색·검은 석재가 비산"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "흰 연기·증기",
+          "role": "주",
+          "intervals": [
+            [
+              30.864,
+              31.866
+            ],
+            [
+              42.125,
+              42.334
+            ]
+          ],
+          "seconds_unrounded": 1.211,
+          "seconds": 1,
+          "evidence": "발밑에서 퍼지는 회색 먼지 연무"
+        },
+        {
+          "category": "충격·파괴",
+          "element": "붕괴",
+          "role": "주",
+          "intervals": [
+            [
+              30.864,
+              31.866
+            ]
+          ],
+          "seconds_unrounded": 1.002,
+          "seconds": 1,
+          "evidence": "바닥의 돌이 들리고 부서져 흩어짐"
+        },
+        {
+          "category": "연출",
+          "element": "분신",
+          "role": "주",
+          "intervals": [
+            [
+              2.711,
+              4.254
+            ],
+            [
+              11.886,
+              13.805
+            ],
+            [
+              13.889,
+              15.557
+            ],
+            [
+              15.724,
+              17.434
+            ],
+            [
+              22.314,
+              23.19
+            ],
+            [
+              23.398,
+              24.316
+            ],
+            [
+              26.193,
+              30.53
+            ]
+          ],
+          "seconds_unrounded": 12.971,
+          "seconds": 13,
+          "evidence": "같은 파란 머리 인물이 여러 위치에 동시에 분리되어 나타나며 나중에 매달린 여러 형상도 보임"
+        },
+        {
+          "category": "연출",
+          "element": "잔상",
+          "role": "주",
+          "intervals": [
+            [
+              7.508,
+              7.716
+            ],
+            [
+              38.539,
+              39.039
+            ]
+          ],
+          "seconds_unrounded": 0.708,
+          "seconds": 1,
+          "evidence": "움직임 뒤로 얼굴·상체의 희미한 겹친 형상이 남음"
+        },
+        {
+          "category": "연출",
+          "element": "단색",
+          "role": "주",
+          "intervals": [
+            [
+              22.314,
+              23.19
+            ],
+            [
+              23.398,
+              24.316
+            ],
+            [
+              24.525,
+              26.193
+            ]
+          ],
+          "seconds_unrounded": 3.462,
+          "seconds": 3,
+          "evidence": "붉은 바탕과 푸른 인물로 축약되는 삽입 연출"
+        },
+        {
+          "category": "연출",
+          "element": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              22.314,
+              23.19
+            ],
+            [
+              23.398,
+              24.316
+            ],
+            [
+              24.525,
+              26.193
+            ],
+            [
+              48.048,
+              50.175
+            ]
+          ],
+          "seconds_unrounded": 5.589,
+          "seconds": 6,
+          "evidence": "분신의 크기 차와 거대한 팔을 타고 접근하는 인물의 전후 원근"
+        },
+        {
+          "category": "연출",
+          "element": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              2.211
+            ],
+            [
+              11.886,
+              13.805
+            ],
+            [
+              13.889,
+              15.557
+            ],
+            [
+              15.724,
+              17.434
+            ],
+            [
+              26.193,
+              31.866
+            ],
+            [
+              36.537,
+              37.704
+            ],
+            [
+              39.039,
+              42.334
+            ],
+            [
+              43.919,
+              46.296
+            ]
+          ],
+          "seconds_unrounded": 20.02,
+          "seconds": 20,
+          "evidence": "돌바닥과 거인의 기준축이 화면 대각선으로 기울어짐"
+        },
+        {
+          "category": "연출",
+          "element": "빛 번짐(블룸)",
+          "role": "주",
+          "intervals": [
+            [
+              30.53,
+              30.864
+            ],
+            [
+              35.994,
+              36.37
+            ],
+            [
+              36.412,
+              38.539
+            ]
+          ],
+          "seconds_unrounded": 2.837,
+          "seconds": 3,
+          "evidence": "입앞 발광구와 붉은 빔 주변 빛 번짐"
+        },
+        {
+          "category": "상대·생물",
+          "element": "거대 생물",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              11.637
+            ],
+            [
+              11.886,
+              13.805
+            ],
+            [
+              13.889,
+              15.557
+            ],
+            [
+              15.724,
+              22.105
+            ],
+            [
+              26.193,
+              36.37
+            ],
+            [
+              36.537,
+              37.704
+            ],
+            [
+              39.039,
+              42.334
+            ],
+            [
+              43.919,
+              50.175
+            ]
+          ],
+          "seconds_unrounded": 42.5,
+          "seconds": 43,
+          "evidence": "일반 인물보다 현저하게 큰 몸체의 인간형 괴물"
+        },
+        {
+          "category": "인공 배경",
+          "element": "무너진 잔해 더미",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              2.211
+            ],
+            [
+              4.254,
+              5.714
+            ],
+            [
+              8.216,
+              11.637
+            ],
+            [
+              11.886,
+              13.805
+            ],
+            [
+              13.889,
+              15.557
+            ],
+            [
+              15.724,
+              17.434
+            ],
+            [
+              26.193,
+              31.866
+            ],
+            [
+              40.207,
+              42.334
+            ],
+            [
+              43.919,
+              46.296
+            ]
+          ],
+          "seconds_unrounded": 22.566,
+          "seconds": 23,
+          "evidence": "주변에 널린 부서진 석재·구조물"
+        },
+        {
+          "category": "인공 배경",
+          "element": "기둥",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              2.211
+            ],
+            [
+              4.254,
+              5.714
+            ],
+            [
+              8.216,
+              11.637
+            ],
+            [
+              11.886,
+              13.805
+            ],
+            [
+              13.889,
+              15.557
+            ],
+            [
+              15.724,
+              17.434
+            ],
+            [
+              26.193,
+              31.866
+            ],
+            [
+              40.207,
+              42.334
+            ],
+            [
+              43.919,
+              46.296
+            ]
+          ],
+          "seconds_unrounded": 22.566,
+          "seconds": 23,
+          "evidence": "폐허의 검고 길쭉한 수직 구조물"
+        }
+      ],
+      "notes": "애매:갈고리·와이어;애매:구름",
+      "decisions": [
+        "흰색 공격 띠는 끝이 갈라진 붕대이므로 촉수로 치환하지 않음",
+        "붕대 얼굴과 큰 이빨만으로 해골·언데드에 넣지 않음",
+        "일반 검과 검의 눈 문양을 광선검·에너지 칼로 치환하지 않음",
+        "검은 삽입 프레임은 명암 반전이나 우주가 아님",
+        "분신은 여러 개체가 보여도 시간을 개체 수로 곱하지 않음"
+      ]
+    },
+    {
+      "group": "H04",
+      "id": "229832",
+      "expected_duration": 22,
+      "duration": 22.022,
+      "fps": "24000/1001",
+      "width": 854,
+      "height": 480,
+      "frames": "528",
+      "sha256": "60337cc17ad0074351e827039372c7e21213b569bd3fd058ed5132757c0dfb30",
+      "status": "complete",
+      "reviewed_ranges": [
+        [
+          0,
+          22.022
+        ]
+      ],
+      "unresolved": [
+        {
+          "element": "갈고리·와이어",
+          "intervals": [
+            [
+              0,
+              3.003
+            ]
+          ],
+          "reason": "빌딩 사이 이동에 쓰는 청록색 에너지 연결선. 실제 와이어인지 확정하기 어려워 치환하지 않음"
+        },
+        {
+          "element": "유령·정령",
+          "intervals": [
+            [
+              5.506,
+              9.009
+            ]
+          ],
+          "reason": "검은 배경의 흰 인물은 정신·회상 연출일 수 있어 실제 유령으로 확정하지 않음"
+        },
+        {
+          "element": "불덩이",
+          "intervals": [
+            [
+              13.472,
+              13.805
+            ],
+            [
+              14.848,
+              16.058
+            ]
+          ],
+          "reason": "불빛 같은 공격체지만 불덩이·폭발·에너지탄 사이 구분이 불명확"
+        }
+      ],
+      "method": "全 native frames in chronological contact sheets; selected full resolution frames for ambiguous detail",
+      "entries": [
+        {
+          "category": "무기",
+          "element": "총알",
+          "role": "주",
+          "intervals": [
+            [
+              3.42,
+              3.962
+            ]
+          ],
+          "seconds_unrounded": 0.542,
+          "seconds": 1,
+          "evidence": "유리 표면을 관통하는 청회색 발사체와 다수의 탄흔"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "폭발 섬광",
+          "role": "주",
+          "intervals": [
+            [
+              9.968,
+              10.135
+            ],
+            [
+              13.472,
+              13.638
+            ],
+            [
+              16.517,
+              16.6
+            ],
+            [
+              17.601,
+              17.684
+            ],
+            [
+              18.101,
+              18.185
+            ],
+            [
+              18.435,
+              18.518
+            ],
+            [
+              18.769,
+              18.853
+            ],
+            [
+              18.936,
+              19.019
+            ],
+            [
+              19.102,
+              19.186
+            ],
+            [
+              19.269,
+              19.353
+            ],
+            [
+              19.436,
+              19.519
+            ],
+            [
+              19.811,
+              19.894
+            ]
+          ],
+          "seconds_unrounded": 1.167,
+          "seconds": 1,
+          "evidence": "공격·출력 전환에 맞춰 삽입되는 짧은 색광·백광"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "빛줄기",
+          "role": "주",
+          "intervals": [
+            [
+              13.931,
+              14.264
+            ],
+            [
+              14.848,
+              16.058
+            ]
+          ],
+          "seconds_unrounded": 1.543,
+          "seconds": 2,
+          "evidence": "회색 공간을 가르는 황색·청색·분홍색 발광 궤적"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "기 모으기 빛",
+          "role": "주",
+          "intervals": [
+            [
+              9.968,
+              10.969
+            ],
+            [
+              17.601,
+              17.768
+            ],
+            [
+              18.101,
+              18.268
+            ],
+            [
+              18.435,
+              18.602
+            ],
+            [
+              18.769,
+              19.019
+            ],
+            [
+              19.102,
+              19.186
+            ],
+            [
+              19.269,
+              19.353
+            ],
+            [
+              19.436,
+              19.519
+            ]
+          ],
+          "seconds_unrounded": 2.003,
+          "seconds": 2,
+          "evidence": "동작 전 몸·손 주변이 발광하고 출력이 퍼지는 연출. 목록에 없는 번개 자체의 시간과는 구분"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "얼음",
+          "role": "배",
+          "intervals": [
+            [
+              10.969,
+              12.012
+            ],
+            [
+              14.181,
+              14.515
+            ]
+          ],
+          "seconds_unrounded": 1.377,
+          "seconds": 1,
+          "evidence": "인물 뒤·발아래에 보이는 청백색 각진 얼음 덩어리"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "충격파 고리",
+          "role": "주",
+          "intervals": [
+            [
+              13.055,
+              13.263
+            ]
+          ],
+          "seconds_unrounded": 0.208,
+          "seconds": 1,
+          "evidence": "바닥 위 인물 주변에서 바깥으로 퍼지는 짧은 원형 백색 파동"
+        },
+        {
+          "category": "충격·파괴",
+          "element": "유리 조각",
+          "role": "주",
+          "intervals": [
+            [
+              3.503,
+              5.506
+            ]
+          ],
+          "seconds_unrounded": 2.003,
+          "seconds": 2,
+          "evidence": "탄환 관통 뒤 투명한 유리 파편이 비산"
+        },
+        {
+          "category": "충격·파괴",
+          "element": "균열",
+          "role": "주",
+          "intervals": [
+            [
+              3.42,
+              3.503
+            ]
+          ],
+          "seconds_unrounded": 0.083,
+          "seconds": 1,
+          "evidence": "유리 탄흔 주변에 번지는 방사형 균열"
+        },
+        {
+          "category": "연출",
+          "element": "선화만",
+          "role": "주",
+          "intervals": [
+            [
+              5.506,
+              9.009
+            ]
+          ],
+          "seconds_unrounded": 3.503,
+          "seconds": 4,
+          "evidence": "완성 영상 중간의 흑백 스케치·선화 인물 삽입"
+        },
+        {
+          "category": "연출",
+          "element": "단색",
+          "role": "주",
+          "intervals": [
+            [
+              5.506,
+              9.009
+            ],
+            [
+              16.517,
+              16.6
+            ],
+            [
+              17.643,
+              17.684
+            ],
+            [
+              18.143,
+              18.185
+            ],
+            [
+              18.477,
+              18.518
+            ],
+            [
+              18.811,
+              18.853
+            ],
+            [
+              19.144,
+              19.186
+            ],
+            [
+              19.311,
+              19.353
+            ],
+            [
+              19.478,
+              19.519
+            ]
+          ],
+          "seconds_unrounded": 3.877,
+          "seconds": 4,
+          "evidence": "흑백 및 한 가지 색으로 축약된 임팩트 삽입"
+        },
+        {
+          "category": "연출",
+          "element": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              0.459
+            ],
+            [
+              1.376,
+              3.003
+            ],
+            [
+              19.644,
+              22.021
+            ]
+          ],
+          "seconds_unrounded": 4.463,
+          "seconds": 4,
+          "evidence": "빌딩 사이를 통과하는 전후 이동과 말미 정면 돌진"
+        },
+        {
+          "category": "연출",
+          "element": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              3.003
+            ],
+            [
+              10.969,
+              16.058
+            ]
+          ],
+          "seconds_unrounded": 8.092,
+          "seconds": 8,
+          "evidence": "빌딩 수직선 및 지면 축이 비스듬한 액션 컷"
+        },
+        {
+          "category": "연출",
+          "element": "머리카락 휘날림",
+          "role": "주",
+          "intervals": [
+            [
+              0.459,
+              1.376
+            ],
+            [
+              3.003,
+              3.42
+            ],
+            [
+              3.962,
+              5.506
+            ],
+            [
+              17.768,
+              19.644
+            ],
+            [
+              19.894,
+              22.021
+            ]
+          ],
+          "seconds_unrounded": 6.881,
+          "seconds": 7,
+          "evidence": "이동 중 주인공 머리카락과 보라색 머리 인물의 휘날림"
+        },
+        {
+          "category": "연출",
+          "element": "빛 번짐(블룸)",
+          "role": "주",
+          "intervals": [
+            [
+              9.968,
+              10.969
+            ],
+            [
+              13.931,
+              14.264
+            ],
+            [
+              14.848,
+              16.058
+            ],
+            [
+              17.601,
+              17.768
+            ],
+            [
+              18.101,
+              18.268
+            ],
+            [
+              18.435,
+              18.602
+            ],
+            [
+              18.769,
+              19.519
+            ]
+          ],
+          "seconds_unrounded": 3.795,
+          "seconds": 4,
+          "evidence": "전신·손 주변 발광과 밝은 공격 궤적의 빛 번짐"
+        },
+        {
+          "category": "인공 배경",
+          "element": "고층 빌딩",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              0.459
+            ],
+            [
+              0.876,
+              3.003
+            ]
+          ],
+          "seconds_unrounded": 2.586,
+          "seconds": 3,
+          "evidence": "야간 도심의 여러 층 창문과 고층 외벽"
+        },
+        {
+          "category": "인공 배경",
+          "element": "복도",
+          "role": "배",
+          "intervals": [
+            [
+              0.459,
+              0.876
+            ]
+          ],
+          "seconds_unrounded": 0.417,
+          "seconds": 1,
+          "evidence": "노란 조명이 늘어선 건물 내부 통로"
+        }
+      ],
+      "notes": "애매:갈고리·와이어;애매:유령·정령;애매:불덩이",
+      "decisions": [
+        "목록에 없는 번개 효과를 푸른 불이나 문양·룬으로 바꾸지 않음",
+        "어두운 도심과 검은 배경을 우주로 분류하지 않음",
+        "실제 인물의 바닥 그림자는 어둠·그림자에 넣지 않음",
+        "일반 소총은 목록에 없으므로 다른 무기 이름으로 대체하지 않음",
+        "주인공의 목도리를 머리카락 노출 시간에 포함하지 않음"
+      ]
+    },
+    {
+      "group": "H04",
+      "id": "250125",
+      "expected_duration": 18,
+      "duration": 17.308958,
+      "fps": "24000/1001",
+      "width": 854,
+      "height": 480,
+      "frames": "415",
+      "sha256": "e94ebab1be3bb6cab3a38cfb26534ca28dac580341e55f08952d909438e3cccd",
+      "status": "complete",
+      "reviewed_ranges": [
+        [
+          0,
+          17.308958
+        ]
+      ],
+      "unresolved": [
+        {
+          "element": "날개 장비·추진팩",
+          "intervals": [
+            [
+              0,
+              1.043
+            ],
+            [
+              2.794,
+              4.254
+            ],
+            [
+              14.848,
+              17.309
+            ]
+          ],
+          "reason": "기체 주변 보드·날개 같은 부품은 보이나 착용형 날개 또는 추진팩으로 확정하기 어려움"
+        }
+      ],
+      "method": "全 native frames in chronological contact sheets; selected full resolution frames for ambiguous detail",
+      "entries": [
+        {
+          "category": "무기",
+          "element": "에너지 포",
+          "role": "주",
+          "intervals": [
+            [
+              0.834,
+              1.043
+            ],
+            [
+              2.794,
+              4.254
+            ]
+          ],
+          "seconds_unrounded": 1.669,
+          "seconds": 2,
+          "evidence": "로봇의 총에서 발사되어 다른 로봇의 보드 근처로 날아드는 분홍색 광탄"
+        },
+        {
+          "category": "무기",
+          "element": "총구 화염",
+          "role": "주",
+          "intervals": [
+            [
+              1.877,
+              2.461
+            ],
+            [
+              2.544,
+              2.586
+            ],
+            [
+              2.669,
+              2.753
+            ]
+          ],
+          "seconds_unrounded": 0.71,
+          "seconds": 1,
+          "evidence": "총신 끝에서 반복해서 터지는 황백색 발사 화염"
+        },
+        {
+          "category": "무기",
+          "element": "방패",
+          "role": "주",
+          "intervals": [
+            [
+              2.794,
+              4.254
+            ]
+          ],
+          "seconds_unrounded": 1.46,
+          "seconds": 1,
+          "evidence": "앞으로 세운 보드로 광탄을 받아내는 방어 동작. 같은 보드의 이동용 노출은 제외"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "빛줄기",
+          "role": "주",
+          "intervals": [
+            [
+              0.834,
+              1.043
+            ],
+            [
+              2.794,
+              3.462
+            ],
+            [
+              8.842,
+              9.927
+            ],
+            [
+              14.097,
+              17.309
+            ]
+          ],
+          "seconds_unrounded": 5.174,
+          "seconds": 5,
+          "evidence": "분홍색 광탄의 선형 궤적과 비행 뒤 남는 녹색 발광 궤적"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "폭발 섬광",
+          "role": "주",
+          "intervals": [
+            [
+              2.794,
+              2.836
+            ],
+            [
+              2.878,
+              2.92
+            ]
+          ],
+          "seconds_unrounded": 0.084,
+          "seconds": 1,
+          "evidence": "보드와 광탄 접촉 순간 청백색 번쩍임"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "물기둥",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              0.834
+            ],
+            [
+              5.631,
+              6.256
+            ],
+            [
+              6.757,
+              9.343
+            ],
+            [
+              12.93,
+              14.848
+            ]
+          ],
+          "seconds_unrounded": 5.963,
+          "seconds": 6,
+          "evidence": "해수면 충돌·스침으로 솟아오르는 큰 물기둥과 수벽"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "물보라",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              0.834
+            ],
+            [
+              5.631,
+              9.343
+            ],
+            [
+              12.93,
+              14.848
+            ]
+          ],
+          "seconds_unrounded": 6.464,
+          "seconds": 6,
+          "evidence": "수면에서 분출해 흩어지는 물보라"
+        },
+        {
+          "category": "원소 이펙트",
+          "element": "파도",
+          "role": "배",
+          "intervals": [
+            [
+              6.673,
+              6.84
+            ],
+            [
+              7.382,
+              9.343
+            ]
+          ],
+          "seconds_unrounded": 2.128,
+          "seconds": 2,
+          "evidence": "입수 순간의 해수면 솟음과 물기둥 밑으로 퍼지는 둥근 수면 파동"
+        },
+        {
+          "category": "연출",
+          "element": "단색",
+          "role": "주",
+          "intervals": [
+            [
+              2.461,
+              2.544
+            ],
+            [
+              2.628,
+              2.669
+            ]
+          ],
+          "seconds_unrounded": 0.124,
+          "seconds": 1,
+          "evidence": "완성 액션 도중 흑백 실루엣으로 축약한 임팩트 컷"
+        },
+        {
+          "category": "연출",
+          "element": "명암 반전",
+          "role": "주",
+          "intervals": [
+            [
+              2.461,
+              2.544
+            ],
+            [
+              2.628,
+              2.669
+            ]
+          ],
+          "seconds_unrounded": 0.124,
+          "seconds": 1,
+          "evidence": "같은 총기·기체 형태가 검은 바탕과 흰 형상으로 뒤집힘"
+        },
+        {
+          "category": "연출",
+          "element": "빛 번짐(블룸)",
+          "role": "주",
+          "intervals": [
+            [
+              0.834,
+              1.043
+            ],
+            [
+              1.877,
+              2.461
+            ],
+            [
+              2.544,
+              2.586
+            ],
+            [
+              2.669,
+              3.462
+            ],
+            [
+              8.842,
+              9.927
+            ],
+            [
+              14.097,
+              17.309
+            ]
+          ],
+          "seconds_unrounded": 5.925,
+          "seconds": 6,
+          "evidence": "발사광·광탄·녹색 빛 궤적 주변의 광 번짐"
+        },
+        {
+          "category": "연출",
+          "element": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              2.794,
+              4.254
+            ],
+            [
+              7.382,
+              9.927
+            ],
+            [
+              14.848,
+              17.309
+            ]
+          ],
+          "seconds_unrounded": 6.466,
+          "seconds": 6,
+          "evidence": "해수면 수평선·기체 진행축을 비스듬히 잡은 구도"
+        },
+        {
+          "category": "연출",
+          "element": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              5.088,
+              6.84
+            ],
+            [
+              14.848,
+              17.309
+            ]
+          ],
+          "seconds_unrounded": 4.213,
+          "seconds": 4,
+          "evidence": "빠른 접근·급강하와 보드 전경에서 먼 기체까지 큰 크기 차"
+        },
+        {
+          "category": "연출",
+          "element": "머리카락 휘날림",
+          "role": "주",
+          "intervals": [
+            [
+              4.254,
+              5.088
+            ],
+            [
+              11.178,
+              12.68
+            ]
+          ],
+          "seconds_unrounded": 2.336,
+          "seconds": 2,
+          "evidence": "흰 머리 인물의 머리카락이 바람과 자세 변화에 맞춰 움직임"
+        },
+        {
+          "category": "지형·자연",
+          "element": "구름",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              1.877
+            ],
+            [
+              2.794,
+              4.254
+            ],
+            [
+              5.088,
+              7.257
+            ],
+            [
+              7.382,
+              11.178
+            ],
+            [
+              12.68,
+              14.848
+            ]
+          ],
+          "seconds_unrounded": 11.47,
+          "seconds": 11,
+          "evidence": "파란 하늘의 실제 흰 구름. 물기둥과 구분"
+        },
+        {
+          "category": "지형·자연",
+          "element": "바다",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              1.043
+            ],
+            [
+              5.088,
+              7.257
+            ],
+            [
+              7.382,
+              9.343
+            ],
+            [
+              12.68,
+              17.309
+            ]
+          ],
+          "seconds_unrounded": 9.802,
+          "seconds": 10,
+          "evidence": "수평선이 보이는 넓은 해수면과 해상 전투"
+        },
+        {
+          "category": "인공 배경",
+          "element": "공장·기계",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              1.043
+            ],
+            [
+              1.877,
+              2.461
+            ],
+            [
+              2.544,
+              2.628
+            ],
+            [
+              2.669,
+              4.254
+            ],
+            [
+              5.506,
+              5.714
+            ],
+            [
+              6.131,
+              6.84
+            ],
+            [
+              12.847,
+              13.013
+            ],
+            [
+              14.014,
+              14.139
+            ],
+            [
+              14.848,
+              17.309
+            ]
+          ],
+          "seconds_unrounded": 6.965,
+          "seconds": 7,
+          "evidence": "공중전 중인 인간형 로봇·총기와 보드의 기계 구조"
+        }
+      ],
+      "notes": "애매:날개 장비·추진팩",
+      "decisions": [
+        "기체는 로봇이며 비행기·우주선으로 대체하지 않음",
+        "광탄을 실제 총알로 중복 분류하지 않음",
+        "보드를 타는 장면 전체가 아니라 공격을 막는 시간만 방패로 기록",
+        "해수면에서 솟는 흰 물보라를 구름·흰 연기로 세지 않음",
+        "녹색 발광 궤적은 흰 비행운으로 치환하지 않음"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3801 @@
+{
+  "session": 6,
+  "method": "모든 디코딩 프레임을 시간순 접촉 시트로 시각 검토. 연속 동일 축소 프레임만 표시 중복 제거. 작은 세부와 의심 구간은 확대 확인. 실시간 동영상 재생은 지원되지 않아 프레임 순서로 움직임을 판정함. 경계 시각은 시각적 근삿값.",
+  "videos": [
+    {
+      "group": "H02",
+      "id": "9370",
+      "listed_duration": 35,
+      "duration": 35.076708,
+      "fps": 23.976023976023978,
+      "frames": 841,
+      "unique_consecutive_frames": 823,
+      "sha256": "b2cb2256a43fa11249a1bdbd539bb95a2a947986fc87074b1a497ecaad50475b",
+      "pages": [
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_00.jpg",
+          "first_frame": 0,
+          "last_frame": 63,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_01.jpg",
+          "first_frame": 64,
+          "last_frame": 127,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_02.jpg",
+          "first_frame": 128,
+          "last_frame": 191,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_03.jpg",
+          "first_frame": 192,
+          "last_frame": 255,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_04.jpg",
+          "first_frame": 256,
+          "last_frame": 319,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_05.jpg",
+          "first_frame": 320,
+          "last_frame": 383,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_06.jpg",
+          "first_frame": 384,
+          "last_frame": 447,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_07.jpg",
+          "first_frame": 448,
+          "last_frame": 511,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_08.jpg",
+          "first_frame": 512,
+          "last_frame": 575,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_09.jpg",
+          "first_frame": 576,
+          "last_frame": 641,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_10.jpg",
+          "first_frame": 642,
+          "last_frame": 706,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_11.jpg",
+          "first_frame": 707,
+          "last_frame": 770,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/9370_12.jpg",
+          "first_frame": 771,
+          "last_frame": 840,
+          "count": 55
+        }
+      ],
+      "elements": [
+        {
+          "category": "원소 이펙트",
+          "name": "기 모으기 빛",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              3.84
+            ],
+            [
+              9.22,
+              12.8
+            ],
+            [
+              16.39,
+              20.52
+            ]
+          ],
+          "basis": "얼굴 주위와 팔 및 전신에 빛나는 힘이 형성되고 변신 후 소멸하는 연속 원화",
+          "union_seconds": 11.55,
+          "rounded_seconds": 12
+        }
+      ],
+      "notes": [
+        "원화",
+        "애매:에너지 구"
+      ],
+      "ambiguities": [
+        {
+          "element": "에너지 구",
+          "intervals": [
+            [
+              0,
+              3.84
+            ]
+          ],
+          "reason": "얼굴 둘레의 원형 광체가 독립된 에너지 구인지 변신 윤곽인지 분리 불명확"
+        }
+      ],
+      "observations": "기타는 허용 무기 목록에 없으므로 제외. 작업 영상 전체를 선화만 임팩트로 계산하지 않음.",
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        35.076708
+      ],
+      "reviewed_frame_range": [
+        0,
+        840
+      ],
+      "unresolved_ranges": [
+        {
+          "element": "에너지 구",
+          "intervals": [
+            [
+              0,
+              3.84
+            ]
+          ],
+          "reason": "얼굴 둘레의 원형 광체가 독립된 에너지 구인지 변신 윤곽인지 분리 불명확"
+        }
+      ],
+      "review_limitations": "축소된 전체 프레임과 선택 확대에 근거한 수동 시각 판정. 시간은 근삿값이며 구조 검사 통과가 시각 판정의 무오류를 보증하지 않음.",
+      "coverage": {
+        "decoded_frames": 841,
+        "displayed_frames": 823,
+        "suppressed_consecutive_identical_scaled_frames": 18,
+        "contact_sheet_order": "64프레임 시트를 왼쪽 위→오른쪽 위→왼쪽 아래→오른쪽 아래 순으로 묶은 256프레임 시트. 각 64프레임 블록 내부는 행 우선 시간순.",
+        "all_summary_pages_reviewed": true
+      }
+    },
+    {
+      "group": "H02",
+      "id": "239055",
+      "listed_duration": 50,
+      "duration": 49.883167,
+      "fps": 23.976023976023978,
+      "frames": 1196,
+      "unique_consecutive_frames": 1196,
+      "sha256": "c362835447722ece6a4539f825208854ae6da3b2c4ccfebce32881a1179f4183",
+      "pages": [
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_00.jpg",
+          "first_frame": 0,
+          "last_frame": 63,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_01.jpg",
+          "first_frame": 64,
+          "last_frame": 127,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_02.jpg",
+          "first_frame": 128,
+          "last_frame": 191,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_03.jpg",
+          "first_frame": 192,
+          "last_frame": 255,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_04.jpg",
+          "first_frame": 256,
+          "last_frame": 319,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_05.jpg",
+          "first_frame": 320,
+          "last_frame": 383,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_06.jpg",
+          "first_frame": 384,
+          "last_frame": 447,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_07.jpg",
+          "first_frame": 448,
+          "last_frame": 511,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_08.jpg",
+          "first_frame": 512,
+          "last_frame": 575,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_09.jpg",
+          "first_frame": 576,
+          "last_frame": 639,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_10.jpg",
+          "first_frame": 640,
+          "last_frame": 703,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_11.jpg",
+          "first_frame": 704,
+          "last_frame": 767,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_12.jpg",
+          "first_frame": 768,
+          "last_frame": 831,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_13.jpg",
+          "first_frame": 832,
+          "last_frame": 895,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_14.jpg",
+          "first_frame": 896,
+          "last_frame": 959,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_15.jpg",
+          "first_frame": 960,
+          "last_frame": 1023,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_16.jpg",
+          "first_frame": 1024,
+          "last_frame": 1087,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_17.jpg",
+          "first_frame": 1088,
+          "last_frame": 1151,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/239055_18.jpg",
+          "first_frame": 1152,
+          "last_frame": 1195,
+          "count": 44
+        }
+      ],
+      "elements": [
+        {
+          "category": "무기",
+          "name": "에너지 포",
+          "role": "주",
+          "intervals": [
+            [
+              32.11,
+              32.57
+            ],
+            [
+              38.65,
+              39.4
+            ],
+            [
+              40.94,
+              41.28
+            ],
+            [
+              43.0,
+              46.8
+            ]
+          ],
+          "basis": "적색 추진 장비에서 고리형 발광을 거쳐 광탄과 긴 광선을 발사",
+          "union_seconds": 5.35,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "무기",
+          "name": "총구 화염",
+          "role": "주",
+          "intervals": [
+            [
+              13.0,
+              13.12
+            ],
+            [
+              13.7,
+              14.0
+            ],
+            [
+              38.6,
+              39.3
+            ],
+            [
+              40.0,
+              40.3
+            ]
+          ],
+          "basis": "양팔 총구의 순간 섬광",
+          "union_seconds": 1.42,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "무기",
+          "name": "총알",
+          "role": "주",
+          "intervals": [
+            [
+              38.57,
+              39.35
+            ],
+            [
+              40.0,
+              40.35
+            ],
+            [
+              40.88,
+              41.19
+            ],
+            [
+              41.38,
+              41.65
+            ]
+          ],
+          "basis": "총구에서 표적으로 향하는 작은 황색 광탄",
+          "union_seconds": 1.71,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "role": "주",
+          "intervals": [
+            [
+              8.72,
+              9.5
+            ],
+            [
+              14.0,
+              14.15
+            ],
+            [
+              16.03,
+              16.7
+            ],
+            [
+              18.2,
+              18.8
+            ],
+            [
+              32.16,
+              32.45
+            ],
+            [
+              38.66,
+              39.2
+            ],
+            [
+              40.78,
+              40.95
+            ],
+            [
+              42.7,
+              43.2
+            ]
+          ],
+          "basis": "타격과 폭발에서 화면 전체 및 표적 주변에 짧게 발생하는 섬광",
+          "union_seconds": 3.7,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "연쇄 폭발",
+          "role": "배",
+          "intervals": [
+            [
+              16.03,
+              16.7
+            ]
+          ],
+          "basis": "철로 뒤편을 따라 잇달아 터지는 주황색 폭발",
+          "union_seconds": 0.67,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "빛줄기",
+          "role": "주",
+          "intervals": [
+            [
+              32.16,
+              32.57
+            ],
+            [
+              38.65,
+              39.4
+            ],
+            [
+              43.0,
+              46.8
+            ]
+          ],
+          "basis": "포에서 발사되어 길게 뻗는 황색 광선",
+          "union_seconds": 4.96,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "연출",
+          "name": "단색",
+          "role": "주",
+          "intervals": [
+            [
+              8.72,
+              9.01
+            ],
+            [
+              18.48,
+              18.62
+            ],
+            [
+              38.45,
+              38.7
+            ],
+            [
+              39.97,
+              40.02
+            ],
+            [
+              40.35,
+              40.4
+            ],
+            [
+              40.65,
+              40.7
+            ]
+          ],
+          "basis": "흑백 실루엣 또는 색면 임팩트 프레임",
+          "union_seconds": 0.83,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "명암 반전",
+          "role": "주",
+          "intervals": [
+            [
+              8.72,
+              9.01
+            ],
+            [
+              18.48,
+              18.62
+            ],
+            [
+              38.45,
+              38.7
+            ]
+          ],
+          "basis": "인접 프레임에서 흑백 타격 형상의 명암이 뒤집힘",
+          "union_seconds": 0.68,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              10.3,
+              14.0
+            ],
+            [
+              14.05,
+              18.5
+            ],
+            [
+              30.62,
+              36.98
+            ],
+            [
+              44.7,
+              46.8
+            ]
+          ],
+          "basis": "바닥과 철로를 비스듬히 놓은 액션 구도",
+          "union_seconds": 16.61,
+          "rounded_seconds": 17
+        },
+        {
+          "category": "연출",
+          "name": "빛 번짐(블룸)",
+          "role": "주",
+          "intervals": [
+            [
+              6.04,
+              8.72
+            ],
+            [
+              14.05,
+              16.7
+            ],
+            [
+              17.0,
+              18.4
+            ],
+            [
+              31.4,
+              32.6
+            ],
+            [
+              38.65,
+              39.4
+            ],
+            [
+              43.0,
+              46.8
+            ]
+          ],
+          "basis": "밝은 날과 광탄 및 추진부 주변의 광번짐",
+          "union_seconds": 12.48,
+          "rounded_seconds": 12
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              9.3,
+              10.3
+            ],
+            [
+              17.0,
+              18.2
+            ],
+            [
+              27.1,
+              28.6
+            ],
+            [
+              32.8,
+              36.0
+            ]
+          ],
+          "basis": "투사체와 비행 인물이 카메라를 향해 빠르게 확대",
+          "union_seconds": 6.9,
+          "rounded_seconds": 7
+        },
+        {
+          "category": "인공 배경",
+          "name": "철로",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              1.6
+            ],
+            [
+              9.55,
+              10.3
+            ],
+            [
+              14.05,
+              18.4
+            ],
+            [
+              28.0,
+              28.6
+            ],
+            [
+              38.7,
+              43.0
+            ],
+            [
+              44.7,
+              49.84
+            ]
+          ],
+          "basis": "침목과 평행 레일이 실제로 보이는 철도 선로",
+          "union_seconds": 16.74,
+          "rounded_seconds": 17
+        },
+        {
+          "category": "인공 배경",
+          "name": "기둥",
+          "role": "배",
+          "intervals": [
+            [
+              1.6,
+              4.8
+            ],
+            [
+              40.6,
+              42.8
+            ]
+          ],
+          "basis": "인물 뒤의 굵은 수직 지지 구조",
+          "union_seconds": 5.4,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "인공 배경",
+          "name": "간판·네온",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              1.6
+            ],
+            [
+              4.8,
+              8.72
+            ],
+            [
+              14.05,
+              16.7
+            ],
+            [
+              40.6,
+              42.8
+            ],
+            [
+              46.8,
+              49.84
+            ]
+          ],
+          "basis": "철로 너머 빌딩의 세로 발광 간판",
+          "union_seconds": 13.41,
+          "rounded_seconds": 13
+        },
+        {
+          "category": "상대·생물",
+          "name": "추진기 불꽃",
+          "role": "주",
+          "intervals": [
+            [
+              14.16,
+              16.7
+            ],
+            [
+              17.0,
+              18.2
+            ],
+            [
+              30.68,
+              32.16
+            ],
+            [
+              32.8,
+              36.0
+            ],
+            [
+              43.3,
+              45.8
+            ]
+          ],
+          "basis": "적색 등에 장착된 추진 장치 뒤의 청백색 분사",
+          "union_seconds": 10.92,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "장비·의상",
+          "name": "날개 장비·추진팩",
+          "role": "주",
+          "intervals": [
+            [
+              9.3,
+              10.3
+            ],
+            [
+              18.8,
+              22.72
+            ],
+            [
+              23.12,
+              24.98
+            ],
+            [
+              25.53,
+              28.6
+            ],
+            [
+              28.7,
+              38.7
+            ],
+            [
+              39.0,
+              46.8
+            ]
+          ],
+          "basis": "인물이 착용한 적색 로켓 모양의 좌우 추진 장비",
+          "union_seconds": 27.65,
+          "rounded_seconds": 28
+        },
+        {
+          "category": "연출",
+          "name": "잔상",
+          "role": "주",
+          "intervals": [
+            [
+              10.385,
+              10.469
+            ]
+          ],
+          "basis": "확대 연속 프레임 f249~250에서 같은 인물의 형상이 이동 뒤에 두 겹으로 남음",
+          "union_seconds": 0.084,
+          "rounded_seconds": 1
+        }
+      ],
+      "notes": [
+        "애매:던진 칼",
+        "애매:미사일·로켓",
+        "애매:단검·칼"
+      ],
+      "ambiguities": [
+        {
+          "element": "던진 칼/미사일·로켓/단검·칼",
+          "intervals": [
+            [
+              6.0,
+              8.72
+            ],
+            [
+              12.75,
+              13.25
+            ]
+          ],
+          "reason": "황색 날 형태 및 적색 투사체가 에너지 칼인지 로켓인지 영상만으로 불명확. 어느 쪽에도 확정 집계하지 않음"
+        }
+      ],
+      "observations": "전기 아크는 허용 목록에 없어 푸른 불로 치환하지 않음. 일반 총은 허용 무기명이 아니므로 제외. 불명확한 도시 실루엣은 고층 빌딩으로 확정하지 않음.",
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        49.883167
+      ],
+      "detail_review_ranges": [
+        [
+          8.008,
+          10.677
+        ],
+        [
+          6.7,
+          6.742
+        ],
+        [
+          8.8,
+          8.842
+        ],
+        [
+          12.9,
+          12.942
+        ],
+        [
+          13.9,
+          13.942
+        ],
+        [
+          19.2,
+          19.242
+        ],
+        [
+          31.5,
+          31.542
+        ],
+        [
+          32.3,
+          32.342
+        ],
+        [
+          37.4,
+          37.442
+        ],
+        [
+          38.6,
+          38.642
+        ],
+        [
+          41.8,
+          41.842
+        ],
+        [
+          48.8,
+          48.842
+        ]
+      ],
+      "reviewed_frame_range": [
+        0,
+        1195
+      ],
+      "unresolved_ranges": [
+        {
+          "element": "던진 칼/미사일·로켓/단검·칼",
+          "intervals": [
+            [
+              6.0,
+              8.72
+            ],
+            [
+              12.75,
+              13.25
+            ]
+          ],
+          "reason": "황색 날 형태 및 적색 투사체가 에너지 칼인지 로켓인지 영상만으로 불명확. 어느 쪽에도 확정 집계하지 않음"
+        }
+      ],
+      "review_limitations": "축소된 전체 프레임과 선택 확대에 근거한 수동 시각 판정. 시간은 근삿값이며 구조 검사 통과가 시각 판정의 무오류를 보증하지 않음.",
+      "coverage": {
+        "decoded_frames": 1196,
+        "displayed_frames": 1196,
+        "suppressed_consecutive_identical_scaled_frames": 0,
+        "contact_sheet_order": "64프레임 시트를 왼쪽 위→오른쪽 위→왼쪽 아래→오른쪽 아래 순으로 묶은 256프레임 시트. 각 64프레임 블록 내부는 행 우선 시간순.",
+        "all_summary_pages_reviewed": true
+      }
+    },
+    {
+      "group": "H03",
+      "id": "8645",
+      "listed_duration": 57,
+      "duration": 56.890167,
+      "fps": 23.976023976023978,
+      "frames": 1364,
+      "unique_consecutive_frames": 1347,
+      "sha256": "4d1b984ea8035ec18386ce0ec0e2b49db1af69150dfbe3b13aa64396b23d6536",
+      "pages": [
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_00.jpg",
+          "first_frame": 0,
+          "last_frame": 63,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_01.jpg",
+          "first_frame": 64,
+          "last_frame": 127,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_02.jpg",
+          "first_frame": 128,
+          "last_frame": 191,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_03.jpg",
+          "first_frame": 192,
+          "last_frame": 255,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_04.jpg",
+          "first_frame": 256,
+          "last_frame": 319,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_05.jpg",
+          "first_frame": 320,
+          "last_frame": 383,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_06.jpg",
+          "first_frame": 384,
+          "last_frame": 447,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_07.jpg",
+          "first_frame": 448,
+          "last_frame": 511,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_08.jpg",
+          "first_frame": 512,
+          "last_frame": 575,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_09.jpg",
+          "first_frame": 576,
+          "last_frame": 639,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_10.jpg",
+          "first_frame": 640,
+          "last_frame": 703,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_11.jpg",
+          "first_frame": 704,
+          "last_frame": 767,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_12.jpg",
+          "first_frame": 768,
+          "last_frame": 831,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_13.jpg",
+          "first_frame": 832,
+          "last_frame": 895,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_14.jpg",
+          "first_frame": 896,
+          "last_frame": 959,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_15.jpg",
+          "first_frame": 960,
+          "last_frame": 1023,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_16.jpg",
+          "first_frame": 1024,
+          "last_frame": 1087,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_17.jpg",
+          "first_frame": 1088,
+          "last_frame": 1151,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_18.jpg",
+          "first_frame": 1152,
+          "last_frame": 1215,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_19.jpg",
+          "first_frame": 1216,
+          "last_frame": 1279,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_20.jpg",
+          "first_frame": 1280,
+          "last_frame": 1343,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/8645_21.jpg",
+          "first_frame": 1344,
+          "last_frame": 1346,
+          "count": 3
+        }
+      ],
+      "elements": [
+        {
+          "category": "무기",
+          "name": "촉수",
+          "role": "주",
+          "intervals": [
+            [
+              10.8,
+              16.5
+            ],
+            [
+              23.7,
+              34.5
+            ],
+            [
+              39.4,
+              46.0
+            ]
+          ],
+          "basis": "기계 상대의 유연한 다관절 팔이 휘고 뻗으며 공격",
+          "union_seconds": 23.1,
+          "rounded_seconds": 23
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "role": "주",
+          "intervals": [
+            [
+              17.9,
+              18.45
+            ],
+            [
+              20.55,
+              21.4
+            ],
+            [
+              32.0,
+              32.65
+            ]
+          ],
+          "basis": "기계와 주변 구조 충돌 직후의 섬광 및 방사형 폭발",
+          "union_seconds": 2.05,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 파편",
+          "role": "주",
+          "intervals": [
+            [
+              19.0,
+              23.1
+            ],
+            [
+              25.3,
+              27.2
+            ],
+            [
+              32.0,
+              32.65
+            ],
+            [
+              43.7,
+              44.5
+            ],
+            [
+              45.4,
+              48.5
+            ]
+          ],
+          "basis": "충돌 후 작은 각진 파편이 튀고 흩어지는 연속 프레임",
+          "union_seconds": 10.55,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "흰 연기·증기",
+          "role": "배",
+          "intervals": [
+            [
+              19.0,
+              23.1
+            ],
+            [
+              27.1,
+              34.5
+            ],
+            [
+              34.5,
+              39.4
+            ]
+          ],
+          "basis": "지면 충돌부와 비행 물체 뒤의 둥글게 말리는 밝은 연무",
+          "union_seconds": 16.4,
+          "rounded_seconds": 16
+        },
+        {
+          "category": "충격·파괴",
+          "name": "균열",
+          "role": "주",
+          "intervals": [
+            [
+              49.0,
+              56.56
+            ]
+          ],
+          "basis": "마지막 대형 곡면 구조의 불규칙하게 깨진 선과 파손 단면",
+          "union_seconds": 7.56,
+          "rounded_seconds": 8
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              3.0,
+              3.85
+            ],
+            [
+              18.7,
+              23.1
+            ],
+            [
+              24.0,
+              27.1
+            ],
+            [
+              32.6,
+              34.5
+            ],
+            [
+              39.4,
+              45.5
+            ],
+            [
+              49.0,
+              51.8
+            ]
+          ],
+          "basis": "기계와 공격부의 극단적 전경 확대 및 급격한 카메라 접근",
+          "union_seconds": 19.15,
+          "rounded_seconds": 19
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              3.0,
+              3.85
+            ],
+            [
+              16.6,
+              23.1
+            ],
+            [
+              24.0,
+              27.1
+            ],
+            [
+              49.0,
+              56.56
+            ]
+          ],
+          "basis": "도시와 구조면을 대각으로 놓은 구도",
+          "union_seconds": 18.01,
+          "rounded_seconds": 18
+        },
+        {
+          "category": "지형·자연",
+          "name": "구름",
+          "role": "배",
+          "intervals": [
+            [
+              8.1,
+              16.6
+            ],
+            [
+              27.1,
+              34.5
+            ],
+            [
+              39.4,
+              48.6
+            ]
+          ],
+          "basis": "도시 위 하늘에 펼쳐진 구름층. 폭발 연무와 분리",
+          "union_seconds": 25.1,
+          "rounded_seconds": 25
+        },
+        {
+          "category": "지형·자연",
+          "name": "물가",
+          "role": "배",
+          "intervals": [
+            [
+              8.1,
+              16.6
+            ]
+          ],
+          "basis": "교량 아래 수면과 산업시설 해안 경계. 바다인지 강인지 확정하지 않음",
+          "union_seconds": 8.5,
+          "rounded_seconds": 9
+        },
+        {
+          "category": "인공 배경",
+          "name": "다리",
+          "role": "배",
+          "intervals": [
+            [
+              8.1,
+              14.4
+            ],
+            [
+              27.1,
+              31.7
+            ]
+          ],
+          "basis": "물 위 다리와 배경의 대형 교량",
+          "union_seconds": 10.9,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "인공 배경",
+          "name": "항구",
+          "role": "배",
+          "intervals": [
+            [
+              14.4,
+              16.6
+            ]
+          ],
+          "basis": "물가의 부두와 크레인",
+          "union_seconds": 2.2,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "인공 배경",
+          "name": "크레인",
+          "role": "배",
+          "intervals": [
+            [
+              14.4,
+              16.6
+            ]
+          ],
+          "basis": "부두의 삼각 프레임 하역 크레인",
+          "union_seconds": 2.2,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "인공 배경",
+          "name": "공장·기계",
+          "role": "배",
+          "intervals": [
+            [
+              8.1,
+              16.6
+            ],
+            [
+              34.5,
+              39.4
+            ]
+          ],
+          "basis": "물가 공업시설 및 배관과 원통 설비",
+          "union_seconds": 13.4,
+          "rounded_seconds": 13
+        },
+        {
+          "category": "인공 배경",
+          "name": "고층 빌딩",
+          "role": "배",
+          "intervals": [
+            [
+              8.1,
+              16.6
+            ],
+            [
+              18.7,
+              21.0
+            ],
+            [
+              23.1,
+              24.0
+            ],
+            [
+              27.1,
+              34.5
+            ],
+            [
+              34.5,
+              39.4
+            ]
+          ],
+          "basis": "도시의 높은 다층 건물",
+          "union_seconds": 24.0,
+          "rounded_seconds": 24
+        },
+        {
+          "category": "인공 배경",
+          "name": "무너진 잔해 더미",
+          "role": "배",
+          "intervals": [
+            [
+              3.85,
+              8.1
+            ],
+            [
+              14.4,
+              16.6
+            ],
+            [
+              27.1,
+              34.5
+            ],
+            [
+              45.4,
+              49.0
+            ]
+          ],
+          "basis": "전경과 도시 바닥의 파손 구조물 및 잔해",
+          "union_seconds": 17.45,
+          "rounded_seconds": 17
+        }
+      ],
+      "notes": [
+        "원화",
+        "애매:미사일·로켓"
+      ],
+      "ambiguities": [
+        {
+          "element": "미사일·로켓",
+          "intervals": [
+            [
+              34.5,
+              39.4
+            ]
+          ],
+          "reason": "비행하는 원뿔형 기계 부품이 로켓인지 연장된 기계 팔인지 불명확"
+        }
+      ],
+      "observations": "거대 로봇은 거대 생물로 치환하지 않음. 끝의 곡면은 균열이 있는 물질 구조라 방어막으로 집계하지 않음. 원화 채색 지시의 노란 영역 자체를 빛으로 간주하지 않음.",
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        56.890167
+      ],
+      "reviewed_frame_range": [
+        0,
+        1363
+      ],
+      "unresolved_ranges": [
+        {
+          "element": "미사일·로켓",
+          "intervals": [
+            [
+              34.5,
+              39.4
+            ]
+          ],
+          "reason": "비행하는 원뿔형 기계 부품이 로켓인지 연장된 기계 팔인지 불명확"
+        }
+      ],
+      "review_limitations": "축소된 전체 프레임과 선택 확대에 근거한 수동 시각 판정. 시간은 근삿값이며 구조 검사 통과가 시각 판정의 무오류를 보증하지 않음.",
+      "coverage": {
+        "decoded_frames": 1364,
+        "displayed_frames": 1347,
+        "suppressed_consecutive_identical_scaled_frames": 17,
+        "contact_sheet_order": "64프레임 시트를 왼쪽 위→오른쪽 위→왼쪽 아래→오른쪽 아래 순으로 묶은 256프레임 시트. 각 64프레임 블록 내부는 행 우선 시간순.",
+        "all_summary_pages_reviewed": true
+      }
+    },
+    {
+      "group": "H03",
+      "id": "162980",
+      "listed_duration": 32,
+      "duration": 31.906875,
+      "fps": 23.976023976023978,
+      "frames": 765,
+      "unique_consecutive_frames": 765,
+      "sha256": "7dd9f4751246e46530ceef3c0218c87bae3c9942174f827105a0205c8b789f10",
+      "pages": [
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_00.jpg",
+          "first_frame": 0,
+          "last_frame": 63,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_01.jpg",
+          "first_frame": 64,
+          "last_frame": 127,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_02.jpg",
+          "first_frame": 128,
+          "last_frame": 191,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_03.jpg",
+          "first_frame": 192,
+          "last_frame": 255,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_04.jpg",
+          "first_frame": 256,
+          "last_frame": 319,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_05.jpg",
+          "first_frame": 320,
+          "last_frame": 383,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_06.jpg",
+          "first_frame": 384,
+          "last_frame": 447,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_07.jpg",
+          "first_frame": 448,
+          "last_frame": 511,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_08.jpg",
+          "first_frame": 512,
+          "last_frame": 575,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_09.jpg",
+          "first_frame": 576,
+          "last_frame": 639,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_10.jpg",
+          "first_frame": 640,
+          "last_frame": 703,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/162980_11.jpg",
+          "first_frame": 704,
+          "last_frame": 764,
+          "count": 61
+        }
+      ],
+      "elements": [
+        {
+          "category": "원소 이펙트",
+          "name": "에너지 구",
+          "role": "주",
+          "intervals": [
+            [
+              23.55,
+              24.6
+            ]
+          ],
+          "basis": "분홍색 구형 광체가 카메라 쪽으로 급격히 확대",
+          "union_seconds": 1.05,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "빛줄기",
+          "role": "주",
+          "intervals": [
+            [
+              1.45,
+              1.75
+            ],
+            [
+              4.8,
+              10.9
+            ],
+            [
+              14.8,
+              16.5
+            ],
+            [
+              22.0,
+              23.6
+            ],
+            [
+              29.2,
+              31.2
+            ]
+          ],
+          "basis": "분홍빛의 선형 에너지와 지형을 가르는 긴 광선",
+          "union_seconds": 11.7,
+          "rounded_seconds": 12
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "role": "주",
+          "intervals": [
+            [
+              3.25,
+              4.3
+            ],
+            [
+              5.55,
+              6.1
+            ],
+            [
+              12.15,
+              12.25
+            ],
+            [
+              12.4,
+              12.53
+            ],
+            [
+              12.78,
+              12.9
+            ],
+            [
+              13.35,
+              13.5
+            ],
+            [
+              21.8,
+              22.15
+            ],
+            [
+              23.85,
+              24.6
+            ],
+            [
+              29.0,
+              29.3
+            ]
+          ],
+          "basis": "공격 충돌 시 강한 발광과 화면을 채우는 폭발",
+          "union_seconds": 3.5,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 파편",
+          "role": "배",
+          "intervals": [
+            [
+              1.75,
+              3.25
+            ],
+            [
+              11.8,
+              12.55
+            ],
+            [
+              21.8,
+              22.0
+            ],
+            [
+              29.4,
+              31.86
+            ]
+          ],
+          "basis": "폭발과 지면 충돌에서 흩어지는 각진 고체 조각",
+          "union_seconds": 4.91,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "흰 연기·증기",
+          "role": "배",
+          "intervals": [
+            [
+              29.3,
+              31.86
+            ]
+          ],
+          "basis": "후반 충돌 뒤 솟는 회백색 먼지 연무",
+          "union_seconds": 2.56,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "기 모으기 빛",
+          "role": "주",
+          "intervals": [
+            [
+              10.9,
+              13.35
+            ],
+            [
+              21.6,
+              23.55
+            ]
+          ],
+          "basis": "몸 주변 발광이 강화되고 전신 힘을 집중한 뒤 광체가 방출됨",
+          "union_seconds": 4.4,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "충격·파괴",
+          "name": "붕괴",
+          "role": "배",
+          "intervals": [
+            [
+              1.75,
+              4.3
+            ],
+            [
+              29.3,
+              31.86
+            ]
+          ],
+          "basis": "구조물 조각이 떨어져 나가고 마지막 기둥들이 폭발 충격으로 무너짐",
+          "union_seconds": 5.11,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "충격·파괴",
+          "name": "균열",
+          "role": "배",
+          "intervals": [
+            [
+              1.75,
+              3.25
+            ],
+            [
+              4.3,
+              10.7
+            ],
+            [
+              13.9,
+              16.2
+            ],
+            [
+              29.3,
+              31.86
+            ]
+          ],
+          "basis": "파손된 인공 바닥과 구조체 표면의 갈라진 틈",
+          "union_seconds": 12.76,
+          "rounded_seconds": 13
+        },
+        {
+          "category": "연출",
+          "name": "빛 번짐(블룸)",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              1.75
+            ],
+            [
+              3.25,
+              4.3
+            ],
+            [
+              5.55,
+              6.1
+            ],
+            [
+              10.9,
+              13.35
+            ],
+            [
+              21.6,
+              24.6
+            ],
+            [
+              29.2,
+              30.0
+            ]
+          ],
+          "basis": "분홍색과 황색 발광 주위의 넓은 광번짐",
+          "union_seconds": 9.6,
+          "rounded_seconds": 10
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              1.75
+            ],
+            [
+              8.4,
+              9.3
+            ],
+            [
+              10.9,
+              12.15
+            ],
+            [
+              13.9,
+              16.2
+            ],
+            [
+              18.7,
+              20.5
+            ],
+            [
+              21.25,
+              21.9
+            ],
+            [
+              23.55,
+              24.6
+            ]
+          ],
+          "basis": "인물과 광체가 전경으로 급격히 접근하고 종심 방향으로 질주",
+          "union_seconds": 9.7,
+          "rounded_seconds": 10
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              8.4,
+              11.8
+            ],
+            [
+              13.9,
+              16.2
+            ]
+          ],
+          "basis": "바닥과 수직 구조를 대각으로 배치",
+          "union_seconds": 5.7,
+          "rounded_seconds": 6
+        },
+        {
+          "category": "연출",
+          "name": "머리카락 휘날림",
+          "role": "주",
+          "intervals": [
+            [
+              11.7,
+              13.35
+            ],
+            [
+              21.6,
+              23.55
+            ],
+            [
+              26.3,
+              29.15
+            ]
+          ],
+          "basis": "발광 인물의 긴 머리와 앞 인물의 머리가 움직임에 따라 휘날림",
+          "union_seconds": 6.45,
+          "rounded_seconds": 6
+        },
+        {
+          "category": "연출",
+          "name": "단색",
+          "role": "주",
+          "intervals": [
+            [
+              12.15,
+              12.25
+            ],
+            [
+              12.4,
+              12.53
+            ],
+            [
+              12.78,
+              12.9
+            ],
+            [
+              13.55,
+              13.9
+            ],
+            [
+              21.8,
+              22.15
+            ],
+            [
+              28.78,
+              29.15
+            ]
+          ],
+          "basis": "완성 컬러 장면 사이 흑백과 제한 색면의 타격 임팩트",
+          "union_seconds": 1.42,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "명암 반전",
+          "role": "주",
+          "intervals": [
+            [
+              12.15,
+              12.25
+            ],
+            [
+              12.4,
+              12.53
+            ],
+            [
+              21.8,
+              22.15
+            ],
+            [
+              28.78,
+              29.15
+            ]
+          ],
+          "basis": "타격 형상의 명암이 인접 프레임에서 뒤집힘",
+          "union_seconds": 0.95,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "지형·자연",
+          "name": "구름",
+          "role": "배",
+          "intervals": [
+            [
+              1.75,
+              3.25
+            ],
+            [
+              4.3,
+              8.4
+            ],
+            [
+              12.55,
+              13.35
+            ],
+            [
+              18.7,
+              21.9
+            ],
+            [
+              29.3,
+              31.86
+            ]
+          ],
+          "basis": "주변 하늘의 흰 구름. 지면 폭연과 분리",
+          "union_seconds": 12.16,
+          "rounded_seconds": 12
+        },
+        {
+          "category": "인공 배경",
+          "name": "무너진 잔해 더미",
+          "role": "배",
+          "intervals": [
+            [
+              1.75,
+              4.3
+            ],
+            [
+              4.3,
+              10.7
+            ],
+            [
+              13.9,
+              16.2
+            ],
+            [
+              24.6,
+              26.3
+            ],
+            [
+              29.3,
+              31.86
+            ]
+          ],
+          "basis": "파손된 대형 구조체와 바닥에 흩어진 잔해",
+          "union_seconds": 15.51,
+          "rounded_seconds": 16
+        },
+        {
+          "category": "인공 배경",
+          "name": "공장·기계",
+          "role": "배",
+          "intervals": [
+            [
+              1.75,
+              3.25
+            ],
+            [
+              4.3,
+              10.7
+            ],
+            [
+              13.9,
+              18.7
+            ],
+            [
+              24.6,
+              26.3
+            ],
+            [
+              29.3,
+              31.86
+            ]
+          ],
+          "basis": "곡면 기계부와 패널 및 배관이 있는 대형 인공 구조",
+          "union_seconds": 16.96,
+          "rounded_seconds": 17
+        },
+        {
+          "category": "인공 배경",
+          "name": "기둥",
+          "role": "배",
+          "intervals": [
+            [
+              4.3,
+              6.1
+            ],
+            [
+              8.4,
+              11.8
+            ],
+            [
+              18.7,
+              20.8
+            ],
+            [
+              29.3,
+              31.86
+            ]
+          ],
+          "basis": "지면에서 솟은 긴 인공 기둥",
+          "union_seconds": 9.86,
+          "rounded_seconds": 10
+        }
+      ],
+      "notes": [
+        "애매:우주선",
+        "애매:발톱·손톱"
+      ],
+      "ambiguities": [
+        {
+          "element": "우주선",
+          "intervals": [
+            [
+              29.3,
+              31.86
+            ]
+          ],
+          "reason": "기계 플랫폼의 일부만 보여 탈것 전체 형상을 확정하지 않음"
+        },
+        {
+          "element": "발톱·손톱",
+          "intervals": [
+            [
+              11.8,
+              12.55
+            ],
+            [
+              22.0,
+              23.55
+            ]
+          ],
+          "reason": "손끝이 뾰족하지만 공격용 발톱인지 명확하지 않음"
+        }
+      ],
+      "observations": "머리의 뻗친 형상은 날개로 집계하지 않음. 전기 아크는 푸른 불로 치환하지 않음. 기존 파손과 새 붕괴를 구분해 기록.",
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        31.906875
+      ],
+      "reviewed_frame_range": [
+        0,
+        764
+      ],
+      "unresolved_ranges": [
+        {
+          "element": "우주선",
+          "intervals": [
+            [
+              29.3,
+              31.86
+            ]
+          ],
+          "reason": "기계 플랫폼의 일부만 보여 탈것 전체 형상을 확정하지 않음"
+        },
+        {
+          "element": "발톱·손톱",
+          "intervals": [
+            [
+              11.8,
+              12.55
+            ],
+            [
+              22.0,
+              23.55
+            ]
+          ],
+          "reason": "손끝이 뾰족하지만 공격용 발톱인지 명확하지 않음"
+        }
+      ],
+      "review_limitations": "축소된 전체 프레임과 선택 확대에 근거한 수동 시각 판정. 시간은 근삿값이며 구조 검사 통과가 시각 판정의 무오류를 보증하지 않음.",
+      "coverage": {
+        "decoded_frames": 765,
+        "displayed_frames": 765,
+        "suppressed_consecutive_identical_scaled_frames": 0,
+        "contact_sheet_order": "64프레임 시트를 왼쪽 위→오른쪽 위→왼쪽 아래→오른쪽 아래 순으로 묶은 256프레임 시트. 각 64프레임 블록 내부는 행 우선 시간순.",
+        "all_summary_pages_reviewed": true
+      }
+    },
+    {
+      "group": "H03",
+      "id": "167784",
+      "listed_duration": 27,
+      "duration": 27.027,
+      "fps": 23.976023976023978,
+      "frames": 648,
+      "unique_consecutive_frames": 648,
+      "sha256": "354b9954bed1c640472fb8a760c7e7894661f1734ff3a5bd8fb3f5459a3acf5b",
+      "pages": [
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_00.jpg",
+          "first_frame": 0,
+          "last_frame": 63,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_01.jpg",
+          "first_frame": 64,
+          "last_frame": 127,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_02.jpg",
+          "first_frame": 128,
+          "last_frame": 191,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_03.jpg",
+          "first_frame": 192,
+          "last_frame": 255,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_04.jpg",
+          "first_frame": 256,
+          "last_frame": 319,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_05.jpg",
+          "first_frame": 320,
+          "last_frame": 383,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_06.jpg",
+          "first_frame": 384,
+          "last_frame": 447,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_07.jpg",
+          "first_frame": 448,
+          "last_frame": 511,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_08.jpg",
+          "first_frame": 512,
+          "last_frame": 575,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_09.jpg",
+          "first_frame": 576,
+          "last_frame": 639,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/167784_10.jpg",
+          "first_frame": 640,
+          "last_frame": 647,
+          "count": 8
+        }
+      ],
+      "elements": [
+        {
+          "category": "원소 이펙트",
+          "name": "핏자국",
+          "role": "주",
+          "intervals": [
+            [
+              6.8,
+              7.3
+            ]
+          ],
+          "basis": "베인 목 주변에서 붉게 튀는 혈흔",
+          "union_seconds": 0.5,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "물방울",
+          "role": "주",
+          "intervals": [
+            [
+              16.65,
+              17.05
+            ]
+          ],
+          "basis": "벌어진 입 위로 흩어지는 침방울",
+          "union_seconds": 0.4,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "흰 연기·증기",
+          "role": "배",
+          "intervals": [
+            [
+              15.0,
+              15.8
+            ]
+          ],
+          "basis": "숲과 괴물 하체 주변의 밝은 충돌 먼지",
+          "union_seconds": 0.8,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "단색",
+          "role": "주",
+          "intervals": [
+            [
+              12.638,
+              12.804
+            ],
+            [
+              12.888,
+              12.972
+            ],
+            [
+              13.138,
+              13.263
+            ]
+          ],
+          "basis": "입과 전기를 흑백 색면으로 바꾸는 짧은 임팩트",
+          "union_seconds": 0.375,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "명암 반전",
+          "role": "주",
+          "intervals": [
+            [
+              12.638,
+              12.804
+            ],
+            [
+              12.888,
+              12.972
+            ]
+          ],
+          "basis": "입과 전기 형상의 밝고 어두운 영역이 뒤집힘",
+          "union_seconds": 0.25,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              7.0,
+              8.2
+            ],
+            [
+              19.1,
+              21.3
+            ]
+          ],
+          "basis": "긴 몸과 무기 변형부가 카메라 앞을 크게 가로지름",
+          "union_seconds": 3.4,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              5.5,
+              10.2
+            ],
+            [
+              19.1,
+              21.3
+            ]
+          ],
+          "basis": "숲 경계와 비행하는 인물을 대각으로 놓은 구도",
+          "union_seconds": 6.9,
+          "rounded_seconds": 7
+        },
+        {
+          "category": "지형·자연",
+          "name": "숲",
+          "role": "배",
+          "intervals": [
+            [
+              1.3,
+              6.8
+            ],
+            [
+              8.0,
+              9.5
+            ],
+            [
+              14.8,
+              16.0
+            ],
+            [
+              18.3,
+              27.0
+            ]
+          ],
+          "basis": "침엽수가 넓게 밀집한 숲과 숲 위 전투",
+          "union_seconds": 16.9,
+          "rounded_seconds": 17
+        },
+        {
+          "category": "지형·자연",
+          "name": "구름",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              12.7
+            ],
+            [
+              13.15,
+              19.1
+            ],
+            [
+              21.3,
+              27.0
+            ]
+          ],
+          "basis": "전투 뒤의 흐린 하늘 구름층",
+          "union_seconds": 24.35,
+          "rounded_seconds": 24
+        },
+        {
+          "category": "지형·자연",
+          "name": "산",
+          "role": "배",
+          "intervals": [
+            [
+              1.3,
+              6.8
+            ],
+            [
+              21.3,
+              27.0
+            ]
+          ],
+          "basis": "숲 너머 겹쳐진 낮은 산 능선",
+          "union_seconds": 11.2,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "상대·생물",
+          "name": "짐승",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              12.7
+            ],
+            [
+              13.15,
+              27.0
+            ]
+          ],
+          "basis": "송곳니와 털 및 꼬리를 가진 야수형 괴물들",
+          "union_seconds": 26.55,
+          "rounded_seconds": 27
+        },
+        {
+          "category": "상대·생물",
+          "name": "거대 생물",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              12.7
+            ],
+            [
+              13.15,
+              27.0
+            ]
+          ],
+          "basis": "주변 침엽수와 비교해 훨씬 큰 야수형 생물",
+          "union_seconds": 26.55,
+          "rounded_seconds": 27
+        },
+        {
+          "category": "무기",
+          "name": "발톱·손톱",
+          "role": "주",
+          "intervals": [
+            [
+              15.6,
+              16.7
+            ],
+            [
+              18.3,
+              19.1
+            ]
+          ],
+          "basis": "흰 야수 손가락 끝의 길고 뾰족한 발톱",
+          "union_seconds": 1.9,
+          "rounded_seconds": 2
+        }
+      ],
+      "notes": [
+        "애매:용",
+        "애매:광선검·에너지 칼"
+      ],
+      "ambiguities": [
+        {
+          "element": "용",
+          "intervals": [
+            [
+              0,
+              1.3
+            ],
+            [
+              6.8,
+              8.2
+            ]
+          ],
+          "reason": "길게 늘어난 뿔 달린 야수의 머리이나 용인지 확정 불가"
+        },
+        {
+          "element": "광선검·에너지 칼",
+          "intervals": [
+            [
+              19.1,
+              21.3
+            ]
+          ],
+          "reason": "주황색 발광으로 형성되는 무기가 에너지 날인지 실체 무기의 강화인지 불분명"
+        }
+      ],
+      "observations": "일반 불꽃과 전기는 목록에 없어 불덩이나 푸른 불로 옮겨 적지 않음. 긴 야수 꼬리는 촉수로 바꾸어 부르지 않음.",
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        27.027
+      ],
+      "detail_review_ranges": [
+        [
+          10.677,
+          13.347
+        ]
+      ],
+      "reviewed_frame_range": [
+        0,
+        647
+      ],
+      "unresolved_ranges": [
+        {
+          "element": "용",
+          "intervals": [
+            [
+              0,
+              1.3
+            ],
+            [
+              6.8,
+              8.2
+            ]
+          ],
+          "reason": "길게 늘어난 뿔 달린 야수의 머리이나 용인지 확정 불가"
+        },
+        {
+          "element": "광선검·에너지 칼",
+          "intervals": [
+            [
+              19.1,
+              21.3
+            ]
+          ],
+          "reason": "주황색 발광으로 형성되는 무기가 에너지 날인지 실체 무기의 강화인지 불분명"
+        }
+      ],
+      "review_limitations": "축소된 전체 프레임과 선택 확대에 근거한 수동 시각 판정. 시간은 근삿값이며 구조 검사 통과가 시각 판정의 무오류를 보증하지 않음.",
+      "coverage": {
+        "decoded_frames": 648,
+        "displayed_frames": 648,
+        "suppressed_consecutive_identical_scaled_frames": 0,
+        "contact_sheet_order": "64프레임 시트를 왼쪽 위→오른쪽 위→왼쪽 아래→오른쪽 아래 순으로 묶은 256프레임 시트. 각 64프레임 블록 내부는 행 우선 시간순.",
+        "all_summary_pages_reviewed": true
+      }
+    },
+    {
+      "group": "H03",
+      "id": "205408",
+      "listed_duration": 30,
+      "duration": 30.071708,
+      "fps": 23.976023976023978,
+      "frames": 721,
+      "unique_consecutive_frames": 721,
+      "sha256": "dc2aa4fafbffa8325842fa2b406cbc56f2aed12d32a5bbdf2f0bed50eef16a81",
+      "pages": [
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_00.jpg",
+          "first_frame": 0,
+          "last_frame": 63,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_01.jpg",
+          "first_frame": 64,
+          "last_frame": 127,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_02.jpg",
+          "first_frame": 128,
+          "last_frame": 191,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_03.jpg",
+          "first_frame": 192,
+          "last_frame": 255,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_04.jpg",
+          "first_frame": 256,
+          "last_frame": 319,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_05.jpg",
+          "first_frame": 320,
+          "last_frame": 383,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_06.jpg",
+          "first_frame": 384,
+          "last_frame": 447,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_07.jpg",
+          "first_frame": 448,
+          "last_frame": 511,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_08.jpg",
+          "first_frame": 512,
+          "last_frame": 575,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_09.jpg",
+          "first_frame": 576,
+          "last_frame": 639,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_10.jpg",
+          "first_frame": 640,
+          "last_frame": 703,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/205408_11.jpg",
+          "first_frame": 704,
+          "last_frame": 720,
+          "count": 17
+        }
+      ],
+      "elements": [
+        {
+          "category": "무기",
+          "name": "갈고리·와이어",
+          "role": "주",
+          "intervals": [
+            [
+              5.0,
+              6.5
+            ]
+          ],
+          "basis": "인물이 매달리고 회전하는 수직 와이어",
+          "union_seconds": 1.5,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "role": "주",
+          "intervals": [
+            [
+              8.6,
+              9.1
+            ],
+            [
+              9.7,
+              9.9
+            ],
+            [
+              20.6,
+              21.9
+            ],
+            [
+              26.8,
+              27.6
+            ],
+            [
+              29.0,
+              29.5
+            ]
+          ],
+          "basis": "고속 충돌 때 강하게 터지는 순간 광원과 방사형 섬광",
+          "union_seconds": 3.3,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 파편",
+          "role": "배",
+          "intervals": [
+            [
+              8.65,
+              10.4
+            ],
+            [
+              29.3,
+              30.03
+            ]
+          ],
+          "basis": "공격 경로의 작은 고체 조각이 튀어 나옴",
+          "union_seconds": 2.48,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "흰 연기·증기",
+          "role": "배",
+          "intervals": [
+            [
+              15.8,
+              16.6
+            ],
+            [
+              23.0,
+              24.7
+            ],
+            [
+              27.6,
+              30.03
+            ]
+          ],
+          "basis": "차량 주행 때 바닥에 넓게 깔리는 회백색 연무",
+          "union_seconds": 4.93,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "연출",
+          "name": "빛 번짐(블룸)",
+          "role": "주",
+          "intervals": [
+            [
+              0.8,
+              1.3
+            ],
+            [
+              2.5,
+              3.5
+            ],
+            [
+              4.6,
+              5.8
+            ],
+            [
+              12.0,
+              12.4
+            ],
+            [
+              14.3,
+              16.2
+            ],
+            [
+              20.6,
+              30.03
+            ]
+          ],
+          "basis": "칼날과 차량 앞부분의 강한 청백색 렌즈형 광번짐",
+          "union_seconds": 14.43,
+          "rounded_seconds": 14
+        },
+        {
+          "category": "연출",
+          "name": "단색",
+          "role": "주",
+          "intervals": [
+            [
+              1.3,
+              1.75
+            ],
+            [
+              8.6,
+              8.75
+            ],
+            [
+              9.3,
+              9.7
+            ],
+            [
+              29.0,
+              29.3
+            ]
+          ],
+          "basis": "흑백 및 제한 색면의 짧은 임팩트",
+          "union_seconds": 1.3,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "명암 반전",
+          "role": "주",
+          "intervals": [
+            [
+              1.3,
+              1.75
+            ],
+            [
+              9.3,
+              9.7
+            ]
+          ],
+          "basis": "같은 타격 형상을 연속 흑백 반전",
+          "union_seconds": 0.85,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              1.9,
+              3.35
+            ],
+            [
+              4.3,
+              5.8
+            ],
+            [
+              7.9,
+              10.4
+            ],
+            [
+              17.5,
+              18.7
+            ],
+            [
+              24.7,
+              26.7
+            ],
+            [
+              27.6,
+              30.03
+            ]
+          ],
+          "basis": "컨테이너 구조와 바닥을 대각으로 둔 추격 구도",
+          "union_seconds": 11.08,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              3.35,
+              5.8
+            ],
+            [
+              6.4,
+              8.6
+            ],
+            [
+              16.5,
+              18.6
+            ],
+            [
+              24.7,
+              26.7
+            ],
+            [
+              27.6,
+              30.03
+            ]
+          ],
+          "basis": "고속 투사체와 차량의 전후 크기 변화 및 긴 차체 종심",
+          "union_seconds": 11.18,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "지형·자연",
+          "name": "구름",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              1.3
+            ],
+            [
+              5.5,
+              6.7
+            ],
+            [
+              14.3,
+              16.5
+            ],
+            [
+              27.6,
+              30.03
+            ]
+          ],
+          "basis": "야외 배경 하늘의 짙은 구름층",
+          "union_seconds": 7.13,
+          "rounded_seconds": 7
+        },
+        {
+          "category": "인공 배경",
+          "name": "항구",
+          "role": "배",
+          "intervals": [
+            [
+              1.9,
+              5.8
+            ],
+            [
+              7.9,
+              10.4
+            ],
+            [
+              11.7,
+              13.0
+            ],
+            [
+              24.7,
+              26.7
+            ],
+            [
+              27.6,
+              30.03
+            ]
+          ],
+          "basis": "하역 크레인과 적재 컨테이너가 밀집한 부두 작업장",
+          "union_seconds": 12.13,
+          "rounded_seconds": 12
+        },
+        {
+          "category": "인공 배경",
+          "name": "크레인",
+          "role": "배",
+          "intervals": [
+            [
+              0.6,
+              1.3
+            ],
+            [
+              1.9,
+              5.8
+            ],
+            [
+              5.8,
+              8.6
+            ],
+            [
+              8.6,
+              10.4
+            ],
+            [
+              27.6,
+              30.03
+            ]
+          ],
+          "basis": "상공의 적색 갠트리 프레임과 부두 크레인",
+          "union_seconds": 11.63,
+          "rounded_seconds": 12
+        },
+        {
+          "category": "탈것",
+          "name": "자동차",
+          "role": "주",
+          "intervals": [
+            [
+              10.4,
+              11.9
+            ],
+            [
+              12.9,
+              24.7
+            ],
+            [
+              26.7,
+              30.03
+            ]
+          ],
+          "basis": "운전자와 복수의 바퀴가 있는 길고 낮은 차량",
+          "union_seconds": 16.63,
+          "rounded_seconds": 17
+        },
+        {
+          "category": "탈것",
+          "name": "바퀴",
+          "role": "주",
+          "intervals": [
+            [
+              16.6,
+              18.6
+            ],
+            [
+              22.0,
+              24.7
+            ],
+            [
+              27.6,
+              28.5
+            ]
+          ],
+          "basis": "긴 차량의 좌우 바퀴를 확대해 보여 줌",
+          "union_seconds": 5.6,
+          "rounded_seconds": 6
+        }
+      ],
+      "notes": [
+        "애매:던진 칼",
+        "애매:수리검·부메랑",
+        "애매:고글"
+      ],
+      "ambiguities": [
+        {
+          "element": "던진 칼/수리검·부메랑",
+          "intervals": [
+            [
+              1.9,
+              10.4
+            ],
+            [
+              20.6,
+              21.9
+            ]
+          ],
+          "reason": "작은 백색 회전 투사체의 날과 손잡이를 분명히 구별할 수 없어 확정하지 않음"
+        },
+        {
+          "element": "고글",
+          "intervals": [
+            [
+              12.9,
+              14.3
+            ]
+          ],
+          "reason": "운전자 얼굴이 장비에 가려져 보호 안경 여부 불명확"
+        }
+      ],
+      "observations": "일반 도검은 단검·칼로 바꾸어 적지 않음. 장식용 해골과 문양은 해골·언데드 또는 문양·룬으로 집계하지 않음. 실제 날끼리 부딪혔는지 불명확한 불꽃은 날 부딪힘 불꽃으로 집계하지 않음.",
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        30.071708
+      ],
+      "reviewed_frame_range": [
+        0,
+        720
+      ],
+      "unresolved_ranges": [
+        {
+          "element": "던진 칼/수리검·부메랑",
+          "intervals": [
+            [
+              1.9,
+              10.4
+            ],
+            [
+              20.6,
+              21.9
+            ]
+          ],
+          "reason": "작은 백색 회전 투사체의 날과 손잡이를 분명히 구별할 수 없어 확정하지 않음"
+        },
+        {
+          "element": "고글",
+          "intervals": [
+            [
+              12.9,
+              14.3
+            ]
+          ],
+          "reason": "운전자 얼굴이 장비에 가려져 보호 안경 여부 불명확"
+        }
+      ],
+      "review_limitations": "축소된 전체 프레임과 선택 확대에 근거한 수동 시각 판정. 시간은 근삿값이며 구조 검사 통과가 시각 판정의 무오류를 보증하지 않음.",
+      "coverage": {
+        "decoded_frames": 721,
+        "displayed_frames": 721,
+        "suppressed_consecutive_identical_scaled_frames": 0,
+        "contact_sheet_order": "64프레임 시트를 왼쪽 위→오른쪽 위→왼쪽 아래→오른쪽 아래 순으로 묶은 256프레임 시트. 각 64프레임 블록 내부는 행 우선 시간순.",
+        "all_summary_pages_reviewed": true
+      }
+    },
+    {
+      "group": "H04",
+      "id": "182904",
+      "listed_duration": 43,
+      "duration": 42.959583,
+      "fps": 23.976023976023978,
+      "frames": 1030,
+      "unique_consecutive_frames": 1030,
+      "sha256": "e1c2dfe11fcc2cac6acf7dd71775f84b45b778bb7073a76d02b57a7d3b247d15",
+      "pages": [
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_00.jpg",
+          "first_frame": 0,
+          "last_frame": 63,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_01.jpg",
+          "first_frame": 64,
+          "last_frame": 127,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_02.jpg",
+          "first_frame": 128,
+          "last_frame": 191,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_03.jpg",
+          "first_frame": 192,
+          "last_frame": 255,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_04.jpg",
+          "first_frame": 256,
+          "last_frame": 319,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_05.jpg",
+          "first_frame": 320,
+          "last_frame": 383,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_06.jpg",
+          "first_frame": 384,
+          "last_frame": 447,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_07.jpg",
+          "first_frame": 448,
+          "last_frame": 511,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_08.jpg",
+          "first_frame": 512,
+          "last_frame": 575,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_09.jpg",
+          "first_frame": 576,
+          "last_frame": 639,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_10.jpg",
+          "first_frame": 640,
+          "last_frame": 703,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_11.jpg",
+          "first_frame": 704,
+          "last_frame": 767,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_12.jpg",
+          "first_frame": 768,
+          "last_frame": 831,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_13.jpg",
+          "first_frame": 832,
+          "last_frame": 895,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_14.jpg",
+          "first_frame": 896,
+          "last_frame": 959,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_15.jpg",
+          "first_frame": 960,
+          "last_frame": 1023,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/182904_16.jpg",
+          "first_frame": 1024,
+          "last_frame": 1029,
+          "count": 6
+        }
+      ],
+      "elements": [
+        {
+          "category": "원소 이펙트",
+          "name": "검은 연기",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              3.3
+            ],
+            [
+              10.9,
+              13.15
+            ],
+            [
+              38.1,
+              42.96
+            ]
+          ],
+          "basis": "불타는 건축물 위로 올라오는 짙은 연기",
+          "union_seconds": 10.41,
+          "rounded_seconds": 10
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "흩날림(잎·꽃잎)",
+          "role": "배",
+          "intervals": [
+            [
+              1.3,
+              3.3
+            ],
+            [
+              5.2,
+              8.6
+            ]
+          ],
+          "basis": "달리는 인물 주변에서 떨어져 날리는 나뭇잎",
+          "union_seconds": 5.4,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "충격·파괴",
+          "name": "건물 붕괴",
+          "role": "주",
+          "intervals": [
+            [
+              39.7,
+              42.96
+            ]
+          ],
+          "basis": "불타는 다층 목조 지붕과 골조가 기울어 내려앉음",
+          "union_seconds": 3.26,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "지형·자연",
+          "name": "숲",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              10.9
+            ],
+            [
+              13.15,
+              38.1
+            ]
+          ],
+          "basis": "나무가 밀집하고 관목과 뿌리가 있는 숲 속",
+          "union_seconds": 35.85,
+          "rounded_seconds": 36
+        },
+        {
+          "category": "지형·자연",
+          "name": "나뭇잎",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              10.9
+            ],
+            [
+              13.15,
+              38.1
+            ]
+          ],
+          "basis": "인물 주변 가지와 지면의 잎",
+          "union_seconds": 35.85,
+          "rounded_seconds": 36
+        },
+        {
+          "category": "인공 배경",
+          "name": "신사·절",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              3.3
+            ],
+            [
+              10.9,
+              13.15
+            ],
+            [
+              38.1,
+              42.96
+            ]
+          ],
+          "basis": "숲 너머 불타는 다층 목탑과 사찰 양식의 건축물",
+          "union_seconds": 10.41,
+          "rounded_seconds": 10
+        },
+        {
+          "category": "인공 배경",
+          "name": "지붕",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              3.3
+            ],
+            [
+              10.9,
+              13.15
+            ],
+            [
+              38.1,
+              42.96
+            ]
+          ],
+          "basis": "다층 목탑의 처마와 전경 기와 지붕",
+          "union_seconds": 10.41,
+          "rounded_seconds": 10
+        },
+        {
+          "category": "상대·생물",
+          "name": "짐승",
+          "role": "주",
+          "intervals": [
+            [
+              1.3,
+              3.3
+            ],
+            [
+              5.2,
+              10.9
+            ],
+            [
+              13.15,
+              21.6
+            ],
+            [
+              31.0,
+              38.1
+            ]
+          ],
+          "basis": "소년과 함께 달리고 가까이 서 있는 개",
+          "union_seconds": 23.25,
+          "rounded_seconds": 23
+        }
+      ],
+      "notes": [],
+      "ambiguities": [],
+      "observations": "일반 건물 화재 자체는 허용 원소명에 없어 불덩이나 연쇄 폭발로 기록하지 않음. 숲의 보통 그림자는 어둠·그림자 이펙트가 아님.",
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        42.959583
+      ],
+      "reviewed_frame_range": [
+        0,
+        1029
+      ],
+      "unresolved_ranges": [],
+      "review_limitations": "축소된 전체 프레임과 선택 확대에 근거한 수동 시각 판정. 시간은 근삿값이며 구조 검사 통과가 시각 판정의 무오류를 보증하지 않음.",
+      "coverage": {
+        "decoded_frames": 1030,
+        "displayed_frames": 1030,
+        "suppressed_consecutive_identical_scaled_frames": 0,
+        "contact_sheet_order": "64프레임 시트를 왼쪽 위→오른쪽 위→왼쪽 아래→오른쪽 아래 순으로 묶은 256프레임 시트. 각 64프레임 블록 내부는 행 우선 시간순.",
+        "all_summary_pages_reviewed": true
+      }
+    },
+    {
+      "group": "H04",
+      "id": "281605",
+      "listed_duration": 32,
+      "duration": 31.948583,
+      "fps": 23.976023976023978,
+      "frames": 766,
+      "unique_consecutive_frames": 766,
+      "sha256": "3983d911a63b22299cd8be1116525cd79371472b27d988d044ca7f5eb7c65b6b",
+      "pages": [
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_00.jpg",
+          "first_frame": 0,
+          "last_frame": 63,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_01.jpg",
+          "first_frame": 64,
+          "last_frame": 127,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_02.jpg",
+          "first_frame": 128,
+          "last_frame": 191,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_03.jpg",
+          "first_frame": 192,
+          "last_frame": 255,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_04.jpg",
+          "first_frame": 256,
+          "last_frame": 319,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_05.jpg",
+          "first_frame": 320,
+          "last_frame": 383,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_06.jpg",
+          "first_frame": 384,
+          "last_frame": 447,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_07.jpg",
+          "first_frame": 448,
+          "last_frame": 511,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_08.jpg",
+          "first_frame": 512,
+          "last_frame": 575,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_09.jpg",
+          "first_frame": 576,
+          "last_frame": 639,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_10.jpg",
+          "first_frame": 640,
+          "last_frame": 703,
+          "count": 64
+        },
+        {
+          "path": "/workspace/scratch/45336e4fa675/review/sheets/281605_11.jpg",
+          "first_frame": 704,
+          "last_frame": 765,
+          "count": 62
+        }
+      ],
+      "elements": [
+        {
+          "category": "원소 이펙트",
+          "name": "기 모으기 빛",
+          "role": "주",
+          "intervals": [
+            [
+              0.35,
+              1.3
+            ],
+            [
+              18.2,
+              18.7
+            ],
+            [
+              20.7,
+              23.65
+            ]
+          ],
+          "basis": "공격 직전 몸과 눈 및 주먹의 청백색 발광이 강화됨",
+          "union_seconds": 4.4,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "role": "주",
+          "intervals": [
+            [
+              1.2,
+              1.3
+            ],
+            [
+              1.7,
+              1.8
+            ],
+            [
+              2.25,
+              2.6
+            ],
+            [
+              18.1,
+              18.35
+            ],
+            [
+              22.4,
+              22.55
+            ],
+            [
+              23.9,
+              24.2
+            ],
+            [
+              26.3,
+              26.5
+            ],
+            [
+              27.4,
+              27.6
+            ],
+            [
+              28.1,
+              28.2
+            ],
+            [
+              30.0,
+              30.1
+            ]
+          ],
+          "basis": "타격과 돌파 순간의 짧은 화면 섬광",
+          "union_seconds": 1.85,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 파편",
+          "role": "주",
+          "intervals": [
+            [
+              25.9,
+              27.05
+            ],
+            [
+              29.0,
+              30.0
+            ]
+          ],
+          "basis": "충돌로 깨진 흰 구조물 조각이 주변으로 날림",
+          "union_seconds": 2.15,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "충격·파괴",
+          "name": "붕괴",
+          "role": "주",
+          "intervals": [
+            [
+              25.9,
+              27.05
+            ]
+          ],
+          "basis": "충돌한 흰 구조면이 큰 각진 조각으로 부서짐",
+          "union_seconds": 1.15,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "충격·파괴",
+          "name": "균열",
+          "role": "주",
+          "intervals": [
+            [
+              25.9,
+              26.4
+            ]
+          ],
+          "basis": "흰 구조면이 갈라져 조각으로 분리됨",
+          "union_seconds": 0.5,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "잔상",
+          "role": "주",
+          "intervals": [
+            [
+              3.5,
+              8.2
+            ]
+          ],
+          "basis": "연타 궤적을 반복되는 다수의 주먹 형상으로 겹쳐 표현",
+          "union_seconds": 4.7,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              1.3
+            ],
+            [
+              3.5,
+              8.2
+            ],
+            [
+              11.6,
+              12.4
+            ],
+            [
+              13.1,
+              15.4
+            ],
+            [
+              25.0,
+              27.05
+            ],
+            [
+              29.0,
+              30.1
+            ]
+          ],
+          "basis": "주먹을 전경에서 크게 하고 타격 대상과 인물 크기를 급격히 변화",
+          "union_seconds": 12.25,
+          "rounded_seconds": 12
+        },
+        {
+          "category": "연출",
+          "name": "빛 번짐(블룸)",
+          "role": "주",
+          "intervals": [
+            [
+              0.35,
+              2.25
+            ],
+            [
+              18.1,
+              18.7
+            ],
+            [
+              20.7,
+              24.8
+            ],
+            [
+              30.0,
+              30.1
+            ]
+          ],
+          "basis": "청백색 힘과 광점 주위의 강한 빛 번짐",
+          "union_seconds": 6.7,
+          "rounded_seconds": 7
+        },
+        {
+          "category": "연출",
+          "name": "머리카락 휘날림",
+          "role": "주",
+          "intervals": [
+            [
+              1.3,
+              2.25
+            ],
+            [
+              11.0,
+              12.4
+            ],
+            [
+              15.4,
+              18.1
+            ],
+            [
+              18.7,
+              20.4
+            ],
+            [
+              25.0,
+              26.3
+            ],
+            [
+              27.0,
+              28.9
+            ],
+            [
+              29.0,
+              30.1
+            ]
+          ],
+          "basis": "인물의 머리와 등에 업힌 인물의 긴 흰 머리가 고속 이동에 따라 휘날림",
+          "union_seconds": 11.05,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "role": "주",
+          "intervals": [
+            [
+              0,
+              1.3
+            ],
+            [
+              8.2,
+              10.4
+            ],
+            [
+              11.6,
+              12.4
+            ],
+            [
+              15.4,
+              18.1
+            ],
+            [
+              25.0,
+              27.05
+            ],
+            [
+              29.0,
+              30.1
+            ]
+          ],
+          "basis": "도시와 인물 또는 속도선 방향을 대각으로 배치",
+          "union_seconds": 10.15,
+          "rounded_seconds": 10
+        },
+        {
+          "category": "연출",
+          "name": "단색",
+          "role": "주",
+          "intervals": [
+            [
+              0.33,
+              0.38
+            ],
+            [
+              2.25,
+              2.6
+            ],
+            [
+              22.4,
+              22.55
+            ],
+            [
+              23.9,
+              24.05
+            ]
+          ],
+          "basis": "완성 컬러 장면 사이 흑백 타격 형상과 색면 프레임",
+          "union_seconds": 0.7,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "명암 반전",
+          "role": "주",
+          "intervals": [
+            [
+              22.4,
+              22.55
+            ]
+          ],
+          "basis": "연속 검정과 흰색 임팩트의 명암 반전",
+          "union_seconds": 0.15,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "지형·자연",
+          "name": "구름",
+          "role": "배",
+          "intervals": [
+            [
+              1.3,
+              2.25
+            ],
+            [
+              2.6,
+              3.5
+            ],
+            [
+              10.4,
+              15.4
+            ],
+            [
+              18.7,
+              20.4
+            ],
+            [
+              22.55,
+              24.8
+            ],
+            [
+              27.0,
+              27.2
+            ],
+            [
+              29.0,
+              31.86
+            ]
+          ],
+          "basis": "도시 위 푸른 하늘의 흰 구름",
+          "union_seconds": 13.86,
+          "rounded_seconds": 14
+        },
+        {
+          "category": "인공 배경",
+          "name": "고층 빌딩",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              0.33
+            ],
+            [
+              0.38,
+              1.3
+            ],
+            [
+              13.1,
+              15.4
+            ],
+            [
+              29.0,
+              30.1
+            ]
+          ],
+          "basis": "아래로 보이는 도시의 다층 고층 건물들",
+          "union_seconds": 4.65,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "인공 배경",
+          "name": "도로·거리",
+          "role": "배",
+          "intervals": [
+            [
+              0,
+              0.33
+            ],
+            [
+              0.38,
+              1.3
+            ]
+          ],
+          "basis": "도시를 내려다보는 첫 장면의 도로 구획과 교차로",
+          "union_seconds": 1.25,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "상대·생물",
+          "name": "거대 생물",
+          "role": "주",
+          "intervals": [
+            [
+              3.5,
+              8.2
+            ],
+            [
+              8.2,
+              15.4
+            ],
+            [
+              22.55,
+              24.8
+            ],
+            [
+              27.05,
+              27.6
+            ]
+          ],
+          "basis": "인간 인물보다 훨씬 큰 적색 다완 육체의 괴물",
+          "union_seconds": 14.7,
+          "rounded_seconds": 15
+        }
+      ],
+      "notes": [
+        "애매:선화만",
+        "애매:충격파 고리"
+      ],
+      "ambiguities": [
+        {
+          "element": "선화만",
+          "intervals": [
+            [
+              2.25,
+              2.6
+            ]
+          ],
+          "reason": "거친 흑백 선과 색면이 섞여 순수 선화 전환인지 분명하지 않음"
+        },
+        {
+          "element": "충격파 고리",
+          "intervals": [
+            [
+              26.944,
+              28.3
+            ]
+          ],
+          "reason": "원형 백색 효과와 뒤이어 갈라지는 거대 백색 구조면의 경계가 불명확. 중공 충격파 고리로 확정 집계하지 않음"
+        }
+      ],
+      "observations": "청색 전기 아크를 푸른 불로 기록하지 않음. 다수 주먹은 잔상으로 기록하며 인물 분신으로 중복 기록하지 않음. 신체의 붉은 부분만으로 핏자국을 확정하지 않음.",
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        31.948583
+      ],
+      "reviewed_frame_range": [
+        0,
+        765
+      ],
+      "unresolved_ranges": [
+        {
+          "element": "선화만",
+          "intervals": [
+            [
+              2.25,
+              2.6
+            ]
+          ],
+          "reason": "거친 흑백 선과 색면이 섞여 순수 선화 전환인지 분명하지 않음"
+        },
+        {
+          "element": "충격파 고리",
+          "intervals": [
+            [
+              26.944,
+              28.3
+            ]
+          ],
+          "reason": "원형 백색 효과와 뒤이어 갈라지는 거대 백색 구조면의 경계가 불명확. 중공 충격파 고리로 확정 집계하지 않음"
+        }
+      ],
+      "review_limitations": "축소된 전체 프레임과 선택 확대에 근거한 수동 시각 판정. 시간은 근삿값이며 구조 검사 통과가 시각 판정의 무오류를 보증하지 않음.",
+      "coverage": {
+        "decoded_frames": 766,
+        "displayed_frames": 766,
+        "suppressed_consecutive_identical_scaled_frames": 0,
+        "contact_sheet_order": "64프레임 시트를 왼쪽 위→오른쪽 위→왼쪽 아래→오른쪽 아래 순으로 묶은 256프레임 시트. 각 64프레임 블록 내부는 행 우선 시간순.",
+        "all_summary_pages_reviewed": true
+      },
+      "detail_review_ranges": [
+        [
+          21.355,
+          24.024
+        ],
+        [
+          26.693,
+          29.362
+        ]
+      ]
+    }
+  ]
+}
