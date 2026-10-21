@@ -164,6 +164,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 ## 4. 환경
 
+- **2026-10-21 밤 사용자: '약 1시간 뒤 1050 Ti 사용 가능'.** 용도 제안: Mixamo 일괄 받기(PC 브라우저 필요), 3D 올리기 학습(묶음 축소). 본인 PC/공용 PC 여부 확인 중(공용이면 토큰 남기지 않음).
 - **사용자 PC GPU(2026-10-21 10:22 KST 기준 약 5시간 사용 가능, 일시적):** NVIDIA GTX 1050 Ti(VRAM 4GB), RAM 16GB, Windows. 사용자가 "지금 있는 상태"로 알려 둔 정보이고, 사용 지시는 아직 없다. 쓸 때는 공용 PC 여부와 토큰을 남기지 않는 규칙을 먼저 확인한다.
 - **Drive:** rclone `gdrive:`. 환경 변수 `RCLONE_CONFIG_GDRIVE_{TYPE,SCOPE,TOKEN}`가 설정 파일보다 우선한다.
   - 2026-10-21 확인: 범위는 아직 drive.file이다(토큰 갱신 후 tokeninfo). 사용자나 GPT가 올린 파일은 안 보인다. Claude가 올린 파일(저용량 영상·autodet)은 보인다.
