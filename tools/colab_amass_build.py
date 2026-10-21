@@ -24,7 +24,7 @@ def build():
 # AMASS 모캡 받기 — Colab (GPU 필요 없음)
 
 **처음 한 번만:**
-1. 왼쪽 열쇠 아이콘(**보안 비밀**)에서 `AMASS_USER`(AMASS 가입 이메일), `AMASS_PASS`(비밀번호)를 추가하고 '노트북 액세스'를 켠다. 대화에는 붙이지 않는다.
+1. 왼쪽 열쇠 아이콘(**보안 비밀**)에서 `AMASS_USER`(AMASS 가입 이메일), `AMASS_PASS`(비밀번호)를 추가하고 '노트북 액세스'를 켠다. SMPL-X 사이트 비밀번호가 다르면 `SMPLX_PASS`도 추가한다(이메일이 다르면 `SMPLX_USER`도). 대화에는 붙이지 않는다.
 2. https://smpl-x.is.tue.mpg.de 에도 **같은 이메일로 가입**하고 라이선스에 동의한다(몸 모델 파일. AMASS 자료를 관절 좌표로 바꾸는 데 필요).
 
 그다음 **런타임 → 모두 실행.** 런타임 유형은 CPU여도 된다. 끊기면 다시 실행하면 이어서 받는다.
@@ -35,7 +35,11 @@ def build():
 from google.colab import drive, userdata
 drive.mount('/content/drive')
 U, P = userdata.get('AMASS_USER'), userdata.get('AMASS_PASS')
-print('계정 읽음:', bool(U), bool(P))
+def _opt(k):
+    try: return userdata.get(k)
+    except Exception: return None
+SU, SP = _opt('SMPLX_USER') or U, _opt('SMPLX_PASS') or P  # SMPL-X 사이트 비밀번호가 다르면 따로 넣는다
+print('계정 읽음:', bool(U), bool(P), 'SMPL-X 따로:', bool(_opt('SMPLX_PASS')))
 """),
         code("""
 # 2. 받기 함수
@@ -45,10 +49,10 @@ os.makedirs(OUT, exist_ok=True)
 URL = 'https://download.is.tue.mpg.de/download.php'
 MAGIC = (b'BZh', b'PK', b'\\x1f\\x8b', b'\\xfd7zXZ')
 
-def get(domain, sfile, dst):
+def get(domain, sfile, dst, user=None, pw=None):
     if os.path.exists(dst) and os.path.getsize(dst) > 1000: return 'have'
     r = requests.post(URL, params={'domain': domain, 'resume': 1, 'sfile': sfile},
-                      data={'username': U, 'password': P}, stream=True, timeout=120)
+                      data={'username': user or U, 'password': pw or P}, stream=True, timeout=120)
     it = r.iter_content(1 << 20); first = next(it, b'')
     if r.status_code != 200 or not first.startswith(MAGIC):
         return f'없음({r.status_code}, {first[:60]!r})'
@@ -61,7 +65,7 @@ def get(domain, sfile, dst):
 """),
         code("""
 # 3. SMPL-X 몸 모델과 AMASS 자료(SMPL-X 중성 → 실패하면 성별별 → SMPL-H 순으로 시도)
-print('SMPL-X 모델:', get('smplx', 'models_smplx_v1_1.zip', OUT + '/models_smplx_v1_1.zip'))
+print('SMPL-X 모델:', get('smplx', 'models_smplx_v1_1.zip', OUT + '/models_smplx_v1_1.zip', SU, SP))
 DATASETS = %s
 for ds in DATASETS:
     res = None
