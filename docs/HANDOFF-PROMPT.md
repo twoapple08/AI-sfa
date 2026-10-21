@@ -63,7 +63,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - P2 카메라 노트북: `tools/colab_p2_build.py` → `tools/colab_p2_camera_flow.ipynb`, Drive `Colab Notebooks/P2_카메라광류_colab.ipynb`. torchvision RAFT-large 광류 + 캐릭터 상자 가림 + 닮음 변환 RANSAC → 프레임별 [tx, ty, log_scale, rot, inlier, 중앙 흐름] + 9×16 흐름 격자. 원본 354개 전부, 흘려 읽기(최장 5540프레임). 합성 이동·확대 영상으로 서버 CPU에서 복원 확인(이동 기대 −0.0070 → −0.0064~−0.0077, 확대 log 기대 0.0099 → 0.008~0.011).
 
 - 사용자 답(2026-10-21 밤): P1 노트북 실행함. Colab 유료 GPU(A100·L4) 못 씀·구매 불가 → **무료 T4 기준**으로 설계. AMASS 가입함 → `tools/colab_amass_build.py` → Drive `Colab Notebooks/AMASS_받기_colab.ipynb`(Colab 비밀값 AMASS_USER/PASS, download.is.tue.mpg.de POST; 잘못된 계정이면 401 확인. 파일 경로는 후보를 시도). SMPL-X 사이트 별도 가입 필요(안내함). Adobe 계정 있음 → Mixamo는 PC 브라우저에서 받는 방식이 필요(대기). 자동 태그 남은 112개 재개(사용자에게 설명, 반대 시 중지). HF 토큰은 필요할 때 안내.
-- CMU 변환본 Drive 백업 `02_분석자료/모캡_CMU/cmu_npz30.tgz`(387MB) 확인. LaFAN1(276분)·Bandai(234분) 변환본은 서버 scratch에만 있다(사용자가 업로드 도구 호출을 중단함 — 다시 올릴지 확인 후).
+- CMU 변환본 Drive 백업 `02_분석자료/모캡_CMU/cmu_npz30.tgz`(387MB) 확인. LaFAN1(276분)·Bandai(234분) 변환본도 Drive 같은 폴더 `mocap_lafan1_bandai_npz30.tgz`(223MB)에 백업(사용자 확인).
 
 **다음 할 일:** 사용자가 P1 노트북을 돌리면 Drive `02_분석자료/P1_포즈비교/`를 rclone으로 받아 `p1_pose_eval.py` → 표본 그림 소수 확인 → 모델 선택 → 전체 재추출 노트북. 그동안 서버에서 CMU 변환 완료·격투 동작 정리, P2 광류·P4 돌 파편 측정 준비.
 
