@@ -65,7 +65,9 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 
 **앱:** `creator-android/` v0.1(APK Drive `07_도구/SFA크리에이터/`). 사용자 판정: 구도 고정·평면·어색한 포즈·도형 이펙트는 모두 틀렸다. 이펙트 사전 실험(`tools/effect_vectorize.py`·`effect_library.py`·`effect_palette.py`, assets/effects.txt는 gitignore)은 중간 단계이고, 새 방식(그림 과정 그대로)으로 바꾼다.
 
-**서버 scratch(사라질 수 있음):** 원본 영상 `allvid/<animator>/`(377개), 포즈 `pose_nak`·`pose_nian`, 자동 태그 `autodet/autodet`, CLIP `clip/`, VideoPose3D `vp3d/`, 돌 파편 영상은 업로드 폴더 `c0406812-stone_cube_burst_4.mp4`. Android SDK `/opt/android-sdk`, skia·scikit-image·playwright 설치(새 컨테이너면 다시 설치).
+**백업(2026-10-21 13:17):** Drive `AI-sfa/02_분석자료/백업_claude/scratch_analysis_2026-10-21.tgz`(자동 태그·CLIP npz·clip_score·이펙트 사전·팔레트·motion_lib.json, 73MB), 돌 파편 영상 `AI-sfa/01_원본영상/사용자참고/stone_cube_burst_4.mp4`. 포즈는 `02_분석자료/포즈_claude/`, 저용량 원본은 `01_원본영상/_Gemini용_저용량/`. 새 컨테이너에서는 여기서 받아 복구한다.
+
+**이전 서버 scratch(새 세션에는 없음):** 원본 영상 `allvid/<animator>/`(377개), 포즈 `pose_nak`·`pose_nian`, 자동 태그 `autodet/autodet`, CLIP `clip/`, VideoPose3D `vp3d/`, 돌 파편 영상은 업로드 폴더 `c0406812-stone_cube_burst_4.mp4`. Android SDK `/opt/android-sdk`, skia·scikit-image·playwright 설치(새 컨테이너면 다시 설치).
 
 ## 1. 사용자 결정 (2026-10-20 밤)
 
