@@ -153,11 +153,12 @@ def main():
     ap.add_argument("--win", type=int, default=81)
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--test", action="store_true", help="CPU로 몇 단계만 돌려 확인")
+    ap.add_argument("--sync", help="중간 저장본을 올릴 rclone 경로(예: gdrive:AI-sfa/02_분석자료/모델_3D올리기)")
     a = ap.parse_args()
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     os.makedirs(a.out, exist_ok=True)
     pos_np, clips = load(a.src, a.index)
-    pos = torch.from_numpy(pos_np.astype(np.float32)).to(dev)
+    pos = torch.from_numpy(pos_np.astype(np.float16)).to(dev)  # 16비트로 올려 GPU 메모리 절반(4GB GPU 대응). 꺼낼 때 32비트로
     win = a.win
     tr = [(s, n, w) for s, n, w, v in clips if not v and n >= win]
     va = [(s, n) for s, n, w, v in clips if v and n >= win]
@@ -209,6 +210,9 @@ def main():
                 torch.save({"model": model.state_dict(), "opt": opt.state_dict(), "sched": sched.state_dict(),
                             "step": step + 1, "win": win, "joints": JN}, ck + ".tmp")
                 os.replace(ck + ".tmp", ck)  # 복사 중 반쯤 쓴 파일을 읽지 않도록
+                if a.sync and (step + 1) % 5000 == 0:
+                    import subprocess
+                    subprocess.Popen(["rclone", "copy", ck, a.sync])  # 기다리지 않는다(학습 계속)
 
 
 if __name__ == "__main__":
