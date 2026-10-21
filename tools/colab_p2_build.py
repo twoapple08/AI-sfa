@@ -50,6 +50,10 @@ OUT = ROOT + '/02_분석자료/P2_카메라'
 DIRS = %s
 DEV = 'cuda' if torch.cuda.is_available() else 'cpu'
 raft = raft_large(weights=Raft_Large_Weights.C_T_SKHT_V2).to(DEV).eval()
+import onnxruntime as ort
+try: ort.preload_dlls()  # torch에 든 CUDA·cuDNN을 먼저 불러 ONNX가 GPU를 쓰게 한다
+except Exception as e: print('preload_dlls 실패:', e)
+print('ONNX 가능 장치:', ort.get_available_providers())
 from rtmlib import Wholebody
 DET = Wholebody(mode='performance', backend='onnxruntime', device=DEV).det_model
 DET.score_thr = 0.3
