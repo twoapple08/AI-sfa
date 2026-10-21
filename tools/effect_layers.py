@@ -7,7 +7,7 @@
 1. 선: 회색조 블랙햇(닫힘 - 원본)으로 '주변보다 어두운 가는 선'을 찾고 중심선을 포물선 조각으로 맞춘다(굵기 포함).
 2. 밑색: 선을 지운(inpaint) 뒤 평활한 그림을 Lab k-평균으로 묶고, 반투명 덮기로 설명되는 덩어리를 한 밑색으로 합친다.
    묶는 기준: 덩어리 색이 '밑색 + 흰색/어두운 반투명 덮기'로 설명될 때(Lab ΔE < MERGE_DE). 밑색 = 묶음에서 가장 넓은 덩어리의 색.
-3. 명암: 밑색 B에서 실제 색 C로 가는 정도를 알파로 본다. 밝은 쪽은 흰색 쪽 S, 어두운 쪽은 B×0.25 쪽 S로
+3. 명암: 밑색 B에서 실제 색 C로 가는 정도를 알파로 본다. 밝은 쪽은 흰색 S, 어두운 쪽은 검정 S로
    a = ((C-B)·(S-B)) / |S-B|². 알파를 단계(LEVELS)로 잘라 '알파 ≥ 단계'인 영역을 겹친다.
    바깥(넓고 옅게) → 안쪽(좁고 진하게) 순서이며, n번째 겹의 알파는 누적 알파가 단계값이 되도록 1-(1-ℓn)/(1-ℓn-1).
 4. 검증: 층을 다시 그려 원본과 Lab ΔE(평균·95분위)를 낸다.
@@ -28,7 +28,8 @@ from skimage.morphology import skeletonize
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from effect_vectorize import fit, outline_mask, read_frame, trace  # noqa: E402
 
-LEVELS = [0.12, 0.25, 0.4, 0.55, 0.7, 0.85]
+LEVELS = [0.12, 0.25, 0.4, 0.55, 0.7, 0.85, 0.95]
+LIGHT_KS = (7,)  # 밝은 선 찾는 틀 크기(px). 15px 추가는 표본 4장에서 개선 없음(번개 포함)
 MERGE_DE = 8.0  # 반투명 덮기로 설명되는 색 차이 허용(Lab ΔE). BGR 거리는 갈색을 흰색의 어두운 명암으로 잘못 묶었다
 SEAM = 2  # 밑색 채우기에 같은 색 외곽선(px)을 더해 이웃 영역 사이 틈을 막는다(SFA: 채우기 + 같은 색 선)
 
@@ -37,7 +38,9 @@ def line_layer(img, tol, thr=28, min_len=6, light=False):
     """light=False: 주변보다 어두운 가는 선(블랙햇). light=True: 주변보다 밝은 가는 선(톱햇, 불꽃 속 잔결 등)."""
     g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     op = cv2.MORPH_TOPHAT if light else cv2.MORPH_BLACKHAT
-    bh = cv2.morphologyEx(g, op, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+    # 어두운 선 15px는 넓은 그림자를 선으로 잡았다. 밝은 선 틀 크기는 LIGHT_KS
+    ks = LIGHT_KS if light else (7,)
+    bh = np.max([cv2.morphologyEx(g, op, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))) for k in ks], 0)
     m = ((bh > thr) & ((g > 110) if light else (g < 140))).astype(np.uint8)
     m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((2, 2), np.uint8))
     dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
@@ -59,6 +62,7 @@ def base_and_shade(img, line_mask, k, tol, min_area):
     clean = cv2.inpaint(img, cv2.dilate(line_mask, np.ones((3, 3), np.uint8)), 3, cv2.INPAINT_TELEA)
     smooth = cv2.bilateralFilter(clean, 7, 30, 7)
     lab = cv2.cvtColor(smooth, cv2.COLOR_BGR2LAB).reshape(-1, 3).astype(np.float32)
+    cv2.setRNGSeed(0)  # k-평균 시작점 고정(실행마다 ΔE가 ±0.5 흔들렸다)
     _, lab_idx, cent = cv2.kmeans(lab, k, None, (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.5), 3,
                                   cv2.KMEANS_PP_CENTERS)
     lab_idx = lab_idx.reshape(img.shape[:2])
@@ -74,7 +78,7 @@ def base_and_shade(img, line_mask, k, tol, min_area):
         for j in range(k):
             if group[j] >= 0:
                 continue
-            for S in (np.full(3, 255.0), bgr[i] * 0.25):
+            for S in (np.full(3, 255.0), np.zeros(3)):
                 d = S - bgr[i]
                 a = np.clip(np.dot(bgr[j] - bgr[i], d) / max(np.dot(d, d), 1e-6), 0, 1)
                 pred = np.clip(bgr[i] + a * d, 0, 255).astype(np.uint8).reshape(1, 1, 3)
@@ -92,7 +96,7 @@ def base_and_shade(img, line_mask, k, tol, min_area):
         _, shapes = outline_mask(reg * 255, tol, min_area)
         layers.append({"kind": "base", "color": B.round(1).tolist(), "alpha": 1.0, "stroke": SEAM, "shapes": shapes})
         C = fimg[reg > 0]
-        for sign, S in (("light", np.array([255., 255., 255.])), ("dark", B * 0.25)):
+        for sign, S in (("light", np.array([255., 255., 255.])), ("dark", np.zeros(3))):
             d = S - B
             if np.dot(d, d) < 100:
                 continue
