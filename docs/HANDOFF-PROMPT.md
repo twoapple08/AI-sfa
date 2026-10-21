@@ -51,7 +51,12 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
    - `element_aggregate.py`(분류 칸 안에서 이름을 찾고, 열람불가는 뺀다)와 `element_rank.py`(측정상태·GPT_확인영상·GPT_나옴영상 칸)가 그대로 읽는다. 확인 목록은 `judge_lists/gpt_gapcheck_checklist_2026-10-21.csv`(166개)다.
 2. **CLIP:** 임베딩(`tools/clip_embed.py`, ViT-B-16, 1초 간격, 전체 화면 + 2×2 확대)이 scratch `clip/`에서 돌고 있다. G15–G17 55개를 먼저 처리하는 순서다. 컨테이너가 재시작되면 죽으므로 이어서 다시 실행한다.
    - 점수는 `tools/clip_score.py`가 낸다. 기준 문장과의 차이를 요소별 z 점수로 바꾼다.
-   - 다음 일은 G15–G17 판정과 육안 확인으로 요소별 z 임계를 보정하는 것이다. 지금 `element_rank.py`의 CLIP_Z는 2.0이고 보정 전이다. 보정이 끝나면 순위를 다시 내고 ACTION-GAP·GAP-MAP을 다시 쓴다.
+   - 1차 보정이 끝났다(`tools/clip_calibrate.py` → `data/style_kb/auto_detect/clip_calibration_2026-10-21.csv`).
+     - 정답은 GPT G15–G17·H01–H04의 초 단위 판정이고, 임베딩된 165개 영상 기준이다.
+     - 보정된 요소는 63개다. AUC 중앙값은 0.75이고, 0.75 이상인 요소는 33개다.
+     - 사물·배경은 강하다(하늘 0.95, 산 0.97, 도시 0.87, 괴물 0.90). 연출은 약하다(원근 강조 0.33, 단색 0.39, 선화만 0.31, 임팩트 프레임 0.58).
+     - 양성이 3–5개뿐인 요소가 많아 불안정하다.
+   - 임베딩과 H01–H04가 끝나면 다음 순서로 다시 돌린다: clip_score → clip_calibrate → element_rank(세 번째 인자로 점수 npz). 그다음 ACTION-GAP·GAP-MAP을 다시 쓴다.
 3. 끝난 것:
    - 이웃 컷 재고와 후보 348개(`docs/NEIGHBOR-CUTS-2026-10-21.md`)
    - 번역 규칙 초안과 검증 표본 54행(`docs/TRANSLATION-RULES-DRAFT-2026-10-21.md`)

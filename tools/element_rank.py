@@ -18,8 +18,9 @@
      GPT가 일부만 봤으면 'GPT 부분 확인 n/186'.
   2. 확정(육안): 육안 정밀도 0.67 이상.
   3. 확정(채점): 신뢰도 약함이 아니다(채점 AUC 0.80 이상).
-  4. CLIP 보조(보정 전): CLIP 점수 npz가 있고 그 요소가 있다. 나카무라 영상 중 z ≥ CLIP_Z인 프레임이 2개 이상인 영상 수를 'CLIP_나카무라영상'에 적는다.
-     임계는 아직 G15–G17로 보정하지 않았다.
+  4. CLIP 확인(AUC≥0.75): auto_detect/clip_calibration(clip_calibrate.py, GPT 초 단위 판정 기준)에서 AUC 0.75 이상인 요소다.
+     그 요소의 임계 z로 '나옴'(임계 이상 프레임 2개 이상)인 나카무라 영상 수를 'CLIP_나카무라영상'에 적는다.
+     보정이 없거나 AUC가 낮은 요소는 'CLIP 약함'(CLIP_Z 사용)이다.
   5. 미확정.
 """
 import csv
@@ -28,6 +29,8 @@ import sys
 
 KB = os.path.join(os.path.dirname(__file__), '..', 'data', 'style_kb')
 CLIP_Z = 2.0
+CLIP_AUC = 0.75
+CLIP_CAL = os.path.join(KB, 'auto_detect', 'clip_calibration_2026-10-21.csv')
 N_NAK = 186
 VISUAL = os.path.join(os.path.dirname(__file__), '..', 'data', 'style_kb', 'auto_detect', 'visual_check_2026-10-21.csv')
 SUPP = ['nian41', 'optical-core', 'yukina_kosaka', 'riooo']
@@ -67,18 +70,26 @@ def gpt_check():
 
 
 def clip_counts(path):
-    """요소번호 -> CLIP으로 나온 나카무라 영상 수(z ≥ CLIP_Z 프레임 2개 이상)."""
+    """요소번호 -> (CLIP으로 나온 나카무라 영상 수, 믿을 만한가). 보정 파일에서 AUC ≥ CLIP_AUC인 요소는 그 요소의 임계 z를 쓰고,
+    나머지는 CLIP_Z를 쓰되 '약함'으로 둔다. '나옴' = 임계 이상 프레임이 2개 이상."""
     import numpy as np
     if not path or not os.path.exists(path):
         return {}
+    cal = {}
+    if os.path.exists(CLIP_CAL):
+        for r in csv.DictReader(open(CLIP_CAL, encoding='utf-8')):
+            if r['상태'] == '보정됨' and r['AUC'] not in ('', 'nan') and float(r['AUC']) >= CLIP_AUC:
+                cal[r['번호']] = float(r['임계_z'])
     nak = {r['post_id'] for r in csv.DictReader(open(os.path.join(KB, 'judge_lists', 'auto_detect_list_2026-10-20.csv')))
            if r['animator'] == 'yutaka_nakamura'}
     d = np.load(path)
     z = d['score'].astype(np.float32)
     out = {}
     for j, n in enumerate(d['elements']):
-        out[str(n)] = sum(1 for (a, b), p in zip(d['t_index'], d['post_ids'])
-                          if str(p) in nak and int((z[a:b, j] >= CLIP_Z).sum()) >= 2)
+        n = str(n)
+        t = cal.get(n, CLIP_Z)
+        out[n] = (sum(1 for (a, b), p in zip(d['t_index'], d['post_ids'])
+                      if str(p) in nak and int((z[a:b, j] >= t).sum()) >= 2), n in cal)
     return out
 
 
@@ -163,10 +174,12 @@ def main():
             st = '확정(육안)'
         elif '점수' in o and not o.get('신뢰도_약함'):
             st = '확정(채점)'
+        elif n in clip and clip[n][1]:
+            st = 'CLIP 확인(AUC≥0.75)'
         elif n in clip:
-            st = 'CLIP 보조(보정 전)'
+            st = 'CLIP 약함'
         if n in clip:
-            o['CLIP_나카무라영상'] = clip[n]
+            o['CLIP_나카무라영상'] = clip[n][0]
         o['측정상태'] = st
     ranked = sorted((o for o in res if '점수' in o), key=lambda o: (-o['점수'], -num(o['일반빈도']), -num(o['나카무라_점수%'])))
     for i, o in enumerate(ranked, 1):
