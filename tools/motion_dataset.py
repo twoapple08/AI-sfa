@@ -1,0 +1,232 @@
+#!/usr/bin/env python3
+"""글→동작 모델(MoMask, HumanML3D 형식) 추가 학습 자료 만들기: 애니 3D(nian41·나카무라) + 모캡(잊지 않게 섞는 자료).
+
+사용: python tools/motion_dataset.py <momask 폴더> <애니 3D 폴더(lift_apply 출력)> <mocap_unified 폴더> <기준 관절 npy> <출력 폴더>
+      [--mocap-max 4000] [--style "in anime style"]
+출력(HumanML3D 배치): <출력>/new_joint_vecs/<id>.npy (프레임, 263), <출력>/texts/<id>.txt ("문장#토큰#0.0#0.0"),
+      <출력>/train.txt·val.txt, <출력>/목록.csv(id, 출처, 문장, 프레임). 원본 유래라 저장소 밖(Drive·서버 임시)에만 둔다.
+
+변환:
+- 공통 18관절(pelvis spine neck head l/r_shoulder elbow wrist hip knee ankle toe) → SMPL 22관절 근사(척추 3·쇄골 2는 사이 보간).
+  기준 관절 npy(MoMask가 만든 22관절 하나)로 뼈 길이를 맞춘다(process_file의 uniform_skeleton).
+- 애니 3D: 카메라 좌표라 위 방향이 추적마다 다르다 → 추적 평균 (목 − 골반) 방향을 +y로 돌린다. 떨림(약 0.034 m/프레임²)을 줄이려고
+  Savitzky–Golay(7, 2) 평활. 골반 기준(전역 이동 없음)이라 디딤발 고정으로 엉덩이 이동을 되살린다(낮은 발이 땅에 붙어 있다고 보고
+  그 발의 수평 이동을 거꾸로 엉덩이에 더함). 23.976 → 20fps.
+- 모캡: 30 → 20fps, y 위·전역 이동 그대로.
+- 길이: 40–196프레임(20fps) 창으로 자른다(긴 추적은 절반 겹침).
+- 문장(트리거): 애니 창은 동작 판정(data/tag_index.csv의 동작 행, 같은 영상·겹치는 구간)을 영어 문장으로 바꾸고 끝에 --style을 붙인다
+  (예: "a person throws a kick, in anime style"). 판정이 없는 창은 "a person fights, in anime style".
+  모캡은 mocap_index 설명(영어 원문)을 그대로 쓴다(트리거 없음 → 원래 사람 움직임 유지).
+"""
+import argparse
+import csv
+import glob
+import os
+import random
+import sys
+
+import numpy as np
+from scipy.signal import savgol_filter
+
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+J18 = ["pelvis", "spine", "neck", "head", "l_shoulder", "r_shoulder", "l_elbow", "r_elbow", "l_wrist", "r_wrist",
+       "l_hip", "r_hip", "l_knee", "r_knee", "l_ankle", "r_ankle", "l_toe", "r_toe"]
+I = {n: i for i, n in enumerate(J18)}
+EN = {"대기": "stands in a fighting stance", "공격": "attacks", "공격_킥": "throws a kick", "공격_펀치": "throws a punch",
+      "공격_무기": "swings a weapon", "공격_던지기": "throws the opponent", "공격_기타": "attacks", "막기·회피": "blocks and dodges",
+      "이동": "dashes forward", "점프·공중": "jumps through the air", "피격": "gets hit and recoils", "쓰러짐·누움": "falls to the ground"}
+
+
+def to22(P):
+    """[T,18,3] → [T,22,3] (SMPL 순서)."""
+    g = lambda n: P[:, I[n]]
+    lerp = lambda a, b, t: a + (b - a) * t
+    pel, sp, nk = g("pelvis"), g("spine"), g("neck")
+    out = [pel, g("l_hip"), g("r_hip"), lerp(pel, sp, 0.5), g("l_knee"), g("r_knee"), sp, g("l_ankle"), g("r_ankle"),
+           lerp(sp, nk, 0.6), g("l_toe"), g("r_toe"), nk, lerp(nk, g("l_shoulder"), 0.45), lerp(nk, g("r_shoulder"), 0.45),
+           g("head"), g("l_shoulder"), g("r_shoulder"), g("l_elbow"), g("r_elbow"), g("l_wrist"), g("r_wrist")]
+    return np.stack(out, 1)
+
+
+def upright(P):
+    """추적 평균 (목 − 골반)을 +y로 돌린다."""
+    up = np.nanmean(P[:, I["neck"]] - P[:, I["pelvis"]], 0)
+    up /= np.linalg.norm(up) + 1e-9
+    y = np.array([0.0, 1.0, 0.0])
+    v, c = np.cross(up, y), float(up @ y)
+    if np.linalg.norm(v) < 1e-8:
+        R = np.eye(3) if c > 0 else np.diag([1, -1, -1])
+    else:
+        vx = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])
+        R = np.eye(3) + vx + vx @ vx / (1 + c)
+    return P @ R.T
+
+
+def foot_lock_root(P):
+    """골반 기준 움직임에 엉덩이 수평 이동을 되살린다: 더 낮은 발목을 디딤발로 보고 그 발의 수평 이동을 거꾸로 더한다."""
+    out = P.copy()
+    off = np.zeros(3)
+    for t in range(1, len(P)):
+        a = I["l_ankle"] if P[t, I["l_ankle"], 1] < P[t, I["r_ankle"], 1] else I["r_ankle"]
+        d = P[t, a] - P[t - 1, a]
+        off -= np.array([d[0], 0.0, d[2]])
+        out[t] += off
+    return out
+
+
+def resample(P, src, dst):
+    n = int((len(P) - 1) * dst / src) + 1
+    t = np.arange(n) * src / dst
+    i0 = np.floor(t).astype(int).clip(0, len(P) - 1)
+    i1 = (i0 + 1).clip(0, len(P) - 1)
+    f = (t - i0)[:, None, None]
+    return P[i0] * (1 - f) + P[i1] * f
+
+
+def windows(n, lo=40, hi=196):
+    if n < lo:
+        return []
+    if n <= hi:
+        return [(0, n)]
+    out, s = [], 0
+    while s + lo <= n:
+        out.append((s, min(n, s + hi)))
+        if s + hi >= n:
+            break
+        s += hi // 2
+    return out
+
+
+def anime_labels():
+    lab = {}
+    p = os.path.join(ROOT, "data", "tag_index.csv")
+    for r in csv.DictReader(open(p, encoding="utf-8")):
+        if r["분류"] == "동작" and r["태그"] in EN:
+            lab.setdefault(r["post_id"], []).append((int(r["시작"]), int(r["끝"]), r["태그"]))
+    return lab
+
+
+def caption(labels, pid, a, b, style):
+    hit = [t for s, e, t in labels.get(pid, []) if s <= b and e >= a]
+    sub = [t for t in hit if t.startswith("공격_")]
+    seq = []
+    for t in (sub + [t for t in hit if not t.startswith("공격")] + [t for t in hit if t == "공격"]):
+        if EN[t] not in seq:
+            seq.append(EN[t])
+    body = " and then ".join(seq[:3]) if seq else "fights"
+    return f"a person {body}, {style}", bool(seq)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("momask")
+    ap.add_argument("anim")
+    ap.add_argument("mocap")
+    ap.add_argument("ref")
+    ap.add_argument("out")
+    ap.add_argument("--mocap-max", type=int, default=4000)
+    ap.add_argument("--style", default="in anime style")
+    a = ap.parse_args()
+    sys.path.insert(0, a.momask)
+    import utils.motion_process as mp
+    from common.skeleton import Skeleton
+    from utils.paramUtil import t2m_kinematic_chain, t2m_raw_offsets
+    import torch
+    ref = np.load(a.ref)
+    sk = Skeleton(torch.from_numpy(t2m_raw_offsets), t2m_kinematic_chain, "cpu")
+    mp.tgt_offsets = sk.get_offsets_joints(torch.from_numpy(ref[0]).float())
+    mp.n_raw_offsets, mp.kinematic_chain = torch.from_numpy(t2m_raw_offsets), t2m_kinematic_chain
+    mp.face_joint_indx, mp.fid_r, mp.fid_l = [2, 1, 17, 16], [8, 11], [7, 10]
+    mp.l_idx1, mp.l_idx2 = 5, 8
+    for d in ("new_joint_vecs", "texts"):
+        os.makedirs(os.path.join(a.out, d), exist_ok=True)
+    rows, n = [], 0
+
+    def save(J22, cap, src):
+        nonlocal n
+        try:
+            feat = mp.process_file(J22.astype(np.float64), 0.002)[0]
+        except Exception as e:  # 이상한 창(뒤집힘 등)은 버린다
+            print("버림", src, e)
+            return
+        if not np.isfinite(feat).all() or not (40 <= len(feat) < 200):
+            return
+        i = f"{n:06d}"
+        n += 1
+        np.save(os.path.join(a.out, "new_joint_vecs", i + ".npy"), feat.astype(np.float32))
+        with open(os.path.join(a.out, "texts", i + ".txt"), "w", encoding="utf-8") as fh:
+            fh.write(f"{cap}#{' '.join(w + '/OTHER' for w in cap.replace(',', '').split())}#0.0#0.0\n")
+        rows.append((i, src, cap, len(feat)))
+
+    labels = anime_labels()
+    na = nl = 0
+    for an in ("nian41", "yutaka_nakamura"):  # 보충 애니메이터 몸동작은 쓰지 않는다(AGENTS)
+        for f in sorted(glob.glob(os.path.join(a.anim, an, "*.npz"))):
+            d = np.load(f)
+            pid, fps = os.path.basename(f)[:-4], float(d["fps"])
+            for k in range(len(d["length"])):
+                Y = d["y3d"][k, : int(d["length"][k])]
+                ok = np.isfinite(Y).all((1, 2))
+                # 이어진 유효 구간마다
+                idx = np.flatnonzero(np.diff(np.r_[0, ok.astype(int), 0]))
+                for s, e in zip(idx[::2], idx[1::2]):
+                    P = Y[s:e]
+                    if len(P) < 48:
+                        continue
+                    P = upright(P)
+                    P = savgol_filter(P, 7, 2, axis=0) if len(P) >= 7 else P
+                    P = foot_lock_root(P)
+                    P = resample(P, fps, 20)
+                    f0 = int(d["start"][k]) + s
+                    for w0, w1 in windows(len(P)):
+                        a0, a1 = f0 + int(w0 * fps / 20), f0 + int(w1 * fps / 20)
+                        cap, has = caption(labels, pid, a0, a1, a.style)
+                        save(to22(P[w0:w1]), cap, f"{an}:{pid}:{a0}-{a1}")
+                        na += 1
+                        nl += has
+    print("애니 창", na, "판정 문장", nl)
+    # 모캡(잊지 않게 섞기): 공격·피격·점프·방어·구르기·달리기 위주, 걷기·감정 표현은 적게
+    desc = {}
+    for r in csv.DictReader(open(os.path.join(ROOT, "data", "mocap", "mocap_index_2026-10-21.csv"), encoding="utf-8-sig")):
+        desc[(r["자료"], r["클립"])] = (r["설명"], r["태그"])
+    pri = ("공격", "피격·넘어짐", "점프·공중", "방어·회피", "구르기·바닥", "달리기", "던지기·잡기")
+    cand = []
+    for src in ("cmu", "amass", "mixamo", "lafan1", "bandai"):
+        p = os.path.join(a.mocap, src + ".npz")
+        if not os.path.exists(p):
+            continue
+        d = np.load(p, allow_pickle=True)
+        for k, c in enumerate(d["clip"]):
+            ds, tg = desc.get((src, str(c)), ("", ""))
+            if not ds:
+                continue
+            w = 3 if any(t in tg for t in pri) else 1
+            cand.append((w, src, k, ds))
+    random.Random(0).shuffle(cand)
+    cand.sort(key=lambda x: -x[0])
+    cache, nm = {}, 0
+    for w, src, k, ds in cand:
+        if nm >= a.mocap_max:
+            break
+        if src not in cache:  # npz 항목은 읽을 때마다 압축을 푼다 → 한 번만 풀어 배열로 들고 있는다
+            z = np.load(os.path.join(a.mocap, src + ".npz"), allow_pickle=True)
+            cache[src] = {k: z[k] for k in ("pos", "start", "length", "clip", "fps")}
+        d = cache[src]
+        P = d["pos"][int(d["start"][k]): int(d["start"][k]) + int(d["length"][k])].astype(np.float64)
+        P = resample(P, float(d["fps"]), 20)
+        for w0, w1 in windows(len(P))[:2]:
+            save(to22(P[w0:w1]), "a person " + ds.strip().rstrip("."), f"{src}:{d['clip'][k]}")
+            nm += 1
+    print("모캡 창", nm)
+    ids = [r[0] for r in rows]
+    random.Random(1).shuffle(ids)
+    nv = max(1, len(ids) // 20)
+    open(os.path.join(a.out, "val.txt"), "w").write("\n".join(ids[:nv]) + "\n")
+    open(os.path.join(a.out, "train.txt"), "w").write("\n".join(ids[nv:]) + "\n")
+    with open(os.path.join(a.out, "목록.csv"), "w", encoding="utf-8", newline="") as fh:
+        csv.writer(fh).writerows([("id", "출처", "문장", "프레임")] + rows)
+    print("합계", len(rows), "학습", len(ids) - nv, "검증", nv)
+
+
+if __name__ == "__main__":
+    main()
