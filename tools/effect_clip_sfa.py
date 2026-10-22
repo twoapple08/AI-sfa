@@ -126,8 +126,10 @@ def main():
             if valid.shape != img.shape[:2]:
                 import cv2
                 valid = cv2.resize(valid, (W, H), interpolation=cv2.INTER_NEAREST)
-            img = np.where(valid[..., None] > 0, img, np.array(bg, np.uint8))  # 비교 그림용: 이펙트 밖은 바탕색
+        # 분해는 원본 그림으로 한다(바깥을 바탕색으로 칠하면 이펙트 가장자리가 선으로 잡혔다). 비교 그림만 바깥을 바탕색으로
         doc, _ = decompose(img, a.k, a.tol, valid=valid)
+        if valid is not None:
+            img = np.where(valid[..., None] > 0, img, np.array(bg, np.uint8))
         body.append(frame_xml(doc, pos, wr, W, argb(bg)))
         stats.append(doc["stats"])
         imgs.append(img)

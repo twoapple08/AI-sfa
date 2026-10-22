@@ -47,7 +47,8 @@ def line_layer(img, tol, thr=28, min_len=6, light=False, dark_max=None, valid=No
     m = ((bh > thr) & ((g > 110) if light else (g < (DARK_MAX if dark_max is None else dark_max)))).astype(np.uint8)
     m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((2, 2), np.uint8))
     if valid is not None:
-        m &= valid
+        # 마스크 경계 3px 안쪽은 선으로 보지 않는다(이펙트와 바깥의 경계가 가는 밝은/어두운 선으로 잡혀 테두리가 생겼다)
+        m &= cv2.erode(valid, np.ones((7, 7), np.uint8))
     dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
     segs = []
     for path in trace(skeletonize(m.astype(bool))):

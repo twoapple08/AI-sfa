@@ -7,8 +7,9 @@
 4. SAM 2 영상 예측기에 상자를 그 프레임의 물체로 넣고 구간 전체로 퍼뜨린다(앞뒤 모두).
 5. 프레임별 이펙트 마스크 = 이펙트 물체 합집합 − 사람 물체 합집합.
    상자 거르기: 화면 80% 이상 상자 버림, 사람은 점수 ≥ PERSON_T이고 이펙트 상자와 IoU ≤ 0.5인 것만(같은 덩어리를 둘 다로 잡는 일이 잦다).
-출력: Drive `02_분석자료/이펙트_분리/<post_id>_<start>_v2.npz` — mask[T,H,W](packbits), frames(원 영상 번호), labels(물체별 글자),
-      obj_masks_area, det(검출 상자 목록). 원본 영상 유래라 Drive에만 둔다. 끝난 구간은 건너뛴다.
+출력: Drive `02_분석자료/이펙트_분리/<post_id>_<start>_v3.npz` — mask[T,H,W](packbits), frames(원 영상 번호), labels(물체별 글자),
+      obj_mask[물체, T, H, W/8](물체별 packbits — 서버에서 다시 고르기용), area, det(검출 상자 목록).
+   v3: 화면 50% 넘는 상자 버림, 한 프레임에서 화면 30% 넘게 덮는 물체는 기본 합집합(mask)에서 뺌. 원본 영상 유래라 Drive에만 둔다. 끝난 구간은 건너뛴다.
 """
 import argparse
 import csv
@@ -30,7 +31,7 @@ OUT = "gdrive:AI-sfa/02_분석자료/이펙트_분리"
 # 'rocks. stones.'처럼 보이는 물건 이름이면 조각마다 잡혔다(Grounding DINO base, 점수 0.23~0.46). 묶음마다 따로 검출해 합친다.
 PROMPTS = ["explosion. smoke. dust cloud. fire. shockwave. sparks. flash. person.",
            "rocks. stones. rubble. debris. person."]
-VERSION = "_v2"
+VERSION = "_v3"
 H = 540
 EVERY = 6
 BOX_T, TEXT_T = 0.22, 0.2
@@ -92,6 +93,8 @@ class Detector:
 
 
 PERSON_T = 0.4
+BIG_BOX = 0.5
+BIG_OBJ = 0.3  # 한 프레임에서 화면 30% 넘게 덮는 물체는 기본 합집합에서 뺀다(배경 바닥·벽, v2 271642·76453)
 
 
 def box_area(b):
@@ -128,7 +131,7 @@ def run_segment(det, pred, video, a, b, tmp):
     W = cv2.imread(os.path.join(d, "00000.jpg")).shape[1]
     for i in range(0, n, EVERY):
         im = cv2.imread(os.path.join(d, f"{i:05d}.jpg"))
-        found = [(l, s, b) for l, s, b in det(im) if box_area(b) < 0.8 * W * H]  # 화면 전체 상자는 버린다
+        found = [(l, s, b) for l, s, b in det(im) if box_area(b) < BIG_BOX * W * H]  # 화면 절반 넘는 상자는 배경을 통째로 잡았다(v2)
         fxb = [b for l, s, b in found if is_fx(l)]
         for lab, sc, box in found:
             # 같은 덩어리를 'explosion'과 'person'으로 둘 다 잡는 일이 잦다(구름이 통째로 지워졌다) → 이펙트 우선
@@ -137,6 +140,7 @@ def run_segment(det, pred, video, a, b, tmp):
             dets.append((i, lab, sc, box))
     mask = np.zeros((n, H, W), bool)
     labels = []
+    objs = {}  # 물체별 마스크(프레임 → 배열). 나중에 서버에서 물체를 다시 고를 수 있게 따로 둔다
     if any(is_fx(l) for _, l, _, _ in dets):
         import torch
         # SAM 2 영상 예측기는 기억 특징을 bfloat16으로 저장한다(autocast 전제). 감싸지 않으면 dtype 오류
@@ -151,14 +155,23 @@ def run_segment(det, pred, video, a, b, tmp):
                 for fi, ids, logits in pred.propagate_in_video(st, reverse=rev):
                     m = (logits[:, 0] > 0).cpu().numpy()
                     ids = np.asarray(ids)
-                    sel = fxid[ids]
+                    for j, oid in enumerate(ids):
+                        if m[j].any():
+                            prev = objs.setdefault(int(oid), {}).get(fi)
+                            objs[int(oid)][fi] = m[j] if prev is None else (prev | m[j])
+                    sel = fxid[ids] & (m.reshape(len(ids), -1).mean(1) <= BIG_OBJ)
                     e = m[sel].any(0) if sel.any() else np.zeros((H, W), bool)
                     p = m[~sel].any(0) if (~sel).any() else np.zeros((H, W), bool)
                     v = e & ~p
                     mask[fi] = (mask[fi] | v) if fi in seen else v
                     seen.add(fi)
             pred.reset_state(st)
+    ob = np.zeros((len(labels), n, H, (W + 7) // 8), np.uint8)
+    for oid, fr in objs.items():
+        for fi, mm in fr.items():
+            ob[oid, fi] = np.packbits(mm, axis=-1)
     return {"mask": np.packbits(mask, axis=-1), "shape": np.array(mask.shape), "frames": np.arange(a, a + n),
+            "obj_mask": ob,
             "labels": np.array(labels), "area": mask.reshape(n, -1).mean(1).astype(np.float32),
             "det": np.array(json.dumps(dets))}
 
