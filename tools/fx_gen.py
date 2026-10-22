@@ -135,9 +135,13 @@ def load_layered(path, approved=None):
     ok = None
     if approved:
         import csv
-        # 판정이 '맞음'인 번호만. 다른종류 칸이 있으면 그 종류로 쓴다(예: 임팩트에서 딴 연기 → smoke, 베기 줄기 → streak)
-        ok = {int(r["번호"]): (r.get("다른종류") or "").strip() for r in csv.DictReader(open(approved, encoding="utf-8-sig"))
-              if r.get("판정", "").strip() == "맞음"}
+        # '맞음'인 번호, 그리고 '아님'이지만 다른 종류 이펙트로는 맞다고 다른종류 칸을 채운 번호(GPT 지시문 규칙).
+        # 다른종류 칸이 있으면 그 종류로 쓴다(예: 임팩트에서 딴 연기 → smoke, 베기 줄기 → streak). 'other'는 쓰지 않는다
+        ok = {}
+        for r in csv.DictReader(open(approved, encoding="utf-8-sig")):
+            v, k = r.get("판정", "").strip(), (r.get("다른종류") or "").strip()
+            if (v == "맞음" or (v == "아님" and k)) and k != "other":
+                ok[int(r["번호"])] = k
     out = {}
     for num, kind, _, layers in load_layered_with_src(path):
         if ok is None or num in ok:
