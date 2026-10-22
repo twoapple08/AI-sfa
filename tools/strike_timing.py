@@ -160,11 +160,18 @@ def main():
         if x["training"] == "사용":
             f0, f1 = (int(v) for v in x["frames"].split("-"))
             imp.setdefault(x["post_id"], []).append((f0, f1))
-    tracks = list(load_tracks(a.tracks, a.videos, ans))
+    import pickle
+    cp = os.environ.get("STRIKE_CACHE")
+    if cp and os.path.exists(cp):
+        tracks = pickle.load(open(cp, "rb"))
+    else:
+        tracks = list(load_tracks(a.tracks, a.videos, ans))
+        if cp:
+            pickle.dump(tracks, open(cp, "wb"))
     out = {"pix_eps": PIX_EPS, "win": W, "tracks": {an: sum(1 for t in tracks if t[0] == an) for an in ans}}
 
     # A. 임팩트 기준
-    A = {"curves_ext": [], "curves_new": [], "pre_hold": [], "post_hold": [], "pre_ext": [], "post_ext": [],
+    A = {"pre_curve": [], "pre_new": [], "post_curve": [], "post_new": [], "pre_hold": [], "post_hold": [], "pre_ext": [], "post_ext": [],
          "hold_pre": [], "hold_post": [], "base_ext": [], "base_hold": []}
     rng = np.random.default_rng(0)
     for an, pid, st, (body, ext) in tracks:
@@ -175,43 +182,50 @@ def main():
         for f0, f1 in evs:
             t0, t1 = f0 - st, f1 - st
             far[max(0, t0 - 48):max(0, t1 + 48)] = False
-            if t0 - W < 1 or t0 + W >= T:
-                continue
-            e = ext[t0 - W:t0 + W + 1].copy()
-            nw = (body[t0 - W:t0 + W + 1] > PIX_EPS).astype(float)
-            nw[~np.isfinite(body[t0 - W:t0 + W + 1])] = np.nan
-            cut = slice(W, W + (t1 - t0) + 2)
-            e[cut] = np.nan
-            nw[cut] = np.nan
-            if np.isfinite(e[:W]).sum() < W // 2:
-                continue
-            A["curves_ext"].append(e)
-            A["curves_new"].append(nw)
-            A["pre_hold"].append(last_hold_before(new, t0))
-            A["post_hold"].append(first_hold_after(new, t1 + 1))
-            A["pre_ext"].append(np.nanmean(ext[t0 - 6:t0]))
-            A["post_ext"].append(np.nanmean(ext[t1 + 2:t1 + 8]))
-            pre_new = new[(new >= t0 - W) & (new < t0)]
-            A["hold_pre"] += np.diff(pre_new).tolist()
-            post_new = new[(new > t1 + 1) & (new <= t0 + W)]
-            A["hold_post"] += np.diff(post_new).tolist()
+            # 임팩트 섬광에서 장면 바뀜으로 추적이 끊기므로 직전·직후를 따로 잰다(같은 인물 연결은 보장하지 않음)
+            if t0 >= 12 and T >= t0 - 2:  # 직전 12프레임 이상을 덮고 임팩트 2프레임 안까지 이어짐
+                te = min(T, t0)
+                c = np.full(W, np.nan)
+                c2 = np.full(W, np.nan)
+                lo = max(1, te - W)
+                c[W - (te - lo):] = ext[lo:te]
+                c2[W - (te - lo):] = np.where(np.isfinite(body[lo:te]), body[lo:te] > PIX_EPS, np.nan)
+                A["pre_curve"].append(c)
+                A["pre_new"].append(c2)
+                A["pre_hold"].append(last_hold_before(new, te))
+                A["pre_ext"].append(np.nanmean(ext[te - 6:te]))
+                pn = new[(new >= lo) & (new < te)]
+                A["hold_pre"] += np.diff(pn).tolist()
+            if t1 + 1 >= -3 and T - max(t1 + 2, 1) >= 12:  # 임팩트 끝 3프레임 안에서(또는 그 전부터) 시작해 끝 뒤로 12프레임 이상 이어짐
+                ts = max(t1 + 2, 1)
+                c = np.full(W, np.nan)
+                c2 = np.full(W, np.nan)
+                hi = min(T, ts + W)
+                c[:hi - ts] = ext[ts:hi]
+                c2[:hi - ts] = np.where(np.isfinite(body[ts:hi]), body[ts:hi] > PIX_EPS, np.nan)
+                A["post_curve"].append(c)
+                A["post_new"].append(c2)
+                A["post_hold"].append(first_hold_after(new, ts - 1))
+                A["post_ext"].append(np.nanmean(ext[ts:ts + 6]))
+                pn = new[(new >= ts) & (new < hi)]
+                A["hold_post"] += np.diff(pn).tolist()
         cand = np.where(far[W:T - W])[0] + W
         for c in (rng.choice(cand, min(len(cand), 3), replace=False) if len(cand) else []):
             A["base_ext"].append(np.nanmean(ext[c - 6:c]))
             bn = new[(new >= c - W) & (new < c + W)]
             A["base_hold"] += np.diff(bn).tolist()
-    if A["curves_ext"]:
-        CE, CN = np.stack(A["curves_ext"]), np.stack(A["curves_new"])
+    if A["pre_curve"] or A["post_curve"]:
         base = float(np.nanmean(A["base_ext"]))
+        mc = lambda k, r: np.round(np.nanmean(np.stack(A[k]), 0), r).tolist() if A[k] else None  # noqa: E731
         out["A_임팩트기준"] = {
-            "events": len(CE), "기준_손발속도": round(base, 4),
+            "직전_추적수": len(A["pre_curve"]), "직후_추적수": len(A["post_curve"]), "기준_손발속도": round(base, 4),
             "직전6_손발속도/기준": round(float(np.nanmean(A["pre_ext"])) / base, 2),
             "직후6_손발속도/기준": round(float(np.nanmean(A["post_ext"])) / base, 2),
             "직전_마지막유지(프레임)": q(A["pre_hold"]), "직후_첫유지(프레임)": q(A["post_hold"]),
             "유지분포_직전24": hold_dist(A["hold_pre"]), "유지분포_직후24": hold_dist(A["hold_post"]),
             "유지분포_기준": hold_dist(A["base_hold"]),
-            "곡선_손발속도(-W~+W)": np.round(np.nanmean(CE, 0), 4).tolist(),
-            "곡선_새그림비율(-W~+W)": np.round(np.nanmean(CN, 0), 3).tolist()}
+            "곡선_직전_손발속도(-W~-1)": mc("pre_curve", 4), "곡선_직전_새그림비율": mc("pre_new", 3),
+            "곡선_직후_손발속도(f1+1~)": mc("post_curve", 4), "곡선_직후_새그림비율": mc("post_new", 3)}
 
     # B. 빠른 동작 정점
     out["B_빠른동작정점"] = {}
