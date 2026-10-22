@@ -2,6 +2,9 @@
 
 사용: python tools/pose_tracks.py <포즈 jsonl.gz> <원본 영상> <출력 npz>
 1. 컷 나누기: 원본 영상의 HSV 히스토그램 상관 < CUT_CORR 또는 회색조 정규화 상관 < CUT_NCC인 프레임.
+   섬광 삽입(임팩트 단색섬광·실루엣): 컷 두 개가 FLASH_MAX 프레임 안에 붙어 있고, 두 번째 컷 프레임이 첫 컷 바로 앞
+   프레임과 닮으면(색 상관 ≥ FLASH_CORR, 정규화 상관 ≥ FLASH_NCC) 두 컷을 지우고 그 사이를 섬광 구간으로 둔다.
+   섬광 구간에서는 추적의 놓침을 세지 않는다(섬광 앞뒤 인물을 한 추적으로 잇는다; 섬광 프레임 자체 포즈는 그대로 기록).
 2. 추적: 컷 안에서 앞 프레임 사람과 상자 IoU·몸 중심 거리로 헝가리안 대응. 2프레임 넘게 놓치면 끝낸다.
 3. 정리(추적마다):
    - 신뢰도 낮은 점(KP_THR 미만), 화면 테두리(EDGE)의 점, 얼굴 클로즈업(CLOSEUP) 프레임의 몸·손·발 점은 비운다(NaN).
@@ -9,7 +12,8 @@
    - 튀는 점: 앞뒤 프레임이 가깝고 가운데만 멀리 떨어진 점(몸 크기의 SPIKE배)은 비운다.
    - 빈칸 메우기: 추적 안 GAP 프레임 이하 빈칸만 직선 보간. 더 긴 빈칸은 그대로 둔다.
    - 멈춤(같은 그림 유지)은 동작 정보라 평활하지 않는다.
-출력 npz: kp [추적, 최대길이, 133, 3](빈칸 NaN), start, length, shot, area(평균 상자 넓이), quality(QCOLS), cuts, fps, n_frames
+출력 npz: kp [추적, 최대길이, 133, 3](빈칸 NaN), start, length, shot, area(평균 상자 넓이), quality(QCOLS), cuts, fps, n_frames,
+  flashes [섬광 구간, 2](시작, 끝 미포함)
 원본 포즈·정리 결과는 다른 작가 영상에서 나온 자료라 저장소에 넣지 않는다(Drive·서버 임시 폴더만).
 """
 import gzip
@@ -31,15 +35,25 @@ SWAP_RATIO = 0.6
 SPIKE = 0.35
 GAP = 3
 MAX_MISS = 2
+FLASH_MAX = 8  # 섬광 삽입으로 볼 최대 길이(프레임). 임팩트 판정 목록 '사용' 길이 대부분이 1~8
+FLASH_CORR = 0.8
+FLASH_NCC = 0.5
 
 # COCO-WholeBody 133점 좌우 짝: 몸 17(1-16), 발 6(17-22), 얼굴 68(23-90, 대칭), 손 21×2(91-111 왼, 112-132 오)
 BODY_LR = [(1, 2), (3, 4), (5, 6), (7, 8), (9, 10), (11, 12), (13, 14), (15, 16), (17, 20), (18, 21), (19, 22)]
 HAND_LR = [(91 + i, 112 + i) for i in range(21)]
 
 
-def cuts(video):
+def _sim(h1, g1, h2, g2):
+    corr = cv2.compareHist(h1, h2, cv2.HISTCMP_CORREL)
+    a, b = g1 - g1.mean(), g2 - g2.mean()
+    return corr, float((a * b).sum() / (np.sqrt((a * a).sum() * (b * b).sum()) + 1e-6))
+
+
+def cuts(video, flash=True):
+    """컷 프레임 목록, fps, 프레임 수, 섬광 구간 [(시작, 끝 미포함)]."""
     cap = cv2.VideoCapture(video)
-    prev, pg, out, i = None, None, [0], 0
+    out, hs, gs = [0], [], []
     fps = cap.get(cv2.CAP_PROP_FPS)
     while True:
         ok, im = cap.read()
@@ -49,15 +63,29 @@ def cuts(video):
         h = cv2.calcHist([cv2.cvtColor(sm, cv2.COLOR_BGR2HSV)], [0, 1], None, [16, 8], [0, 180, 0, 256])
         cv2.normalize(h, h)
         g = cv2.cvtColor(sm, cv2.COLOR_BGR2GRAY).astype(np.float32)
-        if prev is not None:
-            corr = cv2.compareHist(prev, h, cv2.HISTCMP_CORREL)
+        if hs:
             # 어두운 장면끼리는 색 분포가 비슷해 상관만으로는 컷을 놓친다 → 밝기 구조 차이(정규화 상관)도 본다
-            a, b = g - g.mean(), pg - pg.mean()
-            ncc = float((a * b).sum() / (np.sqrt((a * a).sum() * (b * b).sum()) + 1e-6))
+            corr, ncc = _sim(hs[-1], gs[-1], h, g)
             if corr < CUT_CORR or (ncc < CUT_NCC and corr < 0.9):
-                out.append(i)
-        prev, pg, i = h, g, i + 1
-    return out, fps, i
+                out.append(len(hs))
+        hs.append(h)
+        gs.append(g)
+    flashes = []
+    if flash:
+        keep, k = [out[0]], 1
+        while k < len(out):
+            a = out[k]
+            b = next((c for c in out[k + 1:] if c - a <= FLASH_MAX), None)
+            if b is not None and a >= 1:
+                corr, ncc = _sim(hs[a - 1], gs[a - 1], hs[b], gs[b])
+                if corr >= FLASH_CORR and ncc >= FLASH_NCC:
+                    flashes.append((a, b))
+                    k = out.index(b) + 1  # a~b 사이 컷(섬광 안 깜박임 포함)을 모두 지운다
+                    continue
+            keep.append(a)
+            k += 1
+        out = keep
+    return out, fps, len(hs), flashes
 
 
 def iou(a, b):
@@ -68,8 +96,11 @@ def iou(a, b):
     return inter / ua if ua > 0 else 0.0
 
 
-def track(frames, cut_list, n):
+def track(frames, cut_list, n, flashes=()):
     shot_of = np.searchsorted(cut_list, np.arange(n), side="right") - 1
+    in_flash = np.zeros(n + 1, bool)
+    for a, b in flashes:
+        in_flash[a:b] = True
     tracks, active = [], []  # track: dict(shot, start, kps list, boxes list, miss)
     for f in range(n):
         ppl = frames[f] if f < len(frames) else []
@@ -89,19 +120,21 @@ def track(frames, cut_list, n):
             for i, j in zip(ri, ci):
                 if cost[i, j] < 1.2:
                     t = active[i]
-                    t["kps"] += [None] * t["miss"] + [np.array(ppl[j]["k"], np.float32)]
-                    t["boxes"] += [t["boxes"][-1]] * t["miss"] + [ppl[j]["b"]]
-                    t["miss"] = 0
+                    t["kps"] += [None] * t["gap"] + [np.array(ppl[j]["k"], np.float32)]
+                    t["boxes"] += [t["boxes"][-1]] * t["gap"] + [ppl[j]["b"]]
+                    t["miss"] = t["gap"] = 0
                     used.add(j)
                     t["hit"] = True
         for t in active:
             if not t.pop("hit", False):
-                t["miss"] += 1
+                t["gap"] += 1  # 빈 프레임 수(시간축 맞춤용)
+                if not in_flash[f]:
+                    t["miss"] += 1  # 끝낼지 정하는 놓침 수(섬광 구간은 세지 않는다)
         active = [t for t in active if t["miss"] <= MAX_MISS]
         for j, p in enumerate(ppl):
             if j not in used:
                 t = {"shot": int(shot_of[f]), "start": f, "kps": [np.array(p["k"], np.float32)], "boxes": [p["b"]],
-                     "miss": 0}
+                     "miss": 0, "gap": 0}
                 tracks.append(t)
                 active.append(t)
     return tracks
@@ -175,11 +208,11 @@ def track_quality(K):
 def main():
     pose, video, out = sys.argv[1:4]
     frames = [json.loads(l)["p"] for l in gzip.open(pose, "rt")]
-    cut_list, fps, n = cuts(video)
+    cut_list, fps, n, flashes = cuts(video)
     cap = cv2.VideoCapture(video)
     W, H = cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     n = max(n, len(frames))
-    trs = [t for t in track(frames, cut_list, n) if len([k for k in t["kps"] if k is not None]) >= 6]
+    trs = [t for t in track(frames, cut_list, n, flashes) if len([k for k in t["kps"] if k is not None]) >= 6]
     L = max((len(t["kps"]) for t in trs), default=1)
     kp = np.full((len(trs), L, 133, 3), np.nan, np.float32)
     stats = np.zeros(3, int)
@@ -192,8 +225,9 @@ def main():
     quality = [track_quality(kp[i, :len(t["kps"])]) for i, t in enumerate(trs)]
     np.savez_compressed(out, kp=kp, start=[t["start"] for t in trs], length=[len(t["kps"]) for t in trs],
                         shot=[t["shot"] for t in trs], area=area, quality=np.array(quality, np.float32),
-                        quality_cols=np.array(QCOLS), cuts=cut_list, fps=fps, n_frames=n)
-    print(json.dumps({"frames": n, "cuts": len(cut_list), "tracks": len(trs),
+                        quality_cols=np.array(QCOLS), cuts=cut_list, fps=fps, n_frames=n,
+                        flashes=np.array(flashes, int).reshape(-1, 2))
+    print(json.dumps({"frames": n, "cuts": len(cut_list), "flashes": len(flashes), "tracks": len(trs),
                       "swap": int(stats[0]), "spike_pts": int(stats[1]), "filled_pts": int(stats[2])}, ensure_ascii=False))
 
 
