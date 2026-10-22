@@ -513,7 +513,7 @@ def main():
     lens = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "p3", "impact_lengths_2026-10-22.json")
     if not a.stats or "flash_frames" not in json.load(open(a.stats)):
         if pick:  # 임팩트 장면을 쓰면 그 장면의 실제 장수만큼(매 프레임 새 그림 — 한 장을 늘려 붙들지 않는다)
-            st["flash_frames"] = len(pick[g.rng_scene][-1])
+            st["flash_frames"] = len(pick[g.rng_scene][2] if g.books else pick[g.rng_scene][1])   # 책: (이름, 폭, 프레임, 바탕), 장면: (이름, 프레임)
             print("섬광 길이(장면 장수)", st["flash_frames"])
         elif os.path.exists(lens):  # 단색 섬광 길이: 나카무라 임팩트 실제 길이 분포에서 시드로 뽑는다(단색 중앙 1)
             pool = json.load(open(lens))["mono"]
