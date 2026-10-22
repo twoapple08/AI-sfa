@@ -7,7 +7,9 @@
 - 그리기: AGENTS.md 원칙 — 같은 형태를 크기·알파·색을 바꿔 여러 겹(바깥 넓고 옅게 → 안쪽 좁고 진하게). 모든 경계는 2차 베지어(TypeId 3) + FR 채우기.
 - 움직임 기본값(--stats로 덮어쓴다. 이펙트 분리 결과를 tools/fx_timing.py로 잰 값으로 바꿀 예정):
   파편: 정점 속도 0.014 화면높이/프레임, 속도 반감 3프레임(data/p4/nakamura_debris_rhythm_2026-10-21.json 폭발 파편 중앙값),
-  섬광 길이: 나카무라 임팩트 길이 분포(data/p3/impact_lengths_2026-10-22.json, 실루엣 중앙 3·사분위 2–5, 단색 중앙 1)에서 시드로 뽑는다(최대 8).
+  섬광 길이: 임팩트 장면을 쓰면 그 장면의 실제 장수(매 프레임 새 그림, 한 장을 늘려 붙들지 않음). 단색 섬광은
+  나카무라 단색 길이 분포(data/p3/impact_lengths_2026-10-22.json, 중앙 1)에서 시드로 뽑는다(최대 8).
+  임팩트 장면은 51개 전부 사용(사용자 2026-10-22: 실루엣은 사람도 대상 — 이펙트만 SFA라도 임팩트 프레임 안 인물 실루엣 허용).
   섬광 그림: 나카무라 임팩트 장면 플립북(사전 Q, 흑백 실루엣·먹선)을 시드로 골라 한 장씩(없으면 단색).
   그림 유지: 2s 바탕·빠른 순간 1s(docs/P1-STRIKE-TIMING-2026-10-22.md).
   폭발 면적은 빠르게 커져 수명 약 30%에서 정점(가정, 측정 전), 연기는 오르며 넓어지고 천천히 옅어짐(가정).
@@ -412,9 +414,9 @@ def main():
     ap.add_argument("--flipbooks", help="이펙트 플립북(tools/fx_flipbook.py 출력). 충격파 등에 실제 프레임 순서를 쓴다")
     ap.add_argument("--shake", type=float, default=0.012, help="임팩트 뒤 화면 흔들림 세기(화면 높이 비율, 0=없음)")
     ap.add_argument("--check")
-    ap.add_argument("--scenes", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "p3",
-                                                       "impact_scenes_fxonly_2026-10-22.txt"),
-                    help="쓸 임팩트 장면 이름 목록(이펙트만 — 인물 실루엣 장면 제외). 빈 문자열이면 전부")
+    ap.add_argument("--scenes", default="",
+                    help="쓸 임팩트 장면 이름 목록 파일. 기본은 전부(사용자 2026-10-22: 임팩트 프레임의 실루엣은 사람도 대상 — "
+                         "이펙트만 SFA라도 임팩트 프레임 안 인물 실루엣 허용). 실루엣 없는 장면만: data/p3/impact_scenes_fxonly_2026-10-22.txt")
     a = ap.parse_args()
     st = dict(DEFAULT)
     if a.stats:
@@ -432,8 +434,11 @@ def main():
         print("임팩트 장면", g.scenes[g.rng_scene][0])
     lens = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "p3", "impact_lengths_2026-10-22.json")
     if not a.stats or "flash_frames" not in json.load(open(a.stats)):
-        if os.path.exists(lens):  # 섬광 길이: 나카무라 임팩트 실제 길이 분포에서 시드로 뽑는다(실루엣 중앙 3, 단색 중앙 1)
-            pool = json.load(open(lens))["silhouette" if g.scenes else "mono"]
+        if g.scenes:  # 임팩트 장면을 쓰면 그 장면의 실제 장수만큼(매 프레임 새 그림 — 한 장을 늘려 붙들지 않는다)
+            st["flash_frames"] = len(g.scenes[g.rng_scene][1])
+            print("섬광 길이(장면 장수)", st["flash_frames"])
+        elif os.path.exists(lens):  # 단색 섬광 길이: 나카무라 임팩트 실제 길이 분포에서 시드로 뽑는다(단색 중앙 1)
+            pool = json.load(open(lens))["mono"]
             st["flash_frames"] = min(8, random.Random(a.seed * 53).choice(pool))
             print("섬광 길이", st["flash_frames"])
     bg = [int(v) for v in a.bg.split(",")]
