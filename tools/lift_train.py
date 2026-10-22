@@ -7,7 +7,8 @@
 - 멈춤: 창을 2·3프레임씩 같은 포즈로 유지(애니의 2컷·3컷). 정답 3D도 같이 유지.
 - 빠진 점: 관절별 무작위 제거, 하체 통째 제거(화면 밖), 손목 제거.
 - 잡음: 2D 가우스 잡음(몸 크기의 0~4%), 가끔 큰 튐.
-- 카메라: 방위 0~360°, 높이각 -25~50°, 거리 2~9 m, 초점 0.7~3.0.
+- 카메라: 방위 0~360°, 높이각 -25~50°, 거리 2~9 m, 초점 0.7~3.0. 기울기(화면 회전): 70% ±15°, 30% ±180°
+  (애니의 기울인 구도·옆으로 누워 나는 몸. 5000단계 모델이 이런 장면에서 약했다).
 검증: 클립 번호로 나눈 5% 클립, 고정 시드. 지표 MPJPE(mm), 골반 정렬 후.
 걷기·감정 표현만 있는 클립은 덜 뽑고, 공격·피격·점프·구르기는 더 뽑는다(mocap_index 태그).
 학습 결과(가중치)는 Drive에 두고 저장소에는 넣지 않는다.
@@ -116,6 +117,15 @@ def make_batch(pos, idx, win, g, dev, train=True):
         vis = (~(drop | legs)).float()[..., None]
         X = X * vis
     Y = Pc - Pc[:, :, :1]
+    if train:  # 카메라 기울기(화면 회전): 애니의 기울인 구도·옆으로 누워 나는 몸. 2D와 3D를 같은 각도로 돌린다
+        big = torch.rand(B, generator=g, device=dev) < 0.3
+        ang = torch.where(big, (torch.rand(B, generator=g, device=dev) * 2 - 1) * math.pi,
+                          (torch.rand(B, generator=g, device=dev) * 2 - 1) * math.radians(15))
+        c, s_ = torch.cos(ang)[:, None, None], torch.sin(ang)[:, None, None]
+        x, y = X[..., 0], X[..., 1]
+        X = torch.stack([c * x - s_ * y, s_ * x + c * y], -1) * vis
+        yx, yy = Y[..., 0], -Y[..., 1]  # 화면 y는 아래 → 같은 방향으로 맞춘 뒤 돌리고 되돌린다
+        Y = torch.stack([c * yx - s_ * yy, -(s_ * yx + c * yy), Y[..., 2]], -1)
     return torch.cat([X, vis], -1)[ok], Y[ok]
 
 
