@@ -18227,3 +18227,2160 @@ amass,WEIZMANN__70__Slow_StraightShort(1),2906,96.9,WEIZMANN/70/Slow_StraightSho
 amass,WEIZMANN__70__Slow_StraightShort(2),2907,96.9,WEIZMANN/70/Slow_StraightShort(2),,1.45
 amass,WEIZMANN__70__Slow_StraightShort(3),488,16.3,WEIZMANN/70/Slow_StraightShort(3),,1.46
 amass,WEIZMANN__70__Slow_StraightShort(4),3138,104.6,WEIZMANN/70/Slow_StraightShort(4),,1.46
+mixamo,180 Turn W_ Briefcase (1),69,2.3,180 Turn W_ Briefcase (1),,1.48
+mixamo,180 Turn W_ Briefcase,68,2.3,180 Turn W_ Briefcase,,1.45
+mixamo,2hand Idle,144,4.8,2hand Idle,,1.4
+mixamo,Acknowledging,59,2.0,Acknowledging,,1.5
+mixamo,Action Idle To Fight Idle,31,1.0,Action Idle To Fight Idle,공격,1.34
+mixamo,Action Idle To Standing Idle,29,1.0,Action Idle To Standing Idle,,1.44
+mixamo,Administering Cpr,260,8.7,Administering Cpr,,0.36
+mixamo,Aerial Evade,111,3.7,Aerial Evade,방어·회피,1.23
+mixamo,Agony,112,3.7,Agony,,1.37
+mixamo,Agreeing (1),56,1.9,Agreeing (1),,1.5
+mixamo,Agreeing,142,4.7,Agreeing,,1.48
+mixamo,Aiming Gun,73,2.4,Aiming Gun,,1.47
+mixamo,Aiming,61,2.0,Aiming,,1.38
+mixamo,Air Squat Bent Arms,57,1.9,Air Squat Bent Arms,,1.36
+mixamo,Air Squat,57,1.9,Air Squat,,1.36
+mixamo,Angry Gesture (1),176,5.9,Angry Gesture (1),감정 표현,1.14
+mixamo,Angry Gesture (2),67,2.2,Angry Gesture (2),감정 표현,1.49
+mixamo,Angry Gesture,99,3.3,Angry Gesture,감정 표현,1.5
+mixamo,Angry Point,74,2.5,Angry Point,감정 표현,1.5
+mixamo,Annoyed Head Shake,78,2.6,Annoyed Head Shake,,1.5
+mixamo,Arm Gesture,103,3.4,Arm Gesture,,1.48
+mixamo,Arm Stretching,267,8.9,Arm Stretching,,1.5
+mixamo,Armada To Esquiva,123,4.1,Armada To Esquiva,,1.09
+mixamo,Armada,50,1.7,Armada,,1.18
+mixamo,Ascending Stairs,42,1.4,Ascending Stairs,,1.48
+mixamo,Asking Question,176,5.9,Asking Question,,1.12
+mixamo,Au To Role,121,4.0,Au To Role,,0.61
+mixamo,Au,88,2.9,Au,,0.87
+mixamo,Back Flip To Uppercut,176,5.9,Back Flip To Uppercut,공격;점프·공중,1.33
+mixamo,Back Squat (1),180,6.0,Back Squat (1),,1.48
+mixamo,Back Squat (2),69,2.3,Back Squat (2),,1.2
+mixamo,Back Squat,300,10.0,Back Squat,,1.48
+mixamo,Backflip (2),124,4.1,Backflip (2),점프·공중,1.41
+mixamo,Backflip,66,2.2,Backflip,점프·공중,1.06
+mixamo,Backward Jump,51,1.7,Backward Jump,점프·공중,1.33
+mixamo,Backward Right Turn (1),39,1.3,Backward Right Turn (1),,1.48
+mixamo,Backward Right Turn,21,0.7,Backward Right Turn,,1.33
+mixamo,Backward Walking Turn,60,2.0,Backward Walking Turn,걷기,1.38
+mixamo,Backwards Rifle Run,19,0.6,Backwards Rifle Run,달리기,1.42
+mixamo,Backwards Rifle Walk,39,1.3,Backwards Rifle Walk,걷기,1.46
+mixamo,Banging Fist,80,2.7,Banging Fist,,1.23
+mixamo,Bartending,408,13.6,Bartending,,1.36
+mixamo,Baseball Bunt,60,2.0,Baseball Bunt,,1.32
+mixamo,Baseball Catcher,276,9.2,Baseball Catcher,던지기·잡기,1.34
+mixamo,Baseball Hit (1),118,3.9,Baseball Hit (1),공격,1.38
+mixamo,Baseball Hit (2),60,2.0,Baseball Hit (2),공격,1.34
+mixamo,Baseball Hit,88,2.9,Baseball Hit,공격,1.37
+mixamo,Baseball Idle (1),71,2.4,Baseball Idle (1),,1.17
+mixamo,Baseball Idle,46,1.5,Baseball Idle,,1.38
+mixamo,Baseball Milling Idle,633,21.1,Baseball Milling Idle,,1.43
+mixamo,Baseball Pitching (1),157,5.2,Baseball Pitching (1),,1.37
+mixamo,Baseball Pitching,119,4.0,Baseball Pitching,,1.4
+mixamo,Baseball Step In,114,3.8,Baseball Step In,걷기,1.42
+mixamo,Baseball Step Out,94,3.1,Baseball Step Out,걷기,1.44
+mixamo,Baseball Step Up To Bat,313,10.4,Baseball Step Up To Bat,걷기,1.42
+mixamo,Baseball Strike,209,7.0,Baseball Strike,공격,1.44
+mixamo,Baseball Umpire,80,2.7,Baseball Umpire,,1.31
+mixamo,Baseball Walk In,164,5.5,Baseball Walk In,걷기,1.47
+mixamo,Baseball Walk Out,121,4.0,Baseball Walk Out,걷기,1.47
+mixamo,Bash,121,4.0,Bash,,1.43
+mixamo,Bashful,331,11.0,Bashful,,1.48
+mixamo,Batter On Deck,1121,37.4,Batter On Deck,,1.47
+mixamo,Bayonet Stab,99,3.3,Bayonet Stab,공격,1.31
+mixamo,Bboy Pose To Idle,71,2.4,Bboy Pose To Idle,,0.58
+mixamo,Bboy Uprock Start,55,1.8,Bboy Uprock Start,,1.44
+mixamo,Bboy Uprock,70,2.3,Bboy Uprock,,1.39
+mixamo,Being Carried,158,5.3,Being Carried,,0.38
+mixamo,Being Cocky,88,2.9,Being Cocky,,1.49
+mixamo,Being Electrocuted,243,8.1,Being Electrocuted,,1.36
+mixamo,Being Strangled,529,17.6,Being Strangled,,1.33
+mixamo,Bencao,42,1.4,Bencao,,1.26
+mixamo,Bicep Curl,177,5.9,Bicep Curl,,1.5
+mixamo,Bicycle Crunch,34,1.1,Bicycle Crunch,달리기,0.13
+mixamo,Big Body Blow,78,2.6,Big Body Blow,,0.13
+mixamo,Big Hit To Head (1),40,1.3,Big Hit To Head (1),공격,1.25
+mixamo,Big Hit To Head (2),48,1.6,Big Hit To Head (2),공격,1.16
+mixamo,Big Hit To Head,50,1.7,Big Hit To Head,공격,1.22
+mixamo,Big Jump,72,2.4,Big Jump,점프·공중,0.86
+mixamo,Big Kidney Hit,49,1.6,Big Kidney Hit,공격,1.28
+mixamo,Big Rib Hit,49,1.6,Big Rib Hit,공격,1.25
+mixamo,Big Side Hit,45,1.5,Big Side Hit,공격,1.26
+mixamo,Big Stomach Hit,43,1.4,Big Stomach Hit,공격,1.19
+mixamo,Block With Rifle,50,1.7,Block With Rifle,방어·회피,1.44
+mixamo,Block,87,2.9,Block,방어·회피,1.35
+mixamo,Blocking (2),41,1.4,Blocking (2),방어·회피,1.42
+mixamo,Blocking Attack,31,1.0,Blocking Attack,공격;방어·회피,0.98
+mixamo,Blocking,37,1.2,Blocking,방어·회피,1.44
+mixamo,Blow A Kiss,138,4.6,Blow A Kiss,,1.49
+mixamo,Body Block,104,3.5,Body Block,방어·회피,1.35
+mixamo,Body Jab Cross (1),42,1.4,Body Jab Cross (1),공격,1.29
+mixamo,Body Jab Cross (2),64,2.1,Body Jab Cross (2),공격,1.31
+mixamo,Body Jab Cross,67,2.2,Body Jab Cross,공격,1.3
+mixamo,Booty Hip Hop Dance,148,4.9,Booty Hip Hop Dance,점프·공중;춤,1.4
+mixamo,Bored,321,10.7,Bored,,1.49
+mixamo,Bouncing Fight Idle,90,3.0,Bouncing Fight Idle,공격,1.37
+mixamo,Box Idle,190,6.3,Box Idle,,1.45
+mixamo,Box Jump,118,3.9,Box Jump,점프·공중,1.4
+mixamo,Box Turn,36,1.2,Box Turn,,1.44
+mixamo,Box Walk Arc,38,1.3,Box Walk Arc,걷기,1.41
+mixamo,Boxing (1),65,2.2,Boxing (1),공격,1.34
+mixamo,Boxing (2),53,1.8,Boxing (2),공격,1.34
+mixamo,Boxing (3),66,2.2,Boxing (3),공격,1.37
+mixamo,Boxing (4),75,2.5,Boxing (4),공격,1.39
+mixamo,Boxing (5),67,2.2,Boxing (5),공격,1.39
+mixamo,Boxing (6),67,2.2,Boxing (6),공격,1.37
+mixamo,Boxing (7),61,2.0,Boxing (7),공격,1.4
+mixamo,Boxing (8),67,2.2,Boxing (8),공격,1.35
+mixamo,Boxing (9),64,2.1,Boxing (9),공격,1.37
+mixamo,Boxing,128,4.3,Boxing,공격,1.04
+mixamo,Braced Hang Hop Left,46,1.5,Braced Hang Hop Left,점프·공중,1.0
+mixamo,Braced Hang Hop Right,51,1.7,Braced Hang Hop Right,점프·공중,1.0
+mixamo,Braced Hang Hop Up,51,1.7,Braced Hang Hop Up,점프·공중,0.99
+mixamo,Braced Hang Shimmy,36,1.2,Braced Hang Shimmy,,0.97
+mixamo,Braced Hang To Crouch,35,1.2,Braced Hang To Crouch,,1.01
+mixamo,Braced Hang,40,1.3,Braced Hang,,0.93
+mixamo,Braced To Free Hang,29,1.0,Braced To Free Hang,,1.18
+mixamo,Breakdance 1990 (1),75,2.5,Breakdance 1990 (1),춤,1.26
+mixamo,Breakdance 1990 (2),106,3.5,Breakdance 1990 (2),춤,1.32
+mixamo,Breakdance 1990,16,0.5,Breakdance 1990,춤,-0.88
+mixamo,Breakdance Ending 1,196,6.5,Breakdance Ending 1,춤,1.06
+mixamo,Breakdance Ending 2,242,8.1,Breakdance Ending 2,춤,1.32
+mixamo,Breakdance Ending 3,193,6.4,Breakdance Ending 3,춤,1.37
+mixamo,Breakdance Footwork 1,96,3.2,Breakdance Footwork 1,춤,0.65
+mixamo,Breakdance Footwork 2,49,1.6,Breakdance Footwork 2,춤,0.56
+mixamo,Breakdance Footwork 3,138,4.6,Breakdance Footwork 3,춤,0.56
+mixamo,Breakdance Footwork To Freeze,111,3.7,Breakdance Footwork To Freeze,춤,0.52
+mixamo,Breakdance Footwork To Idle (1),110,3.7,Breakdance Footwork To Idle (1),춤,0.59
+mixamo,Breakdance Footwork To Idle,289,9.6,Breakdance Footwork To Idle,춤,0.66
+mixamo,Breakdance Freeze Var 1,125,4.2,Breakdance Freeze Var 1,춤,1.24
+mixamo,Breakdance Freeze Var 2,147,4.9,Breakdance Freeze Var 2,춤,1.23
+mixamo,Breakdance Freeze Var 3,186,6.2,Breakdance Freeze Var 3,춤,0.16
+mixamo,Breakdance Freeze Var 4,150,5.0,Breakdance Freeze Var 4,춤,0.75
+mixamo,Breakdance Freezes,202,6.7,Breakdance Freezes,춤,0.91
+mixamo,Breakdance Ready,64,2.1,Breakdance Ready,춤,1.45
+mixamo,Breakdance Swipes,91,3.0,Breakdance Swipes,춤,1.34
+mixamo,Breakdance Uprock (1),109,3.6,Breakdance Uprock (1),춤,1.39
+mixamo,Breakdance Uprock Var 1 End,63,2.1,Breakdance Uprock Var 1 End,춤,1.31
+mixamo,Breakdance Uprock Var 1 Start,46,1.5,Breakdance Uprock Var 1 Start,춤,1.36
+mixamo,Breakdance Uprock Var 1,64,2.1,Breakdance Uprock Var 1,춤,1.32
+mixamo,Breakdance Uprock Var 2,161,5.4,Breakdance Uprock Var 2,춤,1.36
+mixamo,Breakdance Uprock,64,2.1,Breakdance Uprock,춤,1.33
+mixamo,Breathing Idle,299,10.0,Breathing Idle,,1.49
+mixamo,Brooklyn Uprock,147,4.9,Brooklyn Uprock,,1.26
+mixamo,Brutal Assassination (2),149,5.0,Brutal Assassination (2),,1.38
+mixamo,Brutal Assassination,149,5.0,Brutal Assassination,,0.84
+mixamo,Brutal To Happy Walking,38,1.3,Brutal To Happy Walking,걷기;감정 표현,1.47
+mixamo,Burpee End,74,2.5,Burpee End,,1.39
+mixamo,Burpee Start,51,1.7,Burpee Start,,0.63
+mixamo,Burpee,95,3.2,Burpee,,0.64
+mixamo,Butterfly Twirl,93,3.1,Butterfly Twirl,,1.31
+mixamo,Button Pushing,98,3.3,Button Pushing,피격·넘어짐,1.51
+mixamo,Calling,81,2.7,Calling,,0.67
+mixamo,Can Can,111,3.7,Can Can,,1.38
+mixamo,Capoeira (1),104,3.5,Capoeira (1),,1.21
+mixamo,Capoeira (2),145,4.8,Capoeira (2),,0.96
+mixamo,Capoeira,532,17.7,Capoeira,,1.12
+mixamo,Carrying,301,10.0,Carrying,던지기·잡기,1.44
+mixamo,Cartwheel,107,3.6,Cartwheel,점프·공중,1.43
+mixamo,Casting Spell,232,7.7,Casting Spell,,1.05
+mixamo,Catwalk Idle 01,134,4.5,Catwalk Idle 01,걷기,1.5
+mixamo,Catwalk Idle 02,191,6.4,Catwalk Idle 02,걷기,1.5
+mixamo,Catwalk Idle To Twist L,54,1.8,Catwalk Idle To Twist L,걷기,1.49
+mixamo,Catwalk Idle To Twist R,66,2.2,Catwalk Idle To Twist R,걷기,1.49
+mixamo,Catwalk Idle To Walk Forward (1),41,1.4,Catwalk Idle To Walk Forward (1),걷기,1.49
+mixamo,Catwalk Idle To Walk Forward Crossed,38,1.3,Catwalk Idle To Walk Forward Crossed,걷기,1.47
+mixamo,Catwalk Idle To Walk Forward HighKnees,35,1.2,Catwalk Idle To Walk Forward HighKnees,걷기,1.48
+mixamo,Catwalk Idle To Walk Forward,41,1.4,Catwalk Idle To Walk Forward,걷기,1.49
+mixamo,Catwalk Idle Twist L (1),86,2.9,Catwalk Idle Twist L (1),걷기,1.49
+mixamo,Catwalk Idle Twist L,156,5.2,Catwalk Idle Twist L,걷기,1.49
+mixamo,Catwalk Idle Twist R (1),101,3.4,Catwalk Idle Twist R (1),걷기,1.49
+mixamo,Catwalk Idle Twist R,156,5.2,Catwalk Idle Twist R,걷기,1.49
+mixamo,Catwalk Idle,301,10.0,Catwalk Idle,걷기,1.5
+mixamo,Catwalk Sequence 01 (1),439,14.6,Catwalk Sequence 01 (1),걷기,1.46
+mixamo,Catwalk Sequence 01,439,14.6,Catwalk Sequence 01,걷기,1.47
+mixamo,Catwalk Sequence 02 (1),298,9.9,Catwalk Sequence 02 (1),걷기,1.46
+mixamo,Catwalk Sequence 02,366,12.2,Catwalk Sequence 02,걷기,1.46
+mixamo,Catwalk Sequence 03,373,12.4,Catwalk Sequence 03,걷기,1.46
+mixamo,Catwalk Sequence 04,365,12.2,Catwalk Sequence 04,걷기,1.46
+mixamo,Catwalk Sequence 05,306,10.2,Catwalk Sequence 05,걷기,1.45
+mixamo,Catwalk Twist L To Twist R (1),76,2.5,Catwalk Twist L To Twist R (1),걷기,1.49
+mixamo,Catwalk Twist L To Twist R,61,2.0,Catwalk Twist L To Twist R,걷기,1.49
+mixamo,Catwalk Twist L To Walk 180 (1),61,2.0,Catwalk Twist L To Walk 180 (1),걷기,1.47
+mixamo,Catwalk Twist L To Walk 180,62,2.1,Catwalk Twist L To Walk 180,걷기,1.48
+mixamo,Catwalk Twist R To Twist L (1),56,1.9,Catwalk Twist R To Twist L (1),걷기,1.49
+mixamo,Catwalk Twist R To Twist L,66,2.2,Catwalk Twist R To Twist L,걷기,1.49
+mixamo,Catwalk Twist R To Walk 180 (1),82,2.7,Catwalk Twist R To Walk 180 (1),걷기,1.48
+mixamo,Catwalk Twist R To Walk 180,60,2.0,Catwalk Twist R To Walk 180,걷기,1.48
+mixamo,Catwalk Walk Crossed Stop,45,1.5,Catwalk Walk Crossed Stop,걷기,1.47
+mixamo,Catwalk Walk Forward 01,38,1.3,Catwalk Walk Forward 01,걷기,1.46
+mixamo,Catwalk Walk Forward 02,35,1.2,Catwalk Walk Forward 02,걷기,1.46
+mixamo,Catwalk Walk Forward 03,34,1.1,Catwalk Walk Forward 03,걷기,1.45
+mixamo,Catwalk Walk Forward Arc 90L (1),109,3.6,Catwalk Walk Forward Arc 90L (1),걷기,1.46
+mixamo,Catwalk Walk Forward Arc 90L,72,2.4,Catwalk Walk Forward Arc 90L,걷기,1.46
+mixamo,Catwalk Walk Forward Arc 90R (1),73,2.4,Catwalk Walk Forward Arc 90R (1),걷기,1.46
+mixamo,Catwalk Walk Forward Arc 90R,108,3.6,Catwalk Walk Forward Arc 90R,걷기,1.46
+mixamo,Catwalk Walk Forward Crossed,37,1.2,Catwalk Walk Forward Crossed,걷기,1.45
+mixamo,Catwalk Walk Forward HighKnees,38,1.3,Catwalk Walk Forward HighKnees,걷기,1.45
+mixamo,Catwalk Walk Forward Turn 90L (1),71,2.4,Catwalk Walk Forward Turn 90L (1),걷기,1.46
+mixamo,Catwalk Walk Forward Turn 90L,76,2.5,Catwalk Walk Forward Turn 90L,걷기,1.46
+mixamo,Catwalk Walk Forward Turn 90R (1),75,2.5,Catwalk Walk Forward Turn 90R (1),걷기,1.47
+mixamo,Catwalk Walk Forward Turn 90R,75,2.5,Catwalk Walk Forward Turn 90R,걷기,1.45
+mixamo,Catwalk Walk Forward,37,1.2,Catwalk Walk Forward,걷기,1.47
+mixamo,Catwalk Walk Start Backwards 180L (1),56,1.9,Catwalk Walk Start Backwards 180L (1),걷기,1.48
+mixamo,Catwalk Walk Start Backwards 180L,69,2.3,Catwalk Walk Start Backwards 180L,걷기,1.47
+mixamo,Catwalk Walk Start Backwards 180R,72,2.4,Catwalk Walk Start Backwards 180R,걷기,1.48
+mixamo,Catwalk Walk Start Turn 180 Left (1),66,2.2,Catwalk Walk Start Turn 180 Left (1),걷기,1.48
+mixamo,Catwalk Walk Start Turn 180 Left,76,2.5,Catwalk Walk Start Turn 180 Left,걷기,1.47
+mixamo,Catwalk Walk Start Turn 180 Right (1),78,2.6,Catwalk Walk Start Turn 180 Right (1),걷기,1.48
+mixamo,Catwalk Walk Start Turn 180 Right,99,3.3,Catwalk Walk Start Turn 180 Right,걷기,1.47
+mixamo,Catwalk Walk Stop (1),59,2.0,Catwalk Walk Stop (1),걷기,1.49
+mixamo,Catwalk Walk Stop Twist L (1),76,2.5,Catwalk Walk Stop Twist L (1),걷기,1.49
+mixamo,Catwalk Walk Stop Twist L,51,1.7,Catwalk Walk Stop Twist L,걷기,1.48
+mixamo,Catwalk Walk Stop Twist R (1),53,1.8,Catwalk Walk Stop Twist R (1),걷기,1.49
+mixamo,Catwalk Walk Stop Twist R,90,3.0,Catwalk Walk Stop Twist R,걷기,1.49
+mixamo,Catwalk Walk Stop,51,1.7,Catwalk Walk Stop,걷기,1.49
+mixamo,Catwalk Walk Turn 180 Tight L,119,4.0,Catwalk Walk Turn 180 Tight L,걷기,1.45
+mixamo,Catwalk Walk Turn 180 Tight R,121,4.0,Catwalk Walk Turn 180 Tight R,걷기,1.45
+mixamo,Catwalk Walk Turn 180 Tight,110,3.7,Catwalk Walk Turn 180 Tight,걷기,1.47
+mixamo,Catwalk Walk Turn 180 Wide L,112,3.7,Catwalk Walk Turn 180 Wide L,걷기,1.45
+mixamo,Catwalk Walk Turn 180 Wide R,149,5.0,Catwalk Walk Turn 180 Wide R,걷기,1.46
+mixamo,Catwalk Walk Turn 180 Wide,179,6.0,Catwalk Walk Turn 180 Wide,걷기,1.45
+mixamo,Catwalk Walk,455,15.2,Catwalk Walk,걷기,1.46
+mixamo,Catwalk Walking,36,1.2,Catwalk Walking,걷기,1.45
+mixamo,Cautious Backward Walk,245,8.2,Cautious Backward Walk,걷기,1.42
+mixamo,Center Block (1),54,1.8,Center Block (1),방어·회피,1.34
+mixamo,Center Block,49,1.6,Center Block,방어·회피,1.35
+mixamo,Change Direction,66,2.2,Change Direction,,1.17
+mixamo,Chapa 2,42,1.4,Chapa 2,,1.23
+mixamo,Chapa Giratoria 2,72,2.4,Chapa Giratoria 2,,1.12
+mixamo,Chapa-Giratoria,91,3.0,Chapa-Giratoria,,1.12
+mixamo,Chapaeu De Couro,104,3.5,Chapaeu De Couro,,1.05
+mixamo,Check Shoe,142,4.7,Check Shoe,,1.43
+mixamo,Checking Dice,228,7.6,Checking Dice,,1.16
+mixamo,Cheering (1),58,1.9,Cheering (1),,1.37
+mixamo,Cheering While Sitting (1),81,2.7,Cheering While Sitting (1),구르기·바닥,1.08
+mixamo,Cheering While Sitting (2),131,4.4,Cheering While Sitting (2),구르기·바닥,1.08
+mixamo,Cheering While Sitting,67,2.2,Cheering While Sitting,구르기·바닥,1.09
+mixamo,Cheering,88,2.9,Cheering,,1.44
+mixamo,Chicken Dance,144,4.8,Chicken Dance,춤,1.42
+mixamo,Circle Crunch,71,2.4,Circle Crunch,달리기,0.39
+mixamo,Clapping,36,1.2,Clapping,,1.03
+mixamo,Clean And Jerk,521,17.4,Clean And Jerk,,1.33
+mixamo,Climbing (1),116,3.9,Climbing (1),,1.08
+mixamo,Climbing (2),90,3.0,Climbing (2),,1.46
+mixamo,Climbing (3),48,1.6,Climbing (3),,1.46
+mixamo,Climbing A Rope (1),73,2.4,Climbing A Rope (1),,1.26
+mixamo,Climbing A Rope,78,2.6,Climbing A Rope,,1.32
+mixamo,Climbing Down,95,3.2,Climbing Down,,1.27
+mixamo,Climbing Ladder,24,0.8,Climbing Ladder,,1.33
+mixamo,Climbing To Top,121,4.0,Climbing To Top,,1.35
+mixamo,Climbing,116,3.9,Climbing,,1.1
+mixamo,Cocky Head Turn,77,2.6,Cocky Head Turn,,1.49
+mixamo,Combo Punch,90,3.0,Combo Punch,공격,1.35
+mixamo,Convulsing,58,1.9,Convulsing,,0.01
+mixamo,Corkscrew Evade,76,2.5,Corkscrew Evade,방어·회피,0.62
+mixamo,Corkscrew Kip Up,84,2.8,Corkscrew Kip Up,,0.21
+mixamo,Counting,200,6.7,Counting,,1.29
+mixamo,Cover Idle (1),69,2.3,Cover Idle (1),,1.37
+mixamo,Cover Idle,78,2.6,Cover Idle,,1.02
+mixamo,Cover To Stand (1),46,1.5,Cover To Stand (1),,1.21
+mixamo,Cover To Stand,46,1.5,Cover To Stand,,1.21
+mixamo,Cow Milking,137,4.6,Cow Milking,,0.58
+mixamo,Crawl Backwards In Prone,30,1.0,Crawl Backwards In Prone,구르기·바닥,0.24
+mixamo,Crawl Backwards,120,4.0,Crawl Backwards,구르기·바닥,0.47
+mixamo,Crawl Forward,79,2.6,Crawl Forward,구르기·바닥,0.17
+mixamo,Crawling,55,1.8,Crawling,구르기·바닥,0.43
+mixamo,Crazy Gesture,151,5.0,Crazy Gesture,,1.47
+mixamo,Cross Jumps Rotation,62,2.1,Cross Jumps Rotation,점프·공중,1.43
+mixamo,Cross Jumps,62,2.1,Cross Jumps,점프·공중,1.46
+mixamo,Cross Punch,61,2.0,Cross Punch,공격,1.36
+mixamo,Crouch Cover To Cover,48,1.6,Crouch Cover To Cover,,1.12
+mixamo,Crouch Cover Turn,29,1.0,Crouch Cover Turn,,1.05
+mixamo,Crouch Death,72,2.4,Crouch Death,,0.4
+mixamo,Crouch Idle (1),202,6.7,Crouch Idle (1),,0.82
+mixamo,Crouch Idle (2),42,1.4,Crouch Idle (2),,0.99
+mixamo,Crouch Idle 01,201,6.7,Crouch Idle 01,,0.88
+mixamo,Crouch Idle 02 Looking Around,176,5.9,Crouch Idle 02 Looking Around,,0.88
+mixamo,Crouch Idle 03 Looking Over,166,5.5,Crouch Idle 03 Looking Over,,1.05
+mixamo,Crouch Idle,51,1.7,Crouch Idle,,1.03
+mixamo,Crouch Look Around Corner,91,3.0,Crouch Look Around Corner,,1.02
+mixamo,Crouch Rapid Fire,24,0.8,Crouch Rapid Fire,,0.81
+mixamo,Crouch Run Backwards,16,0.5,Crouch Run Backwards,달리기,1.23
+mixamo,Crouch Running,35,1.2,Crouch Running,달리기,1.03
+mixamo,Crouch Stop Walking,64,2.1,Crouch Stop Walking,걷기,1.04
+mixamo,Crouch Strafe Run Left,16,0.5,Crouch Strafe Run Left,달리기,1.15
+mixamo,Crouch To Prone,55,1.8,Crouch To Prone,,0.3
+mixamo,Crouch To Stand (1),78,2.6,Crouch To Stand (1),,1.4
+mixamo,Crouch To Stand (2),89,3.0,Crouch To Stand (2),,1.46
+mixamo,Crouch To Stand,101,3.4,Crouch To Stand,,1.39
+mixamo,Crouch To Standing Idle (1),31,1.0,Crouch To Standing Idle (1),,1.29
+mixamo,Crouch To Standing Idle,20,0.7,Crouch To Standing Idle,,1.3
+mixamo,Crouch To Standing With Rifle,34,1.1,Crouch To Standing With Rifle,,1.27
+mixamo,Crouch To Standing,29,1.0,Crouch To Standing,,1.25
+mixamo,Crouch Torch Idle 01,206,6.9,Crouch Torch Idle 01,,0.85
+mixamo,Crouch Torch Idle 02,199,6.6,Crouch Torch Idle 02,,0.89
+mixamo,Crouch Torch To Standing Torch Idle,46,1.5,Crouch Torch To Standing Torch Idle,,1.37
+mixamo,Crouch Torch Turn Left 90,44,1.5,Crouch Torch Turn Left 90,,0.9
+mixamo,Crouch Torch Turn Right 90,49,1.6,Crouch Torch Turn Right 90,,0.89
+mixamo,Crouch Torch Walk Back,36,1.2,Crouch Torch Walk Back,걷기,1.16
+mixamo,Crouch Torch Walk Forward,34,1.1,Crouch Torch Walk Forward,걷기,1.08
+mixamo,Crouch Torch Walk Left,34,1.1,Crouch Torch Walk Left,걷기,1.02
+mixamo,Crouch Torch Walk Right,34,1.1,Crouch Torch Walk Right,걷기,1.05
+mixamo,Crouch Turn Left 90 (1),56,1.9,Crouch Turn Left 90 (1),,1.05
+mixamo,Crouch Turn Left 90,44,1.5,Crouch Turn Left 90,,0.95
+mixamo,Crouch Turn Right 90 (2),50,1.7,Crouch Turn Right 90 (2),,1.08
+mixamo,Crouch Turn Right 90,44,1.5,Crouch Turn Right 90,,0.95
+mixamo,Crouch Turn To Stand,26,0.9,Crouch Turn To Stand,,1.28
+mixamo,Crouch Walk Back (1),38,1.3,Crouch Walk Back (1),걷기,1.16
+mixamo,Crouch Walk Back,42,1.4,Crouch Walk Back,걷기,1.06
+mixamo,Crouch Walk Backwards Stop,42,1.4,Crouch Walk Backwards Stop,걷기,1.11
+mixamo,Crouch Walk Forward (1),35,1.2,Crouch Walk Forward (1),걷기,1.14
+mixamo,Crouch Walk Forward,38,1.3,Crouch Walk Forward,걷기,0.99
+mixamo,Crouch Walk Left (1),36,1.2,Crouch Walk Left (1),걷기,1.17
+mixamo,Crouch Walk Left,39,1.3,Crouch Walk Left,걷기,1.03
+mixamo,Crouch Walk Right (2),39,1.3,Crouch Walk Right (2),걷기,1.16
+mixamo,Crouch Walk Right,34,1.1,Crouch Walk Right,걷기,1.02
+mixamo,Crouch Walk Strafe Left,38,1.3,Crouch Walk Strafe Left,걷기,1.09
+mixamo,Crouch Walk Strafe Right,37,1.2,Crouch Walk Strafe Right,걷기,1.06
+mixamo,Crouch Walk,91,3.0,Crouch Walk,걷기,0.9
+mixamo,Crouch Walking Backwards,31,1.0,Crouch Walking Backwards,걷기,1.12
+mixamo,Crouch Walking,36,1.2,Crouch Walking,걷기,1.03
+mixamo,Crouched Run,24,0.8,Crouched Run,달리기,1.19
+mixamo,Crouched Sneaking Left (1),39,1.3,Crouched Sneaking Left (1),,1.09
+mixamo,Crouched Sneaking Left,39,1.3,Crouched Sneaking Left,,1.09
+mixamo,Crouched Sneaking Right (1),34,1.1,Crouched Sneaking Right (1),,1.09
+mixamo,Crouched Sneaking Right,34,1.1,Crouched Sneaking Right,,1.09
+mixamo,Crouched Strafe Run,19,0.6,Crouched Strafe Run,달리기,1.09
+mixamo,Crouched To Sprinting,16,0.5,Crouched To Sprinting,달리기,0.82
+mixamo,Crouched To Standing,20,0.7,Crouched To Standing,,1.18
+mixamo,Crouched Walking (2),32,1.1,Crouched Walking (2),걷기,1.14
+mixamo,Crouched Walking,52,1.7,Crouched Walking,걷기,1.09
+mixamo,Crouching Idle,76,2.5,Crouching Idle,,0.65
+mixamo,Crouching Turn 90 Left,39,1.3,Crouching Turn 90 Left,,0.93
+mixamo,Crouching Turn 90 Right,39,1.3,Crouching Turn 90 Right,,0.89
+mixamo,Crouching,123,4.1,Crouching,,0.81
+mixamo,Dancing (1),80,2.7,Dancing (1),,1.4
+mixamo,Dancing (2),221,7.4,Dancing (2),,1.45
+mixamo,Dancing (3),244,8.1,Dancing (3),,1.14
+mixamo,Dancing Running Man,326,10.9,Dancing Running Man,달리기,1.38
+mixamo,Dancing,372,12.4,Dancing,,1.34
+mixamo,Death Crouching Headshot Front,58,1.9,Death Crouching Headshot Front,,0.92
+mixamo,Death From Back Headshot,112,3.7,Death From Back Headshot,,0.91
+mixamo,Death From Front Headshot,86,2.9,Death From Front Headshot,,0.69
+mixamo,Death From Right,100,3.3,Death From Right,,0.24
+mixamo,Death From The Back,90,3.0,Death From The Back,,0.79
+mixamo,Death From The Front,104,3.5,Death From The Front,,0.41
+mixamo,Death,92,3.1,Death,,0.09
+mixamo,Defeat (1),220,7.3,Defeat (1),,1.48
+mixamo,Defeat Idle (1),50,1.7,Defeat Idle (1),,1.47
+mixamo,Defeat Idle (2),53,1.8,Defeat Idle (2),,1.43
+mixamo,Defeat Idle,47,1.6,Defeat Idle,,1.34
+mixamo,Defeat,144,4.8,Defeat,,1.43
+mixamo,Defeated,203,6.8,Defeated,,1.46
+mixamo,Defender (1),109,3.6,Defender (1),,0.08
+mixamo,Defender,151,5.0,Defender,,1.43
+mixamo,Descending Stairs (1),29,1.0,Descending Stairs (1),,1.17
+mixamo,Descending Stairs,13,0.4,Descending Stairs,,1.16
+mixamo,Diagonal Wall Run,35,1.2,Diagonal Wall Run,달리기,1.14
+mixamo,Dice Idle,145,4.8,Dice Idle,,1.04
+mixamo,Dig And Plant Seeds,166,5.5,Dig And Plant Seeds,,0.43
+mixamo,Disappointed,127,4.2,Disappointed,,1.48
+mixamo,Dismissing Gesture (1),68,2.3,Dismissing Gesture (1),,1.5
+mixamo,Dismissing Gesture,99,3.3,Dismissing Gesture,,1.5
+mixamo,Dive Roll (2),119,4.0,Dive Roll (2),구르기·바닥,0.88
+mixamo,Dive Roll,72,2.4,Dive Roll,구르기·바닥,0.92
+mixamo,Dizzy Idle,129,4.3,Dizzy Idle,,1.47
+mixamo,Dodge While Sitting,96,3.2,Dodge While Sitting,방어·회피;구르기·바닥,0.85
+mixamo,Dodging (1),50,1.7,Dodging (1),,1.45
+mixamo,Dodging (2),68,2.3,Dodging (2),,1.27
+mixamo,Dodging Back,81,2.7,Dodging Back,,1.37
+mixamo,Dodging Right,44,1.5,Dodging Right,,1.38
+mixamo,Dodging,71,2.4,Dodging,,1.27
+mixamo,Double Dagger Stab,93,3.1,Double Dagger Stab,공격,1.26
+mixamo,Double Leg Takedown - Attacker (1),106,3.5,Double Leg Takedown - Attacker (1),공격,0.85
+mixamo,Double Leg Takedown - Attacker,218,7.3,Double Leg Takedown - Attacker,공격,0.81
+mixamo,Double Leg Takedown - Victim (1),218,7.3,Double Leg Takedown - Victim (1),,0.04
+mixamo,Double Leg Takedown - Victim,106,3.5,Double Leg Takedown - Victim,,-0.36
+mixamo,Draw A Great Sword 1,16,0.5,Draw A Great Sword 1,공격,1.5
+mixamo,Draw A Great Sword 2,25,0.8,Draw A Great Sword 2,공격,1.44
+mixamo,Draw Sword 1,16,0.5,Draw Sword 1,공격,1.49
+mixamo,Draw Sword 2,24,0.8,Draw Sword 2,공격,1.41
+mixamo,Drawing Gun,61,2.0,Drawing Gun,,1.44
+mixamo,Dribble (1),53,1.8,Dribble (1),,1.4
+mixamo,Dribble,64,2.1,Dribble,,1.17
+mixamo,Drinking Fountain,308,10.3,Drinking Fountain,,1.3
+mixamo,Driving,151,5.0,Driving,,1.08
+mixamo,Drop Kick,88,2.9,Drop Kick,공격,0.94
+mixamo,Dropping,135,4.5,Dropping,,0.73
+mixamo,Drunk Idle Variation (1),120,4.0,Drunk Idle Variation (1),달리기,1.49
+mixamo,Drunk Idle Variation,163,5.4,Drunk Idle Variation,달리기,1.47
+mixamo,Drunk Idle,223,7.4,Drunk Idle,달리기,1.46
+mixamo,Drunk Run Backward,34,1.1,Drunk Run Backward,달리기,1.3
+mixamo,Drunk Run Forward,56,1.9,Drunk Run Forward,달리기,1.27
+mixamo,Drunk Running Left Turn,46,1.5,Drunk Running Left Turn,달리기,1.27
+mixamo,Drunk Turn,48,1.6,Drunk Turn,달리기,1.48
+mixamo,Drunk Walk Backwards,48,1.6,Drunk Walk Backwards,달리기;걷기,1.34
+mixamo,Drunk Walk,91,3.0,Drunk Walk,달리기;걷기,1.47
+mixamo,Drunk Walking Turn,78,2.6,Drunk Walking Turn,달리기;걷기,1.41
+mixamo,Dual Weapon Combo,110,3.7,Dual Weapon Combo,,1.29
+mixamo,Ducking (1),45,1.5,Ducking (1),방어·회피,0.81
+mixamo,Ducking,47,1.6,Ducking,방어·회피,0.85
+mixamo,Dwarf Idle (1),201,6.7,Dwarf Idle (1),,1.48
+mixamo,Dwarf Idle (2),61,2.0,Dwarf Idle (2),,1.47
+mixamo,Dwarf Idle (3),134,4.5,Dwarf Idle (3),,1.47
+mixamo,Dwarf Idle,211,7.0,Dwarf Idle,,1.47
+mixamo,Dwarf Walk (1),34,1.1,Dwarf Walk (1),걷기,1.46
+mixamo,Dwarf Walk,36,1.2,Dwarf Walk,걷기,1.43
+mixamo,Dying (1),112,3.7,Dying (1),,1.03
+mixamo,Dying (2),133,4.4,Dying (2),,0.89
+mixamo,Dying (3),174,5.8,Dying (3),,1.1
+mixamo,Dying (4),141,4.7,Dying (4),,0.02
+mixamo,Dying (5),105,3.5,Dying (5),,0.95
+mixamo,Dying (6),79,2.6,Dying (6),,0.75
+mixamo,Dying (7),107,3.6,Dying (7),,0.78
+mixamo,Dying (8),206,6.9,Dying (8),,0.05
+mixamo,Dying (9),136,4.5,Dying (9),,1.21
+mixamo,Dying Backwards,139,4.6,Dying Backwards,,0.04
+mixamo,Dying,131,4.4,Dying,,1.16
+mixamo,Edge Slip,75,2.5,Edge Slip,,1.33
+mixamo,Elbow Punch,53,1.8,Elbow Punch,공격,1.29
+mixamo,Elbow Punching,51,1.7,Elbow Punching,공격,1.39
+mixamo,Elbow Uppercut Combo,74,2.5,Elbow Uppercut Combo,공격,1.41
+mixamo,Emerge From Cover,59,2.0,Emerge From Cover,,1.29
+mixamo,Emerging,70,2.3,Emerging,,1.27
+mixamo,End Bicycle Sit Up,139,4.6,End Bicycle Sit Up,구르기·바닥,1.09
+mixamo,End Plank,115,3.8,End Plank,,0.95
+mixamo,Entering Code,226,7.5,Entering Code,,1.5
+mixamo,Entry (1),101,3.4,Entry (1),,1.41
+mixamo,Entry (2),220,7.3,Entry (2),,1.44
+mixamo,Entry,312,10.4,Entry,,1.43
+mixamo,Esquiva 1,139,4.6,Esquiva 1,,1.07
+mixamo,Esquiva 2,68,2.3,Esquiva 2,,0.75
+mixamo,Esquiva 3,66,2.2,Esquiva 3,,1.11
+mixamo,Esquiva 4,85,2.8,Esquiva 4,,1.11
+mixamo,Esquiva 5,66,2.2,Esquiva 5,,1.18
+mixamo,Evading A Threat,112,3.7,Evading A Threat,,1.19
+mixamo,Fall A Land To Run Forward,29,1.0,Fall A Land To Run Forward,피격·넘어짐;달리기,0.95
+mixamo,Fall A Land To Standing Idle 01,22,0.7,Fall A Land To Standing Idle 01,피격·넘어짐,1.03
+mixamo,Fall A Land To Standing Idle 02,48,1.6,Fall A Land To Standing Idle 02,피격·넘어짐,1.24
+mixamo,Fall A Loop,33,1.1,Fall A Loop,피격·넘어짐,1.17
+mixamo,Fall B Land To Standing Idle,48,1.6,Fall B Land To Standing Idle,피격·넘어짐,1.18
+mixamo,Fall B Loop,33,1.1,Fall B Loop,피격·넘어짐,0.88
+mixamo,Fall Flat,77,2.6,Fall Flat,피격·넘어짐,0.11
+mixamo,Fall Over,61,2.0,Fall Over,피격·넘어짐,0.24
+mixamo,Fallen Idle,46,1.5,Fallen Idle,피격·넘어짐,0.34
+mixamo,Falling (1),342,11.4,Falling (1),피격·넘어짐,1.34
+mixamo,Falling (2),204,6.8,Falling (2),피격·넘어짐,0.36
+mixamo,Falling Back Death (1),67,2.2,Falling Back Death (1),피격·넘어짐,0.09
+mixamo,Falling Back Death,79,2.6,Falling Back Death,피격·넘어짐,0.05
+mixamo,Falling Down,69,2.3,Falling Down,피격·넘어짐,0.37
+mixamo,Falling Flat Impact,48,1.6,Falling Flat Impact,피격·넘어짐,0.02
+mixamo,Falling Forward Death,78,2.6,Falling Forward Death,피격·넘어짐,0.2
+mixamo,Falling From Losing Balance,201,6.7,Falling From Losing Balance,피격·넘어짐,1.43
+mixamo,Falling Idle,22,0.7,Falling Idle,피격·넘어짐,0.81
+mixamo,Falling Into Pool (1),69,2.3,Falling Into Pool (1),피격·넘어짐,1.38
+mixamo,Falling Into Pool,91,3.0,Falling Into Pool,피격·넘어짐,0.22
+mixamo,Falling To Landing,33,1.1,Falling To Landing,피격·넘어짐,1.19
+mixamo,Falling To Roll (1),65,2.2,Falling To Roll (1),피격·넘어짐;구르기·바닥,1.01
+mixamo,Falling To Roll,55,1.8,Falling To Roll,피격·넘어짐;구르기·바닥,0.9
+mixamo,Falling,136,4.5,Falling,피격·넘어짐,0.32
+mixamo,Fast Run,17,0.6,Fast Run,달리기,1.36
+mixamo,Female Action Pose (1),2,0.1,Female Action Pose (1),,1.3
+mixamo,Female Action Pose (2),2,0.1,Female Action Pose (2),,1.44
+mixamo,Female Action Pose (3),2,0.1,Female Action Pose (3),,1.33
+mixamo,Female Action Pose (4),2,0.1,Female Action Pose (4),,1.16
+mixamo,Female Action Pose (5),2,0.1,Female Action Pose (5),,0.97
+mixamo,Female Action Pose,2,0.1,Female Action Pose,,0.83
+mixamo,Female Crouch Pose (1),2,0.1,Female Crouch Pose (1),,0.83
+mixamo,Female Crouch Pose (2),2,0.1,Female Crouch Pose (2),,0.95
+mixamo,Female Crouch Pose (3),2,0.1,Female Crouch Pose (3),,0.89
+mixamo,Female Crouch Pose (4),2,0.1,Female Crouch Pose (4),,0.8
+mixamo,Female Crouch Pose (5),2,0.1,Female Crouch Pose (5),,0.89
+mixamo,Female Crouch Pose,2,0.1,Female Crouch Pose,,0.9
+mixamo,Female Dance Pose (1),2,0.1,Female Dance Pose (1),춤,1.47
+mixamo,Female Dance Pose (2),2,0.1,Female Dance Pose (2),춤,1.51
+mixamo,Female Dance Pose (3),2,0.1,Female Dance Pose (3),춤,1.32
+mixamo,Female Dance Pose (4),2,0.1,Female Dance Pose (4),춤,1.05
+mixamo,Female Dance Pose (5),2,0.1,Female Dance Pose (5),춤,1.17
+mixamo,Female Dance Pose,2,0.1,Female Dance Pose,춤,1.44
+mixamo,Female Dynamic Pose (1),2,0.1,Female Dynamic Pose (1),,1.11
+mixamo,Female Dynamic Pose (2),2,0.1,Female Dynamic Pose (2),,1.04
+mixamo,Female Dynamic Pose (3),2,0.1,Female Dynamic Pose (3),,1.09
+mixamo,Female Dynamic Pose (4),2,0.1,Female Dynamic Pose (4),,0.99
+mixamo,Female Dynamic Pose,2,0.1,Female Dynamic Pose,,0.87
+mixamo,Female Laying Pose (1),2,0.1,Female Laying Pose (1),,0.52
+mixamo,Female Laying Pose (2),2,0.1,Female Laying Pose (2),,0.57
+mixamo,Female Laying Pose (3),2,0.1,Female Laying Pose (3),,0.15
+mixamo,Female Laying Pose (4),2,0.1,Female Laying Pose (4),,0.11
+mixamo,Female Laying Pose (5),2,0.1,Female Laying Pose (5),,0.5
+mixamo,Female Laying Pose (6),2,0.1,Female Laying Pose (6),,0.49
+mixamo,Female Laying Pose (7),2,0.1,Female Laying Pose (7),,0.25
+mixamo,Female Laying Pose (8),2,0.1,Female Laying Pose (8),,0.63
+mixamo,Female Laying Pose,2,0.1,Female Laying Pose,,0.23
+mixamo,Female Locomotion Pose (1),2,0.1,Female Locomotion Pose (1),,1.0
+mixamo,Female Locomotion Pose (2),2,0.1,Female Locomotion Pose (2),,1.44
+mixamo,Female Locomotion Pose (3),2,0.1,Female Locomotion Pose (3),,1.47
+mixamo,Female Locomotion Pose,2,0.1,Female Locomotion Pose,,1.44
+mixamo,Female Peek And Aim,79,2.6,Female Peek And Aim,,1.26
+mixamo,Female Sitting Pose (1),2,0.1,Female Sitting Pose (1),구르기·바닥,0.97
+mixamo,Female Sitting Pose (2),2,0.1,Female Sitting Pose (2),구르기·바닥,0.9
+mixamo,Female Sitting Pose (3),2,0.1,Female Sitting Pose (3),구르기·바닥,0.93
+mixamo,Female Sitting Pose (4),2,0.1,Female Sitting Pose (4),구르기·바닥,0.94
+mixamo,Female Sitting Pose (5),2,0.1,Female Sitting Pose (5),구르기·바닥,0.94
+mixamo,Female Sitting Pose (6),2,0.1,Female Sitting Pose (6),구르기·바닥,1.0
+mixamo,Female Sitting Pose (7),2,0.1,Female Sitting Pose (7),구르기·바닥,1.0
+mixamo,Female Sitting Pose (8),2,0.1,Female Sitting Pose (8),구르기·바닥,0.95
+mixamo,Female Sitting Pose,2,0.1,Female Sitting Pose,구르기·바닥,1.01
+mixamo,Female Standing Pose (1),2,0.1,Female Standing Pose (1),,1.5
+mixamo,Female Standing Pose (10),2,0.1,Female Standing Pose (10),,1.48
+mixamo,Female Standing Pose (11),2,0.1,Female Standing Pose (11),,1.49
+mixamo,Female Standing Pose (12),2,0.1,Female Standing Pose (12),,1.47
+mixamo,Female Standing Pose (13),2,0.1,Female Standing Pose (13),,1.47
+mixamo,Female Standing Pose (14),2,0.1,Female Standing Pose (14),,1.48
+mixamo,Female Standing Pose (15),2,0.1,Female Standing Pose (15),,1.46
+mixamo,Female Standing Pose (16),2,0.1,Female Standing Pose (16),,1.48
+mixamo,Female Standing Pose (17),2,0.1,Female Standing Pose (17),,1.47
+mixamo,Female Standing Pose (2),2,0.1,Female Standing Pose (2),,1.37
+mixamo,Female Standing Pose (3),2,0.1,Female Standing Pose (3),,1.46
+mixamo,Female Standing Pose (4),2,0.1,Female Standing Pose (4),,1.47
+mixamo,Female Standing Pose (5),2,0.1,Female Standing Pose (5),,1.48
+mixamo,Female Standing Pose (6),2,0.1,Female Standing Pose (6),,1.46
+mixamo,Female Standing Pose (7),2,0.1,Female Standing Pose (7),,1.47
+mixamo,Female Standing Pose (8),2,0.1,Female Standing Pose (8),,1.48
+mixamo,Female Standing Pose (9),2,0.1,Female Standing Pose (9),,1.28
+mixamo,Female Standing Pose,2,0.1,Female Standing Pose,,1.48
+mixamo,Female Start Walking,57,1.9,Female Start Walking,걷기,1.47
+mixamo,Female Stop And Start Walking,113,3.8,Female Stop And Start Walking,걷기,1.47
+mixamo,Female Stop Walking,47,1.6,Female Stop Walking,걷기,1.46
+mixamo,Female Tough Walk (1),39,1.3,Female Tough Walk (1),걷기,1.44
+mixamo,Female Tough Walk,80,2.7,Female Tough Walk,걷기,1.44
+mixamo,Female Walk,36,1.2,Female Walk,걷기,1.45
+mixamo,Femme Peek Around Corner,74,2.5,Femme Peek Around Corner,,1.45
+mixamo,Fight Idle (1),225,7.5,Fight Idle (1),공격,1.22
+mixamo,Fight Idle To Action Idle,26,0.9,Fight Idle To Action Idle,공격,1.38
+mixamo,Fight Idle To Standing Idle,33,1.1,Fight Idle To Standing Idle,공격,1.46
+mixamo,Fight Idle,72,2.4,Fight Idle,공격,1.29
+mixamo,Fighting Idle,100,3.3,Fighting Idle,공격,1.44
+mixamo,Fire Rifle,32,1.1,Fire Rifle,,0.82
+mixamo,Fireball,102,3.4,Fireball,,1.36
+mixamo,Firing Rifle (1),99,3.3,Firing Rifle (1),,1.41
+mixamo,Firing Rifle (2),42,1.4,Firing Rifle (2),,1.42
+mixamo,Firing Rifle (3),41,1.4,Firing Rifle (3),,1.43
+mixamo,Firing Rifle (4),36,1.2,Firing Rifle (4),,1.44
+mixamo,Firing Rifle (5),18,0.6,Firing Rifle (5),,1.28
+mixamo,Firing Rifle (6),31,1.0,Firing Rifle (6),,1.37
+mixamo,Firing Rifle (7),36,1.2,Firing Rifle (7),,1.03
+mixamo,Firing Rifle,9,0.3,Firing Rifle,,1.44
+mixamo,Fishing Idle,107,3.6,Fishing Idle,,1.49
+mixamo,Fist Fight A,141,4.7,Fist Fight A,공격,1.33
+mixamo,Fist Fight B,141,4.7,Fist Fight B,공격,1.32
+mixamo,Fist Pump (1),62,2.1,Fist Pump (1),,1.08
+mixamo,Fist Pump (2),115,3.8,Fist Pump (2),,1.49
+mixamo,Fist Pump,106,3.5,Fist Pump,,1.38
+mixamo,Flair (1),75,2.5,Flair (1),,1.18
+mixamo,Flair (2),31,1.0,Flair (2),,0.39
+mixamo,Flair,51,1.7,Flair,,1.04
+mixamo,Flip Kick (1),85,2.8,Flip Kick (1),공격;점프·공중,1.03
+mixamo,Flip Kick,62,2.1,Flip Kick,공격;점프·공중,0.99
+mixamo,Floating,109,3.6,Floating,,1.43
+mixamo,Flying Back Death,92,3.1,Flying Back Death,,0.08
+mixamo,Flying Bicycle Kick,21,0.7,Flying Bicycle Kick,공격,0.6
+mixamo,Flying Kick,46,1.5,Flying Kick,공격,1.29
+mixamo,Flying Knee Punch Combo,81,2.7,Flying Knee Punch Combo,공격,1.22
+mixamo,Flying Shoulder Throw,112,3.7,Flying Shoulder Throw,던지기·잡기,0.7
+mixamo,Flying,80,2.7,Flying,,-0.02
+mixamo,Football Catch (1),126,4.2,Football Catch (1),던지기·잡기,0.84
+mixamo,Football Catch,126,4.2,Football Catch,던지기·잡기,0.76
+mixamo,Football Hike,99,3.3,Football Hike,,0.76
+mixamo,Football Stance,77,2.6,Football Stance,,1.15
+mixamo,Forward Jump,74,2.5,Forward Jump,점프·공중,1.43
+mixamo,Free Hang Hop Left,64,2.1,Free Hang Hop Left,점프·공중,1.32
+mixamo,Free Hang Hop Right,64,2.1,Free Hang Hop Right,점프·공중,1.28
+mixamo,Free Hang To Braced,35,1.2,Free Hang To Braced,,1.13
+mixamo,Frisbee Throw,100,3.3,Frisbee Throw,던지기·잡기,1.37
+mixamo,Front Flip,51,1.7,Front Flip,점프·공중,1.14
+mixamo,Front Raises,188,6.3,Front Raises,,1.5
+mixamo,Front Twist Flip,67,2.2,Front Twist Flip,점프·공중,0.97
+mixamo,Gathering Objects,180,6.0,Gathering Objects,,1.04
+mixamo,Getting Bit,123,4.1,Getting Bit,,1.28
+mixamo,Getting Hit Backwards,81,2.7,Getting Hit Backwards,공격,0.22
+mixamo,Getting Hit,139,4.6,Getting Hit,공격,1.48
+mixamo,Getting Smashed,69,2.3,Getting Smashed,,0.27
+mixamo,Getting Thrown,131,4.4,Getting Thrown,던지기·잡기,0.87
+mixamo,Getting Up (1),259,8.6,Getting Up (1),,0.73
+mixamo,Getting Up (2),229,7.6,Getting Up (2),,0.61
+mixamo,Getting Up (3),82,2.7,Getting Up (3),,1.17
+mixamo,Getting Up,251,8.4,Getting Up,,0.54
+mixamo,Ginga Backward,35,1.2,Ginga Backward,,1.03
+mixamo,Ginga Forward,38,1.3,Ginga Forward,,1.12
+mixamo,Ginga Sideways 1,51,1.7,Ginga Sideways 1,,1.1
+mixamo,Ginga Sideways 2,69,2.3,Ginga Sideways 2,,1.08
+mixamo,Ginga Sideways To Au,114,3.8,Ginga Sideways To Au,,1.07
+mixamo,Ginga Variation 1,107,3.6,Ginga Variation 1,,1.0
+mixamo,Ginga Variation 2,116,3.9,Ginga Variation 2,,1.03
+mixamo,Ginga Variation 3,88,2.9,Ginga Variation 3,,1.16
+mixamo,Goalie Throw,116,3.9,Goalie Throw,피격·넘어짐;던지기·잡기,1.42
+mixamo,Goalkeeper Body Block (1),80,2.7,Goalkeeper Body Block (1),방어·회피,0.72
+mixamo,Goalkeeper Body Block (2),75,2.5,Goalkeeper Body Block (2),방어·회피,0.69
+mixamo,Goalkeeper Body Block,104,3.5,Goalkeeper Body Block,방어·회피,0.83
+mixamo,Goalkeeper Catch (1),39,1.3,Goalkeeper Catch (1),던지기·잡기,1.37
+mixamo,Goalkeeper Catch (2),83,2.8,Goalkeeper Catch (2),던지기·잡기,1.32
+mixamo,Goalkeeper Catch (3),82,2.7,Goalkeeper Catch (3),던지기·잡기,1.35
+mixamo,Goalkeeper Catch,64,2.1,Goalkeeper Catch,던지기·잡기,1.17
+mixamo,Goalkeeper Directing,216,7.2,Goalkeeper Directing,,1.43
+mixamo,Goalkeeper Diving Save,98,3.3,Goalkeeper Diving Save,,0.66
+mixamo,Goalkeeper Drop Kick,118,3.9,Goalkeeper Drop Kick,공격,1.35
+mixamo,Goalkeeper Idle (1),101,3.4,Goalkeeper Idle (1),,1.35
+mixamo,Goalkeeper Idle,140,4.7,Goalkeeper Idle,,1.29
+mixamo,Goalkeeper Miss,89,3.0,Goalkeeper Miss,,1.18
+mixamo,Goalkeeper Overhand Throw,86,2.9,Goalkeeper Overhand Throw,던지기·잡기,1.32
+mixamo,Goalkeeper Pass,95,3.2,Goalkeeper Pass,,1.26
+mixamo,Goalkeeper Placing Ball (1),240,8.0,Goalkeeper Placing Ball (1),,1.32
+mixamo,Goalkeeper Placing Ball,107,3.6,Goalkeeper Placing Ball,,1.33
+mixamo,Goalkeeper Scoop,79,2.6,Goalkeeper Scoop,,1.27
+mixamo,Goalkeeper Sidestep (1),17,0.6,Goalkeeper Sidestep (1),걷기,1.17
+mixamo,Goalkeeper Sidestep,16,0.5,Goalkeeper Sidestep,걷기,1.15
+mixamo,Golf Bad Shot (1),401,13.4,Golf Bad Shot (1),,1.46
+mixamo,Golf Bad Shot (2),247,8.2,Golf Bad Shot (2),,1.48
+mixamo,Golf Bad Shot,520,17.3,Golf Bad Shot,,1.47
+mixamo,Golf Post Shot (1),322,10.7,Golf Post Shot (1),,1.47
+mixamo,Golf Post Shot,243,8.1,Golf Post Shot,,1.46
+mixamo,Golf Putt Failure (1),261,8.7,Golf Putt Failure (1),,1.44
+mixamo,Golf Putt Failure,305,10.2,Golf Putt Failure,,1.48
+mixamo,Goofy Running,20,0.7,Goofy Running,달리기,1.44
+mixamo,Grab And Put Back Rifle,226,7.5,Grab And Put Back Rifle,던지기·잡기,1.49
+mixamo,Grab And Slam,129,4.3,Grab And Slam,던지기·잡기,1.31
+mixamo,Grab Rifle And Put Back,186,6.2,Grab Rifle And Put Back,던지기·잡기,1.49
+mixamo,Grab Rifle From Back,88,2.9,Grab Rifle From Back,던지기·잡기,1.48
+mixamo,Grab Rifle From Behind Shoulder,107,3.6,Grab Rifle From Behind Shoulder,던지기·잡기,1.49
+mixamo,Grab Rifle From The Side And Put Back,152,5.1,Grab Rifle From The Side And Put Back,던지기·잡기,1.49
+mixamo,Grab Rifle From The Side,75,2.5,Grab Rifle From The Side,던지기·잡기,1.48
+mixamo,Great Sword 180 Turn (1),18,0.6,Great Sword 180 Turn (1),공격,1.24
+mixamo,Great Sword 180 Turn,25,0.8,Great Sword 180 Turn,공격,1.32
+mixamo,Great Sword Attack,37,1.2,Great Sword Attack,공격,1.4
+mixamo,Great Sword Blocking (1),16,0.5,Great Sword Blocking (1),공격;방어·회피,1.33
+mixamo,Great Sword Blocking (2),16,0.5,Great Sword Blocking (2),공격;방어·회피,1.25
+mixamo,Great Sword Blocking,30,1.0,Great Sword Blocking,공격;방어·회피,1.13
+mixamo,Great Sword Casting,145,4.8,Great Sword Casting,공격,1.35
+mixamo,Great Sword Crouching (1),56,1.9,Great Sword Crouching (1),공격,0.9
+mixamo,Great Sword Crouching (2),15,0.5,Great Sword Crouching (2),공격,0.93
+mixamo,Great Sword Crouching (3),12,0.4,Great Sword Crouching (3),공격,0.93
+mixamo,Great Sword Crouching (4),43,1.4,Great Sword Crouching (4),공격,0.94
+mixamo,Great Sword Crouching (5),22,0.7,Great Sword Crouching (5),공격,1.24
+mixamo,Great Sword Crouching,21,0.7,Great Sword Crouching,공격,1.13
+mixamo,Great Sword High Spin Attack,57,1.9,Great Sword High Spin Attack,공격,1.38
+mixamo,Great Sword Idle (1),228,7.6,Great Sword Idle (1),공격,1.48
+mixamo,Great Sword Idle (2),61,2.0,Great Sword Idle (2),공격,1.41
+mixamo,Great Sword Idle (3),114,3.8,Great Sword Idle (3),공격,1.48
+mixamo,Great Sword Idle (4),111,3.7,Great Sword Idle (4),공격,1.45
+mixamo,Great Sword Idle,112,3.7,Great Sword Idle,공격,1.41
+mixamo,Great Sword Impact (1),30,1.0,Great Sword Impact (1),공격,0.89
+mixamo,Great Sword Impact (2),21,0.7,Great Sword Impact (2),공격,0.94
+mixamo,Great Sword Impact (3),37,1.2,Great Sword Impact (3),공격,1.23
+mixamo,Great Sword Impact (4),27,0.9,Great Sword Impact (4),공격,1.15
+mixamo,Great Sword Impact,39,1.3,Great Sword Impact,공격,1.41
+mixamo,Great Sword Jump (1),28,0.9,Great Sword Jump (1),공격;점프·공중,1.39
+mixamo,Great Sword Jump Attack,66,2.2,Great Sword Jump Attack,공격;점프·공중,1.37
+mixamo,Great Sword Jump,20,0.7,Great Sword Jump,공격;점프·공중,1.18
+mixamo,Great Sword Kick (1),46,1.5,Great Sword Kick (1),공격,1.4
+mixamo,Great Sword Kick,53,1.8,Great Sword Kick,공격,1.3
+mixamo,Great Sword Power Up,106,3.5,Great Sword Power Up,공격,1.46
+mixamo,Great Sword Run (1),19,0.6,Great Sword Run (1),공격;달리기,1.31
+mixamo,Great Sword Run,23,0.8,Great Sword Run,공격;달리기,1.34
+mixamo,Great Sword Slash (1),56,1.9,Great Sword Slash (1),공격,1.41
+mixamo,Great Sword Slash (2),55,1.8,Great Sword Slash (2),공격,1.4
+mixamo,Great Sword Slash (3),39,1.3,Great Sword Slash (3),공격,1.38
+mixamo,Great Sword Slash (4),44,1.5,Great Sword Slash (4),공격,0.93
+mixamo,Great Sword Slash,107,3.6,Great Sword Slash,공격,1.36
+mixamo,Great Sword Slide Attack,65,2.2,Great Sword Slide Attack,공격,1.1
+mixamo,Great Sword Strafe (1),34,1.1,Great Sword Strafe (1),공격,1.33
+mixamo,Great Sword Strafe (2),20,0.7,Great Sword Strafe (2),공격,1.3
+mixamo,Great Sword Strafe (3),18,0.6,Great Sword Strafe (3),공격,1.27
+mixamo,Great Sword Strafe,36,1.2,Great Sword Strafe,공격,1.34
+mixamo,Great Sword Turn (1),26,0.9,Great Sword Turn (1),공격,1.41
+mixamo,Great Sword Turn,23,0.8,Great Sword Turn,공격,1.42
+mixamo,Great Sword Walk (1),42,1.4,Great Sword Walk (1),공격;걷기,1.36
+mixamo,Great Sword Walk,40,1.3,Great Sword Walk,공격;걷기,1.36
+mixamo,Grenade Throw (1),246,8.2,Grenade Throw (1),던지기·잡기,0.92
+mixamo,Grenade Throw (2),84,2.8,Grenade Throw (2),던지기·잡기,1.42
+mixamo,Grenade Throw,174,5.8,Grenade Throw,던지기·잡기,0.82
+mixamo,Guitar Playing (1),144,4.8,Guitar Playing (1),,1.37
+mixamo,Guitar Playing,188,6.3,Guitar Playing,,1.35
+mixamo,Gunplay (1),78,2.6,Gunplay (1),,1.43
+mixamo,Gunplay (2),121,4.0,Gunplay (2),,1.41
+mixamo,Gunplay (3),96,3.2,Gunplay (3),,0.75
+mixamo,Gunplay (4),7,0.2,Gunplay (4),,1.38
+mixamo,Gunplay (5),18,0.6,Gunplay (5),,1.37
+mixamo,Gunplay (6),77,2.6,Gunplay (6),,1.39
+mixamo,Gunplay (7),65,2.2,Gunplay (7),,1.02
+mixamo,Gunplay,7,0.2,Gunplay,,1.36
+mixamo,Hand Raising,123,4.1,Hand Raising,,1.48
+mixamo,Hands Forward Gesture,94,3.1,Hands Forward Gesture,,1.5
+mixamo,Hanging Idle (1),142,4.7,Hanging Idle (1),,1.49
+mixamo,Hanging Idle (2),71,2.4,Hanging Idle (2),,1.44
+mixamo,Hanging Idle,71,2.4,Hanging Idle,,0.91
+mixamo,Hanging,79,2.6,Hanging,,1.44
+mixamo,Happy Hand Gesture,89,3.0,Happy Hand Gesture,감정 표현,1.5
+mixamo,Happy Idle (1),61,2.0,Happy Idle (1),감정 표현,1.49
+mixamo,Happy Idle,89,3.0,Happy Idle,감정 표현,1.49
+mixamo,Happy Right Turn,23,0.8,Happy Right Turn,감정 표현,1.47
+mixamo,Happy Walk Backward,32,1.1,Happy Walk Backward,걷기;감정 표현,1.45
+mixamo,Happy Walk Forward Arc Left,33,1.1,Happy Walk Forward Arc Left,걷기;감정 표현,1.43
+mixamo,Happy Walk,34,1.1,Happy Walk,걷기;감정 표현,1.43
+mixamo,Hard Head Nod,50,1.7,Hard Head Nod,,1.5
+mixamo,Hard Landing (1),61,2.0,Hard Landing (1),,0.83
+mixamo,Hard Landing,76,2.5,Hard Landing,,0.9
+mixamo,Harvesting,73,2.4,Harvesting,,1.42
+mixamo,"Having A Meeting, Female",1401,46.7,"Having A Meeting, Female",,1.03
+mixamo,"Having A Meeting, Male",1401,46.7,"Having A Meeting, Male",,1.0
+mixamo,Head Gesture,85,2.8,Head Gesture,,1.5
+mixamo,Head Hit (1),36,1.2,Head Hit (1),공격,1.33
+mixamo,Head Hit (2),33,1.1,Head Hit (2),공격,1.34
+mixamo,Head Hit (3),33,1.1,Head Hit (3),공격,1.36
+mixamo,Head Hit (4),38,1.3,Head Hit (4),공격,1.35
+mixamo,Head Hit (5),51,1.7,Head Hit (5),공격,1.21
+mixamo,Head Hit (6),47,1.6,Head Hit (6),공격,1.29
+mixamo,Head Hit (7),38,1.3,Head Hit (7),공격,1.31
+mixamo,Head Hit (8),29,1.0,Head Hit (8),공격,1.33
+mixamo,Head Hit,44,1.5,Head Hit,공격,1.28
+mixamo,Head Nod Yes,79,2.6,Head Nod Yes,,1.5
+mixamo,Head Spinning,26,0.9,Head Spinning,,-0.95
+mixamo,Headbutt,64,2.1,Headbutt,,1.35
+mixamo,Header Soccerball (1),127,4.2,Header Soccerball (1),,1.41
+mixamo,Header Soccerball,58,1.9,Header Soccerball,,1.46
+mixamo,Header,44,1.5,Header,,1.44
+mixamo,Headspin End,62,2.1,Headspin End,,-0.56
+mixamo,Headspin Start,86,2.9,Headspin Start,,0.69
+mixamo,Heavy Weapon Swing,157,5.2,Heavy Weapon Swing,,1.37
+mixamo,Hell Slammer A,228,7.6,Hell Slammer A,,1.35
+mixamo,Hell Slammer B,228,7.6,Hell Slammer B,,1.26
+mixamo,Hiding Grab,69,2.3,Hiding Grab,던지기·잡기,0.94
+mixamo,Hiding,47,1.6,Hiding,,0.79
+mixamo,Hip Hop Dancing (1),102,3.4,Hip Hop Dancing (1),점프·공중,1.37
+mixamo,Hip Hop Dancing (2),392,13.1,Hip Hop Dancing (2),점프·공중,1.45
+mixamo,Hip Hop Dancing (3),143,4.8,Hip Hop Dancing (3),점프·공중,1.47
+mixamo,Hip Hop Dancing (4),184,6.1,Hip Hop Dancing (4),점프·공중,1.44
+mixamo,Hip Hop Dancing (5),135,4.5,Hip Hop Dancing (5),점프·공중,1.41
+mixamo,Hip Hop Dancing (6),410,13.7,Hip Hop Dancing (6),점프·공중,1.32
+mixamo,Hip Hop Dancing (7),471,15.7,Hip Hop Dancing (7),점프·공중,1.35
+mixamo,Hip Hop Dancing,191,6.4,Hip Hop Dancing,점프·공중,1.47
+mixamo,Hit By Car,146,4.9,Hit By Car,공격,1.43
+mixamo,Hit On Back Of Head,111,3.7,Hit On Back Of Head,공격,1.43
+mixamo,Hit On Legs,123,4.1,Hit On Legs,공격,0.41
+mixamo,Hit On Side Of Body (1),75,2.5,Hit On Side Of Body (1),공격,1.15
+mixamo,Hit On Side Of Body,84,2.8,Hit On Side Of Body,공격,1.32
+mixamo,Hit On Side Of Head (1),100,3.3,Hit On Side Of Head (1),공격,1.27
+mixamo,Hit On Side Of Head,99,3.3,Hit On Side Of Head,공격,1.23
+mixamo,Hit On The Back,76,2.5,Hit On The Back,공격,1.34
+mixamo,Hit Reaction (1),70,2.3,Hit Reaction (1),공격,1.37
+mixamo,Hit Reaction (2),19,0.6,Hit Reaction (2),공격,1.3
+mixamo,Hit Reaction (3),56,1.9,Hit Reaction (3),공격,0.8
+mixamo,Hit Reaction (4),79,2.6,Hit Reaction (4),공격,1.25
+mixamo,Hit Reaction (5),14,0.5,Hit Reaction (5),공격,1.44
+mixamo,Hit Reaction (6),74,2.5,Hit Reaction (6),공격,1.38
+mixamo,Hit Reaction (7),94,3.1,Hit Reaction (7),공격,1.37
+mixamo,Hit Reaction (8),83,2.8,Hit Reaction (8),공격,1.4
+mixamo,Hit Reaction,49,1.6,Hit Reaction,공격,1.27
+mixamo,Hit To Body (1),36,1.2,Hit To Body (1),공격,1.28
+mixamo,Hit To Body (2),41,1.4,Hit To Body (2),공격,1.29
+mixamo,Hit To Body (3),46,1.5,Hit To Body (3),공격,1.31
+mixamo,Hit To Body (4),37,1.2,Hit To Body (4),공격,1.28
+mixamo,Hit To Body,41,1.4,Hit To Body,공격,1.3
+mixamo,Hit To Head,77,2.6,Hit To Head,공격,0.54
+mixamo,Hit To Side Of Body,85,2.8,Hit To Side Of Body,공격,0.54
+mixamo,Hit To The Legs,96,3.2,Hit To The Legs,공격,0.53
+mixamo,Hokey Pokey,351,11.7,Hokey Pokey,,1.41
+mixamo,Hold Off Assailant,144,4.8,Hold Off Assailant,감정 표현,0.96
+mixamo,Holding Idle,181,6.0,Holding Idle,감정 표현,1.49
+mixamo,Holding Turn Right,40,1.3,Holding Turn Right,감정 표현,1.47
+mixamo,Holding Walk,42,1.4,Holding Walk,걷기;감정 표현,1.44
+mixamo,Honking Horn,101,3.4,Honking Horn,,0.82
+mixamo,Hook (1),89,3.0,Hook (1),공격,1.27
+mixamo,Hook (2),58,1.9,Hook (2),공격,1.33
+mixamo,Hook (3),69,2.3,Hook (3),공격,1.33
+mixamo,Hook (4),61,2.0,Hook (4),공격,1.34
+mixamo,Hook (5),73,2.4,Hook (5),공격,1.27
+mixamo,Hook Punch,66,2.2,Hook Punch,공격,1.39
+mixamo,Hook,40,1.3,Hook,공격,1.33
+mixamo,Hostage Situation Idle - Hostage,151,5.0,Hostage Situation Idle - Hostage,구르기·바닥,1.42
+mixamo,Hostage Situation Idle - Villain,151,5.0,Hostage Situation Idle - Villain,구르기·바닥,1.48
+mixamo,Hurricane Kick,56,1.9,Hurricane Kick,공격,1.02
+mixamo,Idle (1),64,2.1,Idle (1),,1.43
+mixamo,Idle (10),78,2.6,Idle (10),,1.02
+mixamo,Idle (11),99,3.3,Idle (11),,1.39
+mixamo,Idle (12),121,4.0,Idle (12),,1.42
+mixamo,Idle (13),121,4.0,Idle (13),,1.42
+mixamo,Idle (14),69,2.3,Idle (14),,1.37
+mixamo,Idle (15),76,2.5,Idle (15),,1.5
+mixamo,Idle (16),67,2.2,Idle (16),,1.38
+mixamo,Idle (2),76,2.5,Idle (2),,1.5
+mixamo,Idle (3),100,3.3,Idle (3),,1.5
+mixamo,Idle (4),251,8.4,Idle (4),,1.5
+mixamo,Idle (5),251,8.4,Idle (5),,1.48
+mixamo,Idle (6),60,2.0,Idle (6),,1.42
+mixamo,Idle (7),500,16.7,Idle (7),,1.47
+mixamo,Idle (8),301,10.0,Idle (8),,1.42
+mixamo,Idle (9),301,10.0,Idle (9),,1.5
+mixamo,Idle Aiming,64,2.1,Idle Aiming,,1.42
+mixamo,Idle Crouching Aiming,64,2.1,Idle Crouching Aiming,,0.87
+mixamo,Idle Crouching,64,2.1,Idle Crouching,,0.88
+mixamo,Idle To Braced Hang,39,1.3,Idle To Braced Hang,,1.25
+mixamo,Idle To Push Up,79,2.6,Idle To Push Up,피격·넘어짐,0.48
+mixamo,Idle To Running,28,0.9,Idle To Running,달리기,1.27
+mixamo,Idle To Situp,117,3.9,Idle To Situp,구르기·바닥,0.68
+mixamo,Idle To Sprint,25,0.8,Idle To Sprint,달리기,1.17
+mixamo,Idle Transition (1),57,1.9,Idle Transition (1),구르기·바닥,1.49
+mixamo,Idle Transition,87,2.9,Idle Transition,구르기·바닥,1.49
+mixamo,Idle,110,3.7,Idle,,1.26
+mixamo,Illegal Elbow Punch (1),62,2.1,Illegal Elbow Punch (1),공격,1.33
+mixamo,Illegal Elbow Punch (2),69,2.3,Illegal Elbow Punch (2),공격,1.33
+mixamo,Illegal Elbow Punch,62,2.1,Illegal Elbow Punch,공격,1.33
+mixamo,Illegal Headbutt,68,2.3,Illegal Headbutt,,1.3
+mixamo,Illegal Knee (1),69,2.3,Illegal Knee (1),,1.35
+mixamo,Illegal Knee,69,2.3,Illegal Knee,,1.36
+mixamo,Injured Backwards Turn Left,23,0.8,Injured Backwards Turn Left,,1.36
+mixamo,Injured Backwards Turn Right,22,0.7,Injured Backwards Turn Right,,1.27
+mixamo,Injured Hurting Idle,182,6.1,Injured Hurting Idle,,1.3
+mixamo,Injured Idle,281,9.4,Injured Idle,,1.4
+mixamo,Injured Jog,111,3.7,Injured Jog,달리기,1.35
+mixamo,Injured Run Backwards Left Turn,16,0.5,Injured Run Backwards Left Turn,달리기,1.34
+mixamo,Injured Run Backwards Right Turn,17,0.6,Injured Run Backwards Right Turn,달리기,1.36
+mixamo,Injured Run Backwards,19,0.6,Injured Run Backwards,달리기,1.34
+mixamo,Injured Run Jump,23,0.8,Injured Run Jump,점프·공중;달리기,1.22
+mixamo,Injured Run Left Turn,19,0.6,Injured Run Left Turn,달리기,1.3
+mixamo,Injured Run Right Turn,20,0.7,Injured Run Right Turn,달리기,1.23
+mixamo,Injured Run,20,0.7,Injured Run,달리기,1.25
+mixamo,Injured Standing Jump,58,1.9,Injured Standing Jump,점프·공중,1.35
+mixamo,Injured Stumble Idle,153,5.1,Injured Stumble Idle,피격·넘어짐,1.33
+mixamo,Injured Turn Right,22,0.7,Injured Turn Right,,1.44
+mixamo,Injured Walk (1),36,1.2,Injured Walk (1),걷기,1.34
+mixamo,Injured Walk Backwards,51,1.7,Injured Walk Backwards,걷기,1.31
+mixamo,Injured Walk Left Turn,61,2.0,Injured Walk Left Turn,걷기,1.36
+mixamo,Injured Walk Right Turn,56,1.9,Injured Walk Right Turn,걷기,1.26
+mixamo,Injured Walk,50,1.7,Injured Walk,걷기,1.32
+mixamo,Injured Walking,31,1.0,Injured Walking,걷기,1.39
+mixamo,Injured Wave Idle,153,5.1,Injured Wave Idle,,1.38
+mixamo,Inside Crescent Kick,81,2.7,Inside Crescent Kick,공격,1.25
+mixamo,Insult,81,2.7,Insult,,1.48
+mixamo,Inverted Double Kick To Kip Up,97,3.2,Inverted Double Kick To Kip Up,공격,0.22
+mixamo,Inward Block,45,1.5,Inward Block,방어·회피,1.41
+mixamo,Iv Pole Walking,48,1.6,Iv Pole Walking,걷기,1.49
+mixamo,Jab Cross (1),68,2.3,Jab Cross (1),공격,1.29
+mixamo,Jab Cross (2),60,2.0,Jab Cross (2),공격,1.33
+mixamo,Jab Cross,65,2.2,Jab Cross,공격,1.31
+mixamo,Jab To Elbow Punch,99,3.3,Jab To Elbow Punch,공격,1.41
+mixamo,Jazz Dancing (1),62,2.1,Jazz Dancing (1),,1.44
+mixamo,Jazz Dancing (2),83,2.8,Jazz Dancing (2),,1.43
+mixamo,Jazz Dancing (3),71,2.4,Jazz Dancing (3),,1.42
+mixamo,Jazz Dancing (4),69,2.3,Jazz Dancing (4),,1.46
+mixamo,Jazz Dancing,164,5.5,Jazz Dancing,,1.48
+mixamo,Jog Backward Diagonal (1),23,0.8,Jog Backward Diagonal (1),달리기,1.4
+mixamo,Jog Backward Diagonal,26,0.9,Jog Backward Diagonal,달리기,1.42
+mixamo,Jog Backward,25,0.8,Jog Backward,달리기,1.44
+mixamo,Jog Forward Diagonal,26,0.9,Jog Forward Diagonal,달리기,1.42
+mixamo,Jog Forward,26,0.9,Jog Forward,달리기,1.42
+mixamo,Jog In Circle,179,6.0,Jog In Circle,달리기,1.41
+mixamo,Jog Strafe Right,23,0.8,Jog Strafe Right,달리기,1.44
+mixamo,Jogging Stumble,36,1.2,Jogging Stumble,피격·넘어짐;달리기,1.25
+mixamo,Jogging With Box,24,0.8,Jogging With Box,달리기,1.39
+mixamo,Jogging,78,2.6,Jogging,달리기,1.43
+mixamo,Joyful Jump,57,1.9,Joyful Jump,점프·공중,1.47
+mixamo,Jump (1),66,2.2,Jump (1),점프·공중,1.42
+mixamo,Jump (2),79,2.6,Jump (2),점프·공중,1.24
+mixamo,Jump (3),27,0.9,Jump (3),점프·공중,1.33
+mixamo,Jump (4),51,1.7,Jump (4),점프·공중,1.41
+mixamo,Jump (5),31,1.0,Jump (5),점프·공중,1.26
+mixamo,Jump (6),24,0.8,Jump (6),점프·공중,1.06
+mixamo,Jump (7),29,1.0,Jump (7),점프·공중,1.29
+mixamo,Jump Attack,115,3.8,Jump Attack,공격;점프·공중,1.1
+mixamo,Jump Away,80,2.7,Jump Away,점프·공중,0.16
+mixamo,Jump Backward (2),27,0.9,Jump Backward (2),점프·공중,1.41
+mixamo,Jump Backward,28,0.9,Jump Backward,점프·공중,1.43
+mixamo,Jump Down (2),106,3.5,Jump Down (2),점프·공중,1.49
+mixamo,Jump Down,21,0.7,Jump Down,점프·공중,1.21
+mixamo,Jump Forward,28,0.9,Jump Forward,점프·공중,1.28
+mixamo,Jump From Wall,39,1.3,Jump From Wall,점프·공중,0.91
+mixamo,Jump Loop,31,1.0,Jump Loop,점프·공중,0.94
+mixamo,Jump Over,69,2.3,Jump Over,점프·공중,0.82
+mixamo,Jump Push Up,36,1.2,Jump Push Up,피격·넘어짐;점프·공중,0.28
+mixamo,Jump To Freehang,75,2.5,Jump To Freehang,점프·공중,1.4
+mixamo,Jump To Hang,61,2.0,Jump To Hang,점프·공중,1.35
+mixamo,Jump Up,17,0.6,Jump Up,점프·공중,1.19
+mixamo,Jump,84,2.8,Jump,점프·공중,1.35
+mixamo,Jumping (1),98,3.3,Jumping (1),점프·공중,1.2
+mixamo,Jumping (10),42,1.4,Jumping (10),점프·공중,1.42
+mixamo,Jumping (11),58,1.9,Jumping (11),점프·공중,1.21
+mixamo,Jumping (12),80,2.7,Jumping (12),점프·공중,1.41
+mixamo,Jumping (2),87,2.9,Jumping (2),점프·공중,1.28
+mixamo,Jumping (3),38,1.3,Jumping (3),점프·공중,1.33
+mixamo,Jumping (4),36,1.2,Jumping (4),점프·공중,1.23
+mixamo,Jumping (5),72,2.4,Jumping (5),점프·공중,1.5
+mixamo,Jumping (6),37,1.2,Jumping (6),점프·공중,1.27
+mixamo,Jumping (7),73,2.4,Jumping (7),점프·공중,1.35
+mixamo,Jumping (8),64,2.1,Jumping (8),점프·공중,1.15
+mixamo,Jumping (9),67,2.2,Jumping (9),점프·공중,1.3
+mixamo,Jumping Down (1),86,2.9,Jumping Down (1),점프·공중,1.4
+mixamo,Jumping Down (10),98,3.3,Jumping Down (10),점프·공중,1.42
+mixamo,Jumping Down (11),70,2.3,Jumping Down (11),점프·공중,0.72
+mixamo,Jumping Down (12),12,0.4,Jumping Down (12),점프·공중,1.34
+mixamo,Jumping Down (2),80,2.7,Jumping Down (2),점프·공중,1.14
+mixamo,Jumping Down (3),93,3.1,Jumping Down (3),점프·공중,1.29
+mixamo,Jumping Down (4),76,2.5,Jumping Down (4),점프·공중,0.72
+mixamo,Jumping Down (5),81,2.7,Jumping Down (5),점프·공중,1.2
+mixamo,Jumping Down (6),89,3.0,Jumping Down (6),점프·공중,1.14
+mixamo,Jumping Down (7),116,3.9,Jumping Down (7),점프·공중,0.8
+mixamo,Jumping Down (8),105,3.5,Jumping Down (8),점프·공중,1.43
+mixamo,Jumping Down (9),181,6.0,Jumping Down (9),점프·공중,1.23
+mixamo,Jumping Down,89,3.0,Jumping Down,점프·공중,1.44
+mixamo,Jumping Jacks,33,1.1,Jumping Jacks,점프·공중,1.42
+mixamo,Jumping Out Of A Plane,63,2.1,Jumping Out Of A Plane,점프·공중,1.01
+mixamo,Jumping Over Into Combat,126,4.2,Jumping Over Into Combat,점프·공중,1.22
+mixamo,Jumping Rope,78,2.6,Jumping Rope,점프·공중,1.47
+mixamo,Jumping To Hanging,46,1.5,Jumping To Hanging,점프·공중,1.12
+mixamo,Jumping Up (1),8,0.3,Jumping Up (1),점프·공중,1.17
+mixamo,Jumping Up,26,0.9,Jumping Up,점프·공중,1.19
+mixamo,Jumping,70,2.3,Jumping,점프·공중,1.37
+mixamo,Kettlebell Swing (1),176,5.9,Kettlebell Swing (1),,1.24
+mixamo,Kettlebell Swing (2),60,2.0,Kettlebell Swing (2),,1.44
+mixamo,Kettlebell Swing,74,2.5,Kettlebell Swing,,1.11
+mixamo,Kick Soccerball (1),18,0.6,Kick Soccerball (1),공격,1.42
+mixamo,Kick Soccerball,16,0.5,Kick Soccerball,공격,1.4
+mixamo,Kick To The Groin (1),125,4.2,Kick To The Groin (1),공격,0.8
+mixamo,Kick To The Groin (2),99,3.3,Kick To The Groin (2),공격,1.03
+mixamo,Kick To The Groin (3),105,3.5,Kick To The Groin (3),공격,0.73
+mixamo,Kick To The Groin,88,2.9,Kick To The Groin,공격,1.25
+mixamo,Kick Up Soccerball,41,1.4,Kick Up Soccerball,공격,1.43
+mixamo,Kicking (1),66,2.2,Kicking (1),공격,1.43
+mixamo,Kicking (10),81,2.7,Kicking (10),공격,1.29
+mixamo,Kicking (2),79,2.6,Kicking (2),공격,1.37
+mixamo,Kicking (3),46,1.5,Kicking (3),공격,1.44
+mixamo,Kicking (4),65,2.2,Kicking (4),공격,1.43
+mixamo,Kicking (5),69,2.3,Kicking (5),공격,1.43
+mixamo,Kicking (6),112,3.7,Kicking (6),공격,1.18
+mixamo,Kicking (7),103,3.4,Kicking (7),공격,1.25
+mixamo,Kicking (8),49,1.6,Kicking (8),공격,1.41
+mixamo,Kicking (9),69,2.3,Kicking (9),공격,1.4
+mixamo,Kicking Out,49,1.6,Kicking Out,공격,0.41
+mixamo,Kicking,67,2.2,Kicking,공격,1.41
+mixamo,Kidney Hit,35,1.2,Kidney Hit,공격,1.35
+mixamo,Knee Jab,181,6.0,Knee Jab,공격,1.42
+mixamo,Knee Jabs To Uppercut,171,5.7,Knee Jabs To Uppercut,공격,1.35
+mixamo,Knee Kick Lead,71,2.4,Knee Kick Lead,공격,1.38
+mixamo,Kneeing Soccerball (1),20,0.7,Kneeing Soccerball (1),,1.47
+mixamo,Kneeing Soccerball,28,0.9,Kneeing Soccerball,,1.44
+mixamo,Kneel,325,10.8,Kneel,,1.34
+mixamo,Kneeling Idle,129,4.3,Kneeling Idle,,0.93
+mixamo,Kneeling Inspecting,149,5.0,Kneeling Inspecting,,0.77
+mixamo,Kneeling,141,4.7,Kneeling,,0.83
+mixamo,Knife Idle,135,4.5,Knife Idle,,1.34
+mixamo,Knock Off Assailant,84,2.8,Knock Off Assailant,피격·넘어짐,0.97
+mixamo,Knocked Down,85,2.8,Knocked Down,피격·넘어짐,0.22
+mixamo,Knocked Out (1),169,5.6,Knocked Out (1),피격·넘어짐,0.32
+mixamo,Knocked Out,149,5.0,Knocked Out,피격·넘어짐,0.06
+mixamo,Knocked Unconscious,138,4.6,Knocked Unconscious,피격·넘어짐,1.03
+mixamo,Landing,64,2.1,Landing,,1.47
+mixamo,Laying (1),96,3.2,Laying (1),,0.17
+mixamo,Laying (2),131,4.4,Laying (2),,0.2
+mixamo,Laying Breathless,26,0.9,Laying Breathless,,0.24
+mixamo,Laying Hand Gesture,60,2.0,Laying Hand Gesture,,0.04
+mixamo,Laying Idle (1),376,12.5,Laying Idle (1),,-0.01
+mixamo,Laying Idle,65,2.2,Laying Idle,,0.05
+mixamo,Laying Mild Cough,51,1.7,Laying Mild Cough,,0.17
+mixamo,Laying Moaning,65,2.2,Laying Moaning,,0.09
+mixamo,Laying Nodding,44,1.5,Laying Nodding,,0.04
+mixamo,Laying Seizure,151,5.0,Laying Seizure,,0.04
+mixamo,Laying Severe Cough,54,1.8,Laying Severe Cough,,0.23
+mixamo,Laying Shaking Head,48,1.6,Laying Shaking Head,,0.04
+mixamo,Laying Shrugging,51,1.7,Laying Shrugging,,0.04
+mixamo,Laying Sleeping,52,1.7,Laying Sleeping,,0.05
+mixamo,Laying Vomiting,50,1.7,Laying Vomiting,,0.18
+mixamo,Laying,105,3.5,Laying,,0.21
+mixamo,Lead Jab (1),60,2.0,Lead Jab (1),공격,1.34
+mixamo,Lead Jab (2),55,1.8,Lead Jab (2),공격,1.34
+mixamo,Lead Jab (3),56,1.9,Lead Jab (3),공격,1.34
+mixamo,Lead Jab (4),41,1.4,Lead Jab (4),공격,1.34
+mixamo,Lead Jab (5),33,1.1,Lead Jab (5),공격,1.28
+mixamo,Lead Jab,46,1.5,Lead Jab,공격,1.3
+mixamo,Leaning (1),101,3.4,Leaning (1),,1.34
+mixamo,Leaning On A Wall,59,2.0,Leaning On A Wall,,1.35
+mixamo,Leaning,101,3.4,Leaning,,1.4
+mixamo,Left Block (1),46,1.5,Left Block (1),방어·회피,1.31
+mixamo,Left Block,47,1.6,Left Block,방어·회피,1.31
+mixamo,Left Cover Sneak (1),35,1.2,Left Cover Sneak (1),,1.36
+mixamo,Left Cover Sneak W_ Rifle,35,1.2,Left Cover Sneak W_ Rifle,,1.36
+mixamo,Left Cover Sneak,35,1.2,Left Cover Sneak,,1.36
+mixamo,Left Pivot (1),39,1.3,Left Pivot (1),,1.29
+mixamo,Left Pivot,39,1.3,Left Pivot,,1.33
+mixamo,Left Shimmy,42,1.4,Left Shimmy,,1.44
+mixamo,Left Strafe (1),21,0.7,Left Strafe (1),,1.32
+mixamo,Left Strafe Jump,27,0.9,Left Strafe Jump,점프·공중,1.4
+mixamo,Left Strafe Walk,29,1.0,Left Strafe Walk,걷기,1.46
+mixamo,Left Strafe Walking,32,1.1,Left Strafe Walking,걷기,1.42
+mixamo,Left Strafe,21,0.7,Left Strafe,,1.41
+mixamo,Left Strafing Jump,103,3.4,Left Strafing Jump,점프·공중,1.36
+mixamo,Left Turn (1),32,1.1,Left Turn (1),,1.42
+mixamo,Left Turn (2),32,1.1,Left Turn (2),,1.42
+mixamo,Left Turn 45,41,1.4,Left Turn 45,,1.28
+mixamo,Left Turn W_ Briefcase,35,1.2,Left Turn W_ Briefcase,,1.46
+mixamo,Left Turn W_Briefcase,67,2.2,Left Turn W_Briefcase,,1.43
+mixamo,Left Turn,46,1.5,Left Turn,,1.41
+mixamo,Leg Sweep (1),74,2.5,Leg Sweep (1),,1.27
+mixamo,Leg Sweep (2),68,2.3,Leg Sweep (2),,1.18
+mixamo,Leg Sweep (3),71,2.4,Leg Sweep (3),,1.21
+mixamo,Leg Sweep (4),53,1.8,Leg Sweep (4),,1.21
+mixamo,Leg Sweep,87,2.9,Leg Sweep,,1.05
+mixamo,Lengthy Head Nod,53,1.8,Lengthy Head Nod,,1.5
+mixamo,Lifting Object,346,11.5,Lifting Object,던지기·잡기,1.04
+mixamo,Lifting,217,7.2,Lifting,던지기·잡기,1.46
+mixamo,Light Hit To Head (1),25,0.8,Light Hit To Head (1),공격,1.36
+mixamo,Light Hit To Head (2),24,0.8,Light Hit To Head (2),공격,1.31
+mixamo,Light Hit To Head,26,0.9,Light Hit To Head,공격,1.35
+mixamo,Listening To Music,135,4.5,Listening To Music,,1.48
+mixamo,Livershot Knockdown,85,2.8,Livershot Knockdown,피격·넘어짐,0.99
+mixamo,Locking Hip Hop Dance,511,17.0,Locking Hip Hop Dance,점프·공중;춤,1.36
+mixamo,Long Left Side Step,25,0.8,Long Left Side Step,걷기,1.36
+mixamo,Long Right Side Step,26,0.9,Long Right Side Step,걷기,1.35
+mixamo,Long Step Forward,31,1.0,Long Step Forward,걷기,1.29
+mixamo,Look Around (1),401,13.4,Look Around (1),,1.49
+mixamo,Look Around (2),135,4.5,Look Around (2),,1.42
+mixamo,Look Around,191,6.4,Look Around,,1.49
+mixamo,Look Away Gesture,71,2.4,Look Away Gesture,,1.5
+mixamo,Look Behind Run,24,0.8,Look Behind Run,달리기,1.35
+mixamo,Look Over Shoulder,114,3.8,Look Over Shoulder,,1.42
+mixamo,Looking (1),144,4.8,Looking (1),,1.49
+mixamo,Looking Around (2),191,6.4,Looking Around (2),,1.45
+mixamo,Looking Around,195,6.5,Looking Around,,1.41
+mixamo,Looking Behind,122,4.1,Looking Behind,,1.51
+mixamo,Looking Down,144,4.8,Looking Down,,1.48
+mixamo,Looking Right,31,1.0,Looking Right,,1.28
+mixamo,Looking Through Files Low,433,14.4,Looking Through Files Low,,0.73
+mixamo,Looking,241,8.0,Looking,,1.38
+mixamo,Loser,99,3.3,Loser,,1.46
+mixamo,Low Crawl,71,2.4,Low Crawl,구르기·바닥,0.29
+mixamo,Lying Down,173,5.8,Lying Down,,0.52
+mixamo,Macaco Side,100,3.3,Macaco Side,,1.04
+mixamo,Magic Heal,81,2.7,Magic Heal,,1.39
+mixamo,Magic Spell Casting,129,4.3,Magic Spell Casting,,1.34
+mixamo,Male Action Pose (1),2,0.1,Male Action Pose (1),,1.35
+mixamo,Male Action Pose (2),2,0.1,Male Action Pose (2),,0.45
+mixamo,Male Action Pose (3),2,0.1,Male Action Pose (3),,1.28
+mixamo,Male Action Pose (4),2,0.1,Male Action Pose (4),,0.4
+mixamo,Male Action Pose (5),2,0.1,Male Action Pose (5),,1.08
+mixamo,Male Action Pose,2,0.1,Male Action Pose,,1.43
+mixamo,Male Crouch Pose (1),2,0.1,Male Crouch Pose (1),,0.77
+mixamo,Male Crouch Pose (2),2,0.1,Male Crouch Pose (2),,0.98
+mixamo,Male Crouch Pose (3),2,0.1,Male Crouch Pose (3),,0.8
+mixamo,Male Crouch Pose,2,0.1,Male Crouch Pose,,0.95
+mixamo,Male Dance Pose (1),2,0.1,Male Dance Pose (1),춤,1.36
+mixamo,Male Dance Pose (2),2,0.1,Male Dance Pose (2),춤,1.38
+mixamo,Male Dance Pose (3),2,0.1,Male Dance Pose (3),춤,1.32
+mixamo,Male Dance Pose,2,0.1,Male Dance Pose,춤,1.01
+mixamo,Male Dynamic Pose (1),2,0.1,Male Dynamic Pose (1),,0.73
+mixamo,Male Dynamic Pose (2),2,0.1,Male Dynamic Pose (2),,1.5
+mixamo,Male Dynamic Pose,2,0.1,Male Dynamic Pose,,1.24
+mixamo,Male Laying Pose (1),2,0.1,Male Laying Pose (1),,0.28
+mixamo,Male Laying Pose (2),2,0.1,Male Laying Pose (2),,0.47
+mixamo,Male Laying Pose (3),2,0.1,Male Laying Pose (3),,0.07
+mixamo,Male Laying Pose (4),2,0.1,Male Laying Pose (4),,0.05
+mixamo,Male Laying Pose (5),2,0.1,Male Laying Pose (5),,0.01
+mixamo,Male Laying Pose,2,0.1,Male Laying Pose,,0.39
+mixamo,Male Locomotion Pose (1),2,0.1,Male Locomotion Pose (1),,1.38
+mixamo,Male Locomotion Pose (2),2,0.1,Male Locomotion Pose (2),,1.44
+mixamo,Male Locomotion Pose (3),2,0.1,Male Locomotion Pose (3),,1.4
+mixamo,Male Locomotion Pose (4),2,0.1,Male Locomotion Pose (4),,1.43
+mixamo,Male Locomotion Pose (5),2,0.1,Male Locomotion Pose (5),,0.97
+mixamo,Male Locomotion Pose,2,0.1,Male Locomotion Pose,,1.29
+mixamo,Male Sitting Pose (1),2,0.1,Male Sitting Pose (1),구르기·바닥,0.92
+mixamo,Male Sitting Pose (10),2,0.1,Male Sitting Pose (10),구르기·바닥,0.56
+mixamo,Male Sitting Pose (11),2,0.1,Male Sitting Pose (11),구르기·바닥,0.98
+mixamo,Male Sitting Pose (12),2,0.1,Male Sitting Pose (12),구르기·바닥,0.56
+mixamo,Male Sitting Pose (13),2,0.1,Male Sitting Pose (13),구르기·바닥,0.97
+mixamo,Male Sitting Pose (14),2,0.1,Male Sitting Pose (14),구르기·바닥,0.99
+mixamo,Male Sitting Pose (15),2,0.1,Male Sitting Pose (15),구르기·바닥,0.99
+mixamo,Male Sitting Pose (16),2,0.1,Male Sitting Pose (16),구르기·바닥,0.58
+mixamo,Male Sitting Pose (17),2,0.1,Male Sitting Pose (17),구르기·바닥,0.61
+mixamo,Male Sitting Pose (2),2,0.1,Male Sitting Pose (2),구르기·바닥,0.62
+mixamo,Male Sitting Pose (3),2,0.1,Male Sitting Pose (3),구르기·바닥,1.03
+mixamo,Male Sitting Pose (4),2,0.1,Male Sitting Pose (4),구르기·바닥,0.94
+mixamo,Male Sitting Pose (5),2,0.1,Male Sitting Pose (5),구르기·바닥,0.92
+mixamo,Male Sitting Pose (6),2,0.1,Male Sitting Pose (6),구르기·바닥,0.97
+mixamo,Male Sitting Pose (7),2,0.1,Male Sitting Pose (7),구르기·바닥,1.08
+mixamo,Male Sitting Pose (8),2,0.1,Male Sitting Pose (8),구르기·바닥,1.08
+mixamo,Male Sitting Pose (9),2,0.1,Male Sitting Pose (9),구르기·바닥,0.95
+mixamo,Male Sitting Pose,2,0.1,Male Sitting Pose,구르기·바닥,0.41
+mixamo,Male Standing Pose (1),2,0.1,Male Standing Pose (1),,1.48
+mixamo,Male Standing Pose (10),2,0.1,Male Standing Pose (10),,1.48
+mixamo,Male Standing Pose (11),2,0.1,Male Standing Pose (11),,1.48
+mixamo,Male Standing Pose (12),2,0.1,Male Standing Pose (12),,1.49
+mixamo,Male Standing Pose (13),2,0.1,Male Standing Pose (13),,1.49
+mixamo,Male Standing Pose (2),2,0.1,Male Standing Pose (2),,1.39
+mixamo,Male Standing Pose (3),2,0.1,Male Standing Pose (3),,1.47
+mixamo,Male Standing Pose (4),2,0.1,Male Standing Pose (4),,1.48
+mixamo,Male Standing Pose (5),2,0.1,Male Standing Pose (5),,1.48
+mixamo,Male Standing Pose (6),2,0.1,Male Standing Pose (6),,1.5
+mixamo,Male Standing Pose (7),2,0.1,Male Standing Pose (7),,1.48
+mixamo,Male Standing Pose (8),2,0.1,Male Standing Pose (8),,1.42
+mixamo,Male Standing Pose (9),2,0.1,Male Standing Pose (9),,1.5
+mixamo,Male Standing Pose,2,0.1,Male Standing Pose,,1.4
+mixamo,Martelo 2,40,1.3,Martelo 2,,1.26
+mixamo,Martelo 3,60,2.0,Martelo 3,,1.22
+mixamo,Martelo Do Chau Sem Mao,93,3.1,Martelo Do Chau Sem Mao,,1.06
+mixamo,Martelo Do Chau,92,3.1,Martelo Do Chau,,0.98
+mixamo,Medium Hit To Head (1),31,1.0,Medium Hit To Head (1),공격,1.3
+mixamo,Medium Hit To Head (2),33,1.1,Medium Hit To Head (2),공격,1.29
+mixamo,Medium Hit To Head,29,1.0,Medium Hit To Head,공격,1.35
+mixamo,Medium Left Side Step,26,0.9,Medium Left Side Step,걷기,1.35
+mixamo,Medium Right Side Step,26,0.9,Medium Right Side Step,걷기,1.35
+mixamo,Medium Run,18,0.6,Medium Run,달리기,1.34
+mixamo,Medium Step Forward,29,1.0,Medium Step Forward,걷기,1.31
+mixamo,Meia Lua De Compasso Back,67,2.2,Meia Lua De Compasso Back,,1.05
+mixamo,Meia Lua De Compasso,53,1.8,Meia Lua De Compasso,,1.03
+mixamo,Meia Lua De Frente,75,2.5,Meia Lua De Frente,,1.23
+mixamo,Military Signaling (1),196,6.5,Military Signaling (1),,1.04
+mixamo,Military Signaling (2),186,6.2,Military Signaling (2),,1.04
+mixamo,Military Signaling (3),181,6.0,Military Signaling (3),,1.02
+mixamo,Military Signaling (4),161,5.4,Military Signaling (4),,1.04
+mixamo,Military Signaling,151,5.0,Military Signaling,,1.03
+mixamo,Mma Idle,151,5.0,Mma Idle,,1.39
+mixamo,Mma Kick (1),49,1.6,Mma Kick (1),공격,1.39
+mixamo,Mma Kick (2),46,1.5,Mma Kick (2),공격,1.39
+mixamo,Mma Kick (3),49,1.6,Mma Kick (3),공격,1.39
+mixamo,Mma Kick (4),61,2.0,Mma Kick (4),공격,1.36
+mixamo,Mma Kick (5),62,2.1,Mma Kick (5),공격,1.35
+mixamo,Mma Kick,51,1.7,Mma Kick,공격,1.36
+mixamo,Moonwalk,32,1.1,Moonwalk,걷기,1.46
+mixamo,Moving Backward In Crawl Position,52,1.7,Moving Backward In Crawl Position,구르기·바닥,0.2
+mixamo,Moving Backward In Prone Position,58,1.9,Moving Backward In Prone Position,구르기·바닥,0.21
+mixamo,Moving While Hanging,43,1.4,Moving While Hanging,,1.45
+mixamo,Mutant Breathing Idle,122,4.1,Mutant Breathing Idle,,1.3
+mixamo,Mutant Dying,139,4.6,Mutant Dying,,0.17
+mixamo,Mutant Flexing Muscles,141,4.7,Mutant Flexing Muscles,,1.28
+mixamo,Mutant Idle (1),428,14.3,Mutant Idle (1),,1.31
+mixamo,Mutant Idle,160,5.3,Mutant Idle,,1.36
+mixamo,Mutant Jump Attack,112,3.7,Mutant Jump Attack,공격;점프·공중,1.1
+mixamo,Mutant Jumping (1),19,0.6,Mutant Jumping (1),점프·공중,1.05
+mixamo,Mutant Jumping,96,3.2,Mutant Jumping,점프·공중,1.1
+mixamo,Mutant Punch,34,1.1,Mutant Punch,공격,1.2
+mixamo,Mutant Right Turn 45 (1),60,2.0,Mutant Right Turn 45 (1),,1.27
+mixamo,Mutant Right Turn 45,41,1.4,Mutant Right Turn 45,,1.28
+mixamo,Mutant Right Turn 90,73,2.4,Mutant Right Turn 90,,1.27
+mixamo,Mutant Roaring,163,5.4,Mutant Roaring,,1.13
+mixamo,Mutant Run,27,0.9,Mutant Run,달리기,1.2
+mixamo,Mutant Swiping,81,2.7,Mutant Swiping,,1.27
+mixamo,Mutant Walking,44,1.5,Mutant Walking,걷기,1.37
+mixamo,Neck Stretching,97,3.2,Neck Stretching,,1.5
+mixamo,Nervously Look Around,189,6.3,Nervously Look Around,,1.46
+mixamo,Neutral Idle,264,8.8,Neutral Idle,,1.47
+mixamo,Ninja Idle (1),149,5.0,Ninja Idle (1),,0.76
+mixamo,Ninja Idle (2),120,4.0,Ninja Idle (2),,1.35
+mixamo,Ninja Idle (3),276,9.2,Ninja Idle (3),,1.31
+mixamo,Ninja Idle,101,3.4,Ninja Idle,,1.17
+mixamo,Northern Soul Dance,483,16.1,Northern Soul Dance,춤,1.43
+mixamo,Northern Soul Floor Combo,319,10.6,Northern Soul Floor Combo,구르기·바닥,0.8
+mixamo,Northern Soul Floor Spin,225,7.5,Northern Soul Floor Spin,구르기·바닥,1.37
+mixamo,Northern Soul Spin Combo,266,8.9,Northern Soul Spin Combo,,1.22
+mixamo,Northern Soul Spin,122,4.1,Northern Soul Spin,,1.45
+mixamo,Offensive Idle,318,10.6,Offensive Idle,,1.5
+mixamo,Old Man Idle,366,12.2,Old Man Idle,감정 표현,1.38
+mixamo,Old Man Walk,39,1.3,Old Man Walk,걷기;감정 표현,1.37
+mixamo,One Hand Club Combo,110,3.7,One Hand Club Combo,,1.38
+mixamo,One Hand Sword Combo,137,4.6,One Hand Sword Combo,공격,1.38
+mixamo,One Shoulder Lean,61,2.0,One Shoulder Lean,,1.4
+mixamo,Open Door Outwards,124,4.1,Open Door Outwards,,1.45
+mixamo,Opening A Filing Cabinet,426,14.2,Opening A Filing Cabinet,,0.77
+mixamo,Opening Door Inwards,192,6.4,Opening Door Inwards,,1.44
+mixamo,Orc Idle (1),161,5.4,Orc Idle (1),,1.46
+mixamo,Orc Idle (2),201,6.7,Orc Idle (2),,1.47
+mixamo,Orc Idle,222,7.4,Orc Idle,,1.47
+mixamo,Orc Walk (1),37,1.2,Orc Walk (1),걷기,1.4
+mixamo,Orc Walk,35,1.2,Orc Walk,걷기,1.36
+mixamo,Outward Block,77,2.6,Outward Block,방어·회피,1.34
+mixamo,Overhead Squat (1),175,5.8,Overhead Squat (1),,1.14
+mixamo,Overhead Squat (2),57,1.9,Overhead Squat (2),,1.2
+mixamo,Overhead Squat,107,3.6,Overhead Squat,,1.47
+mixamo,Pacing And Talking On A Phone,1130,37.7,Pacing And Talking On A Phone,,1.47
+mixamo,Piano Playing (1),686,22.9,Piano Playing (1),,1.09
+mixamo,Piano Playing,286,9.5,Piano Playing,,1.09
+mixamo,Pick Fruit (1),214,7.1,Pick Fruit (1),던지기·잡기,0.78
+mixamo,Pick Fruit (2),187,6.2,Pick Fruit (2),던지기·잡기,1.49
+mixamo,Pick Fruit,241,8.0,Pick Fruit,던지기·잡기,1.48
+mixamo,Pick Up Item (1),37,1.2,Pick Up Item (1),던지기·잡기,1.11
+mixamo,Pick Up Item,37,1.2,Pick Up Item,던지기·잡기,1.12
+mixamo,Picking At Shirt,53,1.8,Picking At Shirt,던지기·잡기,0.24
+mixamo,Picking Up Object,104,3.5,Picking Up Object,던지기·잡기,1.47
+mixamo,Picking Up,288,9.6,Picking Up,던지기·잡기,1.45
+mixamo,Pike Walk,196,6.5,Pike Walk,걷기,0.42
+mixamo,Pilot Flips Switches (1),151,5.0,Pilot Flips Switches (1),점프·공중,1.02
+mixamo,Pilot Flips Switches,152,5.1,Pilot Flips Switches,점프·공중,1.03
+mixamo,Piloting,292,9.7,Piloting,,1.03
+mixamo,Pistol Aim,214,7.1,Pistol Aim,,1.44
+mixamo,Pistol Idle (1),41,1.4,Pistol Idle (1),,1.44
+mixamo,Pistol Idle (2),121,4.0,Pistol Idle (2),,1.45
+mixamo,Pistol Idle,250,8.3,Pistol Idle,,1.43
+mixamo,Pistol Jump (1),25,0.8,Pistol Jump (1),점프·공중,1.32
+mixamo,Pistol Jump,61,2.0,Pistol Jump,점프·공중,1.28
+mixamo,Pistol Kneel To Stand,42,1.4,Pistol Kneel To Stand,,1.42
+mixamo,Pistol Kneeling Idle,115,3.8,Pistol Kneeling Idle,,0.98
+mixamo,Pistol Run (2),16,0.5,Pistol Run (2),달리기,1.36
+mixamo,Pistol Run Arc (1),19,0.6,Pistol Run Arc (1),달리기,1.24
+mixamo,Pistol Run Arc,20,0.7,Pistol Run Arc,달리기,1.31
+mixamo,Pistol Run Backward Arc (1),16,0.5,Pistol Run Backward Arc (1),달리기,1.29
+mixamo,Pistol Run Backward Arc,16,0.5,Pistol Run Backward Arc,달리기,1.29
+mixamo,Pistol Run Backward,17,0.6,Pistol Run Backward,달리기,1.34
+mixamo,Pistol Run,23,0.8,Pistol Run,달리기,1.31
+mixamo,Pistol Stand To Kneel,31,1.0,Pistol Stand To Kneel,,1.04
+mixamo,Pistol Start,54,1.8,Pistol Start,,1.41
+mixamo,Pistol Strafe (1),19,0.6,Pistol Strafe (1),,1.32
+mixamo,Pistol Strafe,18,0.6,Pistol Strafe,,1.32
+mixamo,Pistol To Idle,52,1.7,Pistol To Idle,,1.49
+mixamo,Pistol Walk Arc (2),24,0.8,Pistol Walk Arc (2),걷기,1.4
+mixamo,Pistol Walk Arc,23,0.8,Pistol Walk Arc,걷기,1.41
+mixamo,Pistol Walk Backward Arc (1),19,0.6,Pistol Walk Backward Arc (1),걷기,1.29
+mixamo,Pistol Walk Backward Arc,19,0.6,Pistol Walk Backward Arc,걷기,1.3
+mixamo,Pistol Walk Backward,32,1.1,Pistol Walk Backward,걷기,1.38
+mixamo,Pistol Walk,25,0.8,Pistol Walk,걷기,1.42
+mixamo,Pistol Whip,78,2.6,Pistol Whip,,1.45
+mixamo,Pistol,122,4.1,Pistol,,1.3
+mixamo,Pivot,136,4.5,Pivot,,1.39
+mixamo,Plank,91,3.0,Plank,,0.42
+mixamo,Plant A Plant,228,7.6,Plant A Plant,,0.45
+mixamo,Plant Tree,279,9.3,Plant Tree,,1.34
+mixamo,Playing The Violin,1216,40.5,Playing The Violin,,1.5
+mixamo,Pointing (1),84,2.8,Pointing (1),,1.49
+mixamo,Pointing Forward,142,4.7,Pointing Forward,,1.49
+mixamo,Pointing,109,3.6,Pointing,,1.49
+mixamo,Pontera,42,1.4,Pontera,,1.26
+mixamo,Pouting,90,3.0,Pouting,,1.5
+mixamo,Praying (1),36,1.2,Praying (1),,1.25
+mixamo,Praying,201,6.7,Praying,,0.91
+mixamo,Prone Backwards Start,20,0.7,Prone Backwards Start,,0.21
+mixamo,Prone Backwards Stop,38,1.3,Prone Backwards Stop,,0.15
+mixamo,Prone Death,57,1.9,Prone Death,,0.13
+mixamo,Prone Firing Rifle (2),26,0.9,Prone Firing Rifle (2),,0.15
+mixamo,Prone Firing Rifle,14,0.5,Prone Firing Rifle,,0.15
+mixamo,Prone Forward Stop,42,1.4,Prone Forward Stop,,0.17
+mixamo,Prone Forward,71,2.4,Prone Forward,,0.14
+mixamo,Prone Idle,149,5.0,Prone Idle,,0.15
+mixamo,Prone Left Turn (1),32,1.1,Prone Left Turn (1),,0.14
+mixamo,Prone Left Turn,32,1.1,Prone Left Turn,,0.14
+mixamo,Prone Reloading,193,6.4,Prone Reloading,,0.33
+mixamo,Prone Right Turn (2),40,1.3,Prone Right Turn (2),,0.15
+mixamo,Prone Right Turn,41,1.4,Prone Right Turn,,0.15
+mixamo,Prone Roll (2),52,1.7,Prone Roll (2),구르기·바닥,0.14
+mixamo,Prone Roll,99,3.3,Prone Roll,구르기·바닥,0.15
+mixamo,Prone To Crouch Transition,55,1.8,Prone To Crouch Transition,구르기·바닥,0.61
+mixamo,Pull Heavy Object Start,42,1.4,Pull Heavy Object Start,,1.29
+mixamo,Pull Heavy Object Stop,41,1.4,Pull Heavy Object Stop,,1.38
+mixamo,Pull Heavy Object,34,1.1,Pull Heavy Object,,1.24
+mixamo,Pull Pilot From Seat,284,9.5,Pull Pilot From Seat,,1.16
+mixamo,Pull Plant (1),141,4.7,Pull Plant (1),,0.92
+mixamo,Pull Plant,143,4.8,Pull Plant,,0.79
+mixamo,Pulling A Rope,443,14.8,Pulling A Rope,,1.37
+mixamo,Pulling Lever,189,6.3,Pulling Lever,,1.5
+mixamo,Punch Combo,67,2.2,Punch Combo,공격,1.35
+mixamo,Punch To Elbow Combo,151,5.0,Punch To Elbow Combo,공격,1.27
+mixamo,Punching (1),32,1.1,Punching (1),공격,1.33
+mixamo,Punching (2),27,0.9,Punching (2),공격,1.36
+mixamo,Punching (3),39,1.3,Punching (3),공격,1.41
+mixamo,Punching Bag,98,3.3,Punching Bag,공격,1.42
+mixamo,Punching,31,1.0,Punching,공격,1.37
+mixamo,Push Up To Idle,94,3.1,Push Up To Idle,피격·넘어짐,0.49
+mixamo,Push Up,47,1.6,Push Up,피격·넘어짐,0.26
+mixamo,Put Back Rifle (2),78,2.6,Put Back Rifle (2),,1.5
+mixamo,Put Back Rifle Behind Shoulder,120,4.0,Put Back Rifle Behind Shoulder,,1.49
+mixamo,Put Back Rifle,99,3.3,Put Back Rifle,,1.49
+mixamo,Quad Punch,66,2.2,Quad Punch,공격,1.39
+mixamo,Quarterback Pass,231,7.7,Quarterback Pass,,1.31
+mixamo,Queshada 1,79,2.6,Queshada 1,,1.12
+mixamo,Queshada 2,61,2.0,Queshada 2,,1.18
+mixamo,Quick 180 Turn,40,1.3,Quick 180 Turn,,1.41
+mixamo,Quick Formal Bow,83,2.8,Quick Formal Bow,,1.5
+mixamo,Quick Informal Bow,83,2.8,Quick Informal Bow,,1.5
+mixamo,Quick Roll To Run,43,1.4,Quick Roll To Run,달리기;구르기·바닥,0.65
+mixamo,Quick Steps,221,7.4,Quick Steps,걷기,1.44
+mixamo,Rallying,187,6.2,Rallying,,1.44
+mixamo,Rapping,238,7.9,Rapping,,1.34
+mixamo,Rasteira 1,57,1.9,Rasteira 1,,1.2
+mixamo,Rasteira 2,75,2.5,Rasteira 2,,1.13
+mixamo,Reacting,111,3.7,Reacting,,1.47
+mixamo,Reaction (2),51,1.7,Reaction (2),,1.39
+mixamo,Reaction,56,1.9,Reaction,,1.36
+mixamo,Ready Idle,76,2.5,Ready Idle,,1.46
+mixamo,Receive Punch To The Face,40,1.3,Receive Punch To The Face,공격,1.25
+mixamo,Receive Stomach Uppercut,46,1.5,Receive Stomach Uppercut,공격,1.31
+mixamo,Receive Uppercut To The Face,38,1.3,Receive Uppercut To The Face,공격,1.35
+mixamo,Receive,43,1.4,Receive,,1.42
+mixamo,Receiver Catch,105,3.5,Receiver Catch,던지기·잡기,0.16
+mixamo,Receiving A Big Uppercut,74,2.5,Receiving A Big Uppercut,공격,1.25
+mixamo,Receiving An Uppercut,51,1.7,Receiving An Uppercut,공격,1.25
+mixamo,Receiving Cpr,260,8.7,Receiving Cpr,,0.02
+mixamo,Release Hostage - Hostage,93,3.1,Release Hostage - Hostage,,1.42
+mixamo,Relieved Sigh,91,3.0,Relieved Sigh,피격·넘어짐,1.5
+mixamo,Reload (1),111,3.7,Reload (1),,1.31
+mixamo,Reload (2),124,4.1,Reload (2),,1.41
+mixamo,Reload,207,6.9,Reload,,0.79
+mixamo,Reloading (1),100,3.3,Reloading (1),,1.44
+mixamo,Reloading,111,3.7,Reloading,,1.47
+mixamo,Restrain,228,7.6,Restrain,,1.43
+mixamo,Rib Hit,31,1.0,Rib Hit,공격,1.34
+mixamo,Rifle Aim To Down,46,1.5,Rifle Aim To Down,,1.46
+mixamo,Rifle Aim To Kneel,25,0.8,Rifle Aim To Kneel,,0.85
+mixamo,Rifle Aiming Idle,94,3.1,Rifle Aiming Idle,,1.44
+mixamo,Rifle Backward Run To Stop,47,1.6,Rifle Backward Run To Stop,달리기,1.44
+mixamo,Rifle Backward Walk To Stop,87,2.9,Rifle Backward Walk To Stop,걷기,1.47
+mixamo,Rifle Block,85,2.8,Rifle Block,방어·회피,1.32
+mixamo,Rifle Crouch Backward Walk,61,2.0,Rifle Crouch Backward Walk,걷기,1.3
+mixamo,Rifle Crouch Idle To Walk,73,2.4,Rifle Crouch Idle To Walk,걷기,1.13
+mixamo,Rifle Crouch Turn (1),45,1.5,Rifle Crouch Turn (1),,1.2
+mixamo,Rifle Crouch Turn (2),45,1.5,Rifle Crouch Turn (2),,1.15
+mixamo,Rifle Crouch Turn (3),46,1.5,Rifle Crouch Turn (3),,1.16
+mixamo,Rifle Crouch Turn (4),39,1.3,Rifle Crouch Turn (4),,1.17
+mixamo,Rifle Crouch Turn (5),63,2.1,Rifle Crouch Turn (5),,1.16
+mixamo,Rifle Crouch Turn (6),46,1.5,Rifle Crouch Turn (6),,1.19
+mixamo,Rifle Crouch Turn (7),38,1.3,Rifle Crouch Turn (7),,1.19
+mixamo,Rifle Crouch Turn,44,1.5,Rifle Crouch Turn,,1.16
+mixamo,Rifle Crouch Walk (1),59,2.0,Rifle Crouch Walk (1),걷기,1.3
+mixamo,Rifle Crouch Walk To Idle,89,3.0,Rifle Crouch Walk To Idle,걷기,1.28
+mixamo,Rifle Crouch Walk To Kneel,83,2.8,Rifle Crouch Walk To Kneel,걷기,1.19
+mixamo,Rifle Crouch Walk,60,2.0,Rifle Crouch Walk,걷기,1.28
+mixamo,Rifle Death,115,3.8,Rifle Death,,0.52
+mixamo,Rifle Down To Aim,27,0.9,Rifle Down To Aim,,1.45
+mixamo,Rifle Hit To Back,54,1.8,Rifle Hit To Back,공격,0.48
+mixamo,Rifle Idle (1),320,10.7,Rifle Idle (1),,1.46
+mixamo,Rifle Idle (2),86,2.9,Rifle Idle (2),,1.47
+mixamo,Rifle Idle (3),179,6.0,Rifle Idle (3),,1.45
+mixamo,Rifle Idle (4),232,7.7,Rifle Idle (4),,1.49
+mixamo,Rifle Idle To Crouch,74,2.5,Rifle Idle To Crouch,,1.27
+mixamo,Rifle Idle,258,8.6,Rifle Idle,,1.49
+mixamo,Rifle Jump (2),19,0.6,Rifle Jump (2),점프·공중,1.23
+mixamo,Rifle Jump In Place,59,2.0,Rifle Jump In Place,점프·공중,1.32
+mixamo,Rifle Jump,69,2.3,Rifle Jump,점프·공중,1.27
+mixamo,Rifle Kneel Hit To Back,58,1.9,Rifle Kneel Hit To Back,공격,0.06
+mixamo,Rifle Kneel Idle,52,1.7,Rifle Kneel Idle,,0.79
+mixamo,Rifle Kneel To Aim,25,0.8,Rifle Kneel To Aim,,0.8
+mixamo,Rifle Kneel To Prone,60,2.0,Rifle Kneel To Prone,,0.27
+mixamo,Rifle Kneel To Stand,38,1.3,Rifle Kneel To Stand,,1.23
+mixamo,Rifle Prone Hit Reaction,38,1.3,Rifle Prone Hit Reaction,공격,0.15
+mixamo,Rifle Prone To Kneel,60,2.0,Rifle Prone To Kneel,,0.36
+mixamo,Rifle Pull Out,62,2.1,Rifle Pull Out,,1.49
+mixamo,Rifle Punch,84,2.8,Rifle Punch,공격,1.33
+mixamo,Rifle Put Away,70,2.3,Rifle Put Away,,1.48
+mixamo,Rifle Rubbing Eyes,56,1.9,Rifle Rubbing Eyes,,0.82
+mixamo,Rifle Run (2),21,0.7,Rifle Run (2),달리기,1.29
+mixamo,Rifle Run To Dying,75,2.5,Rifle Run To Dying,달리기,0.08
+mixamo,Rifle Run To Stop,45,1.5,Rifle Run To Stop,달리기,1.35
+mixamo,Rifle Run,23,0.8,Rifle Run,달리기,1.3
+mixamo,Rifle Shielding Face,130,4.3,Rifle Shielding Face,,0.85
+mixamo,Rifle Side Step (2),46,1.5,Rifle Side Step (2),걷기,1.47
+mixamo,Rifle Side Step,36,1.2,Rifle Side Step,걷기,1.47
+mixamo,Rifle Stand To Kneel,29,1.0,Rifle Stand To Kneel,,1.24
+mixamo,Rifle Start Run,53,1.8,Rifle Start Run,달리기,1.28
+mixamo,Rifle Turn (1),52,1.7,Rifle Turn (1),,1.48
+mixamo,Rifle Turn (2),45,1.5,Rifle Turn (2),,1.48
+mixamo,Rifle Turn (3),40,1.3,Rifle Turn (3),,1.48
+mixamo,Rifle Turn (4),57,1.9,Rifle Turn (4),,1.47
+mixamo,Rifle Turn (5),57,1.9,Rifle Turn (5),,1.48
+mixamo,Rifle Turn (6),60,2.0,Rifle Turn (6),,1.48
+mixamo,Rifle Turn (7),47,1.6,Rifle Turn (7),,1.47
+mixamo,Rifle Turn And Kick,84,2.8,Rifle Turn And Kick,공격,1.43
+mixamo,Rifle Turn,52,1.7,Rifle Turn,,1.48
+mixamo,Rifle Walk To Stop,108,3.6,Rifle Walk To Stop,걷기,1.48
+mixamo,Rifle Walk,40,1.3,Rifle Walk,걷기,1.46
+mixamo,Right Block (1),44,1.5,Right Block (1),방어·회피,1.32
+mixamo,Right Block,52,1.7,Right Block,방어·회피,1.35
+mixamo,Right Cover Sneak (1),35,1.2,Right Cover Sneak (1),,1.37
+mixamo,Right Cover Sneak W_ Rifle,35,1.2,Right Cover Sneak W_ Rifle,,1.37
+mixamo,Right Cover Sneak,35,1.2,Right Cover Sneak,,1.37
+mixamo,Right Hook,34,1.1,Right Hook,공격,1.3
+mixamo,Right Pivot (1),30,1.0,Right Pivot (1),,1.34
+mixamo,Right Pivot,38,1.3,Right Pivot,,1.28
+mixamo,Right Shimmy,43,1.4,Right Shimmy,,1.42
+mixamo,Right Strafe (1),21,0.7,Right Strafe (1),,1.41
+mixamo,Right Strafe Walk,29,1.0,Right Strafe Walk,걷기,1.46
+mixamo,Right Strafe Walking,32,1.1,Right Strafe Walking,걷기,1.42
+mixamo,Right Strafe,21,0.7,Right Strafe,,1.31
+mixamo,Right Turn (1),32,1.1,Right Turn (1),,1.42
+mixamo,Right Turn (10),29,1.0,Right Turn (10),,1.49
+mixamo,Right Turn (2),37,1.2,Right Turn (2),,1.43
+mixamo,Right Turn (3),36,1.2,Right Turn (3),,1.48
+mixamo,Right Turn (4),31,1.0,Right Turn (4),,1.5
+mixamo,Right Turn (5),50,1.7,Right Turn (5),,1.49
+mixamo,Right Turn (6),36,1.2,Right Turn (6),,1.48
+mixamo,Right Turn (7),51,1.7,Right Turn (7),,1.49
+mixamo,Right Turn (8),34,1.1,Right Turn (8),,1.25
+mixamo,Right Turn (9),32,1.1,Right Turn (9),,1.42
+mixamo,Right Turn W_ Briefcase (1),34,1.1,Right Turn W_ Briefcase (1),,1.46
+mixamo,Right Turn W_ Briefcase,65,2.2,Right Turn W_ Briefcase,,1.43
+mixamo,Right Turn,55,1.8,Right Turn,,1.42
+mixamo,Rockin' Shackle A,151,5.0,Rockin' Shackle A,,1.39
+mixamo,Rockin' Shackle B,151,5.0,Rockin' Shackle B,,0.41
+mixamo,Roll Kicking,69,2.3,Roll Kicking,공격;구르기·바닥,0.38
+mixamo,Roll Left (2),46,1.5,Roll Left (2),구르기·바닥,0.16
+mixamo,Roll Left,76,2.5,Roll Left,구르기·바닥,0.15
+mixamo,Roundhouse Kick (1),65,2.2,Roundhouse Kick (1),공격,1.44
+mixamo,Roundhouse Kick,76,2.5,Roundhouse Kick,공격,1.4
+mixamo,Rummaging,146,4.9,Rummaging,,1.38
+mixamo,Run (1),20,0.7,Run (1),달리기,0.97
+mixamo,Run And Swing,74,2.5,Run And Swing,달리기,1.23
+mixamo,Run And Throw Grenade,89,3.0,Run And Throw Grenade,달리기;던지기·잡기,1.3
+mixamo,Run Arc Left,17,0.6,Run Arc Left,달리기,1.26
+mixamo,Run Backward (1),20,0.7,Run Backward (1),달리기,1.34
+mixamo,Run Backward (2),19,0.6,Run Backward (2),달리기,1.39
+mixamo,Run Backward Arc Right (1),17,0.6,Run Backward Arc Right (1),달리기,1.3
+mixamo,Run Backward Arc Right (2),21,0.7,Run Backward Arc Right (2),달리기,1.3
+mixamo,Run Backward Arc Right,38,1.3,Run Backward Arc Right,달리기,1.33
+mixamo,Run Backward Left,16,0.5,Run Backward Left,달리기,1.35
+mixamo,Run Backward Right,16,0.5,Run Backward Right,달리기,1.38
+mixamo,Run Backward,16,0.5,Run Backward,달리기,1.35
+mixamo,Run Backwards (1),17,0.6,Run Backwards (1),달리기,1.43
+mixamo,Run Backwards (2),46,1.5,Run Backwards (2),달리기,0.9
+mixamo,Run Backwards (3),34,1.1,Run Backwards (3),달리기,1.05
+mixamo,Run Backwards (4),37,1.2,Run Backwards (4),달리기,1.31
+mixamo,Run Backwards,30,1.0,Run Backwards,달리기,1.33
+mixamo,Run Forward (1),28,0.9,Run Forward (1),달리기,1.35
+mixamo,Run Forward (2),23,0.8,Run Forward (2),달리기,1.24
+mixamo,Run Forward (3),19,0.6,Run Forward (3),달리기,1.32
+mixamo,Run Forward Arc Left,23,0.8,Run Forward Arc Left,달리기,1.32
+mixamo,Run Forward Arc Right,28,0.9,Run Forward Arc Right,달리기,1.35
+mixamo,Run Forward Left,16,0.5,Run Forward Left,달리기,1.36
+mixamo,Run Forward Right,16,0.5,Run Forward Right,달리기,1.37
+mixamo,Run Forward,16,0.5,Run Forward,달리기,1.31
+mixamo,Run Left,16,0.5,Run Left,달리기,1.36
+mixamo,Run Look Back,68,2.3,Run Look Back,달리기,1.42
+mixamo,Run Right,16,0.5,Run Right,달리기,1.33
+mixamo,Run Strafing Jump,31,1.0,Run Strafing Jump,점프·공중;달리기,1.29
+mixamo,Run To Dive,37,1.2,Run To Dive,달리기,0.69
+mixamo,Run To Flip,68,2.3,Run To Flip,점프·공중;달리기,1.27
+mixamo,Run To Rolling,74,2.5,Run To Rolling,달리기;구르기·바닥,0.52
+mixamo,Run To Stop (1),55,1.8,Run To Stop (1),달리기,1.42
+mixamo,Run To Stop (2),28,0.9,Run To Stop (2),달리기,1.31
+mixamo,Run To Stop,51,1.7,Run To Stop,달리기,0.89
+mixamo,Run With Sword,25,0.8,Run With Sword,공격;달리기,1.34
+mixamo,Run,23,0.8,Run,달리기,1.31
+mixamo,Running (1),20,0.7,Running (1),달리기,1.38
+mixamo,Running (2),22,0.7,Running (2),달리기,1.38
+mixamo,Running (3),26,0.9,Running (3),달리기,1.39
+mixamo,Running (4),22,0.7,Running (4),달리기,1.35
+mixamo,Running (5),22,0.7,Running (5),달리기,1.38
+mixamo,Running (6),39,1.3,Running (6),달리기,1.36
+mixamo,Running (7),50,1.7,Running (7),달리기,1.31
+mixamo,Running (8),34,1.1,Running (8),달리기,1.36
+mixamo,Running Arc (1),19,0.6,Running Arc (1),달리기,0.96
+mixamo,Running Arc,19,0.6,Running Arc,달리기,0.96
+mixamo,Running Backward (1),20,0.7,Running Backward (1),달리기,1.36
+mixamo,Running Backward (2),17,0.6,Running Backward (2),달리기,1.22
+mixamo,Running Backward Arc (1),17,0.6,Running Backward Arc (1),달리기,1.38
+mixamo,Running Backward Arc (2),16,0.5,Running Backward Arc (2),달리기,1.2
+mixamo,Running Backward Arc,18,0.6,Running Backward Arc,달리기,1.05
+mixamo,Running Backward,18,0.6,Running Backward,달리기,1.41
+mixamo,Running Crawl,21,0.7,Running Crawl,달리기;구르기·바닥,0.35
+mixamo,Running Dive Roll,63,2.1,Running Dive Roll,달리기;구르기·바닥,0.88
+mixamo,Running Forward Flip,34,1.1,Running Forward Flip,점프·공중;달리기,1.25
+mixamo,Running Jump (1),66,2.2,Running Jump (1),점프·공중;달리기,1.3
+mixamo,Running Jump,28,0.9,Running Jump,점프·공중;달리기,1.28
+mixamo,Running Right Turn,24,0.8,Running Right Turn,달리기,1.29
+mixamo,Running Slide,47,1.6,Running Slide,달리기,0.98
+mixamo,Running Tired,211,7.0,Running Tired,달리기;감정 표현,1.39
+mixamo,Running To Stop,62,2.1,Running To Stop,달리기,1.3
+mixamo,Running To Turn,69,2.3,Running To Turn,달리기,1.33
+mixamo,Running Turn 180,21,0.7,Running Turn 180,달리기,1.13
+mixamo,Running Up Stairs,19,0.6,Running Up Stairs,달리기,1.4
+mixamo,Running,77,2.6,Running,달리기,0.85
+mixamo,Sad Idle (1),81,2.7,Sad Idle (1),감정 표현,1.46
+mixamo,Sad Idle (2),121,4.0,Sad Idle (2),감정 표현,1.46
+mixamo,Sad Idle,85,2.8,Sad Idle,감정 표현,1.44
+mixamo,Sad Walk,45,1.5,Sad Walk,걷기;감정 표현,1.4
+mixamo,Salsa Dancing (1),69,2.3,Salsa Dancing (1),춤,1.39
+mixamo,Salsa Dancing,648,21.6,Salsa Dancing,춤,1.41
+mixamo,Samba Dancing (1),837,27.9,Samba Dancing (1),,1.42
+mixamo,Samba Dancing (2),560,18.7,Samba Dancing (2),,1.39
+mixamo,Samba Dancing,717,23.9,Samba Dancing,,1.43
+mixamo,Sarcastic Head Nod,71,2.4,Sarcastic Head Nod,,1.5
+mixamo,Scared,303,10.1,Scared,,1.37
+mixamo,Scary Clown Idle,61,2.0,Scary Clown Idle,,1.41
+mixamo,Scary Clown Start Walking,50,1.7,Scary Clown Start Walking,걷기,1.4
+mixamo,Scary Clown Stopping (1),69,2.3,Scary Clown Stopping (1),,1.39
+mixamo,Scary Clown Stopping,69,2.3,Scary Clown Stopping,,1.4
+mixamo,Scary Clown Walk (1),46,1.5,Scary Clown Walk (1),걷기,1.36
+mixamo,Scary Clown Walk,30,1.0,Scary Clown Walk,걷기,1.42
+mixamo,Scissor Kick,84,2.8,Scissor Kick,공격,0.58
+mixamo,Searching Files High,293,9.8,Searching Files High,,1.49
+mixamo,Seated Idle,126,4.2,Seated Idle,,1.11
+mixamo,Sending Fax,645,21.5,Sending Fax,,1.49
+mixamo,Shaking Dice,275,9.2,Shaking Dice,,1.24
+mixamo,Shaking Hands 1,132,4.4,Shaking Hands 1,,1.48
+mixamo,Shaking Hands 2,132,4.4,Shaking Hands 2,,1.48
+mixamo,Shaking Head No,55,1.8,Shaking Head No,,1.5
+mixamo,Shaking It Off,176,5.9,Shaking It Off,,1.42
+mixamo,Sheath A Great Sword 1,23,0.8,Sheath A Great Sword 1,공격,1.42
+mixamo,Sheath A Great Sword 2,35,1.2,Sheath A Great Sword 2,공격,1.5
+mixamo,Sheath Sword 1,39,1.3,Sheath Sword 1,공격,1.41
+mixamo,Sheath Sword 2,26,0.9,Sheath Sword 2,공격,1.49
+mixamo,Sheathing Sword,51,1.7,Sheathing Sword,공격,1.41
+mixamo,Shoot Rifle,29,1.0,Shoot Rifle,,1.33
+mixamo,Shooting Arrow,151,5.0,Shooting Arrow,,1.46
+mixamo,Shooting Gun,160,5.3,Shooting Gun,,1.45
+mixamo,Shooting Pistol,81,2.7,Shooting Pistol,,1.32
+mixamo,Shooting,36,1.2,Shooting,,1.37
+mixamo,Short Left Side Step,25,0.8,Short Left Side Step,걷기,1.36
+mixamo,Short Right Side Step,27,0.9,Short Right Side Step,걷기,1.36
+mixamo,Short Step Forward,31,1.0,Short Step Forward,걷기,1.35
+mixamo,Shoulder Hit And Fall,94,3.1,Shoulder Hit And Fall,공격;피격·넘어짐,0.11
+mixamo,Shoulder Rubbing,176,5.9,Shoulder Rubbing,,1.5
+mixamo,"Shoulder Throw, Aggressor",201,6.7,"Shoulder Throw, Aggressor",던지기·잡기,1.27
+mixamo,"Shoulder Throw, Victim",201,6.7,"Shoulder Throw, Victim",던지기·잡기,0.06
+mixamo,Shove Reaction (1),74,2.5,Shove Reaction (1),,1.45
+mixamo,Shove Reaction,91,3.0,Shove Reaction,,1.47
+mixamo,Shoved Reaction With Spin,137,4.6,Shoved Reaction With Spin,,1.46
+mixamo,Shoved,97,3.2,Shoved,,1.02
+mixamo,Shrugging,61,2.0,Shrugging,,1.5
+mixamo,Shuffling,226,7.5,Shuffling,,1.43
+mixamo,Side Hit,30,1.0,Side Hit,공격,1.34
+mixamo,Side Kick,61,2.0,Side Kick,공격,1.27
+mixamo,Side Step,45,1.5,Side Step,걷기,1.36
+mixamo,Singing,420,14.0,Singing,,1.46
+mixamo,Single Step Right,47,1.6,Single Step Right,걷기,1.43
+mixamo,Sit To Stand,69,2.3,Sit To Stand,구르기·바닥,1.03
+mixamo,Sitting (1),36,1.2,Sitting (1),구르기·바닥,1.06
+mixamo,Sitting (2),211,7.0,Sitting (2),구르기·바닥,1.03
+mixamo,Sitting (3),64,2.1,Sitting (3),구르기·바닥,0.95
+mixamo,Sitting (4),134,4.5,Sitting (4),구르기·바닥,1.32
+mixamo,Sitting (5),121,4.0,Sitting (5),구르기·바닥,1.04
+mixamo,Sitting (6),288,9.6,Sitting (6),구르기·바닥,1.06
+mixamo,Sitting Clap,196,6.5,Sitting Clap,구르기·바닥,1.09
+mixamo,Sitting Dazed,251,8.4,Sitting Dazed,구르기·바닥,0.54
+mixamo,Sitting Disbelief,126,4.2,Sitting Disbelief,피격·넘어짐;구르기·바닥,1.07
+mixamo,Sitting Dodges,268,8.9,Sitting Dodges,방어·회피;구르기·바닥,0.92
+mixamo,Sitting Gun Motion,145,4.8,Sitting Gun Motion,구르기·바닥,1.07
+mixamo,Sitting Idle (1),193,6.4,Sitting Idle (1),구르기·바닥,1.08
+mixamo,Sitting Idle (2),327,10.9,Sitting Idle (2),구르기·바닥,0.59
+mixamo,Sitting Idle (3),309,10.3,Sitting Idle (3),구르기·바닥,0.28
+mixamo,Sitting Idle (4),90,3.0,Sitting Idle (4),구르기·바닥,1.08
+mixamo,Sitting Idle,130,4.3,Sitting Idle,구르기·바닥,1.03
+mixamo,Sitting Swinging Weapon,145,4.8,Sitting Swinging Weapon,구르기·바닥,0.87
+mixamo,Sitting Talking (1),1350,45.0,Sitting Talking (1),구르기·바닥,1.06
+mixamo,Sitting Talking,1323,44.1,Sitting Talking,구르기·바닥,1.03
+mixamo,Sitting Weapon Strike,85,2.8,Sitting Weapon Strike,공격;구르기·바닥,0.89
+mixamo,Sitting,179,6.0,Sitting,구르기·바닥,0.88
+mixamo,Situp To Idle,133,4.4,Situp To Idle,구르기·바닥,0.73
+mixamo,Situps,68,2.3,Situps,구르기·바닥,0.53
+mixamo,Skateboarding (2),31,1.0,Skateboarding (2),,1.18
+mixamo,Skateboarding,66,2.2,Skateboarding,,1.28
+mixamo,Slash Advance,76,2.5,Slash Advance,공격,1.32
+mixamo,Sleeping Idle (1),207,6.9,Sleeping Idle (1),,0.03
+mixamo,Sleeping Idle,529,17.6,Sleeping Idle,,0.08
+mixamo,Slide Hip Hop Dance,520,17.3,Slide Hip Hop Dance,점프·공중;춤,1.46
+mixamo,Slide Hip Hop Walk,30,1.0,Slide Hip Hop Walk,점프·공중;걷기,1.44
+mixamo,Slipping,89,3.0,Slipping,,0.39
+mixamo,Slow Jog Backwards,23,0.8,Slow Jog Backwards,달리기,1.41
+mixamo,Slow Jog,26,0.9,Slow Jog,달리기,1.39
+mixamo,Slow Run,23,0.8,Slow Run,달리기,1.34
+mixamo,Smash,91,3.0,Smash,,1.29
+mixamo,Smoking,538,17.9,Smoking,,1.47
+mixamo,Snatch (1),36,1.2,Snatch (1),,1.34
+mixamo,Snatch (2),164,5.5,Snatch (2),,1.25
+mixamo,Snatch,138,4.6,Snatch,,0.66
+mixamo,Sneak Walk (1),33,1.1,Sneak Walk (1),걷기,0.83
+mixamo,Sneak Walk,28,0.9,Sneak Walk,걷기,0.91
+mixamo,Sneaking Forward,51,1.7,Sneaking Forward,,1.04
+mixamo,Soccer Idle,187,6.2,Soccer Idle,,1.41
+mixamo,Soccer Pass,49,1.6,Soccer Pass,,1.46
+mixamo,Soccer Penalty Kick,46,1.5,Soccer Penalty Kick,공격,1.31
+mixamo,Soccer Tackle (1),70,2.3,Soccer Tackle (1),,0.65
+mixamo,Soccer Tackle (2),54,1.8,Soccer Tackle (2),,0.85
+mixamo,Soccer Tackle,83,2.8,Soccer Tackle,,0.76
+mixamo,Speedbag,200,6.7,Speedbag,,1.46
+mixamo,Spell Cast,35,1.2,Spell Cast,,1.44
+mixamo,Spell Casting,127,4.2,Spell Casting,,1.23
+mixamo,Spin Flip Kick,112,3.7,Spin Flip Kick,공격;점프·공중,1.16
+mixamo,Spin In Place,121,4.0,Spin In Place,,1.49
+mixamo,Spit Reaction,129,4.3,Spit Reaction,,1.41
+mixamo,Sprint Backward Left,16,0.5,Sprint Backward Left,달리기,1.39
+mixamo,Sprint Backward Right,16,0.5,Sprint Backward Right,달리기,1.38
+mixamo,Sprint Backward,16,0.5,Sprint Backward,달리기,1.39
+mixamo,Sprint Forward Left,16,0.5,Sprint Forward Left,달리기,1.35
+mixamo,Sprint Forward Right,16,0.5,Sprint Forward Right,달리기,1.31
+mixamo,Sprint Forward,16,0.5,Sprint Forward,달리기,1.28
+mixamo,Sprint Left,16,0.5,Sprint Left,달리기,1.36
+mixamo,Sprint Right,16,0.5,Sprint Right,달리기,1.34
+mixamo,Sprint To Backslide,63,2.1,Sprint To Backslide,달리기,0.37
+mixamo,Sprint To Wall Climb,55,1.8,Sprint To Wall Climb,달리기,1.19
+mixamo,Sprint Turn,31,1.0,Sprint Turn,달리기,1.32
+mixamo,Sprint,17,0.6,Sprint,달리기,1.25
+mixamo,Sprinting Forward Roll,36,1.2,Sprinting Forward Roll,달리기;구르기·바닥,0.62
+mixamo,Stabbing (1),72,2.4,Stabbing (1),공격,1.36
+mixamo,Stabbing (2),65,2.2,Stabbing (2),공격,1.37
+mixamo,Stabbing,80,2.7,Stabbing,공격,1.36
+mixamo,Stable Sword Inward Slash,67,2.2,Stable Sword Inward Slash,공격,1.26
+mixamo,Stable Sword Outward Slash,62,2.1,Stable Sword Outward Slash,공격,1.22
+mixamo,Stall Soccerball (1),99,3.3,Stall Soccerball (1),,1.4
+mixamo,Stall Soccerball (2),70,2.3,Stall Soccerball (2),,1.44
+mixamo,Stall Soccerball (3),56,1.9,Stall Soccerball (3),,1.45
+mixamo,Stall Soccerball,65,2.2,Stall Soccerball,,1.41
+mixamo,Stand Cover To Look,83,2.8,Stand Cover To Look,,1.34
+mixamo,Stand To Cover,39,1.3,Stand To Cover,,1.05
+mixamo,Stand To Crouch,46,1.5,Stand To Crouch,,0.81
+mixamo,Stand To Freehang,52,1.7,Stand To Freehang,,1.44
+mixamo,Stand To Roll,72,2.4,Stand To Roll,구르기·바닥,0.99
+mixamo,Stand Up (1),249,8.3,Stand Up (1),,0.65
+mixamo,Stand Up (2),71,2.4,Stand Up (2),,0.79
+mixamo,Stand Up,146,4.9,Stand Up,,1.48
+mixamo,Stand,94,3.1,Stand,,1.49
+mixamo,Standard Idle,91,3.0,Standard Idle,,1.5
+mixamo,Standard Run,23,0.8,Standard Run,달리기,1.24
+mixamo,Standard Walk,36,1.2,Standard Walk,걷기,1.46
+mixamo,Standing (1),104,3.5,Standing (1),,1.41
+mixamo,Standing (2),84,2.8,Standing (2),,1.45
+mixamo,Standing 1H Cast Spell 01,69,2.3,Standing 1H Cast Spell 01,,1.38
+mixamo,Standing 1H Magic Attack 01,70,2.3,Standing 1H Magic Attack 01,공격,1.34
+mixamo,Standing 1H Magic Attack 02,67,2.2,Standing 1H Magic Attack 02,공격,1.37
+mixamo,Standing 1H Magic Attack 03,70,2.3,Standing 1H Magic Attack 03,공격,1.36
+mixamo,Standing 2H Cast Spell 01,66,2.2,Standing 2H Cast Spell 01,,1.37
+mixamo,Standing 2H Magic Area Attack 01,90,3.0,Standing 2H Magic Area Attack 01,공격,1.37
+mixamo,Standing 2H Magic Area Attack 02,99,3.3,Standing 2H Magic Area Attack 02,공격,1.38
+mixamo,Standing 2H Magic Attack 01,82,2.7,Standing 2H Magic Attack 01,공격,1.33
+mixamo,Standing 2H Magic Attack 02,80,2.7,Standing 2H Magic Attack 02,공격,1.3
+mixamo,Standing 2H Magic Attack 03,130,4.3,Standing 2H Magic Attack 03,공격,1.22
+mixamo,Standing 2H Magic Attack 04,101,3.4,Standing 2H Magic Attack 04,공격,1.22
+mixamo,Standing 2H Magic Attack 05,107,3.6,Standing 2H Magic Attack 05,공격,1.38
+mixamo,Standing Aim Idle 01,114,3.8,Standing Aim Idle 01,,1.44
+mixamo,Standing Aim Idle 02 Looking,151,5.0,Standing Aim Idle 02 Looking,,1.42
+mixamo,Standing Aim Overdraw,114,3.8,Standing Aim Overdraw,,1.44
+mixamo,Standing Aim Recoil,22,0.7,Standing Aim Recoil,,1.44
+mixamo,Standing Aim Walk Back,45,1.5,Standing Aim Walk Back,걷기,1.41
+mixamo,Standing Aim Walk Forward,37,1.2,Standing Aim Walk Forward,걷기,1.41
+mixamo,Standing Aim Walk Left,37,1.2,Standing Aim Walk Left,걷기,1.25
+mixamo,Standing Aim Walk Right,40,1.3,Standing Aim Walk Right,걷기,1.29
+mixamo,Standing Arguing (1),625,20.8,Standing Arguing (1),,1.47
+mixamo,Standing Arguing,625,20.8,Standing Arguing,,1.48
+mixamo,Standing Block End,40,1.3,Standing Block End,방어·회피,1.37
+mixamo,Standing Block Idle (2),84,2.8,Standing Block Idle (2),방어·회피,1.3
+mixamo,Standing Block Idle,56,1.9,Standing Block Idle,방어·회피,1.22
+mixamo,Standing Block React Large (2),41,1.4,Standing Block React Large (2),방어·회피,1.3
+mixamo,Standing Block React Large,41,1.4,Standing Block React Large,방어·회피,1.18
+mixamo,Standing Block Start,16,0.5,Standing Block Start,방어·회피,1.37
+mixamo,Standing Block,61,2.0,Standing Block,방어·회피,1.34
+mixamo,Standing Cheering,104,3.5,Standing Cheering,,1.37
+mixamo,Standing Clap,134,4.5,Standing Clap,,1.49
+mixamo,Standing Cover Turn,31,1.0,Standing Cover Turn,,1.36
+mixamo,Standing Death Backward 01 (2),94,3.1,Standing Death Backward 01 (2),,0.86
+mixamo,Standing Death Backward 01,78,2.6,Standing Death Backward 01,,0.76
+mixamo,Standing Death Forward 01,96,3.2,Standing Death Forward 01,,0.87
+mixamo,Standing Death Forward 02,72,2.4,Standing Death Forward 02,,1.1
+mixamo,Standing Death Left 01,69,2.3,Standing Death Left 01,,0.1
+mixamo,Standing Death Left 02,69,2.3,Standing Death Left 02,,0.36
+mixamo,Standing Death Right 01,61,2.0,Standing Death Right 01,,0.44
+mixamo,Standing Death Right 02,71,2.4,Standing Death Right 02,,0.96
+mixamo,Standing Disarm Bow,34,1.1,Standing Disarm Bow,,1.46
+mixamo,Standing Disarm Over Shoulder,51,1.7,Standing Disarm Over Shoulder,,1.44
+mixamo,Standing Disarm Underarm,52,1.7,Standing Disarm Underarm,,1.38
+mixamo,Standing Dive Forward,50,1.7,Standing Dive Forward,,0.75
+mixamo,Standing Dodge Backward,50,1.7,Standing Dodge Backward,방어·회피,1.32
+mixamo,Standing Dodge Forward,31,1.0,Standing Dodge Forward,방어·회피,1.32
+mixamo,Standing Dodge Left,30,1.0,Standing Dodge Left,방어·회피,1.31
+mixamo,Standing Dodge Right,30,1.0,Standing Dodge Right,방어·회피,1.33
+mixamo,Standing Draw Arrow,32,1.1,Standing Draw Arrow,,1.38
+mixamo,Standing Equip Bow,28,0.9,Standing Equip Bow,,1.41
+mixamo,Standing Fist Pump (1),106,3.5,Standing Fist Pump (1),,1.34
+mixamo,Standing Fist Pump,114,3.8,Standing Fist Pump,,1.23
+mixamo,Standing Idle (1),57,1.9,Standing Idle (1),,1.35
+mixamo,Standing Idle (2),181,6.0,Standing Idle (2),,1.5
+mixamo,Standing Idle 01,154,5.1,Standing Idle 01,,1.36
+mixamo,Standing Idle 02 Looking,97,3.2,Standing Idle 02 Looking,,1.43
+mixamo,Standing Idle 02,157,5.2,Standing Idle 02,,1.4
+mixamo,Standing Idle 03 Examine,154,5.1,Standing Idle 03 Examine,,1.43
+mixamo,Standing Idle 03,343,11.4,Standing Idle 03,,1.38
+mixamo,Standing Idle 04,225,7.5,Standing Idle 04,,1.41
+mixamo,Standing Idle Looking Ver. 1,339,11.3,Standing Idle Looking Ver. 1,,1.31
+mixamo,Standing Idle Looking Ver. 2,236,7.9,Standing Idle Looking Ver. 2,,1.32
+mixamo,Standing Idle To Action Idle,31,1.0,Standing Idle To Action Idle,,1.42
+mixamo,Standing Idle To Crouch,31,1.0,Standing Idle To Crouch,,1.18
+mixamo,Standing Idle To Fight Idle,31,1.0,Standing Idle To Fight Idle,공격,1.44
+mixamo,Standing Idle,56,1.9,Standing Idle,,1.36
+mixamo,Standing Jump (1),72,2.4,Standing Jump (1),점프·공중,1.26
+mixamo,Standing Jump (2),74,2.5,Standing Jump (2),점프·공중,1.3
+mixamo,Standing Jump (3),45,1.5,Standing Jump (3),점프·공중,1.26
+mixamo,Standing Jump Running Landing,42,1.4,Standing Jump Running Landing,점프·공중;달리기,1.3
+mixamo,Standing Jump Running To Run Forward,62,2.1,Standing Jump Running To Run Forward,점프·공중;달리기,1.25
+mixamo,Standing Jump Running,33,1.1,Standing Jump Running,점프·공중;달리기,1.31
+mixamo,Standing Jump,58,1.9,Standing Jump,점프·공중,1.18
+mixamo,Standing Land To Standing Idle,34,1.1,Standing Land To Standing Idle,,1.22
+mixamo,Standing Melee Attack 360 High,96,3.2,Standing Melee Attack 360 High,공격,1.33
+mixamo,Standing Melee Attack 360 Low,76,2.5,Standing Melee Attack 360 Low,공격,1.33
+mixamo,Standing Melee Attack Backhand,96,3.2,Standing Melee Attack Backhand,공격,1.33
+mixamo,Standing Melee Attack Downward,69,2.3,Standing Melee Attack Downward,공격,1.35
+mixamo,Standing Melee Attack Horizontal,73,2.4,Standing Melee Attack Horizontal,공격,1.31
+mixamo,Standing Melee Attack Kick Ver. 1,57,1.9,Standing Melee Attack Kick Ver. 1,공격,1.4
+mixamo,Standing Melee Attack Kick Ver. 2,43,1.4,Standing Melee Attack Kick Ver. 2,공격,1.35
+mixamo,Standing Melee Combo Attack Ver. 1,141,4.7,Standing Melee Combo Attack Ver. 1,공격,1.33
+mixamo,Standing Melee Combo Attack Ver. 2,127,4.2,Standing Melee Combo Attack Ver. 2,공격,1.3
+mixamo,Standing Melee Combo Attack Ver. 3,83,2.8,Standing Melee Combo Attack Ver. 3,공격,1.3
+mixamo,Standing Melee Kick,44,1.5,Standing Melee Kick,공격,1.35
+mixamo,Standing Melee Punch,31,1.0,Standing Melee Punch,공격,1.38
+mixamo,Standing Melee Run Jump Attack,111,3.7,Standing Melee Run Jump Attack,공격;점프·공중;달리기,1.16
+mixamo,Standing React Death Backward,110,3.7,Standing React Death Backward,,1.13
+mixamo,Standing React Death Forward,111,3.7,Standing React Death Forward,,0.82
+mixamo,Standing React Death Left,109,3.6,Standing React Death Left,,0.03
+mixamo,Standing React Death Right,106,3.5,Standing React Death Right,,0.87
+mixamo,Standing React Large From Back (1),51,1.7,Standing React Large From Back (1),,1.33
+mixamo,Standing React Large From Back,31,1.0,Standing React Large From Back,,1.3
+mixamo,Standing React Large From Front (2),42,1.4,Standing React Large From Front (2),,1.36
+mixamo,Standing React Large From Front,31,1.0,Standing React Large From Front,,1.34
+mixamo,Standing React Large From Left (1),31,1.0,Standing React Large From Left (1),,1.32
+mixamo,Standing React Large From Left (2),48,1.6,Standing React Large From Left (2),,1.34
+mixamo,Standing React Large From Left,32,1.1,Standing React Large From Left,,1.26
+mixamo,Standing React Large From Right (1),54,1.8,Standing React Large From Right (1),,1.31
+mixamo,Standing React Large From Right (2),50,1.7,Standing React Large From Right (2),,1.37
+mixamo,Standing React Large From Right,31,1.0,Standing React Large From Right,,1.37
+mixamo,Standing React Large Gut,49,1.6,Standing React Large Gut,,1.27
+mixamo,Standing React Small From Back (1),39,1.3,Standing React Small From Back (1),,1.37
+mixamo,Standing React Small From Back,21,0.7,Standing React Small From Back,,1.26
+mixamo,Standing React Small From Front (1),37,1.2,Standing React Small From Front (1),,1.38
+mixamo,Standing React Small From Front 02,24,0.8,Standing React Small From Front 02,,1.35
+mixamo,Standing React Small From Front,39,1.3,Standing React Small From Front,,1.36
+mixamo,Standing React Small From Headshot,30,1.0,Standing React Small From Headshot,,1.39
+mixamo,Standing React Small From Left (2),37,1.2,Standing React Small From Left (2),,1.35
+mixamo,Standing React Small From Left,24,0.8,Standing React Small From Left,,1.3
+mixamo,Standing React Small From Right (2),31,1.0,Standing React Small From Right (2),,1.39
+mixamo,Standing React Small From Right,24,0.8,Standing React Small From Right,,1.37
+mixamo,Standing Run Back (1),20,0.7,Standing Run Back (1),달리기,1.39
+mixamo,Standing Run Back (2),21,0.7,Standing Run Back (2),달리기,1.1
+mixamo,Standing Run Back,25,0.8,Standing Run Back,달리기,1.36
+mixamo,Standing Run Forward (1),23,0.8,Standing Run Forward (1),달리기,1.39
+mixamo,Standing Run Forward (2),23,0.8,Standing Run Forward (2),달리기,1.31
+mixamo,Standing Run Forward Stop,28,0.9,Standing Run Forward Stop,달리기,1.18
+mixamo,Standing Run Forward,27,0.9,Standing Run Forward,달리기,1.14
+mixamo,Standing Run Left (2),24,0.8,Standing Run Left (2),달리기,1.35
+mixamo,Standing Run Left,21,0.7,Standing Run Left,달리기,1.2
+mixamo,Standing Run Right (1),24,0.8,Standing Run Right (1),달리기,1.36
+mixamo,Standing Run Right,24,0.8,Standing Run Right,달리기,1.16
+mixamo,Standing Sprint Forward (1),18,0.6,Standing Sprint Forward (1),달리기,1.26
+mixamo,Standing Sprint Forward,16,0.5,Standing Sprint Forward,달리기,1.04
+mixamo,Standing Taunt Battlecry,86,2.9,Standing Taunt Battlecry,,1.36
+mixamo,Standing Taunt Chest Thump,86,2.9,Standing Taunt Chest Thump,,1.4
+mixamo,Standing Thumbs Up,126,4.2,Standing Thumbs Up,,1.37
+mixamo,Standing To Crouch,29,1.0,Standing To Crouch,,1.13
+mixamo,Standing To Crouched,20,0.7,Standing To Crouched,,1.12
+mixamo,Standing Torch Burn Webs,168,5.6,Standing Torch Burn Webs,,1.43
+mixamo,Standing Torch Idle 01,191,6.4,Standing Torch Idle 01,,1.49
+mixamo,Standing Torch Idle 02,281,9.4,Standing Torch Idle 02,,1.44
+mixamo,Standing Torch Idle 03,361,12.0,Standing Torch Idle 03,,1.41
+mixamo,Standing Torch Idle 04,191,6.4,Standing Torch Idle 04,,1.35
+mixamo,Standing Torch Inspect Downward,198,6.6,Standing Torch Inspect Downward,,1.11
+mixamo,Standing Torch Inspect Forward,174,5.8,Standing Torch Inspect Forward,,1.4
+mixamo,Standing Torch Inspect Upward,198,6.6,Standing Torch Inspect Upward,,1.49
+mixamo,Standing Torch Jump Running To Standing Idle,61,2.0,Standing Torch Jump Running To Standing Idle,점프·공중;달리기,1.31
+mixamo,Standing Torch Jump Running,56,1.9,Standing Torch Jump Running,점프·공중;달리기,1.34
+mixamo,Standing Torch Jump,52,1.7,Standing Torch Jump,점프·공중,1.37
+mixamo,Standing Torch Light Torch From Fire,134,4.5,Standing Torch Light Torch From Fire,,1.36
+mixamo,Standing Torch Light Torch From Wall,134,4.5,Standing Torch Light Torch From Wall,,1.46
+mixamo,Standing Torch Light Torch,121,4.0,Standing Torch Light Torch,,1.49
+mixamo,Standing Torch Melee Attack 01,61,2.0,Standing Torch Melee Attack 01,공격,1.43
+mixamo,Standing Torch Melee Attack 02,71,2.4,Standing Torch Melee Attack 02,공격,1.44
+mixamo,Standing Torch Melee Attack 03,106,3.5,Standing Torch Melee Attack 03,공격,1.46
+mixamo,Standing Torch Melee Attack 04,116,3.9,Standing Torch Melee Attack 04,공격,1.4
+mixamo,Standing Torch Melee Attack 05,97,3.2,Standing Torch Melee Attack 05,공격,1.41
+mixamo,Standing Torch Melee Attack Stab,74,2.5,Standing Torch Melee Attack Stab,공격,1.4
+mixamo,Standing Torch Run Back,21,0.7,Standing Torch Run Back,달리기,1.33
+mixamo,Standing Torch Run Forward Stop At Edge,86,2.9,Standing Torch Run Forward Stop At Edge,달리기,1.24
+mixamo,Standing Torch Run Forward Stop,53,1.8,Standing Torch Run Forward Stop,달리기,1.35
+mixamo,Standing Torch Run Forward,21,0.7,Standing Torch Run Forward,달리기,1.29
+mixamo,Standing Torch Run Left,21,0.7,Standing Torch Run Left,달리기,1.31
+mixamo,Standing Torch Run Right,20,0.7,Standing Torch Run Right,달리기,1.35
+mixamo,Standing Torch To Crouch Torch,31,1.0,Standing Torch To Crouch Torch,,1.16
+mixamo,Standing Torch Turn Right 180,56,1.9,Standing Torch Turn Right 180,,1.49
+mixamo,Standing Torch Turn Right 90,50,1.7,Standing Torch Turn Right 90,,1.49
+mixamo,Standing Torch Walk Back,36,1.2,Standing Torch Walk Back,걷기,1.37
+mixamo,Standing Torch Walk Forward Stop Edge,81,2.7,Standing Torch Walk Forward Stop Edge,걷기,1.42
+mixamo,Standing Torch Walk Forward Stop,58,1.9,Standing Torch Walk Forward Stop,걷기,1.43
+mixamo,Standing Torch Walk Forward,34,1.1,Standing Torch Walk Forward,걷기,1.39
+mixamo,Standing Torch Walk Left,35,1.2,Standing Torch Walk Left,걷기,1.42
+mixamo,Standing Torch Walk Right,36,1.2,Standing Torch Walk Right,걷기,1.38
+mixamo,Standing Turn 90 Left,39,1.3,Standing Turn 90 Left,,1.36
+mixamo,Standing Turn 90 Right,34,1.1,Standing Turn 90 Right,,1.38
+mixamo,Standing Turn Left 90,54,1.8,Standing Turn Left 90,,1.38
+mixamo,Standing Turn Right 90 (2),50,1.7,Standing Turn Right 90 (2),,1.37
+mixamo,Standing Turn Right 90,50,1.7,Standing Turn Right 90,,1.37
+mixamo,Standing Up (1),343,11.4,Standing Up (1),,0.39
+mixamo,Standing Up (2),183,6.1,Standing Up (2),,1.04
+mixamo,Standing Up (3),119,4.0,Standing Up (3),,1.46
+mixamo,Standing Up,51,1.7,Standing Up,,0.38
+mixamo,Standing Using Touchscreen Tablet,995,33.2,Standing Using Touchscreen Tablet,,1.49
+mixamo,Standing W_Briefcase Idle (1),431,14.4,Standing W_Briefcase Idle (1),,1.51
+mixamo,Standing W_Briefcase Idle,419,14.0,Standing W_Briefcase Idle,,1.5
+mixamo,Standing Walk Back (1),37,1.2,Standing Walk Back (1),걷기,1.38
+mixamo,Standing Walk Back (2),45,1.5,Standing Walk Back (2),걷기,1.34
+mixamo,Standing Walk Back,42,1.4,Standing Walk Back,걷기,1.4
+mixamo,Standing Walk Forward (1),35,1.2,Standing Walk Forward (1),걷기,1.38
+mixamo,Standing Walk Forward (2),37,1.2,Standing Walk Forward (2),걷기,1.34
+mixamo,Standing Walk Forward,41,1.4,Standing Walk Forward,걷기,1.39
+mixamo,Standing Walk Left (1),36,1.2,Standing Walk Left (1),걷기,1.38
+mixamo,Standing Walk Left (2),37,1.2,Standing Walk Left (2),걷기,1.21
+mixamo,Standing Walk Left,38,1.3,Standing Walk Left,걷기,1.44
+mixamo,Standing Walk Right (1),39,1.3,Standing Walk Right (1),걷기,1.37
+mixamo,Standing Walk Right (2),37,1.2,Standing Walk Right (2),걷기,1.38
+mixamo,Standing Walk Right,37,1.2,Standing Walk Right,걷기,1.26
+mixamo,Standing,116,3.9,Standing,,1.36
+mixamo,Start Bicycle Sit Up,186,6.2,Start Bicycle Sit Up,구르기·바닥,0.61
+mixamo,Start Climbing Ladder,62,2.1,Start Climbing Ladder,,1.31
+mixamo,Start Jumping Jacks,26,0.9,Start Jumping Jacks,점프·공중,1.46
+mixamo,Start Plank,148,4.9,Start Plank,,0.4
+mixamo,Start Walking (1),89,3.0,Start Walking (1),걷기,1.48
+mixamo,Start Walking (2),93,3.1,Start Walking (2),걷기,1.44
+mixamo,Start Walking Backwards,62,2.1,Start Walking Backwards,걷기,1.38
+mixamo,Start Walking,45,1.5,Start Walking,걷기,1.43
+mixamo,Stealth Assassination (2),211,7.0,Stealth Assassination (2),,1.27
+mixamo,Stealth Assassination,211,7.0,Stealth Assassination,,0.86
+mixamo,Step Backward (1),25,0.8,Step Backward (1),걷기,1.34
+mixamo,Step Backward (2),28,0.9,Step Backward (2),걷기,1.35
+mixamo,Step Backward,26,0.9,Step Backward,걷기,1.33
+mixamo,Stepping Backward,56,1.9,Stepping Backward,걷기,1.43
+mixamo,Stepping Forward,61,2.0,Stepping Forward,걷기,1.43
+mixamo,Stepping Left,45,1.5,Stepping Left,걷기,1.43
+mixamo,Stomach Hit,37,1.2,Stomach Hit,공격,1.34
+mixamo,Stop Jumping Jacks,33,1.1,Stop Jumping Jacks,점프·공중,1.49
+mixamo,Stop Walking (1),91,3.0,Stop Walking (1),걷기,1.47
+mixamo,Stop Walking With Rifle,69,2.3,Stop Walking With Rifle,걷기,1.47
+mixamo,Stop Walking,81,2.7,Stop Walking,걷기,1.41
+mixamo,Strafe (1),33,1.1,Strafe (1),,1.39
+mixamo,Strafe (2),36,1.2,Strafe (2),,1.34
+mixamo,Strafe (3),33,1.1,Strafe (3),,1.39
+mixamo,Strafe (4),17,0.6,Strafe (4),,1.4
+mixamo,Strafe (5),21,0.7,Strafe (5),,1.35
+mixamo,Strafe (6),21,0.7,Strafe (6),,1.34
+mixamo,Strafe Left,32,1.1,Strafe Left,,1.44
+mixamo,Strafe Right (1),46,1.5,Strafe Right (1),,1.0
+mixamo,Strafe Right (2),47,1.6,Strafe Right (2),,1.42
+mixamo,Strafe Right Stop,63,2.1,Strafe Right Stop,,1.43
+mixamo,Strafe Right,44,1.5,Strafe Right,,1.43
+mixamo,Strafe,36,1.2,Strafe,,1.34
+mixamo,Strafing (1),39,1.3,Strafing (1),,0.84
+mixamo,Strafing (10),55,1.8,Strafing (10),,1.07
+mixamo,Strafing (11),29,1.0,Strafing (11),,1.43
+mixamo,Strafing (2),41,1.4,Strafing (2),,0.9
+mixamo,Strafing (3),54,1.8,Strafing (3),,1.33
+mixamo,Strafing (4),39,1.3,Strafing (4),,0.91
+mixamo,Strafing (5),38,1.3,Strafing (5),,1.34
+mixamo,Strafing (6),39,1.3,Strafing (6),,1.44
+mixamo,Strafing (7),33,1.1,Strafing (7),,1.44
+mixamo,Strafing (8),35,1.2,Strafing (8),,1.0
+mixamo,Strafing (9),32,1.1,Strafing (9),,0.9
+mixamo,Strafing Jump,41,1.4,Strafing Jump,점프·공중,1.38
+mixamo,Strafing,31,1.0,Strafing,,1.38
+mixamo,Strangling,528,17.6,Strangling,,1.33
+mixamo,Strike Foward Jog,40,1.3,Strike Foward Jog,공격;달리기,1.37
+mixamo,Stroke Hand Gesture,49,1.6,Stroke Hand Gesture,,0.05
+mixamo,Stroke Nodding,50,1.7,Stroke Nodding,,0.05
+mixamo,Stroke Shaking Head,51,1.7,Stroke Shaking Head,,0.05
+mixamo,Stroke Shrugging,58,1.9,Stroke Shrugging,,0.06
+mixamo,Struck In Head,180,6.0,Struck In Head,,0.88
+mixamo,Strut Walking,44,1.5,Strut Walking,걷기,1.44
+mixamo,Stumble Backwards,101,3.4,Stumble Backwards,피격·넘어짐,0.44
+mixamo,Stumbling,150,5.0,Stumbling,,0.66
+mixamo,Stunned,65,2.2,Stunned,,0.44
+mixamo,Stylish Flip,65,2.2,Stylish Flip,점프·공중,0.53
+mixamo,Sumo High Pull (1),121,4.0,Sumo High Pull (1),,0.8
+mixamo,Sumo High Pull (2),79,2.6,Sumo High Pull (2),,1.23
+mixamo,Sumo High Pull,39,1.3,Sumo High Pull,,1.38
+mixamo,Superhuman Choke Lift,192,6.4,Superhuman Choke Lift,던지기·잡기,1.43
+mixamo,Surprise Uppercut (1),106,3.5,Surprise Uppercut (1),공격,1.35
+mixamo,Surprise Uppercut,106,3.5,Surprise Uppercut,공격,0.05
+mixamo,Swagger Walk,85,2.8,Swagger Walk,걷기,1.47
+mixamo,Swatting Bugs,201,6.7,Swatting Bugs,,1.44
+mixamo,Sweep Fall,76,2.5,Sweep Fall,피격·넘어짐,0.71
+mixamo,Swing Into Wall,92,3.1,Swing Into Wall,,0.79
+mixamo,Swing To Land (1),66,2.2,Swing To Land (1),,1.07
+mixamo,Swing To Land (2),62,2.1,Swing To Land (2),,0.64
+mixamo,Swing To Land (3),57,1.9,Swing To Land (3),,0.63
+mixamo,Swing To Land,57,1.9,Swing To Land,,0.57
+mixamo,Sword And Shield 180 Turn (1),25,0.8,Sword And Shield 180 Turn (1),공격,1.35
+mixamo,Sword And Shield 180 Turn,26,0.9,Sword And Shield 180 Turn,공격,1.12
+mixamo,Sword And Shield Attack (1),40,1.3,Sword And Shield Attack (1),공격,1.32
+mixamo,Sword And Shield Attack (2),53,1.8,Sword And Shield Attack (2),공격,1.2
+mixamo,Sword And Shield Attack (3),31,1.0,Sword And Shield Attack (3),공격,1.33
+mixamo,Sword And Shield Attack,71,2.4,Sword And Shield Attack,공격,1.18
+mixamo,Sword And Shield Block (1),21,0.7,Sword And Shield Block (1),공격;방어·회피,1.32
+mixamo,Sword And Shield Block Idle,43,1.4,Sword And Shield Block Idle,공격;방어·회피,1.19
+mixamo,Sword And Shield Block,18,0.6,Sword And Shield Block,공격;방어·회피,1.28
+mixamo,Sword And Shield Casting (1),32,1.1,Sword And Shield Casting (1),공격,1.35
+mixamo,Sword And Shield Casting,90,3.0,Sword And Shield Casting,공격,1.3
+mixamo,Sword And Shield Crouch Block (1),16,0.5,Sword And Shield Crouch Block (1),공격;방어·회피,0.87
+mixamo,Sword And Shield Crouch Block Idle,16,0.5,Sword And Shield Crouch Block Idle,공격;방어·회피,0.86
+mixamo,Sword And Shield Crouch Block,25,0.8,Sword And Shield Crouch Block,공격;방어·회피,0.87
+mixamo,Sword And Shield Crouch Idle,74,2.5,Sword And Shield Crouch Idle,공격,0.83
+mixamo,Sword And Shield Crouch,18,0.6,Sword And Shield Crouch,공격,1.1
+mixamo,Sword And Shield Crouching (1),16,0.5,Sword And Shield Crouching (1),공격,1.18
+mixamo,Sword And Shield Crouching (2),19,0.6,Sword And Shield Crouching (2),공격,0.84
+mixamo,Sword And Shield Crouching,20,0.7,Sword And Shield Crouching,공격,0.87
+mixamo,Sword And Shield Death (1),70,2.3,Sword And Shield Death (1),공격,1.29
+mixamo,Sword And Shield Death,118,3.9,Sword And Shield Death,공격,1.02
+mixamo,Sword And Shield Idle (1),77,2.6,Sword And Shield Idle (1),공격,1.34
+mixamo,Sword And Shield Idle (2),111,3.7,Sword And Shield Idle (2),공격,1.34
+mixamo,Sword And Shield Idle (3),261,8.7,Sword And Shield Idle (3),공격,1.34
+mixamo,Sword And Shield Idle,227,7.6,Sword And Shield Idle,공격,1.38
+mixamo,Sword And Shield Impact (1),30,1.0,Sword And Shield Impact (1),공격,1.26
+mixamo,Sword And Shield Impact (2),24,0.8,Sword And Shield Impact (2),공격,1.21
+mixamo,Sword And Shield Impact,22,0.7,Sword And Shield Impact,공격,1.34
+mixamo,Sword And Shield Jump (1),26,0.9,Sword And Shield Jump (1),공격;점프·공중,1.24
+mixamo,Sword And Shield Jump,30,1.0,Sword And Shield Jump,공격;점프·공중,1.32
+mixamo,Sword And Shield Kick,37,1.2,Sword And Shield Kick,공격,1.42
+mixamo,Sword And Shield Power Up,72,2.4,Sword And Shield Power Up,공격,1.39
+mixamo,Sword And Shield Run (1),22,0.7,Sword And Shield Run (1),공격;달리기,1.28
+mixamo,Sword And Shield Run,17,0.6,Sword And Shield Run,공격;달리기,1.4
+mixamo,Sword And Shield Slash (1),46,1.5,Sword And Shield Slash (1),공격,1.27
+mixamo,Sword And Shield Slash (2),42,1.4,Sword And Shield Slash (2),공격,0.87
+mixamo,Sword And Shield Slash (3),51,1.7,Sword And Shield Slash (3),공격,1.34
+mixamo,Sword And Shield Slash (4),107,3.6,Sword And Shield Slash (4),공격,1.27
+mixamo,Sword And Shield Slash,74,2.5,Sword And Shield Slash,공격,1.28
+mixamo,Sword And Shield Strafe (1),35,1.2,Sword And Shield Strafe (1),공격,1.31
+mixamo,Sword And Shield Strafe (2),21,0.7,Sword And Shield Strafe (2),공격,1.38
+mixamo,Sword And Shield Strafe (3),40,1.3,Sword And Shield Strafe (3),공격,1.3
+mixamo,Sword And Shield Strafe,22,0.7,Sword And Shield Strafe,공격,1.4
+mixamo,Sword And Shield Turn (1),29,1.0,Sword And Shield Turn (1),공격,1.35
+mixamo,Sword And Shield Turn,29,1.0,Sword And Shield Turn,공격,1.35
+mixamo,Sword And Shield Walk (1),39,1.3,Sword And Shield Walk (1),공격;걷기,1.42
+mixamo,Sword And Shield Walk,34,1.1,Sword And Shield Walk,공격;걷기,1.41
+mixamo,Sword Fight One (1),246,8.2,Sword Fight One (1),공격,1.29
+mixamo,Sword Fight One,246,8.2,Sword Fight One,공격,1.29
+mixamo,T-Pose,2,0.1,T-Pose,,1.51
+mixamo,Taken Hostage - Victim,66,2.2,Taken Hostage - Victim,,1.44
+mixamo,Taken Hostage - Villain,66,2.2,Taken Hostage - Villain,,1.47
+mixamo,Taking A Pill,55,1.8,Taking A Pill,,0.14
+mixamo,Taking Cover Idle,69,2.3,Taking Cover Idle,,1.39
+mixamo,Taking Cover,69,2.3,Taking Cover,,1.39
+mixamo,Taking Punch,171,5.7,Taking Punch,공격,1.38
+mixamo,Talking (1),145,4.8,Talking (1),,1.48
+mixamo,Talking (2),151,5.0,Talking (2),,1.06
+mixamo,Talking (3),114,3.8,Talking (3),,1.49
+mixamo,Talking (4),119,4.0,Talking (4),,1.48
+mixamo,Talking (5),156,5.2,Talking (5),,1.47
+mixamo,Talking (6),309,10.3,Talking (6),,1.47
+mixamo,Talking At Watercooler,1338,44.6,Talking At Watercooler,,1.5
+mixamo,Talking On A Cell Phone,1118,37.3,Talking On A Cell Phone,,1.48
+mixamo,Talking On Phone,1166,38.9,Talking On Phone,,1.48
+mixamo,Talking Phone Pacing,1268,42.3,Talking Phone Pacing,,1.47
+mixamo,Talking,179,6.0,Talking,,1.46
+mixamo,Taunt (1),117,3.9,Taunt (1),,1.34
+mixamo,Taunt (2),156,5.2,Taunt (2),,1.47
+mixamo,Taunt (3),98,3.3,Taunt (3),,1.38
+mixamo,Taunt (4),50,1.7,Taunt (4),,1.35
+mixamo,Taunt Gesture,60,2.0,Taunt Gesture,,1.4
+mixamo,Taunt,86,2.9,Taunt,,1.37
+mixamo,Teeter (1),146,4.9,Teeter (1),,1.28
+mixamo,Teeter Transition,25,0.8,Teeter Transition,구르기·바닥,1.46
+mixamo,Teeter,56,1.9,Teeter,,1.41
+mixamo,Telling A Secret,328,10.9,Telling A Secret,,1.42
+mixamo,Tender Placement,279,9.3,Tender Placement,,0.3
+mixamo,Texting And Walking,100,3.3,Texting And Walking,걷기,1.47
+mixamo,Texting While Standing,708,23.6,Texting While Standing,,1.5
+mixamo,Texting,557,18.6,Texting,,1.47
+mixamo,Thoughtful Head Nod,89,3.0,Thoughtful Head Nod,,1.5
+mixamo,Thoughtful Head Shake,93,3.1,Thoughtful Head Shake,,1.5
+mixamo,Threatening,133,4.4,Threatening,,1.48
+mixamo,Thriller Idle,131,4.4,Thriller Idle,,1.49
+mixamo,Throw Grenade (2),106,3.5,Throw Grenade (2),던지기·잡기,0.24
+mixamo,Throw Grenade,106,3.5,Throw Grenade,던지기·잡기,0.84
+mixamo,Throw In,84,2.8,Throw In,던지기·잡기,1.4
+mixamo,Throw Object,147,4.9,Throw Object,던지기·잡기,1.3
+mixamo,Throw,67,2.2,Throw,던지기·잡기,1.48
+mixamo,Throwing Dice,132,4.4,Throwing Dice,던지기·잡기,1.13
+mixamo,Throwing,168,5.6,Throwing,던지기·잡기,1.34
+mixamo,Thrust Slash,91,3.0,Thrust Slash,공격,1.3
+mixamo,Tonic Seizure,242,8.1,Tonic Seizure,,0.1
+mixamo,Toss Grenade,97,3.2,Toss Grenade,,1.43
+mixamo,Transition,24,0.8,Transition,구르기·바닥,1.45
+mixamo,Treadmill Running,237,7.9,Treadmill Running,달리기,1.44
+mixamo,Tripping (1),84,2.8,Tripping (1),,0.32
+mixamo,Tripping,64,2.1,Tripping,,0.72
+mixamo,Troca 1,156,5.2,Troca 1,,0.58
+mixamo,Turn 90 Left,31,1.0,Turn 90 Left,,1.43
+mixamo,Turn 90 Right,31,1.0,Turn 90 Right,,1.43
+mixamo,Turn Left (1),27,0.9,Turn Left (1),,0.84
+mixamo,Turn Left (2),38,1.3,Turn Left (2),,0.81
+mixamo,Turn Left 45 Degrees,36,1.2,Turn Left 45 Degrees,,1.44
+mixamo,Turn Left,31,1.0,Turn Left,,1.44
+mixamo,Turn Right (2),26,0.9,Turn Right (2),,0.82
+mixamo,Turn Right,44,1.5,Turn Right,,0.81
+mixamo,Turn To Knocked Unconscious,139,4.6,Turn To Knocked Unconscious,피격·넘어짐,1.35
+mixamo,Turn To Running,52,1.7,Turn To Running,달리기,1.24
+mixamo,Turning (2),111,3.7,Turning (2),,1.46
+mixamo,Turning Right 45 Degrees (1),61,2.0,Turning Right 45 Degrees (1),,1.43
+mixamo,Turning Right 45 Degrees,31,1.0,Turning Right 45 Degrees,,1.45
+mixamo,Turning Right 90 Degrees,73,2.4,Turning Right 90 Degrees,,1.42
+mixamo,Turning Right,85,2.8,Turning Right,,1.43
+mixamo,Turning,37,1.2,Turning,,1.39
+mixamo,Tut Hip Hop Dance,364,12.1,Tut Hip Hop Dance,점프·공중;춤,1.44
+mixamo,Twist Dance,284,9.5,Twist Dance,춤,1.31
+mixamo,Two Cycle Sprint,33,1.1,Two Cycle Sprint,달리기,1.21
+mixamo,Two Hand Club Combo,164,5.5,Two Hand Club Combo,,1.4
+mixamo,Two Hand Spell Casting,104,3.5,Two Hand Spell Casting,,1.36
+mixamo,Two Hand Sword Combo,99,3.3,Two Hand Sword Combo,공격,1.4
+mixamo,Two Handed Sword Death (1),73,2.4,Two Handed Sword Death (1),공격,0.84
+mixamo,Two Handed Sword Death,79,2.6,Two Handed Sword Death,공격,0.67
+mixamo,Type To Sit,29,1.0,Type To Sit,구르기·바닥,1.03
+mixamo,Unarmed Equip Over Shoulder,51,1.7,Unarmed Equip Over Shoulder,,1.44
+mixamo,Unarmed Equip Torch 01,56,1.9,Unarmed Equip Torch 01,,1.49
+mixamo,Unarmed Equip Torch 02,91,3.0,Unarmed Equip Torch 02,,1.49
+mixamo,Unarmed Equip Underarm,38,1.3,Unarmed Equip Underarm,,1.45
+mixamo,Unarmed Grab Torch From Floor,116,3.9,Unarmed Grab Torch From Floor,구르기·바닥;던지기·잡기,1.39
+mixamo,Unarmed Grab Torch From Wall,139,4.6,Unarmed Grab Torch From Wall,던지기·잡기,1.46
+mixamo,Unarmed Idle 01 (1),154,5.1,Unarmed Idle 01 (1),,1.49
+mixamo,Unarmed Idle 01,349,11.6,Unarmed Idle 01,,1.49
+mixamo,Unarmed Idle Looking Ver. 1,339,11.3,Unarmed Idle Looking Ver. 1,,1.47
+mixamo,Unarmed Idle Looking Ver. 2,236,7.9,Unarmed Idle Looking Ver. 2,,1.48
+mixamo,Unarmed Idle,58,1.9,Unarmed Idle,,1.49
+mixamo,Unarmed Jump Running,43,1.4,Unarmed Jump Running,점프·공중;달리기,1.32
+mixamo,Unarmed Jump,71,2.4,Unarmed Jump,점프·공중,1.33
+mixamo,Unarmed Run Back,24,0.8,Unarmed Run Back,달리기,1.4
+mixamo,Unarmed Run Forward,25,0.8,Unarmed Run Forward,달리기,1.4
+mixamo,Unarmed Turn Left 90,46,1.5,Unarmed Turn Left 90,,1.47
+mixamo,Unarmed Turn Right 90,46,1.5,Unarmed Turn Right 90,,1.47
+mixamo,Unarmed Walk Back,40,1.3,Unarmed Walk Back,걷기,1.46
+mixamo,Unarmed Walk Forward,42,1.4,Unarmed Walk Forward,걷기,1.41
+mixamo,Uppercut Jab,109,3.6,Uppercut Jab,공격,1.36
+mixamo,Uppercut,41,1.4,Uppercut,공격,1.42
+mixamo,Upward Rifle Butt Strike,67,2.2,Upward Rifle Butt Strike,공격,0.97
+mixamo,Upward Thrust,71,2.4,Upward Thrust,,1.28
+mixamo,Using A Fax Machine,489,16.3,Using A Fax Machine,,1.43
+mixamo,Using A Filing Cabinet,311,10.4,Using A Filing Cabinet,,1.48
+mixamo,Using An Inhaler,55,1.8,Using An Inhaler,,0.18
+mixamo,Vampiric Bite,92,3.1,Vampiric Bite,,1.37
+mixamo,Vault Over Box,107,3.6,Vault Over Box,점프·공중,0.95
+mixamo,Victory (1),257,8.6,Victory (1),,1.46
+mixamo,Victory Idle (1),57,1.9,Victory Idle (1),,1.43
+mixamo,Victory Idle (2),55,1.8,Victory Idle (2),,1.33
+mixamo,Victory Idle,51,1.7,Victory Idle,,1.46
+mixamo,Victory,136,4.5,Victory,,1.47
+mixamo,Walk Backward (1),38,1.3,Walk Backward (1),걷기,1.44
+mixamo,Walk Backward (2),34,1.1,Walk Backward (2),걷기,0.82
+mixamo,Walk Backward Arc (1),37,1.2,Walk Backward Arc (1),걷기,1.07
+mixamo,Walk Backward Arc Left,31,1.0,Walk Backward Arc Left,걷기,1.43
+mixamo,Walk Backward Arc Right,37,1.2,Walk Backward Arc Right,걷기,1.39
+mixamo,Walk Backward Arc,32,1.1,Walk Backward Arc,걷기,0.99
+mixamo,Walk Backward Left,31,1.0,Walk Backward Left,걷기,1.34
+mixamo,Walk Backward Right,31,1.0,Walk Backward Right,걷기,1.33
+mixamo,Walk Backward,31,1.0,Walk Backward,걷기,1.32
+mixamo,Walk Backwards Stop,42,1.4,Walk Backwards Stop,걷기,1.4
+mixamo,Walk Backwards,117,3.9,Walk Backwards,걷기,1.36
+mixamo,Walk Crouching Backward Left,31,1.0,Walk Crouching Backward Left,걷기,1.07
+mixamo,Walk Crouching Backward Right,31,1.0,Walk Crouching Backward Right,걷기,1.06
+mixamo,Walk Crouching Backward,31,1.0,Walk Crouching Backward,걷기,1.09
+mixamo,Walk Crouching Forward Left,31,1.0,Walk Crouching Forward Left,걷기,1.07
+mixamo,Walk Crouching Forward Right,31,1.0,Walk Crouching Forward Right,걷기,1.04
+mixamo,Walk Crouching Forward,31,1.0,Walk Crouching Forward,걷기,1.05
+mixamo,Walk Crouching Left,31,1.0,Walk Crouching Left,걷기,1.07
+mixamo,Walk Crouching Right,31,1.0,Walk Crouching Right,걷기,1.07
+mixamo,Walk Forward Arc (1),34,1.1,Walk Forward Arc (1),걷기,1.0
+mixamo,Walk Forward Arc Right,45,1.5,Walk Forward Arc Right,걷기,1.42
+mixamo,Walk Forward Arc,35,1.2,Walk Forward Arc,걷기,1.0
+mixamo,Walk Forward Left,31,1.0,Walk Forward Left,걷기,1.32
+mixamo,Walk Forward Right,31,1.0,Walk Forward Right,걷기,1.29
+mixamo,Walk Forward,31,1.0,Walk Forward,걷기,1.3
+mixamo,Walk In Circle (1),522,17.4,Walk In Circle (1),걷기,1.47
+mixamo,Walk In Circle,377,12.6,Walk In Circle,걷기,1.47
+mixamo,Walk Left,31,1.0,Walk Left,걷기,1.27
+mixamo,Walk Right,31,1.0,Walk Right,걷기,1.31
+mixamo,Walk Strafe Left,45,1.5,Walk Strafe Left,걷기,1.47
+mixamo,Walk Strafe Right,45,1.5,Walk Strafe Right,걷기,1.47
+mixamo,Walk To Stop,148,4.9,Walk To Stop,걷기,1.45
+mixamo,Walk W_ Briefcase,33,1.1,Walk W_ Briefcase,걷기,1.47
+mixamo,Walk With Briefcase,32,1.1,Walk With Briefcase,걷기,1.46
+mixamo,Walk With Rifle (1),44,1.5,Walk With Rifle (1),걷기,1.27
+mixamo,Walk With Rifle (2),102,3.4,Walk With Rifle (2),걷기,1.45
+mixamo,Walk With Rifle,34,1.1,Walk With Rifle,걷기,1.44
+mixamo,Walk,31,1.0,Walk,걷기,1.45
+mixamo,Walker Walk,112,3.7,Walker Walk,걷기,1.46
+mixamo,Walking (1),32,1.1,Walking (1),걷기,1.42
+mixamo,Walking (10),139,4.6,Walking (10),걷기,1.38
+mixamo,Walking (11),43,1.4,Walking (11),걷기,1.36
+mixamo,Walking (12),43,1.4,Walking (12),걷기,1.45
+mixamo,Walking (13),47,1.6,Walking (13),걷기,1.21
+mixamo,Walking (14),122,4.1,Walking (14),걷기,1.26
+mixamo,Walking (15),27,0.9,Walking (15),걷기,1.43
+mixamo,Walking (16),38,1.3,Walking (16),걷기,1.47
+mixamo,Walking (17),53,1.8,Walking (17),걷기,1.35
+mixamo,Walking (18),87,2.9,Walking (18),걷기,1.44
+mixamo,Walking (19),211,7.0,Walking (19),걷기,1.38
+mixamo,Walking (2),31,1.0,Walking (2),걷기,1.43
+mixamo,Walking (20),31,1.0,Walking (20),걷기,1.43
+mixamo,Walking (21),32,1.1,Walking (21),걷기,1.43
+mixamo,Walking (3),32,1.1,Walking (3),걷기,1.45
+mixamo,Walking (4),32,1.1,Walking (4),걷기,1.45
+mixamo,Walking (5),76,2.5,Walking (5),걷기,1.34
+mixamo,Walking (6),64,2.1,Walking (6),걷기,1.33
+mixamo,Walking (7),42,1.4,Walking (7),걷기,1.46
+mixamo,Walking (8),30,1.0,Walking (8),걷기,1.47
+mixamo,Walking (9),50,1.7,Walking (9),걷기,1.41
+mixamo,Walking Arc Left,32,1.1,Walking Arc Left,걷기,1.44
+mixamo,Walking Backward Arc Right,32,1.1,Walking Backward Arc Right,걷기,1.44
+mixamo,Walking Backward,38,1.3,Walking Backward,걷기,1.46
+mixamo,Walking Backwards (1),46,1.5,Walking Backwards (1),걷기,1.47
+mixamo,Walking Backwards (2),30,1.0,Walking Backwards (2),걷기,1.44
+mixamo,Walking Backwards (3),37,1.2,Walking Backwards (3),걷기,1.43
+mixamo,Walking Backwards (4),27,0.9,Walking Backwards (4),걷기,1.42
+mixamo,Walking Backwards,43,1.4,Walking Backwards,걷기,1.38
+mixamo,Walking Hit Reaction,42,1.4,Walking Hit Reaction,공격;걷기,1.4
+mixamo,Walking Left Turn,37,1.2,Walking Left Turn,걷기,1.46
+mixamo,Walking To Dying (2),88,2.9,Walking To Dying (2),걷기,1.18
+mixamo,Walking To Dying,93,3.1,Walking To Dying,걷기,0.88
+mixamo,Walking Turn 180,31,1.0,Walking Turn 180,걷기,1.45
+mixamo,Walking Up The Stairs,37,1.2,Walking Up The Stairs,걷기,1.4
+mixamo,Walking While Texting,121,4.0,Walking While Texting,걷기,1.47
+mixamo,Walking With Shopping Bag,39,1.3,Walking With Shopping Bag,점프·공중;걷기,1.44
+mixamo,Walking,42,1.4,Walking,걷기,1.41
+mixamo,Wall Crash,75,2.5,Wall Crash,,1.01
+mixamo,Wall Run (1),64,2.1,Wall Run (1),달리기,1.12
+mixamo,Wall Run,29,1.0,Wall Run,달리기,1.06
+mixamo,Warming Up,190,6.3,Warming Up,,1.43
+mixamo,Warrior Idle,345,11.5,Warrior Idle,,1.48
+mixamo,Watering,169,5.6,Watering,,1.44
+mixamo,Wave Hip Hop Dance,506,16.9,Wave Hip Hop Dance,점프·공중;춤,1.44
+mixamo,Waving (1),96,3.2,Waving (1),,1.5
+mixamo,Waving,17,0.6,Waving,,1.5
+mixamo,Weight Shift,284,9.5,Weight Shift,,1.49
+mixamo,Wheelbarrow Dump,188,6.3,Wheelbarrow Dump,,1.39
+mixamo,Wheelbarrow Idle,46,1.5,Wheelbarrow Idle,,1.49
+mixamo,Wheelbarrow Walk (1),30,1.0,Wheelbarrow Walk (1),걷기,1.41
+mixamo,Wheelbarrow Walk Turn (1),33,1.1,Wheelbarrow Walk Turn (1),걷기,1.35
+mixamo,Wheelbarrow Walk Turn,33,1.1,Wheelbarrow Walk Turn,걷기,1.43
+mixamo,Wheelbarrow Walk,30,1.0,Wheelbarrow Walk,걷기,1.36
+mixamo,Wheelchair,49,1.6,Wheelchair,,0.92
+mixamo,Wide Arm Spell Casting,107,3.6,Wide Arm Spell Casting,,1.37
+mixamo,Wiping Sweat,80,2.7,Wiping Sweat,,1.41
+mixamo,Withdrawing Sword,46,1.5,Withdrawing Sword,공격,1.38
+mixamo,Wobbling,112,3.7,Wobbling,,1.16
+mixamo,Working On Device,194,6.5,Working On Device,,0.79
+mixamo,Writing,151,5.0,Writing,,1.01
+mixamo,Yelling,236,7.9,Yelling,,1.41
+mixamo,Ymca Dance,136,4.5,Ymca Dance,춤,1.36
+mixamo,Zombie Agonizing,350,11.7,Zombie Agonizing,,1.3
+mixamo,Zombie Attack (1),80,2.7,Zombie Attack (1),공격,1.38
+mixamo,Zombie Attack,140,4.7,Zombie Attack,공격,1.24
+mixamo,Zombie Biting (1),209,7.0,Zombie Biting (1),,0.37
+mixamo,Zombie Biting,71,2.4,Zombie Biting,,0.19
+mixamo,Zombie Death,90,3.0,Zombie Death,,0.84
+mixamo,Zombie Dying,101,3.4,Zombie Dying,,0.89
+mixamo,Zombie Headbutt,79,2.6,Zombie Headbutt,,1.32
+mixamo,Zombie Idle (1),131,4.4,Zombie Idle (1),,1.38
+mixamo,Zombie Idle (2),121,4.0,Zombie Idle (2),,1.47
+mixamo,Zombie Idle (3),184,6.1,Zombie Idle (3),,1.36
+mixamo,Zombie Idle (4),121,4.0,Zombie Idle (4),,1.27
+mixamo,Zombie Idle,128,4.3,Zombie Idle,,1.49
+mixamo,Zombie Kicking (1),106,3.5,Zombie Kicking (1),공격,1.23
+mixamo,Zombie Kicking,102,3.4,Zombie Kicking,공격,1.28
+mixamo,Zombie Neck Bite,126,4.2,Zombie Neck Bite,,1.31
+mixamo,Zombie Punching (1),116,3.9,Zombie Punching (1),공격,1.23
+mixamo,Zombie Punching,32,1.1,Zombie Punching,공격,1.33
+mixamo,Zombie Reaction Hit (1),66,2.2,Zombie Reaction Hit (1),공격,1.29
+mixamo,Zombie Reaction Hit,61,2.0,Zombie Reaction Hit,공격,1.33
+mixamo,Zombie Run,25,0.8,Zombie Run,달리기,1.2
+mixamo,Zombie Running,25,0.8,Zombie Running,달리기,1.2
+mixamo,Zombie Scratch Idle,142,4.7,Zombie Scratch Idle,,1.34
+mixamo,Zombie Stand Up,175,5.8,Zombie Stand Up,,1.12
+mixamo,Zombie Stumbling,149,5.0,Zombie Stumbling,,0.22
+mixamo,Zombie Transition (1),36,1.2,Zombie Transition (1),구르기·바닥,1.36
+mixamo,Zombie Transition,201,6.7,Zombie Transition,구르기·바닥,1.43
+mixamo,Zombie Walk,122,4.1,Zombie Walk,걷기,1.27
