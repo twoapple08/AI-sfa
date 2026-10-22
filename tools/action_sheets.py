@@ -31,6 +31,7 @@ def main():
     ap.add_argument("--tag", default="T02")
     ap.add_argument("--animators", default="")
     ap.add_argument("--exclude", default="")
+    ap.add_argument("--all", action="store_true", help="층별 뽑기 없이 입력 행 전부(이미 고른 목록용)")
     a = ap.parse_args()
     rng = np.random.default_rng(a.seed)
     rows = list(csv.DictReader(open(a.actions, encoding="utf-8")))
@@ -49,8 +50,10 @@ def main():
     for k in sorted(strata):
         v = strata[k]
         pick += [v[i] for i in rng.choice(len(v), min(per, len(v)), replace=False)]
+    if a.all:
+        pick = list(rows)
     rng.shuffle(pick)
-    pick = pick[:a.n]
+    pick = pick if a.all else pick[:a.n]
     os.makedirs(a.out, exist_ok=True)
     lst, ans = [], []
     for k, r in enumerate(pick):
