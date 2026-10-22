@@ -185,6 +185,10 @@ def delta_e(a, b):
 
 def decompose(img, k=8, tol=1.0, min_area=20, valid=None):
     """valid(0/1 마스크)가 있으면 그 안만 분해한다(이펙트 분리 결과, tools/kaggle_fx_worker.py). ΔE도 그 안에서만 잰다."""
+    if valid is not None and valid.sum() < min_area:  # 이펙트가 없는 프레임: 빈 그림
+        doc = {"size": list(img.shape[:2]), "layers": [], "lines": [],
+               "stats": {"base": 0, "shade": 0, "line_segs": 0, "light_segs": 0, "segs": 0, "dE_mean": 0.0, "dE_p95": 0.0}}
+        return doc, np.zeros_like(img)
     lm, lsegs, lcol = line_layer(img, tol, valid=valid)
     hm, hsegs, hcol = line_layer(img, tol, light=True, valid=valid)
     layers = base_and_shade(img, lm | hm, k, tol, min_area, valid)
