@@ -36,7 +36,9 @@ MAP = {
               "left_wrist", "right_wrist", "left_hip", "right_hip", "left_knee", "right_knee", "left_ankle",
               "right_ankle", "left_foot", "right_foot"],
 }
-DIRS = {"cmu": "cmu/npz30", "lafan1": "lafan1_npz30", "bandai": "bandai_npz30", "amass": "amass/npz30"}
+MAP["mixamo"] = JOINTS  # tools/mixamo_fbx.py가 이미 공통 18관절 순서로 낸다
+DIRS = {"cmu": "cmu/npz30", "lafan1": "lafan1_npz30", "bandai": "bandai_npz30", "amass": "amass/npz30",
+        "mixamo": "mixamo_npz30"}
 
 TAGS = [  # (태그, 정규식) — 설명·파일 이름에 대해 대소문자 무시
     ("공격", r"punch|kick|strike|jab|hook|uppercut|slash|sword|attack|karate|martial|boxing|boxer|fight|hit|elbow|knee_|stab"),

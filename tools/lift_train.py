@@ -27,7 +27,7 @@ JN = ["pelvis", "spine", "neck", "head", "l_shoulder", "r_shoulder", "l_elbow", 
       "l_hip", "r_hip", "l_knee", "r_knee", "l_ankle", "r_ankle", "l_toe", "r_toe"]
 J = {n: i for i, n in enumerate(JN)}
 PAR = [-1, 0, 1, 2, 2, 2, 4, 5, 6, 7, 0, 0, 10, 11, 12, 13, 14, 15]
-SOURCES = ["cmu", "lafan1", "bandai", "amass"]
+SOURCES = ["cmu", "lafan1", "bandai", "amass", "mixamo"]
 BOOST = ("공격", "피격·넘어짐", "점프·공중", "구르기·바닥", "방어·회피")
 BODY_ORDER = ["l_shoulder", "r_shoulder", "l_elbow", "r_elbow", "l_wrist", "r_wrist", "l_hip", "r_hip", "l_knee",
               "r_knee", "l_ankle", "r_ankle"]
