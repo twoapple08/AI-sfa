@@ -6,6 +6,7 @@
   애니 3D는 카메라 좌표라 위아래를 믿을 수 없어 높이·중력 방향 특징은 쓰지 않는다.
 - 모캡 라벨: 목록 csv의 키워드 태그 → 공격 / 이동(걷기·달리기) / 점프·공중 / 쓰러짐·누움(피격·넘어짐, 구르기·바닥) / 기타(춤·던지기·감정 표현).
   태그는 클립 단위(대략값)라 창 라벨은 약하다(약지도).
+- 모캡 창의 70%에 2·3프레임 유지를 넣고 전체에 1cm 떨림을 더한다(애니의 정지·한 번에 건너뛰기와 3D 올리기 떨림 맞추기, HOLD_AUG=0으로 끔).
 - 분류기: 로지스틱 회귀(표준화). 클래스별 표본을 맞춘다.
 - 평가: T02 시트(GPT 판정)와 같은 구간의 애니 3D 창을 찾아 예측과 비교. GPT '대기'는 움직임 총량 기준(분류기 밖)으로 따로 본다.
 """
@@ -21,6 +22,7 @@ import numpy as np
 WIN = 24
 PAIRS = [(i, j) for i in range(18) for j in range(i + 1, 18)]
 PI, PJ = np.array([p[0] for p in PAIRS]), np.array([p[1] for p in PAIRS])
+HOLD_AUG = os.environ.get("HOLD_AUG", "1") == "1"  # 모캡 창에 정지(2·3프레임 유지)·떨림을 넣는다
 
 
 def label_of(tags):
@@ -68,7 +70,13 @@ def mocap_windows(src, index, per_class=4000, seed=0):
             if p not in cache:
                 cache[p] = np.load(p)["pos"]
             o = st + rng.integers(0, ln - WIN + 1)
-            f = feats(cache[p][o:o + WIN].astype(np.float32), 30)
+            P = cache[p][o:o + WIN].astype(np.float32)
+            if HOLD_AUG and rng.random() < 0.7:  # 애니처럼 2·3프레임씩 같은 그림 유지(한 번에 건너뛰는 속도 모양을 맞춘다)
+                k = rng.choice([2, 3])
+                P = P[(np.arange(WIN) // k) * k]
+            if HOLD_AUG:
+                P = P + rng.normal(0, 0.01, P.shape).astype(np.float32)  # 3D 올리기 떨림 흉내(1cm)
+            f = feats(P, 30)
             if f is not None and np.isfinite(f).all():
                 X.append(f)
                 Y.append(lab)
