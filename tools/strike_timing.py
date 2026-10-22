@@ -204,6 +204,9 @@ def main():
         tracks = list(load_tracks(a.tracks, a.videos, ans))
         if cp:
             pickle.dump(tracks, open(cp, "wb"))
+    # 같은 그림이 유지된 프레임은 실제 움직임이 0이다(포즈 검출만 튄다 — 나카무라 110822 418 눈 확인). 손발 속도를 0으로 둔다.
+    tracks = [(an, pid, st, (px, np.where(np.isfinite(px) & (px <= PIX_EPS), 0.0, ext), tor, limb))
+              for an, pid, st, (px, ext, tor, limb) in tracks]
     out = {"pix_eps": PIX_EPS, "win": W, "tracks": {an: sum(1 for t in tracks if t[0] == an) for an in ans}}
 
     # A. 임팩트 기준
