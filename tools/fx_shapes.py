@@ -4,7 +4,7 @@
 사용: python tools/fx_shapes.py <마스크 npz 폴더> <나카무라 영상 폴더> <구간 csv> <출력 txt> [--per-seg 3] [--min-area 0.003]
 - 구간마다 이펙트 면적이 큰 프레임 몇 장(--per-seg)을 고르고, 물체별 마스크(라벨: explosion·smoke·fire·rocks·sparks …)마다
   연결 덩어리(화면 대비 min-area 이상)를 하나의 형태로 본다. 사람 물체는 뺀다.
-- 덩어리 면적/볼록 껍질 < 0.35(깨진 마스크)는 뺀다. 고르는 프레임은 서로 6프레임 이상 떨어뜨린다.
+- 한 프레임에서 이미 뽑은 덩어리와 IoU > 0.6이면 뺀다(여러 물체가 같은 덩어리). 덩어리 면적/볼록 껍질 < 0.35(깨진 마스크)는 뺀다. 고르는 프레임은 서로 6프레임 이상 떨어뜨린다.
 - 덩어리 안을 tools/effect_layers.py로 층 분해(밑색 + 반투명 명암 겹, 경계는 포물선 조각) → 덩어리 중심 원점, 크기 = 면적 제곱근 1로 맞춘다.
 - 종류: 라벨 낱말로 explosion / smoke / fire / rock / spark / other.
 - 제작 자료 구간(csv exclude)은 뺀다.
@@ -77,6 +77,7 @@ def main():
             if not ok:
                 continue
             img = cv2.resize(im, (Wd, H), interpolation=cv2.INTER_AREA)
+            kept = []  # 이 프레임에서 이미 뽑은 덩어리(같은 연기를 여러 물체로 잡아 같은 모양이 30개 넘게 반복됐다)
             for oi, lab in enumerate(z["labels"]):
                 lab = str(lab)
                 if "person" in lab:
@@ -90,6 +91,9 @@ def main():
                     if area < a.min_area:
                         continue
                     valid = (cc == c).astype(np.uint8)
+                    if any((valid & k_).sum() / max((valid | k_).sum(), 1) > 0.6 for k_ in kept):
+                        continue
+                    kept.append(valid)
                     hull = cv2.convexHull(cv2.findNonZero(valid))
                     if valid.sum() / max(cv2.contourArea(hull), 1) < 0.35:  # 너덜너덜한 덩어리(깨진 마스크)는 형태로 쓰지 않는다
                         continue

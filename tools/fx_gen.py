@@ -99,13 +99,14 @@ def load_scenes(path):
     return scenes
 
 
-def load_layered(path):
-    """tools/fx_shapes.py 층 형태 사전 → {종류: [[(BGR, 알파, [(구멍, segs[n,6])...])...] ...]}."""
-    out, L, i = {}, open(path, encoding="utf-8").read().splitlines(), 0
+def load_layered_with_src(path):
+    """tools/fx_shapes.py 층 형태 사전 → [(번호(1부터), 종류, 출처, 층 [(BGR, 알파, [(구멍, segs[n,6])...])])]."""
+    out, L, i, num = [], open(path, encoding="utf-8").read().splitlines(), 0, 0
     while i < len(L):
         f = L[i].split()
         if f and f[0] == "L":
-            kind, nl, i = f[1], int(f[3]), i + 1
+            kind, src, nl, i = f[1], f[2], int(f[3]), i + 1
+            num += 1
             layers = []
             for _ in range(nl):
                 y = L[i].split()
@@ -116,9 +117,22 @@ def load_layered(path):
                     i += 1
                     cs.append((int(c[1]), np.array(c[2:], float).reshape(-1, 6)))
                 layers.append(((int(y[1]), int(y[2]), int(y[3])), float(y[4]), cs))
-            out.setdefault(kind, []).append(layers)
+            out.append((num, kind, src, layers))
         else:
             i += 1
+    return out
+
+
+def load_layered(path, approved=None):
+    """{종류: [층 ...]}. approved(판정 csv: 번호,판정)가 있으면 '맞음'만(검출 이름표가 틀린 형태 — 예: 손톱을 폭발로 — 를 뺀다)."""
+    ok = None
+    if approved:
+        import csv
+        ok = {int(r["번호"]) for r in csv.DictReader(open(approved, encoding="utf-8-sig")) if r.get("판정", "").strip() == "맞음"}
+    out = {}
+    for num, kind, _, layers in load_layered_with_src(path):
+        if ok is None or num in ok:
+            out.setdefault(kind, []).append(layers)
     return out
 
 
@@ -225,6 +239,12 @@ class Gen:
                  for _ in range(7)]
         out = []
         size = self.st["explosion_size"] * grow
+        real = self.layered.get("explosion")
+        if real:  # 실제 나카무라 폭발 형태(층째로) 몇 개를 겹쳐 커지게, 정점 뒤 옅어지게
+            for j, (dx, dy, r, ang, bi) in enumerate(lumps[:4]):
+                out += self.place_layered(real[(j * 3 + self.seed) % len(real)], self.cx + dx * size * 0.6,
+                                          self.cy + dy * size * 0.6, size * r * 0.9, ang * 0.2, fade)
+            return out
         for sc, ck, a in ((1.35, "red", 0.35), (1.0, "orange", 0.6), (0.62, "yellow", 0.85), (0.32, "white", 0.95)):
             inner = sc < 0.7
             k = (1 - 0.6 * (u - pk) / (1 - pk)) if (inner and u > pk) else 1.0  # 안쪽 밝은 겹은 정점 뒤 먼저 줄어든다
@@ -374,6 +394,7 @@ def main():
     ap.add_argument("--bg", default="0,0,0")
     ap.add_argument("--stats")
     ap.add_argument("--shapes", help="층 형태 사전(tools/fx_shapes.py 출력). 있으면 파편·연기에 실제 형태를 쓴다")
+    ap.add_argument("--approved", help="형태 판정 csv(번호,판정). 있으면 '맞음' 형태만 쓴다(tools/fx_shape_sheets.py)")
     ap.add_argument("--flipbooks", help="이펙트 플립북(tools/fx_flipbook.py 출력). 충격파 등에 실제 프레임 순서를 쓴다")
     ap.add_argument("--shake", type=float, default=0.012, help="임팩트 뒤 화면 흔들림 세기(화면 높이 비율, 0=없음)")
     ap.add_argument("--check")
@@ -390,7 +411,7 @@ def main():
         ok = {l.strip() for l in open(a.scenes, encoding="utf-8") if l.strip() and not l.startswith("#")}
         scenes = [sc for sc in scenes if sc[0] in ok]
     g = Gen(wedges, blobs, load_pal(a.pal), a.seed, a.frames, st, scenes=scenes,
-            layered=load_layered(a.shapes) if a.shapes else None,
+            layered=load_layered(a.shapes, a.approved) if a.shapes else None,
             flipbooks=load_flipbooks(a.flipbooks) if a.flipbooks else None)
     if g.scenes:
         g.rng_scene = random.Random(a.seed * 977).randrange(len(g.scenes))
