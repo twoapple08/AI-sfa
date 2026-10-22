@@ -2,7 +2,8 @@
 """이펙트 시간 변화 재기: Kaggle 이펙트 분리 결과(tools/kaggle_fx_worker.py 마스크)로 이펙트가 어떻게 나타나·커지고·갈라지고·사라지는지 잰다.
 
 사용: python tools/fx_timing.py <마스크 npz 폴더> <나카무라 영상 폴더> <구간 csv> <출력 json>
-- 구간 csv: data/p3/fx_segments_2026-10-22.csv(post_id,start,end,tags). 종류는 tags의 첫 태그가 아니라 구간에 붙은 태그 각각으로 센다.
+- 구간 csv: data/p3/fx_segments_2026-10-22.csv(post_id,start,end,tags,exclude). exclude가 있는 구간(제작 자료)은 뺀다.
+  마스크는 _v3 → _v2 → 무표시 순으로 있는 것을 쓴다. 종류는 구간에 붙은 태그 각각으로 센다.
 - 프레임 지표(이펙트 마스크 안, 높이 540):
   면적 비율, 덩어리 수(30px 이상 연결 요소), 밝기(HSV V 평균)·채도 평균, 무게중심 이동(화면 높이 단위),
   새 그림 여부: 앞 프레임과 흔들림 보정(위상 상관) 뒤 15단계 넘게 바뀐 픽셀이 마스크의 20% 초과
@@ -119,7 +120,10 @@ def main():
     by_type = {}
     n_seg = 0
     for s in segs:
-        p = os.path.join(mdir, f"{s['post_id']}_{s['start']}.npz")
+        if s.get("exclude"):  # 제작 자료 영상(다른 작가 원화 표기 섞임)은 뺀다
+            continue
+        p = next((q for q in (os.path.join(mdir, f"{s['post_id']}_{s['start']}{v}.npz") for v in ("_v3", "_v2", ""))
+                  if os.path.exists(q)), "")
         v = glob.glob(os.path.join(vdir, s["post_id"] + "*.mp4"))
         if not os.path.exists(p) or not v:
             continue
