@@ -28,20 +28,23 @@ from skimage.morphology import skeletonize
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from effect_vectorize import fit, outline_mask, read_frame, trace  # noqa: E402
 
-LEVELS = [0.12, 0.25, 0.4, 0.55, 0.7, 0.85, 0.95]
+# 명암 단계 14개(2026-10-22, 이펙트 5장면 평균 ΔE 5.43 → 4.46, 조각 약 2배): 7단계는 그라데이션이 계단처럼 끊겼다
+LEVELS = [0.06, 0.12, 0.18, 0.25, 0.32, 0.4, 0.48, 0.55, 0.62, 0.7, 0.78, 0.85, 0.92, 0.97]
 LIGHT_KS = (7,)  # 밝은 선 찾는 틀 크기(px). 15px 추가는 표본 4장에서 개선 없음(번개 포함)
-MERGE_DE = 8.0  # 반투명 덮기로 설명되는 색 차이 허용(Lab ΔE). BGR 거리는 갈색을 흰색의 어두운 명암으로 잘못 묶었다
+MERGE_DE = 5.0  # (2026-10-22 8 → 5: 폭발 ΔE 11.8 → 10.7, 바탕과 비슷한 밝은 구름이 바탕에 묶이던 것 완화)
+# 반투명 덮기로 설명되는 색 차이 허용(Lab ΔE). BGR 거리는 갈색을 흰색의 어두운 명암으로 잘못 묶었다
+DARK_MAX = 140  # 어두운 선으로 볼 최대 밝기
 SEAM = 2  # 밑색 채우기에 같은 색 외곽선(px)을 더해 이웃 영역 사이 틈을 막는다(SFA: 채우기 + 같은 색 선)
 
 
-def line_layer(img, tol, thr=28, min_len=6, light=False):
+def line_layer(img, tol, thr=28, min_len=6, light=False, dark_max=None):
     """light=False: 주변보다 어두운 가는 선(블랙햇). light=True: 주변보다 밝은 가는 선(톱햇, 불꽃 속 잔결 등)."""
     g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     op = cv2.MORPH_TOPHAT if light else cv2.MORPH_BLACKHAT
     # 어두운 선 15px는 넓은 그림자를 선으로 잡았다. 밝은 선 틀 크기는 LIGHT_KS
     ks = LIGHT_KS if light else (7,)
     bh = np.max([cv2.morphologyEx(g, op, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))) for k in ks], 0)
-    m = ((bh > thr) & ((g > 110) if light else (g < 140))).astype(np.uint8)
+    m = ((bh > thr) & ((g > 110) if light else (g < (DARK_MAX if dark_max is None else dark_max)))).astype(np.uint8)
     m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((2, 2), np.uint8))
     dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
     segs = []
