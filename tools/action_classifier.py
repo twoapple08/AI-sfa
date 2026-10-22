@@ -1,6 +1,7 @@
 """3D 포즈 동작 분류기: 태그 붙은 모캡으로 학습하고, 애니 3D(tools/lift_apply.py 출력)에 적용해 GPT T02 판정과 비교한다.
 
 사용: python tools/action_classifier.py <mocap_unified 폴더> <mocap 목록 csv> <애니 3D 폴더> <T02 목록 csv> <T02 GPT csv> <출력 json>
+       [<학습용 목록 csv> <학습용 GPT csv> ...]  (예: T03 — 애니 정답으로 직접 학습, 모캡 창은 가중 0.2로 섞는다)
 - 특징(방향과 무관): 창(24프레임, 30fps 기준)마다 관절 쌍 거리(키로 정규화) 153개의 평균·표준편차,
   손목·발목·골반 속도(키/프레임)의 평균·최대, 몸 펼침(전체 관절의 골반 거리 평균) 변화량.
   애니 3D는 카메라 좌표라 위아래를 믿을 수 없어 높이·중력 방향 특징은 쓰지 않는다.
@@ -83,13 +84,31 @@ def mocap_windows(src, index, per_class=4000, seed=0):
     return np.array(X), np.array(Y), {k: len(v) for k, v in pool.items()}
 
 
-def train(X, Y):
+def train(X, Y, w=None):
     from sklearn.linear_model import LogisticRegression
     from sklearn.pipeline import make_pipeline
     from sklearn.preprocessing import StandardScaler
     m = make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000, C=0.5, class_weight="balanced"))
-    m.fit(X, Y)
+    m.fit(X, Y, logisticregression__sample_weight=w)
     return m
+
+
+CLASSES = ("공격", "이동", "점프·공중", "쓰러짐·누움", "기타")
+
+
+def anime_labeled(ani, lst_csv, gpt_csv):
+    """GPT 판정 시트 → (특징, 라벨). 분류기 클래스만(피격·막기는 아직 뺀다)."""
+    lst = {r["시트"]: r for r in csv.DictReader(open(lst_csv, encoding="utf-8-sig"))}
+    X, Y = [], []
+    for r in csv.DictReader(open(gpt_csv, encoding="utf-8-sig")):
+        if r["동작"] not in CLASSES or r["시트"] not in lst:
+            continue
+        q = lst[r["시트"]]
+        f = anime_window(ani, q["애니메이터"], q["post_id"], int(q["시작프레임"]), int(q["길이"]))
+        if f is not None and np.isfinite(f).all():
+            X.append(f)
+            Y.append(r["동작"])
+    return np.array(X), np.array(Y)
 
 
 def anime_window(ani_dir, an, pid, start, length):
@@ -120,7 +139,21 @@ def main():
     cut = int(len(X) * 0.8)
     m = train(X[idx[:cut]], Y[idx[:cut]])
     acc = float((m.predict(X[idx[cut:]]) == Y[idx[cut:]]).mean())
-    m = train(X, Y)
+    extra = sys.argv[7:]
+    anime_n = 0
+    if extra:
+        AX, AY = [], []
+        for lc, gc in zip(extra[::2], extra[1::2]):
+            ax, ay = anime_labeled(ani, lc, gc)
+            AX.append(ax)
+            AY.append(ay)
+        AX, AY = np.concatenate(AX), np.concatenate(AY)
+        anime_n = len(AY)
+        print("애니 정답 창", Counter(AY))
+        m = train(np.concatenate([X, AX]), np.concatenate([Y, AY]),
+                  np.r_[np.full(len(Y), 0.2), np.ones(len(AY))])
+    else:
+        m = train(X, Y)
     lst = {r["시트"]: r for r in csv.DictReader(open(t02_list, encoding="utf-8-sig"))}
     gpt = {r["시트"]: r["동작"] for r in csv.DictReader(open(t02_gpt, encoding="utf-8-sig"))}
     rows = []
@@ -129,10 +162,10 @@ def main():
         if f is None or not np.isfinite(f).all() or k not in gpt:
             continue
         rows.append((k, gpt[k], m.predict([f])[0], float(f[-1])))
-    comp = [r for r in rows if r[1] in ("공격", "이동", "점프·공중", "쓰러짐·누움", "기타")]
+    comp = [r for r in rows if r[1] in CLASSES]
     hit = sum(1 for r in comp if r[1] == r[2])
     conf = Counter((r[1], r[2]) for r in rows)
-    res = {"mocap_windows": dict(Counter(Y)), "mocap_holdout_acc_weak": round(acc, 3),
+    res = {"mocap_windows": dict(Counter(Y)), "anime_train_windows": anime_n, "mocap_holdout_acc_weak": round(acc, 3),
            "t02_matched": len(rows), "t02_comparable": len(comp), "t02_agree": hit,
            "confusion_gpt_to_pred": {f"{a}→{b}": v for (a, b), v in conf.most_common()},
            "idle_motion_by_gpt": {g: round(float(np.median([r[3] for r in rows if r[1] == g])), 4)
