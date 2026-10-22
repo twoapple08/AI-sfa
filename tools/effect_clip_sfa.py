@@ -3,6 +3,7 @@
 
 사용: python tools/effect_clip_sfa.py <영상> <시작프레임> <끝프레임(포함)> <출력.sfa> [--k 8] [--tol 1.0] [--step 1]
       [--check 비교.jpg]  (SFA를 서버 렌더러 tools/sfa_render.py로 다시 그려 원본과 Lab ΔE를 잰다)
+      [--mask 분리.npz] [--bg 0,0,0]  (tools/kaggle_fx_worker.py 이펙트 마스크 안만 분해 → 이펙트만 있는 SFA, 바탕색 BGR)
 - 층 → SFA(AGENTS.md 이펙트 그리기 원칙·그림 과정 그대로 그리기):
   밑색: FR(불투명) + 경계 곡선(TypeId 3, 밑색과 같은 색, 굵기 = 이음새 SEAM px)  ← 이웃 영역 사이 틈 막기
   명암: FR(반투명 알파) + 경계 곡선(투명, 아주 가늘게) — 바깥 넓고 옅게 → 안쪽 좁고 진하게
@@ -99,7 +100,19 @@ def main():
     ap.add_argument("--tol", type=float, default=1.0)
     ap.add_argument("--step", type=int, default=1)
     ap.add_argument("--check")
+    ap.add_argument("--mask")
+    ap.add_argument("--bg", default="0,0,0")
+    ap.add_argument("--grow", type=int, default=2, help="마스크 넓히기(px): 이펙트 가장자리 선까지 담는다")
     a = ap.parse_args()
+    bg = [int(v) for v in a.bg.split(",")]
+    masks = None
+    if a.mask:
+        import cv2
+        z = np.load(a.mask)
+        shp = tuple(int(v) for v in z["shape"])
+        M = np.unpackbits(z["mask"], axis=-1)[..., :shp[2]].astype(np.uint8)
+        k = np.ones((2 * a.grow + 1, 2 * a.grow + 1), np.uint8)
+        masks = {int(f): cv2.dilate(M[i], k) for i, f in enumerate(z["frames"])}
     frames = list(range(a.start, a.end + 1, a.step))
     wr = Writer()
     body, stats, imgs = [], [], []
@@ -107,14 +120,21 @@ def main():
     for pos, f in enumerate(frames):
         img = read_frame(a.video, f, H)
         W = img.shape[1]
-        doc, _ = decompose(img, a.k, a.tol)
-        body.append(frame_xml(doc, pos, wr, W, argb((0, 0, 0))))
+        valid = None
+        if masks is not None:
+            valid = masks.get(f, np.zeros(img.shape[:2], np.uint8))
+            if valid.shape != img.shape[:2]:
+                import cv2
+                valid = cv2.resize(valid, (W, H), interpolation=cv2.INTER_NEAREST)
+            img = np.where(valid[..., None] > 0, img, np.array(bg, np.uint8))  # 비교 그림용: 이펙트 밖은 바탕색
+        doc, _ = decompose(img, a.k, a.tol, valid=valid)
+        body.append(frame_xml(doc, pos, wr, W, argb(bg)))
         stats.append(doc["stats"])
         imgs.append(img)
         print(f, doc["stats"], flush=True)
     name = os.path.splitext(os.path.basename(a.out))[0]
     xml = (f"<?xml version='1.0' encoding='utf-8'?>\n<Sequence Name=\"{name}\" HeightWidthRatio=\"{H / W:.4f}\" "
-           f"RatioX=\"16\" RatioY=\"9\" FrameCount=\"{len(frames)}\" BackgroundColor=\"{argb((0, 0, 0))}\">\n"
+           f"RatioX=\"16\" RatioY=\"9\" FrameCount=\"{len(frames)}\" BackgroundColor=\"{argb(bg)}\">\n"
            + "\n".join(body) + "\n</Sequence>\n")
     with zipfile.ZipFile(a.out, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr(name + ".xml", xml)

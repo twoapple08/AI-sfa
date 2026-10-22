@@ -3,11 +3,11 @@
 사용(노트북이 부른다): python kaggle_fx_worker.py <작업번호> <작업수> [--model large|tiny] [--device cuda|cpu] [--limit N]
 1. 구간 목록: Drive `02_분석자료/이펙트_분리/_segments.csv`(post_id,start,end,tags — 자동 태그 explosion·smoke·debris 등 ≥ 0.35 구간 ±6프레임).
 2. 구간 프레임을 높이 540으로 뽑아 jpg 폴더로 둔다.
-3. Grounding DINO(글자 조건 검출)로 6프레임마다 '이펙트'(explosion, smoke, debris, dust cloud, fire, shockwave, sparks)와 'person' 상자를 찾는다.
+3. Grounding DINO(글자 조건 검출)로 6프레임마다 낱말 묶음 PROMPTS(폭발·연기 계열 / 돌·잔해 계열, 각각 person 포함)로 상자를 찾아 합친다.
 4. SAM 2 영상 예측기에 상자를 그 프레임의 물체로 넣고 구간 전체로 퍼뜨린다(앞뒤 모두).
 5. 프레임별 이펙트 마스크 = 이펙트 물체 합집합 − 사람 물체 합집합.
    상자 거르기: 화면 80% 이상 상자 버림, 사람은 점수 ≥ PERSON_T이고 이펙트 상자와 IoU ≤ 0.5인 것만(같은 덩어리를 둘 다로 잡는 일이 잦다).
-출력: Drive `02_분석자료/이펙트_분리/<post_id>_<start>.npz` — mask[T,H,W](packbits), frames(원 영상 번호), labels(물체별 글자),
+출력: Drive `02_분석자료/이펙트_분리/<post_id>_<start>_v2.npz` — mask[T,H,W](packbits), frames(원 영상 번호), labels(물체별 글자),
       obj_masks_area, det(검출 상자 목록). 원본 영상 유래라 Drive에만 둔다. 끝난 구간은 건너뛴다.
 """
 import argparse
@@ -26,11 +26,14 @@ import numpy as np
 
 SRC = "gdrive:AI-sfa/01_원본영상/yutaka_nakamura_디지털"
 OUT = "gdrive:AI-sfa/02_분석자료/이펙트_분리"
-FX = ["explosion", "smoke", "debris", "dust cloud", "fire", "shockwave", "sparks"]
-PROMPT = ". ".join(FX + ["person"]) + "."
+# 검출 낱말 묶음(2026-10-22 v2): 'debris' 같은 추상 낱말은 흩어진 돌 조각을 못 찾았다(271642: 사람만 검출).
+# 'rocks. stones.'처럼 보이는 물건 이름이면 조각마다 잡혔다(Grounding DINO base, 점수 0.23~0.46). 묶음마다 따로 검출해 합친다.
+PROMPTS = ["explosion. smoke. dust cloud. fire. shockwave. sparks. flash. person.",
+           "rocks. stones. rubble. debris. person."]
+VERSION = "_v2"
 H = 540
 EVERY = 6
-BOX_T, TEXT_T = 0.3, 0.25
+BOX_T, TEXT_T = 0.22, 0.2
 
 
 def rc(*a):
@@ -67,9 +70,15 @@ class Detector:
         self.torch = torch
 
     def __call__(self, bgr):
+        out = []
+        for prompt in PROMPTS:
+            out += self.detect(bgr, prompt)
+        return nms(out)
+
+    def detect(self, bgr, prompt):
         from PIL import Image
         img = Image.fromarray(cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB))
-        inp = self.proc(images=img, text=PROMPT, return_tensors="pt").to(self.device)
+        inp = self.proc(images=img, text=prompt, return_tensors="pt").to(self.device)
         with self.torch.no_grad():
             out = self.model(**inp)
         try:  # transformers 판마다 인수 이름이 다르다
@@ -93,6 +102,15 @@ def iou(a, b):
     x0, y0, x1, y1 = max(a[0], b[0]), max(a[1], b[1]), min(a[2], b[2]), min(a[3], b[3])
     inter = max(0.0, x1 - x0) * max(0.0, y1 - y0)
     return inter / max(box_area(a) + box_area(b) - inter, 1e-6)
+
+
+def nms(dets, thr=0.6):
+    """같은 종류(사람/이펙트)끼리 많이 겹치는 상자는 점수 높은 것 하나만."""
+    keep = []
+    for d in sorted(dets, key=lambda x: -x[1]):
+        if all(is_fx(d[0]) != is_fx(k[0]) or iou(d[2], k[2]) <= thr for k in keep):
+            keep.append(d)
+    return keep
 
 
 def is_fx(label):
@@ -161,7 +179,7 @@ def main():
         rc("copyto", f"{OUT}/_segments.csv", seg_csv)
     segs = list(csv.DictReader(open(seg_csv, encoding="utf-8")))
     done = set(rc("lsf", OUT).stdout.split())
-    todo = [s for s in segs if f"{s['post_id']}_{s['start']}.npz" not in done][a.wid::a.nw]
+    todo = [s for s in segs if f"{s['post_id']}_{s['start']}{VERSION}.npz" not in done][a.wid::a.nw]
     if a.limit:
         todo = todo[:a.limit]
     log("남은 구간", len(todo))
@@ -189,7 +207,7 @@ def main():
             np.savez_compressed(buf, **r)
             p = os.path.join(tmp, "out.npz")
             open(p, "wb").write(buf.getvalue())
-            up = rc("copyto", p, f"{OUT}/{pid}_{st}.npz")
+            up = rc("copyto", p, f"{OUT}/{pid}_{st}{VERSION}.npz")
             if up.returncode:
                 log("올리기 실패", up.stderr[-200:])
             log(k + 1, "/", len(todo), pid, st, en, "물체", len(r["labels"]), "이펙트 면적 평균", round(float(r["area"].mean()), 3),

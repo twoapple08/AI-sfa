@@ -37,7 +37,7 @@ DARK_MAX = 140  # 어두운 선으로 볼 최대 밝기
 SEAM = 2  # 밑색 채우기에 같은 색 외곽선(px)을 더해 이웃 영역 사이 틈을 막는다(SFA: 채우기 + 같은 색 선)
 
 
-def line_layer(img, tol, thr=28, min_len=6, light=False, dark_max=None):
+def line_layer(img, tol, thr=28, min_len=6, light=False, dark_max=None, valid=None):
     """light=False: 주변보다 어두운 가는 선(블랙햇). light=True: 주변보다 밝은 가는 선(톱햇, 불꽃 속 잔결 등)."""
     g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     op = cv2.MORPH_TOPHAT if light else cv2.MORPH_BLACKHAT
@@ -46,6 +46,8 @@ def line_layer(img, tol, thr=28, min_len=6, light=False, dark_max=None):
     bh = np.max([cv2.morphologyEx(g, op, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))) for k in ks], 0)
     m = ((bh > thr) & ((g > 110) if light else (g < (DARK_MAX if dark_max is None else dark_max)))).astype(np.uint8)
     m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((2, 2), np.uint8))
+    if valid is not None:
+        m &= valid
     dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
     segs = []
     for path in trace(skeletonize(m.astype(bool))):
@@ -65,14 +67,18 @@ def line_layer(img, tol, thr=28, min_len=6, light=False, dark_max=None):
     return m, segs, color
 
 
-def base_and_shade(img, line_mask, k, tol, min_area):
+def base_and_shade(img, line_mask, k, tol, min_area, valid=None):
     clean = cv2.inpaint(img, cv2.dilate(line_mask, np.ones((3, 3), np.uint8)), 3, cv2.INPAINT_TELEA)
     smooth = cv2.bilateralFilter(clean, 7, 30, 7)
     lab = cv2.cvtColor(smooth, cv2.COLOR_BGR2LAB).reshape(-1, 3).astype(np.float32)
     cv2.setRNGSeed(0)  # k-평균 시작점 고정(실행마다 ΔE가 ±0.5 흔들렸다)
-    _, lab_idx, cent = cv2.kmeans(lab, k, None, (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.5), 3,
-                                  cv2.KMEANS_PP_CENTERS)
-    lab_idx = lab_idx.reshape(img.shape[:2])
+    vflat = None if valid is None else valid.reshape(-1) > 0
+    sample = lab if vflat is None else lab[vflat]
+    k = max(1, min(k, len(sample)))
+    _, _, cent = cv2.kmeans(sample, k, None, (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.5), 3,
+                            cv2.KMEANS_PP_CENTERS)
+    # 색 묶음은 이펙트 영역(valid) 안 색만으로 정한다(배경 색이 섞이면 이펙트 색이 틀어졌다). 모든 픽셀은 가장 가까운 중심으로
+    lab_idx = np.linalg.norm(lab[:, None, :] - cent[None], axis=2).argmin(1).astype(np.int32).reshape(img.shape[:2])
     lab_idx = cv2.medianBlur(lab_idx.astype(np.uint8), 5).astype(np.int32)
     area = np.bincount(lab_idx.ravel(), minlength=k)
     bgr = cv2.cvtColor(cent.reshape(1, -1, 3).astype(np.uint8), cv2.COLOR_LAB2BGR).reshape(-1, 3).astype(np.float32)
@@ -93,9 +99,13 @@ def base_and_shade(img, line_mask, k, tol, min_area):
                     group[j] = i
                     break
     gmap = group[lab_idx]
+    if valid is not None:
+        gmap = np.where(valid > 0, gmap, -1)  # 이펙트 밖은 그리지 않는다
     layers = []
     fimg = smooth.astype(np.float32)
     for gi in np.unique(gmap):
+        if gi < 0:
+            continue
         reg = (gmap == gi).astype(np.uint8)
         if reg.sum() < min_area:
             continue
@@ -173,14 +183,17 @@ def delta_e(a, b):
     return np.linalg.norm(la - lb, axis=2)
 
 
-def decompose(img, k=8, tol=1.0, min_area=20):
-    lm, lsegs, lcol = line_layer(img, tol)
-    hm, hsegs, hcol = line_layer(img, tol, light=True)
-    layers = base_and_shade(img, lm | hm, k, tol, min_area)
+def decompose(img, k=8, tol=1.0, min_area=20, valid=None):
+    """valid(0/1 마스크)가 있으면 그 안만 분해한다(이펙트 분리 결과, tools/kaggle_fx_worker.py). ΔE도 그 안에서만 잰다."""
+    lm, lsegs, lcol = line_layer(img, tol, valid=valid)
+    hm, hsegs, hcol = line_layer(img, tol, light=True, valid=valid)
+    layers = base_and_shade(img, lm | hm, k, tol, min_area, valid)
     doc = {"size": list(img.shape[:2]), "layers": layers,
            "lines": [{"tone": "dark", "color": lcol, "segs": lsegs}, {"tone": "light", "color": hcol, "segs": hsegs}]}
     rec = render(doc, img.shape[:2])
     de = delta_e(img, rec)
+    if valid is not None:
+        de = de[valid > 0] if valid.any() else np.zeros(1)
     nseg = sum(len(s["segs"]) for L in layers for s in L["shapes"]) + len(lsegs) + len(hsegs)
     doc["stats"] = {"base": sum(L["kind"] == "base" for L in layers), "shade": sum(L["kind"] == "shade" for L in layers),
                     "line_segs": len(lsegs), "light_segs": len(hsegs), "segs": nseg, "dE_mean": round(float(de.mean()), 2),
