@@ -4,7 +4,8 @@
 - 대상: 몸점수_중앙 ≥ 2.8 추적(pose_tracks.KEEP_SCORE).
 - 프레임 지표(몸 크기 = 어깨 가운데~엉덩이 가운데 거리 중앙값 단위):
   몸 변화 = 17점의 앞 프레임 대비 평균 이동(골반 기준 상대), 손발 속도 = 손목·발목 중 최대 상대 이동.
-  새 그림 = 그 인물 상자(몸 점 범위 + 여백) 안 회색조 64×64에서 앞 프레임 대비 15단계 넘게 바뀐 픽셀 비율(%) > PIX_EPS.
+  새 그림 = 몸 뼈대 영역(이번·앞 프레임 뼈대를 몸통 0.3 굵기로 그림)에서, 앞 프레임을 위상 상관으로 평행 이동 맞춘 뒤
+  15단계 넘게 바뀐 픽셀 비율(%) > PIX_EPS.
   (포즈 변화량만으로는 나카무라에서 같은 그림·새 그림이 나뉘지 않았다 — 검출 떨림이 0.003~0.03로 실제 움직임과 겹침.)
   유지 길이 = 새 그림 사이 프레임 수(1s·2s·3s…).
 - A. 임팩트 기준(impact_classify training='사용'): 임팩트 시작 f0 ±W 창. 임팩트 프레임(f0~f1+1)은 그림이 통째로 바뀌므로 뺀다.
@@ -24,7 +25,7 @@ import os
 import numpy as np
 
 KEEP = 2.8
-PIX_EPS = 0.5  # 크게(>15) 바뀐 픽셀 %. 같은 그림은 정확히 0이 대부분(나카무라 표본 26%), 새 그림은 대부분 1% 이상
+PIX_EPS = 20.0  # 몸 영역(흔들림 보정 후)에서 크게 바뀐 픽셀 %. 새 그림 40~80%, 흔들림·잡음 1~14%. nian41 280544 1180–1227 손 계수 22간격과 전부 일치
 EXT = [9, 10, 15, 16]
 
 
@@ -144,7 +145,14 @@ def pixel_diffs(video, items):
                                      (int(kk[q_, 0] - xa), int(kk[q_, 1] - ya)), 1, th)
                 if mask.sum() < 30:
                     continue
-                d = np.abs(g[ya:yb, xa:xb].astype(np.int16) - prev[ya:yb, xa:xb].astype(np.int16)) > 15
+                cur = g[ya:yb, xa:xb].astype(np.float32)
+                pv = prev[ya:yb, xa:xb].astype(np.float32)
+                # 카메라 흔들림·이동 보정: 앞 프레임 상자를 위상 상관으로 평행 이동 맞춤(같은 그림이면 차이가 0 근처로 돌아온다)
+                (dx, dy), _ = cv2.phaseCorrelate(pv, cur)
+                if abs(dx) > 0.5 or abs(dy) > 0.5:
+                    pv = cv2.warpAffine(pv, np.float32([[1, 0, dx], [0, 1, dy]]), (pv.shape[1], pv.shape[0]),
+                                        borderMode=cv2.BORDER_REPLICATE)
+                d = np.abs(cur - pv) > 15
                 out[j][i] = float(d[mask > 0].mean() * 100)  # 몸 영역에서 크게 바뀐 픽셀 % (압축 잡음은 거의 15를 넘지 않는다)
         prev = g
         t += 1
