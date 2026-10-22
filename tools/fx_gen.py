@@ -128,11 +128,13 @@ def load_layered(path, approved=None):
     ok = None
     if approved:
         import csv
-        ok = {int(r["번호"]) for r in csv.DictReader(open(approved, encoding="utf-8-sig")) if r.get("판정", "").strip() == "맞음"}
+        # 판정이 '맞음'인 번호만. 다른종류 칸이 있으면 그 종류로 쓴다(예: 임팩트에서 딴 연기 → smoke, 베기 줄기 → streak)
+        ok = {int(r["번호"]): (r.get("다른종류") or "").strip() for r in csv.DictReader(open(approved, encoding="utf-8-sig"))
+              if r.get("판정", "").strip() == "맞음"}
     out = {}
     for num, kind, _, layers in load_layered_with_src(path):
         if ok is None or num in ok:
-            out.setdefault(kind, []).append(layers)
+            out.setdefault((ok or {}).get(num) or kind, []).append(layers)
     return out
 
 
@@ -364,7 +366,19 @@ class Gen:
             return out
         u = (t - t0 - n) / 3
         out = []
-        rng = random.Random(self.seed * 1000 + 17)  # 시드마다 다른 모양(같은 시드면 같은 결과)
+        rng = random.Random(self.seed * 1000 + 17)
+        streaks, bursts = self.layered.get("streak"), self.layered.get("flash")
+        if streaks:  # 실제 나카무라 임팩트에서 딴 베기·속도선 줄기를 방사형으로(긴 축을 바깥 방향에 맞춘다), 가운데에 섬광 덩어리
+            if bursts:
+                out += self.place_layered(bursts[self.seed % len(bursts)], self.cx, self.cy, 0.22 * (1 + u), 0.0, 1 - u)
+            for m in range(10):
+                ang = (m + rng.random() * 0.6) / 10 * 2 * math.pi
+                it = streaks[(m * 7 + self.seed) % len(streaks)]
+                ln = rng.uniform(0.12, 0.22) * (1 + 0.5 * u)
+                d = 0.08 + ln * 0.9
+                out += self.place_layered(it, self.cx + math.cos(ang) * d, self.cy + math.sin(ang) * d, ln,
+                                          ang - axis(it[0][2]), 1 - u)
+            return out  # 시드마다 다른 모양(같은 시드면 같은 결과)
         for m in range(12):  # 섬광 뒤 방사형 가시(쐐기), 빠르게 옅어짐
             ang = (m + rng.random() * 0.6) / 12 * 2 * math.pi
             wi = (m * 7) % len(self.wedges)
