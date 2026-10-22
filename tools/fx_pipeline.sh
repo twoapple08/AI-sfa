@@ -12,9 +12,12 @@ echo "마스크 $(ls "$W"/masks/*_v3.npz | wc -l)개"
 python3 tools/fx_timing.py "$W/masks" "$V" data/p3/fx_segments_2026-10-22.csv "$W/out/fx_timing.json" > "$W/out/fx_timing.log" 2>&1
 [ -n "${NO_UPLOAD:-}" ] || cp "$W/out/fx_timing.json" "data/p3/fx_timing_$(date +%F).json"
 python3 tools/fx_shapes.py "$W/masks" "$V" data/p3/fx_segments_2026-10-22.csv "$W/out/fx_shapes.txt" 2>&1 | tail -1
+python3 tools/fx_shape_sheets.py "$W/out/fx_shapes.txt" "$W/sheets"  # 형태 판정 시트(GPT: docs/GPT-PROMPT-FX-SHAPES-2026-10-22.md)
+[ -n "${NO_UPLOAD:-}" ] || rclone copy "$W/sheets" "gdrive:AI-sfa/02_분석자료/이펙트_형태시트" 2>/dev/null
+APPROVED=$(ls data/style_kb/ai_results/gpt_FXS_*.csv 2>/dev/null | tail -1)  # 판정이 있으면 '맞음'만 쓴다
 for k in explosion smoke debris impact; do
   python3 tools/fx_gen.py "$FX/effects.txt" "$FX/palette.txt" "$W/out/gen_$k.sfa" --kind "$k" --seed 1 \
-    --shapes "$W/out/fx_shapes.txt" --check "$W/out/gen_$k.jpg" > /dev/null 2>&1
+    --shapes "$W/out/fx_shapes.txt" ${APPROVED:+--approved "$APPROVED"} --check "$W/out/gen_$k.jpg" > /dev/null 2>&1
   python3 tools/fx_compare.py "$W/out/gen_$k.sfa" "$W/out/cmp_$k.json" --real "$W/out/fx_timing.json" \
     --type "$([ "$k" = impact ] && echo explosion || echo "$k")" > "$W/out/cmp_$k.txt" 2>&1
 done
