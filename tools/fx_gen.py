@@ -10,7 +10,8 @@
   섬광: 임팩트 1~2프레임 — 나카무라 임팩트 장면 플립북(사전 Q, 흑백 실루엣·먹선)을 시드로 골라 한 장씩(없으면 단색).
   그림 유지: 2s 바탕·빠른 순간 1s(docs/P1-STRIKE-TIMING-2026-10-22.md).
   폭발 면적은 빠르게 커져 수명 약 30%에서 정점(가정, 측정 전), 연기는 오르며 넓어지고 천천히 옅어짐(가정).
-- impact = 섬광 → 충격파·폭발·파편 → 연기가 이어지는 묶음.
+- impact = 섬광 → 충격파·폭발·파편 → 연기가 이어지는 묶음. 섬광 뒤 24프레임 화면 흔들림(--shake).
+- --shapes(tools/fx_shapes.py 층 형태 사전)가 있으면 파편(rock)·연기(smoke)에 실제 형태를 층째로 쓴다.
 이펙트 사전은 다른 작가 그림 유래라 저장소 밖(Drive). 이 도구와 수치만 저장소에 둔다.
 """
 import argparse
@@ -25,6 +26,27 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from effect_clip_sfa import Writer, argb  # noqa: E402
+from effect_vectorize import fit  # noqa: E402
+
+REFIT_TOL = 1.5  # 화면 px. 층 형태를 작게 놓을 때 원래 해상도의 잔조각을 화면 크기에 맞춰 다시 맞춘다(62MB → 수 MB)
+
+
+def refit(segs_px):
+    """2차 베지어 사슬(화면 px)을 곡선 위 점으로 바꿔 REFIT_TOL 오차로 다시 맞춘다(닫힌 윤곽)."""
+    P = []
+    for x0, y0, cx, cy, x1, y1 in segs_px:
+        t = np.linspace(0, 1, 4)[:-1, None]
+        P.append((1 - t) ** 2 * [x0, y0] + 2 * t * (1 - t) * [cx, cy] + t ** 2 * [x1, y1])
+    P = np.vstack(P)
+    if len(P) < 4:
+        return segs_px
+    per = np.linalg.norm(np.diff(np.vstack([P, P[:1]]), axis=0), axis=1).sum()
+    if per < 3:
+        return []
+    P = np.vstack([P, P[:1]])
+    out = []
+    fit([tuple(p) for p in P], REFIT_TOL, out)
+    return [[*a, *c, *b] for a, c, b in out] if out else segs_px
 
 W, H = 960, 540
 DEFAULT = {
@@ -76,6 +98,34 @@ def load_scenes(path):
     return scenes
 
 
+def load_layered(path):
+    """tools/fx_shapes.py 층 형태 사전 → {종류: [[(BGR, 알파, [(구멍, segs[n,6])...])...] ...]}."""
+    out, L, i = {}, open(path, encoding="utf-8").read().splitlines(), 0
+    while i < len(L):
+        f = L[i].split()
+        if f and f[0] == "L":
+            kind, nl, i = f[1], int(f[3]), i + 1
+            layers = []
+            for _ in range(nl):
+                y = L[i].split()
+                i += 1
+                cs = []
+                for _ in range(int(y[5])):
+                    c = L[i].split()
+                    i += 1
+                    cs.append((int(c[1]), np.array(c[2:], float).reshape(-1, 6)))
+                layers.append(((int(y[1]), int(y[2]), int(y[3])), float(y[4]), cs))
+            out.setdefault(kind, []).append(layers)
+        else:
+            i += 1
+    return out
+
+
+def shift(shapes, dx, dy):
+    """화면 흔들림: 윤곽 전체를 px만큼 옮긴다."""
+    return [dict(sh, segs=[[v + (dx if k % 2 == 0 else dy) for k, v in enumerate(sg)] for sg in sh["segs"]]) for sh in shapes]
+
+
 def load_pal(path):
     out = []
     for ln in open(path, encoding="utf-8"):
@@ -111,8 +161,9 @@ def axis(shape):
 
 
 class Gen:
-    def __init__(self, wedges, blobs, pal, seed, frames, st, cx=None, cy=0.5, scenes=()):
+    def __init__(self, wedges, blobs, pal, seed, frames, st, cx=None, cy=0.5, scenes=(), layered=None):
         self.wedges, self.blobs, self.pal = wedges, blobs, pal
+        self.layered = layered or {}
         self.scenes = list(scenes)
         self.rng = random.Random(seed)
         self.seed = seed
@@ -165,9 +216,26 @@ class Gen:
             x = self.cx + dx * (0.25 + 0.4 * u)
             y = self.cy - self.st["smoke_rise"] * age * rng.uniform(0.6, 1.4) - 0.05
             fade = max(0.0, 1 - u) ** 1.5
+            smokes = self.layered.get("smoke")
+            if smokes:  # 실제 연기 형태(층째로), 넓고 옅게 시작해 오르며 옅어진다
+                out += self.place_layered(smokes[(i * 5 + self.seed) % len(smokes)], x, y, s, ph + 0.3 * u, 0.7 * fade)
+                continue
             for sc, a, dark in ((1.3, 0.25, 1.0), (0.85, 0.45, 0.7)):
                 c = tuple(int(v * dark) for v in self.col["smoke"])
                 out.append((place(self.blobs[bi], x, y, s * sc, ph + 0.3 * u), c, a * fade))
+        return out
+
+    def place_layered(self, item, cx, cy, s, ang, fade=1.0):
+        """층 형태(실제 이펙트에서 딴 밑색 + 반투명 명암 겹)를 통째로 놓는다. 화면 크기에 맞춰 윤곽을 다시 맞추고 1px 미만 조각은 버린다."""
+        out = []
+        for col, a, cs in item:
+            shapes = []
+            for sh in place(cs, cx, cy, s, ang):
+                sg = refit(sh["segs"])
+                if sg:
+                    shapes.append(dict(sh, segs=sg))
+            if shapes:
+                out.append((shapes, col, a * fade))
         return out
 
     def debris(self, t, t0=0):
@@ -189,8 +257,12 @@ class Gen:
             s = rng.uniform(0.008, 0.03)
             bi = rng.randrange(len(self.blobs))
             spin = rng.uniform(-0.4, 0.4) * tt
-            out.append((place(self.blobs[bi], x, y, s, spin), (60, 64, 70), 1.0))
-            out.append((place(self.blobs[bi], x - s * 0.15, y - s * 0.15, s * 0.6, spin), self.col["dust"], 0.8))
+            rocks = self.layered.get("rock")
+            if rocks:  # 실제 돌 형태(층째로)
+                out += self.place_layered(rocks[(i * 7 + self.seed) % len(rocks)], x, y, s * 1.4, spin)
+            else:
+                out.append((place(self.blobs[bi], x, y, s, spin), (60, 64, 70), 1.0))
+                out.append((place(self.blobs[bi], x - s * 0.15, y - s * 0.15, s * 0.6, spin), self.col["dust"], 0.8))
         return out
 
     def shockwave(self, t, t0=0, life=10):
@@ -263,6 +335,8 @@ def main():
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--bg", default="0,0,0")
     ap.add_argument("--stats")
+    ap.add_argument("--shapes", help="층 형태 사전(tools/fx_shapes.py 출력). 있으면 파편·연기에 실제 형태를 쓴다")
+    ap.add_argument("--shake", type=float, default=0.012, help="임팩트 뒤 화면 흔들림 세기(화면 높이 비율, 0=없음)")
     ap.add_argument("--check")
     ap.add_argument("--scenes", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "p3",
                                                        "impact_scenes_fxonly_2026-10-22.txt"),
@@ -276,7 +350,8 @@ def main():
     if a.scenes and os.path.exists(a.scenes):
         ok = {l.strip() for l in open(a.scenes, encoding="utf-8") if l.strip() and not l.startswith("#")}
         scenes = [sc for sc in scenes if sc[0] in ok]
-    g = Gen(wedges, blobs, load_pal(a.pal), a.seed, a.frames, st, scenes=scenes)
+    g = Gen(wedges, blobs, load_pal(a.pal), a.seed, a.frames, st, scenes=scenes,
+            layered=load_layered(a.shapes) if a.shapes else None)
     if g.scenes:
         g.rng_scene = random.Random(a.seed * 977).randrange(len(g.scenes))
         print("임팩트 장면", g.scenes[g.rng_scene][0])
@@ -286,8 +361,17 @@ def main():
     for t in range(a.frames):
         out = [f'<Frame BackgroundColor="{argb(bg) & 0xFFFFFFFF}" ID="{t + 1}" Position="{t}">',
                '<LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false" />']
+        # 화면 흔들림(P2 카메라: 임팩트 뒤 약 1초 동안 평소의 약 2.3배): 섬광 뒤 24프레임 동안 줄어들며, 2프레임마다 새 위치
+        n = int(st["flash_frames"])
+        dx = dy = 0.0
+        if a.kind == "impact" and a.shake > 0 and n <= t < n + 24:
+            amp = a.shake * H * (1 - (t - n) / 24)
+            r = random.Random(a.seed * 31 + (t // 2))
+            dx, dy = r.uniform(-1, 1) * amp, r.uniform(-1, 1) * amp
         for shapes, bgr, alpha in g.frame(a.kind, t):
             if alpha > 0.01:
+                if dx or dy:
+                    shapes = shift(shapes, dx, dy)
                 wr.fill(out, shapes, W, argb(bgr, min(1.0, alpha)), 0, 0.02)
         out.append("</Frame>")
         body.append("\n".join(out))
