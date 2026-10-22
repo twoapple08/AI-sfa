@@ -7,7 +7,8 @@
 - 그리기: AGENTS.md 원칙 — 같은 형태를 크기·알파·색을 바꿔 여러 겹(바깥 넓고 옅게 → 안쪽 좁고 진하게). 모든 경계는 2차 베지어(TypeId 3) + FR 채우기.
 - 움직임 기본값(--stats로 덮어쓴다. 이펙트 분리 결과를 tools/fx_timing.py로 잰 값으로 바꿀 예정):
   파편: 정점 속도 0.014 화면높이/프레임, 속도 반감 3프레임(data/p4/nakamura_debris_rhythm_2026-10-21.json 폭발 파편 중앙값),
-  섬광: 임팩트 1~2프레임 — 나카무라 임팩트 장면 플립북(사전 Q, 흑백 실루엣·먹선)을 시드로 골라 한 장씩(없으면 단색).
+  섬광 길이: 나카무라 임팩트 길이 분포(data/p3/impact_lengths_2026-10-22.json, 실루엣 중앙 3·사분위 2–5, 단색 중앙 1)에서 시드로 뽑는다(최대 8).
+  섬광 그림: 나카무라 임팩트 장면 플립북(사전 Q, 흑백 실루엣·먹선)을 시드로 골라 한 장씩(없으면 단색).
   그림 유지: 2s 바탕·빠른 순간 1s(docs/P1-STRIKE-TIMING-2026-10-22.md).
   폭발 면적은 빠르게 커져 수명 약 30%에서 정점(가정, 측정 전), 연기는 오르며 넓어지고 천천히 옅어짐(가정).
 - impact = 섬광 → 충격파·폭발·파편 → 연기가 이어지는 묶음. 섬광 뒤 24프레임 화면 흔들림(--shake).
@@ -52,7 +53,7 @@ W, H = 960, 540
 DEFAULT = {
     "debris_v0": 0.014, "debris_half": 3.0, "debris_gravity": 0.0012, "debris_count": 40,
     "explosion_peak": 0.3, "explosion_size": 0.33, "smoke_rise": 0.004, "smoke_grow": 0.012,
-    "shock_speed": 0.045, "flash_frames": 2, "hold": 2,
+    "shock_speed": 0.045, "shock_scale": 0.55, "flash_frames": 2, "hold": 2,
 }
 
 
@@ -121,6 +122,33 @@ def load_layered(path):
     return out
 
 
+def load_flipbooks(path):
+    """tools/fx_flipbook.py 출력 → {종류: [[프레임별 층 [(BGR, 알파, [(구멍, segs)])]] ...]}."""
+    out, L, i = {}, open(path, encoding="utf-8").read().splitlines(), 0
+    while i < len(L):
+        f = L[i].split()
+        if f and f[0] == "B":
+            kind, nf, i = f[1], int(f[3]), i + 1
+            frames = []
+            for _ in range(nf):
+                nl, i = int(L[i].split()[1]), i + 1
+                layers = []
+                for _ in range(nl):
+                    y = L[i].split()
+                    i += 1
+                    cs = []
+                    for _ in range(int(y[5])):
+                        c = L[i].split()
+                        i += 1
+                        cs.append((int(c[1]), np.array(c[2:], float).reshape(-1, 6)))
+                    layers.append(((int(y[1]), int(y[2]), int(y[3])), float(y[4]), cs))
+                frames.append(layers)
+            out.setdefault(kind, []).append(frames)
+        else:
+            i += 1
+    return out
+
+
 def shift(shapes, dx, dy):
     """화면 흔들림: 윤곽 전체를 px만큼 옮긴다."""
     return [dict(sh, segs=[[v + (dx if k % 2 == 0 else dy) for k, v in enumerate(sg)] for sg in sh["segs"]]) for sh in shapes]
@@ -161,7 +189,9 @@ def axis(shape):
 
 
 class Gen:
-    def __init__(self, wedges, blobs, pal, seed, frames, st, cx=None, cy=0.5, scenes=(), layered=None):
+    def __init__(self, wedges, blobs, pal, seed, frames, st, cx=None, cy=0.5, scenes=(), layered=None, flipbooks=None):
+        self.flipbooks = flipbooks or {}
+        self.dark_bg = True
         self.wedges, self.blobs, self.pal = wedges, blobs, pal
         self.layered = layered or {}
         self.scenes = list(scenes)
@@ -269,6 +299,14 @@ class Gen:
         u = (t - t0) / life
         if u < 0 or u > 1:
             return []
+        books = self.flipbooks.get("shockwave")
+        if books:  # 실제 나카무라 충격파 프레임 순서(층째로). 원본은 화면을 덮는 크기라 줄여 가운데에 놓는다
+            fb = books[self.seed % len(books)]
+            k = min(int((t - t0) * len(fb) / life), len(fb) - 1)
+            layers = fb[self.held(k)]
+            if self.dark_bg:  # 밝은 바탕 위 검은 고리 → 어두운 바탕에서는 밝기를 뒤집어 흰 고리로(흑백 반전, 임팩트 장면과 같은 방식)
+                layers = [(tuple(255 - c for c in col) if sum(col) < 180 else col, a, cs) for col, a, cs in layers]
+            return self.place_layered(layers, self.cx, self.cy, self.st["shock_scale"], 0.0, 1.0 - 0.5 * u)
         r = 0.05 + self.st["shock_speed"] * (t - t0) * (1.6 - 0.6 * u)
         fade = 1 - u
         out = []
@@ -336,6 +374,7 @@ def main():
     ap.add_argument("--bg", default="0,0,0")
     ap.add_argument("--stats")
     ap.add_argument("--shapes", help="층 형태 사전(tools/fx_shapes.py 출력). 있으면 파편·연기에 실제 형태를 쓴다")
+    ap.add_argument("--flipbooks", help="이펙트 플립북(tools/fx_flipbook.py 출력). 충격파 등에 실제 프레임 순서를 쓴다")
     ap.add_argument("--shake", type=float, default=0.012, help="임팩트 뒤 화면 흔들림 세기(화면 높이 비율, 0=없음)")
     ap.add_argument("--check")
     ap.add_argument("--scenes", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "p3",
@@ -351,11 +390,19 @@ def main():
         ok = {l.strip() for l in open(a.scenes, encoding="utf-8") if l.strip() and not l.startswith("#")}
         scenes = [sc for sc in scenes if sc[0] in ok]
     g = Gen(wedges, blobs, load_pal(a.pal), a.seed, a.frames, st, scenes=scenes,
-            layered=load_layered(a.shapes) if a.shapes else None)
+            layered=load_layered(a.shapes) if a.shapes else None,
+            flipbooks=load_flipbooks(a.flipbooks) if a.flipbooks else None)
     if g.scenes:
         g.rng_scene = random.Random(a.seed * 977).randrange(len(g.scenes))
         print("임팩트 장면", g.scenes[g.rng_scene][0])
+    lens = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "p3", "impact_lengths_2026-10-22.json")
+    if not a.stats or "flash_frames" not in json.load(open(a.stats)):
+        if os.path.exists(lens):  # 섬광 길이: 나카무라 임팩트 실제 길이 분포에서 시드로 뽑는다(실루엣 중앙 3, 단색 중앙 1)
+            pool = json.load(open(lens))["silhouette" if g.scenes else "mono"]
+            st["flash_frames"] = min(8, random.Random(a.seed * 53).choice(pool))
+            print("섬광 길이", st["flash_frames"])
     bg = [int(v) for v in a.bg.split(",")]
+    g.dark_bg = sum(bg) < 384
     wr = Writer()
     body = []
     for t in range(a.frames):
