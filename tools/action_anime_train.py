@@ -1,6 +1,6 @@
 """애니 GPT 판정(T03 등)으로 동작 분류기를 직접 학습하고 T02로 평가한다(8동작).
 
-사용: python tools/action_anime_train.py <서버 data 폴더> <애니 3D 폴더(lift_apply 출력)> <3d|2d|both>
+사용: python tools/action_anime_train.py <서버 data 폴더> <애니 3D 폴더(lift_apply 출력)> <3d|2d|both> [T04]
 - data 폴더에 T03/T03_동작/T03_목록.csv, gpt_T02/T02_목록.csv, tracks_all/ 이 있어야 한다(원본 유래라 저장소 밖).
 - 정답: data/style_kb/ai_results/gpt_T03_2026-10-22.csv(학습), gpt_T02_2026-10-21.csv(평가). '판단 불가'·'뼈대 틀림'은 뺀다.
 - 특징: 3d = action_classifier.feats(관절 쌍 거리·속도, 방향 무관), 2d = pose_actions 지표 + 몸통 기울기 범위·골반 수직 변위·화면 몸 크기 변화.
@@ -47,7 +47,11 @@ def load(lst,gpt):
         elif MODE=='both': f=None if (f is None or g is None) else np.r_[f,g]
         if f is not None and np.isfinite(f).all(): X.append(f);Y.append(r['동작'])
     return np.array(X),np.array(Y)
-Xtr,Ytr=load(D+'/T03/T03_동작/T03_목록.csv','data/style_kb/ai_results/gpt_T03_2026-10-22.csv')
+TRAIN = [(D + '/T03/T03_동작/T03_목록.csv', 'data/style_kb/ai_results/gpt_T03_2026-10-22.csv')]
+if 'T04' in sys.argv[4:]:  # 능동 뽑기 T04(tools/action_active_pick.py)를 학습에 더한다
+    TRAIN.append((D + '/T04/T04_동작/T04_목록.csv', 'data/style_kb/ai_results/gpt_T04_2026-10-22.csv'))
+parts = [load(a, b) for a, b in TRAIN]
+Xtr, Ytr = np.concatenate([p[0] for p in parts]), np.concatenate([p[1] for p in parts])
 Xte,Yte=load(D+'/gpt_T02/T02_목록.csv','data/style_kb/ai_results/gpt_T02_2026-10-21.csv')
 print('train',len(Ytr),dict(Counter(Ytr)));print('test',len(Yte),dict(Counter(Yte)))
 from sklearn.linear_model import LogisticRegression
@@ -65,5 +69,9 @@ for n,m in ms.items():
     m.fit(Xtr,Ytr);p=m.predict(Xte)
     print(n,'T03 5겹 CV',round(float((cv==Ytr).mean()),3),'T02',int((p==Yte).sum()),'/',len(Yte),round(float((p==Yte).mean()),3))
     if n=='rf':
+        pr=m.predict_proba(Xte).max(1)
+        for th in (0.4,0.5,0.6):
+            k=pr>=th
+            print(f' 확신≥{th}: T02 {int(k.sum())}개 중 {int((p[k]==Yte[k]).sum())}개 맞음({(p[k]==Yte[k]).mean() if k.any() else 0:.2f})')
         print(' T02 혼동 상위',Counter((a,b) for a,b in zip(Yte,p) if a!=b).most_common(6))
         print(' 클래스별 T02 맞음',{c:f"{int(((p==c)&(Yte==c)).sum())}/{int((Yte==c).sum())}" for c in CL})
