@@ -39,6 +39,7 @@ ALIASES = {
     "임팩트": ["impact_frames"], "임팩트_연필": ["impact_frames_pencil"], "임팩트_디지털": ["impact_frames_digital"],
     "임팩트_부분": ["impact_frames_partial"], "흑백연출": ["bw_direction"], "유타폰큐브": ["yutapon_cubes"],
     "배경동화": ["background_animation"], "바람": ["wind"], "액체": ["liquid"],
+    "연필질감참고": ["pencil_texture_reference"], "격투": ["fighting"], "연기연출": ["character_acting"], "달리기연출": ["running"], "이펙트전반": ["effects"],
 }
 REV = {v: k for k, vs in ALIASES.items() for v in vs}
 NO_BODY = {"riooo", "optical-core", "yukina_kosaka"}
