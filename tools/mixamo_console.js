@@ -59,15 +59,17 @@
     throw new Error("시간 초과");
   }
 
+  // 사이트 보안 설정(CSP connect-src)이 외부 저장소(S3)를 스크립트로 읽는 것을 막는다.
+  // 그래서 파일을 읽지 않고 링크를 눌러 브라우저가 직접 받게 한다(Mixamo 다운로드 버튼과 같은 방식).
+  // 외부 주소라 파일 이름은 Mixamo가 정한다. 동작 id·이름 대응은 mixamo_index.csv에 남긴다.
   async function save(url, name) {
-    const b = await (await fetch(url)).blob();
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(b);
-    a.download = name;
+    a.href = url;
+    if (url.startsWith("blob:")) a.download = name;
     document.body.appendChild(a);
     a.click();
     a.remove();
-    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    await sleep(1500);
   }
 
   window.aisfaProbe = async () => {
@@ -80,7 +82,7 @@
       const url = await exportOne(cid, res[0]);
       console.log("시험 내보내기 성공:", res[0].name);
       await save(url, `mixamo_TEST_${res[0].id}.fbx`);
-      console.log("다운로드 폴더에 mixamo_TEST_… 파일이 생겼는지 확인. 되면 aisfaDownload() 실행");
+      console.log("다운로드 폴더에 " + res[0].name + " 동작의 fbx가 생겼는지 확인. 되면 aisfaDownload() 실행");
     }
   };
 
