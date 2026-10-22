@@ -1,0 +1,255 @@
+"""정리된 2D 포즈 추적(tools/pose_tracks.py)으로 몸동작 타이밍(빠름·멈춤)을 잰다. 나카무라 몸동작 역할(타격 타이밍·간격)용.
+
+사용: python tools/strike_timing.py <tracks_all 폴더> <원본 영상 루트> <임팩트 판정 csv> <출력 json> [--animators yutaka_nakamura,nian41]
+- 대상: 몸점수_중앙 ≥ 2.8 추적(pose_tracks.KEEP_SCORE).
+- 프레임 지표(몸 크기 = 어깨 가운데~엉덩이 가운데 거리 중앙값 단위):
+  몸 변화 = 17점의 앞 프레임 대비 평균 이동(골반 기준 상대), 손발 속도 = 손목·발목 중 최대 상대 이동.
+  새 그림 = 그 인물 상자(몸 점 범위 + 여백) 안 회색조 64×64에서 앞 프레임 대비 15단계 넘게 바뀐 픽셀 비율(%) > PIX_EPS.
+  (포즈 변화량만으로는 나카무라에서 같은 그림·새 그림이 나뉘지 않았다 — 검출 떨림이 0.003~0.03로 실제 움직임과 겹침.)
+  유지 길이 = 새 그림 사이 프레임 수(1s·2s·3s…).
+- A. 임팩트 기준(impact_classify training='사용'): 임팩트 시작 f0 ±W 창. 임팩트 프레임(f0~f1+1)은 그림이 통째로 바뀌므로 뺀다.
+  임팩트 직전 마지막 유지 길이(예비 동작 멈춤), 직전·직후 손발 속도, 유지 길이 분포를 기준(임팩트 ±2초 밖 창)과 비교.
+- B. 빠른 동작 정점(임팩트 목록 없이, 애니메이터별): 손발 속도가 그 애니메이터 상위 3%이고 12프레임 안 최댓값인 프레임.
+  정점 직전 멈춤(정점 전 마지막 유지 길이), 정점 직후 멈춤, 정점까지 그림 수(정점 앞 8프레임 안 새 그림 수),
+  간격 비(정점 프레임 이동 / 정점 앞 그림들의 평균 이동 — 크면 '갑자기 빨라짐').
+출력은 집계값만(저장소 가능). 프레임 좌표는 원본 영상 프레임 번호.
+"""
+import argparse
+import csv
+import glob
+import json
+import os
+
+import numpy as np
+
+KEEP = 2.8
+PIX_EPS = 0.5  # 크게(>15) 바뀐 픽셀 %. 같은 그림은 정확히 0이 대부분(나카무라 표본 26%), 새 그림은 대부분 1% 이상
+EXT = [9, 10, 15, 16]
+
+
+def per_frame(K):
+    """K [T,133,3] → 몸 변화, 손발 속도 [T] (첫 프레임·빈 프레임 NaN)."""
+    P = K[:, :17, :2]
+    hip = (P[:, 11] + P[:, 12]) / 2
+    sh = (P[:, 5] + P[:, 6]) / 2
+    size = np.nanmedian(np.linalg.norm(sh - hip, axis=1))
+    if not np.isfinite(size) or size < 5:
+        return None
+    R = (P - hip[:, None]) / size
+    d = np.linalg.norm(np.diff(R, axis=0), axis=2)  # [T-1,17]
+    body = np.r_[np.nan, np.nanmean(d, 1) if np.isfinite(d).any() else np.full(len(d), np.nan)]
+    ext = np.r_[np.nan, np.nanmax(np.where(np.isfinite(d[:, EXT]), d[:, EXT], -1), 1)]
+    ext[ext < 0] = np.nan
+    ok = np.isfinite(R).all(-1).sum(1) >= 12
+    bad = ~(ok & np.r_[False, ok[:-1]])
+    body[bad] = np.nan
+    ext[bad] = np.nan
+    return body, ext
+
+
+def holds(pix):
+    """새 그림 프레임 위치와 각 그림의 유지 길이."""
+    new = np.where(pix > PIX_EPS)[0]
+    return new, np.diff(new)
+
+
+def last_hold_before(new, t):
+    """t 직전에 끝난 유지 길이(t 이전 마지막 두 새 그림 간격)."""
+    b = new[new < t]
+    return int(b[-1] - b[-2]) if len(b) >= 2 else None
+
+
+def first_hold_after(new, t):
+    a = new[new > t]
+    return int(a[1] - a[0]) if len(a) >= 2 else None
+
+
+def q(v):
+    v = np.asarray([x for x in v if x is not None and np.isfinite(x)], float)
+    if not len(v):
+        return None
+    return {"n": int(len(v)), "중앙": round(float(np.median(v)), 3), "사분위": [round(float(x), 3) for x in np.percentile(v, [25, 75])]}
+
+
+def hold_dist(h):
+    h = np.asarray(h, int)
+    if not len(h):
+        return None
+    return {f"{k}s": round(float((h == k).mean()), 3) for k in (1, 2, 3, 4)} | {"5s+": round(float((h >= 5).mean()), 3),
+                                                                           "n": int(len(h))}
+
+
+def find_video(vroot, an, pid):
+    d = "yutaka_nakamura_디지털" if an == "yutaka_nakamura" else an
+    v = (glob.glob(os.path.join(vroot, d, "**", f"{pid}_*.mp4"), recursive=True) +
+         glob.glob(os.path.join(vroot, d, "**", f"{pid}.mp4"), recursive=True))
+    return v[0] if v else None
+
+
+def pixel_diffs(video, items):
+    """items [(start, kp [L,133,3])] → 추적별 인물 상자 안 앞 프레임 대비 차이 [L] (첫 프레임·빈 상자 NaN). 영상은 한 번만 읽는다."""
+    import cv2
+    out = [np.full(len(k), np.nan) for _, k in items]
+    end = max(st + len(k) for st, k in items)
+    cap = cv2.VideoCapture(video)
+    cap.set(cv2.CAP_PROP_POS_FRAMES, min(st for st, _ in items))
+    t = min(st for st, _ in items)
+    prev = None
+    while t < end:
+        ok, im = cap.read()
+        if not ok:
+            break
+        g = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+        if prev is not None:
+            for j, (st, K) in enumerate(items):
+                i = t - st
+                if not 0 < i < len(K):
+                    continue
+                pts = K[i, :17, :2][np.isfinite(K[i, :17, 0])]
+                if len(pts) < 6:
+                    continue
+                x0, y0 = pts.min(0)
+                x1, y1 = pts.max(0)
+                m = 0.25 * max(x1 - x0, y1 - y0) + 8
+                xa, ya = int(max(0, x0 - m)), int(max(0, y0 - m))
+                xb, yb = int(min(g.shape[1], x1 + m)), int(min(g.shape[0], y1 + m))
+                if xb - xa < 8 or yb - ya < 8:
+                    continue
+                a = cv2.resize(g[ya:yb, xa:xb], (64, 64), interpolation=cv2.INTER_AREA).astype(np.float32)
+                b = cv2.resize(prev[ya:yb, xa:xb], (64, 64), interpolation=cv2.INTER_AREA).astype(np.float32)
+                out[j][i] = float((np.abs(a - b) > 15).mean() * 100)  # 크게 바뀐 픽셀 % (압축 잡음은 거의 15를 넘지 않는다)
+        prev = g
+        t += 1
+    return out
+
+
+def load_tracks(root, vroot, animators):
+    for an in animators:
+        for f in sorted(glob.glob(os.path.join(root, an, "*.npz"))):
+            z = np.load(f)
+            if z["quality"].ndim < 2:
+                continue
+            pid = os.path.basename(f)[:-4]
+            v = find_video(vroot, an, pid)
+            if v is None:
+                continue
+            keep = [i for i, (L, qq) in enumerate(zip(z["length"], z["quality"])) if qq[0] >= KEEP and L >= 24]
+            items = [(int(z["start"][i]), z["kp"][i, :int(z["length"][i])]) for i in keep]
+            if not items:
+                continue
+            pix = pixel_diffs(v, items)
+            for (st, K), px in zip(items, pix):
+                r = per_frame(K)
+                if r is not None:
+                    yield an, pid, st, (px, r[1])
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("tracks")
+    ap.add_argument("videos")
+    ap.add_argument("impacts")
+    ap.add_argument("out")
+    ap.add_argument("--animators", default="yutaka_nakamura,nian41")
+    ap.add_argument("--win", type=int, default=24)
+    a = ap.parse_args()
+    W = a.win
+    ans = a.animators.split(",")
+    imp = {}
+    for x in csv.DictReader(open(a.impacts, encoding="utf-8-sig")):
+        if x["training"] == "사용":
+            f0, f1 = (int(v) for v in x["frames"].split("-"))
+            imp.setdefault(x["post_id"], []).append((f0, f1))
+    tracks = list(load_tracks(a.tracks, a.videos, ans))
+    out = {"pix_eps": PIX_EPS, "win": W, "tracks": {an: sum(1 for t in tracks if t[0] == an) for an in ans}}
+
+    # A. 임팩트 기준
+    A = {"curves_ext": [], "curves_new": [], "pre_hold": [], "post_hold": [], "pre_ext": [], "post_ext": [],
+         "hold_pre": [], "hold_post": [], "base_ext": [], "base_hold": []}
+    rng = np.random.default_rng(0)
+    for an, pid, st, (body, ext) in tracks:
+        evs = imp.get(pid, [])
+        T = len(body)
+        new, _ = holds(body)
+        far = np.ones(T, bool)
+        for f0, f1 in evs:
+            t0, t1 = f0 - st, f1 - st
+            far[max(0, t0 - 48):max(0, t1 + 48)] = False
+            if t0 - W < 1 or t0 + W >= T:
+                continue
+            e = ext[t0 - W:t0 + W + 1].copy()
+            nw = (body[t0 - W:t0 + W + 1] > PIX_EPS).astype(float)
+            nw[~np.isfinite(body[t0 - W:t0 + W + 1])] = np.nan
+            cut = slice(W, W + (t1 - t0) + 2)
+            e[cut] = np.nan
+            nw[cut] = np.nan
+            if np.isfinite(e[:W]).sum() < W // 2:
+                continue
+            A["curves_ext"].append(e)
+            A["curves_new"].append(nw)
+            A["pre_hold"].append(last_hold_before(new, t0))
+            A["post_hold"].append(first_hold_after(new, t1 + 1))
+            A["pre_ext"].append(np.nanmean(ext[t0 - 6:t0]))
+            A["post_ext"].append(np.nanmean(ext[t1 + 2:t1 + 8]))
+            pre_new = new[(new >= t0 - W) & (new < t0)]
+            A["hold_pre"] += np.diff(pre_new).tolist()
+            post_new = new[(new > t1 + 1) & (new <= t0 + W)]
+            A["hold_post"] += np.diff(post_new).tolist()
+        cand = np.where(far[W:T - W])[0] + W
+        for c in (rng.choice(cand, min(len(cand), 3), replace=False) if len(cand) else []):
+            A["base_ext"].append(np.nanmean(ext[c - 6:c]))
+            bn = new[(new >= c - W) & (new < c + W)]
+            A["base_hold"] += np.diff(bn).tolist()
+    if A["curves_ext"]:
+        CE, CN = np.stack(A["curves_ext"]), np.stack(A["curves_new"])
+        base = float(np.nanmean(A["base_ext"]))
+        out["A_임팩트기준"] = {
+            "events": len(CE), "기준_손발속도": round(base, 4),
+            "직전6_손발속도/기준": round(float(np.nanmean(A["pre_ext"])) / base, 2),
+            "직후6_손발속도/기준": round(float(np.nanmean(A["post_ext"])) / base, 2),
+            "직전_마지막유지(프레임)": q(A["pre_hold"]), "직후_첫유지(프레임)": q(A["post_hold"]),
+            "유지분포_직전24": hold_dist(A["hold_pre"]), "유지분포_직후24": hold_dist(A["hold_post"]),
+            "유지분포_기준": hold_dist(A["base_hold"]),
+            "곡선_손발속도(-W~+W)": np.round(np.nanmean(CE, 0), 4).tolist(),
+            "곡선_새그림비율(-W~+W)": np.round(np.nanmean(CN, 0), 3).tolist()}
+
+    # B. 빠른 동작 정점
+    out["B_빠른동작정점"] = {}
+    for an in ans:
+        tr = [t for t in tracks if t[0] == an]
+        if not tr:
+            continue
+        allext = np.concatenate([t[3][1] for t in tr])
+        thr = float(np.nanpercentile(allext, 97))
+        R = {"pre_stop": [], "post_stop": [], "drawings8": [], "jump_ratio": [], "peak": [], "all_hold": []}
+        for _, _, _, (body, ext) in tr:
+            new, h = holds(body)
+            R["all_hold"] += h.tolist()
+            T = len(ext)
+            for t in range(8, T - 8):
+                if not (ext[t] >= thr) or ext[t] < np.nanmax(ext[max(0, t - 6):t + 7]):
+                    continue
+                R["peak"].append(ext[t])
+                R["pre_stop"].append(last_hold_before(new, t))
+                R["post_stop"].append(first_hold_after(new, t))
+                pn = new[(new >= t - 8) & (new < t)]
+                R["drawings8"].append(len(pn))
+                prev = ext[pn]
+                prev = prev[np.isfinite(prev)]
+                R["jump_ratio"].append(ext[t] / np.mean(prev) if len(prev) else None)
+        out["B_빠른동작정점"][an] = {
+            "정점수": len(R["peak"]), "정점기준(상위3%)": round(thr, 4), "정점_손발속도": q(R["peak"]),
+            "정점전_멈춤(마지막유지)": q(R["pre_stop"]), "정점후_멈춤(첫유지)": q(R["post_stop"]),
+            "정점앞8프레임_새그림수": q(R["drawings8"]), "간격비(정점/앞그림평균)": q(R["jump_ratio"]),
+            "유지분포_전체": hold_dist(R["all_hold"])}
+    allpix = np.concatenate([t[3][0] for t in tracks])
+    allpix = allpix[np.isfinite(allpix)]
+    out["픽셀차_분포(log10 구간:개수)"] = dict(zip([f"{x:.2f}" for x in np.arange(-2, 2.01, 0.25)[:-1]],
+                                           np.histogram(np.log10(allpix + 1e-3), np.arange(-2, 2.01, 0.25))[0].tolist()))
+    json.dump(out, open(a.out, "w"), ensure_ascii=False, indent=1)
+    s = {k: v for k, v in out.get("A_임팩트기준", {}).items() if not k.startswith("곡선")}
+    print(json.dumps({"tracks": out["tracks"], "pix": out["픽셀차_분포(log10 구간:개수)"], "A": s, "B": out["B_빠른동작정점"]}, ensure_ascii=False, indent=1))
+
+
+if __name__ == "__main__":
+    main()
