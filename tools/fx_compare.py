@@ -49,11 +49,13 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--real")
     ap.add_argument("--type", default="explosion")
+    ap.add_argument("--real-impact", help="임팩트 시간 변화(fx_timing_impact json). --type이 impact_*이면 여기서 찾는다")
     a = ap.parse_args()
     gen = measure(a.sfa)
     json.dump(gen, open(a.out, "w"), ensure_ascii=False, indent=1)
     keys = ["길이(프레임)", "정점까지(프레임)", "정점면적(화면비)", "갈라짐(덩어리 증가 횟수)", "무게중심 이동(화면높이/프레임)"]
-    real = json.load(open(a.real))["types"].get(a.type) if a.real else None
+    src = a.real_impact if a.type.startswith("impact_") and a.real_impact else a.real
+    real = json.load(open(src))["types"].get(a.type) if src and os.path.exists(src) else None
     for k in keys:
         g = gen.get(k)
         r = real.get(k) if real else None

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """이펙트 생성기 시제품(캐릭터 없음): 종류·시드·길이로 이펙트만 있는 SFA를 만든다(사용자 2026-10-22: 이펙트·연출 먼저, 결과물은 이펙트만).
 
-사용: python tools/fx_gen.py <effects.txt> <palette.txt> <출력.sfa> [--kind impact|explosion|smoke|debris|shockwave|flash]
+사용: python tools/fx_gen.py <effects.txt> <palette.txt> <출력.sfa> [--kind impact|impact_frame|explosion|smoke|debris|shockwave|flash]
       [--frames 48] [--seed 1] [--bg 0,0,0] [--stats 수치.json] [--check 확인.jpg]
 - 모양: 이펙트 사전(tools/effect_library.py, 나카무라 임팩트 장면에서 딴 포물선 조각 윤곽 — 쐐기·덩어리). 원·직선 대용 없음.
 - 그리기: AGENTS.md 원칙 — 같은 형태를 크기·알파·색을 바꿔 여러 겹(바깥 넓고 옅게 → 안쪽 좁고 진하게). 모든 경계는 2차 베지어(TypeId 3) + FR 채우기.
@@ -13,7 +13,12 @@
   섬광 그림: 나카무라 임팩트 장면 플립북(사전 Q, 흑백 실루엣·먹선)을 시드로 골라 한 장씩(없으면 단색).
   그림 유지: 2s 바탕·빠른 순간 1s(docs/P1-STRIKE-TIMING-2026-10-22.md).
   폭발 면적은 빠르게 커져 수명 약 30%에서 정점(가정, 측정 전), 연기는 오르며 넓어지고 천천히 옅어짐(가정).
-- impact = 섬광 → 충격파·폭발·파편 → 연기가 이어지는 묶음. 섬광 뒤 24프레임 화면 흔들림(--shake).
+- 이름 구분(2026-10-22 정의 점검): 임팩트 프레임 = 흐름을 끊고 다른 그림 방식(흑백·한 색·실루엣·연필 해칭)으로 끼우는 짧은 장면.
+  폭발·연기·충격파·파편은 임팩트가 아니라 이펙트다.
+  --kind impact_frame = 임팩트 프레임만. --kind impact = 임팩트 프레임 → 이펙트(충격파·폭발·파편 → 연기)가 이어지는 묶음,
+  임팩트 프레임 뒤 24프레임 화면 흔들림(--shake).
+- --impact-books(tools/fx_impact_book.py)가 있으면 임팩트 프레임을 원래 그림 방식 그대로(밑색 + 반투명 명암 + 해칭 선 획) 그린다.
+  없으면 Q 흑백 2단계 장면(연필 결·색 포인트가 뭉개짐).
 - --shapes(tools/fx_shapes.py 층 형태 사전)가 있으면 파편(rock)·연기(smoke)에 실제 형태를 층째로 쓴다.
 이펙트 사전은 다른 작가 그림 유래라 저장소 밖(Drive). 이 도구와 수치만 저장소에 둔다.
 """
@@ -28,7 +33,7 @@ import zipfile
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from effect_clip_sfa import Writer, argb  # noqa: E402
+from effect_clip_sfa import Writer, argb, thick  # noqa: E402
 from effect_vectorize import fit  # noqa: E402
 
 REFIT_TOL = 1.5  # 화면 px. 층 형태를 작게 놓을 때 원래 해상도의 잔조각을 화면 크기에 맞춰 다시 맞춘다(62MB → 수 MB)
@@ -167,8 +172,41 @@ def load_flipbooks(path):
     return out
 
 
+def load_impact_books(path):
+    """tools/fx_impact_book.py 출력 → [(이름, 폭 w, [(층 [(BGR, 알파, [(구멍, 부모, segs)])], 획 [(BGR, 굵기, seg)])])]."""
+    out, L, i = [], open(path, encoding="utf-8").read().splitlines(), 0
+    while i < len(L):
+        f = L[i].split()
+        i += 1
+        if not f or f[0] != "B":
+            continue
+        frames = []
+        for _ in range(int(f[3])):
+            h = L[i].split()
+            i += 1
+            layers, strokes = [], []
+            for _ in range(int(h[1])):
+                y = L[i].split()
+                i += 1
+                cs = []
+                for _ in range(int(y[5])):
+                    c = L[i].split()
+                    i += 1
+                    cs.append((int(c[1]), int(c[2]), np.array(c[3:], float).reshape(-1, 6)))
+                layers.append(((int(y[1]), int(y[2]), int(y[3])), float(y[4]), cs))
+            for _ in range(int(h[2])):
+                c = L[i].split()
+                i += 1
+                strokes.append(((int(c[1]), int(c[2]), int(c[3])), float(c[4]), [float(v) for v in c[5:11]]))
+            frames.append((layers, strokes))
+        out.append((f[2], float(f[4]), frames))
+    return out
+
+
 def shift(shapes, dx, dy):
-    """화면 흔들림: 윤곽 전체를 px만큼 옮긴다."""
+    """화면 흔들림: 윤곽 전체(또는 선 획 하나)를 px만큼 옮긴다."""
+    if isinstance(shapes, dict):
+        return dict(shapes, seg=[v + (dx if k % 2 == 0 else dy) for k, v in enumerate(shapes["seg"])])
     return [dict(sh, segs=[[v + (dx if k % 2 == 0 else dy) for k, v in enumerate(sg)] for sg in sh["segs"]]) for sh in shapes]
 
 
@@ -207,8 +245,9 @@ def axis(shape):
 
 
 class Gen:
-    def __init__(self, wedges, blobs, pal, seed, frames, st, cx=None, cy=0.5, scenes=(), layered=None, flipbooks=None):
+    def __init__(self, wedges, blobs, pal, seed, frames, st, cx=None, cy=0.5, scenes=(), layered=None, flipbooks=None, books=()):
         self.flipbooks = flipbooks or {}
+        self.books = list(books)  # 임팩트 프레임 플립북 v2(전체 층 분해 + 선 획). 있으면 Q 장면보다 우선
         self.dark_bg = True
         self.wedges, self.blobs, self.pal = wedges, blobs, pal
         self.layered = layered or {}
@@ -352,6 +391,19 @@ class Gen:
             x1, y1 = W, H
             box = [{"hole": False, "segs": [[0, 0, x1 / 2, 0, x1, 0], [x1, 0, x1, y1 / 2, x1, y1], [x1, y1, x1 / 2, y1, 0, y1],
                                              [0, y1, 0, y1 / 2, 0, 0]], "cid": 0, "parent": -1}]
+            if self.books:  # 임팩트 프레임 v2: 원래 그림 방식 그대로(밑색 + 반투명 명암 + 해칭 선 획), 화면을 덮도록 키운다
+                name, w, frs = self.books[self.rng_scene]
+                layers, strokes = frs[min(t - t0, len(frs) - 1)]
+                sc = max(H, W / w)
+                ox, oy = W / 2 - w * sc / 2, H / 2 - sc / 2
+                pts = lambda sg: (np.asarray(sg).reshape(-1, 2) * sc + [ox, oy]).reshape(-1, 6).tolist()
+                out = [(box, layers[0][0] if layers else self.col["white"], 1.0)]
+                for col, a, cs in layers:
+                    out.append(([{"hole": bool(h), "segs": pts(sg), "cid": ci, "parent": p} for ci, (h, p, sg) in enumerate(cs)],
+                                col, a))
+                for col, th, sg in strokes:
+                    out.append(({"seg": pts(sg)[0], "th": th * sc}, col, 1.0))
+                return out
             if not self.scenes:  # 단색 섬광: 화면 전체(사각 윤곽을 곡선 4개로)
                 return [(box, self.col["white"], 1.0)]
             # 나카무라 임팩트 프레임(흑백 실루엣·먹선 장면)을 한 장씩: 바탕 = 먹의 반대색, 장면이 화면을 덮도록 키운다
@@ -396,6 +448,8 @@ class Gen:
             n = int(self.st["flash_frames"])
             return (self.smoke(t, n + 6) + self.explosion(t, n, int(self.N * 0.6)) + self.debris(t, n) +
                     self.shockwave(t, n) + self.flash(t, 0))
+        if kind == "impact_frame":
+            return self.flash(t, 0)
         return getattr(self, kind)(t)
 
 
@@ -413,6 +467,7 @@ def main():
     ap.add_argument("--approved", help="형태 판정 csv(번호,판정). 있으면 '맞음' 형태만 쓴다(tools/fx_shape_sheets.py)")
     ap.add_argument("--flipbooks", help="이펙트 플립북(tools/fx_flipbook.py 출력). 충격파 등에 실제 프레임 순서를 쓴다")
     ap.add_argument("--shake", type=float, default=0.012, help="임팩트 뒤 화면 흔들림 세기(화면 높이 비율, 0=없음)")
+    ap.add_argument("--impact-books", help="임팩트 프레임 플립북 v2(tools/fx_impact_book.py 출력). 있으면 연필 해칭·색을 살려 그린다")
     ap.add_argument("--check")
     ap.add_argument("--scenes", default="",
                     help="쓸 임팩트 장면 이름 목록 파일. 기본은 전부(사용자 2026-10-22: 임팩트 프레임의 실루엣은 사람도 대상 — "
@@ -423,19 +478,22 @@ def main():
         st.update(json.load(open(a.stats)))
     wedges, blobs = load_lib(a.fx)
     scenes = load_scenes(a.fx)
+    ok = set()
     if a.scenes and os.path.exists(a.scenes):
         ok = {l.strip() for l in open(a.scenes, encoding="utf-8") if l.strip() and not l.startswith("#")}
         scenes = [sc for sc in scenes if sc[0] in ok]
     g = Gen(wedges, blobs, load_pal(a.pal), a.seed, a.frames, st, scenes=scenes,
             layered=load_layered(a.shapes, a.approved) if a.shapes else None,
-            flipbooks=load_flipbooks(a.flipbooks) if a.flipbooks else None)
-    if g.scenes:
-        g.rng_scene = random.Random(a.seed * 977).randrange(len(g.scenes))
-        print("임팩트 장면", g.scenes[g.rng_scene][0])
+            flipbooks=load_flipbooks(a.flipbooks) if a.flipbooks else None,
+            books=[b for b in load_impact_books(a.impact_books) if not ok or b[0] in ok] if a.impact_books else ())
+    pick = g.books or g.scenes
+    if pick:
+        g.rng_scene = random.Random(a.seed * 977).randrange(len(pick))
+        print("임팩트 장면", pick[g.rng_scene][0], "(v2 층 분해)" if g.books else "(Q 흑백)")
     lens = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "p3", "impact_lengths_2026-10-22.json")
     if not a.stats or "flash_frames" not in json.load(open(a.stats)):
-        if g.scenes:  # 임팩트 장면을 쓰면 그 장면의 실제 장수만큼(매 프레임 새 그림 — 한 장을 늘려 붙들지 않는다)
-            st["flash_frames"] = len(g.scenes[g.rng_scene][1])
+        if pick:  # 임팩트 장면을 쓰면 그 장면의 실제 장수만큼(매 프레임 새 그림 — 한 장을 늘려 붙들지 않는다)
+            st["flash_frames"] = len(pick[g.rng_scene][-1])
             print("섬광 길이(장면 장수)", st["flash_frames"])
         elif os.path.exists(lens):  # 단색 섬광 길이: 나카무라 임팩트 실제 길이 분포에서 시드로 뽑는다(단색 중앙 1)
             pool = json.load(open(lens))["mono"]
@@ -451,7 +509,7 @@ def main():
         # 화면 흔들림(P2 카메라: 임팩트 뒤 약 1초 동안 평소의 약 2.3배): 섬광 뒤 24프레임 동안 줄어들며, 2프레임마다 새 위치
         n = int(st["flash_frames"])
         dx = dy = 0.0
-        if a.kind == "impact" and a.shake > 0 and n <= t < n + 24:
+        if a.kind in ("impact", "impact_frame") and a.shake > 0 and n <= t < n + 24:
             amp = a.shake * H * (1 - (t - n) / 24)
             r = random.Random(a.seed * 31 + (t // 2))
             dx, dy = r.uniform(-1, 1) * amp, r.uniform(-1, 1) * amp
@@ -459,7 +517,10 @@ def main():
             if alpha > 0.01:
                 if dx or dy:
                     shapes = shift(shapes, dx, dy)
-                wr.fill(out, shapes, W, argb(bgr, min(1.0, alpha)), 0, 0.02)
+                if isinstance(shapes, dict):  # 선 획(해칭 등): 곡선 하나, 굵기 = 원래 획 굵기
+                    wr.curve_ao(out, shapes["seg"], W, argb(bgr, min(1.0, alpha)), thick(shapes["th"], W))
+                else:
+                    wr.fill(out, shapes, W, argb(bgr, min(1.0, alpha)), 0, 0.02)
         out.append("</Frame>")
         body.append("\n".join(out))
     name = os.path.splitext(os.path.basename(a.out))[0]

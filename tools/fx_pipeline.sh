@@ -24,12 +24,15 @@ PY
 python3 tools/fx_shapes.py "$W/masks" "$V" "$W/out/segments_all.csv" "$W/out/fx_shapes.txt" 2>&1 | tail -1
 python3 tools/fx_shape_sheets.py "$W/out/fx_shapes.txt" "$W/sheets"  # 형태 판정 시트(GPT: docs/GPT-PROMPT-FX-SHAPES-2026-10-22.md)
 [ -n "${NO_UPLOAD:-}" ] || rclone copy "$W/sheets" "gdrive:AI-sfa/02_분석자료/이펙트_형태시트" 2>/dev/null
+rclone copy "gdrive:AI-sfa/02_분석자료/이펙트_형태사전" "$W/out" --include "impact_books.txt" 2>/dev/null  # 임팩트 프레임 v2(fx_impact_book.py)
+BOOKS=$([ -s "$W/out/impact_books.txt" ] && echo "$W/out/impact_books.txt")
 APPROVED=$(ls data/style_kb/ai_results/gpt_FXS_*.csv 2>/dev/null | tail -1)  # 판정이 있으면 '맞음'만 쓴다
-for k in explosion smoke debris impact; do
+for k in explosion smoke debris impact impact_frame; do
   python3 tools/fx_gen.py "$FX/effects.txt" "$FX/palette.txt" "$W/out/gen_$k.sfa" --kind "$k" --seed 1 \
-    --shapes "$W/out/fx_shapes.txt" ${APPROVED:+--approved "$APPROVED"} --check "$W/out/gen_$k.jpg" > /dev/null 2>&1
+    --shapes "$W/out/fx_shapes.txt" ${APPROVED:+--approved "$APPROVED"} ${BOOKS:+--impact-books "$BOOKS"} --check "$W/out/gen_$k.jpg" > /dev/null 2>&1
   python3 tools/fx_compare.py "$W/out/gen_$k.sfa" "$W/out/cmp_$k.json" --real "$W/out/fx_timing.json" \
-    --type "$([ "$k" = impact ] && echo explosion || echo "$k")" > "$W/out/cmp_$k.txt" 2>&1
+    --type "$(case $k in impact) echo explosion;; impact_frame) echo impact_silhouette;; *) echo "$k";; esac)" \
+    --real-impact "$W/out/fx_timing_impact.json" > "$W/out/cmp_$k.txt" 2>&1
 done
 [ -n "${NO_UPLOAD:-}" ] || rclone copy "$W/out" "gdrive:AI-sfa/04_SFA시험작/이펙트_생성/파이프라인_$(date +%m%d_%H%M)" 2>/dev/null
 echo "끝: $W/out (Drive 04_SFA시험작/이펙트_생성/파이프라인_*)"
