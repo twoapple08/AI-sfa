@@ -12,18 +12,19 @@ namespace SfaViewer
     /// 시간표 (트위닝, 재생) fps는 SFA에 저장되지 않아 파일마다 기억한다(기본 24, 24). 트위닝 &gt; 재생이면 프레임 사이를 섞는다.
     /// 내보내기는 exe 옆의 ffmpeg.exe에 원시 프레임을 넘겨 H.264 MP4로 만든다.
     /// </summary>
-    public sealed class MainForm : Form
+    public sealed partial class MainForm : Form
     {
         const int PreviewW = 1280;
         int tween = 24, play = 24; Timeline tl = new(0, 24, 24);
         // 첫 화면
         readonly Panel home = new() { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Theme.Bg };
         readonly TextLabel homeTitle = new(Theme.Black(30), Theme.Orange, ContentAlignment.MiddleCenter) { Text = "SFA VIEWER" };
-        readonly TextLabel homeSub = new(Theme.Regular(10), Theme.Sub, ContentAlignment.MiddleCenter) { Text = "Stick Fighter 애니메이션 미리보기 · 내보내기  (파일을 끌어다 놓아도 됩니다)" };
+        readonly TextLabel homeSub = new(Theme.Regular(10), Theme.Sub, ContentAlignment.MiddleCenter) { Text = "Stick Fighter 애니메이션 만들기 · 미리보기 · 내보내기  (파일을 끌어다 놓아도 됩니다)" };
         readonly CardPanel pillBg = new() { Radius = 26 };
         readonly PillButton pill = new("최근 파일") { Fill = Color.White, Fore = Theme.Text, Cursor = Cursors.Default };
         readonly TextLabel empty = new(Theme.Regular(11), Theme.Sub, ContentAlignment.MiddleCenter) { Text = "아래 + 버튼으로 SFA 파일을 여세요" };
         readonly IconButton fab = new(IconKind.Plus) { Color = Color.White, Fill = Theme.Orange, Size = new Size(Theme.P(68), Theme.P(68)) };
+        readonly PillButton makeBtn = new("1v1 만들기") { Fill = Theme.Orange, Fore = Color.White };
         readonly Control homeSpacer = new() { Size = new Size(1, 1) }; // 마지막 카드 아래 여유(+ 버튼에 가리지 않게 스크롤 범위를 늘림)
         readonly List<RecentCard> cards = new();
         // 플레이어
@@ -57,7 +58,7 @@ namespace SfaViewer
         {
             Text = "SFA 뷰어"; Width = Theme.P(1280); Height = Theme.P(860); MinimumSize = new Size(Theme.P(340), Theme.P(380)); BackColor = Theme.Bg; KeyPreview = true;
             try { Icon = new Icon(typeof(MainForm).Assembly.GetManifestResourceStream("SfaViewer.app.ico")); } catch { }
-            home.Controls.AddRange(new Control[] { homeTitle, homeSub, pillBg, empty, homeSpacer });
+            home.Controls.AddRange(new Control[] { homeTitle, homeSub, makeBtn, pillBg, empty, homeSpacer });
             pillBg.Controls.Add(pill);
             Controls.Add(fab); Controls.Add(player); Controls.Add(home);
             player.Controls.AddRange(new Control[] { backBtn, title, openIcon, exportIcon, fpsBtn, view, frameLabel, timeLabel, seek, prevBtn, playBtn, nextBtn, status, infoCard });
@@ -66,6 +67,7 @@ namespace SfaViewer
             player.Resize += (_, _) => LayoutPlayer();
 
             fab.Click += (_, _) => PickFile();
+            makeBtn.Click += (_, _) => AskCreate();
             openIcon.Click += (_, _) => PickFile();
             backBtn.Click += (_, _) => GoHome();
             playBtn.Click += (_, _) => TogglePlay();
@@ -149,6 +151,7 @@ namespace SfaViewer
             bool showSub = W >= P(420);
             homeSub.Visible = showSub;
             if (showSub) { homeSub.SetBounds(0, y, W, P(24)); y += P(compact ? 30 : 46); }
+            makeBtn.SetBounds((W - P(200)) / 2, y, P(200), P(46)); y += P(compact ? 58 : 66);
             pillBg.SetBounds((W - P(170)) / 2, y, P(170), P(54)); pill.SetBounds(P(5), P(5), P(160), P(44)); y += P(compact ? 66 : 78);
             empty.SetBounds(0, y + P(30), W, P(30));
             int side = P(compact ? 14 : 24), gap = P(compact ? 14 : 22);
@@ -246,6 +249,14 @@ namespace SfaViewer
         void SetEnabled(bool on) { foreach (Control c in new Control[] { playBtn, prevBtn, nextBtn, seek, exportBtn, exportIcon, fpsBtn }) c.Enabled = on; }
         void Step(int d) { if (doc == null || tl.Count == 0) return; StopPlay(); Show(Math.Clamp(current + d, 0, tl.Count - 1)); }
 
+        /// <summary>파일 캐시 키. string.GetHashCode()는 실행마다 달라져(.NET 무작위 해시) 다시 켜면 캐시·FPS 기억을 못 찾았다 → 고정 FNV-1a.</summary>
+        static string KeyOf(FileInfo fi)
+        {
+            uint h = 2166136261;
+            foreach (char c in $"{fi.Name}_{fi.Length}_{fi.LastWriteTimeUtc.Ticks}") { h ^= c; h *= 16777619; }
+            return h.ToString("x8");
+        }
+
         static string CacheDir => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SfaViewer");
 
         async Task LoadFile(string path)
@@ -260,7 +271,7 @@ namespace SfaViewer
             try
             {
                 var fi = new FileInfo(path);
-                string key = fileKey = $"{fi.Name}_{fi.Length}_{fi.LastWriteTimeUtc.Ticks}".GetHashCode().ToString("x8");
+                string key = fileKey = KeyOf(fi);
                 Directory.CreateDirectory(CacheDir);
                 string cache = Path.Combine(CacheDir, key + ".sfab");
                 string how = "캐시";

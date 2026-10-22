@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>app.ico</ApplicationIcon>
     <AssemblyName>SfaViewer</AssemblyName>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
@@ -20,5 +20,6 @@
     <ProjectReference Include="../SfaCore/SfaCore.csproj" />
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.1" />
     <EmbeddedResource Include="app.ico" />
+    <EmbeddedResource Include="../../creator-android/app/src/main/assets/motion_lib.txt" LogicalName="motion_lib.txt" />
   </ItemGroup>
 </Project>

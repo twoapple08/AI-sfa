@@ -218,3 +218,18 @@ python tools/sfa_render.py <file.sfa> --compare <app.mp4> --frames 0,30  # 앱 �
 - **배포:**
   - Drive `07_도구/SFA뷰어/SfaViewer-1.0.apk`: 같은 서명 키라 덮어 설치된다.
   - Drive `07_도구/SFA뷰어/SfaViewer-win-1.0.zip`
+
+## Windows v1.1 (2026-10-22): PC에서 1v1 만들기
+
+사용자: 휴대폰 사용이 어려워 PC판 생성기·뷰어를 쓰기로 함.
+
+- `viewer-windows/SfaCore/Gen/`: 안드로이드 크리에이터 생성기(creator-android/.../gen/*.kt: Rig·Pose·Choreo·Scene·Generator·MotionLib·EffectLib)를 C#으로 옮겼다. 난수는 java.util.Random과 같은 식(JRandom).
+- `SfaViewer/Create.cs`: 첫 화면 주황 '1v1 만들기' → 태그·길이·FPS (트위닝, 재생)·배경·시드 → 문서\SfaCreator\1v1_날짜_시각\ 에 5초마다 .sfa + settings.txt → 첫 파일을 그 FPS로 바로 연다. motion_lib.txt는 exe 안, effects.txt는 exe 옆(다른 작가 그림 유래, 저장소 밖, Drive 배포본에만).
+- 검증 [실측]:
+  - 같은 시드·설정에서 Kotlin 생성기(kotlinc 2.0.21로 gen/*.kt를 JVM에서 직접 실행)와 XML 비교: 3개 시드 × (24,24)·(24,12) 모두 안무·이펙트 순서 일치. 남은 차이는 좌표 소수 셋째 자리 0.001(부동소수 연산 순서) 0–7줄과 아래 테두리 색뿐.
+  - sfa.py validate 오류 없음, SfaCore 렌더(리눅스)로 타격 섬광·충격파·먼지 확인.
+  - wine 9 + Xvfb: 버튼 → 설정 창 → 파일 2개·settings.txt 저장 → 플레이어 자동 열기 확인. 한글 이름 파일 쓰기가 wine에서 실패해 settings.txt로 바꿈. 실제 Windows 실행은 사용자 확인 필요.
+- 고친 것:
+  - 캐시·FPS 기억 키가 string.GetHashCode()(실행마다 무작위)라 다시 켜면 캐시를 못 찾던 문제 → 고정 FNV-1a(`KeyOf`).
+  - 결정타 임팩트 장면 반대색 테두리: Kotlin판은 `Int.inv()`가 내장 비트 반전으로 불려 알파 0(투명)이 됐다. PC판은 알파 유지·RGB 반전(`InvRgb`). 안드로이드판은 아직 그대로.
+- 배포: Drive `07_도구/SFA뷰어/SfaViewer-win-1.1.zip`(exe + ffmpeg.exe + effects.txt + 읽어보기).
