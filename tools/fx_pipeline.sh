@@ -9,9 +9,19 @@ cd "$(dirname "$0")/.." || exit 1
 mkdir -p "$W/masks" "$W/out"
 rclone copy "gdrive:AI-sfa/02_분석자료/이펙트_분리" "$W/masks" --include "*_v3.npz" 2>/dev/null
 echo "마스크 $(ls "$W"/masks/*_v3.npz | wc -l)개"
+rclone copy "gdrive:AI-sfa/02_분석자료/이펙트_분리" "$W/masks" --include "*_ink.npz" 2>/dev/null  # 임팩트(서버 처리)
 python3 tools/fx_timing.py "$W/masks" "$V" data/p3/fx_segments_2026-10-22.csv "$W/out/fx_timing.json" > "$W/out/fx_timing.log" 2>&1
+python3 tools/fx_timing.py "$W/masks" "$V" data/p3/fx_segments_impact_2026-10-22.csv "$W/out/fx_timing_impact.json" > "$W/out/fx_timing_impact.log" 2>&1
+python3 - "$W" <<'PY'
+import csv, sys  # 두 구간 목록을 합쳐 형태 사전을 한 번에 뽑는다
+w = sys.argv[1]
+rows = [r for f in ("data/p3/fx_segments_2026-10-22.csv", "data/p3/fx_segments_impact_2026-10-22.csv") for r in csv.DictReader(open(f, encoding="utf-8"))]
+with open(f"{w}/out/segments_all.csv", "w", newline="", encoding="utf-8") as fh:
+    d = csv.DictWriter(fh, fieldnames=["post_id", "start", "end", "tags", "exclude"]); d.writeheader(); d.writerows(rows)
+PY
 [ -n "${NO_UPLOAD:-}" ] || cp "$W/out/fx_timing.json" "data/p3/fx_timing_$(date +%F).json"
-python3 tools/fx_shapes.py "$W/masks" "$V" data/p3/fx_segments_2026-10-22.csv "$W/out/fx_shapes.txt" 2>&1 | tail -1
+[ -n "${NO_UPLOAD:-}" ] || cp "$W/out/fx_timing_impact.json" "data/p3/fx_timing_impact_$(date +%F).json"
+python3 tools/fx_shapes.py "$W/masks" "$V" "$W/out/segments_all.csv" "$W/out/fx_shapes.txt" 2>&1 | tail -1
 python3 tools/fx_shape_sheets.py "$W/out/fx_shapes.txt" "$W/sheets"  # 형태 판정 시트(GPT: docs/GPT-PROMPT-FX-SHAPES-2026-10-22.md)
 [ -n "${NO_UPLOAD:-}" ] || rclone copy "$W/sheets" "gdrive:AI-sfa/02_분석자료/이펙트_형태시트" 2>/dev/null
 APPROVED=$(ls data/style_kb/ai_results/gpt_FXS_*.csv 2>/dev/null | tail -1)  # 판정이 있으면 '맞음'만 쓴다

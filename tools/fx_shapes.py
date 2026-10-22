@@ -6,7 +6,7 @@
   연결 덩어리(화면 대비 min-area 이상)를 하나의 형태로 본다. 사람 물체는 뺀다.
 - 한 프레임에서 이미 뽑은 덩어리와 IoU > 0.6이면 뺀다(여러 물체가 같은 덩어리). 덩어리 면적/볼록 껍질 < 0.35(깨진 마스크)는 뺀다. 고르는 프레임은 서로 6프레임 이상 떨어뜨린다.
 - 덩어리 안을 tools/effect_layers.py로 층 분해(밑색 + 반투명 명암 겹, 경계는 포물선 조각) → 덩어리 중심 원점, 크기 = 면적 제곱근 1로 맞춘다.
-- 종류: 라벨 낱말로 explosion / smoke / fire / rock / spark / other.
+- 종류: 라벨 낱말로 impact(임팩트 흑백·섬광, tools/fx_ink_masks.py) / explosion / smoke / fire / rock / spark / other.
 - 제작 자료 구간(csv exclude)은 뺀다.
 출력(앱·생성기용 글자 형식, 다른 작가 그림 유래라 Drive에만):
   L <종류> <출처 post:frame:obj> <층 수> <원래 크기(화면높이비)>
@@ -30,7 +30,7 @@ H = 540
 
 def kind_of(label):
     l = label.lower()
-    for k, ws in (("explosion", ("explo", "flash", "shock")), ("smoke", ("smoke", "dust", "cloud")), ("fire", ("fire",)),
+    for k, ws in (("impact", ("impact",)), ("explosion", ("explo", "flash", "shock")), ("smoke", ("smoke", "dust", "cloud")), ("fire", ("fire",)),
                   ("rock", ("rock", "stone", "rubble", "debris")), ("spark", ("spark",))):
         if any(w in l for w in ws):
             return k
@@ -54,7 +54,8 @@ def main():
     for s in csv.DictReader(open(a.segments, encoding="utf-8-sig")):
         if s.get("exclude"):
             continue
-        p = os.path.join(a.masks, f"{s['post_id']}_{s['start']}_v3.npz")
+        p = next((q for q in (os.path.join(a.masks, f"{s['post_id']}_{s['start']}{v}.npz") for v in ("_v3", "_ink"))
+                  if os.path.exists(q)), "")
         v = glob.glob(os.path.join(a.videos, s["post_id"] + "*.mp4"))
         if not os.path.exists(p) or not v:
             continue
