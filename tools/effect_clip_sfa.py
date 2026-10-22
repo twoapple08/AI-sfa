@@ -43,19 +43,21 @@ class Writer:
         self.oid = 1
         self.pid = 1
 
-    def curve_ao(self, out, seg, W, color, ts):
+    def curve_ao(self, out, seg, W, color, ts, glow=None):
+        """glow=(GlowRadius, GlowThickness, GlowColor ARGB, GlowAlpha 0–255) — 스틱파이터 글로우(가우스 번짐)."""
         x0, y0, cx, cy, x1, y1 = seg[:6]
         oid, p = self.oid, self.pid
         self.oid += 1
         self.pid += 3
+        gr, gt, gc, ga = glow if glow else (0.0, 0.0, 4294967295, 0.0)
         out.append(f'<AO ID="{oid}" TypeId="3" Color="{color}" LayerId="0" DrawOrder="{oid}" ThicknessScale="{ts:.3f}" '
-                   f'ObjectScale="1.0" GlowRadius="0.0" GlowThickness="0.0" GlowColor="4294967295" GlowAlpha="0.0">')
+                   f'ObjectScale="1.0" GlowRadius="{gr:.1f}" GlowThickness="{gt:.1f}" GlowColor="{gc}" GlowAlpha="{ga:.1f}">')
         for i, (x, y) in enumerate(((x0, y0), (cx, cy), (x1, y1))):
             out.append(f'<AP ID="{p + i}" Flags="5" Index="{i}" X="{x / W * 100:.3f}" Y="{y / H * 100:.3f}" />')
         out.append('</AO>')
         return oid, p
 
-    def fill(self, out, shapes, W, fill_col, edge_col, ts):
+    def fill(self, out, shapes, W, fill_col, edge_col, ts, glow=None):
         """한 층의 윤곽들 → 바깥 윤곽마다 FR 하나(구멍 포함)."""
         outers = [s for s in shapes if not s["hole"] and s["segs"]]
         holes = {}
@@ -68,7 +70,7 @@ class Writer:
             fs = []
             for ci, c in enumerate(contours):
                 for seg in c["segs"]:
-                    oid, p = self.curve_ao(out, seg, W, edge_col, ts)
+                    oid, p = self.curve_ao(out, seg, W, edge_col, ts, glow)
                     fs.append(f'<FS Kind="0" ObjId="{oid}" StartPtId="{p}" EndPtId="{p + 2}" StartT="0.0" EndT="1.0" Contour="{ci}" />')
             frs.append(f'<FR Color="{fill_col}">' + "".join(fs) + '</FR>')
         out.extend(frs)

@@ -49,6 +49,13 @@ def line_layer(img, tol, thr=28, min_len=6, light=False, dark_max=None, valid=No
     if valid is not None:
         # 마스크 경계 3px 안쪽은 선으로 보지 않는다(이펙트와 바깥의 경계가 가는 밝은/어두운 선으로 잡혀 테두리가 생겼다)
         m &= cv2.erode(valid, np.ones((7, 7), np.uint8))
+    segs = mask_strokes(img, m, tol, min_len)
+    color = np.median(img[m > 0], 0).tolist() if m.any() else [0, 0, 0]
+    return m, segs, color
+
+
+def mask_strokes(img, m, tol=1.0, min_len=6):
+    """가는 마스크 m(0/1) → 뼈대를 따라 2차 베지어 획 [x0,y0,cx,cy,x1,y1,굵기,B,G,R](굵기 = 거리변환×2, 색 = 지나는 자리 원본 중앙값)."""
     dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
     segs = []
     for path in trace(skeletonize(m.astype(bool))):
@@ -64,8 +71,7 @@ def line_layer(img, tol, thr=28, min_len=6, light=False, dark_max=None, valid=No
             cols = img[np.clip(np.round(P[:, 1]).astype(int), 0, img.shape[0] - 1), np.clip(np.round(P[:, 0]).astype(int), 0, img.shape[1] - 1)]
             segs.append([*map(float, a), *map(float, c), *map(float, b), max(1.0, 2 * float(np.median(ws))),
                          *np.median(cols, 0).round(1).tolist()])
-    color = np.median(img[m > 0], 0).tolist() if m.any() else [0, 0, 0]
-    return m, segs, color
+    return segs
 
 
 def base_and_shade(img, line_mask, k, tol, min_area, valid=None):

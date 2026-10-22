@@ -173,7 +173,8 @@ def load_flipbooks(path):
 
 
 def load_impact_books(path):
-    """tools/fx_impact_book.py 출력 → [(이름, 폭 w, [(층 [(BGR, 알파, [(구멍, 부모, segs)])], 획 [(BGR, 굵기, seg)])])]."""
+    """tools/fx_impact_book.py 출력 → [(이름, 폭 w, [(층 [(BGR, 알파, [(구멍, 부모, segs)], 글로우)], 획 [(BGR, 굵기, seg, 글로우σ)])], 바탕 BGR|None)].
+    글로우(--glow 형식): 층은 (σ, 띠 폭), 획은 σ — 화면 높이 비율. 없으면 None."""
     out, L, i = [], open(path, encoding="utf-8").read().splitlines(), 0
     while i < len(L):
         f = L[i].split()
@@ -193,18 +194,29 @@ def load_impact_books(path):
                     c = L[i].split()
                     i += 1
                     cs.append((int(c[1]), int(c[2]), np.array(c[3:], float).reshape(-1, 6)))
-                layers.append(((int(y[1]), int(y[2]), int(y[3])), float(y[4]), cs))
+                gl = (float(y[7]), float(y[8])) if len(y) > 6 and y[6] == "G" else None
+                layers.append(((int(y[1]), int(y[2]), int(y[3])), float(y[4]), cs, gl))
             for _ in range(int(h[2])):
                 c = L[i].split()
                 i += 1
-                strokes.append(((int(c[1]), int(c[2]), int(c[3])), float(c[4]), [float(v) for v in c[5:11]]))
+                strokes.append(((int(c[1]), int(c[2]), int(c[3])), float(c[4]), [float(v) for v in c[5:11]],
+                                float(c[12]) if len(c) > 12 and c[11] == "G" else None))
             frames.append((layers, strokes))
-        out.append((f[2], float(f[4]), frames))
+        bg = tuple(int(v) for v in f[6:9]) if len(f) > 8 and f[5] == "BG" else None
+        out.append((f[2], float(f[4]), frames, bg))
     return out
+
+
+def glow_args(bgr, sig_px, band_px, ts):
+    """스틱파이터 글로우 속성. 서버 렌더(960×540)에서 잰 값: 번짐 σ(px) ≈ GlowRadius, 띠 폭 = 8·ThicknessScale·GlowThickness/10.
+    실제 앱의 화면 크기별 환산은 미확인(docs/AOT-DRAW-GLOW-TRACE: R = GlowRadius×S/DPR)."""
+    return (max(0.5, sig_px), max(1.0, band_px * 10 / (8 * max(ts, 0.02))), argb(bgr), 255.0)
 
 
 def shift(shapes, dx, dy):
     """화면 흔들림: 윤곽 전체(또는 선 획 하나)를 px만큼 옮긴다."""
+    if isinstance(shapes, dict) and "fill" in shapes:
+        return dict(shapes, fill=shift(shapes["fill"], dx, dy))
     if isinstance(shapes, dict):
         return dict(shapes, seg=[v + (dx if k % 2 == 0 else dy) for k, v in enumerate(shapes["seg"])])
     return [dict(sh, segs=[[v + (dx if k % 2 == 0 else dy) for k, v in enumerate(sg)] for sg in sh["segs"]]) for sh in shapes]
@@ -392,17 +404,18 @@ class Gen:
             box = [{"hole": False, "segs": [[0, 0, x1 / 2, 0, x1, 0], [x1, 0, x1, y1 / 2, x1, y1], [x1, y1, x1 / 2, y1, 0, y1],
                                              [0, y1, 0, y1 / 2, 0, 0]], "cid": 0, "parent": -1}]
             if self.books:  # 임팩트 프레임 v2: 원래 그림 방식 그대로(밑색 + 반투명 명암 + 해칭 선 획), 화면을 덮도록 키운다
-                name, w, frs = self.books[self.rng_scene]
+                name, w, frs, bgc = self.books[self.rng_scene]
                 layers, strokes = frs[min(t - t0, len(frs) - 1)]
                 sc = max(H, W / w)
                 ox, oy = W / 2 - w * sc / 2, H / 2 - sc / 2
                 pts = lambda sg: (np.asarray(sg).reshape(-1, 2) * sc + [ox, oy]).reshape(-1, 6).tolist()
-                out = [(box, layers[0][0] if layers else self.col["white"], 1.0)]
-                for col, a, cs in layers:
-                    out.append(([{"hole": bool(h), "segs": pts(sg), "cid": ci, "parent": p} for ci, (h, p, sg) in enumerate(cs)],
-                                col, a))
-                for col, th, sg in strokes:
-                    out.append(({"seg": pts(sg)[0], "th": th * sc}, col, 1.0))
+                # 바탕: 글로우 형식은 프레임 바탕색(frame_bg)을 쓰고 큰 바탕 면을 그리지 않는다. 이전 형식만 바탕 면
+                out = [] if bgc else [(box, layers[0][0] if layers else self.col["white"], 1.0)]
+                for col, a, cs, gl in layers:
+                    shp = [{"hole": bool(h), "segs": pts(sg), "cid": ci, "parent": p} for ci, (h, p, sg) in enumerate(cs)]
+                    out.append(({"fill": shp, "glow": (gl[0] * sc, gl[1] * sc)} if gl else shp, col, a))
+                for col, th, sg, gs in strokes:
+                    out.append(({"seg": pts(sg)[0], "th": th * sc, "glow": gs * sc if gs else None}, col, 1.0))
                 return out
             if not self.scenes:  # 단색 섬광: 화면 전체(사각 윤곽을 곡선 4개로)
                 return [(box, self.col["white"], 1.0)]
@@ -442,6 +455,13 @@ class Gen:
                 out.append((place(self.wedges[wi], self.cx + math.cos(ang) * d, self.cy + math.sin(ang) * d, ln * sc,
                                   ang - axis(self.wedges[wi])), self.col[ck], a * (1 - u)))
         return out
+
+    def frame_bg(self, kind, t):
+        """임팩트 프레임(글로우 형식) 동안은 그 장면의 바탕색(검정/흰색)을 프레임 바탕으로 쓴다."""
+        n = int(self.st["flash_frames"])
+        if self.books and kind in ("impact", "impact_frame") and t < n and self.books[self.rng_scene][3]:
+            return self.books[self.rng_scene][3]
+        return None
 
     def frame(self, kind, t):
         if kind == "impact":
@@ -504,7 +524,8 @@ def main():
     wr = Writer()
     body = []
     for t in range(a.frames):
-        out = [f'<Frame BackgroundColor="{argb(bg) & 0xFFFFFFFF}" ID="{t + 1}" Position="{t}">',
+        fbg = g.frame_bg(a.kind, t) or bg
+        out = [f'<Frame BackgroundColor="{argb(fbg) & 0xFFFFFFFF}" ID="{t + 1}" Position="{t}">',
                '<LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false" />']
         # 화면 흔들림(P2 카메라: 임팩트 뒤 약 1초 동안 평소의 약 2.3배): 섬광 뒤 24프레임 동안 줄어들며, 2프레임마다 새 위치
         n = int(st["flash_frames"])
@@ -517,8 +538,14 @@ def main():
             if alpha > 0.01:
                 if dx or dy:
                     shapes = shift(shapes, dx, dy)
-                if isinstance(shapes, dict):  # 선 획(해칭 등): 곡선 하나, 굵기 = 원래 획 굵기
-                    wr.curve_ao(out, shapes["seg"], W, argb(bgr, min(1.0, alpha)), thick(shapes["th"], W))
+                if isinstance(shapes, dict) and "fill" in shapes:  # 단색 면 + 경계 글로우(테두리 선은 투명, 글로우만)
+                    gs, band = shapes["glow"]
+                    c = argb(bgr, min(1.0, alpha))
+                    wr.fill(out, shapes["fill"], W, c, c & 0xFFFFFF, 1.0, glow=glow_args(bgr, gs, band, 1.0))
+                elif isinstance(shapes, dict):  # 선 획(해칭 등): 곡선 하나, 굵기 = 원래 획 굵기
+                    ts = thick(shapes["th"], W)
+                    gl = glow_args(bgr, shapes["glow"], shapes["th"], ts) if shapes.get("glow") else None
+                    wr.curve_ao(out, shapes["seg"], W, argb(bgr, min(1.0, alpha)), ts, gl)
                 else:
                     wr.fill(out, shapes, W, argb(bgr, min(1.0, alpha)), 0, 0.02)
         out.append("</Frame>")
