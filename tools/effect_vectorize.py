@@ -167,7 +167,8 @@ def outline_mask(m, tol=1.0, min_area=12):
             out = []
             fit(list(map(tuple, P[idx])), tol, out)
             segs += [[*map(float, x), *map(float, y), *map(float, z)] for x, y, z in out]
-        shapes.append({'hole': bool(hier[0][i][3] >= 0), 'segs': segs})
+        # cid·parent: 구멍이 어느 바깥 윤곽에 속하는지(SFA 채우기는 바깥 하나 + 그 구멍들이 한 묶음)
+        shapes.append({'hole': bool(hier[0][i][3] >= 0), 'segs': segs, 'cid': i, 'parent': int(hier[0][i][3])})
     return m, shapes
 
 

@@ -4,7 +4,7 @@
 층 순서(아래 → 위): 밑색(불투명 채우기 + 같은 색 외곽선) → 명암(반투명 채우기 여러 겹) → 선(어두운 선·밝은 선, 곡선 획).
 모든 경계와 선은 포물선 조각(2차 베지어, SFA TypeId 3)이다. 조각 수 상한은 두지 않는다.
 
-1. 선: 회색조 블랙햇(닫힘 - 원본)으로 '주변보다 어두운 가는 선'을 찾고 중심선을 포물선 조각으로 맞춘다(굵기 포함).
+1. 선: 회색조 블랙햇(닫힘 - 원본)으로 '주변보다 어두운 가는 선'을 찾고 중심선을 포물선 조각으로 맞춘다(굵기·획별 색 포함).
 2. 밑색: 선을 지운(inpaint) 뒤 평활한 그림을 Lab k-평균으로 묶고, 반투명 덮기로 설명되는 덩어리를 한 밑색으로 합친다.
    묶는 기준: 덩어리 색이 '밑색 + 흰색/어두운 반투명 덮기'로 설명될 때(Lab ΔE < MERGE_DE). 밑색 = 묶음에서 가장 넓은 덩어리의 색.
 3. 명암: 밑색 B에서 실제 색 C로 가는 정도를 알파로 본다. 밝은 쪽은 흰색 S, 어두운 쪽은 검정 S로
@@ -53,7 +53,11 @@ def line_layer(img, tol, thr=28, min_len=6, light=False):
         for a, c, b in out:
             n = max(3, int(math.dist(a, b)))
             ws = [dist[int(round(a[1] + (b[1] - a[1]) * s)), int(round(a[0] + (b[0] - a[0]) * s))] for s in np.linspace(0, 1, n)]
-            segs.append([*map(float, a), *map(float, c), *map(float, b), max(1.0, 2 * float(np.median(ws)))])
+            # 획마다 지나는 자리의 원본 색(BGR 중앙값). 한 층 전체에 색 하나를 쓰면 불 속 밝은 선이 덤불 초록으로 칠해졌다
+            P = curve([*a, *c, *b], max(3, n))
+            cols = img[np.clip(np.round(P[:, 1]).astype(int), 0, img.shape[0] - 1), np.clip(np.round(P[:, 0]).astype(int), 0, img.shape[1] - 1)]
+            segs.append([*map(float, a), *map(float, c), *map(float, b), max(1.0, 2 * float(np.median(ws))),
+                         *np.median(cols, 0).round(1).tolist()])
     color = np.median(img[m > 0], 0).tolist() if m.any() else [0, 0, 0]
     return m, segs, color
 
@@ -150,7 +154,8 @@ def render(doc, shape):
         out = out * (1 - m) + np.array(L["color"], np.float32) * m
     for ln in doc["lines"]:
         for seg in ln["segs"]:
-            cv2.polylines(out, [np.round(curve(seg, 12)).astype(np.int32)], False, ln["color"], max(1, round(seg[6])),
+            col = seg[7:10] if len(seg) >= 10 else ln["color"]  # 획별 색(없으면 층 색)
+            cv2.polylines(out, [np.round(curve(seg, 12)).astype(np.int32)], False, col, max(1, round(seg[6])),
                           cv2.LINE_AA)
     return np.clip(out, 0, 255).astype(np.uint8)
 
