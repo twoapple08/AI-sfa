@@ -110,6 +110,26 @@ def glow_doc(img, bgimg, tol=1.0, min_area=30, floor=0.0, drop_yellow=True, whit
     return {"layers": layers, "lines": [], "stats": {"layers": len(layers), "a_max": round(float(a.max()), 2)}}
 
 
+def wash_doc(img, scene_dark, white=240.0, min_area=30):
+    """임팩트와 일반 장면이 섞인 장(흰 막이 옅어지며 장면이 비침, 167784 318–343)에서 장면은 빼고 흰 막만 화면 전체 반투명 한 겹으로.
+    흰 막 진하기 = (어두운 쪽 2% 밝기 − 장면 자체의 어두운 쪽 밝기) / (흰색 − 장면 어두운 쪽). 2026-10-23 사용자: '섞인 것', 이 기술은 임팩트 프레임에만."""
+    v = cv2.resize(img, (160, 90)).max(-1).astype(np.float32)
+    p2 = float(np.percentile(v, 2))
+    alpha = float(np.clip((p2 - scene_dark) / max(white - scene_dark, 8), 0, 1))
+    full = np.full(img.shape[:2], 255, np.uint8)
+    _, sh = outline_mask(full, 1.0, min_area)
+    layers = [{"kind": "shade", "color": [255.0, 255.0, 255.0], "alpha": round(alpha, 4), "level": 1.0, "shapes": sh}] if alpha > 0.02 else []
+    return {"layers": layers, "lines": [], "stats": {"wash": round(alpha, 3)}}
+
+
+def parse_ranges(s):
+    out = set()
+    for part in s.split(","):
+        x, y = (part.split("-") + [part])[:2]
+        out |= set(range(int(x), int(y) + 1))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("video")
@@ -129,6 +149,7 @@ def main():
     ap.add_argument("--frames", help="이 프레임만(쉼표) — 예: 임팩트 마스크(*_ink.npz)의 그래픽 프레임")
     ap.add_argument("--auto-impact", action="store_true",
                     help="장마다 그림으로 임팩트 프레임인지 판정해 아닌 장은 빈 장으로(--only와 함께 쓰면 그 범위 ±8 안에서만)")
+    ap.add_argument("--wash", help="임팩트와 일반 장면이 섞인 장(흰 막이 옅어지는 전환) 범위 — 장면은 빼고 흰 막만 반투명 한 겹으로(사람이 지정)")
     ap.add_argument("--tail", type=int, default=0,
                     help="--auto-impact: 판정표 마지막 범위 끝 뒤로 몇 장까지 허용할지(기본 0 — 끝에서 자름)")
     ap.add_argument("--impact-diff", type=float, default=18.0, help="--auto-impact: 앞뒤 일반 장면과의 차이가 이보다 크면 임팩트")
@@ -144,12 +165,13 @@ def main():
         except BaseException:  # 영상 끝을 넘는 프레임은 배경 추정에서 뺀다(read_frame은 실패하면 종료한다)
             if f <= a.end:
                 raise
-    only = None
-    if a.only:
-        only = set()
-        for part in a.only.split(","):
-            x, y = (part.split("-") + [part])[:2]
-            only |= set(range(int(x), int(y) + 1))
+    only = parse_ranges(a.only) if a.only else None
+    wash = parse_ranges(a.wash) if a.wash else set()
+    scene_dark = 0.0
+    if wash:  # 섞인 구간 바로 뒤 장(일반 장면만 남은 장)의 어두운 쪽 밝기 = 장면 자체의 어두움
+        after = max(wash) + 1
+        if after in imgs:
+            scene_dark = float(np.percentile(cv2.resize(imgs[after], (160, 90)).max(-1), 2))
     wr = Writer()
     body = []
     W = None
@@ -157,6 +179,11 @@ def main():
     for pos, f in enumerate(frames):
         img = imgs[f]
         W = img.shape[1]
+        if f in wash:
+            doc = wash_doc(img, scene_dark, a.white)
+            body.append(frame_xml(doc, pos, wr, W, argb(bg)))
+            print(f, doc["stats"], flush=True)
+            continue
         skip = only is not None and f not in only
         if a.auto_impact:
             # 판정표 마지막 범위 뒤로는 넘기지 않는다: 232394 487–489(다음 장면의 역광 파편)가 흰 면 규칙으로 들어와
