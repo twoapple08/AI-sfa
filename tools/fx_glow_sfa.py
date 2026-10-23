@@ -101,9 +101,11 @@ def glow_doc(img, bgimg, tol=1.0, min_area=30, floor=0.0, drop_yellow=True, whit
             mg = (m > 0) & (groups == g)
             if mg.sum() < min_area:
                 continue
+            col = np.median(C[mg], 0)
+            # 묶음 경계에 검은 틈이 보였다(167784 번개, 2026-10-23 사용자 '검은 선') → 같은 층 영역 안에서 1화소 넓혀 이웃 묶음과 겹치게
+            mg = cv2.dilate(mg.astype(np.uint8), np.ones((3, 3), np.uint8), iterations=1).astype(bool) & (m > 0)
             _, sh = outline_mask(mg.astype(np.uint8) * 255, tol, min_area)
             if sh:
-                col = np.median(C[mg], 0)
                 layers.append({"kind": "shade", "color": col.round(1).tolist(),
                                "alpha": round(1 - (1 - cov(lv)) / (1 - cov(prev)), 4), "level": lv, "shapes": sh})
         prev = lv
