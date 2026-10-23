@@ -27,14 +27,22 @@ LEVELS = tuple(round(x, 3) for x in np.linspace(0.06, 0.94, 14))
 
 
 def is_impact_frame(img):
-    """한 장이 임팩트 프레임(흑백 그래픽·흰 전면)인지 그림으로 판정. 판정표 프레임 번호가 영상과 몇 장씩 어긋나서(239055)
-    범위만으로는 일반 장면(색 있는 어두운 컷)까지 칠해졌다(2026-10-23 사용자). 채도가 낮고, 흰 면이 넓거나 아주 밝은·어두운 픽셀이 대부분."""
+    """한 장이 임팩트 프레임인지 그림으로 판정(2026-10-23, 239055·232394·123722 프레임별 눈 판정과 맞춘 규칙).
+    일반 장면: 채도 높고 흰 면 7% 이하. 흑백 임팩트: 채도 50 이하에 흰 면이 조금이라도 있음(검정 바탕 흰 선 포함).
+    색 임팩트(빨강·노랑)·끝의 흰 번짐: 색은 있어도 흰 면이 18% 이상으로 갑자기 늘어남.
+    밝은 일반 장면(흰 하늘 등)도 흰 면이 많을 수 있어 판정표 범위 ±8 안에서만 쓴다."""
     s = cv2.resize(img, (160, 90))
     hsv = cv2.cvtColor(s, cv2.COLOR_BGR2HSV)
-    v, sat = hsv[..., 2], np.median(hsv[..., 1])
-    white = (v > 215).mean()
-    ext = ((v < 40) | (v > 215)).mean()
-    return bool(sat < 45 and (white > 0.25 or (ext > 0.85 and white > 0.05)))
+    v, sat = hsv[..., 2], float(np.median(hsv[..., 1]))
+    white = float((v > 215).mean())
+    return (sat <= 50 and (white >= 0.05 or v.mean() > 100)) or white >= 0.18
+
+
+def scene_diff(img, ref):
+    """두 장의 그림 차이(작게 줄인 Lab 평균 차). 임팩트 프레임은 앞뒤 일반 장면과 크게 다르다."""
+    a = cv2.cvtColor(cv2.resize(img, (96, 54)), cv2.COLOR_BGR2LAB).astype(np.float32)
+    b = cv2.cvtColor(cv2.resize(ref, (96, 54)), cv2.COLOR_BGR2LAB).astype(np.float32)
+    return float(np.abs(a - b).mean())
 
 
 def glow_doc(img, bgimg, tol=1.0, min_area=30, floor=0.0):
@@ -77,6 +85,7 @@ def main():
     ap.add_argument("--frames", help="이 프레임만(쉼표) — 예: 임팩트 마스크(*_ink.npz)의 그래픽 프레임")
     ap.add_argument("--auto-impact", action="store_true",
                     help="장마다 그림으로 임팩트 프레임인지 판정해 아닌 장은 빈 장으로(--only와 함께 쓰면 그 범위 ±8 안에서만)")
+    ap.add_argument("--impact-diff", type=float, default=18.0, help="--auto-impact: 앞뒤 일반 장면과의 차이가 이보다 크면 임팩트")
     ap.add_argument("--only", help="이 범위(예: 207-215,219-227)만 그리고 나머지 프레임은 빈 장으로 — 시간은 그대로. "
                                    "임팩트 판정표(impact_classify)의 '맞음' 범위를 넣어 일반 프레임에 넘쳐 적용되지 않게 한다(2026-10-23 사용자)")
     a = ap.parse_args()
@@ -105,6 +114,7 @@ def main():
         skip = only is not None and f not in only
         if a.auto_impact:
             near_only = only is None or any(g in only for g in range(f - 8, f + 9))
+            # 앞뒤 장면과의 차이로 판정해 보았으나 앞뒤가 다른 컷이면 일반 장면까지 들어가 쓰지 않는다(2026-10-23)
             skip = not (near_only and is_impact_frame(img))
         if skip:
             body.append(frame_xml({"layers": [], "lines": []}, pos, wr, W, argb(bg)))
