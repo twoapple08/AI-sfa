@@ -157,6 +157,8 @@ def main():
     ap.add_argument("--captions", help="동작 설명 문장 csv(예: data/style_kb/ai_results/codex_action_captions_*.csv). 겹치는 창은 이 문장을 쓴다")
     ap.add_argument("--max-acc", type=float, default=0.17, help="가속 95%가 이보다 크면 버림(측정: 중앙 0.086, 상위 25% 0.171)")
     ap.add_argument("--max-twist", type=float, default=45.0, help="어깨-골반 비틀림 90%가 이보다 크면 버림(상위 10%)")
+    ap.add_argument("--extra-mocap", help="꼭 넣을 모캡 클립 csv(자료,클립,문장(|로 여럿),반복) — 예: data/mocap/extra_landing_2026-10-23.csv. "
+                    "짧은 클립은 마지막 자세를 이어 붙여 2.2초로 채운다")
     ap.add_argument("--keep-generic", action="store_true", help="판정 문장이 없는 애니 창('fights')도 쓴다(기본: 뺀다)")
     a = ap.parse_args()
     sys.path.insert(0, a.momask)
@@ -289,6 +291,29 @@ def main():
             save(to22(P[w0:w1]), "a person " + ds.strip().rstrip("."), f"{src}:{d['clip'][k]}")
             nm += 1
     print("모캡 창", nm)
+    if a.extra_mocap:  # 무작위 뽑기에서 빠진 동작(착지 등)을 손으로 쓴 문장과 함께 넣는다(2026-10-23: 착지 클립 19개가 3차 자료에 0개)
+        ne2 = 0
+        for r in csv.DictReader(open(a.extra_mocap, encoding="utf-8-sig")):
+            src = r["자료"]
+            if src not in cache:
+                z = np.load(os.path.join(a.mocap, src + ".npz"), allow_pickle=True)
+                cache[src] = {k: z[k] for k in ("pos", "start", "length", "clip", "fps")}
+            d = cache[src]
+            ks = [k for k, c in enumerate(d["clip"]) if str(c) == r["클립"]]
+            if not ks:
+                print("없는 클립", src, r["클립"])
+                continue
+            k = ks[0]
+            P = d["pos"][int(d["start"][k]): int(d["start"][k]) + int(d["length"][k])].astype(np.float64)
+            P = resample(P, float(d["fps"]), 20)
+            if len(P) < 44:
+                P = np.concatenate([P, np.repeat(P[-1:], 44 - len(P), 0)])
+            caps = [c.strip() for c in r["문장"].split("|") if c.strip()]
+            for _ in range(int(r.get("반복") or 1)):
+                for w0, w1 in windows(len(P)):
+                    save(to22(P[w0:w1]), caps, f"{src}:{r['클립']}")
+                    ne2 += 1
+        print("지정 모캡 창", ne2)
     ids = [r[0] for r in rows]
     random.Random(1).shuffle(ids)
     nv = max(1, len(ids) // 20)
