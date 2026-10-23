@@ -45,6 +45,14 @@ def scene_diff(img, ref):
     return float(np.abs(a - b).mean())
 
 
+def color_groups(C, hue_bins=12):
+    """픽셀마다 색 묶음 번호: 0 = 흰색·회색(채도 낮음), 1.. = 색상 구간(노랑·주황·빨강 등). 작은 얼룩은 이웃 묶음에 붙인다."""
+    hsv = cv2.cvtColor(C.astype(np.uint8), cv2.COLOR_BGR2HSV)
+    h, s = hsv[..., 0].astype(int), hsv[..., 1]
+    g = np.where(s < 60, 0, 1 + (h * hue_bins // 180) % hue_bins).astype(np.uint8)
+    return cv2.medianBlur(g, 5)
+
+
 def glow_doc(img, bgimg, tol=1.0, min_area=30, floor=0.0):
     I = img.astype(np.float32)
     B = bgimg.astype(np.float32)
@@ -54,17 +62,23 @@ def glow_doc(img, bgimg, tol=1.0, min_area=30, floor=0.0):
         a = np.clip((a - floor) / (1 - floor), 0, 1)
     a = cv2.GaussianBlur(a, (0, 0), 1.2)
     C = np.clip((I - (1 - a[..., None]) * B) / np.maximum(a[..., None], 0.05), 0, 255)
+    groups = color_groups(C)
     layers, prev = [], 0.0
     for lv in LEVELS:
         m = (a >= lv).astype(np.uint8)
         m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
         if m.sum() < min_area:
             break
-        _, sh = outline_mask(m * 255, tol, min_area)
-        if sh:
-            col = np.median(C[m > 0], 0)
-            layers.append({"kind": "shade", "color": col.round(1).tolist(), "alpha": round(1 - (1 - lv) / (1 - prev), 4),
-                           "level": lv, "shapes": sh})
+        # 한 층을 색 하나(중앙값)로 칠하면 노랑 빛이 흰색으로, 흰 중심이 노랑으로 묻혔다(2026-10-23 사용자) → 색 묶음별로 나눠 칠한다
+        for g in np.unique(groups[m > 0]):
+            mg = (m > 0) & (groups == g)
+            if mg.sum() < min_area:
+                continue
+            _, sh = outline_mask(mg.astype(np.uint8) * 255, tol, min_area)
+            if sh:
+                col = np.median(C[mg], 0)
+                layers.append({"kind": "shade", "color": col.round(1).tolist(),
+                               "alpha": round(1 - (1 - lv) / (1 - prev), 4), "level": lv, "shapes": sh})
         prev = lv
     return {"layers": layers, "lines": [], "stats": {"layers": len(layers), "a_max": round(float(a.max()), 2)}}
 
