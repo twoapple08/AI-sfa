@@ -37,6 +37,7 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--per", type=int, default=6, help="시트 한 장의 구간 수")
     ap.add_argument("--cols", type=int, default=6, help="구간 하나의 장 수(시작→끝)")
+    ap.add_argument("--show-tags", action="store_true", help="구간 번호 아래에 tags 칸(판정된 종류)을 적는다")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     rows = [r for r in csv.DictReader(open(a.segments, encoding="utf-8")) if not r.get("exclude")]
@@ -51,7 +52,9 @@ def main():
         tiles = frames(vs[0], s, e, a.cols)
         head = np.full((TH, head_w, 3), 255, np.uint8)
         put_text(head, f"{i:03d}", (14, 40), 52, (0, 0, 0))
-        put_text(head, f"{e - s + 1}프레임", (16, 115), 18, (90, 90, 90))
+        put_text(head, f"{e - s + 1}프레임", (16, 100), 18, (90, 90, 90))
+        if a.show_tags and r.get("tags"):  # 판정된 종류를 보여 줄 때(자동 태그 목록에는 쓰지 않는다)
+            put_text(head, r["tags"].split(";")[0][:8], (16, 128), 20, (190, 60, 40))
         row = np.hstack([head] + tiles)
         cv2.line(row, (0, TH - 1), (row.shape[1], TH - 1), (180, 180, 180), 2)
         sheet.append(row)
