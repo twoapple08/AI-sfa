@@ -14,7 +14,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - 가중치(기본·v3–v8)는 서버 scratch에만 있다. 새 컨테이너면: rclone 설정(`tools/codex_setup.sh` 1–2단계), momask 코드·기본 가중치 = Drive `07_도구/동작학습_1050ti/`의 zip, 미세조정 가중치 = 결과 폴더(`rclone … --drive-root-folder-id 1VDQR5yDVGkxykQaNduMZ5FNtDivOOmVy gdrive:`; v6·v7·v8은 `results_v6_v7.zip`·`results_v8.zip` — Windows zip이라 경로가 역슬래시, unzip은 경고 후 정상), torch 2.6 cpu·CLIP(`--no-build-isolation`)·skia(`apt-get install libegl1 libgl1`)는 HANDOFF '환경'.
 
 ## 바로 할 일
-1. 정답 예시(`tools/keyframe_bench.py`, HANDOFF '방향 전환')를 사용자 피드백대로 다듬는다. 생성 동작 경로(storyboard_compose)는 보류.
+1. HANDOFF 맨 위 '사용자 평가와 정직한 현황'을 먼저 읽는다. 사용자에게 다음 방향(2D 동작 모델 / 이펙트 생성 모델 / 다른 것)을 묻고, 결정 전에는 큰 작업을 시작하지 않는다.
 
 ## 사용자와 일하는 방식
 - 결과는 그림·영상·SFA로 바로 보여 주고, 문제를 정직하게 적는다. 규칙 코드로 그림을 '지어내는' 방식은 품질 미달로 판정됐다.
