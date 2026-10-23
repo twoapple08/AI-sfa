@@ -50,7 +50,14 @@ def is_impact_frame(img, drop_yellow=True, yellow_frame=0.05, in_table=True):
             return False
         bright &= ~ym
     white = float(bright.mean())
-    return (sat <= 50 and (white >= 0.05 or v.mean() > 100)) or (white >= 0.18 and (sat <= 50 or in_table))
+    # 10차(2026-10-23, 다른 구간 10개 눈 판정 190장): 채도 낮은 일반 장면(회색 바위·흐린 용, 중간 밝기 면 85–99%)이
+    # '평균 밝기 > 100'으로 들어오고, 검은 바탕의 가는 흰 고리(흰 면 1–4%)는 놓쳤다. 임팩트는 흑백 대비가 크다 →
+    # 흰 면 15% 이상이면서 중간 밝기(60–200) 면 60% 이하, 또는 어두운 면 50% 이상에 흰 면이 조금이라도 있음.
+    mid = float(((v >= 60) & (v <= 200)).mean())
+    dark = float((v < 50).mean())
+    # 완전한 흑백(채도 ≤ 12)은 회색 종이 연필 임팩트(239055 944, 채도 5)라 밝기만 본다 — 회색 일반 장면은 채도 20–45였다.
+    low_sat = (sat <= 12 and v.mean() > 100) or (sat <= 50 and ((white >= 0.15 and mid <= 0.6) or (white >= 0.01 and dark >= 0.5)))
+    return low_sat or (white >= 0.18 and (sat <= 50 or in_table))
 
 
 def scene_diff(img, ref):
