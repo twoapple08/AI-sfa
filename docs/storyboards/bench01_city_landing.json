@@ -42,7 +42,8 @@
      "태그": "점프·공중",
      "설명": "하늘에서 빠르게 떨어짐",
      "속도": "빠름",
-     "시각_비율": 0.47
+     "시각_비율": 0.47,
+     "en": "a person drops down from high in the sky, falling fast toward the ground"
     }
    ],
    "초": null,
@@ -62,7 +63,8 @@
      "인물": 1,
      "태그": "착지",
      "설명": "한쪽 무릎·주먹을 짚는 착지 자세",
-     "시각_비율": 0.0
+     "시각_비율": 0.0,
+     "en": "a person lands in a superhero landing with one knee and one fist on the ground"
     },
     {
      "종류": "이펙트",
@@ -94,7 +96,8 @@
      "인물": 1,
      "태그": "대기",
      "설명": "착지 자세에서 일어섬",
-     "시각_비율": 0.0
+     "시각_비율": 0.0,
+     "en": "a person stands up slowly from a crouching landing pose"
     },
     {
      "종류": "이펙트",
@@ -119,7 +122,8 @@
      "인물": 1,
      "태그": "이동",
      "설명": "카메라를 향해 천천히 걷기",
-     "시각_비율": 0.0
+     "시각_비율": 0.0,
+     "en": "a person walks slowly forward toward the camera"
     },
     {
      "종류": "이펙트",
@@ -145,7 +149,8 @@
      "인물": 1,
      "태그": "이동",
      "설명": "걷기 유지",
-     "시각_비율": 0.0
+     "시각_비율": 0.0,
+     "en": "a person keeps walking forward steadily"
     },
     {
      "종류": "이펙트",
@@ -170,7 +175,8 @@
      "인물": 1,
      "태그": "이동",
      "설명": "걷기 → 빨리 걷기 → 달리기로 가속",
-     "시각_비율": 0.0
+     "시각_비율": 0.0,
+     "en": "a person walks forward and gradually speeds up into a run"
     },
     {
      "종류": "이펙트",
@@ -201,7 +207,8 @@
      "인물": 1,
      "태그": "공격_펀치",
      "설명": "주먹을 뒤로 당긴 준비 자세로 나타나 바로 내지름",
-     "시각_비율": 0.0
+     "시각_비율": 0.0,
+     "en": "a person pulls the right fist back and throws a powerful punch forward"
     },
     {
      "종류": "임팩트",
@@ -220,5 +227,6 @@
    "최소초": null,
    "_AI_추정초": 0.83
   }
- ]
+ ],
+ "_설명_en": "동작 사건의 en = 글→동작 모델에 넣을 영어 문장(앞으로 언어 모델이 원문에서 만든다). 지금은 손으로 쓴 정답 예시."
 }

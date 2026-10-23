@@ -130,12 +130,14 @@ def argb(c, a=1.0):
     return v - (1 << 32) if v >= 1 << 31 else v
 
 
-def write(frames, bg, name, path, layer_names=("인물",)):
+def write(frames, bg, name, path, layer_names=("인물",), frame_bgs=None, layers=None):
+    """frame_bgs: 프레임별 바탕색(없으면 bg). layers: 프레임별 [AO id → 레이어 번호] 함수(없으면 0)."""
     lines = [f"<?xml version='1.0' encoding='utf-8'?>",
              f'<Sequence Name="{name}" HeightWidthRatio="0.5625" RatioX="16" RatioY="9" FrameCount="{len(frames)}" BackgroundColor="{argb(bg)}">']
     pid = 1
     for k, objs in enumerate(frames):
-        lines.append(f'<Frame BackgroundColor="{argb(bg) & 0xFFFFFFFF}" ID="{k + 1}" Position="{k}">')
+        fb = frame_bgs[k] if frame_bgs else bg
+        lines.append(f'<Frame BackgroundColor="{argb(fb) & 0xFFFFFFFF}" ID="{k + 1}" Position="{k}">')
         lines += [f'<LayerDef ID="{i}" Name="{n}" Visible="true" Locked="false" />' for i, n in enumerate(layer_names)]
         ids = {}
         for o in objs:
@@ -149,7 +151,8 @@ def write(frames, bg, name, path, layer_names=("인물",)):
                     conn.setdefault(a, []).append(b)
                     conn.setdefault(b, []).append(a)
         for order, (oid, typ, col, th, pts, _) in enumerate(objs):
-            lines.append(f'<AO ID="{oid}" TypeId="{typ}" Color="{argb(col)}" LayerId="0" DrawOrder="{order + 1}" ThicknessScale="{th:.3f}" '
+            lid = layers(oid) if layers else 0
+            lines.append(f'<AO ID="{oid}" TypeId="{typ}" Color="{argb(col)}" LayerId="{lid}" DrawOrder="{order + 1}" ThicknessScale="{th:.3f}" '
                          f'ObjectScale="1.0" GlowRadius="0.0" GlowThickness="0.0" GlowColor="4294967295" GlowAlpha="0.0">')
             for i, (x, y) in enumerate(pts):
                 q = ids[oid] + i
