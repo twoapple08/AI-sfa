@@ -8,11 +8,11 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 배경·장면 글(기준 프롬프트 1 = `docs/storyboards/bench01_city_landing.json` 원문)을 넣으면 고퀄 스틱파이터 .sfa를 뽑는 AI. 기기 안 실행이 최종이지만 지금은 품질 확인 단계.
 
 ## 지금 상태(2026-10-23 오후 늦게)
-- 동작 4차(`ft_v4_gpu`): 걷기 회복, 일어서기·히어로 착지 실패. 5차 자료(문장-자세 불일치 제외 + 착지 모캡) `motion_data_mds5.zip` Drive에 있음 — 사용자 PC 학습 대기.
+- 동작 5차(`ft_v5_gpu`)까지 걷기·펀치는 됨, 일어서기·히어로 착지 실패. 애니 비중 대조 6차(0배)·7차(1배)를 사용자가 PC방 RTX 5060에서 돌릴 예정(docs/PCBANG-RTX5060-TRAINING-2026-10-23.md).
 - 이펙트 규칙 배치 시험은 품질 미달(HANDOFF).
 
 ## 바로 할 일
-1. 5차 결과(별도 Drive 폴더, HANDOFF '환경'의 `--drive-root-folder-id`)를 받아 기본·4차·5차 비교(씨앗 1–3, 관절 막대 그림)해 보여 준다.
+1. `results_v6_v7.zip`(별도 Drive 결과 폴더, HANDOFF '환경'의 `--drive-root-folder-id`)을 받아 기본·5차·7차·6차 비교(씨앗 1–3, 관절 막대 그림)해 보여 준다.
 2. HANDOFF '다음 행동' 2–4.
 
 ## 사용자와 일하는 방식(이번 대화에서 확인)
