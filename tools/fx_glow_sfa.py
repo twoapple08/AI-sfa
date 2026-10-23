@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+"""빛 계열 이펙트(섬광·글로우·빔·불빛)를 밝기로 뽑아 반투명 겹으로 SFA 만들기 (2026-10-23 시험).
+
+마스크(안/밖 두 값)는 점점 옅어지는 글로우를 담지 못했다(사용자 판정). 그래서 마스크 없이:
+- 배경 추정 B = 앞뒤 ±win 프레임에서 픽셀마다 가장 어두운 값(빛 이펙트는 잠깐 밝게 더해진다고 본다).
+- 투명도 a = (밝기 - 배경 밝기) / (255 - 배경 밝기), 0..1. 이펙트 색 C = (I - (1-a)·B) / a.
+- a를 여러 단계로 나눠 '바깥 넓고 옅게 → 안쪽 좁고 진하게' 반투명 채우기 겹으로 쌓는다(AGENTS 투명도 원칙).
+  윤곽은 기존 분해기(effect_layers.outline_mask)의 곡선 조각, 쓰기는 effect_clip_sfa.frame_xml 그대로.
+한계: 카메라가 크게 움직이거나 빛이 구간 내내 켜져 있으면 배경 추정이 틀린다. 어두운 선화는 담지 않는다.
+사용: python tools/fx_glow_sfa.py <영상> <시작> <끝> <출력.sfa> [--win 8] [--bg 0,0,0]
+"""
+import argparse
+import os
+import sys
+import zipfile
+
+import cv2
+import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from effect_vectorize import outline_mask  # noqa: E402
+from effect_clip_sfa import H, Writer, argb, frame_xml  # noqa: E402
+from effect_vectorize import read_frame  # noqa: E402
+
+LEVELS = (0.08, 0.18, 0.3, 0.45, 0.6, 0.75, 0.9)
+
+
+def glow_doc(img, bgimg, tol=1.0, min_area=30):
+    I = img.astype(np.float32)
+    B = bgimg.astype(np.float32)
+    v, vb = I.max(-1), B.max(-1)
+    a = np.clip((v - vb) / np.maximum(255 - vb, 8), 0, 1)
+    a = cv2.GaussianBlur(a, (0, 0), 1.2)
+    C = np.clip((I - (1 - a[..., None]) * B) / np.maximum(a[..., None], 0.05), 0, 255)
+    layers, prev = [], 0.0
+    for lv in LEVELS:
+        m = (a >= lv).astype(np.uint8)
+        m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+        if m.sum() < min_area:
+            break
+        _, sh = outline_mask(m * 255, tol, min_area)
+        if sh:
+            col = np.median(C[m > 0], 0)
+            layers.append({"kind": "shade", "color": col.round(1).tolist(), "alpha": round(1 - (1 - lv) / (1 - prev), 4),
+                           "level": lv, "shapes": sh})
+        prev = lv
+    return {"layers": layers, "lines": [], "stats": {"layers": len(layers), "a_max": round(float(a.max()), 2)}}
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("video")
+    ap.add_argument("start", type=int)
+    ap.add_argument("end", type=int)
+    ap.add_argument("out")
+    ap.add_argument("--win", type=int, default=8, help="배경 추정에 쓰는 앞뒤 프레임 수")
+    ap.add_argument("--bg", default="0,0,0")
+    a = ap.parse_args()
+    bg = [int(x) for x in a.bg.split(",")]
+    lo, hi = max(0, a.start - a.win), a.end + a.win
+    imgs = {}
+    for f in range(lo, hi + 1):
+        try:
+            imgs[f] = read_frame(a.video, f, H)
+        except BaseException:  # 영상 끝을 넘는 프레임은 배경 추정에서 뺀다(read_frame은 실패하면 종료한다)
+            if f <= a.end:
+                raise
+    wr = Writer()
+    body = []
+    W = None
+    frames = list(range(a.start, a.end + 1))
+    for pos, f in enumerate(frames):
+        img = imgs[f]
+        W = img.shape[1]
+        near = np.stack([imgs[g] for g in range(f - a.win, f + a.win + 1) if g in imgs])
+        lum = near.max(-1)
+        bgimg = np.take_along_axis(near, lum.argmin(0)[None, ..., None].repeat(3, -1), 0)[0]
+        doc = glow_doc(img, bgimg)
+        body.append(frame_xml(doc, pos, wr, W, argb(bg)))
+        print(f, doc["stats"], flush=True)
+    name = os.path.splitext(os.path.basename(a.out))[0]
+    xml = (f"<?xml version='1.0' encoding='utf-8'?>\n<Sequence Name=\"{name}\" HeightWidthRatio=\"{H / W:.4f}\" "
+           f"RatioX=\"16\" RatioY=\"9\" FrameCount=\"{len(frames)}\" BackgroundColor=\"{argb(bg)}\">\n"
+           + "\n".join(body) + "\n</Sequence>\n")
+    with zipfile.ZipFile(a.out, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr(name + ".xml", xml)
+    print("프레임", len(frames), "AO", wr.oid - 1, "크기MB", round(os.path.getsize(a.out) / 1e6, 1))
+
+
+if __name__ == "__main__":
+    main()
