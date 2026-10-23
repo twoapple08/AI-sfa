@@ -10,7 +10,7 @@
 태그는 한글 기준 이름(예: 공격, 공격_킥, 임팩트_연필, 폭발)과 원래 영어 태그(explosions, impact_frames_pencil …)를 둘 다 받는다(ALIASES).
 
 묶는 자료(출처 칸에 파일 이름):
-- 동작: GPT 동작 판정 T02·T03·T04(nian41·나카무라만 — 보충 애니메이터 몸동작은 AGENTS 규칙대로 뺀다)(data/style_kb/ai_results/gpt_T0*.csv) + 시트 목록(data/p1/action_sheets/T0*_목록.csv: post_id·시작·길이).
+- 동작: GPT 동작 판정 T02·T03·T04, Codex 그림 재확인 판정수정 39건 우선 적용(nian41·나카무라만 — 보충 애니메이터 몸동작은 AGENTS 규칙대로 뺀다)(data/style_kb/ai_results/gpt_T0*.csv) + 시트 목록(data/p1/action_sheets/T0*_목록.csv: post_id·시작·길이).
   '판단 불가'는 뺀다. 공격은 공격세부(킥·펀치·무기·던지기)를 '공격_킥'처럼 하위 태그로도 단다.
 - 임팩트 프레임: 사용자·AI 판정(data/style_kb/judge_lists/impact_classify_2026-10-20.csv)의 '맞음' — 임팩트_실루엣/임팩트_단색섬광,
   연필 진하기 ≥ 1이면 임팩트_연필(가중 = 진하기/3). 학습 '제외'는 뺀다. 302394(비질란테)는 가중 0.3(AGENTS 기본 낮음).
@@ -49,8 +49,22 @@ def norm(tag):
     return REV.get(tag, tag)
 
 
+def codex_fixes():
+    """Codex가 시트 그림을 다시 보고 고친 동작(메모의 '판정수정:<동작>') → {"gpt_T03:T03_011.jpg": 새 동작}."""
+    import re
+    p = os.path.join(ROOT, "data", "style_kb", "ai_results", "codex_action_captions_2026-10-23.csv")
+    out = {}
+    if os.path.exists(p):
+        for r in csv.DictReader(open(p, encoding="utf-8-sig")):
+            m = re.search(r"판정수정:\s*([^;,|]+)", r.get("메모") or "")
+            if m:
+                out[r["출처"]] = m.group(1).strip()
+    return out
+
+
 def rows_actions():
     out = []
+    fixes = codex_fixes()
     for t, by in (("T02", "gpt_T02_2026-10-21"), ("T03", "gpt_T03_2026-10-22"), ("T04", "gpt_T04_2026-10-22")):
         lst = os.path.join(ROOT, "data", "p1", "action_sheets", f"{t}_목록.csv")
         lab = os.path.join(ROOT, "data", "style_kb", "ai_results", f"{by}.csv")
@@ -60,6 +74,11 @@ def rows_actions():
         for r in csv.DictReader(open(lab, encoding="utf-8-sig")):
             s = L.get(r["시트"])
             act = (r.get("동작") or "").strip()
+            src = f"gpt_{t}:{r['시트']}"
+            if src in fixes:  # Codex 그림 재확인 결과가 우선(공격이 아니게 바뀌면 공격세부도 버린다)
+                act = fixes[src]
+                if act != "공격":
+                    r = dict(r, 공격세부="")
             if not s or not act or act in ("판단 불가", "뼈대 틀림"):
                 continue
             if s["애니메이터"] in NO_BODY:  # 몸동작은 nian41·나카무라만(AGENTS: riooo·optical-core·yukina 몸동작은 세지 않음)
