@@ -14,7 +14,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - 가중치(기본·v3–v8)는 서버 scratch에만 있다. 새 컨테이너면: rclone 설정(`tools/codex_setup.sh` 1–2단계), momask 코드·기본 가중치 = Drive `07_도구/동작학습_1050ti/`의 zip, 미세조정 가중치 = 결과 폴더(`rclone … --drive-root-folder-id 1VDQR5yDVGkxykQaNduMZ5FNtDivOOmVy gdrive:`; v6·v7·v8은 `results_v6_v7.zip`·`results_v8.zip` — Windows zip이라 경로가 역슬래시, unzip은 경고 후 정상), torch 2.6 cpu·CLIP(`--no-build-isolation`)·skia(`apt-get install libegl1 libgl1`)는 HANDOFF '환경'.
 
 ## 바로 할 일
-1. HANDOFF '다음 행동' 1(애니 타이밍 입히기)부터. 결과는 mp4로 만들어 보여 주고 이전 판(Drive `04_SFA시험작/bench01_2026-10-23_v8_낙하추적카메라/`)과 비교한다.
+1. 사용자 애니매틱(docs/storyboards/bench01_user_animatic_2026-10-23.md)의 연출을 조립기에 맞춘다(섬광·낙하 가속·착지 순간 카메라·걷기 중 인물 크기·펀치 클로즈업). 그다음 HANDOFF '다음 행동' 1(포즈 투 포즈 타이밍). 결과는 mp4로 만들어 보여 주고 이전 판(Drive `04_SFA시험작/bench01_2026-10-23_v8_낙하추적카메라/`)과 비교한다.
 
 ## 사용자와 일하는 방식
 - 결과는 그림·영상·SFA로 바로 보여 주고, 문제를 정직하게 적는다. 규칙 코드로 그림을 '지어내는' 방식은 품질 미달로 판정됐다.
