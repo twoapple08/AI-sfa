@@ -26,7 +26,7 @@
 - 태그 색인·추출: `tools/tag_index.py`, `data/tag_index.csv`, 안내 [TAG-GUIDE](docs/TAG-GUIDE-2026-10-22.md).
 
 ## 다음 행동
-1. **현재 최선 조립(2026-10-23):** `storyboard_compose.py --name …_ft_v8_gpu --res-name …_ft_v8_gpu --scene-model 3=<기본 마스크>,<기본 잔차>` + 기준 스토리보드(장면 2 "lands crouching on one knee", 장면 3 "rises from a deep crouch to a standing position"). 결과 Drive `04_SFA시험작/bench01_2026-10-23_v8_장면별모델/`(SFA·mp4). 낙하→한 무릎 착지→일어섬→걷기·달리기→펀치→암전이 이어짐. 문제: 걷기·달리기 장면에서 카메라가 너무 멀어져 인물이 점처럼 작음(장면 4–6 카메라 거리 규칙 조정 필요), 낙하 장면 첫 프레임에 인물이 땅 위 공중에 떠 있음.
+1. **현재 최선 조립(2026-10-23):** `storyboard_compose.py --name …_ft_v8_gpu --res-name …_ft_v8_gpu --scene-model 3=<기본 마스크>,<기본 잔차>` + 기준 스토리보드(장면 2 "lands crouching on one knee", 장면 3 "rises from a deep crouch to a standing position"). 결과 Drive `04_SFA시험작/bench01_2026-10-23_v8_장면별모델/`(SFA·mp4). 낙하→한 무릎 착지→일어섬→걷기·달리기→펀치→암전이 이어짐. **낙하 추적 카메라(사용자 구도, 같은 날):** 장면 1 카메라가 착지 지점 앞 3.5m 땅 가까이에서 떨어지는 인물을 따라 고개를 내리고 높이도 1.4→0.5m로 내려와 장면 2로 끊김 없이 이어짐. 인물은 먼 하늘(12m 위·6m 뒤)에서 카메라 쪽으로 떨어지고, 장면 1은 공중 3m에서 끝나 장면 2가 착지 순간(엉덩이 최저 프레임)까지 이어 떨어짐(두 번 착지 문제 해결). 결과 Drive `04_SFA시험작/bench01_2026-10-23_v8_낙하추적카메라/`. 남은 문제: 걷기·달리기 장면 카메라가 너무 멀어 인물이 점처럼 작음(장면 4–6 거리 규칙), 이 씨앗은 착지가 한 무릎이 아니라 선 채 웅크림.
 2. 애니 자료는 동작 모양에서 빼고 타이밍(빠름·멈춤)에만 쓰는 설계 — 사용자 동의 대기.
 3. 이펙트: 규칙 배치 품질 미달 — 학습 모델 방식 결정. 형태 사전 `fx_shapes.txt` Drive 복구됨.
 4. 1단계(프롬프트 → 스토리보드) 언어 모델 연결.

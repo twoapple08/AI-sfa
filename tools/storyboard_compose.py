@@ -100,11 +100,15 @@ def camera_frames(cut, n, root, prev):
         u = t / max(1, n - 1)
         r = root[t] * [1, 0, 1]
         if dirn == "하늘_올려다봄":
-            eye, at, fov = r + [0, 0.8, 9], r + [0, 7, 0], 60
-            dist = 9
+            # 착지 지점 앞 땅 가까이에서 떨어지는 인물을 따라 고개를 내리고, 카메라도 같이 내려와 다음 장면(지면_낮게)으로
+            # 끊김 없이 이어진다(2026-10-23 사용자 구도: 하늘 올려다봄 → 붉은 섬광 → 카메라 쪽으로 낙하 → 착지까지 따라감)
+            land = root[-1] * [1, 0, 1]
+            eye, at, fov = land + [0, 1.4 - 0.9 * u ** 2, 3.5], root[t] + [0, 0.9, 0], 60
+            dist = 3.5
         elif dirn == "지면_낮게":
-            eye, at, fov = r + [0, 0.5, 5], r + [0, 0.8, 0], 55
-            dist = 5
+            # 공중에서 이어 떨어지는 동안은 인물 높이를 따라 본다(r은 높이 0으로 눌러 둔 값)
+            eye, at, fov = r + [0, 0.5, 3.5], r + [0, max(0.8, float(root[t][1]) - 0.1), 0], 55
+            dist = 3.5
         elif act == "뒤로_이동":
             if "더 빨라짐" in spd:
                 d = dist0 + 6 * u ** 1.6
@@ -249,6 +253,7 @@ def main():
     # 2) 장면 길이에 맞추기(20fps → F, 장면 프레임 수로 늘이거나 줄임) + 이어 붙이기 + 연출 위치
     J, cut_of, end = [], [], None
     notes = []
+    fall_carry = None
     for i, (c, n, C) in enumerate(zip(sb["컷"], lens, clips)):
         t = np.linspace(0, len(C) - 1, n)
         i0 = np.floor(t).astype(int)
@@ -257,10 +262,29 @@ def main():
         tele = any(e.get("태그") == "순간이동" for e in c["사건"])
         if end is not None and not tele:
             R = R + [end[0] - R[0, 0, 0], 0, end[2] - R[0, 0, 2]]
+        nxt = sb["컷"][i + 1] if i + 1 < len(sb["컷"]) else None
+        lands_next = nxt is not None and any(e.get("태그") == "착지" for e in nxt["사건"])
         if any("떨어" in (e.get("설명") or "") for e in c["사건"] if e["종류"] == "동작"):
-            k = np.clip(1 - np.arange(n) / max(1, n - 1), 0, 1) ** 2  # 하늘에서 떨어짐: 기초 모델이 높이를 못 내 높이를 더함
-            R[:, :, 1] += (8.0 * k)[:, None]
-            notes.append(f"장면 {c['장면']}: 낙하 높이 8m를 조립기가 더함(모델 한계)")
+            # 하늘에서 떨어짐: 기초 모델이 높이를 못 내 높이를 더한다. 다음 장면이 착지면 공중(carry m)에서 끝내고
+            # 착지 장면이 나머지를 떨어진다(장면 1 끝에서 한 번, 장면 2에서 또 한 번 착지하던 문제, 2026-10-23)
+            k = np.clip(1 - np.arange(n) / max(1, n - 1), 0, 1) ** 2
+            carry = 3.0 if lands_next else 0.0
+            R[:, :, 1] += (carry + (12.0 - carry) * k)[:, None]
+            R[:, :, 2] -= (6.0 * k)[:, None]  # 카메라(+z 쪽) 반대편 먼 하늘에서 카메라 쪽으로 다가오며 떨어짐
+            if lands_next:
+                fall_carry = (carry, R[-1, 0, 1])
+            notes.append(f"장면 {c['장면']}: 낙하 높이 12m·앞으로 6m를 조립기가 더함(모델 한계)" + (f", 공중 {carry:.0f}m에서 다음 장면으로" if lands_next else ""))
+        elif any(e.get("태그") == "착지" for e in c["사건"]) and fall_carry is not None:
+            # 앞 장면에서 이어지는 낙하: 착지 순간(엉덩이가 가장 낮은 프레임)까지 남은 높이를 빠르게 줄인다
+            q = max(1, n // 6)
+            li = int(q + np.argmin(R[q:, 0, 1])) if n > q else n - 1
+            off = np.zeros(n)
+            off0 = max(0.0, fall_carry[1] - R[0, 0, 1])
+            tt = np.arange(li + 1) / max(1, li)
+            off[: li + 1] = off0 * (1 - tt ** 2)
+            R[:, :, 1] += off[:, None]
+            notes.append(f"장면 {c['장면']}: 앞 장면 낙하를 이어 {li}프레임에 착지")
+            fall_carry = None
         if tele:
             notes.append(f"장면 {c['장면']}: 순간이동 — 카메라 바로 앞(1.8m)에 둠")
         J.append(R)
