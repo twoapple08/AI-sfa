@@ -97,3 +97,21 @@
 - **걷다 달리기**: 8.2–8.5m로 셋 중 가장 많이 가속(기본 6.5–7.1, 6차 7.0–7.7). **걷기·펀치**: 6차와 비슷(펀치 팔 뻗음 0.72–0.74로 기본보다 큼).
 - **낙하·히어로 착지**: 공중에서 내려오지만 씨앗 1에서 착지 뒤 바닥에 누움 — 6차(착지 뒤 일어섬)보다 약간 나쁨. **일어서기**: 누운 채 시작해 그대로(실패), 기본 모델이 여전히 최선.
 - 결론: 모캡 양을 4배로 늘려도 착지·일어서기는 풀리지 않는다. 미세조정 효과는 낙하(공중)·달리기 가속에 한정. 착지·일어서기는 (가) 동작 문장 바꾸기(예: "rises from a deep crouch to standing"), (나) 장면별로 기본/미세조정 모델 골라 쓰기, (다) 착지 자세를 조립기에서 키 자세로 고정하는 방법을 검토.
+
+## 동작 문장 시험(기본·6차·8차 × 씨앗 1–3) — 2026-10-23
+자동 판정(높이 규칙: 일어서기 = 엉덩이 낮게 시작 <0.6 → 서서 끝 >0.85·눕지 않음, 착지 = 엉덩이 최저 0.25–0.65·그때 머리 >0.6·눕지 않음) + 그림 확인. 그림: Drive `04_SFA시험작/bench01_2026-10-23_문장시험/`.
+
+| 문장 | 기본 | 6차 | 8차 |
+|---|---|---|---|
+| S1 stands up slowly from a crouching landing pose(원래) | 0/3 | 0/3 | 0/3 |
+| S2 rises from a deep crouch to a standing position | **2/3** | 0/3 | 0/3 |
+| S3 squats down low and then slowly stands up straight | 0/3 | 1/3 | 1/3 |
+| S4 is crouching low and slowly straightens up to stand | 0/3 | 0/3 | 0/3 |
+| L1 lands in a superhero landing with one knee and one fist(원래) | 0/3 | 0/3 | 0/3 |
+| L2 jumps down and lands in a low crouch with one hand touching the ground | **3/3** | 2/3 | **3/3** |
+| L3 drops from above and lands crouching on one knee | **3/3** | **3/3** | 2/3 |
+| L4 lands heavily in a deep crouch and stays low | 1/3 | 0/3 | 0/3 |
+
+- 그림 확인: **8차 + L3 = 공중 회전 뒤 한 무릎 착지(지금까지 가장 히어로 착지에 가까움)**, 8차 + L2 = 웅크림→뛰어오름→낮게 착지, 기본 + L3 = 한 무릎 자세에서 시작해 일어섬. 기본 + S1·S2 = 깊게 숙였다 다시 섬(완전히 웅크린 채 시작하진 않음 — 규칙 판정이 S1을 실패로 센 이유).
+- **"superhero landing"이라는 말은 모델이 모른다(9/9 실패).** 착지는 몸 부위·자세를 풀어 쓴 문장이 통한다.
+- 반영: 기준 스토리보드 장면 2의 영어 동작 문장(`en`, Claude 작성 — 사용자 원문 아님)을 L3로 바꿈. 일어서기는 기본 모델이 최선이라 장면별 모델 고르기(조립기 기능, 미구현)가 다음 일.

@@ -26,7 +26,7 @@
 - 태그 색인·추출: `tools/tag_index.py`, `data/tag_index.csv`, 안내 [TAG-GUIDE](docs/TAG-GUIDE-2026-10-22.md).
 
 ## 다음 행동
-1. 착지·일어서기: 미세조정(3–8차)으로 안 풀림. (가) 동작 문장 바꿔 기본·6차·8차로 시험("a person rises from a deep crouch to standing", "a person lands from a jump into a low crouch and stays crouched"), (나) 장면별 모델 고르기(일어서기 = 기본, 낙하·달리기 = 6/8차), (다) 조립기에서 착지 키 자세 고정 — 순서대로 서버에서 바로 시험 가능(가중치 scratch에 있음: 기본·v3–v8).
+1. 착지·일어서기: 문장 시험 결과([MOTION-BASE-TEST](docs/MOTION-BASE-TEST-2026-10-22.md) 마지막 절) — 착지는 "drops from above and lands crouching on one knee"로 해결(8차 = 공중 회전 뒤 한 무릎 착지, 기준 스토리보드 반영), 일어서기는 기본 모델 + "rises from a deep crouch to a standing position"이 최선. 다음: 조립기에 장면별 모델 고르기(`--model-per-scene` 같은 것) 넣고 기준 프롬프트를 8차(+일어서기만 기본)로 다시 뽑아 보여 주기.
 2. 애니 자료는 동작 모양에서 빼고 타이밍(빠름·멈춤)에만 쓰는 설계 — 사용자 동의 대기.
 3. 이펙트: 규칙 배치 품질 미달 — 학습 모델 방식 결정. 형태 사전 `fx_shapes.txt` Drive 복구됨.
 4. 1단계(프롬프트 → 스토리보드) 언어 모델 연결.
