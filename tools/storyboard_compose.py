@@ -149,7 +149,8 @@ def effects_plan(sb, lens, J, cams, a, notes):
                         cen = land + [math.cos(rot) * sz * 0.5 * g, 0, math.sin(rot) * sz * 0.5 * g]
                         add(k, FW.ground(L, cen, sz * g, rot, cams[k], gray=gray, tint=(40, 40, 40)))
             notes.append(f"장면 {c['장면']}: 균열 = 줄기 형태 7개를 땅에 눕혀 방사형(형태 사전)")
-        if "파편" in tags and land is not None and any("부유" in (e.get("움직임") or "") for e in c["사건"]):
+        if "파편" in tags and land is not None and any("부유" in (e.get("움직임") or "") and "떨어" not in (e.get("움직임") or "") for e in c["사건"]):
+            # "부유하던 부스러기가 떨어짐"(다음 장면)은 새 부유가 아니라 앞 장면 돌의 낙하 시각이다(2026-10-23 중복 생성 버그)
             # 착지와 함께 튀어 올라 공중에 멈춤 → 다음 장면의 '떨어짐' 시각에 떨어진다
             fall_at = None
             for j in range(i + 1, len(sb["컷"])):
