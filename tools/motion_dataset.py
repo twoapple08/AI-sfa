@@ -23,6 +23,7 @@ import csv
 import glob
 import os
 import random
+import re
 import sys
 
 import numpy as np
@@ -159,6 +160,8 @@ def main():
     ap.add_argument("--max-twist", type=float, default=45.0, help="어깨-골반 비틀림 90%가 이보다 크면 버림(상위 10%)")
     ap.add_argument("--extra-mocap", help="꼭 넣을 모캡 클립 csv(자료,클립,문장(|로 여럿),반복) — 예: data/mocap/extra_landing_2026-10-23.csv. "
                     "짧은 클립은 마지막 자세를 이어 붙여 2.2초로 채운다")
+    ap.add_argument("--min-stand-hip", type=float, default=0.7,
+                    help="애니: 서기·걷기·타격 문장인데 엉덩이 높이 중앙값이 이보다 낮으면(m) 문장-자세 불일치로 버림(2026-10-23: 'stands upright'인데 0.15–0.6m인 창이 모델에 '서기=낮음'을 가르침). 0이면 끔")
     ap.add_argument("--keep-generic", action="store_true", help="판정 문장이 없는 애니 창('fights')도 쓴다(기본: 뺀다)")
     a = ap.parse_args()
     sys.path.insert(0, a.momask)
@@ -176,6 +179,8 @@ def main():
         os.makedirs(os.path.join(a.out, d), exist_ok=True)
     rows, n = [], 0
 
+    nbad = [0]
+
     def save(J22, cap, src):
         nonlocal n
         try:
@@ -184,6 +189,15 @@ def main():
             print("버림", src, e)
             return
         if not np.isfinite(feat).all() or not (40 <= len(feat) < 200):
+            return
+        c0 = (cap if isinstance(cap, list) else [cap])[0]
+        low_word = re.search(r"kneel|crouch|squat|on the ground|lies|lying|sits|sitting|stands? up\b|gets? up|rises|falls?|knocked", c0)
+        stand_word = re.search(r"stand|walk|run|step|punch|kick|strike|swing", c0)
+        hip = float(np.median(feat[:, 3]))
+        # 낮은 자세 단어가 없으면 서 있는 몸으로 본다: 서기·걷기·타격 문장은 min-stand-hip, 팔 동작만 적힌 문장은 0.6m 미만이면 불일치
+        if (a.min_stand_hip and "anime style" in c0 and not low_word
+                and hip < (a.min_stand_hip if stand_word else min(a.min_stand_hip, 0.6))):
+            nbad[0] += 1
             return
         i = f"{n:06d}"
         n += 1
@@ -257,6 +271,7 @@ def main():
                         save(to22(P[w0:w1]), cap, f"{an}:{pid}:{a0}-{a1}")
                         na += 1
                         nl += has
+    print("문장-자세 불일치로 버린 애니 창", nbad[0])
     print("애니 창", na, "판정 문장", nl, "외부 문장", ne, "품질로 버린 구간", nq)
     # 모캡(잊지 않게 섞기): 공격·피격·점프·방어·구르기·달리기 위주, 걷기·감정 표현은 적게
     desc = {}
