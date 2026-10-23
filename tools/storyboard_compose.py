@@ -101,6 +101,19 @@ def ground_lines(eye, at, fov, z0, z1, x0=-12, x1=12, step=2.0):
     return out
 
 
+SNAP = 3      # 착지 순간 카메라가 하늘 → 땅으로 내려오는 프레임 수(24fps 약 0.1초)
+FOLLOW = True  # 뒤로_이동 장면에서 인물 크기 일정(사용자 애니매틱). False면 예전 규칙(거리 늘림)
+
+
+def fall_geom(land):
+    """낙하 장면 기하(2026-10-23 사용자 애니매틱): 카메라 E는 착지 지점 앞 땅 가까이, 시선은 착지 지점 위 공중 A.
+    인물은 그 시선 연장선 먼 하늘 S(50m)에서 시선을 따라 A로 내려와 화면 가운데서 점점 커진다."""
+    E = land + [0, 0.5, 3.5]
+    A = land + [0, 3.0, 0]
+    d = (A - E) / np.linalg.norm(A - E)
+    return E, A, E + d * 50.0
+
+
 def camera_frames(cut, n, root, prev):
     """장면 하나의 프레임별 (eye, at, fov). root: 이 장면 엉덩이 위치 [n,3]. prev: 직전 장면 끝 상태(dist, h)."""
     cam = cut.get("카메라", {})
@@ -113,13 +126,16 @@ def camera_frames(cut, n, root, prev):
         if dirn == "하늘_올려다봄":
             # 착지 지점 앞 땅 가까이에서 떨어지는 인물을 따라 고개를 내리고, 카메라도 같이 내려와 다음 장면(지면_낮게)으로
             # 끊김 없이 이어진다(2026-10-23 사용자 구도: 하늘 올려다봄 → 붉은 섬광 → 카메라 쪽으로 낙하 → 착지까지 따라감)
-            land = root[-1] * [1, 0, 1]
-            eye, at, fov = land + [0, 1.4 - 0.9 * u ** 2, 3.5], root[t] + [0, 0.9, 0], 60
+            E, A, _ = fall_geom(root[-1] * [1, 0, 1])
+            eye, at, fov = E, A, 60  # 하늘 고정 — 착지 순간 다음 장면에서 휙 내려온다
             dist = 3.5
         elif dirn == "지면_낮게":
             # 공중에서 이어 떨어지는 동안은 인물 높이를 따라 본다(r은 높이 0으로 눌러 둔 값)
             eye, at, fov = r + [0, 0.5, 3.5], r + [0, max(0.8, float(root[t][1]) - 0.1), 0], 55
             dist = 3.5
+        elif act == "뒤로_이동" and FOLLOW:
+            # 사용자 애니매틱: 카메라가 걷는 인물과 같은 속도로 뒤로 빠져 인물 화면 크기는 일정, 배경만 멀어진다
+            eye, at, fov, dist = r + [0, 1.0, 4.0], r + [0, 0.9, 0], 50, 4.0
         elif act == "뒤로_이동":
             if "더 빨라짐" in spd:
                 d = dist0 + 6 * u ** 1.6
@@ -234,6 +250,7 @@ def main():
     ap.add_argument("--hold", type=int, default=2)
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--anime-timing", type=float, default=0.0, help="애니 타이밍 세기(0=끔, 1 안팎): 걷기 장면 빼고 키 자세에서 머물고 사이를 빠르게")
+    ap.add_argument("--no-rule-fx", action="store_true", help="형태 사전은 하늘 섬광에만 쓰고 규칙 배치 이펙트(균열·파편·가시 — 품질 미달 판정)는 끈다")
     ap.add_argument("--scene-model", action="append", help="장면별 모델 '장면번호=마스크이름,잔차이름'(여러 번). 예: 3=t2m_…_rvq6ns,tres_…_sw")
     ap.add_argument("--shapes", help="이펙트 형태 사전(tools/fx_shapes.py 출력, Drive). 있으면 균열·부유 파편·붉은 가시를 그린다")
     ap.add_argument("--approved", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "style_kb", "ai_results",
@@ -265,7 +282,7 @@ def main():
     # 2) 장면 길이에 맞추기(20fps → F, 장면 프레임 수로 늘이거나 줄임) + 이어 붙이기 + 연출 위치
     J, cut_of, end = [], [], None
     notes = []
-    fall_carry = None
+    fall_carry, fall_info, snap_at = None, None, None
     for i, (c, n, C) in enumerate(zip(sb["컷"], lens, clips)):
         t = np.linspace(0, len(C) - 1, n)
         walk = any(e["종류"] == "동작" and e.get("태그") == "이동" for e in c["사건"])
@@ -280,28 +297,30 @@ def main():
         nxt = sb["컷"][i + 1] if i + 1 < len(sb["컷"]) else None
         lands_next = nxt is not None and any(e.get("태그") == "착지" for e in nxt["사건"])
         if any("떨어" in (e.get("설명") or "") for e in c["사건"] if e["종류"] == "동작"):
-            # 하늘에서 떨어짐: 기초 모델이 높이를 못 내 높이를 더한다. 다음 장면이 착지면 공중(carry m)에서 끝내고
-            # 착지 장면이 나머지를 떨어진다(장면 1 끝에서 한 번, 장면 2에서 또 한 번 착지하던 문제, 2026-10-23)
-            k = np.clip(1 - np.arange(n) / max(1, n - 1), 0, 1) ** 2
-            carry = 3.0 if lands_next else 0.0
-            R[:, :, 1] += (carry + (12.0 - carry) * k)[:, None]
-            R[:, :, 2] -= (6.0 * k)[:, None]  # 카메라(+z 쪽) 반대편 먼 하늘에서 카메라 쪽으로 다가오며 떨어짐
-            if lands_next:
-                fall_carry = (carry, R[-1, 0, 1])
-            notes.append(f"장면 {c['장면']}: 낙하 높이 12m·앞으로 6m를 조립기가 더함(모델 한계)" + (f", 공중 {carry:.0f}m에서 다음 장면으로" if lands_next else ""))
+            # 사용자 애니매틱: 섬광 뒤 먼 하늘(S)에서 시선을 따라 A(착지 지점 위 3m)로 — 처음엔 아주 작게 천천히, 끝에 급격히 커짐.
+            # 다음 장면(착지)이 A에서 땅까지 몇 프레임 만에 떨어지고 카메라도 그때 휙 내려온다.
+            land = R[0, 0] * [1, 0, 1]
+            E, A, S0 = fall_geom(land)
+            u0 = next((e.get("시각_비율", 0) for e in c["사건"] if e["종류"] == "임팩트"), 0.0) + 0.05
+            uu = np.arange(n) / max(1, n - 1)
+            f = np.clip((uu - u0) / max(1e-6, 1 - u0), 0, 1) ** 2
+            P = S0 + (A - S0) * f[:, None]
+            R = R - R[:, :1] * [1, 1, 1] + P[:, None, :]
+            fall_carry = (A, land) if lands_next else None
+            fall_info = {"S": S0, "frames": (sum(lens[:i]), u0)}
+            notes.append(f"장면 {c['장면']}: 먼 하늘 50m에서 시선을 따라 착지 지점 위 3m까지 가속 낙하(조립기), 섬광 뒤 시작")
         elif any(e.get("태그") == "착지" for e in c["사건"]) and fall_carry is not None:
-            # 앞 장면에서 이어지는 낙하: 착지 순간(엉덩이가 가장 낮은 프레임)까지 남은 높이를 빠르게 줄인다
-            q = max(1, n // 6)
-            li = int(q + np.argmin(R[q:, 0, 1])) if n > q else n - 1
+            # 앞 장면에서 이어지는 낙하: 처음 SNAP 프레임 만에 3m를 떨어져 착지(카메라도 같은 프레임에 휙 내려옴)
             off = np.zeros(n)
-            off0 = max(0.0, fall_carry[1] - R[0, 0, 1])
-            tt = np.arange(li + 1) / max(1, li)
-            off[: li + 1] = off0 * (1 - tt ** 2)
+            off0 = max(0.0, float(fall_carry[0][1]) - float(R[0, 0, 1]))
+            m = min(SNAP, n)
+            off[:m] = off0 * (1 - (np.arange(m) / m) ** 2)
             R[:, :, 1] += off[:, None]
-            notes.append(f"장면 {c['장면']}: 앞 장면 낙하를 이어 {li}프레임에 착지")
+            snap_at = sum(lens[:i])
+            notes.append(f"장면 {c['장면']}: 앞 장면 낙하를 이어 {m}프레임 만에 착지, 카메라 휙 내려옴")
             fall_carry = None
         if tele:
-            notes.append(f"장면 {c['장면']}: 순간이동 — 카메라 바로 앞(1.8m)에 둠")
+            notes.append(f"장면 {c['장면']}: 순간이동 — 카메라 바로 앞(1.1m)에 둠")
         J.append(R)
         cut_of += [i] * n
         end = R[-1, 0]
@@ -316,11 +335,17 @@ def main():
             eye, at, fov = cams[-1]
             fwd = (at - eye) * [1, 0, 1]
             fwd /= np.linalg.norm(fwd) + 1e-9
-            tgt = eye + fwd * 1.8
+            tgt = eye + fwd * 1.1
             J[start:start + n] += (tgt - J[start, 0]) * [1, 0, 1]
             fr = [(eye, at, fov)] * n
         cams += fr
         start += n
+    if snap_at is not None and snap_at > 0:  # 착지 순간 휙: 직전 하늘 시선에서 지면 시선으로 SNAP 프레임에 걸쳐
+        e0, a0, f0 = cams[snap_at - 1]
+        for t in range(SNAP):
+            e1, a1, f1 = cams[snap_at + t]
+            w = (t + 1) / SNAP
+            cams[snap_at + t] = (e0 + (e1 - e0) * w, a0 + (a1 - a0) * w, f0 + (f1 - f0) * w)
     # 흔들림
     for i, (c, n) in enumerate(zip(sb["컷"], lens)):
         if "흔들림" in c.get("카메라", {}):
@@ -335,12 +360,17 @@ def main():
     color_bg = bool(st.get("배경_채색"))
     bgs, fig_cols, black = [], [], set()
     base_bg, base_fig = (255, 255, 255), (0, 0, 0)
-    flash = {}
+    flash, sky_flash = {}, {}
     for i, (c, n) in enumerate(zip(sb["컷"], lens)):
         s0 = sum(lens[:i])
         for e in c["사건"]:
             t0 = s0 + int(round(e.get("시각_비율", 0) * n))
-            if e["종류"] == "임팩트":
+            if e["종류"] == "임팩트" and e.get("위치") == "하늘" and fall_info is not None:
+                # 사용자 애니매틱: 화면 전체가 아니라 먼 하늘(인물이 나타날 곳)의 작은 섬광 — 형태 사전 'flash'를 빨갛게
+                col = COLORS.get(e.get("색", ""), (40, 40, 215))
+                for t in range(t0, min(s0 + n, t0 + int(e.get("프레임", 2)) + 2)):
+                    sky_flash[t] = col
+            elif e["종류"] == "임팩트":
                 col = COLORS.get(e.get("색", ""), (255, 255, 255) if "단색" in e.get("태그", "") else (12, 12, 12))
                 for t in range(t0, min(s0 + n, t0 + int(e.get("프레임", 2)))):
                     flash[t] = col
@@ -351,7 +381,7 @@ def main():
             for e in c["사건"]:
                 if e["종류"] == "이펙트" or e.get("태그") in ("붉은_가시",):
                     notes.append(f"장면 {c['장면']}: {e.get('태그')} 미구현(형태 사전 없음 — --shapes)")
-    fx = effects_plan(sb, lens, J, cams, a, notes) if a.shapes else {}
+    fx = effects_plan(sb, lens, J, cams, a, notes) if a.shapes and not a.no_rule_fx else {}
     frames = []
     for k in range(len(J)):
         eye, at, fov = cams[k]
@@ -368,6 +398,17 @@ def main():
             for j, seg in enumerate(ground_lines(eye, at, fov, r[2] - 18, r[2] + 18)):
                 objs.insert(0, (1000 + j, 1, (200, 200, 200), 0.35, seg, []))
         objs += fx.get(k, [])
+        if k in sky_flash:
+            if a.shapes:
+                import fx_world as FW
+                if not hasattr(main, "_sh"):
+                    main._sh = FW.Shapes(a.shapes, a.approved)
+                for j, (sz, al) in enumerate(((4.0, 0.35), (2.2, 0.7), (1.1, 1.0))):  # 바깥 넓고 옅게 → 안쪽 좁고 진하게
+                    L = main._sh.pick("flash", a.seed * 7 + j)
+                    if L:
+                        objs += FW.billboard(L, fall_info["S"], sz, 0.0, cams[k], tint=tuple(reversed(sky_flash[k])), gray=False, alpha=al)  # 형태 사전 색은 BGR
+            elif "하늘 섬광" not in " ".join(notes):
+                notes.append("하늘 섬광: 형태 사전(--shapes)이 없어 그리지 않음")
         frames.append(objs)
         bgs.append(bgc)
     # 5) 나누기_초마다 파일로
