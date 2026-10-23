@@ -101,8 +101,17 @@ def ground_lines(eye, at, fov, z0, z1, x0=-12, x1=12, step=2.0):
     return out
 
 
-SNAP = 3      # 착지 순간 카메라가 하늘 → 땅으로 내려오는 프레임 수(24fps 약 0.1초)
-FOLLOW = True  # 뒤로_이동 장면에서 인물 크기 일정(사용자 애니매틱). False면 예전 규칙(거리 늘림)
+SNAP = 5      # 착지 장면: 화면 위에서 떨어져 들어와 땅에 닿기까지 프레임 수
+DROP_IN = 5.0  # 그때 떨어지는 높이(m)
+BLEND = 6     # 장면 경계: 다음 장면 처음 몇 프레임을 앞 장면 끝 자세에서 섞어 튐을 없앤다(2026-10-23 일어서기→걷기 0.6m 튐)
+FOLLOW = True
+FALL_GEOM = {}  # 낙하 장면 기하를 동작 단계 → 카메라 단계로 넘긴다  # 뒤로_이동 장면에서 인물 크기 일정(사용자 애니매틱). False면 예전 규칙(거리 늘림)
+
+
+def lands_prev(sb, i):
+    """이 장면이 앞 장면 낙하를 잇는 착지 장면이면 True(장면 전환이라 섞지 않는다)."""
+    return i > 0 and any(e.get("태그") == "착지" for e in sb["컷"][i]["사건"]) and \
+        any("떨어" in (e.get("설명") or "") for e in sb["컷"][i - 1]["사건"] if e["종류"] == "동작")
 
 
 def fall_geom(land):
@@ -111,7 +120,8 @@ def fall_geom(land):
     E = land + [0, 0.5, 3.5]
     A = land + [0, 3.0, 0]
     d = (A - E) / np.linalg.norm(A - E)
-    return E, A, E + d * 50.0
+    # 끝점은 카메라 바로 앞 0.5m — 인물이 화면을 가릴 만큼 커진 순간 다음 장면(도시를 바라보는 구도)으로 넘어간다
+    return E, E + d * 0.5, E + d * 50.0
 
 
 def camera_frames(cut, n, root, prev):
@@ -126,12 +136,11 @@ def camera_frames(cut, n, root, prev):
         if dirn == "하늘_올려다봄":
             # 착지 지점 앞 땅 가까이에서 떨어지는 인물을 따라 고개를 내리고, 카메라도 같이 내려와 다음 장면(지면_낮게)으로
             # 끊김 없이 이어진다(2026-10-23 사용자 구도: 하늘 올려다봄 → 붉은 섬광 → 카메라 쪽으로 낙하 → 착지까지 따라감)
-            E, A, _ = fall_geom(root[-1] * [1, 0, 1])
+            E, A, _ = FALL_GEOM.get("g") or fall_geom(root[-1] * [1, 0, 1])  # 동작 단계에서 쓴 기하 그대로
             eye, at, fov = E, A, 60  # 하늘 고정 — 착지 순간 다음 장면에서 휙 내려온다
             dist = 3.5
         elif dirn == "지면_낮게":
-            # 공중에서 이어 떨어지는 동안은 인물 높이를 따라 본다(r은 높이 0으로 눌러 둔 값)
-            eye, at, fov = r + [0, 0.5, 3.5], r + [0, max(0.8, float(root[t][1]) - 0.1), 0], 55
+            eye, at, fov = r + [0, 1.0, 4.0], r + [0, 1.0, 0], 55  # 도시를 바라보는 수평 구도, 인물은 위에서 떨어져 들어온다
             dist = 3.5
         elif act == "뒤로_이동" and FOLLOW:
             # 사용자 애니매틱: 카메라가 걷는 인물과 같은 속도로 뒤로 빠져 인물 화면 크기는 일정, 배경만 멀어진다
@@ -293,32 +302,40 @@ def main():
         R = C[i0] * (1 - (t - i0))[:, None, None] + C[i1] * (t - i0)[:, None, None]
         tele = any(e.get("태그") == "순간이동" for e in c["사건"])
         if end is not None and not tele:
-            R = R + [end[0] - R[0, 0, 0], 0, end[2] - R[0, 0, 2]]
+            ref = fall_carry[1] if (lands_prev(sb, i) and fall_carry is not None) else end  # 착지 장면은 원래 착지 지점에
+            R = R + [ref[0] - R[0, 0, 0], 0, ref[2] - R[0, 0, 2]]
         nxt = sb["컷"][i + 1] if i + 1 < len(sb["컷"]) else None
         lands_next = nxt is not None and any(e.get("태그") == "착지" for e in nxt["사건"])
         if any("떨어" in (e.get("설명") or "") for e in c["사건"] if e["종류"] == "동작"):
             # 사용자 애니매틱: 섬광 뒤 먼 하늘(S)에서 시선을 따라 A(착지 지점 위 3m)로 — 처음엔 아주 작게 천천히, 끝에 급격히 커짐.
             # 다음 장면(착지)이 A에서 땅까지 몇 프레임 만에 떨어지고 카메라도 그때 휙 내려온다.
             land = R[0, 0] * [1, 0, 1]
-            E, A, S0 = fall_geom(land)
+            E, A, S0 = FALL_GEOM["g"] = fall_geom(land)
             u0 = next((e.get("시각_비율", 0) for e in c["사건"] if e["종류"] == "임팩트"), 0.0) + 0.05
             uu = np.arange(n) / max(1, n - 1)
-            f = np.clip((uu - u0) / max(1e-6, 1 - u0), 0, 1) ** 2
-            P = S0 + (A - S0) * f[:, None]
+            # 거리를 지수적으로 줄여 화면 속 크기가 일정한 비율로 커지게(끝으로 갈수록 조금 더 빠르게) — 마지막엔 카메라 앞 0.5m로 화면을 가림
+            g = np.clip((uu - u0) / max(1e-6, 1 - u0), 0, 1) ** 1.3
+            D0, D1 = np.linalg.norm(S0 - E), np.linalg.norm(A - E)
+            dist = D0 * (D1 / D0) ** g
+            P = E + (S0 - E) / D0 * dist[:, None]
             R = R - R[:, :1] * [1, 1, 1] + P[:, None, :]
             fall_carry = (A, land) if lands_next else None
             fall_info = {"S": S0, "frames": (sum(lens[:i]), u0)}
-            notes.append(f"장면 {c['장면']}: 먼 하늘 50m에서 시선을 따라 착지 지점 위 3m까지 가속 낙하(조립기), 섬광 뒤 시작")
+            notes.append(f"장면 {c['장면']}: 먼 하늘 50m에서 시선을 따라 카메라 앞 0.5m까지 낙하(화면 크기 지수 증가, 마지막에 화면을 가림), 섬광 뒤 시작")
         elif any(e.get("태그") == "착지" for e in c["사건"]) and fall_carry is not None:
             # 앞 장면에서 이어지는 낙하: 처음 SNAP 프레임 만에 3m를 떨어져 착지(카메라도 같은 프레임에 휙 내려옴)
             off = np.zeros(n)
-            off0 = max(0.0, float(fall_carry[0][1]) - float(R[0, 0, 1]))
+            off0 = DROP_IN  # 화면 위 밖에서 빠르게 떨어져 들어옴
             m = min(SNAP, n)
             off[:m] = off0 * (1 - (np.arange(m) / m) ** 2)
             R[:, :, 1] += off[:, None]
-            snap_at = sum(lens[:i])
-            notes.append(f"장면 {c['장면']}: 앞 장면 낙하를 이어 {m}프레임 만에 착지, 카메라 휙 내려옴")
+            notes.append(f"장면 {c['장면']}: 장면 전환(인물이 화면을 가림) 뒤 도시를 바라보는 구도에서 {DROP_IN:.0f}m 위에서 {m}프레임 만에 떨어져 착지")
             fall_carry = None
+        if J and not tele and not lands_prev(sb, i):
+            prev_end = J[-1][-1]
+            m = min(BLEND, n)
+            w = (1 - np.arange(m) / m)[:, None, None]
+            R[:m] += (prev_end - R[0])[None] * w
         if tele:
             notes.append(f"장면 {c['장면']}: 순간이동 — 카메라 바로 앞(1.1m)에 둠")
         J.append(R)
@@ -340,12 +357,6 @@ def main():
             fr = [(eye, at, fov)] * n
         cams += fr
         start += n
-    if snap_at is not None and snap_at > 0:  # 착지 순간 휙: 직전 하늘 시선에서 지면 시선으로 SNAP 프레임에 걸쳐
-        e0, a0, f0 = cams[snap_at - 1]
-        for t in range(SNAP):
-            e1, a1, f1 = cams[snap_at + t]
-            w = (t + 1) / SNAP
-            cams[snap_at + t] = (e0 + (e1 - e0) * w, a0 + (a1 - a0) * w, f0 + (f1 - f0) * w)
     # 흔들림
     for i, (c, n) in enumerate(zip(sb["컷"], lens)):
         if "흔들림" in c.get("카메라", {}):
