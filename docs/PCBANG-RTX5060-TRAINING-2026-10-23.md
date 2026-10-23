@@ -24,7 +24,7 @@
    | `momask_checkpoints.zip` | 기본 가중치 | 188MB |
    | `ViT-B-32.pt` | 글 이해 모델(CLIP) | 354MB |
    | `motion_data_mds6.zip` | 6차 학습 자료(모캡만) | 359MB |
-   | `motion_data_mds5.zip` | 7차 학습 자료(애니 + 모캡) | 363MB |
+   | `motion_data_mds5.zip` | 7차 학습 자료(5차와 같은 자료, 7차는 애니 비중만 1배로 낮춤) | 363MB |
 
    다른 파일(`motion_data_mds.zip`·`mds3`·`mds4`, `run_v5_v6.bat`, `결과` 폴더)은 받지 않는다.
 3. **`run_v6_v7_rtx5060.bat` 더블클릭.** 작업 위치는 **`D:\mm`로 고정**이다(압축 풀기·임시 파일·pip 캐시·결과 모두 D). 설치 → GPU 확인 → 압축 풀기 → 6차 → 7차 → 결과 묶기를 자동으로 한다. D 드라이브가 없으면 바로 멈춘다.
@@ -40,3 +40,6 @@
 
 ## 결과를 받은 뒤(Claude)
 기본·5차(4배)·7차(1배)·6차(0배)를 `tools/bench_compare.py` + 관절 막대 그림(씨앗 1–3)으로 비교해, 애니 비중이 일어서기·착지·걷기·펀치에 주는 영향을 본다.
+
+## 8차(6·7차 뒤 같은 PC에서)
+Drive에서 `motion_data_mds8.zip`(1.5GB)과 `run_v8_rtx5060.bat`을 받아 bat을 더블클릭. 6·7차 때 설치한 `D:\mm`을 그대로 쓴다(설치 생략). 6,000단계 약 10–15분. 끝나면 `D:\mm\results_v8.zip`을 결과 폴더에 올린다.
