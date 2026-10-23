@@ -66,6 +66,17 @@ def gen_motions(momask, caps, name, res, seed, tag):
     return out
 
 
+def anime_warp(C, n, a, max_ratio=25.0):
+    """애니 타이밍: 느린 순간(키 자세)에 더 오래 머물고 빠른 순간은 더 빨리 지나가게 시간을 다시 매긴다.
+    밀도 = (관절 평균 속도)^-a(최대/최소 비 max_ratio로 자름) → 출력 프레임을 밀도 누적에 고르게 배치. 전체 길이(n)는 그대로."""
+    v = np.linalg.norm(np.diff(C, axis=0), axis=-1).mean(1)
+    v = np.convolve(np.r_[v[:1], v, v[-1:]], np.ones(3) / 3, "valid")
+    d = (v + 1e-4) ** -a
+    d = np.clip(d, d.min(), d.min() * max_ratio)
+    W = np.r_[0, np.cumsum(d)]
+    return np.interp(np.linspace(0, W[-1], n), W, np.arange(len(C), dtype=float))
+
+
 def ground_lines(eye, at, fov, z0, z1, x0=-12, x1=12, step=2.0):
     """땅(y=0) 격자선 → 화면 선분들. 카메라 뒤로 넘어가는 점은 자른다."""
     segs = []
@@ -222,6 +233,7 @@ def main():
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--hold", type=int, default=2)
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--anime-timing", type=float, default=0.0, help="애니 타이밍 세기(0=끔, 1 안팎): 걷기 장면 빼고 키 자세에서 머물고 사이를 빠르게")
     ap.add_argument("--scene-model", action="append", help="장면별 모델 '장면번호=마스크이름,잔차이름'(여러 번). 예: 3=t2m_…_rvq6ns,tres_…_sw")
     ap.add_argument("--shapes", help="이펙트 형태 사전(tools/fx_shapes.py 출력, Drive). 있으면 균열·부유 파편·붉은 가시를 그린다")
     ap.add_argument("--approved", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "style_kb", "ai_results",
@@ -256,6 +268,9 @@ def main():
     fall_carry = None
     for i, (c, n, C) in enumerate(zip(sb["컷"], lens, clips)):
         t = np.linspace(0, len(C) - 1, n)
+        walk = any(e["종류"] == "동작" and e.get("태그") == "이동" for e in c["사건"])
+        if a.anime_timing > 0 and not walk:
+            t = anime_warp(C, n, a.anime_timing)
         i0 = np.floor(t).astype(int)
         i1 = np.minimum(i0 + 1, len(C) - 1)
         R = C[i0] * (1 - (t - i0))[:, None, None] + C[i1] * (t - i0)[:, None, None]
