@@ -191,6 +191,7 @@ def main():
     labels = anime_labels()
     ext = ext_captions(a.captions)
     na = nl = nq = ne = 0
+    used = set()
     for an in ("nian41", "yutaka_nakamura"):  # 보충 애니메이터 몸동작은 쓰지 않는다(AGENTS)
         for f in sorted(glob.glob(os.path.join(a.anim, an, "*.npz"))):
             d = np.load(f)
@@ -202,17 +203,40 @@ def main():
                 idx = np.flatnonzero(np.diff(np.r_[0, ok.astype(int), 0]))
                 for s, e in zip(idx[::2], idx[1::2]):
                     P = Y[s:e]
-                    if len(P) < 48:
+                    if len(P) < (40 if ext else 48):
                         continue
                     P = upright(P)
                     P = savgol_filter(P, 7, 2, axis=0) if len(P) >= 7 else P
-                    acc95, tw90 = quality(P)
-                    if acc95 > a.max_acc or tw90 > a.max_twist:
-                        nq += 1
-                        continue
+                    if not ext:  # 문장 창 방식은 창마다 품질을 따로 잰다(구간 전체로 버리면 문장 붙은 좋은 부분도 버려진다)
+                        acc95, tw90 = quality(P)
+                        if acc95 > a.max_acc or tw90 > a.max_twist:
+                            nq += 1
+                            continue
                     P = foot_lock_root(P)
                     P = resample(P, fps, 20)
                     f0 = int(d["start"][k]) + s
+                    if ext:  # 문장이 붙은 판정 구간(12프레임)을 가운데 둔 짧은 창 — 문장과 동작이 정확히 맞게
+                        for s0, e0, cs in ext.get(pid, []):
+                            c0 = (s0 + e0) / 2 - f0                     # 애니 프레임 → 이 구간 안 위치
+                            n20 = len(P)
+                            if n20 < 44 or not (0 <= c0 * 20 / fps < n20):
+                                continue
+                            w0 = int(round(c0 * 20 / fps)) - 22          # 판정 구간 가운데 앞뒤 1.1초(20fps 44프레임)
+                            w0 = min(max(w0, 0), n20 - 44)                # 구간 끝에 걸리면 안쪽으로 민다
+                            w1 = w0 + 44
+                            acc95, tw90 = quality(P[w0:w1])
+                            if acc95 > a.max_acc or tw90 > a.max_twist:
+                                nq += 1
+                                continue
+                            key = (pid, s0)
+                            if key in used:  # 같은 판정 구간을 여러 추적이 덮으면 처음 것만(같은 장면 다른 인물 섞임 방지)
+                                continue
+                            used.add(key)
+                            save(to22(P[w0:w1]), [f"{c}, {a.style}" for c in cs], f"{an}:{pid}:{s0}-{e0}")
+                            na += 1
+                            ne += 1
+                            nl += 1
+                        continue
                     for w0, w1 in windows(len(P)):
                         a0, a1 = f0 + int(w0 * fps / 20), f0 + int(w1 * fps / 20)
                         hit = [c for s0, e0, c in ext.get(pid, []) if s0 <= a1 and e0 >= a0]
