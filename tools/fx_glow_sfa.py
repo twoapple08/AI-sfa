@@ -122,6 +122,27 @@ def wash_doc(img, scene_dark, white=240.0, min_area=30):
     return {"layers": layers, "lines": [], "stats": {"wash": round(alpha, 3)}}
 
 
+def fit_16_9(img, mode):
+    """4:3 등 16:9가 아닌 원본을 16:9 화면에 맞춘다(2026-10-23 사용자: 목표는 16:9 고정). crop = 위아래를 잘라 꽉 채움, pad = 양옆 검정."""
+    h, w = img.shape[:2]
+    tw = round(h * 16 / 9)
+    if mode == "none" or abs(w - tw) <= 2:
+        return img
+    if mode == "pad":
+        if w < tw:
+            l = (tw - w) // 2
+            return cv2.copyMakeBorder(img, 0, 0, l, tw - w - l, cv2.BORDER_CONSTANT, value=(0, 0, 0))
+        th = round(w * 9 / 16)
+        t = (h - th) // 2 if th < h else 0
+        return img[t:t + th]
+    th = round(w * 9 / 16)  # crop
+    if th < h:
+        t = (h - th) // 2
+        return cv2.resize(img[t:t + th], (tw, h), interpolation=cv2.INTER_AREA)
+    l = (w - tw) // 2
+    return img[:, l:l + tw]
+
+
 def parse_ranges(s):
     out = set()
     for part in s.split(","):
@@ -149,6 +170,9 @@ def main():
     ap.add_argument("--frames", help="이 프레임만(쉼표) — 예: 임팩트 마스크(*_ink.npz)의 그래픽 프레임")
     ap.add_argument("--auto-impact", action="store_true",
                     help="장마다 그림으로 임팩트 프레임인지 판정해 아닌 장은 빈 장으로(--only와 함께 쓰면 그 범위 ±8 안에서만)")
+    ap.add_argument("--fit", choices=["crop", "pad", "none"], default="crop",
+                    help="16:9가 아닌 원본(4:3 등)을 16:9로: crop = 위아래 자르기(기본), pad = 양옆 검정, none = 원본 비율")
+    ap.add_argument("--skip", help="임팩트가 아닌 장(번개 연출 등) 범위 — 판정과 상관없이 빈 장(사람이 지정)")
     ap.add_argument("--wash", help="임팩트와 일반 장면이 섞인 장(흰 막이 옅어지는 전환) 범위 — 장면은 빼고 흰 막만 반투명 한 겹으로(사람이 지정)")
     ap.add_argument("--tail", type=int, default=0,
                     help="--auto-impact: 판정표 마지막 범위 끝 뒤로 몇 장까지 허용할지(기본 0 — 끝에서 자름)")
@@ -165,7 +189,10 @@ def main():
         except BaseException:  # 영상 끝을 넘는 프레임은 배경 추정에서 뺀다(read_frame은 실패하면 종료한다)
             if f <= a.end:
                 raise
+    raw = imgs  # 임팩트 판정은 원본 비율 그대로(잘라 낸 뒤 판정하면 167784 302가 다시 들어왔다)
+    imgs = {f: fit_16_9(x, a.fit) for f, x in imgs.items()}
     only = parse_ranges(a.only) if a.only else None
+    skip_set = parse_ranges(a.skip) if a.skip else set()
     wash = parse_ranges(a.wash) if a.wash else set()
     scene_dark = 0.0
     if wash:  # 섞인 구간 바로 뒤 장(일반 장면만 남은 장)의 어두운 쪽 밝기 = 장면 자체의 어두움
@@ -185,12 +212,16 @@ def main():
             print(f, doc["stats"], flush=True)
             continue
         skip = only is not None and f not in only
+        if f in skip_set:  # 사람이 임팩트가 아니라고 지정한 장(예: 167784 309–310 번개 연출)
+            body.append(frame_xml({"layers": [], "lines": []}, pos, wr, W, argb(bg)))
+            print(f, "빈 장(지정 제외)", flush=True)
+            continue
         if a.auto_impact:
             # 판정표 마지막 범위 뒤로는 넘기지 않는다: 232394 487–489(다음 장면의 역광 파편)가 흰 면 규칙으로 들어와
             # 몸통이 뚫린 주황 고리로 그려졌다(2026-10-23 사용자 '가' 선택). 앞쪽·범위 사이의 ±8 허용은 그대로.
             near_only = only is None or (f <= max(only) + a.tail and any(g in only for g in range(f - 8, f + 9)))
             # 앞뒤 장면과의 차이로 판정해 보았으나 앞뒤가 다른 컷이면 일반 장면까지 들어가 쓰지 않는다(2026-10-23)
-            skip = not (near_only and is_impact_frame(img, not a.keep_yellow, a.yellow_frame, only is None or f in only))
+            skip = not (near_only and is_impact_frame(raw[f], not a.keep_yellow, a.yellow_frame, only is None or f in only))
         if skip:
             body.append(frame_xml({"layers": [], "lines": []}, pos, wr, W, argb(bg)))
             print(f, "빈 장(판정 범위 밖)", flush=True)
