@@ -26,11 +26,13 @@ from effect_vectorize import read_frame  # noqa: E402
 LEVELS = tuple(round(x, 3) for x in np.linspace(0.06, 0.94, 14))
 
 
-def glow_doc(img, bgimg, tol=1.0, min_area=30):
+def glow_doc(img, bgimg, tol=1.0, min_area=30, floor=0.0):
     I = img.astype(np.float32)
     B = bgimg.astype(np.float32)
     v, vb = I.max(-1), B.max(-1)
     a = np.clip((v - vb) / np.maximum(255 - vb, 8), 0, 1)
+    if floor > 0:  # 이 밝기 아래는 완전히 검정(임팩트 프레임: 흰색·포인트색만 남기고 나머지는 검정)
+        a = np.clip((a - floor) / (1 - floor), 0, 1)
     a = cv2.GaussianBlur(a, (0, 0), 1.2)
     C = np.clip((I - (1 - a[..., None]) * B) / np.maximum(a[..., None], 0.05), 0, 255)
     layers, prev = [], 0.0
@@ -58,6 +60,10 @@ def main():
     ap.add_argument("--pre", type=int, default=16,
                     help="구간 시작 전 프레임 수 — 이펙트가 나오기 전 화면도 배경 후보에 넣는다(오래 켜진 빛의 중심이 배경으로 착각돼 비던 문제)")
     ap.add_argument("--bg", default="0,0,0")
+    ap.add_argument("--black-key", action="store_true",
+                    help="임팩트 프레임용(2026-10-23 사용자 제안): 배경 추정 없이 검정과 비교 — 흰색·포인트색(파·초·빨)만 잡고 나머지는 검정")
+    ap.add_argument("--floor", type=float, default=0.35, help="--black-key일 때 이 밝기(0–1) 아래는 버림")
+    ap.add_argument("--frames", help="이 프레임만(쉼표) — 예: 임팩트 마스크(*_ink.npz)의 그래픽 프레임")
     a = ap.parse_args()
     bg = [int(x) for x in a.bg.split(",")]
     lo, hi = max(0, a.start - max(a.win, a.pre)), a.end + a.win
@@ -71,15 +77,19 @@ def main():
     wr = Writer()
     body = []
     W = None
-    frames = list(range(a.start, a.end + 1))
+    frames = [int(x) for x in a.frames.split(",")] if a.frames else list(range(a.start, a.end + 1))
     for pos, f in enumerate(frames):
         img = imgs[f]
         W = img.shape[1]
-        cand = set(range(f - a.win, f + a.win + 1)) | set(range(a.start - a.pre, a.start))
-        near = np.stack([imgs[g] for g in sorted(cand) if g in imgs])
-        lum = near.max(-1)
-        bgimg = np.take_along_axis(near, lum.argmin(0)[None, ..., None].repeat(3, -1), 0)[0]
-        doc = glow_doc(img, bgimg)
+        if a.black_key:
+            bgimg = None
+        else:
+            cand = set(range(f - a.win, f + a.win + 1)) | set(range(a.start - a.pre, a.start))
+            near = np.stack([imgs[g] for g in sorted(cand) if g in imgs])
+            lum = near.max(-1)
+            bgimg = np.take_along_axis(near, lum.argmin(0)[None, ..., None].repeat(3, -1), 0)[0]
+        doc = glow_doc(img, np.zeros_like(img) if a.black_key else bgimg,
+                       floor=a.floor if a.black_key else 0.0)
         body.append(frame_xml(doc, pos, wr, W, argb(bg)))
         print(f, doc["stats"], flush=True)
     name = os.path.splitext(os.path.basename(a.out))[0]
