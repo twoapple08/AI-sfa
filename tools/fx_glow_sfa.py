@@ -26,7 +26,14 @@ from effect_vectorize import read_frame  # noqa: E402
 LEVELS = tuple(round(x, 3) for x in np.linspace(0.06, 0.94, 14))
 
 
-def is_impact_frame(img):
+def yellow_mask(img):
+    """노란색 계열 픽셀(색상 30–80도, 채도 있음, 밝음). 2026-10-23 사용자: 노란색은 감지에서 뺀다."""
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
+    return (h >= 15) & (h <= 40) & (s >= 70) & (v >= 120)
+
+
+def is_impact_frame(img, drop_yellow=True):
     """한 장이 임팩트 프레임인지 그림으로 판정(2026-10-23, 239055·232394·123722 프레임별 눈 판정과 맞춘 규칙).
     일반 장면: 채도 높고 흰 면 7% 이하. 흑백 임팩트: 채도 50 이하에 흰 면이 조금이라도 있음(검정 바탕 흰 선 포함).
     색 임팩트(빨강·노랑)·끝의 흰 번짐: 색은 있어도 흰 면이 18% 이상으로 갑자기 늘어남.
@@ -34,7 +41,10 @@ def is_impact_frame(img):
     s = cv2.resize(img, (160, 90))
     hsv = cv2.cvtColor(s, cv2.COLOR_BGR2HSV)
     v, sat = hsv[..., 2], float(np.median(hsv[..., 1]))
-    white = float((v > 215).mean())
+    bright = v > 215
+    if drop_yellow:  # 노랑은 흰 면으로 세지 않는다
+        bright &= ~yellow_mask(s)
+    white = float(bright.mean())
     return (sat <= 50 and (white >= 0.05 or v.mean() > 100)) or white >= 0.18
 
 
@@ -53,13 +63,15 @@ def color_groups(C, hue_bins=12):
     return cv2.medianBlur(g, 5)
 
 
-def glow_doc(img, bgimg, tol=1.0, min_area=30, floor=0.0):
+def glow_doc(img, bgimg, tol=1.0, min_area=30, floor=0.0, drop_yellow=True):
     I = img.astype(np.float32)
     B = bgimg.astype(np.float32)
     v, vb = I.max(-1), B.max(-1)
     a = np.clip((v - vb) / np.maximum(255 - vb, 8), 0, 1)
     if floor > 0:  # 이 밝기 아래는 완전히 검정(임팩트 프레임: 흰색·포인트색만 남기고 나머지는 검정)
         a = np.clip((a - floor) / (1 - floor), 0, 1)
+    if drop_yellow:  # 노란 부분은 검정으로(뽑지 않는다)
+        a[yellow_mask(img)] = 0
     a = cv2.GaussianBlur(a, (0, 0), 1.2)
     C = np.clip((I - (1 - a[..., None]) * B) / np.maximum(a[..., None], 0.05), 0, 255)
     groups = color_groups(C)
@@ -96,6 +108,7 @@ def main():
     ap.add_argument("--black-key", action="store_true",
                     help="임팩트 프레임용(2026-10-23 사용자 제안): 배경 추정 없이 검정과 비교 — 흰색·포인트색(파·초·빨)만 잡고 나머지는 검정")
     ap.add_argument("--floor", type=float, default=0.35, help="--black-key일 때 이 밝기(0–1) 아래는 버림")
+    ap.add_argument("--keep-yellow", action="store_true", help="노란색도 감지·추출(기본은 뺀다, 2026-10-23 사용자)")
     ap.add_argument("--frames", help="이 프레임만(쉼표) — 예: 임팩트 마스크(*_ink.npz)의 그래픽 프레임")
     ap.add_argument("--auto-impact", action="store_true",
                     help="장마다 그림으로 임팩트 프레임인지 판정해 아닌 장은 빈 장으로(--only와 함께 쓰면 그 범위 ±8 안에서만)")
@@ -129,7 +142,7 @@ def main():
         if a.auto_impact:
             near_only = only is None or any(g in only for g in range(f - 8, f + 9))
             # 앞뒤 장면과의 차이로 판정해 보았으나 앞뒤가 다른 컷이면 일반 장면까지 들어가 쓰지 않는다(2026-10-23)
-            skip = not (near_only and is_impact_frame(img))
+            skip = not (near_only and is_impact_frame(img, not a.keep_yellow))
         if skip:
             body.append(frame_xml({"layers": [], "lines": []}, pos, wr, W, argb(bg)))
             print(f, "빈 장(판정 범위 밖)", flush=True)
@@ -142,7 +155,7 @@ def main():
             lum = near.max(-1)
             bgimg = np.take_along_axis(near, lum.argmin(0)[None, ..., None].repeat(3, -1), 0)[0]
         doc = glow_doc(img, np.zeros_like(img) if a.black_key else bgimg,
-                       floor=a.floor if a.black_key else 0.0)
+                       floor=a.floor if a.black_key else 0.0, drop_yellow=not a.keep_yellow)
         body.append(frame_xml(doc, pos, wr, W, argb(bg)))
         print(f, doc["stats"], flush=True)
     name = os.path.splitext(os.path.basename(a.out))[0]
