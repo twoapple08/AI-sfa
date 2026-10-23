@@ -1,4 +1,4 @@
-# 인수인계 프롬프트 (2026-10-23 저녁, 동작을 '보기 좋게' 만드는 단계)
+# 인수인계 프롬프트 (2026-10-23 밤, 이펙트·연출 2D 학습으로 전환)
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. 시작할 때 fetch·merge하고, 시스템이 다른 브랜치를 배정하면 같은 HEAD를 그 브랜치에도 푸시한다. 한국어로 답한다(영어로 답하지 말 것 — 사용자가 여러 번 지적).
 
@@ -14,7 +14,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - 가중치(기본·v3–v8)는 서버 scratch에만 있다. 새 컨테이너면: rclone 설정(`tools/codex_setup.sh` 1–2단계), momask 코드·기본 가중치 = Drive `07_도구/동작학습_1050ti/`의 zip, 미세조정 가중치 = 결과 폴더(`rclone … --drive-root-folder-id 1VDQR5yDVGkxykQaNduMZ5FNtDivOOmVy gdrive:`; v6·v7·v8은 `results_v6_v7.zip`·`results_v8.zip` — Windows zip이라 경로가 역슬래시, unzip은 경고 후 정상), torch 2.6 cpu·CLIP(`--no-build-isolation`)·skia(`apt-get install libegl1 libgl1`)는 HANDOFF '환경'.
 
 ## 바로 할 일
-1. HANDOFF 맨 위 '사용자 평가와 정직한 현황'을 먼저 읽는다. 사용자에게 다음 방향(2D 동작 모델 / 이펙트 생성 모델 / 다른 것)을 묻고, 결정 전에는 큰 작업을 시작하지 않는다.
+1. **3D·캐릭터 동작은 하지 않는다(사용자: "3D는 하지 마라").** docs/FX-LEARNING-PLAN-2026-10-23.md 1단계(이펙트 마스크 시퀀스 학습 자료)부터. 표본은 영상으로 보여 준다.
 
 ## 사용자와 일하는 방식
 - 결과는 그림·영상·SFA로 바로 보여 주고, 문제를 정직하게 적는다. 규칙 코드로 그림을 '지어내는' 방식은 품질 미달로 판정됐다.

@@ -2,7 +2,10 @@
 
 > 2026-10-16 배경(AOT 분석·환경 복구)은 [docs/history/HANDOFF-2026-10-16-archive.md](docs/history/HANDOFF-2026-10-16-archive.md). 상세 프롬프트는 [docs/HANDOFF-PROMPT.md](docs/HANDOFF-PROMPT.md).
 
-## 현재 우선순위
+## 현재 우선순위(2026-10-23 밤 사용자 결정으로 바뀜)
+**3D·캐릭터 동작 중단. 이펙트·연출 2D 학습부터** — [계획](docs/FX-LEARNING-PLAN-2026-10-23.md), AGENTS '방향 결정'. 아래 동작 관련 내용은 기록용.
+
+### (이전)
 **프롬프트(배경·장면 글) → 고퀄 스틱파이터 .sfa를 만드는 AI.** 기본 테스트는 기준 프롬프트 1(`docs/storyboards/bench01_city_landing.json` 원문 — 도시, 붉은 섬광, 낙하·착지, 균열·부유 파편, 뒤로 빠지는 카메라, 붉은 가시, 걷기→달리기, 순간이동 펀치, 암전). 새 모델·도구마다 이것으로 끝까지 뽑아 이전 결과와 비교한다(AGENTS).
 
 ## 구조(2026-10-22 사용자 합의: "기초 모델 + 우리 자료" = 체크포인트 + LoRA 방식)
