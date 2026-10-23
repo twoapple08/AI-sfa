@@ -121,6 +121,91 @@ def camera_frames(cut, n, root, prev):
     return out, (dist, 1.0)
 
 
+def burst(dt, tau=1.4):
+    return 1 - math.exp(-max(dt, 0) / tau)
+
+
+def effects_plan(sb, lens, J, cams, a, notes):
+    """균열·부유 파편·붉은 가시 → {프레임: [채우기…]} (형태 사전 + GPT 판정, 3D 배치)."""
+    import fx_world as FW
+    sh = FW.Shapes(a.shapes, a.approved)
+    gray = not sb.get("설정", {}).get("배경_채색")
+    rng = random.Random(a.seed * 101)
+    out = {}
+    add = lambda k, L: out.setdefault(k, []).extend(L)
+    starts = np.cumsum([0] + lens)
+    N = len(J)
+    land = None
+    for i, c in enumerate(sb["컷"]):
+        tags = [e.get("태그") for e in c["사건"]]
+        s0, n = int(starts[i]), lens[i]
+        if "균열" in tags and land is None:
+            land = J[s0, 0] * [1, 0, 1]
+            cracks = [(sh.pick("streak", rng.randrange(999)), rng.uniform(0, 2 * math.pi), rng.uniform(0.7, 1.6)) for _ in range(7)]
+            for k in range(s0, N):
+                g = burst(k - s0, 1.2)
+                for L, rot, sz in cracks:
+                    if L:
+                        cen = land + [math.cos(rot) * sz * 0.5 * g, 0, math.sin(rot) * sz * 0.5 * g]
+                        add(k, FW.ground(L, cen, sz * g, rot, cams[k], gray=gray, tint=(40, 40, 40)))
+            notes.append(f"장면 {c['장면']}: 균열 = 줄기 형태 7개를 땅에 눕혀 방사형(형태 사전)")
+        if "파편" in tags and land is not None and any("부유" in (e.get("움직임") or "") for e in c["사건"]):
+            # 착지와 함께 튀어 올라 공중에 멈춤 → 다음 장면의 '떨어짐' 시각에 떨어진다
+            fall_at = None
+            for j in range(i + 1, len(sb["컷"])):
+                for e in sb["컷"][j]["사건"]:
+                    if e.get("태그") == "파편" and "떨어" in (e.get("움직임") or ""):
+                        fall_at = int(starts[j] + round(e.get("시각_비율", 0) * lens[j]))
+                        break
+                if fall_at:
+                    break
+            rocks = []
+            for r in range(36):
+                ang = rng.uniform(0, 2 * math.pi)
+                rocks.append((sh.pick("rock", rng.randrange(999)), ang, rng.uniform(0.3, 2.2), rng.uniform(0.3, 1.8),
+                              rng.uniform(0.06, 0.22), rng.uniform(0, 6.3), rng.uniform(-0.04, 0.04)))
+            for k in range(s0, N):
+                for L, ang, dist, h, sz, rot0, spin in rocks:
+                    if not L:
+                        continue
+                    g = burst(k - s0, 1.4)
+                    y = h * g
+                    if fall_at is not None and k >= fall_at:
+                        u = (k - fall_at) / 8
+                        y = max(sz * 0.4, h * (1 - u * u))
+                    cen = land + [math.cos(ang) * dist * g, y, math.sin(ang) * dist * g * 0.6]
+                    add(k, FW.billboard(L, cen, sz, rot0 + spin * (k - s0), cams[k], gray=gray, alpha=1.0))
+            notes.append(f"장면 {c['장면']}: 부유 파편 = 돌 형태 36개, '빡' 튀고 멈춤" + (f" → {fall_at}프레임부터 떨어짐" if fall_at else ""))
+    # 붉은 가시: 장면마다 간격(느림 → 점점 짧아짐 → 유지)
+    spikes, t_next = [], None
+    for i, c in enumerate(sb["컷"]):
+        ev = [e for e in c["사건"] if e.get("태그") == "붉은_가시"]
+        if not ev:
+            continue
+        s0, n = int(starts[i]), lens[i]
+        e = ev[0]
+        gap = e.get("간격", "")
+        k = s0 + int(round(e.get("시각_비율", 0) * n))
+        if t_next is not None:
+            k = max(k, t_next)
+        while k < s0 + n:
+            u = (k - s0) / max(1, n)
+            step = 10 if "느림" in gap or "하나둘" in gap else (int(round(10 - 7 * u)) if "짧아" in gap else 3)
+            r = J[k, 0]
+            base = np.array([r[0] + rng.uniform(-7, 7), 0.0, r[2] - rng.uniform(4, 14)])  # 카메라·인물에서 먼 쪽(인물 뒤)
+            spikes.append((k, sh.pick("streak", rng.randrange(999)), base, rng.uniform(1.5, 3.8)))
+            k += max(2, step)
+        t_next = k
+    for k0, L, base, hgt in spikes:
+        if not L:
+            continue
+        for k in range(k0, N):
+            add(k, FW.upright(L, base, hgt * burst(k - k0, 1.2), cams[k], tint=(40, 40, 215), gray=False))
+    if spikes:
+        notes.append(f"붉은 가시 {len(spikes)}개 = 줄기 형태를 세워 빨갛게(형태 사전), 간격 느림→짧아짐→유지")
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("storyboard")
@@ -132,6 +217,9 @@ def main():
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--hold", type=int, default=2)
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--shapes", help="이펙트 형태 사전(tools/fx_shapes.py 출력, Drive). 있으면 균열·부유 파편·붉은 가시를 그린다")
+    ap.add_argument("--approved", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "style_kb", "ai_results",
+                                                      "gpt_FXS_2026-10-22.csv"))
     a = ap.parse_args()
     sb = json.load(open(a.storyboard, encoding="utf-8"))
     os.makedirs(a.out, exist_ok=True)
@@ -207,9 +295,11 @@ def main():
             if e.get("태그") == "암전":
                 for t in range(t0, s0 + n):
                     black.add(t)
-        for e in c["사건"]:
-            if e["종류"] == "이펙트" or e.get("태그") in ("붉은_가시",):
-                notes.append(f"장면 {c['장면']}: {e.get('태그')} 미구현(자료·모델 없음)")
+        if not a.shapes:
+            for e in c["사건"]:
+                if e["종류"] == "이펙트" or e.get("태그") in ("붉은_가시",):
+                    notes.append(f"장면 {c['장면']}: {e.get('태그')} 미구현(형태 사전 없음 — --shapes)")
+    fx = effects_plan(sb, lens, J, cams, a, notes) if a.shapes else {}
     frames = []
     for k in range(len(J)):
         eye, at, fov = cams[k]
@@ -225,6 +315,7 @@ def main():
             r = J[k, 0]
             for j, seg in enumerate(ground_lines(eye, at, fov, r[2] - 18, r[2] + 18)):
                 objs.insert(0, (1000 + j, 1, (200, 200, 200), 0.35, seg, []))
+        objs += fx.get(k, [])
         frames.append(objs)
         bgs.append(bgc)
     # 5) 나누기_초마다 파일로
@@ -233,8 +324,8 @@ def main():
     files = []
     for p in range(0, len(frames), per):
         fn = os.path.join(a.out, f"{name}_{p // per + 1:02d}.sfa")
-        M.write(frames[p:p + per], base_bg, os.path.splitext(os.path.basename(fn))[0], fn, layer_names=("배경", "인물"),
-                frame_bgs=bgs[p:p + per], layers=lambda oid: 0 if oid >= 1000 else 1)  # 레이어 0(배경)이 먼저 그려진다
+        M.write(frames[p:p + per], base_bg, os.path.splitext(os.path.basename(fn))[0], fn, layer_names=("배경", "이펙트", "인물"),
+                frame_bgs=bgs[p:p + per], layers=lambda oid: 0 if oid >= 1000 else 2)  # 레이어 0(배경) → 1(이펙트, 채우기) → 2(인물)
         files.append(fn)
     info = {"장면_프레임": lens, "F": F, "전체_프레임": len(frames), "초": round(len(frames) / F, 2), "파일": [os.path.basename(f) for f in files],
             "동작_문장": [c for c, _ in caps], "모델": [a.name, a.res_name], "메모": notes, "배경_채색": color_bg}

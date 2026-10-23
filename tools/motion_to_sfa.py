@@ -139,6 +139,8 @@ def write(frames, bg, name, path, layer_names=("인물",), frame_bgs=None, layer
         fb = frame_bgs[k] if frame_bgs else bg
         lines.append(f'<Frame BackgroundColor="{argb(fb) & 0xFFFFFFFF}" ID="{k + 1}" Position="{k}">')
         lines += [f'<LayerDef ID="{i}" Name="{n}" Visible="true" Locked="false" />' for i, n in enumerate(layer_names)]
+        fills = [o for o in objs if o[0] == "FILL"]  # ("FILL", ARGB 정수, 레이어, [[seg(x0,y0,cx,cy,x1,y1 px), …] 윤곽0(바깥), 윤곽1…(구멍)])
+        objs = [o for o in objs if o[0] != "FILL"]
         ids = {}
         for o in objs:
             ids[o[0]] = pid
@@ -163,6 +165,21 @@ def write(frames, bg, name, path, layer_names=("인물",), frame_bgs=None, layer
                 else:
                     lines.append(f"<AP {attr} />")
             lines.append("</AO>")
+        oid2, order = 500000, len(objs)
+        for _, col, lid, contours in fills:  # 채우기: 경계 곡선(TypeId 3, 투명) + FR
+            fs = []
+            for ci, segs in enumerate(contours):
+                for sg in segs:
+                    order += 1
+                    lines.append(f'<AO ID="{oid2}" TypeId="3" Color="0" LayerId="{lid}" DrawOrder="{order}" ThicknessScale="0.020" ObjectScale="1.0" '
+                                 f'GlowRadius="0.0" GlowThickness="0.0" GlowColor="4294967295" GlowAlpha="0.0">')
+                    for i in range(3):
+                        lines.append(f'<AP ID="{pid + i}" Flags="5" Index="{i}" X="{sg[2 * i] / W * 100:.3f}" Y="{sg[2 * i + 1] / H * 100:.3f}" />')
+                    lines.append("</AO>")
+                    fs.append(f'<FS Kind="0" ObjId="{oid2}" StartPtId="{pid}" EndPtId="{pid + 2}" StartT="0.0" EndT="1.0" Contour="{ci}" />')
+                    oid2 += 1
+                    pid += 3
+            lines.append(f'<FR Color="{col}">' + "".join(fs) + "</FR>")
         lines.append("</Frame>")
     lines.append("</Sequence>")
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as z:
