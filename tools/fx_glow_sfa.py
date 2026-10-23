@@ -33,7 +33,7 @@ def yellow_mask(img):
     return (h >= 15) & (h <= 40) & (s >= 70) & (v >= 120)
 
 
-def is_impact_frame(img, drop_yellow=True):
+def is_impact_frame(img, drop_yellow=True, yellow_frame=0.05):
     """한 장이 임팩트 프레임인지 그림으로 판정(2026-10-23, 239055·232394·123722 프레임별 눈 판정과 맞춘 규칙).
     일반 장면: 채도 높고 흰 면 7% 이하. 흑백 임팩트: 채도 50 이하에 흰 면이 조금이라도 있음(검정 바탕 흰 선 포함).
     색 임팩트(빨강·노랑)·끝의 흰 번짐: 색은 있어도 흰 면이 18% 이상으로 갑자기 늘어남.
@@ -42,8 +42,11 @@ def is_impact_frame(img, drop_yellow=True):
     hsv = cv2.cvtColor(s, cv2.COLOR_BGR2HSV)
     v, sat = hsv[..., 2], float(np.median(hsv[..., 1]))
     bright = v > 215
-    if drop_yellow:  # 노랑은 흰 면으로 세지 않는다
-        bright &= ~yellow_mask(s)
+    if drop_yellow:  # 노랑이 화면의 yellow_frame 이상이면 그 장은 통째로 뺀다(2026-10-23 사용자), 적으면 흰 면에서만 뺀다
+        ym = yellow_mask(s)
+        if ym.mean() >= yellow_frame:
+            return False
+        bright &= ~ym
     white = float(bright.mean())
     return (sat <= 50 and (white >= 0.05 or v.mean() > 100)) or white >= 0.18
 
@@ -109,6 +112,7 @@ def main():
                     help="임팩트 프레임용(2026-10-23 사용자 제안): 배경 추정 없이 검정과 비교 — 흰색·포인트색(파·초·빨)만 잡고 나머지는 검정")
     ap.add_argument("--floor", type=float, default=0.35, help="--black-key일 때 이 밝기(0–1) 아래는 버림")
     ap.add_argument("--keep-yellow", action="store_true", help="노란색도 감지·추출(기본은 뺀다, 2026-10-23 사용자)")
+    ap.add_argument("--yellow-frame", type=float, default=0.05, help="노랑이 화면의 이 비율 이상인 장은 통째로 뺀다")
     ap.add_argument("--frames", help="이 프레임만(쉼표) — 예: 임팩트 마스크(*_ink.npz)의 그래픽 프레임")
     ap.add_argument("--auto-impact", action="store_true",
                     help="장마다 그림으로 임팩트 프레임인지 판정해 아닌 장은 빈 장으로(--only와 함께 쓰면 그 범위 ±8 안에서만)")
@@ -142,7 +146,7 @@ def main():
         if a.auto_impact:
             near_only = only is None or any(g in only for g in range(f - 8, f + 9))
             # 앞뒤 장면과의 차이로 판정해 보았으나 앞뒤가 다른 컷이면 일반 장면까지 들어가 쓰지 않는다(2026-10-23)
-            skip = not (near_only and is_impact_frame(img, not a.keep_yellow))
+            skip = not (near_only and is_impact_frame(img, not a.keep_yellow, a.yellow_frame))
         if skip:
             body.append(frame_xml({"layers": [], "lines": []}, pos, wr, W, argb(bg)))
             print(f, "빈 장(판정 범위 밖)", flush=True)
