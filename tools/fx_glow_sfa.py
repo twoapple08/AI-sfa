@@ -22,7 +22,8 @@ from effect_vectorize import outline_mask  # noqa: E402
 from effect_clip_sfa import H, Writer, argb, frame_xml  # noqa: E402
 from effect_vectorize import read_frame  # noqa: E402
 
-LEVELS = (0.08, 0.18, 0.3, 0.45, 0.6, 0.75, 0.9)
+# 단계 14개(7개는 경계가 계단처럼 보였다, 2026-10-23)
+LEVELS = tuple(round(x, 3) for x in np.linspace(0.06, 0.94, 14))
 
 
 def glow_doc(img, bgimg, tol=1.0, min_area=30):
@@ -54,10 +55,12 @@ def main():
     ap.add_argument("end", type=int)
     ap.add_argument("out")
     ap.add_argument("--win", type=int, default=8, help="배경 추정에 쓰는 앞뒤 프레임 수")
+    ap.add_argument("--pre", type=int, default=16,
+                    help="구간 시작 전 프레임 수 — 이펙트가 나오기 전 화면도 배경 후보에 넣는다(오래 켜진 빛의 중심이 배경으로 착각돼 비던 문제)")
     ap.add_argument("--bg", default="0,0,0")
     a = ap.parse_args()
     bg = [int(x) for x in a.bg.split(",")]
-    lo, hi = max(0, a.start - a.win), a.end + a.win
+    lo, hi = max(0, a.start - max(a.win, a.pre)), a.end + a.win
     imgs = {}
     for f in range(lo, hi + 1):
         try:
@@ -72,7 +75,8 @@ def main():
     for pos, f in enumerate(frames):
         img = imgs[f]
         W = img.shape[1]
-        near = np.stack([imgs[g] for g in range(f - a.win, f + a.win + 1) if g in imgs])
+        cand = set(range(f - a.win, f + a.win + 1)) | set(range(a.start - a.pre, a.start))
+        near = np.stack([imgs[g] for g in sorted(cand) if g in imgs])
         lum = near.max(-1)
         bgimg = np.take_along_axis(near, lum.argmin(0)[None, ..., None].repeat(3, -1), 0)[0]
         doc = glow_doc(img, bgimg)
