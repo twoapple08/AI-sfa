@@ -57,7 +57,11 @@ def is_impact_frame(img, drop_yellow=True, yellow_frame=0.05, in_table=True):
     dark = float((v < 50).mean())
     # 완전한 흑백(채도 ≤ 12)은 회색 종이 연필 임팩트(239055 944, 채도 5)라 밝기만 본다 — 회색 일반 장면은 채도 20–45였다.
     low_sat = (sat <= 12 and v.mean() > 100) or (sat <= 50 and ((white >= 0.15 and mid <= 0.6) or (white >= 0.01 and dark >= 0.5)))
-    return low_sat or (white >= 0.18 and (sat <= 50 or in_table))
+    # 15차(2026-10-23 사용자 '가·나 둘 다'): 색 있는 장은 판정표 안이어도 임팩트가 아니다(162980 분홍 눈·붉은 실루엣),
+    # 흰 면이 많아 채도 중앙값이 낮아도 진한 색 면(채도 > 80, 밝기 > 60)이 25% 이상이면 색 연출(162980 320 하늘, 281606 100–102 청록 섬광).
+    # 흑백 임팩트의 진한 색 면은 7–14%였다. in_table은 호출 호환을 위해 남긴다.
+    colored = float(((hsv[..., 1] > 80) & (v > 60)).mean())
+    return low_sat and colored < 0.25
 
 
 def scene_diff(img, ref):
