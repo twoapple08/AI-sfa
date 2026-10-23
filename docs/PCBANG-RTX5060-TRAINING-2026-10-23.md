@@ -16,15 +16,15 @@
    - 3.13은 쓰지 않는다(글 이해 모델 CLIP 설치가 실패한 적이 있다).
 2. **파일 받기**: Drive `AI-sfa/07_도구/동작학습_1050ti/`에서 아래 7개를 **한 폴더**에 받는다. 브라우저 다운로드 폴더(C)에 받아도 된다 — bat이 실행될 때 6개 자료 파일을 `D:\mm`으로 옮긴다.
 
-   | 파일 | 크기 |
-   |---|---|
-   | `run_v6_v7_rtx5060.bat` | 실행 파일 |
-   | `momask_finetune.py` | 학습 스크립트 |
-   | `momask_code.zip` | 1MB |
-   | `momask_checkpoints.zip` | 188MB |
-   | `ViT-B-32.pt` | 354MB |
-   | `motion_data_mds6.zip` | 359MB |
-   | `motion_data_mds5.zip` | 363MB |
+   | 파일 | 내용 | 크기 |
+   |---|---|---|
+   | `run_v6_v7_rtx5060.bat` | 자동 실행 파일(이것을 더블클릭) | 3KB |
+   | `momask_finetune.py` | 추가 학습 스크립트 | 7KB |
+   | `momask_code.zip` | 동작 모델 코드 | 1MB |
+   | `momask_checkpoints.zip` | 기본 가중치 | 188MB |
+   | `ViT-B-32.pt` | 글 이해 모델(CLIP) | 354MB |
+   | `motion_data_mds6.zip` | 6차 학습 자료(모캡만) | 359MB |
+   | `motion_data_mds5.zip` | 7차 학습 자료(애니 + 모캡) | 363MB |
 
    다른 파일(`motion_data_mds.zip`·`mds3`·`mds4`, `run_v5_v6.bat`, `결과` 폴더)은 받지 않는다.
 3. **`run_v6_v7_rtx5060.bat` 더블클릭.** 작업 위치는 **`D:\mm`로 고정**이다(압축 풀기·임시 파일·pip 캐시·결과 모두 D). 설치 → GPU 확인 → 압축 풀기 → 6차 → 7차 → 결과 묶기를 자동으로 한다. D 드라이브가 없으면 바로 멈춘다.
