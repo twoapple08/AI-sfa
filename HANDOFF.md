@@ -20,17 +20,16 @@
 | 4차 | 고친 애니 111(높이 복원) + 3차 모캡 2,881 | PC 3,000단계(`ft_v4_gpu`): **걷기 회복**, 일어서기·히어로 착지 여전히 실패(착지는 눕거나 뒤엉킴). 원인 추가: "stands upright"인데 엉덩이 낮은 창, 실제 일어서기 창 0 |
 | 5차 | 애니 95(문장-자세 불일치 16 제외) + 착지·무릎 모캡 24창 + 모캡 2,881 | PC 3,000단계(`ft_v5_gpu`): 걷기·펀치 유지, 일어서기(서 있기만)·착지(넘어져 누움) 여전히 실패 |
 | 6차·7차(대조) | 6차 = 애니 0배(모캡 2,905), 7차 = 애니 1배 | PC방 5060: **애니를 줄일수록 나음**(6차가 낙하·착지 가장 좋음, 걷기 유지). 일어서기는 모든 판 실패(기본이 최선) |
-| 8차 | 애니 없음, 모캡 11,464 + 착지 24, 6,000단계 | 자료 Drive `motion_data_mds8.zip`, PC방 `run_v8_rtx5060.bat` 실행 예정 → `results_v8.zip` |
+| 8차 | 애니 없음, 모캡 11,464 + 착지 24, 6,000단계 | PC방 5060: 6차와 비슷. 달리기 가속 가장 큼(8.2–8.5m), 착지 뒤 눕는 경향, 일어서기 실패(기본이 최선) |
 - 자료 도구: `tools/motion_dataset.py`(애니 3D = `tools/lift_apply.py` 출력, 위 방향 정렬·평활·디딤발 엉덩이 이동), 학습: `tools/momask_finetune.py`(VQ 고정, 마스크·잔차 트랜스포머만).
 - 동작 문장: `data/style_kb/ai_results/codex_action_captions_2026-10-23.csv`(699행, 확신 낮음 269는 학습 제외, 판정수정 39 — 태그 색인 반영 전).
 - 태그 색인·추출: `tools/tag_index.py`, `data/tag_index.csv`, 안내 [TAG-GUIDE](docs/TAG-GUIDE-2026-10-22.md).
 
 ## 다음 행동
-1. `results_v8.zip`(결과 폴더, `--drive-root-folder-id`; Windows zip이라 경로가 역슬래시 — `unzip`은 경고 후 정상 풀림)을 받아 기본·6차·8차 비교(씨앗 1–3, `tools/bench_compare.py` + 관절 막대 `strip.py`는 scratch에만 — 필요하면 tools로 옮길 것).
-2. 일어서기: 기본 모델이 최선. 동작 문장을 "a person rises from a deep crouch to standing"처럼 바꿔 보거나, 모캡 "get up from floor"(누운 시작) 문장 구분.
-3. 애니 자료는 동작 모양에서 빼고 타이밍(빠름·멈춤)으로만 쓰는 설계 결정 — 사용자에게 보고 후.
-4. 이펙트: 규칙 배치 품질 미달 — 학습 모델 방식 결정. 형태 사전 `fx_shapes.txt` Drive 복구됨.
-5. 1단계(프롬프트 → 스토리보드) 언어 모델 연결.
+1. 착지·일어서기: 미세조정(3–8차)으로 안 풀림. (가) 동작 문장 바꿔 기본·6차·8차로 시험("a person rises from a deep crouch to standing", "a person lands from a jump into a low crouch and stays crouched"), (나) 장면별 모델 고르기(일어서기 = 기본, 낙하·달리기 = 6/8차), (다) 조립기에서 착지 키 자세 고정 — 순서대로 서버에서 바로 시험 가능(가중치 scratch에 있음: 기본·v3–v8).
+2. 애니 자료는 동작 모양에서 빼고 타이밍(빠름·멈춤)에만 쓰는 설계 — 사용자 동의 대기.
+3. 이펙트: 규칙 배치 품질 미달 — 학습 모델 방식 결정. 형태 사전 `fx_shapes.txt` Drive 복구됨.
+4. 1단계(프롬프트 → 스토리보드) 언어 모델 연결.
 
 ## 이펙트 규칙 배치 시험(2026-10-23, 커밋 8f975ac 코드)
 - 기준 프롬프트 전체 230프레임, 약 4분, SFA 88MB + 164MB(둘째 파일도 정상 기록 — 이전 '빈 파일'은 중단 때문으로 보임). 그림: Drive `04_SFA시험작/bench01_2026-10-23_fx_shapes/frames.jpg`.
