@@ -1,0 +1,700 @@
+출처,애니메이터,post_id,시작,끝,동작,공격세부,caption_en,caption_en_2,확신,메모
+gpt_T02:T02_003.jpg,yutaka_nakamura,115592,602,613,이동,,a person walks with the torso upright and the arms moving beside the body.,,보통,걷기; 시트 그림 확인
+gpt_T02:T02_005.jpg,yutaka_nakamura,220604,965,976,기타,,a person stands upright and lifts both forearms outward in front of the torso.,,보통,양손을 들어 몸짓; 시트 그림 확인
+gpt_T02:T02_007.jpg,nian41,301158,1853,1864,대기,,a person stands with the torso slightly bent forward and the arms hanging low.,,낮음,"자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_008.jpg,yutaka_nakamura,236211,124,135,기타,,"a person dances, shifting the legs apart and moving the bent arms beside the torso.",,보통,팔·다리를 번갈아 움직이는 춤; 시트 그림 확인
+gpt_T02:T02_010.jpg,nian41,301142,1067,1078,대기,,a person holds a wide stance with the arms raised in front of the upper body.,,보통,뒤쪽 파란 인물은 자세 유지; 시트 그림 확인
+gpt_T02:T02_011.jpg,nian41,280527,418,429,대기,,a person stands with the arms held close to the upper body.,,낮음,"칼끝 앞에서 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_012.jpg,nian41,280544,2542,2553,막기·회피,,a person crouches low and brings the arms up in front of the head and torso.,,낮음,"몸을 낮추고 팔로 방어, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_013.jpg,yutaka_nakamura,115592,626,637,이동,,a person walks with the upper body upright and the arms held close to the sides.,,보통,걷기; 시트 그림 확인
+gpt_T02:T02_015.jpg,yutaka_nakamura,226853,240,251,이동,,"a person balances in a low crouch with the torso leaning forward, then rises slightly.",,낮음,"보드를 타고 수면 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_016.jpg,yutaka_nakamura,196994,885,896,기타,,"a person extends both arms sideways, then bends the elbows and brings the hands inward.",,보통,춤추며 팔을 벌렸다 모음; 시트 그림 확인
+gpt_T02:T02_018.jpg,yutaka_nakamura,196315,645,656,기타,,a person stands and lowers an outstretched arm toward the side.,,낮음,"뒤쪽 인물이 팔을 뻗었다 내림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_020.jpg,nian41,1913481070839742689,525,536,공격,기타,"a person extends an arm to grip another person's head, then drives the arm forward while turning the torso.",,높음,상대 얼굴을 잡고 밀침; 시트 그림 확인
+gpt_T02:T02_021.jpg,nian41,280527,412,423,대기,,a person holds an upright stance with the arms close to the torso.,,낮음,"칼끝 앞에서 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_023.jpg,nian41,280597,86,97,점프·공중,,a person moves through the air with the knees bent and turns the torso sideways.,,보통,공중에서 몸을 돌림; 시트 그림 확인
+gpt_T02:T02_027.jpg,nian41,280556,3953,3964,점프·공중,,a person holds the arms away from the sides and spreads the legs while suspended in the air.,,낮음,"잔해 사이 공중에 떠 있음, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_031.jpg,nian41,2029588466376511962,613,624,피격,,"a person is knocked backward, then tumbles onto the back with the legs swinging upward.",,높음,맞아 튕겨나가 바닥으로 굴러감; 시트 그림 확인
+gpt_T02:T02_033.jpg,nian41,280527,424,435,대기,,a person maintains an upright stance with the arms held near the chest.,,낮음,"칼끝 앞에서 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_034.jpg,nian41,1913589758644908348,996,1007,막기·회피,,"a person twists the torso and tucks the legs while moving through the air to evade, then extends the body.",,보통,총격 사이 몸을 돌려 피함; 시트 그림 확인
+gpt_T02:T02_036.jpg,nian41,280536,653,664,대기,,a person stands upright with the shoulders turned slightly and the arms held near the body.,,낮음,"망토만 날리고 몸은 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_037.jpg,yutaka_nakamura,203327,123,134,대기,,a person holds a low stance with one arm extended forward.,,낮음,"뒤쪽 인물은 무기를 든 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_038.jpg,yutaka_nakamura,236213,181,192,기타,,"a person dances in place, shifting the legs and swinging the bent arms outward.",,보통,주황색 옷 인물의 춤; 시트 그림 확인
+gpt_T02:T02_039.jpg,yutaka_nakamura,236213,24,35,대기,,a person sits with the knees bent and the upper body leaning slightly forward.,,낮음,"의자에 앉은 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_040.jpg,yutaka_nakamura,281209,112,123,점프·공중,,a person rotates backward through the air with the knees tucked toward the torso.,,보통,빙면 위에서 공중 회전; 시트 그림 확인
+gpt_T02:T02_043.jpg,nian41,280556,1450,1461,피격,,"a person is knocked backward with the torso arching and the legs lifting, then drops into a low position.",,보통,얼굴을 맞고 뒤로 날아감; 시트 그림 확인
+gpt_T02:T02_044.jpg,yutaka_nakamura,231052,506,517,쓰러짐·누움,,a person lies face down with the torso low and the arms stretched forward.,,낮음,"바닥에 엎드린 자세; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_048.jpg,nian41,2029588466376511962,1333,1344,공격,무기,a person stands with the legs apart and sweeps an extended arm across the front of the body.,,낮음,"긴 무기를 휘두름, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_050.jpg,nian41,1913481070839742689,1064,1075,막기·회피,,a person raises a bent forearm in front of the head to block while turning the upper body.,,높음,팔을 올려 공격을 막음; 시트 그림 확인
+gpt_T02:T02_054.jpg,nian41,280544,1824,1835,이동,,a person steps forward with the torso upright and the arms held near the body.,,보통,기둥 뒤에서 걸어 나옴; 시트 그림 확인
+gpt_T02:T02_055.jpg,yutaka_nakamura,236213,149,160,대기,,a person stands with the feet apart and the hands raised near the face.,,보통,난간 앞에서 자세 유지; 시트 그림 확인
+gpt_T02:T02_056.jpg,yutaka_nakamura,271644,623,634,기타,,a person lifts a hand toward the face and extends the fingers while keeping the torso upright.,,보통,손을 올려 손가락으로 몸짓; 시트 그림 확인
+gpt_T02:T02_057.jpg,nian41,1913481070839742689,979,990,이동,,a person takes a small step with the upper body leaning slightly back and the arms lowered.,,낮음,"천천히 걷기; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_058.jpg,nian41,1613887197383622656,209,220,이동,,a person walks forward and lowers one hand beside the hip.,,낮음,"불꽃을 두른 손을 내리고 걷기; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_059.jpg,yutaka_nakamura,203292,673,684,대기,,a person holds an upright stance with the legs apart.,,낮음,"왼쪽 인물은 서 있는 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_060.jpg,yutaka_nakamura,220604,1176,1187,기타,,"a person sways the torso and alternately lifts the arms, then raises both arms overhead.",,높음,팔을 번갈아 올리는 춤; 시트 그림 확인
+gpt_T02:T02_061.jpg,nian41,1613887197383622656,221,232,기타,,a person draws a bent arm upward toward the shoulder while turning the torso.,,낮음,"불꽃 주먹을 올리는 공격 준비, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:기타"
+gpt_T02:T02_063.jpg,yutaka_nakamura,306329,505,516,쓰러짐·누움,,a person remains sprawled low with the limbs extended away from the torso.,,낮음,"뒤쪽 인물은 지붕에 쓰러진 상태; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_065.jpg,yutaka_nakamura,271642,1059,1070,대기,,a person holds a forward-leaning stance with one arm extended and the other bent back.,,낮음,"몸을 숙인 준비 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_067.jpg,nian41,280525,162,173,대기,,a person stands side-on with one elbow bent and the hand held upright near the face.,,높음,불꽃을 든 손의 자세 유지; 시트 그림 확인
+gpt_T02:T02_070.jpg,yutaka_nakamura,115592,768,779,이동,,a person runs with the torso pitched forward and the arms swinging alongside the body.,,낮음,"몸을 앞으로 숙여 달리기; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_071.jpg,nian41,280556,2380,2391,쓰러짐·누움,,a person kneels on one knee with the other foot planted and lifts the torso slightly while holding a hand near the chest.,,높음,한쪽 무릎을 꿇은 상태; 시트 그림 확인
+gpt_T02:T02_074.jpg,nian41,1937399147772137658,1411,1422,공격,무기,a person stands with the legs apart and draws a bent arm across the chest while bringing the other hand forward.,,보통,검을 뽑아 드는 예비 동작; 시트 그림 확인
+gpt_T02:T02_075.jpg,yutaka_nakamura,309515,218,229,기타,,a person stands upright and lifts one bent arm in front of the chest.,,낮음,"어두운 옷 인물이 손을 들어 몸짓, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_076.jpg,nian41,280544,4163,4174,대기,,"a person holds a wide stance with the knees bent, the torso leaning forward, and both hands lowered beside the hips.",,높음,다리를 벌린 준비 자세 유지; 시트 그림 확인
+gpt_T02:T02_077.jpg,nian41,280544,82,93,쓰러짐·누움,,"a person tips forward onto the hands, then folds the legs under the body into a low crouch.",,높음,거꾸로 넘어져 손을 짚고 웅크림; 시트 그림 확인
+gpt_T02:T02_078.jpg,yutaka_nakamura,236211,443,454,대기,,a person sits upright with the knees bent and the hands resting low in front of the body.,,보통,보라색 옷 인물은 앉은 자세 유지; 시트 그림 확인
+gpt_T02:T02_079.jpg,yutaka_nakamura,210085,758,769,피격,,a person is driven backward with the torso arched and the knees bending as the body drops lower.,,낮음,"눌려 몸이 뒤로 들리고 날개가 흩어짐; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_082.jpg,nian41,280536,707,718,대기,,a person stands with one forearm crossing the abdomen and the other arm lowered.,,낮음,"팔을 몸 앞에 둔 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_084.jpg,nian41,280556,1846,1857,대기,,a person stands upright with the arms down and the feet apart.,,낮음,"왼쪽 인물은 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T02:T02_085.jpg,yutaka_nakamura,239750,503,514,대기,,a person stands side-on with one elbow slightly bent and the hand held low in front of the hip.,,보통,무기를 내리고 서 있는 자세 유지; 시트 그림 확인
+gpt_T02:T02_087.jpg,nian41,280526,1365,1376,공격,무기,a person holds a deep forward lunge with one arm extended and the other elbow drawn back beside the head.,,높음,활시위를 당긴 공격 준비; 시트 그림 확인
+gpt_T02:T02_088.jpg,yutaka_nakamura,196994,1125,1136,기타,,"a person raises both arms over the head, then bends the elbows and brings the hands toward the head.",,보통,팔을 머리 위로 올리는 춤; 시트 그림 확인
+gpt_T03:T03_001.jpg,yutaka_nakamura,108301,323,334,대기,,"a person holds a low, staggered stance with both arms extended sideways.",,보통,팔을 벌린 자세 유지; 시트 그림 확인
+gpt_T03:T03_002.jpg,nian41,280556,95,106,쓰러짐·누움,,"a person pushes up from a crouch with one hand on the ground, then raises the torso.",,높음,바닥을 짚고 웅크린 상태에서 상체를 듦; 시트 그림 확인
+gpt_T03:T03_003.jpg,nian41,280523,213,224,막기·회피,,"a person jumps sideways with the arms spread, then lowers into a crouch to dodge.",,보통,날아오는 공격을 뛰고 몸을 낮춰 피함; 시트 그림 확인
+gpt_T03:T03_004.jpg,yutaka_nakamura,218752,294,305,이동,,"a person runs forward, alternately lifting the knees and swinging the bent arms.",,높음,달리기; 시트 그림 확인
+gpt_T03:T03_005.jpg,yutaka_nakamura,271632,809,820,대기,,a person holds the torso upright with both arms lowered beside the hips.,,보통,몸통 클로즈업·자세 유지; 시트 그림 확인
+gpt_T03:T03_006.jpg,yutaka_nakamura,229682,368,379,쓰러짐·누움,,a person lies on the back with the arms alongside the torso and one knee raised.,,보통,바닥에 누워 있음; 시트 그림 확인
+gpt_T03:T03_007.jpg,nian41,280556,2656,2667,막기·회피,,"a person raises both arms and hops sideways, then bends the knees on landing to evade.",,낮음,"팔을 올리고 뛰며 피함, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_008.jpg,yutaka_nakamura,203327,1060,1071,점프·공중,,a person moves through the air with both knees bent and the arms held away from the torso.,,보통,큰 대상 위에서 공중 이동; 시트 그림 확인
+gpt_T03:T03_009.jpg,nian41,1943223713455051062,1867,1878,막기·회피,,a person slides sideways with the torso low and the legs extended to evade an attack.,,낮음,"상체를 낮춰 미끄러지며 공격을 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_010.jpg,nian41,280535,238,249,기타,,a person bends an elbow and brings the hand up toward the chest while turning the shoulders.,,높음,손을 가슴 쪽으로 올리는 몸짓; 시트 그림 확인
+gpt_T03:T03_011.jpg,nian41,1613887197383622656,1336,1347,기타,,a person stands with the legs apart and draws both hands inward in front of the chest.,,보통,"가슴 앞에서 붉은 힘을 발동, 애매; 시트 그림 확인; 판정수정:기타"
+gpt_T03:T03_013.jpg,nian41,280521,571,582,쓰러짐·누움,,"a person tumbles backward onto the shoulders with both legs overhead, then rolls across the back.",,높음,거꾸로 넘어져 바닥을 구름; 시트 그림 확인
+gpt_T03:T03_014.jpg,yutaka_nakamura,165486,130,141,이동,,a person dashes forward with the body tilted low and both arms extended away from the torso.,,보통,몸을 기울여 빠르게 대시; 시트 그림 확인
+gpt_T03:T03_015.jpg,nian41,1913231262086463573,295,306,공격,기타,a person steps into a wide stance and thrusts an open hand forward at shoulder height.,,높음,손을 뻗어 힘을 발동; 시트 그림 확인
+gpt_T03:T03_017.jpg,yutaka_nakamura,182469,807,818,대기,,a person stands upright with the arms resting close to the sides.,,낮음,"가운데 인물은 서 있는 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_019.jpg,nian41,287139,1244,1255,이동,,"a person runs forward with the torso low, then steps upward while straightening the body.",,보통,수면을 달려 육지로 올라옴; 시트 그림 확인
+gpt_T03:T03_020.jpg,yutaka_nakamura,210343,311,322,이동,,"a person stands with the feet apart, then leans forward and bends the knees to start moving.",,보통,서 있다 몸을 기울여 이동 시작; 시트 그림 확인
+gpt_T03:T03_021.jpg,nian41,301142,1747,1758,공격,기타,a person holds the legs apart and extends both arms outward while turning the upper body.,,보통,"팔을 벌려 원거리 공격, 애매; 시트 그림 확인"
+gpt_T03:T03_022.jpg,yutaka_nakamura,226853,132,143,이동,,a person stays crouched with the torso leaning forward and the arms held in front.,,낮음,"보트를 타고 수면 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_023.jpg,yutaka_nakamura,306329,1893,1904,막기·회피,,a person bends forward and tucks the legs while rotating sideways to evade a sweeping attack.,,낮음,"검을 피하며 몸을 낮춤, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_024.jpg,nian41,280526,1109,1120,대기,,"a person holds a wide, bent-knee stance with both arms extended down and outward.",,보통,몸 주위로 전격을 방출; 시트 그림 확인; 판정수정:대기
+gpt_T03:T03_026.jpg,yutaka_nakamura,41027,72,83,이동,,"a person runs forward, alternating the bent arms and lifting the knees.",,높음,팔을 번갈아 움직이며 달림; 시트 그림 확인
+gpt_T03:T03_027.jpg,nian41,216085,1341,1352,피격,,"a person rolls across the ground, then plants the feet and raises the torso to stand.",,보통,충격으로 구른 뒤 몸을 일으킴; 시트 그림 확인
+gpt_T03:T03_028.jpg,nian41,280527,132,143,대기,,a person holds an upright stance with the elbows bent near the torso.,,낮음,"왼쪽 인물은 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_029.jpg,nian41,216085,775,786,공격,무기,"a person jumps with both hands overhead, then swings both arms downward and lands with the knees bent.",,보통,도약 후 무기를 내려침; 시트 그림 확인
+gpt_T03:T03_030.jpg,yutaka_nakamura,271642,30,41,쓰러짐·누움,,a person sits on the ground with the knees bent and the torso upright.,,보통,뒤쪽 인물은 바닥에 주저앉아 있음; 시트 그림 확인
+gpt_T03:T03_031.jpg,yutaka_nakamura,115592,1373,1384,이동,,a person sits in a forward crouch with the knees bent and both arms reaching in front.,,보통,오토바이 운전; 시트 그림 확인
+gpt_T03:T03_032.jpg,nian41,280556,909,920,피격,,"a person is kicked upward, then curls the legs toward the torso while rotating backward through the air.",,높음,차여 위로 튕겨나감; 시트 그림 확인
+gpt_T03:T03_033.jpg,nian41,280544,1404,1415,막기·회피,,"a person leans away from reaching hands, then raises both forearms in front of the face to guard.",,높음,상대 손을 피하며 팔을 올려 방어; 시트 그림 확인
+gpt_T03:T03_035.jpg,nian41,1613887377965211649,787,798,막기·회피,,"a person crouches, then pushes off and flips backward with the legs passing overhead to evade.",,보통,공격받는 탁자 위에서 뒤로 회전해 피함; 시트 그림 확인
+gpt_T03:T03_038.jpg,yutaka_nakamura,203327,90,101,대기,,"a person holds a low, wide stance with one arm extended and the other bent beside the torso.",,낮음,"무기를 든 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_039.jpg,nian41,1613887197383622656,455,466,대기,,"a person stands with the feet apart and the arms lowered, shifting the torso slightly.",,보통,망토만 날리고 자세 유지; 시트 그림 확인
+gpt_T03:T03_040.jpg,nian41,1913231262086463573,902,913,공격,킥,"a person lies back and thrusts a leg upward to kick, then swings the legs apart while rolling onto the back.",,높음,바닥에서 위로 발을 뻗어 상대를 참; 시트 그림 확인
+gpt_T03:T03_041.jpg,nian41,1913231262086463573,2152,2163,공격,던지기,"a person draws an arm back, then swings it forward across the torso in a throwing motion.",,보통,접시를 상대에게 던짐; 시트 그림 확인
+gpt_T03:T03_042.jpg,nian41,216079,132,143,대기,,a person stands upright with the feet apart and both hands lowered.,,보통,서 있는 자세 유지; 시트 그림 확인
+gpt_T03:T03_043.jpg,nian41,1613887377965211649,315,326,공격,펀치,"a person lunges forward and extends a fist in a punch, then draws the arm back.",,높음,주먹을 크게 뻗어 공격; 시트 그림 확인
+gpt_T03:T03_044.jpg,nian41,280526,972,983,대기,,"a person stands with the arms lowered, then lifts one bent arm beside the head.",,낮음,"불길 속에서 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_045.jpg,yutaka_nakamura,109047,218,229,점프·공중,,a person holds a bent-knee posture in the air with one arm raised and the other extended sideways.,,낮음,"이펙트 속 공중 자세, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_047.jpg,nian41,280556,4170,4181,대기,,a person holds a wide stance with the knees slightly bent and both hands lowered.,,보통,다리를 벌린 자세 유지; 시트 그림 확인
+gpt_T03:T03_048.jpg,nian41,1913231262086463573,3954,3965,기타,,a person turns the upper body slightly with both arms held away from the sides.,,낮음,"광선 사이 몸을 비틂, 애매, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:기타"
+gpt_T03:T03_050.jpg,yutaka_nakamura,239063,138,149,쓰러짐·누움,,a person holds a low crouch with one hand on the ground and the other arm bent.,,보통,바닥에 손을 짚고 웅크린 상태; 시트 그림 확인
+gpt_T03:T03_051.jpg,nian41,1913231262086463573,3991,4002,막기·회피,,"a person twists sideways, then dives forward with the arms extended to evade passing attacks.",,높음,연속 광선을 몸을 비틀어 피함; 시트 그림 확인
+gpt_T03:T03_052.jpg,nian41,216079,108,119,대기,,a person stands with the legs apart and the arms relaxed beside the hips.,,보통,다리를 벌린 자세 유지; 시트 그림 확인
+gpt_T03:T03_053.jpg,nian41,1913231262086463573,2196,2207,공격,던지기,"a person bends low, then swings an arm upward in a throw and springs off the ground.",,높음,통을 상대 쪽으로 던짐; 시트 그림 확인
+gpt_T03:T03_054.jpg,nian41,1613887197383622656,437,448,대기,,a person remains upright with the shoulders turned and the arms lowered.,,보통,서 있는 자세 유지; 시트 그림 확인
+gpt_T03:T03_056.jpg,nian41,1913481070839742689,171,182,피격,,a person is kicked sideways and propelled through the air with the torso bent and the legs trailing.,,낮음,"고속으로 차여 옆으로 밀려남; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_057.jpg,nian41,280530,307,318,점프·공중,,a person moves sideways through the air with the legs extended and the torso tilted back.,,낮음,"건물 옆 공중에서 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_059.jpg,yutaka_nakamura,196994,1041,1052,기타,,a person sways in place and raises a bent arm above the head.,,보통,팔을 올리는 춤; 시트 그림 확인
+gpt_T03:T03_060.jpg,nian41,280544,3989,4000,막기·회피,,"a person dives sideways with both arms extended, then rolls onto the back with the legs lifting to evade.",,높음,광선을 피해 몸을 던지고 구름; 시트 그림 확인
+gpt_T03:T03_061.jpg,nian41,280523,769,780,점프·공중,,"a person rotates through the air, drawing the knees inward before extending the limbs.",,보통,"잔해 사이 공중에서 몸을 돌림, 애매; 시트 그림 확인"
+gpt_T03:T03_062.jpg,yutaka_nakamura,196315,89,100,대기,,a person stands with both hands held together in front of the chest.,,낮음,"뒤쪽 인물은 손을 모은 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_063.jpg,yutaka_nakamura,220930,2088,2099,대기,,a person stays bent forward with the arms low and turns the head slightly.,,낮음,"몸을 낮춘 자세에서 고개만 움직임; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_064.jpg,yutaka_nakamura,203293,946,957,대기,,a person stands with the knees slightly bent and both hands held near the chest.,,낮음,"뒤쪽 인물은 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_065.jpg,nian41,280535,169,180,대기,,a person stands upright with the shoulders level and the arms lowered beside the torso.,,보통,등을 보인 인물은 자세 유지; 시트 그림 확인
+gpt_T03:T03_066.jpg,nian41,280527,47,58,공격,무기,a person turns the torso and sweeps a lowered arm outward across the body.,,낮음,"검을 움직여 공격, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_067.jpg,nian41,280525,96,107,대기,,a person holds one arm fully extended forward with the palm open and the other hand lowered.,,높음,손가락을 뻗은 자세 유지; 시트 그림 확인
+gpt_T03:T03_068.jpg,yutaka_nakamura,182904,417,428,대기,,a person stands with the feet apart and both arms lowered.,,낮음,"왼쪽 인물은 서 있는 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_069.jpg,yutaka_nakamura,271632,1578,1589,대기,,a person holds a bent-knee stance with both arms extended sideways.,,낮음,"연기에 대상이 가려짐, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_071.jpg,nian41,2029588466376511962,1385,1396,막기·회피,,"a person curls the torso and legs, then rotates sideways through the air to evade a passing attack.",,보통,길게 뻗는 공격을 공중 회전으로 피함; 시트 그림 확인
+gpt_T03:T03_072.jpg,nian41,280544,1787,1798,이동,,a person walks slowly with the torso upright and the arms lowered.,,보통,천천히 걷기; 시트 그림 확인
+gpt_T03:T03_073.jpg,yutaka_nakamura,220604,899,910,기타,,a person brings both hands together near the face and moves the elbows outward while swaying slightly.,,높음,손을 얼굴 앞에 모으는 춤; 시트 그림 확인
+gpt_T03:T03_074.jpg,nian41,2029588466376511962,1759,1770,이동,,a person lowers the arms and steps forward with the torso leaning slightly ahead.,,보통,팔을 내리며 걸음; 시트 그림 확인
+gpt_T03:T03_075.jpg,nian41,280556,1498,1509,피격,,"a person is knocked backward through the air, then lands on the feet and leans forward to regain balance.",,높음,충격으로 뒤로 날아가 착지; 시트 그림 확인
+gpt_T03:T03_076.jpg,yutaka_nakamura,196315,281,292,대기,,a person stands with the elbows bent and the hands gathered in front of the chest.,,낮음,"뒤쪽 인물은 손을 모은 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_077.jpg,nian41,1913231262086463573,1444,1455,피격,,"a person is kicked backward, then drops into a seated position with the knees bent.",,높음,얼굴을 차여 의자 쪽으로 날아감; 시트 그림 확인
+gpt_T03:T03_078.jpg,yutaka_nakamura,220930,495,506,대기,,"a person holds both arms extended forward, gripping another person near the upper chest.",,보통,"상대를 붙잡아 밀치는 자세, 애매; 시트 그림 확인; 판정수정:대기"
+gpt_T03:T03_079.jpg,nian41,280527,209,220,대기,,a person stands with one elbow bent and the hand held near the shoulder.,,보통,긴 칼을 어깨 쪽에 둔 자세 유지; 시트 그림 확인
+gpt_T03:T03_080.jpg,yutaka_nakamura,41027,66,77,이동,,"a person runs with an upright torso, swinging the bent arms and alternating the legs.",,높음,달리기; 시트 그림 확인
+gpt_T03:T03_081.jpg,nian41,280597,1003,1014,이동,,a person takes a small step with the arms down and the torso leaning slightly back.,,낮음,"천천히 걷기; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_082.jpg,yutaka_nakamura,115592,572,583,이동,,a person walks with the torso upright and the arms moving beside the body.,,보통,걷기; 시트 그림 확인
+gpt_T03:T03_083.jpg,nian41,216079,150,161,대기,,a person stands with the feet apart and both arms relaxed by the sides.,,보통,서 있는 자세 유지; 시트 그림 확인
+gpt_T03:T03_084.jpg,yutaka_nakamura,174308,136,147,대기,,a person holds both arms straight out at shoulder height with the torso upright.,,낮음,"팔을 벌린 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_085.jpg,yutaka_nakamura,115592,1740,1751,이동,,"a person runs with the arms swinging, then bends the knees and draws one hand toward the chest.",,보통,달리기; 시트 그림 확인
+gpt_T03:T03_086.jpg,nian41,280556,2452,2463,공격,무기,"a person steps into a wide stance and swings both arms across the body, then pivots with the hands lowered.",,낮음,"긴 손잡이 무기를 휘두름, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_087.jpg,yutaka_nakamura,203293,706,717,공격,무기,a person lunges forward in a low stance and extends an arm in a sweeping strike.,,보통,검을 뻗어 베고 지나감; 시트 그림 확인
+gpt_T03:T03_089.jpg,nian41,301142,1333,1344,공격,무기,a person holds the legs apart and extends an arm forward while turning the torso.,,낮음,"길게 늘어나는 무기를 휘두름, 첫 프레임 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_090.jpg,nian41,2029588466376511962,1272,1283,대기,,a person stands with the legs apart and one forearm angled outward below waist height.,,보통,무기를 내리고 자세 유지; 시트 그림 확인
+gpt_T03:T03_091.jpg,yutaka_nakamura,165486,136,147,이동,,a person dashes forward with the torso tilted low and the arms extended sideways.,,보통,빠르게 대시; 시트 그림 확인
+gpt_T03:T03_093.jpg,nian41,280556,1344,1355,막기·회피,,"a person raises an arm, jumps backward, then tucks the legs while rotating through the air to evade.",,높음,팔을 올리고 공중 회전해 피함; 시트 그림 확인
+gpt_T03:T03_094.jpg,nian41,1613887377965211649,525,536,점프·공중,,"a person rotates sideways through the air, then lands on the feet with the knees bent.",,보통,옆으로 공중 회전 후 착지; 시트 그림 확인
+gpt_T03:T03_095.jpg,nian41,1913481070839742689,457,468,공격,기타,a person rotates through the air with the arms spread and the legs extended apart.,,낮음,"입에서 붉은 빔을 쏘며 회전, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_096.jpg,nian41,280526,152,163,쓰러짐·누움,,a person remains on one knee with the other foot planted and both hands held low in front.,,보통,한쪽 무릎을 꿇은 자세 유지; 시트 그림 확인
+gpt_T03:T03_097.jpg,yutaka_nakamura,203289,172,183,대기,,a person holds one hand near the shoulder and turns the head while keeping the torso upright.,,낮음,"낫을 잡고 고개만 움직임; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_098.jpg,yutaka_nakamura,174685,591,602,대기,,a person stands with the elbows bent and both hands near the chest.,,낮음,"뒤쪽 인물은 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_099.jpg,yutaka_nakamura,306329,1786,1797,막기·회피,,a person curls the legs toward the torso and turns sideways through the air to evade.,,낮음,"공중에서 몸을 틀어 피함, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_100.jpg,yutaka_nakamura,111284,742,753,대기,,a person stands with the feet spread and both arms raised straight overhead.,,보통,팔을 머리 위에 둔 자세 유지; 시트 그림 확인
+gpt_T03:T03_101.jpg,yutaka_nakamura,271632,1256,1267,대기,,"a person holds a low, wide stance with one arm extended outward and the other bent near the head.",,낮음,"팔을 뻗은 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_102.jpg,yutaka_nakamura,196994,1190,1201,기타,,a person raises both arms overhead and alternately bends and extends the elbows while swaying.,,보통,양팔을 머리 위에서 움직이는 춤; 시트 그림 확인
+gpt_T03:T03_103.jpg,nian41,1613887197383622656,78,89,기타,,"a person brings both hands toward the chest, then opens the fingers and moves the hands outward.",,높음,말하며 가슴 앞에서 손짓; 시트 그림 확인
+gpt_T03:T03_104.jpg,nian41,280526,1341,1352,공격,무기,a person holds a deep lunge with one arm extended and the other drawn back beside the face.,,높음,활을 당겨 조준하는 공격 준비; 시트 그림 확인
+gpt_T03:T03_106.jpg,yutaka_nakamura,202164,661,672,대기,,a person stands upright with one bent forearm held in front of the chest.,,낮음,"벽 옆에서 서 있는 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_107.jpg,nian41,280544,371,382,대기,,a person stands with one elbow bent and the open hand raised near the head.,,보통,손을 든 자세 유지; 시트 그림 확인
+gpt_T03:T03_108.jpg,yutaka_nakamura,281196,1121,1132,이동,,a person runs forward with alternating bent-arm swings and lifted knees.,,높음,앞으로 달려옴; 시트 그림 확인
+gpt_T03:T03_109.jpg,nian41,1913231262086463573,1840,1851,이동,,a person walks slowly with both arms lowered and the torso upright.,,보통,천천히 걷기; 시트 그림 확인
+gpt_T03:T03_110.jpg,yutaka_nakamura,182469,306,317,대기,,a person stands with the arms hanging near the sides and turns the shoulders slightly.,,낮음,"붉은 공간에서 서 있음, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_112.jpg,nian41,1937399147772137658,657,668,대기,,a person holds one open hand extended forward and the other hand near the hip while leaning sideways.,,높음,손을 내민 자세 유지; 시트 그림 확인
+gpt_T03:T03_113.jpg,nian41,280526,879,890,대기,,a person holds a wide stance with one hand raised near the chest and the other lowered beside the hip.,,보통,검을 든 준비 자세 유지; 시트 그림 확인
+gpt_T03:T03_114.jpg,yutaka_nakamura,220930,926,937,대기,,a person stands with both elbows bent and the hands turned outward near waist height.,,보통,상대 팔 아래로 몸을 숙여 피함; 시트 그림 확인; 판정수정:대기
+gpt_T03:T03_115.jpg,yutaka_nakamura,250896,706,717,점프·공중,,a person remains airborne with the knees bent and both arms raised near the head.,,낮음,"용 머리 옆 공중에 떠 있음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_116.jpg,nian41,280527,1082,1093,막기·회피,,"a person arches backward, then turns sideways through the air with the legs spread to dodge.",,높음,붉은 공격선을 공중 회전으로 피함; 시트 그림 확인
+gpt_T03:T03_117.jpg,nian41,1913231262086463573,2184,2195,막기·회피,,"a person twists into a sideways flip, then lands in a wide stance with both arms extended to evade.",,높음,총격을 회전하며 피함; 시트 그림 확인
+gpt_T03:T03_118.jpg,yutaka_nakamura,203293,646,657,공격,무기,a person lunges low and extends one arm forward in a thrust while drawing the other arm back.,,보통,검을 앞으로 뻗어 찌름; 시트 그림 확인
+gpt_T03:T03_119.jpg,nian41,1913231262086463573,1066,1077,공격,펀치,"a person rushes forward, then turns the torso and swings a fist toward another person.",,높음,달려들어 주먹을 휘두름; 시트 그림 확인
+gpt_T03:T03_121.jpg,nian41,1613887197383622656,1330,1341,기타,,a person straightens from a forward bend and draws both hands inward near the chest.,,보통,"가슴의 붉은 힘을 꺼내는 준비 동작, 애매; 시트 그림 확인; 판정수정:기타"
+gpt_T03:T03_122.jpg,yutaka_nakamura,174685,430,441,대기,,a person holds a wide stance with both arms raised above shoulder level.,,낮음,"대상이 너무 작음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_123.jpg,yutaka_nakamura,220930,591,602,대기,,a person holds both arms forward and grips another person near the shoulders while leaning slightly ahead.,,보통,"상대를 붙잡아 밀치는 자세, 애매; 시트 그림 확인; 판정수정:대기"
+gpt_T03:T03_124.jpg,yutaka_nakamura,220604,899,910,기타,,a person sways slightly and brings both hands together in front of the face.,,보통,손을 얼굴 앞에 모으는 춤; 시트 그림 확인
+gpt_T03:T03_125.jpg,yutaka_nakamura,110865,674,685,대기,,a person holds an upright stance with the arms lowered beside the torso.,,낮음,"대상이 너무 작음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_126.jpg,yutaka_nakamura,271632,1262,1273,대기,,"a person holds a low, wide stance with one arm extended sideways and the other bent near the head.",,낮음,"팔을 뻗은 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_127.jpg,nian41,280535,142,153,대기,,a person stands upright with both arms resting beside the body.,,보통,등을 보인 인물은 자세 유지; 시트 그림 확인
+gpt_T03:T03_128.jpg,nian41,1913231262086463573,1832,1843,대기,,a person stands with the feet apart and the hands held low near the hips.,,낮음,"뒤쪽 인물은 서 있는 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_129.jpg,yutaka_nakamura,220930,1908,1919,기타,,a person bends one elbow and draws the hand across the upper torso while extending the other arm sideways.,,낮음,"짧은 칼을 휘두름, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:기타"
+gpt_T03:T03_130.jpg,nian41,280534,73,84,이동,,a person lowers the torso and leans forward with both arms drawn back to begin a dash.,,낮음,"몸을 숙여 돌진 시작, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_131.jpg,yutaka_nakamura,182904,471,482,대기,,a person stands upright with both arms down beside the body.,,낮음,"왼쪽 인물은 서 있는 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_132.jpg,yutaka_nakamura,218752,443,454,공격,킥,a person drives one leg outward in a high kick while keeping the other knee bent and the arms spread.,,보통,한쪽 발을 크게 뻗어 참; 시트 그림 확인
+gpt_T03:T03_133.jpg,yutaka_nakamura,12557,9,20,기타,,"a person bounces in a bent-knee stance, leaning forward and swinging the bent arms alternately.",,낮음,"몸을 흔들며 팔을 움직이는 춤; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_134.jpg,yutaka_nakamura,159418,1116,1127,대기,,a person sits with the knees bent and both forearms extended outward in front of the body.,,보통,좌석에 앉아 조종간을 잡은 자세 유지; 시트 그림 확인
+gpt_T03:T03_135.jpg,nian41,216085,615,626,공격,킥,"a person jumps with the knees bent, then swings a leg outward in a kick while turning the torso.",,높음,공중에서 다리를 휘둘러 상대를 참; 시트 그림 확인
+gpt_T03:T03_137.jpg,nian41,280534,492,503,점프·공중,,a person drops down through the air with the torso angled sideways and one arm reaching outward.,,낮음,"건물 사이 낙하, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_138.jpg,nian41,1613887197383622656,443,454,대기,,a person stands with the feet apart and both arms lowered beside the hips.,,보통,서 있는 자세 유지; 시트 그림 확인
+gpt_T03:T03_139.jpg,nian41,1937399147772137658,3049,3060,공격,기타,"a person brings both hands together at chest height, then pushes them forward while leaning ahead.",,보통,구체를 모아 앞으로 내밂; 시트 그림 확인
+gpt_T03:T03_140.jpg,yutaka_nakamura,213601,446,457,대기,,a person stands upright and turns the head and shoulders slightly to one side.,,보통,서서 고개를 돌림; 시트 그림 확인
+gpt_T03:T03_141.jpg,nian41,1913231262086463573,84,95,쓰러짐·누움,,"a person tips forward onto the hands with the legs overhead, then lowers into a crouch.",,높음,거꾸로 넘어져 바닥을 짚음; 시트 그림 확인
+gpt_T03:T03_142.jpg,nian41,2029588466376511962,1765,1776,이동,,a person lowers the arms and walks forward with a slight lean.,,보통,팔을 내리고 걸음; 시트 그림 확인
+gpt_T03:T03_144.jpg,yutaka_nakamura,196315,562,573,기타,,"a person bends an elbow to bring a hand near the shoulder, then turns the torso sideways.",,낮음,"칼을 들고 몸을 돌림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_145.jpg,nian41,280598,60,71,대기,,a person holds one bent forearm upright in front of the face with the other arm lowered.,,보통,팔을 올린 자세 유지; 시트 그림 확인
+gpt_T03:T03_146.jpg,nian41,1613887377965211649,1849,1860,막기·회피,,a person shifts the head and torso away from punches while raising the forearms to guard.,,높음,연속 주먹을 팔과 몸 움직임으로 피함; 시트 그림 확인
+gpt_T03:T03_147.jpg,yutaka_nakamura,281196,1097,1108,이동,,"a person runs forward, alternating bent-arm swings and lifting the knees.",,높음,앞으로 달려옴; 시트 그림 확인
+gpt_T03:T03_148.jpg,nian41,280521,577,588,쓰러짐·누움,,"a person tumbles onto the back and shoulders, then rolls with the legs swinging overhead.",,높음,바닥에서 넘어지고 구름; 시트 그림 확인
+gpt_T03:T03_149.jpg,yutaka_nakamura,236215,92,103,기타,,a person extends one arm sideways and brings the other around another person's shoulders while turning the torso.,,낮음,"옆 사람을 감싸며 팔을 펼침; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_150.jpg,yutaka_nakamura,174685,702,713,막기·회피,,"a person bends the knees, then jumps upward with the arms raised to evade a low attack.",,보통,지면의 공격 위로 뛰어 피함; 시트 그림 확인
+gpt_T03:T03_151.jpg,yutaka_nakamura,220604,911,922,기타,,"a person lowers the hands from the face, then extends both arms sideways while swaying.",,높음,양팔을 펼치는 춤; 시트 그림 확인
+gpt_T03:T03_152.jpg,nian41,301142,1765,1776,이동,,a person steps forward and lowers both arms beside the torso.,,보통,팔을 내리고 걸음; 시트 그림 확인
+gpt_T03:T03_153.jpg,yutaka_nakamura,239063,254,265,이동,,a person walks slowly with the arms down and the shoulders slightly tilted.,,보통,천천히 앞으로 걸음; 시트 그림 확인
+gpt_T03:T03_154.jpg,yutaka_nakamura,202164,186,197,점프·공중,,"a person rotates sideways through the air, then lands with the knees bent and straightens the torso.",,낮음,"공중 회전 후 착지, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_155.jpg,yutaka_nakamura,203289,338,349,공격,무기,a person lunges forward with the torso low and sweeps an extended arm toward another person.,,낮음,"갈고리 달린 팔을 뻗어 공격, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_156.jpg,nian41,280527,41,52,공격,무기,a person turns the shoulders and sweeps a lowered arm outward across the body.,,낮음,"검을 움직여 공격, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_158.jpg,yutaka_nakamura,196315,569,580,이동,,a person walks forward with the arms close to the torso and the elbows slightly bent.,,낮음,"뒤쪽 경찰이 앞으로 걸음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_159.jpg,yutaka_nakamura,220604,176,187,기타,,a person lifts a bent arm above the head while keeping the other hand across the torso.,,낮음,"팔을 올리고 손짓; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_160.jpg,yutaka_nakamura,239055,6,17,대기,,"a person stands with the feet apart, the knees relaxed, and both arms lowered.",,보통,왼쪽 인물은 서 있는 자세 유지; 시트 그림 확인
+gpt_T03:T03_162.jpg,nian41,280534,67,78,대기,,a person holds the torso leaning forward with both arms spread low beside the body.,,낮음,"팔을 벌린 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_164.jpg,nian41,280526,608,619,대기,,a person holds a wide stance with the torso leaning forward and one bent arm raised near the head.,,낮음,"몸을 기울인 준비 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_168.jpg,nian41,216085,1636,1647,대기,,a person stands with the feet apart and turns the torso slightly while holding the arms away from the sides.,,낮음,"폭발 앞에서 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_171.jpg,nian41,280526,176,187,쓰러짐·누움,,a person remains kneeling on one knee with the other foot planted and the torso leaning forward.,,보통,한쪽 무릎을 꿇은 자세 유지; 시트 그림 확인
+gpt_T03:T03_173.jpg,nian41,1913231262086463573,1921,1932,공격,기타,"a person steps forward and sweeps an extended arm across the body, then lowers into a wide stance.",,보통,팔을 변형해 크게 휘두름; 시트 그림 확인
+gpt_T03:T03_175.jpg,nian41,280544,2205,2216,막기·회피,,"a person raises the forearms to guard, then pivots the torso away while stepping sideways.",,보통,팔을 올려 막고 몸을 비틂; 시트 그림 확인
+gpt_T03:T03_176.jpg,yutaka_nakamura,263191,1601,1612,대기,,a person holds the torso arched backward with the knees bent and one forearm raised near the head.,,낮음,"몸을 뒤로 기울인 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_177.jpg,nian41,280598,6,17,대기,,a person holds one arm extended forward with the hand open and the fingers spread.,,높음,손가락을 뻗은 자세 유지; 시트 그림 확인
+gpt_T03:T03_178.jpg,yutaka_nakamura,281606,173,184,점프·공중,,a person extends the body horizontally through the air with the legs trailing and the elbows bent.,,낮음,"추진력을 내며 공중 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_179.jpg,nian41,280544,3068,3079,막기·회피,,"a person leans away from a punch, then brings a forearm across the face to block another strike.",,높음,주먹을 피하고 팔로 막음; 시트 그림 확인
+gpt_T03:T03_180.jpg,yutaka_nakamura,111284,59,70,대기,,a person stands with the feet apart and both arms held low beside the torso.,,보통,가운데 인물은 서 있는 자세 유지; 시트 그림 확인
+gpt_T03:T03_181.jpg,nian41,280523,41,52,대기,,a person holds a low crouch with the legs apart and the arms extended away from the torso.,,낮음,"뒤쪽 대상이 너무 작음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_182.jpg,nian41,1937399147772137658,3061,3072,공격,기타,a person pushes an open hand forward from the chest and straightens the elbow while keeping the legs apart.,,보통,손의 힘을 길게 뻗어 발사; 시트 그림 확인
+gpt_T03:T03_183.jpg,nian41,1913231262086463573,2896,2907,쓰러짐·누움,,"a person collapses backward, then rolls onto the back with the legs lifted and the arms spread.",,높음,잔해와 함께 바닥으로 넘어짐; 시트 그림 확인
+gpt_T03:T03_185.jpg,nian41,280544,1440,1451,피격,,"a person is kicked backward, then drops into a seated position with the legs drawn up.",,높음,얼굴을 차여 뒤로 날아감; 시트 그림 확인
+gpt_T03:T03_186.jpg,nian41,301142,1894,1905,대기,,a person stands with both arms lowered and the shoulders slightly turned.,,보통,서 있는 자세 유지; 시트 그림 확인
+gpt_T03:T03_187.jpg,nian41,1913231262086463573,2116,2127,막기·회피,,a person twists the torso away from incoming strikes and shifts the feet while keeping the arms raised.,,보통,접시와 주먹을 몸을 비틀어 피함; 시트 그림 확인
+gpt_T03:T03_189.jpg,yutaka_nakamura,209790,6,17,대기,,a person holds the torso bent forward with the arms hanging down and the feet apart.,,낮음,"얼굴 클로즈업, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_190.jpg,yutaka_nakamura,224077,68,79,피격,,a person recoils backward with both elbows bent and the hands raised beside the shoulders.,,보통,힘에 맞아 상체가 뒤로 꺾임; 시트 그림 확인
+gpt_T03:T03_191.jpg,yutaka_nakamura,174685,579,590,대기,,a person stands with the hands raised near the upper chest and the elbows bent outward.,,낮음,"뒤쪽 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_193.jpg,yutaka_nakamura,196315,88,99,대기,,a person stands with the knees slightly bent and both hands held low beside the torso.,,보통,뒤쪽 남성이 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_194.jpg,yutaka_nakamura,196315,550,561,대기,,a person holds one hand near the shoulder and turns the head and torso slightly sideways.,,보통,칼을 어깨에 얹은 자세 유지; 시트 그림 확인
+gpt_T03:T03_195.jpg,nian41,301142,722,733,막기·회피,,"a person rolls over the shoulders with the legs overhead, then plants a hand and rises into a crouch to evade.",,높음,바닥으로 굴러 공격을 피함; 시트 그림 확인
+gpt_T03:T03_196.jpg,yutaka_nakamura,203294,24,35,대기,,a person holds a low crouch with the torso bent forward and one arm reaching outward.,,낮음,"낮은 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_197.jpg,yutaka_nakamura,272715,1223,1234,대기,,a person stands upright with the shoulders turned and both arms down.,,보통,서서 상대를 바라봄; 시트 그림 확인
+gpt_T03:T03_198.jpg,yutaka_nakamura,203293,658,669,막기·회피,,"a person bends the knees and lowers the torso, then darts forward in a low stance to evade.",,보통,몸을 낮추고 빠르게 사라짐; 시트 그림 확인
+gpt_T03:T03_199.jpg,nian41,280527,543,554,공격,기타,a person turns the torso and sweeps a bent arm across the front of the body.,,낮음,"팔을 움직여 붉은 힘을 펼침, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_200.jpg,nian41,1913481070839742689,1003,1014,이동,,a person walks slowly with both arms lowered and the torso leaning slightly back.,,낮음,"천천히 걸어감; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_201.jpg,nian41,1913481070839742689,28,39,쓰러짐·누움,,"a person tumbles sideways through the air, then collapses onto the back with the legs spread.",,높음,공중에서 굴러 바닥에 떨어짐; 시트 그림 확인
+gpt_T03:T03_203.jpg,nian41,1913231262086463573,4164,4175,대기,,a person holds a wide stance with the knees bent and both hands lowered beside the hips.,,보통,다리를 벌리고 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_204.jpg,yutaka_nakamura,202164,113,124,대기,,a person stands upright with one forearm bent near the upper torso.,,낮음,"복도 끝 대상이 너무 작음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_205.jpg,nian41,1913231262086463573,331,342,공격,기타,"a person raises an open hand near the head, then extends the forearm outward while stepping into a wider stance.",,보통,"손의 힘을 모아 펼침, 애매; 시트 그림 확인"
+gpt_T03:T03_206.jpg,nian41,280527,233,244,대기,,a person stands with one hand held beside the shoulder and the other arm lowered.,,보통,무기를 어깨에 댄 자세 유지; 시트 그림 확인
+gpt_T03:T03_207.jpg,yutaka_nakamura,306329,529,540,쓰러짐·누움,,a person lies sprawled low with the limbs extended away from the torso.,,낮음,"오른쪽 끝 대상이 너무 작고 잘림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:쓰러짐·누움"
+gpt_T03:T03_208.jpg,nian41,1937399147772137658,2385,2396,대기,,a person holds a staggered stance with one arm raised overhead and the other bent in front of the chest.,,보통,팔을 든 자세 유지; 시트 그림 확인
+gpt_T03:T03_209.jpg,yutaka_nakamura,110193,40,51,기타,,"a person raises both hands near the face, then extends one arm outward with the palm open.",,낮음,"손을 들어 몸짓함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_210.jpg,yutaka_nakamura,196315,323,334,대기,,a person holds both hands near the chest with the elbows bent outward.,,보통,양손을 든 자세 유지; 시트 그림 확인
+gpt_T03:T03_211.jpg,yutaka_nakamura,174315,174,185,쓰러짐·누움,,a person reclines with the knees bent and lifts the upper torso slightly.,,낮음,"누운 채 상체를 약간 듦; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_212.jpg,yutaka_nakamura,290900,727,738,공격,킥,a person extends a leg straight outward in a horizontal kick with the torso leaning back.,,보통,발을 뻗어 상대를 참; 시트 그림 확인
+gpt_T03:T03_213.jpg,nian41,301158,215,226,막기·회피,,"a person leans the torso away from a swinging attack, then straightens slightly with the hands raised.",,보통,기울여 망치 공격을 피함; 시트 그림 확인
+gpt_T03:T03_214.jpg,nian41,280544,878,889,피격,,"a person recoils from a kick with the torso folding, then arches back as a knee strikes the body.",,낮음,"상대의 발과 무릎에 맞음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_217.jpg,yutaka_nakamura,212631,211,222,대기,,a person stands upright with both arms lowered close to the sides.,,낮음,"방벽 안 대상이 가려져 동작 식별 어려움; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_218.jpg,yutaka_nakamura,250896,1451,1462,피격,,a person is held around the torso and swung sideways with the bent legs lifting away from the ground.,,낮음,"괴물에게 붙잡혀 몸이 휘둘림, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_219.jpg,yutaka_nakamura,226853,473,484,점프·공중,,a person rises through the air in a crouch with the knees bent and the arms extended for balance.,,낮음,"보드를 탄 채 파도 위 공중에 뜸; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_220.jpg,nian41,1913231262086463573,3088,3099,공격,펀치,"a person turns the torso and thrusts a fist forward, then pulls the arm back near the head.",,높음,파란 인물이 주먹을 연속으로 뻗음; 시트 그림 확인
+gpt_T03:T03_221.jpg,yutaka_nakamura,250896,1120,1131,공격,무기,"a person swings an arm outward, then flips forward with the legs passing overhead.",,낮음,"괴물의 몸 위에서 무기를 휘두름; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_222.jpg,nian41,1613887197383622656,1342,1353,기타,,a person grips with both hands near the chest and pulls the hands apart with the elbows flaring outward.,,보통,옷을 양손으로 잡아 펼침; 시트 그림 확인
+gpt_T03:T03_224.jpg,yutaka_nakamura,263191,1655,1666,대기,,a person holds the torso arched backward with the knees bent and one arm raised near the head.,,낮음,"상체를 뒤로 젖힌 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_225.jpg,nian41,1937399147772137658,663,674,대기,,a person holds one open hand forward and the other hand near the hip while leaning sideways.,,보통,"손을 뻗고 힘을 모음, 애매; 시트 그림 확인; 판정수정:대기"
+gpt_T03:T03_226.jpg,nian41,301142,1296,1307,대기,,a person stands with the feet apart and one forearm extended slightly outward below waist height.,,보통,한팔을 뻗은 자세 유지; 시트 그림 확인
+gpt_T03:T03_227.jpg,nian41,216075,68,79,기타,,a person lifts a bent arm near the shoulder while turning the torso slightly.,,낮음,"날아오는 불꽃 사이에서 몸을 기울임, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:기타"
+gpt_T03:T03_228.jpg,nian41,280544,323,334,기타,,a person lifts a hand over the head and straightens the elbow while keeping the other arm down.,,보통,"손에 힘을 모아 들어 올림, 애매; 시트 그림 확인; 판정수정:기타"
+gpt_T03:T03_229.jpg,yutaka_nakamura,110193,79,90,공격,무기,"a person lifts both hands near the head, then swings the forearms across the front of the torso.",,낮음,"검을 맞대며 휘두름, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_230.jpg,yutaka_nakamura,290900,209,220,기타,,a person leans forward and draws both fists close to the torso with the elbows bent.,,낮음,"주먹을 당기며 공격 준비; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:기타"
+gpt_T03:T03_231.jpg,nian41,216085,1187,1198,막기·회피,,"a person steps sideways and turns away from incoming objects, then pushes off with the knees bent to evade.",,보통,몸을 기울여 날아오는 잔해를 피함; 시트 그림 확인
+gpt_T03:T03_232.jpg,yutaka_nakamura,203294,30,41,대기,,a person holds a low crouch with the torso bent forward and an arm extended sideways.,,낮음,"낮은 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_233.jpg,yutaka_nakamura,250896,1463,1474,공격,무기,a person thrusts both hands upward while leaning back with the knees bent.,,낮음,"괴물의 몸에 긴 무기를 찌름; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_234.jpg,yutaka_nakamura,210343,299,310,대기,,a person stands upright with both arms resting close to the sides.,,낮음,"앞쪽 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_235.jpg,yutaka_nakamura,272715,187,198,대기,,a person holds a forward-leaning stance with the knees slightly bent and the arms low.,,낮음,"오른쪽 인물이 몸을 숙인 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_236.jpg,yutaka_nakamura,239750,313,324,이동,,"a person walks forward, then straightens the torso with both arms lowered.",,보통,거대 로봇 옆에서 걸어감; 시트 그림 확인
+gpt_T03:T03_238.jpg,yutaka_nakamura,110865,698,709,대기,,a person stands upright with the arms held close to the body.,,낮음,"먼 거리 대상이 너무 작음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_239.jpg,yutaka_nakamura,174685,573,584,대기,,a person stands with the shoulders level and the hands resting near the sides.,,낮음,"왼쪽 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_241.jpg,yutaka_nakamura,227508,1502,1513,대기,,a person holds an upright stance with the feet apart and both arms lowered.,,낮음,"먼 거리 대상이 너무 작음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_242.jpg,nian41,280544,1793,1804,대기,,a person stands with the feet apart and both hands held low in front of the hips.,,낮음,"뒤쪽 대상이 너무 작고 가려짐; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_243.jpg,yutaka_nakamura,203293,652,663,막기·회피,,a person lowers into a crouch and shifts the torso forward to evade an attack.,,보통,몸을 낮춰 빠르게 공격을 피함; 시트 그림 확인
+gpt_T03:T03_244.jpg,yutaka_nakamura,165486,124,135,점프·공중,,a person glides through the air with the torso tilted forward and both arms extended sideways.,,보통,몸을 뻗은 채 공중 이동; 시트 그림 확인
+gpt_T03:T03_245.jpg,yutaka_nakamura,108301,113,124,점프·공중,,"a person jumps upward, then curls the knees and rotates forward through the air.",,보통,상대 위로 뛰며 공중에서 회전; 시트 그림 확인
+gpt_T03:T03_246.jpg,yutaka_nakamura,212631,211,222,이동,,a person runs forward with the torso leaning ahead and the bent arms swinging alternately.,,높음,달리며 앞으로 이동; 시트 그림 확인
+gpt_T03:T03_247.jpg,nian41,280534,97,108,이동,,a person runs with the upper body pitched forward and the elbows pumping beside the torso.,,낮음,"상체를 숙이고 달림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_248.jpg,yutaka_nakamura,306329,452,463,이동,,a person runs with the torso leaning forward and one arm extended behind the body.,,보통,검을 든 채 지붕 위를 달림; 시트 그림 확인
+gpt_T03:T03_249.jpg,nian41,280544,106,117,쓰러짐·누움,,a person kneels on one knee with one hand planted on the ground and the other arm extended outward.,,높음,한쪽 무릎을 바닥에 댄 자세; 시트 그림 확인
+gpt_T03:T03_250.jpg,nian41,280523,1854,1865,이동,,a person walks slowly with the arms down and the torso upright.,,보통,천천히 걸어감; 시트 그림 확인
+gpt_T03:T03_251.jpg,nian41,1613887197383622656,258,269,기타,,a person bends both elbows and lifts the forearms outward from the sides toward waist height.,,높음,팔꿈치를 굽혀 양팔을 들어 올림; 시트 그림 확인
+gpt_T03:T03_252.jpg,nian41,280544,1401,1412,공격,펀치,"a person lowers the body, then lunges forward and extends an arm toward another person.",,보통,몸을 낮춰 돌진하며 주먹을 뻗음; 시트 그림 확인
+gpt_T03:T03_253.jpg,yutaka_nakamura,196315,556,567,대기,,a person holds one bent arm beside the shoulder and turns the head sideways.,,보통,검을 어깨에 얹고 고개를 돌림; 시트 그림 확인
+gpt_T03:T03_254.jpg,nian41,280521,757,768,대기,,a person holds a forward-leaning stance with one elbow bent and the other arm hanging outward.,,낮음,"몸을 기울인 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_255.jpg,nian41,1613887377965211649,1149,1160,막기·회피,,"a person dives low and rolls over the shoulders, then returns to a crouch to evade.",,보통,잔해 사이에서 바닥으로 구름; 시트 그림 확인
+gpt_T03:T03_256.jpg,nian41,216084,369,380,기타,,a person pulls both hands apart across the chest while keeping the elbows bent outward.,,보통,옷을 양손으로 잡아 펼침; 시트 그림 확인
+gpt_T03:T03_257.jpg,yutaka_nakamura,280456,392,403,막기·회피,,a person slides low with one knee tucked under the torso and the other leg extended behind to evade.,,낮음,"폭발 앞에서 몸을 낮춰 미끄러짐; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_258.jpg,nian41,280536,424,435,기타,,a person raises the torso from a forward bend while keeping the arms low.,,낮음,"숙인 몸을 일으킴; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_260.jpg,yutaka_nakamura,231052,596,607,쓰러짐·누움,,a person lies face down with the arms extended in front and the torso resting low.,,낮음,"왼쪽 바닥에 누운 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_261.jpg,nian41,1913231262086463573,1864,1875,공격,기타,"a person spreads both arms, then turns the torso and swings an open hand forward.",,보통,"상대를 향해 팔을 크게 뻗음, 애매; 시트 그림 확인"
+gpt_T03:T03_262.jpg,yutaka_nakamura,231052,578,589,쓰러짐·누움,,a person remains prone with the arms forward and the body stretched low.,,낮음,"왼쪽 바닥에 누운 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_263.jpg,nian41,280527,126,137,대기,,a person holds an upright stance with the feet apart and the forearms bent near the chest.,,낮음,"왼쪽 대상이 너무 작음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T03:T03_264.jpg,nian41,301142,219,230,막기·회피,,"a person tilts the torso sideways away from a swinging attack, then straightens slightly with the hands raised.",,높음,몸을 기울여 망치를 피함; 시트 그림 확인
+gpt_T03:T03_265.jpg,nian41,280530,202,213,점프·공중,,"a person drops down headfirst with the legs overhead, then extends both arms sideways while turning in the air.",,보통,공중에서 거꾸로 회전하며 내려옴; 시트 그림 확인
+gpt_T03:T03_266.jpg,nian41,280526,536,547,공격,무기,a person raises a bent arm above the head and leans back slightly with the knees bent.,,보통,칼을 머리 위로 들어 공격 준비; 시트 그림 확인
+gpt_T03:T03_267.jpg,yutaka_nakamura,292678,36,47,이동,,"a person steps forward, then turns the torso sideways and lowers an arm beside the body.",,보통,전화 부스 안으로 들어감; 시트 그림 확인
+gpt_T03:T03_268.jpg,yutaka_nakamura,239063,695,706,피격,,"a person is pushed backward with the torso arched, both hands raised, and the knees bent.",,낮음,"물줄기에 밀려 몸이 뒤로 젖혀짐; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_269.jpg,yutaka_nakamura,182469,920,931,대기,,a person stands with the feet apart and one bent hand held near the head.,,보통,서 있는 자세 유지; 시트 그림 확인
+gpt_T03:T03_270.jpg,nian41,280556,915,926,쓰러짐·누움,,"a person rotates backward through the air, then collapses onto the ground with the limbs extended.",,보통,공중에서 뒤집힌 뒤 바닥에 떨어짐; 시트 그림 확인
+gpt_T03:T03_271.jpg,yutaka_nakamura,115592,1117,1128,대기,,a person balances on one leg with the other knee raised and both arms lifted near the head.,,보통,한쪽 다리를 든 자세 유지; 시트 그림 확인
+gpt_T03:T03_272.jpg,yutaka_nakamura,182469,1082,1093,대기,,a person stands upright with both arms lowered close to the body.,,보통,작은 인물이 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_273.jpg,yutaka_nakamura,218752,449,460,공격,킥,a person extends a leg in a high kick with the other knee bent and the arms spread for balance.,,보통,"공중에서 다리를 뻗어 참, 애매; 시트 그림 확인"
+gpt_T03:T03_276.jpg,nian41,280597,298,309,막기·회피,,"a person ducks forward, then rolls onto the back and turns into a crouch to evade.",,보통,날아오는 힘을 피해 바닥으로 구름; 시트 그림 확인
+gpt_T03:T03_277.jpg,yutaka_nakamura,196994,1066,1077,기타,,"a person lowers a raised arm toward the head, then brings both hands inward near the face.",,보통,든 팔을 내리고 손짓함; 시트 그림 확인
+gpt_T03:T03_278.jpg,nian41,216084,292,303,막기·회피,,a person twists sideways through the air with the knees bent and one forearm raised to evade.,,낮음,"날아오는 공격 사이로 몸을 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_279.jpg,yutaka_nakamura,239068,295,306,대기,,a person stands upright with the arms down and turns the head slightly sideways.,,보통,선 채 고개를 약간 돌림; 시트 그림 확인
+gpt_T03:T03_280.jpg,nian41,280556,143,154,쓰러짐·누움,,a person kneels on one knee with a hand on the ground and the torso leaning forward.,,낮음,"컷 섞임·마지막 얼굴 클로즈업; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:쓰러짐·누움"
+gpt_T03:T03_281.jpg,nian41,1943223713455051062,1752,1763,쓰러짐·누움,,"a person drops headfirst, then tucks into a forward roll and crouches on the ground.",,보통,뒤집혀 바닥으로 떨어지고 구름; 시트 그림 확인
+gpt_T03:T03_282.jpg,yutaka_nakamura,203293,724,735,이동,,a person drives forward in a low lunge with one knee bent and the other leg trailing.,,보통,몸을 낮추고 빠르게 이동; 시트 그림 확인
+gpt_T03:T03_283.jpg,yutaka_nakamura,306329,222,233,공격,무기,"a person swings a bent arm across the torso, then pivots and extends the arm outward.",,보통,검을 휘두르며 몸을 돌림; 시트 그림 확인
+gpt_T03:T03_284.jpg,yutaka_nakamura,182469,896,907,대기,,a person stands upright with the feet apart and both arms down.,,보통,뒤쪽 인물이 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_285.jpg,yutaka_nakamura,203294,36,47,대기,,a person holds a low crouch with the torso bent forward and one arm extended sideways.,,낮음,"낮은 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_286.jpg,yutaka_nakamura,220930,112,123,막기·회피,,a person raises the forearms in front of the upper body and steps backward to guard.,,낮음,"팔을 들고 뒤로 물러남, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_287.jpg,nian41,280521,513,524,공격,펀치,a person leans forward with the knees bent and pushes both arms toward another person's torso.,,낮음,"상대에게 팔을 뻗어 밀어붙임, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_288.jpg,nian41,280525,132,143,공격,기타,"a person holds an arm straight forward with the fingers extended, then lowers the hand slightly.",,보통,"손가락을 겨누어 힘을 발사, 애매; 시트 그림 확인"
+gpt_T03:T03_289.jpg,nian41,280535,211,222,대기,,a person remains upright with the shoulders level and the arms lowered beside the body.,,낮음,"등을 보인 자세 유지, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_290.jpg,yutaka_nakamura,272649,353,364,점프·공중,,a person hangs in the air with both arms raised and the knees bent behind the body.,,낮음,"상대를 붙잡은 채 공중에 떠 있음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_291.jpg,yutaka_nakamura,239750,6,17,막기·회피,,a person bends the knees and lowers the torso while bringing the forearms near the head to evade.,,보통,총탄을 피해 몸을 숙임; 시트 그림 확인
+gpt_T03:T03_292.jpg,nian41,280526,978,989,공격,무기,"a person raises a bent arm beside the head, then turns the torso and swings the arm outward.",,낮음,"칼을 크게 휘둘러 불꽃 궤적을 만듦; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_293.jpg,yutaka_nakamura,239063,697,708,피격,,"a person is pushed backward with both arms raised, then collapses onto the back with the knees bent.",,낮음,"물줄기에 밀려 뒤로 넘어감; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_294.jpg,yutaka_nakamura,196994,1194,1205,기타,,a person sways the torso and moves both bent arms above the head.,,보통,양팔을 머리 위로 들고 흔듦; 시트 그림 확인
+gpt_T03:T03_295.jpg,yutaka_nakamura,108301,77,88,막기·회피,,"a person ducks under a kick, then shifts sideways with the torso low and a forearm raised to evade another strike.",,높음,연속 공격을 몸을 숙여 피함; 시트 그림 확인
+gpt_T03:T03_296.jpg,nian41,280521,751,762,대기,,a person holds a forward lean with one arm bent and the other hanging outward.,,낮음,"몸을 기울인 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_297.jpg,nian41,216079,114,125,대기,,a person stands with the feet apart and both hands resting beside the hips.,,보통,다리를 벌리고 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_298.jpg,yutaka_nakamura,196315,575,586,이동,,a person walks forward with both elbows bent near the torso.,,낮음,"뒤쪽 제복 인물이 걸어옴; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_299.jpg,yutaka_nakamura,231052,542,553,쓰러짐·누움,,a person lies face down with the arms stretched forward and the torso low.,,낮음,"왼쪽 바닥에 누운 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_300.jpg,nian41,1913231262086463573,4176,4187,대기,,"a person holds a wide, bent-knee stance with both hands lowered beside the body.",,보통,다리를 벌리고 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_301.jpg,yutaka_nakamura,272649,347,358,점프·공중,,a person remains airborne with both arms overhead and the knees bent behind the torso.,,낮음,"상대를 붙잡은 채 공중에 떠 있음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_302.jpg,nian41,280536,430,441,기타,,a person straightens the torso slightly from a forward bend while keeping the arms lowered.,,낮음,"숙인 몸을 조금 일으킴; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_303.jpg,yutaka_nakamura,182469,1058,1069,대기,,a person stands upright with both arms close to the sides.,,보통,작은 인물이 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_304.jpg,yutaka_nakamura,250896,533,544,이동,,"a person runs with the torso pitched forward, alternating the legs and swinging the arms.",,낮음,"가파른 벽면을 달림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_305.jpg,nian41,1937399147772137658,3253,3264,대기,,a person stands upright with the legs apart and the arms resting beside the body.,,보통,3D 인물이 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_306.jpg,nian41,280556,2038,2049,막기·회피,,a person steps backward and leans away from punches with the forearms raised near the head.,,높음,뒤로 물러나며 상대 주먹을 피함; 시트 그림 확인
+gpt_T03:T03_307.jpg,nian41,280598,36,47,공격,기타,"a person extends an open hand forward, then turns the torso and draws the arm inward.",,높음,손가락을 겨누고 힘을 발사; 시트 그림 확인
+gpt_T03:T03_308.jpg,yutaka_nakamura,306329,342,353,공격,무기,a person advances in a low stance and swings an arm across the body while pivoting.,,낮음,"검을 휘두르며 상대에게 접근; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_309.jpg,nian41,2029588466376511962,1067,1078,대기,,a person holds a wide stance with the arms raised in front of the upper body.,,보통,뒤쪽 파란 인물이 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_310.jpg,nian41,280534,79,90,막기·회피,,"a person quickly ducks the head and upper torso forward, then lifts slightly to evade.",,낮음,"머리와 상체를 빠르게 숙임, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_311.jpg,yutaka_nakamura,205409,92,103,점프·공중,,a person moves horizontally through the air with the torso stretched forward and the legs trailing.,,낮음,"몸을 뻗은 채 공중에 떠 있음, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_312.jpg,nian41,280544,1431,1442,공격,킥,"a person bends down onto the hands, then swings a leg overhead in a rotating kick.",,높음,물구나무 회전으로 상대를 참; 시트 그림 확인
+gpt_T03:T03_313.jpg,nian41,280527,688,699,공격,기타,a person holds a wide lunge and thrusts an arm forward at shoulder height.,,보통,"팔을 뻗어 상대를 향해 힘을 내보냄, 애매; 시트 그림 확인"
+gpt_T03:T03_314.jpg,nian41,216085,115,126,점프·공중,,a person supports the body on one hand and swings the bent legs sideways through the air.,,보통,가로등을 짚고 공중에서 몸을 돌림; 시트 그림 확인
+gpt_T03:T03_315.jpg,nian41,280525,30,41,대기,,a person stands with the feet apart and both hands lowered beside the hips.,,보통,칼을 든 채 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_317.jpg,yutaka_nakamura,115592,1367,1378,이동,,a person sits leaning forward with the knees bent and both arms reaching in front.,,보통,오토바이를 타고 주행; 시트 그림 확인
+gpt_T03:T03_318.jpg,nian41,280523,394,405,점프·공중,,"a person rotates forward through the air, tucking the knees before extending a leg outward.",,보통,공중에서 몸을 회전; 시트 그림 확인
+gpt_T03:T03_319.jpg,yutaka_nakamura,210214,231,242,대기,,a person stands with the knees slightly bent and both arms held down away from the torso.,,보통,서 있는 자세 유지; 시트 그림 확인
+gpt_T03:T03_320.jpg,yutaka_nakamura,182469,1016,1027,대기,,a person stands upright with the arms lowered close to the body.,,보통,뒤쪽 인물이 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_321.jpg,nian41,2029588466376511962,1846,1857,대기,,a person stands with the shoulders slightly turned and both hands lowered beside the hips.,,보통,한손을 내리고 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_323.jpg,yutaka_nakamura,182469,336,347,대기,,a person stands with the legs apart and both arms down near the sides.,,낮음,"어두운 인물이 선 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_326.jpg,yutaka_nakamura,269366,459,470,기타,,"a person holds both hands together near the abdomen, then opens the arms and brings the hands forward.",,보통,가슴 앞 손을 모았다가 펼침; 시트 그림 확인
+gpt_T03:T03_327.jpg,yutaka_nakamura,165486,926,937,피격,,a person holds the torso arched backward with both arms spread and the head tilted back.,,낮음,"몸이 꿰뚫린 채 뒤로 젖혀짐, 애매, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_328.jpg,nian41,280556,2472,2483,막기·회피,,"a person crouches, then jumps sideways with the knees raised to evade a passing attack.",,보통,날아오는 가구를 뛰어 피함; 시트 그림 확인
+gpt_T03:T03_329.jpg,nian41,280556,4176,4187,대기,,a person holds a wide stance with the knees bent and the arms lowered away from the sides.,,보통,다리를 벌린 자세 유지; 시트 그림 확인
+gpt_T03:T03_330.jpg,yutaka_nakamura,41061,35,46,쓰러짐·누움,,"a person tumbles backward through the air, then collapses onto the ground with the legs bent.",,보통,공중에서 뒤집혀 바닥에 떨어짐; 시트 그림 확인
+gpt_T03:T03_331.jpg,nian41,1913231262086463573,349,360,대기,,a person stands with one elbow bent and the open hand raised beside the head.,,보통,"손을 들어 힘을 모음, 애매; 시트 그림 확인; 판정수정:대기"
+gpt_T03:T03_332.jpg,yutaka_nakamura,41027,6,17,대기,,a person stands upright with the arms lowered and held slightly away from the torso.,,낮음,"탑 앞 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_333.jpg,yutaka_nakamura,306329,1780,1791,막기·회피,,a person tucks the head and rolls over the shoulders with the legs overhead to evade.,,낮음,"지붕 위에서 몸을 굴려 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_334.jpg,yutaka_nakamura,231052,446,457,쓰러짐·누움,,a person lies face down with the torso low and both arms extended forward.,,낮음,"왼쪽 바닥에 누운 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_335.jpg,nian41,280535,154,165,대기,,a person stands upright with the shoulders level and both arms lowered.,,보통,등을 보인 자세 유지; 시트 그림 확인
+gpt_T03:T03_336.jpg,nian41,1613887197383622656,528,539,대기,,a person stands with the feet apart and both hands relaxed beside the hips.,,보통,다리를 벌리고 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_337.jpg,yutaka_nakamura,271643,287,298,기타,,"a person extends a finger from a closed hand, then draws the bent arm inward across the torso.",,낮음,"손가락을 펴서 가리킴; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_338.jpg,nian41,280527,167,178,대기,,a person holds one arm straight forward with the hand open and the fingers curled apart.,,보통,"팔을 뻗어 붉은 힘을 유지, 애매; 시트 그림 확인; 판정수정:대기"
+gpt_T03:T03_339.jpg,yutaka_nakamura,290849,371,382,대기,,a person stands with one arm raised above the head and the other lowered near the hip.,,낮음,"화면 왼쪽에서 팔을 든 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_340.jpg,yutaka_nakamura,220930,1926,1937,막기·회피,,"a person raises both bent forearms near shoulder height, then draws the hands inward to guard.",,보통,"양팔을 들어 방어 자세를 잡음, 애매; 시트 그림 확인"
+gpt_T03:T03_341.jpg,yutaka_nakamura,115592,1135,1146,기타,,a person lifts one knee while balancing on the other leg and raises both arms near the head.,,보통,한발을 들고 양팔을 올림; 시트 그림 확인
+gpt_T03:T03_342.jpg,nian41,280527,498,509,기타,,"a person leans sideways and reaches an open hand outward, then closes the hand and bends the elbow.",,보통,"날아온 무기를 잡아 공격 준비, 애매; 시트 그림 확인; 판정수정:기타"
+gpt_T03:T03_343.jpg,yutaka_nakamura,220604,1121,1132,기타,,"a person sways and moves a bent arm above the head, then brings the hand toward the face.",,보통,팔을 머리 위로 들어 흔듦; 시트 그림 확인
+gpt_T03:T03_344.jpg,nian41,280534,85,96,대기,,a person holds the head and upper torso bent forward with both arms drawn back.,,낮음,"상체를 숙인 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_345.jpg,nian41,280544,3971,3982,막기·회피,,"a person sidesteps with the torso twisting and the arms raised, then ducks forward to evade.",,높음,날아오는 잔해 사이를 피함; 시트 그림 확인
+gpt_T03:T03_346.jpg,nian41,2029588466376511962,475,486,막기·회피,,"a person rolls across the back with the legs lifted, then plants the hands and returns to a crouch to evade.",,보통,날아오는 물체를 피해 바닥으로 구름; 시트 그림 확인
+gpt_T03:T03_347.jpg,yutaka_nakamura,239055,24,35,대기,,a person stands with the torso upright and both arms lowered beside the body.,,보통,작은 인물이 선 자세 유지; 시트 그림 확인
+gpt_T03:T03_349.jpg,yutaka_nakamura,290894,28,39,점프·공중,,"a person bends the knees, then pushes off sideways with one arm raised and the other extended for balance.",,보통,몸을 낮춘 뒤 옆으로 뛰어오름; 시트 그림 확인
+gpt_T03:T03_350.jpg,nian41,1937399147772137658,1949,1960,공격,킥,a person turns sideways through the air and extends one leg in a sweeping kick with the arms spread.,,보통,공중에서 빛나는 발을 휘두름; 시트 그림 확인
+gpt_T03:T03_351.jpg,nian41,280598,30,41,대기,,a person holds one arm extended forward with the fingers pointing outward and the other arm lowered.,,보통,손가락을 겨누어 힘을 발사; 시트 그림 확인; 판정수정:대기
+gpt_T03:T03_352.jpg,yutaka_nakamura,226853,479,490,점프·공중,,a person moves through the air in a crouch with one arm raised and the knees bent.,,낮음,"보드를 탄 채 파도 위 공중에 뜸; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T03:T03_353.jpg,nian41,280833,90,101,공격,기타,a person holds a wide lunge and extends an arm forward while turning the torso.,,보통,"팔을 뻗어 상대를 향해 힘을 내보냄, 애매; 시트 그림 확인"
+gpt_T03:T03_354.jpg,yutaka_nakamura,196315,281,292,대기,,a person holds both hands near the chest with the elbows bent outward.,,보통,뒤쪽 제복 인물이 자세 유지; 시트 그림 확인
+gpt_T03:T03_355.jpg,yutaka_nakamura,306329,3481,3492,공격,무기,"a person lunges forward and sweeps an arm across the body, then pivots into a wider stance.",,낮음,"검을 휘두르며 상대에게 접근; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_001.jpg,yutaka_nakamura,218752,93,104,이동,,a person runs with the torso pitched forward and the bent arms pumping beside the chest.,,보통,상체를 숙여 달림; 시트 그림 확인
+gpt_T04:T04_002.jpg,nian41,1913231262086463573,956,967,기타,,"a person pushes up from the ground with both hands, then plants the feet and rises to stand.",,높음,바닥을 짚고 일어남; 시트 그림 확인
+gpt_T04:T04_003.jpg,yutaka_nakamura,205025,402,413,점프·공중,,"a person curls forward in the air, then turns upward with the knees tucked toward the torso.",,낮음,"불꽃과 함께 몸을 돌려 솟아오름, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_004.jpg,yutaka_nakamura,196994,957,968,기타,,a person turns the torso sideways while moving the bent hands near the chest.,,보통,손을 움직이며 몸을 돌림; 시트 그림 확인
+gpt_T04:T04_005.jpg,nian41,1913231262086463573,2944,2955,막기·회피,,"a person twists sideways and bends the knees, then leans back with the arms raised to evade.",,보통,날아오는 물체를 몸을 틀어 피함; 시트 그림 확인
+gpt_T04:T04_006.jpg,yutaka_nakamura,115592,1698,1709,이동,,"a person runs with alternating leg strides and bent-arm swings, leaning the upper body forward.",,보통,달리며 앞으로 이동; 시트 그림 확인
+gpt_T04:T04_007.jpg,yutaka_nakamura,208545,369,380,대기,,a person holds one fist raised in front of the chest with the other arm bent beside the torso.,,낮음,"주먹을 든 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_008.jpg,yutaka_nakamura,273677,140,151,점프·공중,,a person rotates backward through the air with both knees bent and the arms extended apart.,,보통,뒤집힌 채 공중에서 회전; 시트 그림 확인
+gpt_T04:T04_009.jpg,yutaka_nakamura,220930,220,231,대기,,a person holds a wide stance with both forearms raised near the face.,,낮음,"오른쪽 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_010.jpg,yutaka_nakamura,220613,401,412,피격,,a person is kicked through the air with the torso bent sideways and the legs trailing.,,낮음,"큰 발에 맞아 몸이 날아감, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_011.jpg,nian41,1913589758644908348,403,414,피격,,a person is pulled sideways through the air and rotates with the arms spread and the knees bending.,,보통,붉은 줄에 휘둘려 공중에서 회전; 시트 그림 확인
+gpt_T04:T04_013.jpg,yutaka_nakamura,110865,821,832,점프·공중,,a person rotates forward from a crouch and drops down with the legs extending overhead.,,낮음,"바위에서 뒤집히며 내려옴, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_014.jpg,nian41,280544,2282,2293,막기·회피,,"a person tucks the legs and rotates sideways through the air to evade, then extends the body downward.",,보통,날아오는 물체 사이를 공중 회전으로 피함; 시트 그림 확인
+gpt_T04:T04_015.jpg,yutaka_nakamura,280456,1054,1065,점프·공중,,a person moves upward through the air and curls the knees toward the torso.,,낮음,"전기 궤적을 따라 공중 이동, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_016.jpg,nian41,287139,1220,1231,막기·회피,,"a person twists sideways through the air with the knees bent, then extends the legs downward to evade.",,보통,공중에서 날아오는 물체를 피함; 시트 그림 확인
+gpt_T04:T04_017.jpg,nian41,280556,1945,1956,막기·회피,,"a person raises a forearm near the head and hops sideways, then twists the torso away to evade.",,높음,팔을 들고 옆으로 몸을 피함; 시트 그림 확인
+gpt_T04:T04_019.jpg,nian41,287263,815,826,점프·공중,,a person hangs with both arms extended overhead and the legs trailing behind the torso.,,낮음,"날개 달린 대상에 매달려 공중 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_020.jpg,nian41,1937399147772137658,972,983,공격,던지기,"a person draws one arm back beside the head, then swings it forward while stepping into a lunge.",,보통,손에 든 병을 뒤로 당겨 던질 준비; 시트 그림 확인
+gpt_T04:T04_021.jpg,nian41,1613887377965211649,2035,2046,피격,,"a person is knocked backward through the air, then tucks the knees and rotates head over heels.",,낮음,"상대와 부딪힌 뒤 뒤집혀 날아감, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_022.jpg,nian41,280556,1146,1157,막기·회피,,"a person leans away from a punch, then raises a bent forearm across the face to block.",,높음,팔을 들고 몸을 비틀어 주먹을 피함; 시트 그림 확인
+gpt_T04:T04_023.jpg,nian41,280544,1931,1942,막기·회피,,"a person pivots and leans sideways with the arms raised, then bends the knees to evade.",,높음,몸을 돌리며 옆으로 피함; 시트 그림 확인
+gpt_T04:T04_024.jpg,nian41,280527,792,803,이동,,a person runs forward with one arm extended ahead and the other bent beside the body.,,보통,칼을 든 채 달림; 시트 그림 확인
+gpt_T04:T04_025.jpg,nian41,216085,386,397,공격,펀치,"a person leans away from a punch, then turns the torso and thrusts a fist forward in reply.",,높음,상대 주먹을 피하고 반격; 시트 그림 확인
+gpt_T04:T04_026.jpg,nian41,1613887197383622656,1152,1163,막기·회피,,"a person leans backward and raises a knee, then springs sideways with the arms lifted to evade.",,보통,몸을 기울여 날아오는 잔해를 피함; 시트 그림 확인
+gpt_T04:T04_027.jpg,yutaka_nakamura,220604,1301,1312,기타,,a person lowers both outstretched arms from shoulder height to the sides.,,보통,펼친 양팔을 내림; 시트 그림 확인
+gpt_T04:T04_028.jpg,yutaka_nakamura,220930,567,578,대기,,"a person holds both arms forward, gripping another person near the upper chest while leaning ahead.",,보통,상대 옷깃을 잡은 자세 유지; 시트 그림 확인
+gpt_T04:T04_029.jpg,nian41,301142,547,558,점프·공중,,"a person jumps upward, then rotates sideways with the knees bent and the arms extended apart.",,보통,위로 뛰어올라 공중에서 몸을 돌림; 시트 그림 확인
+gpt_T04:T04_030.jpg,yutaka_nakamura,203289,551,562,공격,무기,a person steps around another person and swings the forearms across the upper body.,,낮음,"검을 맞대며 상대 주변으로 움직임, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_031.jpg,nian41,280544,1866,1877,공격,기타,"a person crosses both forearms near the face, then extends one open hand forward while turning the torso.",,높음,"팔을 교차했다가 앞으로 뻗음, 애매; 시트 그림 확인"
+gpt_T04:T04_032.jpg,yutaka_nakamura,111284,1893,1904,대기,,a person stands upright with the arms resting close to the sides.,,낮음,"중앙 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_033.jpg,nian41,216085,316,327,막기·회피,,"a person arches backward, then ducks forward and turns sideways to evade an approaching strike.",,보통,날아오는 잔해와 상대 팔을 피함; 시트 그림 확인
+gpt_T04:T04_034.jpg,yutaka_nakamura,110822,303,314,이동,,a person runs with the torso bent low and the arms pumping beside the body.,,낮음,"상체를 숙여 달림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_035.jpg,yutaka_nakamura,231052,129,140,대기,,"a person holds a low, wide-kneed posture with both forearms folded across the front of the torso.",,낮음,"다리를 벌린 낮은 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_036.jpg,nian41,280556,2214,2225,막기·회피,,a person steps backward and twists the torso away from kicks with the arms raised to guard.,,보통,상대의 연속 발차기를 피함; 시트 그림 확인
+gpt_T04:T04_037.jpg,yutaka_nakamura,205408,12,23,공격,무기,a person raises both arms overhead and sweeps them outward while turning the torso.,,낮음,"양손의 무기를 위로 돌려 휘두름; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_040.jpg,nian41,280527,640,651,피격,,"a person is pulled sideways through the air, then rotates with the knees bent and both arms spread.",,보통,붉은 줄에 끌려 공중에서 휘둘림; 시트 그림 확인
+gpt_T04:T04_041.jpg,nian41,280556,2518,2529,막기·회피,,a person shifts backward and turns the torso away from punches while keeping the forearms raised.,,보통,상대의 연속 주먹을 몸을 틀어 피함; 시트 그림 확인
+gpt_T04:T04_042.jpg,yutaka_nakamura,182469,747,758,대기,,a person stands upright with the hands held close to the front of the torso.,,낮음,"중앙 검은 옷 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_045.jpg,yutaka_nakamura,210214,100,111,막기·회피,,"a person leans the torso backward away from a high kick, then straightens with the arms extended for balance.",,보통,상체를 젖혀 상대 발차기를 피함; 시트 그림 확인
+gpt_T04:T04_046.jpg,nian41,280523,188,199,막기·회피,,"a person ducks low, then jumps upward with both arms raised and the legs spread to evade a kick.",,높음,상대의 발차기를 뛰어 피함; 시트 그림 확인
+gpt_T04:T04_047.jpg,yutaka_nakamura,150800,150,161,점프·공중,,a person moves upward through the air with both arms raised overhead and the knees bent.,,보통,양팔을 올린 채 공중에서 이동; 시트 그림 확인
+gpt_T04:T04_048.jpg,nian41,1943223713455051062,1114,1125,막기·회피,,"a person twists through the air with the knees tucked, then extends both arms sideways to evade.",,낮음,"공중에서 날아오는 물체를 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_050.jpg,nian41,280597,495,506,공격,킥,"a person hops sideways, then raises a leg and extends it outward in a high kick.",,낮음,"컷 섞임·마지막 얼굴 클로즈업; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:공격"
+gpt_T04:T04_051.jpg,nian41,280556,1220,1231,막기·회피,,a person raises a bent forearm and brings both arms across the torso to block a kick.,,높음,팔로 상대 발차기를 받아냄; 시트 그림 확인
+gpt_T04:T04_052.jpg,nian41,1943223713455051062,989,1000,점프·공중,,a person hangs with the arms extended overhead and the legs trailing behind the torso.,,낮음,"날개 달린 대상에 매달려 공중 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_053.jpg,nian41,280544,136,147,쓰러짐·누움,,a person kneels on one knee with one hand planted on the ground and the other arm extended outward.,,높음,한쪽 무릎을 바닥에 댄 자세 유지; 시트 그림 확인
+gpt_T04:T04_054.jpg,nian41,1913231262086463573,2711,2722,공격,펀치,"a person thrusts a fist forward while turning the torso, then draws both hands back near the face.",,높음,파란 인물이 연속으로 주먹을 뻗음; 시트 그림 확인
+gpt_T04:T04_057.jpg,nian41,1913231262086463573,4045,4056,막기·회피,,"a person jumps with one arm raised, then twists sideways with the knees bent to evade.",,보통,날아오는 공격을 뛰고 몸을 틀어 피함; 시트 그림 확인
+gpt_T04:T04_058.jpg,nian41,280523,1214,1225,막기·회피,,"a person hops upward with the knees bent, then lands and darts sideways with the torso low to evade.",,보통,빛나는 공격 사이로 뛰어 피함; 시트 그림 확인
+gpt_T04:T04_059.jpg,nian41,280523,1466,1477,공격,무기,"a person raises a bent arm beside the head, then pivots and sweeps the arm outward.",,보통,칼을 들어 돌려 휘두름; 시트 그림 확인
+gpt_T04:T04_060.jpg,yutaka_nakamura,224077,363,374,대기,,a person stands upright with the knees relaxed and both hands held low in front of the hips.,,보통,오른쪽 인물이 선 자세 유지; 시트 그림 확인
+gpt_T04:T04_061.jpg,nian41,287263,2464,2475,피격,,a person is pushed sideways and rotates with the torso arched and the legs extending outward.,,낮음,"회전하는 공격에 밀려 몸이 돌아감, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_063.jpg,nian41,216085,541,552,막기·회피,,"a person tucks into a sideways roll, then plants a hand and rises into a crouch to evade.",,보통,날아오는 잔해 사이를 굴러 피함; 시트 그림 확인
+gpt_T04:T04_064.jpg,yutaka_nakamura,269366,117,128,대기,,a person stands upright with the shoulders level and both arms hanging beside the body.,,보통,왼쪽 인물이 선 자세 유지; 시트 그림 확인
+gpt_T04:T04_065.jpg,yutaka_nakamura,306329,707,718,막기·회피,,"a person tips upside down with the legs overhead, then curls and turns sideways to evade a strike.",,낮음,"몸을 거꾸로 돌려 상대 검을 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_066.jpg,yutaka_nakamura,202164,721,732,이동,,"a person bends the torso forward, then drives sideways with an arm extended behind the body.",,낮음,"오른쪽 인물이 몸을 기울여 빠르게 이동, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_067.jpg,yutaka_nakamura,271642,647,658,피격,,"a person recoils with both arms spread, then bends the torso forward and lowers the arms.",,보통,벽에 부딪혀 피가 튀며 몸이 꺾임; 시트 그림 확인
+gpt_T04:T04_070.jpg,nian41,280544,3002,3013,막기·회피,,"a person ducks under a kick, then turns the torso sideways and raises the forearms to evade a punch.",,보통,발차기와 주먹을 몸을 낮춰 피함; 시트 그림 확인
+gpt_T04:T04_072.jpg,nian41,216085,411,422,공격,펀치,"a person steps forward and drives a fist toward another person's torso, then retracts the arm while turning.",,높음,상대 얼굴과 몸에 주먹을 뻗음; 시트 그림 확인
+gpt_T04:T04_073.jpg,nian41,280833,24,35,공격,기타,"a person braces the legs apart and pulls an arm across the torso, then sweeps the hand downward.",,보통,붉은 줄로 상대를 휘둘러 내리침; 시트 그림 확인
+gpt_T04:T04_074.jpg,yutaka_nakamura,115592,985,996,이동,,a person runs quickly with the torso leaning forward and the bent arms pumping alternately.,,보통,상체를 숙여 빠르게 달림; 시트 그림 확인
+gpt_T04:T04_075.jpg,nian41,280527,941,952,공격,펀치,a person drives into a deep lunge and extends a fist toward another person's torso.,,보통,몸을 낮춰 상대에게 주먹을 뻗음; 시트 그림 확인
+gpt_T04:T04_076.jpg,nian41,1937399147772137658,1034,1045,공격,펀치,"a person raises a fist above the head, then bends forward and swings the arm downward.",,보통,주먹을 머리 위로 들어 내리칠 준비; 시트 그림 확인
+gpt_T04:T04_077.jpg,yutaka_nakamura,273677,256,267,점프·공중,,"a person rotates sideways through the air, drawing the knees inward before extending the body upward.",,낮음,"잔해 사이로 공중에서 회전; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_078.jpg,nian41,1913231262086463573,1318,1329,공격,킥,"a person pivots on a planted leg and swings the other leg outward in a high kick, then bends it back.",,높음,파란 인물이 다리를 돌려 참; 시트 그림 확인
+gpt_T04:T04_079.jpg,nian41,280523,238,249,피격,,"a person ducks forward, then recoils as a strike reaches the head.",,낮음,"피하다가 마지막에 얼굴을 맞음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_080.jpg,yutaka_nakamura,165486,832,843,대기,,a person stands upright with the feet apart and both arms close to the torso.,,낮음,"오른쪽 검은 옷 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_081.jpg,nian41,1913231262086463573,1165,1176,막기·회피,,"a person brings a forearm across the face to block a punch, then leans away with both hands raised.",,높음,팔로 상대 주먹을 막고 피함; 시트 그림 확인
+gpt_T04:T04_082.jpg,nian41,280556,1319,1330,막기·회피,,"a person turns the torso and bends the knees, then ducks below an approaching kick.",,높음,뒤쪽 상대의 발차기를 몸을 낮춰 피함; 시트 그림 확인
+gpt_T04:T04_083.jpg,yutaka_nakamura,210214,477,488,대기,,a person stands with the knees slightly bent and both arms lowered away from the sides.,,보통,서 있는 자세 유지; 시트 그림 확인
+gpt_T04:T04_084.jpg,nian41,280544,2074,2085,막기·회피,,"a person pushes a reaching arm aside with a raised hand, then steps backward with the forearms near the face.",,보통,상대 팔을 쳐내며 뒤로 피함; 시트 그림 확인
+gpt_T04:T04_085.jpg,yutaka_nakamura,229832,234,245,기타,,"a person holds both forearms near the chest, then opens the arms sideways with the legs apart.",,낮음,"양팔을 벌려 기운을 펼침, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_086.jpg,nian41,1613887377965211649,1268,1279,막기·회피,,"a person steps backward and leans away from punches, then bends the knees to avoid a raised kick.",,높음,상대 주먹과 발차기를 뒤로 피함; 시트 그림 확인
+gpt_T04:T04_087.jpg,nian41,216085,185,196,피격,,"a person recoils backward as a forearm strikes the head, lifting a hand while the torso tilts away.",,보통,상대 팔에 얼굴을 맞고 뒤로 꺾임; 시트 그림 확인
+gpt_T04:T04_088.jpg,yutaka_nakamura,220930,154,165,대기,,a person holds a staggered stance with both forearms raised in front of the face.,,낮음,"왼쪽 인물이 팔을 든 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_089.jpg,yutaka_nakamura,203289,715,726,대기,,"a person holds a deep, wide lunge with one arm raised and the other extended sideways.",,낮음,"다리를 벌리고 팔을 든 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_091.jpg,yutaka_nakamura,306713,250,261,피격,,"a person jerks sideways with the torso twisting and the knees bending, then straightens slightly.",,낮음,"검은 줄에 맞아 몸이 휘청임; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_092.jpg,yutaka_nakamura,220604,1086,1097,기타,,"a person lowers an arm from above the head, then raises a bent hand toward the face.",,보통,팔을 내리고 손을 얼굴 쪽으로 움직임; 시트 그림 확인
+gpt_T04:T04_093.jpg,nian41,280556,2124,2135,공격,무기,"a person steps into a lunge and sweeps an arm across the body, then raises the hand overhead.",,보통,"손의 날붙이를 휘두르며 전진, 애매; 시트 그림 확인"
+gpt_T04:T04_094.jpg,yutaka_nakamura,203287,416,427,점프·공중,,a person jumps upward with the knees bent and both arms spread for balance.,,낮음,"높이 뛰어올라 공중에서 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_095.jpg,nian41,1913231262086463573,1529,1540,대기,,a person holds a wide stance and shifts the torso slightly while keeping both forearms raised.,,보통,파란 인물이 선 자세 유지; 시트 그림 확인
+gpt_T04:T04_096.jpg,yutaka_nakamura,231052,87,98,대기,,a person stands with the feet apart and both hands gathered near the chest.,,낮음,"왼쪽 작은 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_097.jpg,nian41,1937399147772137658,1004,1015,기타,,"a person turns the torso and draws a bent arm upward, then holds the fist above the head.",,보통,몸을 돌려 주먹을 위로 당김; 시트 그림 확인; 판정수정:기타
+gpt_T04:T04_098.jpg,nian41,1613887377965211649,1319,1330,공격,킥,"a person pivots and swings a leg outward in a wide kick, then lowers the foot and crouches.",,보통,몸을 돌려 다리를 크게 휘두름; 시트 그림 확인
+gpt_T04:T04_099.jpg,nian41,287268,370,381,피격,,a person recoils backward through the air with the elbows raised and the torso arching away.,,낮음,"붉은 공격에 맞아 뒤로 날아감; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_100.jpg,yutaka_nakamura,205408,65,76,공격,무기,a person bends the knees and turns the torso while sweeping a raised arm around the head.,,낮음,"높은 발판에서 검을 돌려 휘두름, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_101.jpg,nian41,1937399147772137658,3021,3032,대기,,a person holds a wide stance with the torso upright and both arms lowered away from the sides.,,낮음,"컷 섞임·마지막 3D 장면으로 변경; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:대기"
+gpt_T04:T04_102.jpg,yutaka_nakamura,263191,1685,1696,대기,,a person holds the torso arched backward with one bent arm raised near the head.,,낮음,"뒤로 젖힌 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_104.jpg,nian41,216085,1157,1168,막기·회피,,"a person rolls sideways over the back, then plants a hand and draws the knees under the torso to evade.",,보통,날아오는 잔해를 피해 바닥으로 구름; 시트 그림 확인
+gpt_T04:T04_105.jpg,yutaka_nakamura,203289,461,472,공격,무기,"a person raises both arms, then turns the torso and sweeps the forearms outward across the body.",,보통,긴 무기를 돌려 휘두름; 시트 그림 확인
+gpt_T04:T04_106.jpg,nian41,1913589758644908348,487,498,공격,기타,a person braces the feet apart and draws an extended arm inward toward the chest.,,보통,"팔을 뻗어 붉은 힘으로 상대를 당김, 애매; 시트 그림 확인"
+gpt_T04:T04_107.jpg,nian41,216085,1753,1764,막기·회피,,"a person leans backward away from a punch, then sidesteps with the hands raised near the face.",,높음,상대 주먹을 뒤로 움직이며 피함; 시트 그림 확인
+gpt_T04:T04_109.jpg,yutaka_nakamura,229832,489,500,이동,,a person runs forward with both elbows bent and the knees lifting alternately.,,보통,앞으로 빠르게 달림; 시트 그림 확인
+gpt_T04:T04_110.jpg,nian41,1913231262086463573,3700,3711,피격,,"a person jerks backward from an impact, turning the shoulders and spreading the arms.",,보통,몸에 날아온 공격이 맞으며 피가 튐; 시트 그림 확인
+gpt_T04:T04_111.jpg,nian41,280556,2986,2997,공격,무기,a person steps forward and sweeps an extended arm sideways across the torso.,,보통,"팔을 뻗어 날붙이를 휘두름, 애매; 시트 그림 확인"
+gpt_T04:T04_112.jpg,yutaka_nakamura,220930,196,207,대기,,a person holds a staggered stance with both forearms raised in front of the head.,,낮음,"왼쪽 인물이 팔을 든 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_114.jpg,nian41,280544,1189,1200,공격,펀치,"a person turns the torso and extends a fist toward another person's head, then draws the arm back.",,높음,붉은 인물이 주먹을 뻗어 상대를 침; 시트 그림 확인
+gpt_T04:T04_115.jpg,yutaka_nakamura,220930,2158,2169,피격,,a person is knocked backward with the torso tilted and the legs lifting in front of the body.,,낮음,"상대 주먹에 밀려 뒤로 날아감, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_116.jpg,yutaka_nakamura,212631,688,699,공격,기타,a person lunges forward and extends a bent arm in front of the upper torso.,,낮음,"손앞의 불덩이를 상대 쪽으로 내밂, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_117.jpg,nian41,287139,2436,2447,막기·회피,,a person turns the torso and brings both forearms in front of the body to brace against an incoming strike.,,낮음,"회전하며 다가오는 공격을 받아냄, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_118.jpg,yutaka_nakamura,205406,226,237,대기,,a person holds a wide stance with both hands raised near the head.,,낮음,"불빛 위에서 다리를 벌린 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_119.jpg,nian41,1937399147772137658,2625,2636,대기,,a person stands with the legs apart and both arms bent away from the torso.,,낮음,"돌 사이에서 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_120.jpg,nian41,280525,278,289,대기,,a person holds a deep crouch with the knees spread and the hands near the upper torso.,,낮음,"불길 안에서 낮은 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_121.jpg,nian41,1913231262086463573,2468,2479,막기·회피,,"a person ducks with the hands near the head, then sidesteps and crouches lower to evade.",,보통,가구와 상대 공격을 몸을 낮춰 피함; 시트 그림 확인
+gpt_T04:T04_122.jpg,yutaka_nakamura,174685,69,80,공격,무기,a person steps forward and swings both forearms across the body in a broad horizontal strike.,,보통,검을 휘둘러 상대를 벰; 시트 그림 확인
+gpt_T04:T04_124.jpg,nian41,280597,134,145,막기·회피,,"a person springs upward, then tucks the knees and rotates backward through the air to evade.",,보통,빠르게 다가오는 상대를 공중 회전으로 피함; 시트 그림 확인
+gpt_T04:T04_125.jpg,nian41,216085,831,842,막기·회피,,a person crosses both forearms in front of the face to block a punch while bracing the legs apart.,,높음,팔을 교차해 상대 주먹을 막음; 시트 그림 확인
+gpt_T04:T04_126.jpg,nian41,280556,1544,1555,막기·회피,,"a person twists sideways and shifts the feet, then raises an arm near the head to evade.",,보통,날아오는 물체를 몸을 틀어 피함; 시트 그림 확인
+gpt_T04:T04_127.jpg,yutaka_nakamura,165486,338,349,공격,무기,a person turns on a planted leg and sweeps both outstretched arms around the torso.,,낮음,"양손의 칼날을 크게 돌려 휘두름; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_128.jpg,nian41,280556,2178,2189,막기·회피,,"a person flips sideways with the legs lifting, then lands and runs forward to evade.",,보통,"상대 공격을 몸을 뒤집어 피함, 애매; 시트 그림 확인"
+gpt_T04:T04_129.jpg,nian41,1613887377965211649,1465,1476,막기·회피,,"a person raises the forearms to block a high kick, then bends sideways with an arm across the torso.",,높음,상대의 연속 발차기를 팔로 막음; 시트 그림 확인
+gpt_T04:T04_131.jpg,nian41,216085,157,168,막기·회피,,"a person ducks beneath a punch, then pivots away with the torso low and the forearms raised.",,높음,상대 주먹을 몸을 숙여 피함; 시트 그림 확인
+gpt_T04:T04_132.jpg,nian41,280597,702,713,피격,,a person is pulled upward and sideways through the air with the torso twisting and the legs trailing.,,보통,붉은 줄에 끌려 공중으로 날아감; 시트 그림 확인
+gpt_T04:T04_133.jpg,nian41,280830,194,205,피격,,a person recoils backward with the arms spreading and one forearm swinging above the head.,,낮음,"목 부위가 잘리며 몸이 젖혀짐; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_134.jpg,nian41,1913589758644908348,920,931,피격,,"a person is dragged sideways, then rolls across the back with the knees drawn toward the torso.",,보통,붉은 줄에 끌려 바닥에서 구름; 시트 그림 확인
+gpt_T04:T04_135.jpg,yutaka_nakamura,281605,661,672,막기·회피,,a person curls the knees toward the torso in the air and holds both forearms in front of the face to guard.,,보통,"공중에서 몸을 웅크리고 공격을 받아냄, 애매; 시트 그림 확인"
+gpt_T04:T04_136.jpg,nian41,287139,49,60,기타,,a person lowers the arms from above the head and spreads them sideways while keeping the torso upright.,,낮음,"컷 섞임·마지막 얼굴 클로즈업; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:기타"
+gpt_T04:T04_139.jpg,nian41,1613887197383622656,1271,1282,막기·회피,,a person twists through the air and draws up a knee while extending the arms for balance to evade.,,낮음,"날아오는 잔해와 빛을 공중에서 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_141.jpg,yutaka_nakamura,281605,685,696,막기·회피,,a person holds a tucked posture in the air with both knees bent and the forearms shielding the face.,,보통,"공중에서 몸을 웅크려 공격을 받아냄, 애매; 시트 그림 확인"
+gpt_T04:T04_142.jpg,nian41,280544,2699,2710,막기·회피,,a person shifts the torso away from punches and brings each forearm across the head to block.,,높음,팔로 상대의 연속 주먹을 막음; 시트 그림 확인
+gpt_T04:T04_143.jpg,yutaka_nakamura,295424,855,866,기타,,a person lifts both bent arms outward with the hands open while leaning the torso back slightly.,,낮음,"양팔을 들어 몸짓함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_144.jpg,yutaka_nakamura,306329,1701,1712,막기·회피,,"a person lowers the torso and bends the knees, then tilts sideways beneath a passing kick.",,낮음,"상대 발차기를 몸을 낮춰 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_145.jpg,nian41,301158,1681,1692,이동,,"a person runs with the torso leaning forward, alternating long strides and bent-arm swings.",,높음,잔해 사이를 빠르게 달림; 시트 그림 확인
+gpt_T04:T04_146.jpg,yutaka_nakamura,220604,1366,1377,기타,,"a person opens a hand near the face, then lowers the forearm and turns the palm upward.",,보통,손바닥을 펴서 손짓함; 시트 그림 확인
+gpt_T04:T04_147.jpg,nian41,280597,602,613,공격,펀치,"a person steps into a wide lunge and drives a fist forward, then draws the arm back toward the chest.",,높음,주먹을 길게 뻗어 공격; 시트 그림 확인
+gpt_T04:T04_148.jpg,nian41,1913481070839742689,635,646,공격,기타,a person braces the legs apart and extends an arm forward while leaning the upper body sideways.,,낮음,"팔을 뻗어 공격을 내보냄, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_149.jpg,yutaka_nakamura,271632,722,733,쓰러짐·누움,,a person sits low with the knees bent apart and the forearms held in front of the torso.,,낮음,"바닥에 앉은 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_150.jpg,nian41,1913231262086463573,1343,1354,막기·회피,,"a person raises a forearm to block a strike, then turns and brings both arms up against a kick.",,보통,팔로 상대 주먹과 발차기를 막음; 시트 그림 확인
+gpt_T04:T04_151.jpg,nian41,280527,1051,1062,피격,,"a person is pulled down onto the ground, then tumbles across the back with the legs lifting.",,보통,붉은 줄에 끌려 바닥에 부딪힘; 시트 그림 확인
+gpt_T04:T04_152.jpg,nian41,1937399147772137658,439,450,공격,기타,"a person raises both arms straight overhead, then bends the knees and lowers the hands outward.",,보통,"양팔을 들어 돌을 띄우고 내림, 애매; 시트 그림 확인"
+gpt_T04:T04_153.jpg,yutaka_nakamura,109047,8,19,점프·공중,,a person rises through the air and draws the knees up while holding the arms away from the torso.,,보통,몸을 웅크리며 공중에 떠오름; 시트 그림 확인
+gpt_T04:T04_154.jpg,nian41,280833,502,513,피격,,a person is pulled into a sideways rotation with the legs swinging overhead and the arms extended.,,보통,붉은 줄에 휘둘려 몸이 회전; 시트 그림 확인
+gpt_T04:T04_156.jpg,nian41,280544,293,304,공격,기타,a person lifts an open hand from waist height toward the face and steps into a wider stance.,,높음,"빛나는 손을 앞으로 들어 힘을 모음, 애매; 시트 그림 확인"
+gpt_T04:T04_158.jpg,nian41,280544,2966,2977,막기·회피,,"a person ducks low with the torso folded forward, then rises slightly with both forearms raised to evade.",,보통,날아오는 가구를 몸을 낮춰 피함; 시트 그림 확인
+gpt_T04:T04_159.jpg,nian41,1613887377965211649,614,625,피격,,"a person recoils from a high kick, then is kicked backward with the torso arched and both feet lifting.",,높음,연속 발차기에 맞아 뒤로 날아감; 시트 그림 확인
+gpt_T04:T04_161.jpg,yutaka_nakamura,76453,353,364,막기·회피,,a person leans backward and bends the knees while raising the forearms near the face to evade.,,낮음,"날아오는 긴 무기를 몸을 기울여 피함, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_162.jpg,yutaka_nakamura,301777,472,483,막기·회피,,a person bends forward and steps backward with the arms held low away from the torso.,,낮음,"오른쪽 인물이 몸을 숙여 물러남; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_164.jpg,yutaka_nakamura,250896,569,580,이동,,"a person runs with the torso pitched forward, alternating the legs and swinging the bent arms.",,낮음,"가파른 벽면을 달림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_165.jpg,nian41,216085,226,237,공격,킥,a person pivots sideways and extends a leg toward another person in a kick.,,보통,상대 쪽으로 몸을 돌려 발을 뻗음; 시트 그림 확인
+gpt_T04:T04_166.jpg,yutaka_nakamura,226853,509,520,점프·공중,,a person rotates sideways through the air with the body extended and one arm reaching outward.,,낮음,"보드와 함께 공중에서 회전; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_167.jpg,nian41,1613887377965211649,1441,1452,공격,펀치,"a person swings a leg forward in a kick, then steps into a lunge and extends a fist.",,높음,발차기 뒤 주먹을 길게 뻗음; 시트 그림 확인
+gpt_T04:T04_168.jpg,yutaka_nakamura,295424,223,234,이동,,a person runs forward with the upper body leaning ahead and the arms swinging beside the torso.,,낮음,"왼쪽 인물이 앞으로 달림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_169.jpg,nian41,1534075160545878017,342,353,공격,기타,"a person holds a wide, bent-knee stance and extends both arms outward in front of the torso.",,낮음,"팔을 뻗어 빛나는 물체를 펼침, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_170.jpg,yutaka_nakamura,271634,30,41,막기·회피,,"a person ducks forward, then jumps sideways with the knees bent to evade a sweeping attack.",,낮음,"큰 팔의 공격을 숙이고 뛰어 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_172.jpg,nian41,2029588466376511962,1416,1427,막기·회피,,a person tips onto the hands and swings the legs overhead in a cartwheel to evade a horizontal attack.,,보통,몸을 뒤집어 긴 무기를 피함; 시트 그림 확인
+gpt_T04:T04_173.jpg,nian41,1913231262086463573,871,882,공격,킥,"a person turns upside down in the air, then extends a leg outward in a high kick.",,낮음,"공중에서 몸을 돌려 발을 뻗음, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_174.jpg,nian41,287263,1242,1253,막기·회피,,"a person moves sideways in a crouch, then pushes upward with the torso leaning forward to evade.",,보통,물 위에서 날아오는 물체를 피함; 시트 그림 확인
+gpt_T04:T04_175.jpg,nian41,216085,863,874,막기·회피,,"a person leans away from a punch, then recoils forward as another fist reaches the head.",,높음,연속 주먹을 피하다 마지막에 피격; 시트 그림 확인
+gpt_T04:T04_176.jpg,nian41,2029588466376511962,717,728,공격,기타,a person steps into a wide stance and thrusts an open hand outward at shoulder height.,,보통,팔을 뻗어 물체를 상대 쪽으로 날림; 시트 그림 확인
+gpt_T04:T04_177.jpg,nian41,280556,3419,3430,막기·회피,,"a person hops sideways with the arms spread, then twists away and raises a forearm near the face to evade.",,낮음,"상대 주먹을 뛰고 몸을 틀어 피함, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_178.jpg,yutaka_nakamura,309107,242,253,점프·공중,,a person moves through the air in a tucked crouch with one arm extended behind and the other bent near the head.,,보통,몸을 웅크린 채 공중 이동; 시트 그림 확인
+gpt_T04:T04_179.jpg,nian41,280544,1545,1556,공격,던지기,"a person swings an arm outward, then lowers into a crouch and pushes off the ground.",,보통,가구를 상대 쪽으로 날려 보냄; 시트 그림 확인
+gpt_T04:T04_180.jpg,nian41,1937399147772137658,1201,1212,이동,,a person runs forward with the torso low and the bent arms swinging beside the body.,,낮음,"상체를 숙여 앞으로 달림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_181.jpg,yutaka_nakamura,196994,1422,1433,기타,,"a person bends an elbow and raises a fist above shoulder height, then extends the arm upward.",,보통,말하며 주먹 쥔 팔을 올림; 시트 그림 확인
+gpt_T04:T04_182.jpg,nian41,301142,6,17,공격,펀치,"a person steps forward and extends a fist, then retracts the arm while turning the shoulders.",,높음,파란 인물이 상대에게 주먹을 뻗음; 시트 그림 확인
+gpt_T04:T04_184.jpg,nian41,301158,665,676,막기·회피,,"a person twists sideways with the arms raised, then jumps with the knees bent and leans away to evade.",,보통,날아오는 물체를 몸을 틀고 숙여 피함; 시트 그림 확인
+gpt_T04:T04_185.jpg,nian41,280597,396,407,피격,,a person hunches the shoulders and twists the torso after an impact with the forearms raised.,,낮음,"몸에 공격이 맞아 움츠러듦, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_188.jpg,nian41,280544,2145,2156,막기·회피,,"a person ducks the head and torso, then steps sideways with both forearms raised to evade.",,보통,뒤쪽 파란 인물이 날아오는 물체를 피함; 시트 그림 확인
+gpt_T04:T04_189.jpg,nian41,216085,565,576,공격,펀치,a person advances in a low stance and extends an arm toward another person.,,낮음,"상대 쪽으로 팔을 뻗으며 전진, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_190.jpg,yutaka_nakamura,218752,6,17,이동,,a person runs with the torso pitched forward and the bent arms moving alternately.,,보통,상체를 숙여 달림; 시트 그림 확인
+gpt_T04:T04_191.jpg,yutaka_nakamura,47907,59,70,피격,,a person recoils with the upper torso arched backward and one arm lifting near the head.,,낮음,"긴 물체에 맞아 상체가 뒤로 꺾임, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_192.jpg,nian41,1913481070839742689,104,115,막기·회피,,"a person leans back low, then plants a hand and bends the torso sideways beneath an attack to evade.",,보통,빠르게 다가오는 상대를 낮게 몸을 틀어 피함; 시트 그림 확인
+gpt_T04:T04_193.jpg,yutaka_nakamura,203289,1097,1108,대기,,a person holds an upright stance with both hands lowered in front of the hips.,,낮음,"긴 무기를 든 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_194.jpg,yutaka_nakamura,271632,132,143,대기,,a person holds one forearm across the chest and the other arm bent beside the torso.,,낮음,"팔을 굽힌 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_195.jpg,nian41,280544,902,913,공격,킥,"a person lies back and thrusts a leg upward in a kick, then rolls with the legs spread.",,보통,바닥에서 굴러 내려오는 상대를 피함; 시트 그림 확인; 판정수정:공격
+gpt_T04:T04_196.jpg,nian41,280523,1274,1285,피격,,a person jerks backward from an impact and twists the shoulders with one arm raised.,,보통,날아온 공격이 몸에 맞으며 젖혀짐; 시트 그림 확인
+gpt_T04:T04_197.jpg,yutaka_nakamura,309515,190,201,대기,,a person stands upright with the feet apart and both arms lowered beside the body.,,보통,왼쪽 인물이 선 자세 유지; 시트 그림 확인
+gpt_T04:T04_198.jpg,nian41,287268,451,462,피격,,a person recoils with the head and upper torso tilting backward as a kick reaches the face.,,낮음,"얼굴 쪽으로 날아온 발에 맞음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_199.jpg,yutaka_nakamura,306329,1677,1688,막기·회피,,a person bends forward and lowers the head beneath a sweeping attack while stepping sideways.,,낮음,"몸을 숙여 뒤쪽 검을 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_200.jpg,nian41,280527,1208,1219,쓰러짐·누움,,"a person sits on the ground with the torso hunched forward, one leg extended and the other bent.",,보통,벽 아래 바닥에 주저앉음; 시트 그림 확인
+gpt_T04:T04_201.jpg,yutaka_nakamura,301777,139,150,막기·회피,,"a person jumps with the knees tucked, then spreads the legs and raises both arms to evade.",,보통,공중에서 날아오는 빛을 피함; 시트 그림 확인
+gpt_T04:T04_202.jpg,nian41,1913481070839742689,292,303,막기·회피,,"a person ducks sideways, then rolls over the back with the legs swinging overhead to evade.",,보통,초록빛 공격을 피해 바닥으로 구름; 시트 그림 확인
+gpt_T04:T04_203.jpg,nian41,301158,477,488,막기·회피,,a person plants a hand and swings the legs overhead in a cartwheel to evade.,,낮음,"바닥을 짚고 돌며 물체를 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_204.jpg,nian41,216077,6,17,공격,던지기,"a person straightens from a forward bend, then swings an arm outward in a throwing motion.",,보통,몸을 일으켜 손에 든 물체를 던짐; 시트 그림 확인
+gpt_T04:T04_206.jpg,yutaka_nakamura,210218,78,89,공격,킥,a person pivots on one foot and extends the other leg upward toward another person's head in a kick.,,보통,몸을 돌려 상대 얼굴을 참; 시트 그림 확인
+gpt_T04:T04_207.jpg,yutaka_nakamura,220969,250,261,점프·공중,,a person rises with one knee raised and the forearms bent near the upper torso.,,낮음,"한쪽 다리를 들고 몸이 떠오름, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_208.jpg,yutaka_nakamura,220604,1013,1024,기타,,"a person raises both arms overhead, then sweeps one arm sideways while turning the torso.",,보통,팔을 올렸다가 옆으로 펼침; 시트 그림 확인
+gpt_T04:T04_209.jpg,nian41,216085,1015,1026,공격,펀치,"a person thrusts a fist forward, then draws the arm back while turning and bending the torso.",,보통,주먹을 뻗어 치고 몸을 돌림; 시트 그림 확인
+gpt_T04:T04_210.jpg,yutaka_nakamura,166565,209,220,대기,,a person stands upright with one arm bent near the waist and the other lowered.,,낮음,"등을 보인 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_211.jpg,yutaka_nakamura,290900,677,688,공격,킥,"a person extends both legs forward in an airborne kick, then draws the knees toward the torso.",,낮음,"양발을 뻗어 상대를 참, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_212.jpg,yutaka_nakamura,205025,89,100,이동,,a person runs with the torso bent low and the bent arms pumping beside the body.,,보통,상체를 낮춰 달림; 시트 그림 확인
+gpt_T04:T04_213.jpg,yutaka_nakamura,271642,1201,1212,점프·공중,,a person holds a bent-knee posture in the air with both elbows bent away from the torso.,,낮음,"손발에 불꽃을 내며 공중에 떠 있음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_214.jpg,yutaka_nakamura,203327,541,552,공격,킥,a person raises one knee and extends the lower leg forward while holding the arms outward for balance.,,낮음,"한쪽 다리를 상대 쪽으로 뻗음, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_215.jpg,nian41,280527,1181,1192,피격,,"a person is propelled backward, then strikes a surface with both arms spreading and the legs apart.",,보통,뒤로 날아가 벽에 부딪힘; 시트 그림 확인
+gpt_T04:T04_216.jpg,nian41,216085,1494,1505,공격,펀치,"a person steps forward and extends an arm toward another person, then draws it back near the chest.",,낮음,"뒤쪽 인물이 상대에게 주먹을 뻗음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_218.jpg,nian41,280536,529,540,대기,,a person holds an upright stance with the torso leaning slightly forward and both arms lowered.,,낮음,"화면 아래 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_219.jpg,yutaka_nakamura,181174,289,300,공격,펀치,a person turns through the air with the knees bent and thrusts a bent arm toward another person.,,낮음,"공중에서 상대와 주먹을 맞댐, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_220.jpg,yutaka_nakamura,210213,421,432,공격,펀치,a person leans into a deep forward lunge and extends an arm toward another person's torso.,,낮음,"낮게 돌진해 상대를 밀어붙임, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_221.jpg,yutaka_nakamura,110193,270,281,점프·공중,,a person drops down headfirst with the legs extended above the torso and the arms near the head.,,보통,머리를 아래로 향한 채 낙하; 시트 그림 확인
+gpt_T04:T04_222.jpg,yutaka_nakamura,266832,134,145,공격,킥,a person rotates in the air and lifts a bent leg toward another person while extending an arm for balance.,,낮음,"공중에서 다리를 들어 상대를 참, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_223.jpg,nian41,1943223713455051062,1892,1903,피격,,"a person is dragged along the ground with the torso leaning back, then pulled upward into the air.",,보통,줄에 끌려 바닥을 미끄러지다 공중으로 튐; 시트 그림 확인
+gpt_T04:T04_225.jpg,nian41,280544,2121,2132,공격,킥,"a person jumps and thrusts a leg toward another person's head, then lands and spreads the arms for balance.",,높음,공중에서 상대 얼굴 쪽으로 발을 뻗음; 시트 그림 확인
+gpt_T04:T04_226.jpg,yutaka_nakamura,203289,377,388,공격,무기,a person pivots in a low stance and swings both forearms across the body.,,낮음,"몸을 돌려 긴 무기를 휘두름; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_227.jpg,nian41,2029588466376511962,1870,1881,대기,,a person stands with the shoulders slightly turned and both hands lowered beside the torso.,,보통,한손을 내린 자세 유지; 시트 그림 확인
+gpt_T04:T04_229.jpg,nian41,1613887197383622656,1539,1550,쓰러짐·누움,,"a person rolls across the back, then plants a hand and pushes up into a crouch.",,높음,바닥에 떨어져 구른 뒤 몸을 일으킴; 시트 그림 확인
+gpt_T04:T04_231.jpg,yutaka_nakamura,273677,169,180,점프·공중,,a person rotates backward through the air with the knees bent and the arms extended apart.,,낮음,"잔해 사이에서 공중 회전, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_232.jpg,nian41,280544,2936,2947,막기·회피,,a person sidesteps and twists the torso away from an incoming object with the arms raised to guard.,,보통,날아오는 가구를 옆으로 피함; 시트 그림 확인
+gpt_T04:T04_235.jpg,nian41,280544,3502,3513,쓰러짐·누움,,"a person rolls sideways on the ground, then plants the feet and rises into a wide stance.",,높음,바닥에서 구른 뒤 몸을 일으킴; 시트 그림 확인
+gpt_T04:T04_236.jpg,yutaka_nakamura,236213,258,269,대기,,a person stands with the torso bent slightly forward and the hands held low near the thighs.,,보통,흰옷 인물이 선 자세 유지; 시트 그림 확인
+gpt_T04:T04_237.jpg,yutaka_nakamura,227508,1827,1838,공격,무기,a person slides forward in a low lunge while leaning the torso ahead and sweeping the arms downward.,,낮음,"큰 날붙이로 바닥과 돌을 가르며 이동, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_240.jpg,yutaka_nakamura,309515,248,259,대기,,a person stands upright with the feet apart and both arms hanging close to the sides.,,보통,오른쪽 인물이 선 자세 유지; 시트 그림 확인
+gpt_T04:T04_241.jpg,yutaka_nakamura,281209,254,265,이동,,a person runs quickly with the torso pitched forward and both arms trailing behind.,,보통,상체를 숙여 빠르게 달림; 시트 그림 확인
+gpt_T04:T04_242.jpg,nian41,280556,296,307,공격,기타,a person raises an open hand from waist height toward the face while widening the stance.,,보통,"빛나는 손을 앞으로 들어 힘을 모음, 애매; 시트 그림 확인"
+gpt_T04:T04_243.jpg,nian41,301158,597,608,막기·회피,,"a person ducks low and supports the body on a hand, then pushes upward into a hop to evade.",,보통,날아오는 물체를 숙이고 뛰어 피함; 시트 그림 확인
+gpt_T04:T04_244.jpg,nian41,1913231262086463573,2645,2656,기타,,a person straightens from a crouch and raises both bent forearms in front of the head.,,보통,숙인 몸을 일으키며 팔을 올림; 시트 그림 확인
+gpt_T04:T04_245.jpg,nian41,280556,1420,1431,막기·회피,,"a person sidesteps with the torso twisting and the forearms raised, then ducks away from an approaching strike.",,보통,팔을 들어 다가오는 상대를 피함; 시트 그림 확인
+gpt_T04:T04_246.jpg,nian41,1913231262086463573,2613,2624,공격,킥,"a person jumps with the knees tucked, then turns and swings a leg outward in a kick.",,보통,공중에서 다리를 돌려 상대를 참; 시트 그림 확인
+gpt_T04:T04_247.jpg,yutaka_nakamura,227508,582,593,기타,,"a person brings a hand across the upper chest, then lowers the arm outward while turning the shoulders.",,보통,말하며 손을 움직임; 시트 그림 확인
+gpt_T04:T04_248.jpg,nian41,280556,3502,3513,쓰러짐·누움,,"a person collapses onto the ground, then rolls across the back with the legs bent.",,낮음,"첫 프레임 빈 공간에 뼈대가 잡힘, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:쓰러짐·누움"
+gpt_T04:T04_250.jpg,nian41,301142,463,474,막기·회피,,"a person ducks under a passing attack, then plants a hand and rolls over the shoulders to evade.",,보통,망치를 피하며 바닥을 짚고 구름; 시트 그림 확인
+gpt_T04:T04_251.jpg,yutaka_nakamura,233386,554,565,점프·공중,,a person moves through the air with the torso tilted forward and both elbows bent near the body.,,낮음,"검을 든 채 몸을 기울여 공중 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_252.jpg,nian41,1613887377965211649,845,856,막기·회피,,"a person raises the forearms to block a punch, then ducks and twists away from another strike.",,높음,상대 주먹을 팔로 막고 몸을 피함; 시트 그림 확인
+gpt_T04:T04_253.jpg,yutaka_nakamura,110193,109,120,막기·회피,,"a person brings both hands near the head to block, then arches backward away from a sweeping strike.",,낮음,"검을 맞대고 몸을 젖혀 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_254.jpg,nian41,2029588466376511962,675,686,공격,기타,"a person extends a leg in a kick, then plants the foot and swings an arm forward in a throw.",,보통,발차기 뒤 물체를 날려 상대를 침; 시트 그림 확인
+gpt_T04:T04_256.jpg,nian41,216084,573,584,이동,,"a person pushes up from a crouch with one hand on the ground, then rises and runs forward.",,높음,바닥을 짚고 일어나 달림; 시트 그림 확인
+gpt_T04:T04_257.jpg,nian41,1913231262086463573,1042,1053,공격,킥,"a person pivots and extends a leg outward in a high kick, then lowers into a crouch.",,높음,몸을 돌려 상대에게 발을 뻗음; 시트 그림 확인
+gpt_T04:T04_258.jpg,nian41,1913231262086463573,3248,3259,공격,펀치,a person turns the torso and drives a fist toward another person's face with the other arm held back.,,높음,파란 인물이 상대 얼굴을 침; 시트 그림 확인
+gpt_T04:T04_259.jpg,nian41,280556,3260,3271,공격,펀치,"a person drives a bent arm toward another person's torso, then leans away with a forearm raised to guard.",,보통,가까이서 반격한 뒤 상대 주먹을 피함; 시트 그림 확인
+gpt_T04:T04_260.jpg,yutaka_nakamura,220604,548,559,대기,,a person holds one bent arm behind the head and the other hand near the face.,,보통,팔을 머리 뒤로 든 자세 유지; 시트 그림 확인
+gpt_T04:T04_261.jpg,yutaka_nakamura,208545,393,404,대기,,a person holds a low stance with one fist raised near the chest and the other arm drawn back.,,낮음,"오른쪽 인물이 주먹을 든 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_262.jpg,nian41,280556,2960,2971,막기·회피,,"a person steps sideways, then ducks forward with the torso low to evade an incoming object.",,보통,날아오는 물체를 숙여 피함; 시트 그림 확인
+gpt_T04:T04_264.jpg,yutaka_nakamura,271642,238,249,점프·공중,,a person holds a tilted posture in the air with one knee lifted and a forearm bent near the head.,,낮음,"몸을 기울인 채 공중에 떠 있음, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_265.jpg,nian41,280544,1255,1266,공격,킥,"a person pivots and extends a leg sideways toward another person, then bends it back underneath the torso.",,낮음,"뒤쪽 파란 인물이 발을 뻗어 참; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_266.jpg,yutaka_nakamura,229682,118,129,대기,,a person holds one arm extended sideways at shoulder height and the other forearm across the chest.,,높음,팔을 옆으로 뻗은 자세 유지; 시트 그림 확인
+gpt_T04:T04_267.jpg,yutaka_nakamura,220930,411,422,대기,,a person holds both arms forward and grips another person near the shoulders.,,보통,상대와 옷깃을 잡은 자세 유지; 시트 그림 확인
+gpt_T04:T04_268.jpg,nian41,1913589758644908348,511,522,공격,기타,"a person braces the legs apart and pulls a bent arm toward the torso, then extends it forward.",,보통,"붉은 줄을 뻗어 상대를 당김, 애매; 시트 그림 확인"
+gpt_T04:T04_270.jpg,yutaka_nakamura,250896,1409,1420,공격,무기,a person drops forward through the air with both arms reaching down and the legs trailing behind.,,낮음,"괴물 위에서 무기로 내려찍음, 첫 프레임 대상 가림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_271.jpg,yutaka_nakamura,110822,411,422,대기,,a person holds a wide stance with one arm raised above the head and the other bent near the waist.,,보통,팔을 위로 든 자세 유지; 시트 그림 확인
+gpt_T04:T04_273.jpg,yutaka_nakamura,220930,537,548,대기,,a person holds both arms extended toward another person's upper chest while leaning slightly forward.,,보통,상대 옷깃을 잡은 자세 유지; 시트 그림 확인
+gpt_T04:T04_274.jpg,yutaka_nakamura,203287,350,361,공격,킥,"a person raises a knee and thrusts the foot forward in a kick, then lowers into a bent-knee stance.",,낮음,"상대 쪽으로 다리를 들어 참; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_275.jpg,nian41,1913231262086463573,2080,2091,공격,펀치,"a person steps forward and thrusts a fist toward another person's upper torso, then raises the forearm near the head.",,보통,파란 인물이 상대에게 팔을 뻗음; 시트 그림 확인
+gpt_T04:T04_276.jpg,yutaka_nakamura,239055,270,281,이동,,a person slides forward in a deep crouch with the torso low and both arms extended behind.,,낮음,"몸을 낮춘 채 빠르게 미끄러짐; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_277.jpg,nian41,280527,664,675,공격,기타,"a person draws an arm across the torso, then sweeps it outward while bracing in a wide stance.",,보통,붉은 줄로 상대를 당기고 휘두름; 시트 그림 확인
+gpt_T04:T04_278.jpg,nian41,280597,433,444,막기·회피,,a person jumps backward with the knees bent and the forearms raised to evade an approaching strike.,,보통,뒤로 뛰어 날아오는 상대를 피함; 시트 그림 확인
+gpt_T04:T04_279.jpg,yutaka_nakamura,130581,24,35,이동,,a person runs forward with the torso pitched ahead and both arms swinging beside the body.,,보통,나무 사이를 빠르게 달림; 시트 그림 확인
+gpt_T04:T04_280.jpg,yutaka_nakamura,110822,85,96,공격,무기,"a person raises both bent forearms across the upper torso, then spreads the arms sideways with the knees bent.",,낮음,"줄 달린 날붙이를 펼쳐 휘두름, 첫 프레임 얼굴 클로즈업; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_281.jpg,nian41,280523,1578,1589,막기·회피,,"a person twists sideways through the air, then extends the arms and legs apart to evade passing attacks.",,보통,"공중에서 쏟아지는 공격 사이로 몸을 피함, 애매; 시트 그림 확인"
+gpt_T04:T04_282.jpg,nian41,280544,3246,3257,공격,펀치,"a person drives a bent fist upward, then leans away from a returning punch with a forearm raised.",,높음,올려친 뒤 상대 주먹을 피함; 시트 그림 확인
+gpt_T04:T04_283.jpg,nian41,280521,727,738,대기,,a person holds the torso leaning forward with one arm bent and the other lowered outward.,,낮음,"몸을 기울인 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_284.jpg,yutaka_nakamura,220930,470,481,대기,,"a person holds both arms extended forward, gripping another person near the upper chest.",,보통,상대 옷깃을 잡은 자세 유지; 시트 그림 확인
+gpt_T04:T04_285.jpg,nian41,280544,1515,1526,공격,킥,"a person jumps and extends a leg toward another person's chest, then lands with the knees bent.",,보통,뛰어 다리를 뻗어 상대를 참; 시트 그림 확인
+gpt_T04:T04_286.jpg,nian41,280556,2288,2299,막기·회피,,"a person ducks under a kick, then hops sideways with the knees tucked to evade another kick.",,보통,연속 발차기를 숙이고 뛰어 피함; 시트 그림 확인
+gpt_T04:T04_287.jpg,nian41,1913231262086463573,2274,2285,막기·회피,,"a person tucks the knees and turns sideways in the air, then drops into a crouch to evade.",,보통,공중에서 날아오는 가구를 피함; 시트 그림 확인
+gpt_T04:T04_288.jpg,yutaka_nakamura,115592,469,480,대기,,a person holds an upright stance with both arms resting close to the body.,,낮음,"풀 뒤 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_289.jpg,yutaka_nakamura,210214,255,266,대기,,a person stands with the knees slightly bent and both arms held low away from the sides.,,보통,서 있는 자세 유지; 시트 그림 확인
+gpt_T04:T04_293.jpg,nian41,1913481070839742689,358,369,막기·회피,,"a person raises a forearm near the head and twists the torso, then leans sideways to evade.",,보통,날아오는 빛을 팔과 몸을 움직여 피함; 시트 그림 확인
+gpt_T04:T04_294.jpg,nian41,1943223713455051062,1400,1411,막기·회피,,"a person shifts sideways in a low crouch, then straightens slightly with the arms spread to evade.",,보통,물 위에서 날아오는 물체를 피함; 시트 그림 확인
+gpt_T04:T04_295.jpg,nian41,280833,465,476,피격,,"a person is dragged backward into a seated position, then rolls onto the back with the knees lifting.",,보통,붉은 줄에 끌려 바닥과 가구에 부딪힘; 시트 그림 확인
+gpt_T04:T04_297.jpg,nian41,280556,1583,1594,공격,킥,"a person lifts a knee and extends the lower leg toward another person's face, then bends the leg back.",,높음,다리를 들어 상대 얼굴을 참; 시트 그림 확인
+gpt_T04:T04_298.jpg,nian41,1943223713455051062,2602,2613,막기·회피,,a person turns the torso and brings both forearms in front of the upper body to brace against a strike.,,낮음,"회전하는 공격을 받아냄, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_299.jpg,nian41,1913481070839742689,585,596,공격,펀치,"a person draws a fist above shoulder height, then turns the torso and drives the arm forward.",,낮음,"주먹을 올렸다가 길게 뻗음, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_300.jpg,yutaka_nakamura,202388,24,35,쓰러짐·누움,,"a person pushes up from a low crouch, then straightens the torso and lowers the arms.",,낮음,"바닥을 짚고 구른 뒤 몸을 일으킴; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_301.jpg,yutaka_nakamura,115592,512,523,이동,,a person walks with the torso upright and the arms close to the sides.,,낮음,"풀 뒤에서 걸어 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_302.jpg,yutaka_nakamura,290894,257,268,막기·회피,,a person turns sideways through the air with the knees tucked and the arms spread to evade passing objects.,,낮음,"공중에서 날아오는 돌을 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_303.jpg,yutaka_nakamura,165486,290,301,공격,무기,a person turns the torso while sweeping both outstretched arms sideways at shoulder height.,,낮음,"뒤쪽 인물이 양손의 칼날을 회전시킴; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_304.jpg,yutaka_nakamura,196994,819,830,기타,,"a person raises an arm above the head, then lowers the bent hand toward the face while turning slightly.",,보통,오른쪽 인물이 팔을 들고 몸짓함; 시트 그림 확인
+gpt_T04:T04_305.jpg,nian41,280544,1314,1325,공격,킥,"a person pivots and swings one leg outward in a high kick, then draws the knee back toward the torso.",,높음,파란 인물이 다리를 돌려 참; 시트 그림 확인
+gpt_T04:T04_306.jpg,yutaka_nakamura,273677,97,108,점프·공중,,a person rotates sideways through the air with the knees bent and the arms held apart.,,보통,잔해 사이에서 공중 회전; 시트 그림 확인
+gpt_T04:T04_307.jpg,nian41,280523,143,154,막기·회피,,"a person curls into a sideways flip, then extends the legs overhead while turning to evade.",,보통,날아오는 돌 사이로 몸을 뒤집어 피함; 시트 그림 확인
+gpt_T04:T04_308.jpg,nian41,1613887377965211649,821,832,막기·회피,,"a person raises a forearm across the face to block, then twists the torso away from another punch.",,높음,팔로 상대 주먹을 막고 피함; 시트 그림 확인
+gpt_T04:T04_309.jpg,nian41,280556,1382,1393,점프·공중,,a person bends the knees and jumps upward with the elbows bent away from the torso.,,낮음,"다리를 굽혀 뛰어오름, 컷 섞임; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_310.jpg,nian41,280597,636,647,공격,기타,a person braces the feet apart and extends an arm forward while leaning the torso sideways.,,낮음,"팔을 뻗어 공격을 내보냄, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_311.jpg,yutaka_nakamura,224077,399,410,대기,,a person stands with the torso leaning slightly forward and the hands held near the hips.,,보통,오른쪽 인물이 선 자세 유지; 시트 그림 확인
+gpt_T04:T04_312.jpg,nian41,1913231262086463573,2444,2455,공격,던지기,"a person steps into a lunge and swings an arm forward in a throw, then draws the arm back.",,보통,팔을 뻗어 물체를 상대 쪽으로 던짐; 시트 그림 확인
+gpt_T04:T04_313.jpg,yutaka_nakamura,203287,95,106,막기·회피,,a person curls into a sideways flip with the legs passing overhead to evade an approaching strike.,,낮음,"몸을 뒤집어 다가오는 상대를 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_314.jpg,yutaka_nakamura,306329,289,300,공격,무기,a person steps into a wide stance and sweeps an extended arm horizontally across the body.,,낮음,"검을 휘둘러 상대를 벰; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_315.jpg,nian41,280833,433,444,피격,,"a person is pulled sideways along the ground, then rolls onto the back with the knees tucked.",,보통,붉은 줄에 끌려 바닥에서 구름; 시트 그림 확인
+gpt_T04:T04_316.jpg,nian41,216085,1435,1446,공격,킥,"a person jumps and extends a leg high toward another person, then lowers into a forward-leaning stance.",,높음,공중에서 다리를 높이 뻗어 참; 시트 그림 확인
+gpt_T04:T04_317.jpg,nian41,1913231262086463573,1403,1414,이동,,a person lowers the torso and pushes into a forward lunge with one arm extended ahead.,,보통,파란 인물이 몸을 낮춰 돌진; 시트 그림 확인
+gpt_T04:T04_318.jpg,nian41,1913231262086463573,2340,2351,기타,,"a person pushes against the ground with both hands, then draws the knees underneath and lifts the torso.",,높음,바닥을 짚고 상체를 일으킴; 시트 그림 확인
+gpt_T04:T04_319.jpg,nian41,280523,1156,1167,공격,무기,"a person raises a bent arm, then turns the torso and sweeps the arm across the body.",,보통,칼을 돌려 붉은 궤적을 만듦; 시트 그림 확인
+gpt_T04:T04_320.jpg,nian41,280544,854,865,이동,,"a person runs forward with bent-arm swings, then jumps with the knees bent and an arm raised.",,보통,달려가다 뛰어오름; 시트 그림 확인
+gpt_T04:T04_322.jpg,yutaka_nakamura,229832,52,63,점프·공중,,a person swings through the air with both arms raised and turns the torso while the legs trail behind.,,낮음,"줄에 매달려 공중에서 회전; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_323.jpg,yutaka_nakamura,141366,182,193,막기·회피,,"a person bends the knees and ducks forward, then steps sideways with an arm extended for balance to evade.",,보통,총탄을 피해 몸을 숙이고 옆으로 이동; 시트 그림 확인
+gpt_T04:T04_326.jpg,yutaka_nakamura,196994,1500,1511,기타,,a person lifts both arms outward from the sides to shoulder height with the palms open.,,높음,말하며 양팔을 넓게 벌림; 시트 그림 확인
+gpt_T04:T04_327.jpg,yutaka_nakamura,306329,2696,2707,공격,무기,a person pivots with the knees bent and sweeps a raised forearm across the front of the torso.,,낮음,"몸을 돌려 검을 휘두름; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_328.jpg,yutaka_nakamura,306329,3418,3429,막기·회피,,"a person tucks the knees and jumps upward, then rotates forward above a sweeping attack to evade.",,낮음,"상대 검을 위로 뛰어 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_329.jpg,yutaka_nakamura,210214,72,83,점프·공중,,"a person jumps with the knees bent, then drops down and extends the legs toward a landing.",,낮음,"높은 바위 위에서 뛰어오르고 내려옴; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_330.jpg,yutaka_nakamura,306329,2737,2748,점프·공중,,a person rises through the air and turns sideways with the knees bent and one arm extended.,,낮음,"지붕 위로 뛰어올라 몸을 돌림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_331.jpg,yutaka_nakamura,263191,359,370,대기,,a person holds a wide stance with one arm extended forward and the other lowered outward.,,보통,중앙 인물이 선 자세 유지; 시트 그림 확인
+gpt_T04:T04_332.jpg,yutaka_nakamura,203287,309,320,막기·회피,,"a person brings both forearms near the head to block, then steps backward and turns the torso away.",,낮음,"무기로 상대 공격을 막으며 물러남; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_334.jpg,yutaka_nakamura,76453,419,430,막기·회피,,"a person leans sideways away from a sweeping attack, then raises both forearms above the head to guard.",,낮음,"긴 공격을 몸을 기울여 피함, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_335.jpg,yutaka_nakamura,196994,522,533,대기,,a person holds a bent forearm across the upper torso with the hand near the chest.,,낮음,"가슴 앞에 손을 든 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_336.jpg,nian41,280556,3977,3988,막기·회피,,"a person turns the torso and raises a forearm near the head, then ducks sideways to evade.",,낮음,"날아오는 빛과 파편 사이를 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_337.jpg,yutaka_nakamura,263191,1715,1726,대기,,a person holds the torso arched backward with one arm extended outward and the knees bent.,,낮음,"몸을 뒤로 젖힌 자세 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_339.jpg,nian41,280597,40,51,쓰러짐·누움,,"a person rolls onto the back with one leg lifting, then turns sideways with the arms spread.",,보통,바닥에 넘어져 구름; 시트 그림 확인
+gpt_T04:T04_340.jpg,yutaka_nakamura,272715,588,599,대기,,a person holds one hand extended in front of the torso and the other arm stretched sideways.,,보통,한손을 앞으로 내민 자세 유지; 시트 그림 확인
+gpt_T04:T04_341.jpg,nian41,280556,2738,2749,공격,펀치,"a person drives a fist toward another person's torso, then retracts it and punches toward the head.",,높음,상대 몸과 얼굴 쪽으로 연속 주먹; 시트 그림 확인
+gpt_T04:T04_342.jpg,yutaka_nakamura,182469,950,961,대기,,a person stands upright with the arms held close to the sides.,,낮음,"왼쪽 뒤 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_343.jpg,yutaka_nakamura,239068,247,258,이동,,"a person slides forward with the torso low, one knee bent, and both arms extended outward.",,낮음,"몸을 낮춰 미끄러지며 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_345.jpg,yutaka_nakamura,227508,756,767,기타,,"a person lowers a hand from the face across the chest, then extends the other hand outward.",,보통,얼굴 쪽 손을 내리며 몸짓함; 시트 그림 확인
+gpt_T04:T04_346.jpg,yutaka_nakamura,280210,90,101,대기,,"a person stands with both hands on the hips and the elbows angled outward, shifting the torso slightly.",,보통,양손을 허리에 둔 자세 유지; 시트 그림 확인
+gpt_T04:T04_347.jpg,nian41,280544,1090,1101,막기·회피,,"a person turns sideways away from an incoming object, then lowers the torso into a crouch to evade.",,보통,날아오는 가구를 몸을 틀어 피함; 시트 그림 확인
+gpt_T04:T04_348.jpg,yutaka_nakamura,306713,173,184,막기·회피,,"a person ducks the head and torso forward, then straightens slightly after a sweeping attack passes.",,낮음,"몸을 숙여 큰 촉수 공격을 피함; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_349.jpg,nian41,1613887377965211649,226,237,피격,,a person recoils from a kick with the torso twisting and the arms drawing inward.,,보통,상대 발차기에 몸이 꺾임; 시트 그림 확인
+gpt_T04:T04_350.jpg,nian41,301158,1419,1430,막기·회피,,a person plants the hands and swings the legs overhead in a cartwheel to evade a horizontal attack.,,보통,바닥을 짚고 돌며 긴 무기를 피함; 시트 그림 확인
+gpt_T04:T04_351.jpg,nian41,1613887377965211649,1506,1517,막기·회피,,"a person ducks low and turns the torso sideways, then straightens with one arm raised to evade.",,보통,기둥 뒤로 몸을 돌려 공격을 피함; 시트 그림 확인
+gpt_T04:T04_352.jpg,nian41,1913481070839742689,690,701,피격,,"a person is pulled sideways through the air with the legs extended, then rotates with the arms spread.",,보통,붉은 줄에 끌려 공중으로 날아감; 시트 그림 확인
+gpt_T04:T04_353.jpg,yutaka_nakamura,110822,363,374,대기,,a person holds a deep forward lean with one arm extended ahead and the other lowered.,,낮음,"상체를 숙인 자세 유지, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_354.jpg,nian41,2029588466376511962,741,752,막기·회피,,"a person leans sideways away from an incoming object, then jumps and lowers into a crouch to evade.",,보통,망치를 상대 쪽으로 날림; 시트 그림 확인; 판정수정:막기·회피
+gpt_T04:T04_356.jpg,yutaka_nakamura,306713,226,237,이동,,a person drives forward with the torso tilted ahead and both arms extended away from the body.,,낮음,"앞으로 몸을 기울여 빠르게 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_357.jpg,nian41,287263,2041,2052,공격,기타,a person extends one arm straight forward while drawing the other elbow back and leaning into the motion.,,낮음,"팔을 크게 변형해 앞으로 뻗음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_358.jpg,nian41,2029588466376511962,219,230,막기·회피,,"a person tilts the torso sideways away from a swinging attack, then straightens slightly with the hands raised.",,높음,몸을 기울여 망치를 피함; 시트 그림 확인
+gpt_T04:T04_359.jpg,yutaka_nakamura,174685,660,671,이동,,"a person drops down with the knees bent, then extends a leg and runs forward with the torso low.",,낮음,"뛰어 내려와 칼을 든 채 달림, 뼈대 틀림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_360.jpg,yutaka_nakamura,205025,661,672,이동,,a person runs with the torso leaning forward and the bent arms pumping alternately.,,낮음,"뒤쪽 작은 인물이 달림; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_361.jpg,nian41,1937399147772137658,614,625,점프·공중,,"a person drops down with the arms spread, then lands on the feet with the knees bent.",,보통,공중에서 내려와 착지; 시트 그림 확인
+gpt_T04:T04_362.jpg,yutaka_nakamura,42687,14,25,쓰러짐·누움,,"a person tumbles backward through the air, then collapses onto the ground with the legs lifting.",,낮음,"공중에서 뒤집혀 바닥에 떨어짐; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_363.jpg,yutaka_nakamura,220930,1950,1961,대기,,a person holds both hands near the chest and shifts the bent forearms slightly outward.,,보통,양손을 가슴 앞에 든 자세 유지; 시트 그림 확인
+gpt_T04:T04_365.jpg,nian41,1913589758644908348,451,462,공격,기타,"a person braces the feet apart and pulls a bent arm across the torso, then sweeps the hand outward.",,보통,붉은 줄로 상대를 당겨 휘두름; 시트 그림 확인
+gpt_T04:T04_366.jpg,nian41,280597,678,689,피격,,a person is pulled through the air and rotates sideways with the arms spread and the legs bending.,,보통,붉은 줄에 끌려 공중에서 회전; 시트 그림 확인
+gpt_T04:T04_367.jpg,nian41,280530,109,120,대기,,a person holds a staggered stance with the forearms raised near the upper torso.,,낮음,"오른쪽 뒤 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_368.jpg,nian41,1913231262086463573,1108,1119,막기·회피,,a person braces the legs apart and brings both forearms up in front of the head to block.,,보통,날아오는 물체를 팔로 받아냄; 시트 그림 확인
+gpt_T04:T04_369.jpg,nian41,280556,1175,1186,공격,펀치,"a person thrusts a fist forward, then turns the torso and drives the other fist toward another person.",,높음,연속으로 상대에게 주먹을 뻗음; 시트 그림 확인
+gpt_T04:T04_370.jpg,yutaka_nakamura,108301,395,406,대기,,a person stands with one bent hand resting against another person's forearm and the other arm lowered.,,보통,상대 팔을 손으로 짚은 자세 유지; 시트 그림 확인
+gpt_T04:T04_371.jpg,nian41,1913231262086463573,2980,2991,막기·회피,,"a person pivots sideways and leans away, then lowers the torso beneath an incoming object to evade.",,보통,날아오는 가구를 몸을 돌려 피함; 시트 그림 확인
+gpt_T04:T04_372.jpg,yutaka_nakamura,210213,12,23,이동,,a person steps sideways with the torso leaning forward and both arms low.,,낮음,"뒤쪽 인물이 몸을 낮추며 이동, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_373.jpg,yutaka_nakamura,299654,418,429,이동,,a person runs with the torso leaning forward and the bent arms swinging alternately.,,보통,몸을 낮추고 빠르게 달림; 시트 그림 확인
+gpt_T04:T04_374.jpg,yutaka_nakamura,202176,28,39,공격,무기,"a person turns the torso and swings both arms sideways, then straightens into a wider stance.",,낮음,"큰 칼날을 몸과 함께 돌려 휘두름; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_375.jpg,nian41,216085,1459,1470,막기·회피,,"a person raises the forearms to block a punch, then brings both arms across the torso against a kick.",,높음,상대 주먹과 발차기를 팔로 막음; 시트 그림 확인
+gpt_T04:T04_377.jpg,yutaka_nakamura,210343,109,120,기타,,"a person raises a bent arm beside the head, then extends the forearm outward.",,낮음,"뒤쪽 인물이 팔을 들어 몸짓함, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_378.jpg,nian41,1913481070839742689,666,677,피격,,a person is pulled sideways through the air with the arms spread and the legs swinging overhead.,,보통,줄에 끌려 공중에서 몸이 휘둘림; 시트 그림 확인
+gpt_T04:T04_379.jpg,yutaka_nakamura,236211,502,513,기타,,"a person dances with a hand raised near the head, shifting the legs and turning the torso sideways.",,보통,팔을 올리고 다리를 움직이며 춤; 시트 그림 확인
+gpt_T04:T04_380.jpg,yutaka_nakamura,280210,889,900,점프·공중,,a person holds a stretched posture in the air with one fist raised overhead and the other arm bent near the chest.,,낮음,"주먹을 위로 든 채 공중에 떠 있음; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_382.jpg,nian41,301142,675,686,공격,기타,"a person extends a leg in a kick, then plants the foot and swings an arm forward in a throw.",,보통,발차기 뒤 물체를 날려 상대를 침; 시트 그림 확인
+gpt_T04:T04_383.jpg,nian41,280544,2912,2923,쓰러짐·누움,,"a person rolls across the back with the legs raised, then turns sideways and draws the knees underneath the torso.",,보통,바닥에서 몸을 뒤집어 구름; 시트 그림 확인
+gpt_T04:T04_385.jpg,nian41,280544,2723,2734,막기·회피,,"a person brings a forearm across the face to intercept a punch, then turns the shoulders with both hands raised.",,높음,팔로 상대 주먹을 받아냄; 시트 그림 확인
+gpt_T04:T04_386.jpg,nian41,1913481070839742689,62,73,기타,,a person straightens from a low crouch and raises both forearms near the chest.,,보통,뒤쪽 인물이 숙인 몸을 일으킴; 시트 그림 확인
+gpt_T04:T04_388.jpg,yutaka_nakamura,218752,36,47,이동,,a person runs forward with the torso bent low and the bent arms swinging alternately.,,보통,상체를 숙여 달림; 시트 그림 확인
+gpt_T04:T04_389.jpg,nian41,280556,332,343,기타,,"a person raises an open hand above the head, then lowers the bent forearm toward the chest.",,보통,"손의 힘을 모았다가 팔을 내림, 애매; 시트 그림 확인; 판정수정:기타"
+gpt_T04:T04_391.jpg,yutaka_nakamura,220930,441,452,대기,,a person holds both arms extended toward another person and grips near the shoulders.,,보통,상대 옷깃을 잡은 자세 유지; 시트 그림 확인
+gpt_T04:T04_392.jpg,nian41,1913231262086463573,1189,1200,막기·회피,,"a person raises a forearm to block a punch, then turns the torso and drives a bent fist upward.",,높음,상대 주먹을 막은 뒤 반격; 시트 그림 확인
+gpt_T04:T04_393.jpg,yutaka_nakamura,115592,937,948,이동,,a person runs uphill with the torso leaning forward and the arms pumping beside the body.,,보통,비탈길을 달려 올라감; 시트 그림 확인
+gpt_T04:T04_394.jpg,yutaka_nakamura,182904,507,518,대기,,a person stands upright with the arms lowered close to the sides.,,낮음,"왼쪽 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_395.jpg,nian41,1913481070839742689,384,395,기타,,a person turns the torso and sweeps a bent forearm across the front of the body.,,낮음,"몸을 돌려 선 자세를 유지, 애매; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한; 판정수정:기타"
+gpt_T04:T04_396.jpg,nian41,1913231262086463573,2920,2931,쓰러짐·누움,,"a person rolls across the back with the legs raised, then draws the knees underneath into a crouch.",,보통,바닥에서 몸을 뒤집어 구름; 시트 그림 확인
+gpt_T04:T04_397.jpg,nian41,287139,811,822,점프·공중,,a person hangs with both arms extended overhead and the legs trailing behind the torso.,,낮음,"날개 달린 대상에 매달려 공중 이동; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_399.jpg,nian41,280556,1108,1119,막기·회피,,"a person rolls sideways with the knees tucked, then plants the feet and rises to evade an approaching strike.",,보통,의자 위에서 몸을 굴리고 내려와 공격을 피함; 시트 그림 확인
+gpt_T04:T04_400.jpg,yutaka_nakamura,182469,992,1003,대기,,a person stands upright with the elbows bent near the torso and the hands held low.,,낮음,"왼쪽 뒤 제복 인물이 선 자세 유지; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
+gpt_T04:T04_401.jpg,yutaka_nakamura,306329,2900,2911,점프·공중,,"a person bends the knees, then pushes upward into a jump with both arms extended outward.",,낮음,"검을 든 채 나무에서 뛰어오름; 시트 그림 확인; 보이는 자세·움직임만 기술, 세부 해석 제한"
