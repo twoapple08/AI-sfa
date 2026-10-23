@@ -218,6 +218,7 @@ def main():
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--hold", type=int, default=2)
     ap.add_argument("--check", action="store_true")
+    ap.add_argument("--scene-model", action="append", help="장면별 모델 '장면번호=마스크이름,잔차이름'(여러 번). 예: 3=t2m_…_rvq6ns,tres_…_sw")
     ap.add_argument("--shapes", help="이펙트 형태 사전(tools/fx_shapes.py 출력, Drive). 있으면 균열·부유 파편·붉은 가시를 그린다")
     ap.add_argument("--approved", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "style_kb", "ai_results",
                                                       "gpt_FXS_2026-10-22.csv"))
@@ -234,6 +235,17 @@ def main():
         n20 = int(min(196, max(40, round(n * 20 / F))) // 4 * 4)
         caps.append((en + (f", {a.style}" if a.style else ""), n20))
     clips = gen_motions(a.momask, caps, a.name, a.res_name, a.seed, os.path.basename(os.path.normpath(a.out)))
+    # 장면별 모델: "3=마스크이름,잔차이름" — 그 장면만 다른 모델로 다시 뽑는다(2026-10-23: 일어서기는 기본 모델이 최선)
+    per = {}
+    for spec in a.scene_model or []:
+        k, nm = spec.split("=", 1)
+        per.setdefault(nm, []).append(int(k) - 1)
+    for nm, idx in per.items():
+        mn, rn = nm.split(",", 1)
+        sub = gen_motions(a.momask, [caps[i] for i in idx], mn, rn, a.seed,
+                          os.path.basename(os.path.normpath(a.out)) + "_" + mn[-12:].strip("_"))
+        for i, C in zip(idx, sub):
+            clips[i] = C
     # 2) 장면 길이에 맞추기(20fps → F, 장면 프레임 수로 늘이거나 줄임) + 이어 붙이기 + 연출 위치
     J, cut_of, end = [], [], None
     notes = []
@@ -329,7 +341,7 @@ def main():
                 frame_bgs=bgs[p:p + per], layers=lambda oid: 0 if oid >= 1000 else 2)  # 레이어 0(배경) → 1(이펙트, 채우기) → 2(인물)
         files.append(fn)
     info = {"장면_프레임": lens, "F": F, "전체_프레임": len(frames), "초": round(len(frames) / F, 2), "파일": [os.path.basename(f) for f in files],
-            "동작_문장": [c for c, _ in caps], "모델": [a.name, a.res_name], "메모": notes, "배경_채색": color_bg}
+            "동작_문장": [c for c, _ in caps], "모델": [a.name, a.res_name], "장면별_모델": a.scene_model or [], "메모": notes, "배경_채색": color_bg}
     json.dump(info, open(os.path.join(a.out, "조립정보.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print(json.dumps({k: info[k] for k in ("장면_프레임", "전체_프레임", "초", "파일")}, ensure_ascii=False))
     for m in notes:
