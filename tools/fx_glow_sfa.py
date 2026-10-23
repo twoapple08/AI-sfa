@@ -116,6 +116,8 @@ def main():
     ap.add_argument("--frames", help="이 프레임만(쉼표) — 예: 임팩트 마스크(*_ink.npz)의 그래픽 프레임")
     ap.add_argument("--auto-impact", action="store_true",
                     help="장마다 그림으로 임팩트 프레임인지 판정해 아닌 장은 빈 장으로(--only와 함께 쓰면 그 범위 ±8 안에서만)")
+    ap.add_argument("--tail", type=int, default=0,
+                    help="--auto-impact: 판정표 마지막 범위 끝 뒤로 몇 장까지 허용할지(기본 0 — 끝에서 자름)")
     ap.add_argument("--impact-diff", type=float, default=18.0, help="--auto-impact: 앞뒤 일반 장면과의 차이가 이보다 크면 임팩트")
     ap.add_argument("--only", help="이 범위(예: 207-215,219-227)만 그리고 나머지 프레임은 빈 장으로 — 시간은 그대로. "
                                    "임팩트 판정표(impact_classify)의 '맞음' 범위를 넣어 일반 프레임에 넘쳐 적용되지 않게 한다(2026-10-23 사용자)")
@@ -144,7 +146,9 @@ def main():
         W = img.shape[1]
         skip = only is not None and f not in only
         if a.auto_impact:
-            near_only = only is None or any(g in only for g in range(f - 8, f + 9))
+            # 판정표 마지막 범위 뒤로는 넘기지 않는다: 232394 487–489(다음 장면의 역광 파편)가 흰 면 규칙으로 들어와
+            # 몸통이 뚫린 주황 고리로 그려졌다(2026-10-23 사용자 '가' 선택). 앞쪽·범위 사이의 ±8 허용은 그대로.
+            near_only = only is None or (f <= max(only) + a.tail and any(g in only for g in range(f - 8, f + 9)))
             # 앞뒤 장면과의 차이로 판정해 보았으나 앞뒤가 다른 컷이면 일반 장면까지 들어가 쓰지 않는다(2026-10-23)
             skip = not (near_only and is_impact_frame(img, not a.keep_yellow, a.yellow_frame))
         if skip:
