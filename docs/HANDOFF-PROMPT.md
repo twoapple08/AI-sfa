@@ -1,4 +1,4 @@
-# 인수인계 프롬프트 (2026-10-23 밤, 이펙트·연출 2D 학습으로 전환)
+# 인수인계 프롬프트 (2026-10-23 밤, 이펙트·연출 2D — GPT 재설계 검토 후 복원 시험 단계)
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. 시작할 때 fetch·merge하고, 시스템이 다른 브랜치를 배정하면 같은 HEAD를 그 브랜치에도 푸시한다. 한국어로 답한다(영어로 답하지 말 것 — 사용자가 여러 번 지적).
 
@@ -14,7 +14,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - 가중치(기본·v3–v8)는 서버 scratch에만 있다. 새 컨테이너면: rclone 설정(`tools/codex_setup.sh` 1–2단계), momask 코드·기본 가중치 = Drive `07_도구/동작학습_1050ti/`의 zip, 미세조정 가중치 = 결과 폴더(`rclone … --drive-root-folder-id 1VDQR5yDVGkxykQaNduMZ5FNtDivOOmVy gdrive:`; v6·v7·v8은 `results_v6_v7.zip`·`results_v8.zip` — Windows zip이라 경로가 역슬래시, unzip은 경고 후 정상), torch 2.6 cpu·CLIP(`--no-build-isolation`)·skia(`apt-get install libegl1 libgl1`)는 HANDOFF '환경'.
 
 ## 바로 할 일
-1. **3D·캐릭터 동작은 하지 않는다(사용자: "3D는 하지 마라").** docs/FX-LEARNING-PLAN-2026-10-23.md '1단계 1판 결과' 다음 항목(RGBA 2판: 원본 색·선 포함, 잘못된 사각 마스크 거르기)부터. 표본은 영상으로 보여 준다.
+1. **3D·캐릭터 동작은 하지 않는다.** docs/GPT-REDESIGN-REVIEW-2026-10-23.md '3. 가장 먼저 할 작업'부터: 사용자 앱 확인 결과를 받아 기록(P5 문서 결과 칸), 동시에 단순 배경 이펙트 복원 후보 약 30개(원본|SFA 정상 속도 나란히 mp4)를 만들어 사용자가 고르게 한다.
 
 ## 사용자와 일하는 방식
 - 결과는 그림·영상·SFA로 바로 보여 주고, 문제를 정직하게 적는다. 규칙 코드로 그림을 '지어내는' 방식은 품질 미달로 판정됐다.
