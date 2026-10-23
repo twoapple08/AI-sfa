@@ -41,10 +41,10 @@ def load_data(root, split, mean, std):
     out = []
     for i in ids:
         m = (np.load(pjoin(root, "new_joint_vecs", i + ".npy")) - mean) / std
-        cap = open(pjoin(root, "texts", i + ".txt"), encoding="utf-8").readline().split("#")[0]
+        caps = [l.split("#")[0] for l in open(pjoin(root, "texts", i + ".txt"), encoding="utf-8") if l.strip()]
         n = (min(len(m), 196) // 4) * 4
         if n >= 40:
-            out.append((m[:n].astype(np.float32), cap))
+            out.append((m[:n].astype(np.float32), caps))
     return out
 
 
@@ -57,7 +57,7 @@ def batches(data, bs, rng):
             M = np.zeros((bs, 196, part[0][0].shape[1]), np.float32)
             for j, (m, _) in enumerate(part):
                 M[j, :len(m)] = m
-            yield torch.from_numpy(M), [c for _, c in part], torch.from_numpy(L // 4)
+            yield torch.from_numpy(M), [rng.choice(c) for _, c in part], torch.from_numpy(L // 4)  # 문장이 여럿이면 매번 하나를 고른다
 
 
 def save_like(src_name, tag, key, model, fname, step):
@@ -80,7 +80,7 @@ def main():
     ap.add_argument("--part", default="both", choices=["both", "mask", "res"])
     ap.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     ap.add_argument("--val-every", type=int, default=250)
-    ap.add_argument("--style-rep", type=int, default=4, help="트리거 문장(in anime style) 자료를 학습에서 몇 배로 볼지(애니 자료가 적어서)")
+    ap.add_argument("--style-rep", type=int, default=2, help="트리거 문장(in anime style) 자료를 학습에서 몇 배로 볼지(애니 자료가 적어서)")
     a = ap.parse_args()
     dev = torch.device(a.device)
     opt = Args(dev)
@@ -96,8 +96,8 @@ def main():
     mean = np.load(pjoin("checkpoints", "t2m", model_opt.vq_name, "meta", "mean.npy"))
     std = np.load(pjoin("checkpoints", "t2m", model_opt.vq_name, "meta", "std.npy"))
     tr, va = load_data(a.data, "train", mean, std), load_data(a.data, "val", mean, std)
-    na = sum("anime style" in c for _, c in tr)
-    tr = tr + [x for x in tr if "anime style" in x[1]] * (a.style_rep - 1)
+    na = sum("anime style" in c[0] for _, c in tr)
+    tr = tr + [x for x in tr if "anime style" in x[1][0]] * (a.style_rep - 1)
     print("학습", len(tr), f"(애니 {na}×{a.style_rep})", "검증", len(va), "장치", dev)
     models = {"mask": mask_t, "res": res_t}
     use = ["mask", "res"] if a.part == "both" else [a.part]

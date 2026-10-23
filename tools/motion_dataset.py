@@ -34,7 +34,7 @@ J18 = ["pelvis", "spine", "neck", "head", "l_shoulder", "r_shoulder", "l_elbow",
 I = {n: i for i, n in enumerate(J18)}
 EN = {"대기": "stands in a fighting stance", "공격": "attacks", "공격_킥": "throws a kick", "공격_펀치": "throws a punch",
       "공격_무기": "swings a weapon", "공격_던지기": "throws the opponent", "공격_기타": "attacks", "막기·회피": "blocks and dodges",
-      "이동": "dashes forward", "점프·공중": "jumps through the air", "피격": "gets hit and recoils", "쓰러짐·누움": "falls to the ground"}
+      "이동": "dashes forward", "점프·공중": "jumps through the air", "피격": "gets hit and recoils", "쓰러짐·누움": "is knocked down to the ground"}  # "falls"는 하늘에서 떨어짐과 헷갈려 피한다
 
 
 def to22(P):
@@ -74,6 +74,17 @@ def foot_lock_root(P):
     return out
 
 
+def quality(P):
+    """망가진 2D→3D 창 거르기용: (가속 95%, 어깨-골반 비틀림 90%) — 미터/프레임², 도."""
+    acc = np.linalg.norm(np.diff(P, 2, axis=0), axis=-1)
+    sh = P[:, I["l_shoulder"]] - P[:, I["r_shoulder"]]
+    hp = P[:, I["l_hip"]] - P[:, I["r_hip"]]
+    sh[:, 1] = 0
+    hp[:, 1] = 0
+    c = (sh * hp).sum(-1) / (np.linalg.norm(sh, axis=-1) * np.linalg.norm(hp, axis=-1) + 1e-9)
+    return float(np.percentile(acc, 95)), float(np.percentile(np.degrees(np.arccos(np.clip(c, -1, 1))), 90))
+
+
 def resample(P, src, dst):
     n = int((len(P) - 1) * dst / src) + 1
     t = np.arange(n) * src / dst
@@ -106,6 +117,18 @@ def anime_labels():
     return lab
 
 
+def ext_captions(path):
+    """Codex 등이 만든 동작 문장 csv(출처,애니메이터,post_id,시작,끝,…,caption_en,caption_en_2,확신) → {post_id: [(시작, 끝, [문장], 확신)]}."""
+    out = {}
+    if not path or not os.path.exists(path):
+        return out
+    for r in csv.DictReader(open(path, encoding="utf-8-sig")):
+        caps = [c.strip().rstrip(".") for c in (r.get("caption_en"), r.get("caption_en_2")) if c and c.strip()]
+        if caps and r.get("확신") != "낮음":
+            out.setdefault(r["post_id"], []).append((int(r["시작"]), int(r["끝"]), caps))
+    return out
+
+
 def caption(labels, pid, a, b, style):
     hit = [t for s, e, t in labels.get(pid, []) if s <= b and e >= a]
     sub = [t for t in hit if t.startswith("공격_")]
@@ -126,6 +149,10 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--mocap-max", type=int, default=4000)
     ap.add_argument("--style", default="in anime style")
+    ap.add_argument("--captions", help="동작 설명 문장 csv(예: data/style_kb/ai_results/codex_action_captions_*.csv). 겹치는 창은 이 문장을 쓴다")
+    ap.add_argument("--max-acc", type=float, default=0.17, help="가속 95%가 이보다 크면 버림(측정: 중앙 0.086, 상위 25% 0.171)")
+    ap.add_argument("--max-twist", type=float, default=45.0, help="어깨-골반 비틀림 90%가 이보다 크면 버림(상위 10%)")
+    ap.add_argument("--keep-generic", action="store_true", help="판정 문장이 없는 애니 창('fights')도 쓴다(기본: 뺀다)")
     a = ap.parse_args()
     sys.path.insert(0, a.momask)
     import utils.motion_process as mp
@@ -154,12 +181,16 @@ def main():
         i = f"{n:06d}"
         n += 1
         np.save(os.path.join(a.out, "new_joint_vecs", i + ".npy"), feat.astype(np.float32))
+        caps = cap if isinstance(cap, list) else [cap]
         with open(os.path.join(a.out, "texts", i + ".txt"), "w", encoding="utf-8") as fh:
-            fh.write(f"{cap}#{' '.join(w + '/OTHER' for w in cap.replace(',', '').split())}#0.0#0.0\n")
+            for c in caps:  # 문장이 여럿이면 줄마다(학습 때 하나를 무작위로 고른다)
+                fh.write(f"{c}#{' '.join(w + '/OTHER' for w in c.replace(',', '').split())}#0.0#0.0\n")
+        cap = caps[0]
         rows.append((i, src, cap, len(feat)))
 
     labels = anime_labels()
-    na = nl = 0
+    ext = ext_captions(a.captions)
+    na = nl = nq = ne = 0
     for an in ("nian41", "yutaka_nakamura"):  # 보충 애니메이터 몸동작은 쓰지 않는다(AGENTS)
         for f in sorted(glob.glob(os.path.join(a.anim, an, "*.npz"))):
             d = np.load(f)
@@ -175,16 +206,27 @@ def main():
                         continue
                     P = upright(P)
                     P = savgol_filter(P, 7, 2, axis=0) if len(P) >= 7 else P
+                    acc95, tw90 = quality(P)
+                    if acc95 > a.max_acc or tw90 > a.max_twist:
+                        nq += 1
+                        continue
                     P = foot_lock_root(P)
                     P = resample(P, fps, 20)
                     f0 = int(d["start"][k]) + s
                     for w0, w1 in windows(len(P)):
                         a0, a1 = f0 + int(w0 * fps / 20), f0 + int(w1 * fps / 20)
-                        cap, has = caption(labels, pid, a0, a1, a.style)
+                        hit = [c for s0, e0, c in ext.get(pid, []) if s0 <= a1 and e0 >= a0]
+                        if hit:  # 구체적 동작 문장(겹치는 판정 묶음 중 첫 것) + 트리거
+                            cap, has = [f"{c}, {a.style}" for c in hit[0]], True
+                            ne += 1
+                        else:
+                            cap, has = caption(labels, pid, a0, a1, a.style)
+                        if not has and not a.keep_generic:
+                            continue
                         save(to22(P[w0:w1]), cap, f"{an}:{pid}:{a0}-{a1}")
                         na += 1
                         nl += has
-    print("애니 창", na, "판정 문장", nl)
+    print("애니 창", na, "판정 문장", nl, "외부 문장", ne, "품질로 버린 구간", nq)
     # 모캡(잊지 않게 섞기): 공격·피격·점프·방어·구르기·달리기 위주, 걷기·감정 표현은 적게
     desc = {}
     for r in csv.DictReader(open(os.path.join(ROOT, "data", "mocap", "mocap_index_2026-10-21.csv"), encoding="utf-8-sig")):
