@@ -66,10 +66,25 @@ def find_start(video, sfa0):
     return k, float(errs[k])
 
 
-def label(img, text):
-    cv2.rectangle(img, (0, 0), (PW, 22), (0, 0, 0), -1)
-    cv2.putText(img, text, (6, 16), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+FONT = next((f for f in ("/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf", "/usr/share/fonts/truetype/nanum/NanumGothic.ttf")
+             if os.path.exists(f)), None)  # 한글 표시(없으면 apt-get install fonts-nanum)
+
+
+def put_text(img, text, xy, size=16, color=(255, 255, 255)):
+    """한글 글자 쓰기(나눔고딕). 글꼴이 없으면 cv2 영문 글자로 대신한다."""
+    if FONT is None:
+        cv2.putText(img, text, (xy[0], xy[1] + size), cv2.FONT_HERSHEY_SIMPLEX, size / 32, color, 1, cv2.LINE_AA)
+        return img
+    from PIL import Image, ImageDraw, ImageFont
+    im = Image.fromarray(img[..., ::-1])
+    ImageDraw.Draw(im).text(xy, text, font=ImageFont.truetype(FONT, size), fill=color[::-1])
+    img[:] = np.asarray(im)[..., ::-1]
     return img
+
+
+def label(img, text):
+    cv2.rectangle(img, (0, 0), (PW, 24), (0, 0, 0), -1)
+    return put_text(img, text, (6, 3), 15)
 
 
 def main():
@@ -88,21 +103,20 @@ def main():
     else:
         start, err = int(a.start), float("nan")
     names = ["원본"] + [n_ for n_, _ in BGS]
-    # 한글 글자는 cv2가 못 쓰므로 표시 이름은 영문
-    shown = ["original", "SFA on black (as made)", "SFA on white", "SFA on gray", "SFA on sky color"]
+    shown = ["원본", "SFA · 검정 바탕(만든 그대로)", "SFA · 흰 바탕", "SFA · 회색 바탕", "SFA · 하늘색 바탕"]
     vw = cv2.VideoWriter(a.out, cv2.VideoWriter_fourcc(*"mp4v"), fps, (PW * 3, PH * 2))
     blank = np.zeros((PH * 2, PW * 3, 3), np.uint8)
     for _ in range(a.loops):
         for k in range(n):
             vk = video[min(start + k, len(video) - 1)].copy()
-            tiles = [label(vk, f"{shown[0]}  frame {start + k}")]
+            tiles = [label(vk, f"{shown[0]}  {start + k}프레임")]
             for i, (name, _) in enumerate(BGS):
                 tiles.append(label(R[name][k].copy(), shown[i + 1]))
             info = np.zeros((PH, PW, 3), np.uint8)
-            for j, line in enumerate([os.path.basename(a.sfa), f"SFA frames {n}  start {start}",
-                                      f"file {os.path.getsize(a.sfa) / 1e6:.1f} MB", f"normal speed {fps:.2f} fps",
-                                      f"match err {err:.1f}" if err == err else ""]):
-                cv2.putText(info, line, (10, 40 + 30 * j), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (230, 230, 230), 1, cv2.LINE_AA)
+            for j, line in enumerate([os.path.basename(a.sfa), f"SFA {n}장 · 시작 {start}프레임",
+                                      f"파일 {os.path.getsize(a.sfa) / 1e6:.1f}MB", f"정상 속도 {fps:.2f}fps",
+                                      f"일치 오차 {err:.1f}" if err == err else ""]):
+                put_text(info, line, (12, 24 + 32 * j), 18, (230, 230, 230))
             tiles.append(info)
             vw.write(np.vstack([np.hstack(tiles[:3]), np.hstack(tiles[3:])]))
         for _ in range(int(fps * 0.4)):

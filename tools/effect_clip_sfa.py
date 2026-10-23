@@ -92,6 +92,27 @@ def frame_xml(doc, pos, wr, W, bg):
     return "\n".join(out)
 
 
+def decontaminate(img, valid, de, band):
+    """마스크 가장자리 띠(band px)에서 주변 배경색과 Lab ΔE < de인 픽셀을 마스크에서 뺀다.
+    주변 배경색 = 마스크 바깥 픽셀만으로 낸 큰 흐림(정규화 합성곱) — 장면마다 다른 바탕(흰·보라 우주 등)을 따라간다."""
+    import cv2
+    m = (valid > 0).astype(np.float32)
+    out = 1.0 - m
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB).astype(np.float32)
+    lab[..., 0] *= 100 / 255
+    lab[..., 1:] -= 128
+    ks = (31, 31)
+    num = cv2.blur(lab * out[..., None], ks)
+    den = cv2.blur(out, ks)[..., None]
+    bgl = num / np.maximum(den, 1e-3)
+    inner = cv2.erode(valid, np.ones((2 * band + 1, 2 * band + 1), np.uint8))
+    edge = (valid > 0) & (inner == 0) & (den[..., 0] > 0.02)
+    close = np.linalg.norm(lab - bgl, axis=-1) < de
+    v = valid.copy()
+    v[edge & close] = 0
+    return v
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("video")
@@ -104,7 +125,11 @@ def main():
     ap.add_argument("--check")
     ap.add_argument("--mask")
     ap.add_argument("--bg", default="0,0,0")
-    ap.add_argument("--grow", type=int, default=2, help="마스크 넓히기(px): 이펙트 가장자리 선까지 담는다")
+    ap.add_argument("--grow", type=int, default=2, help="마스크 넓히기(px, 음수면 좁히기): 이펙트 가장자리 선까지 담는다")
+    ap.add_argument("--decontam", type=float, default=0.0,
+                    help="배경 오염 빼기(Lab ΔE, 0=끔): 마스크 가장자리 띠에서 주변 배경색(마스크 바깥 근처 평균)과 이보다 가까운 픽셀을 뺀다 "
+                         "(2026-10-23: 흰·보라 배경이 테두리로 들어옴)")
+    ap.add_argument("--band", type=int, default=5, help="--decontam이 보는 가장자리 띠 두께(px)")
     a = ap.parse_args()
     bg = [int(v) for v in a.bg.split(",")]
     masks = None
@@ -113,8 +138,9 @@ def main():
         z = np.load(a.mask)
         shp = tuple(int(v) for v in z["shape"])
         M = np.unpackbits(z["mask"], axis=-1)[..., :shp[2]].astype(np.uint8)
-        k = np.ones((2 * a.grow + 1, 2 * a.grow + 1), np.uint8)
-        masks = {int(f): cv2.dilate(M[i], k) for i, f in enumerate(z["frames"])}
+        k = np.ones((2 * abs(a.grow) + 1, 2 * abs(a.grow) + 1), np.uint8)
+        op = cv2.dilate if a.grow >= 0 else cv2.erode
+        masks = {int(f): op(M[i], k) for i, f in enumerate(z["frames"])}
     frames = list(range(a.start, a.end + 1, a.step))
     wr = Writer()
     body, stats, imgs = [], [], []
@@ -128,6 +154,8 @@ def main():
             if valid.shape != img.shape[:2]:
                 import cv2
                 valid = cv2.resize(valid, (W, H), interpolation=cv2.INTER_NEAREST)
+            if a.decontam > 0:
+                valid = decontaminate(img, valid, a.decontam, a.band)
         # 분해는 원본 그림으로 한다(바깥을 바탕색으로 칠하면 이펙트 가장자리가 선으로 잡혔다). 비교 그림만 바깥을 바탕색으로
         doc, _ = decompose(img, a.k, a.tol, valid=valid)
         if valid is not None:
