@@ -50,7 +50,7 @@ def iter_frames(path, want=None):
 class Geo:
     def __init__(self, seq, W, H):
         R = float(seq.get('HeightWidthRatio') or 0.5625) or 0.5625
-        P = PARAMS['pad']
+        P = PARAMS['pad'] * W / 1920  # 여백은 앱 기준 화면 1920 폭에서 6화소 — 작은 그림에서도 같은 비율(2026-10-24, 비교 영상 작은 칸에서 4배 두꺼웠음)
         aw, ah = min(max(W - 2 * P, 1), W), min(max(H - 2 * P, 1), H)
         if ah / aw > R:
             uw, uh = aw, aw * R
