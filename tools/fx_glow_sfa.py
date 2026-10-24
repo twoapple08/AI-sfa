@@ -188,6 +188,7 @@ def main():
                     help="장마다 그림으로 임팩트 프레임인지 판정해 아닌 장은 빈 장으로(--only와 함께 쓰면 그 범위 ±8 안에서만)")
     ap.add_argument("--fit", choices=["crop", "pad", "none"], default="crop",
                     help="16:9가 아닌 원본(4:3 등)을 16:9로: crop = 위아래 자르기(기본), pad = 양옆 검정, none = 원본 비율")
+    ap.add_argument("--keep", help="판정과 상관없이 임팩트로 그릴 장 범위(사람·GPT 판정 '살림', 2026-10-24)")
     ap.add_argument("--skip", help="임팩트가 아닌 장(번개 연출 등) 범위 — 판정과 상관없이 빈 장(사람이 지정)")
     ap.add_argument("--wash", help="임팩트와 일반 장면이 섞인 장(흰 막이 옅어지는 전환) 범위 — 장면은 빼고 흰 막만 반투명 한 겹으로(사람이 지정)")
     ap.add_argument("--tail", type=int, default=0,
@@ -209,6 +210,7 @@ def main():
     imgs = {f: fit_16_9(x, a.fit) for f, x in imgs.items()}
     only = parse_ranges(a.only) if a.only else None
     skip_set = parse_ranges(a.skip) if a.skip else set()
+    keep_set = parse_ranges(a.keep) if a.keep else set()
     wash = parse_ranges(a.wash) if a.wash else set()
     scene_dark = 0.0
     if wash:  # 섞인 구간 바로 뒤 장(일반 장면만 남은 장)의 어두운 쪽 밝기 = 장면 자체의 어두움
@@ -237,7 +239,7 @@ def main():
             # 몸통이 뚫린 주황 고리로 그려졌다(2026-10-23 사용자 '가' 선택). 앞쪽·범위 사이의 ±8 허용은 그대로.
             near_only = only is None or (f <= max(only) + a.tail and any(g in only for g in range(f - 8, f + 9)))
             # 앞뒤 장면과의 차이로 판정해 보았으나 앞뒤가 다른 컷이면 일반 장면까지 들어가 쓰지 않는다(2026-10-23)
-            skip = not (near_only and is_impact_frame(raw[f], not a.keep_yellow, a.yellow_frame, only is None or f in only))
+            skip = f not in keep_set and not (near_only and is_impact_frame(raw[f], not a.keep_yellow, a.yellow_frame, only is None or f in only))
         if skip:
             body.append(frame_xml({"layers": [], "lines": []}, pos, wr, W, argb(bg)))
             print(f, "빈 장(판정 범위 밖)", flush=True)
