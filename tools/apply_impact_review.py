@@ -68,7 +68,8 @@ def main():
         if len(parts) < 4:
             continue
         f, s, e, only = parts[:4]
-        sec = f"{f.split('_')[0]}_{s}"
+        # 다른 작가 줄은 `<작가>/<게시물>_<해시>.mp4` → 구간 이름 `<작가>_<게시물>_<시작>`(시트 이름과 같다)
+        sec = (f.split("/")[0] + "_" if "/" in f else "") + f"{os.path.basename(f).split('_')[0]}_{s}"
         d = rev.get(sec)
         if d is None:
             unseen.append(sec)
