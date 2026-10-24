@@ -60,3 +60,13 @@ Drive AI-sfa/04_SFA시험작/임팩트_검정기준/묶음2_16차규칙/의 shee
 data/style_kb/ai_results/gpt_IMPACT_REVIEW_묶음2_2026-10-24.csv로 저장하고 커밋·푸시해 줘. 판정표나 자동 규칙을 믿지 말고 그림을 보고 판단해.
 끝나면 커밋 해시, 파일 경로, 구간 수, 뺌/살림 장 수, 확신 낮음 목록을 알려 줘. 한국어로.
 ```
+
+## 다른 작가 판정 프롬프트(2026-10-24)
+구간 이름은 시트 이름의 `sheet_` 뒤 전부다(예: `sheet_riooo_141149_54.jpg` → `riooo_141149_54`). 기준은 위 '사용자 기준' 그대로(나카무라와 같다).
+```text
+저장소 twoapple08/AI-sfa 브랜치 ccr-bccf15a6-d6ee46에서 docs/GPT-PROMPT-IMPACT-REVIEW-2026-10-24.md를 다시 읽고 그대로 작업해 줘(맨 끝 '다른 작가 판정 프롬프트' 절의 구간 이름 규칙 포함).
+Drive AI-sfa/04_SFA시험작/임팩트_다른작가/전체/의 sheet_*.jpg 88개(riooo·optical-core·yukina_kosaka)를 모두 보고, 문서의 '사용자 기준'으로 장마다 뺌/살림을 판정해서
+data/style_kb/ai_results/gpt_IMPACT_REVIEW_다른작가_2026-10-24.csv로 저장하고 커밋·푸시해 줘. 판정표나 자동 규칙을 믿지 말고 그림을 보고 판단해.
+끝나면 커밋 해시, 작가별 구간 수, 뺌/살림 장 수, 확신 낮음 목록을 알려 줘. 한국어로.
+```
+

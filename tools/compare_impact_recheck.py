@@ -43,9 +43,16 @@ def main():
         sec[r["구간"]] = (int(r["시작"]), int(r["끝"]), {int(x) for x in r["그린장목록"].split()})
     user = defaultdict(dict)  # 구간 → {장: 남김/뺌}
     for r in csv.DictReader(open(a.user, encoding="utf-8-sig")):
-        v = "남김" if r["판정"].strip() in ("살림", "확인") else "뺌"
+        # '확인'은 GPT 판정을 취소하는 줄이라 그 장의 실제 결정은 지금 최종본 상태다(272649 582–583: GPT 살림 취소 = 뺌)
+        if r["판정"].strip() == "확인":
+            s0 = r["구간"].strip()
+            for f in frames(r["프레임"]):
+                user[s0][f] = "남김" if s0 in sec and f in sec[s0][2] else "뺌"
+            continue
+        v = "남김" if r["판정"].strip() == "살림" else "뺌"
         for f in frames(r["프레임"]):
             user[r["구간"].strip()][f] = v
+    # GPT가 적지 않은 장은 '지금 상태 유지'로 본다(재판정 파일은 바꿀 장만 적는다)
     gcut, gkeep, glow, seen = defaultdict(set), defaultdict(set), defaultdict(set), set()
     for r in csv.DictReader(open(a.gpt, encoding="utf-8-sig")):
         s = r["구간"].strip()
@@ -64,17 +71,25 @@ def main():
             if not lo <= f <= hi:
                 continue
             want = "뺌" if f in gcut[s] else "남김"
-            if f in u:  # 사용자가 정한 장: 비교만
-                if u[f] != want:
-                    dis.append((s, f, u[f], want))
-                else:
-                    agree += 1
+            if f in u:  # 사용자가 정한 장은 아래에서 따로 비교
                 continue
             now = "남김" if f in drawn else "뺌"
             if now != want:
                 rows.append({"구간": s, "프레임": f, "지금": now, "GPT재판정": want, "확신낮음": "예" if f in glow[s] else ""})
                 n_out += want == "뺌"
                 n_in += want == "남김"
+    for s, u in user.items():
+        if s not in sec:
+            continue
+        lo, hi, drawn = sec[s]
+        for f, uv in u.items():
+            if not lo <= f <= hi:
+                continue
+            gv = "뺌" if f in gcut[s] else "남김" if f in gkeep[s] else ("남김" if f in drawn else "뺌")
+            if gv == uv:
+                agree += 1
+            else:
+                dis.append((s, f, uv, gv))
     unseen = sorted(set(sec) - seen)
     print(f"구간 {len(sec)} · GPT 판정 있는 구간 {len(seen & set(sec))} · 판정 없는 구간 {len(unseen)}")
     print(f"바뀌는 장(사용자 결정 제외): 빠짐 {n_out} · 들어옴 {n_in} · 그중 확신 낮음 {sum(1 for r in rows if r['확신낮음'])}")
