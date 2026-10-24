@@ -123,6 +123,8 @@ def main():
     dev = "cuda" if torch.cuda.is_available() else "cpu"
     pred = SAM2VideoPredictor.from_pretrained(MODELS[a.model], device=dev)
     plan = json.load(open(a.plan, encoding="utf-8"))
+    # GPT 지시 파일(docs/GPT-PROMPT-FX35-MASK-PLAN-2026-10-24.md)은 {"번호": {"확신", "설명", "지시": [...]}} 꼴
+    plan = {k: (v["지시"] if isinstance(v, dict) else v) for k, v in plan.items()}
     only = set(a.only.split(",")) if a.only else None
     os.makedirs(a.out_dir, exist_ok=True)
     for d in sorted(x for x in glob.glob(os.path.join(a.frames_root, "*")) if os.path.isdir(x)):
