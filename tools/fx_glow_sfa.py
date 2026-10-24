@@ -266,7 +266,7 @@ def main():
             print(f, doc["stats"], flush=True)
             continue
         skip = only is not None and f not in only
-        if f in skip_set:  # 사람이 임팩트가 아니라고 지정한 장(예: 167784 309–310 번개 연출)
+        if f in skip_set and f not in keep_set:  # 사람이 임팩트가 아니라고 지정한 장(예: 167784 309–310 번개 연출). 살림이 범위 빼기보다 우선(74684 1321)
             body.append(frame_xml({"layers": [], "lines": []}, pos, wr, W, argb(bg)))
             print(f, "빈 장(지정 제외)", flush=True)
             continue
