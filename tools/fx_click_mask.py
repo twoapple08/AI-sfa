@@ -13,7 +13,8 @@
   왼쪽 클릭  이펙트(이 부분을 잡아라)        오른쪽 클릭  아님(인물·바위·배경 — 빼라)
   A / D      앞 장 / 뒤 장 보기(이펙트가 잘 보이는 장에서 클릭)
   N          새 물체(떨어져 있는 다른 이펙트 덩어리 — 예: 불꽃 따로, 연기 따로)
-  Z          마지막 클릭 취소          R  이 구간 처음부터
+  Z          마지막 클릭 취소(Ctrl+Z·백스페이스도)          R  이 구간 처음부터
+  ※ 키보드를 영문 입력으로(한글 입력이면 Z가 'ㅋ'로 들어가 키가 먹지 않는다)
   Enter      확정 → 구간 전체로 따라가기 → 결과 미리 보기(아무 키: 저장, R: 다시)
   S          이 구간 건너뛰기(이펙트를 잡을 수 없음)          Q  끝내기(다음에 이어서 하면 끝난 구간은 건너뜀)
 사용: python fx_click_mask.py <click_frames 폴더> <출력 폴더> [--model large|base_plus|small] [--only 번호]
@@ -112,7 +113,7 @@ def run_segment(pred, torch, d, out_dir):
                 idx = min(n - 1, idx + 1)
             elif k in (ord("n"), ord("N")):
                 cur_obj += 1
-            elif k in (ord("z"), ord("Z")) and clicks:
+            elif k in (ord("z"), ord("Z"), 26, 8) and clicks:  # Z, Ctrl+Z(26), 백스페이스(8)
                 clicks.pop()
                 replay()
             elif k in (ord("r"), ord("R")):
