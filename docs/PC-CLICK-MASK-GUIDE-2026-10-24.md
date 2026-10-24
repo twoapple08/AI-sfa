@@ -2,9 +2,12 @@
 
 이펙트 위를 몇 번 클릭하면 SAM 2(영상 분할 모델)가 그 이펙트만 오려서 구간 끝까지 따라갑니다. 결과 마스크로 Claude가 서버에서 SFA를 다시 만듭니다. 대상은 확인된 이펙트 후보 35구간(1,055장)입니다.
 
+**고치기 방식(기본, 2026-10-24 사용자 "너가 더 잘 깎는 것 같은데"):** 자동 마스크(Kaggle v3)가 먼저 깔려 있고, 사용자는 틀린 곳만 클릭합니다. 왼쪽 클릭 = 놓친 이펙트 더하기, 오른쪽 클릭 = 잘못 잡힌 인물·바위 빼기. 자동이 맞으면 클릭 없이 Enter.
+
 ## 준비물 (Drive `AI-sfa/02_분석자료/이펙트_클릭마스크/`)
 - `click_frames_35.zip` — 35구간 장면 사진(73MB)
-- `fx_click_mask.py` — 클릭 프로그램
+- `fx_click_mask.py` — 클릭 프로그램(고치기 방식 판, 새로 받아 덮어쓰기)
+- `auto_masks_35.zip` — 자동 마스크(11MB). `H:\fx\auto\`에 압축 풀기 → `H:\fx\auto\239068_900_v3.npz` …
 - 이 안내서
 
 ## 1. 설치 (처음 한 번, 30분 안팎)
@@ -13,23 +16,40 @@
 3. **명령 프롬프트**(시작 → `cmd`)에서 한 줄씩:
    ```
    py -3.11 -m venv H:\fx\env
-   H:\fx\env\Scripts\activate
-   pip install torch==2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu124
-   pip install sam2 huggingface_hub opencv-python
+   set TMP=H:\fx\tmp
+   set TEMP=H:\fx\tmp
+   set HF_HOME=H:\fx\hf
+   H:\fx\env\Scripts\python.exe -m pip install --no-cache-dir torch==2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu124
+   H:\fx\env\Scripts\python.exe -m pip install --no-cache-dir sam2 huggingface_hub opencv-python
    ```
+   - C 드라이브가 꽉 차 있으면 설치가 C로 가서 실패합니다. 위처럼 TMP·TEMP·HF_HOME을 H로 돌리고, 파이썬은 `H:\fx\env\Scripts\python.exe` 전체 경로로 부릅니다(`H:\fx\tmp`, `H:\fx\hf` 폴더는 먼저 만들기).
    - `sam2` 설치가 빌드 오류로 실패하면 `set SAM2_BUILD_CUDA=0` 입력 후 마지막 줄을 다시 실행.
    - GPU 확인: `python -c "import torch; print(torch.cuda.is_available())"` → `True`가 나와야 합니다.
 
 ## 2. 실행
 ```
-H:\fx\env\Scripts\activate
-python H:\fx\fx_click_mask.py H:\fx\click_frames H:\fx\out
+set HF_HOME=H:\fx\hf
+H:\fx\env\Scripts\python.exe H:\fx\fx_click_mask.py H:\fx\click_frames H:\fx\out --auto H:\fx\auto
 ```
+- `--auto`를 빼면 예전 방식(처음부터 클릭)입니다.
 - 처음 실행할 때 모델(약 900MB)을 자동으로 받습니다.
 - 구간이 하나씩 창에 뜹니다. 끝낸 구간은 다음에 실행해도 건너뜁니다(중간에 Q로 끝내도 됨).
 - 특정 구간만: `--only 001,008`. 느리면 `--model small`.
 
-## 3. 조작
+## 3. 조작 — 고치기 방식(`--auto`)
+| 키·마우스 | 동작 |
+|---|---|
+| (처음 화면) | 색으로 덮인 곳 = 자동 마스크 |
+| **왼쪽 클릭** | 놓친 이펙트 더하기 — 초록 점, 클릭한 덩어리가 구간 전체에 더해짐 |
+| **오른쪽 클릭** | 잘못 잡힌 것 빼기(인물·바위·배경) — 빨간 점, 클릭한 덩어리가 구간 전체에서 빠짐 |
+| N | 다음 묶음 — 떨어진 다른 덩어리를 따로 더하거나 뺄 때 |
+| A / D, Z, R, S, Q | 아래 처음부터 방식과 같음 |
+| **Enter** | 클릭 없음 = 자동 그대로 저장 / 클릭 있음 = 따라가기 → 두 바퀴 재생 → 아무 키: 저장, R: 다시 |
+
+- 한 덩어리를 덜 덮으면 같은 쪽 클릭을 더 하세요(같은 묶음 안 클릭은 한 물체로 합쳐짐).
+- 009 181174_841은 자동 마스크가 비어 있어(자동이 아무것도 못 잡음) 왼쪽 클릭으로 처음부터 잡아야 합니다.
+
+## 3-1. 조작 — 처음부터 방식(`--auto` 없음)
 | 키·마우스 | 동작 |
 |---|---|
 | **왼쪽 클릭** | 이펙트(이 부분을 잡아라) — 초록 점 |
