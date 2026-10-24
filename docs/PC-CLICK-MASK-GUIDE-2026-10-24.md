@@ -9,11 +9,11 @@
 
 ## 1. 설치 (처음 한 번, 30분 안팎)
 1. **파이썬 3.11** 설치: python.org → Downloads → Python 3.11.x(Windows installer 64-bit). 설치 첫 화면에서 **"Add python.exe to PATH" 체크**.
-2. **작업 폴더** `C:\fx`를 만들고 Drive의 `click_frames_35.zip`, `fx_click_mask.py`를 받아 넣습니다. zip은 그 자리에 압축을 풀어 `C:\fx\click_frames\001_239068_900\…`이 되게 합니다. **경로에 한글을 넣지 마세요**(사진 읽기가 실패할 수 있음).
+2. **작업 폴더** `H:\fx`를 만들고 Drive의 `click_frames_35.zip`, `fx_click_mask.py`를 받아 넣습니다. zip은 그 자리에 압축을 풀어 `H:\fx\click_frames\001_239068_900\…`이 되게 합니다. **경로에 한글을 넣지 마세요**(사진 읽기가 실패할 수 있음).
 3. **명령 프롬프트**(시작 → `cmd`)에서 한 줄씩:
    ```
-   py -3.11 -m venv C:\fx\env
-   C:\fx\env\Scripts\activate
+   py -3.11 -m venv H:\fx\env
+   H:\fx\env\Scripts\activate
    pip install torch==2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu124
    pip install sam2 huggingface_hub opencv-python
    ```
@@ -22,8 +22,8 @@
 
 ## 2. 실행
 ```
-C:\fx\env\Scripts\activate
-python C:\fx\fx_click_mask.py C:\fx\click_frames C:\fx\out
+H:\fx\env\Scripts\activate
+python H:\fx\fx_click_mask.py H:\fx\click_frames H:\fx\out
 ```
 - 처음 실행할 때 모델(약 900MB)을 자동으로 받습니다.
 - 구간이 하나씩 창에 뜹니다. 끝낸 구간은 다음에 실행해도 건너뜁니다(중간에 Q로 끝내도 됨).
@@ -50,7 +50,7 @@ python C:\fx\fx_click_mask.py C:\fx\click_frames C:\fx\out
 - 기준은 임팩트 때와 같습니다: 이펙트만, 인물·배경은 빼기.
 
 ## 4. 끝나면
-`C:\fx\out` 폴더의 `*_click.npz`(와 건너뛴 구간의 `*_skip.txt`)를 Drive `AI-sfa/02_분석자료/이펙트_클릭마스크/결과/`에 올리고 알려 주세요. Claude가 이 마스크로 35개 SFA를 다시 만들어 비교 영상으로 보여 드립니다.
+`H:\fx\out` 폴더의 `*_click.npz`(와 건너뛴 구간의 `*_skip.txt`)를 Drive `AI-sfa/02_분석자료/이펙트_클릭마스크/결과/`에 올리고 알려 주세요. Claude가 이 마스크로 35개 SFA를 다시 만들어 비교 영상으로 보여 드립니다.
 
 ## 참고 (Claude용)
 - 출력은 kaggle_fx_worker v3와 같은 키라 `effect_clip_sfa.py --mask <게시물>_<시작>_click.npz`로 바로 쓴다(frames = 원본 영상 장 번호).
