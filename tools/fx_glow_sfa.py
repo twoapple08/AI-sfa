@@ -199,6 +199,9 @@ def main():
                                    "임팩트 판정표(impact_classify)의 '맞음' 범위를 넣어 일반 프레임에 넘쳐 적용되지 않게 한다(2026-10-23 사용자)")
     a = ap.parse_args()
     bg = [int(x) for x in a.bg.split(",")]
+    n_frames = int(cv2.VideoCapture(a.video).get(cv2.CAP_PROP_FRAME_COUNT))
+    if n_frames > 0 and a.end > n_frames - 1:  # 판정표 끝 + 여유가 영상 끝을 넘는 구간(280456 1460–1492, 영상 1490장)
+        a.end = n_frames - 1
     lo, hi = max(0, a.start - max(a.win, a.pre)), a.end + a.win
     imgs = {}
     for f in range(lo, hi + 1):
