@@ -90,6 +90,10 @@ def run(pred, torch, d, auto_dir, objs, out_dir):
             r[int(y0 * H / 100):int(y1 * H / 100), int(x0 * W / 100):int(x1 * W / 100)] = True
             m &= r
             if o.get("mode", "add") == "add":
+                if not o.get("over_remove"):  # SAM 2 '빼기'(인물·물체)는 색으로 더한 것보다 우선(후광처럼 몸 위에 겹친 빛만 over_remove)
+                    for j, oid in enumerate(oids):
+                        if oid % 2 == 1:
+                            m &= ~masks[j, fi]
                 union[fi] |= m
             else:
                 union[fi] &= ~m

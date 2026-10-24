@@ -130,6 +130,9 @@ def main():
                     help="배경 오염 빼기(Lab ΔE, 0=끔): 마스크 가장자리 띠에서 주변 배경색(마스크 바깥 근처 평균)과 이보다 가까운 픽셀을 뺀다 "
                          "(2026-10-23: 흰·보라 배경이 테두리로 들어옴)")
     ap.add_argument("--band", type=int, default=5, help="--decontam이 보는 가장자리 띠 두께(px)")
+    ap.add_argument("--fit", default="crop", choices=["crop", "none"],
+                    help="16:9가 아닌 원본(4:3 등): crop = 위아래를 잘라 16:9로 채움(2026-10-23 사용자: 목표 16:9 고정). "
+                         "SFA 화면은 16:9라 그대로 두면 가로로 늘어난다(2026-10-24 008·015·035)")
     a = ap.parse_args()
     bg = [int(v) for v in a.bg.split(",")]
     masks = None
@@ -154,8 +157,17 @@ def main():
             if valid.shape != img.shape[:2]:
                 import cv2
                 valid = cv2.resize(valid, (W, H), interpolation=cv2.INTER_NEAREST)
-            if a.decontam > 0:
-                valid = decontaminate(img, valid, a.decontam, a.band)
+        tw = round(H * 16 / 9)
+        if a.fit == "crop" and abs(W - tw) > 2:  # 가운데 16:9를 잘라 높이 H로 키운다(그림과 마스크를 같이)
+            import cv2
+            th = round(W * 9 / 16)
+            y0 = (H - th) // 2
+            img = cv2.resize(img[y0:y0 + th], (tw, H), interpolation=cv2.INTER_CUBIC)
+            if valid is not None:
+                valid = cv2.resize(valid[y0:y0 + th], (tw, H), interpolation=cv2.INTER_NEAREST)
+            W = tw
+        if valid is not None and a.decontam > 0:
+            valid = decontaminate(img, valid, a.decontam, a.band)
         # 분해는 원본 그림으로 한다(바깥을 바탕색으로 칠하면 이펙트 가장자리가 선으로 잡혔다). 비교 그림만 바깥을 바탕색으로
         doc, _ = decompose(img, a.k, a.tol, valid=valid)
         if valid is not None:
