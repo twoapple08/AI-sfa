@@ -2,7 +2,7 @@
 """임팩트 장별 판정(GPT·사람 CSV)을 반영해 SFA를 다시 만든다 (2026-10-24).
 
 판정 CSV(docs/GPT-PROMPT-IMPACT-REVIEW-2026-10-24.md): 구간,프레임,판정,이유,확신,메모
-- 뺌 → `fx_glow_sfa.py --skip`, 살림 → `--keep`, 확인 → 바꾸지 않음.
+- 뺌 → `fx_glow_sfa.py --skip`, 살림 → `--keep`(메모에 갈색·금빛이 있으면 `--warm`도), 확인 → 바꾸지 않음.
 - 확신 '낮음'은 반영하지 않고 사용자 확인 목록으로만 출력한다(기본, --apply-low로 반영).
 묶음 목록(runs) 한 줄 = `<영상 파일명> <시작> <끝> <판정표 범위>`(서버 scratch의 batchN.txt 형식).
 원본 영상·결과는 저장소 밖(서버 scratch·Drive)에만 둔다.
@@ -22,7 +22,7 @@ def load_review(path):
     with open(path, encoding="utf-8-sig") as f:
         for r in csv.DictReader(f):
             sec = r["구간"].strip()
-            d = out.setdefault(sec, {"뺌": [], "살림": [], "낮음": [], "seen": True})
+            d = out.setdefault(sec, {"뺌": [], "살림": [], "warm": [], "낮음": [], "seen": True})
             fr, verdict, conf = r["프레임"].strip(), r["판정"].strip(), r.get("확신", "").strip()
             if fr in ("", "-") or verdict == "확인":
                 continue
@@ -31,6 +31,8 @@ def load_review(path):
                 continue
             if verdict in ("뺌", "살림"):
                 d[verdict].append(fr.replace(" ", ""))
+            if verdict == "살림" and any(w in r.get("메모", "") for w in ("갈색", "금빛")):
+                d["warm"].append(fr.replace(" ", ""))  # 갈색·금빛 섬광은 노랑 화소를 지우지 않는다(--warm)
     return out
 
 
@@ -56,7 +58,7 @@ def main():
         d = rev.get(sec)
         if d is None:
             unseen.append(sec)
-            d = {"뺌": [], "살림": [], "낮음": []}
+            d = {"뺌": [], "살림": [], "warm": [], "낮음": []}
         if a.apply_low:
             for fr, v, _, _ in d["낮음"]:
                 d[v].append(fr)
@@ -71,6 +73,8 @@ def main():
             cmd += ["--skip", ",".join(d["뺌"])]
         if d["살림"]:
             cmd += ["--keep", ",".join(d["살림"])]
+        if d.get("warm"):
+            cmd += ["--warm", ",".join(d["warm"])]
         log = subprocess.run(cmd, capture_output=True, text=True)
         open(os.path.join(a.out, f"log_{sec}.txt"), "w", encoding="utf-8").write(log.stdout + log.stderr)
         if log.returncode:
