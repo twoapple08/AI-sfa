@@ -17,3 +17,7 @@
 4. Claude가 `python tools/apply_impact_review.py <판정.csv> <batchN.txt> <영상 폴더> <출력> --compare`로 반영(뺌 → `--skip`, 살림 → `--keep`, 확신 낮음은 반영하지 않고 목록만; 사용자 결정은 `--override data/style_kb/ai_results/user_IMPACT_overrides_2026-10-24.csv`에 적어 우선 반영)해 다시 만들고, 확신 낮음만 사용자에게 보여 줌.
 
 묶음 1은 사용자가 직접 판정했다(검토 문서 '묶음 1'). 묶음 2부터 GPT 판정.
+
+## 전체 재판정(2026-10-24 사용자 요청)
+"중간 기준이 수정됐으니 최종 기준으로 싹 한번 훑고 비교해 보자." GPT가 최종본 212구간 장별 그림(Drive `임팩트_최종/sheet_*.jpg`)을 최종 기준으로 다시 판정(docs/GPT-PROMPT-IMPACT-RECHECK-2026-10-24.md, 이전 판정·사용자 판정 파일은 보지 않음) → Claude가 최종본과 비교: 바뀌는 장 목록 + 사용자 결정과 GPT 재판정이 다른 장 수(정확도 근거). 사용자 결정은 그대로 우선.
+
