@@ -34,6 +34,7 @@ LIGHT_KS = (7,)  # 밝은 선 찾는 틀 크기(px). 15px 추가는 표본 4장�
 MERGE_DE = 5.0  # (2026-10-22 8 → 5: 폭발 ΔE 11.8 → 10.7, 바탕과 비슷한 밝은 구름이 바탕에 묶이던 것 완화)
 # 반투명 덮기로 설명되는 색 차이 허용(Lab ΔE). BGR 거리는 갈색을 흰색의 어두운 명암으로 잘못 묶었다
 DARK_MAX = 140  # 어두운 선으로 볼 최대 밝기
+MERGE_A = 0.6  # 밑색 묶기에서 덮개(흰·검정) 알파 상한
 SEAM = 2  # 밑색 채우기에 같은 색 외곽선(px)을 더해 이웃 영역 사이 틈을 막는다(SFA: 채우기 + 같은 색 선)
 
 
@@ -101,6 +102,8 @@ def base_and_shade(img, line_mask, k, tol, min_area, valid=None):
             for S in (np.full(3, 255.0), np.zeros(3)):
                 d = S - bgr[i]
                 a = np.clip(np.dot(bgr[j] - bgr[i], d) / max(np.dot(d, d), 1e-6), 0, 1)
+                if a > MERGE_A:  # 거의 검정·거의 흰색을 반대 밑색에 묶으면 밑색이 가장자리에 띠로 드러났다(2026-10-24 020)
+                    continue
                 pred = np.clip(bgr[i] + a * d, 0, 255).astype(np.uint8).reshape(1, 1, 3)
                 if delta_e(pred, bgr[j].astype(np.uint8).reshape(1, 1, 3))[0, 0] < MERGE_DE:
                     group[j] = i
@@ -120,19 +123,27 @@ def base_and_shade(img, line_mask, k, tol, min_area, valid=None):
         _, shapes = outline_mask(reg * 255, tol, min_area)
         layers.append({"kind": "base", "color": B.round(1).tolist(), "alpha": 1.0, "stroke": SEAM, "shapes": shapes})
         C = fimg[reg > 0]
+        reg_out = cv2.dilate(reg, np.ones((3, 3), np.uint8))
+        edge_band = reg - cv2.erode(reg, np.ones((5, 5), np.uint8))
         for sign, S in (("light", np.array([255., 255., 255.])), ("dark", np.zeros(3))):
             d = S - B
             if np.dot(d, d) < 100:
                 continue
             a = np.zeros(img.shape[:2], np.float32)
             a[reg > 0] = np.clip(((C - B) @ d) / np.dot(d, d), 0, 1)
-            a = cv2.GaussianBlur(a, (0, 0), 1.0) * reg
+            # 정규화 흐림: 영역 밖 0과 섞이면 가장자리 알파가 낮아져 가장자리에 밑색 띠(밝은·어두운 테두리)가 생겼다(2026-10-24 020)
+            a = cv2.GaussianBlur(a, (0, 0), 1.0) / np.maximum(cv2.GaussianBlur(reg.astype(np.float32), (0, 0), 1.0), 1e-3) * reg
             prev = 0.0
             for lv in LEVELS:
-                m = (a >= lv).astype(np.uint8)
-                m = cv2.morphologyEx(m, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+                m0 = (a >= lv).astype(np.uint8)
+                m = cv2.morphologyEx(m0, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+                m |= m0 & edge_band  # 영역 가장자리는 열기로 깎지 않는다(계단진 마스크 가장자리마다 밑색이 선처럼 남았다, 020)
                 if m.sum() < min_area:
                     break
+                # 1px 넓혀 윤곽을 딴다: 곡선 맞춤이 윤곽을 안으로 당겨 생긴 틈으로 어두운 밑색이 테두리처럼 보였다(2026-10-24 '외곽선 현상').
+                # 테두리 선으로 덮으면 반투명이 겹쳐 밝은 선이 생겨서, 면 자체를 넓힌다.
+                # 밑색 이음새 선(SEAM 2px)이 영역 밖으로 1px 나가므로 명암도 영역 밖 1px까지 덮는다(안 덮으면 밑색 띠가 테두리로 보였다, 020)
+                m = cv2.dilate(m, np.ones((3, 3), np.uint8)) & reg_out
                 _, sh = outline_mask(m * 255, tol, min_area)
                 if sh:
                     layers.append({"kind": "shade", "tone": sign, "color": S.round(1).tolist(),

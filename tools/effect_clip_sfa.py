@@ -76,15 +76,17 @@ class Writer:
         out.extend(frs)
 
 
-SHADE_SEAM = 0.6  # 명암 층 테두리 선 굵기(SEAM 배수, 0 = 투명 선). 2026-10-24 사용자 "외곽선 현상":
-# 밝은 명암 층 윤곽이 곡선 맞춤·열기(open)로 1px쯤 안으로 들어가 그 틈으로 어두운 밑색이 테두리처럼 보였다
-# → 명암 층도 같은 색·같은 알파의 가는 테두리 선으로 틈을 덮는다.
+SHADE_SEAM = 0.0  # 명암 층 테두리 선 굵기(SEAM 배수, 0 = 투명 선). 2026-10-24 '외곽선 현상' 시험에서 0.6을 써 보니
+# 반투명 면 위에 같은 알파 선이 겹쳐 밝은 선이 생겼다(020·017) → 0으로 두고 effect_layers에서 명암 면을 1px 넓힌다.
 
 
 def frame_xml(doc, pos, wr, W, bg):
     out = [f'<Frame BackgroundColor="{bg & 0xFFFFFFFF}" ID="{pos + 1}" Position="{pos}">',
            '<LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false" />']
-    for L in doc["layers"]:
+    # 밑색을 모두 먼저(어두운 것 → 밝은 것), 명암은 그 뒤에. 밑색 이음새 선(SEAM)은 이웃 영역으로 반 굵기만큼 넘어가는데,
+    # 덩어리마다 '밑색 → 명암' 순서로 그리면 뒤에 그린 어두운 밑색의 이음새가 앞 덩어리의 밝은 명암 위에 검은 선으로 남았다(2026-10-24 016·017·020).
+    bases = sorted((L for L in doc["layers"] if L["kind"] == "base"), key=lambda L: sum(L["color"][:3]))
+    for L in bases + [L for L in doc["layers"] if L["kind"] != "base"]:
         if L["kind"] == "base":
             c = argb(L["color"])
             wr.fill(out, L["shapes"], W, c, c, thick(SEAM, W))
