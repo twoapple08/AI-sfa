@@ -2,6 +2,12 @@
 
 > 2026-10-16 배경(AOT 분석·환경 복구)은 [docs/history/HANDOFF-2026-10-16-archive.md](docs/history/HANDOFF-2026-10-16-archive.md). 상세 프롬프트는 [docs/HANDOFF-PROMPT.md](docs/HANDOFF-PROMPT.md).
 
+## 다른 작가 임팩트 독립 시각 판정 완료 — 2026-10-24
+- 사용자 지정 문서 마지막 절까지 읽고 Drive `AI-sfa/04_SFA시험작/임팩트_다른작가/전체/` JPG 88개를 직접 장별 검토. 자동 분류나 기존 판정 CSV를 판정 근거로 쓰지 않음.
+- 결과 `data/style_kb/ai_results/gpt_IMPACT_REVIEW_다른작가_2026-10-24.csv`: 116행, optical-core 15 / riooo 24 / yukina_kosaka 49구간. 변경표 집계 뺌 162장 / 살림 34장(확인은 변경 없는 구간의 현행 상태 유지).
+- 확신 낮음 8건은 CSV 참조. 갈색·금빛·캐릭터 겹침형 메모 보존. 다음: Claude가 변경표와 낮은 확신을 검토·반영. 원본/SFA·이전 판정·사용자 판정은 수정하지 않음.
+- 검증: 88/88 구간 집합, UTF-8·6열·허용값·범위·중복·집계·이미지 디코딩. 코드 변경 없음. 비공개 캐시 `/workspace/work/impact-other/`, 작업 기록 `/workspace/work/review.json`(환경 교체 시 소실 가능).
+
 ## 임팩트 최종본 독립 재판정 완료 — 2026-10-24
 - 사용자 지정 브랜치 `ccr-bccf15a6-d6ee46`에서 최종 기준 재판정. 결과: `data/style_kb/ai_results/gpt_IMPACT_RECHECK_2026-10-24.csv`.
 - Drive `AI-sfa/04_SFA시험작/임팩트_최종/sheet_*.jpg` 212개를 직접 시각 검토. 최종 구간 목록의 `구간`과 시트·결과의 구간 집합이 212/212 일치. 이전 `gpt_IMPACT_REVIEW_묶음*.csv` 및 `user_IMPACT_overrides_2026-10-24.csv`는 열지 않음.
