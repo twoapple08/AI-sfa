@@ -76,6 +76,11 @@ class Writer:
         out.extend(frs)
 
 
+SHADE_SEAM = 0.6  # 명암 층 테두리 선 굵기(SEAM 배수, 0 = 투명 선). 2026-10-24 사용자 "외곽선 현상":
+# 밝은 명암 층 윤곽이 곡선 맞춤·열기(open)로 1px쯤 안으로 들어가 그 틈으로 어두운 밑색이 테두리처럼 보였다
+# → 명암 층도 같은 색·같은 알파의 가는 테두리 선으로 틈을 덮는다.
+
+
 def frame_xml(doc, pos, wr, W, bg):
     out = [f'<Frame BackgroundColor="{bg & 0xFFFFFFFF}" ID="{pos + 1}" Position="{pos}">',
            '<LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false" />']
@@ -84,7 +89,8 @@ def frame_xml(doc, pos, wr, W, bg):
             c = argb(L["color"])
             wr.fill(out, L["shapes"], W, c, c, thick(SEAM, W))
         else:
-            wr.fill(out, L["shapes"], W, argb(L["color"], L["alpha"]), 0, 0.02)
+            c = argb(L["color"], L["alpha"])
+            wr.fill(out, L["shapes"], W, c, c if SHADE_SEAM > 0 else 0, thick(SEAM * SHADE_SEAM, W) if SHADE_SEAM > 0 else 0.02)
     for ln in doc["lines"]:
         for seg in ln["segs"]:
             wr.curve_ao(out, seg, W, argb(seg[7:10] if len(seg) >= 10 else ln["color"]), thick(seg[6], W))
@@ -125,11 +131,11 @@ def main():
     ap.add_argument("--check")
     ap.add_argument("--mask")
     ap.add_argument("--bg", default="0,0,0")
-    ap.add_argument("--grow", type=int, default=2, help="마스크 넓히기(px, 음수면 좁히기): 이펙트 가장자리 선까지 담는다")
-    ap.add_argument("--decontam", type=float, default=0.0,
-                    help="배경 오염 빼기(Lab ΔE, 0=끔): 마스크 가장자리 띠에서 주변 배경색(마스크 바깥 근처 평균)과 이보다 가까운 픽셀을 뺀다 "
+    ap.add_argument("--grow", type=int, default=0, help="마스크 넓히기(px, 음수면 좁히기). 2026-10-24 기본 2→0: 넓히면 배경색 띠가 외곽선처럼 남았다")
+    ap.add_argument("--decontam", type=float, default=25.0,
+                    help="배경 오염 빼기(Lab ΔE, 0=끔, 2026-10-24 기본 25 — 외곽선 현상 019 시험에서 95% ΔE 10→2.6): 마스크 가장자리 띠에서 주변 배경색(마스크 바깥 근처 평균)과 이보다 가까운 픽셀을 뺀다 "
                          "(2026-10-23: 흰·보라 배경이 테두리로 들어옴)")
-    ap.add_argument("--band", type=int, default=5, help="--decontam이 보는 가장자리 띠 두께(px)")
+    ap.add_argument("--band", type=int, default=6, help="--decontam이 보는 가장자리 띠 두께(px)")
     ap.add_argument("--fit", default="crop", choices=["crop", "none"],
                     help="16:9가 아닌 원본(4:3 등): crop = 위아래를 잘라 16:9로 채움(2026-10-23 사용자: 목표 16:9 고정). "
                          "SFA 화면은 16:9라 그대로 두면 가로로 늘어난다(2026-10-24 008·015·035)")
