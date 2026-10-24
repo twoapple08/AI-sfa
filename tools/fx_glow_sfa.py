@@ -203,13 +203,22 @@ def main():
     if n_frames > 0 and a.end > n_frames - 1:  # 판정표 끝 + 여유가 영상 끝을 넘는 구간(280456 1460–1492, 영상 1490장)
         a.end = n_frames - 1
     lo, hi = max(0, a.start - max(a.win, a.pre)), a.end + a.win
+    # 처음부터 차례로 읽는다: 장 번호로 건너뛰기(cap.set)는 75672(59장)의 56장에서 실패했다(2026-10-24).
+    # 크기 맞추기는 read_frame과 같다(높이 H, INTER_AREA). 영상 끝을 넘는 장은 배경 추정에서 뺀다.
     imgs = {}
-    for f in range(lo, hi + 1):
-        try:
-            imgs[f] = read_frame(a.video, f, H)
-        except BaseException:  # 영상 끝을 넘는 프레임은 배경 추정에서 뺀다(read_frame은 실패하면 종료한다)
-            if f <= a.end:
-                raise
+    cap = cv2.VideoCapture(a.video)
+    f = 0
+    while f <= hi:
+        ok, fr = cap.read()
+        if not ok:
+            break
+        if f >= lo:
+            s = H / fr.shape[0]
+            imgs[f] = cv2.resize(fr, (round(fr.shape[1] * s), H), interpolation=cv2.INTER_AREA)
+        f += 1
+    missing = [g for g in range(a.start, a.end + 1) if g not in imgs]
+    if missing:
+        raise SystemExit(f"프레임 {missing[0]}를 읽지 못함")
     raw = imgs  # 임팩트 판정은 원본 비율 그대로(잘라 낸 뒤 판정하면 167784 302가 다시 들어왔다)
     imgs = {f: fit_16_9(x, a.fit) for f, x in imgs.items()}
     only = parse_ranges(a.only) if a.only else None
