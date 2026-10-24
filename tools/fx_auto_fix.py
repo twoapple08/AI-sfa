@@ -53,7 +53,9 @@ def run(pred, torch, d, auto_dir, objs, out_dir):
             masks = np.unpackbits(z["obj_mask"], axis=-1)[..., :W].astype(bool)
             seg_done = True
     if seg and not seg_done:
-        with torch.inference_mode():
+        # SAM 2 영상 예측기는 기억 특징을 bfloat16으로 저장해 CPU float32 계산과 자료형이 어긋난다(물체 2개 이상에서 오류).
+        # CPU autocast는 매우 느려서, 서버 venv의 sam2_video_predictor.py에서 그 변환을 float32로 바꿔 쓴다.
+        with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16, enabled=torch.cuda.is_available()):
             state = pred.init_state(video_path=d)
             for o, oid in zip(seg, oids):
                 pts = [[x * W / 100, y * H / 100] for x, y in o.get("pts", [])]
