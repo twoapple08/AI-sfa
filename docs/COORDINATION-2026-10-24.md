@@ -14,6 +14,6 @@
 1. Claude가 묶음 N을 돌려 Drive `04_SFA시험작/임팩트_검정기준/묶음N_16차규칙/`에 SFA·mp4·sheet 올림.
 2. 사용자가 GPT 세션에 문서 끝의 프롬프트(묶음 번호만 바꿔)를 붙여 넣음.
 3. GPT가 `data/style_kb/ai_results/gpt_IMPACT_REVIEW_묶음N_2026-10-24.csv` 커밋.
-4. Claude가 `python tools/apply_impact_review.py <판정.csv> <batchN.txt> <영상 폴더> <출력> --compare`로 반영(뺌 → `--skip`, 살림 → `--keep`, 확신 낮음은 반영하지 않고 목록만)해 다시 만들고, 확신 낮음만 사용자에게 보여 줌.
+4. Claude가 `python tools/apply_impact_review.py <판정.csv> <batchN.txt> <영상 폴더> <출력> --compare`로 반영(뺌 → `--skip`, 살림 → `--keep`, 확신 낮음은 반영하지 않고 목록만; 사용자 결정은 `--override data/style_kb/ai_results/user_IMPACT_overrides_2026-10-24.csv`에 적어 우선 반영)해 다시 만들고, 확신 낮음만 사용자에게 보여 줌.
 
 묶음 1은 사용자가 직접 판정했다(검토 문서 '묶음 1'). 묶음 2부터 GPT 판정.
