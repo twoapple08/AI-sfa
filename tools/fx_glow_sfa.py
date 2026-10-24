@@ -61,6 +61,16 @@ def is_impact_frame(img, drop_yellow=True, yellow_frame=0.05, in_table=True):
     # 흰 면이 많아 채도 중앙값이 낮아도 진한 색 면(채도 > 80, 밝기 > 60)이 25% 이상이면 색 연출(162980 320 하늘, 281606 100–102 청록 섬광).
     # 흑백 임팩트의 진한 색 면은 7–14%였다. in_table은 호출 호환을 위해 남긴다.
     colored = float(((hsv[..., 1] > 80) & (v > 60)).mean())
+    # 16차(2026-10-24 사용자 '3번 롤백'): 갈색 단색 톤 실루엣(210085 160–167, 색상 18–20°에 모임 0.995 이상)은 흑백처럼 본다.
+    # 주황 불 장면(210085 157–159·170–172)은 색이 흩어져 모임 0.97 미만, 뺀 분홍·보라 장(162980)은 색상 270–359°였다.
+    m = (hsv[..., 1] > 40) & (v > 60)
+    sepia = False
+    if m.sum() > 20:
+        ang = hsv[..., 0][m].astype(np.float32) * (np.pi / 90)
+        c, s_ = float(np.cos(ang).mean()), float(np.sin(ang).mean())
+        sepia = np.hypot(c, s_) >= 0.99 and 10 <= np.degrees(np.arctan2(s_, c)) % 360 <= 35
+    if sepia:
+        return (white >= 0.15 and mid <= 0.6) or (white >= 0.01 and dark >= 0.5)
     return low_sat and colored < 0.25
 
 
