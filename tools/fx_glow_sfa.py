@@ -89,6 +89,27 @@ def color_groups(C, hue_bins=12):
     return cv2.medianBlur(g, 5)
 
 
+BLEED = 0.008  # 화면 밖으로 미는 정도(폭·높이 비율). 앱은 SFA 화면을 가장자리 여백(1920 폭 기준 6화소 ≈ 0.56%) 안에 그린다.
+
+
+def bleed(shapes, w, h, near=1.5):
+    """가장자리에 닿은 점을 화면 밖으로 민다(2026-10-24 사용자: SFA 영상마다 틀처럼 검은 테두리).
+    윤곽은 가장자리 화소의 가운데를 지나고 앱은 0–100% 바깥 여백을 바탕색으로 남겨, 흰 장일수록 검은 틀이 보였다."""
+    lo_x, hi_x, lo_y, hi_y = -BLEED * w, (1 + BLEED) * w, -BLEED * h, (1 + BLEED) * h
+    for s in shapes:
+        for seg in s["segs"]:
+            for i in range(0, 6, 2):
+                if seg[i] <= near:
+                    seg[i] = lo_x
+                elif seg[i] >= w - 1 - near:
+                    seg[i] = hi_x
+                if seg[i + 1] <= near:
+                    seg[i + 1] = lo_y
+                elif seg[i + 1] >= h - 1 - near:
+                    seg[i + 1] = hi_y
+    return shapes
+
+
 def glow_doc(img, bgimg, tol=1.0, min_area=30, floor=0.0, drop_yellow=True, white=255.0, full_top=False):
     I = img.astype(np.float32)
     B = bgimg.astype(np.float32)
@@ -119,6 +140,7 @@ def glow_doc(img, bgimg, tol=1.0, min_area=30, floor=0.0, drop_yellow=True, whit
             # 묶음 경계에 검은 틈이 보였다(167784 번개, 2026-10-23 사용자 '검은 선') → 같은 층 영역 안에서 1화소 넓혀 이웃 묶음과 겹치게
             mg = cv2.dilate(mg.astype(np.uint8), np.ones((3, 3), np.uint8), iterations=1).astype(bool) & (m > 0)
             _, sh = outline_mask(mg.astype(np.uint8) * 255, tol, min_area)
+            sh = bleed(sh, img.shape[1], img.shape[0])
             if sh:
                 layers.append({"kind": "shade", "color": col.round(1).tolist(),
                                "alpha": round(1 - (1 - cov(lv)) / (1 - cov(prev)), 4), "level": lv, "shapes": sh})
@@ -133,7 +155,7 @@ def wash_doc(img, scene_dark, white=240.0, min_area=30):
     p2 = float(np.percentile(v, 2))
     alpha = float(np.clip((p2 - scene_dark) / max(white - scene_dark, 8), 0, 1))
     full = np.full(img.shape[:2], 255, np.uint8)
-    _, sh = outline_mask(full, 1.0, min_area)
+    sh = bleed(outline_mask(full, 1.0, min_area)[1], img.shape[1], img.shape[0])
     layers = [{"kind": "shade", "color": [255.0, 255.0, 255.0], "alpha": round(alpha, 4), "level": 1.0, "shapes": sh}] if alpha > 0.02 else []
     return {"layers": layers, "lines": [], "stats": {"wash": round(alpha, 3)}}
 
