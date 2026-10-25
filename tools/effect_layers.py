@@ -333,9 +333,14 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
     layers = [] if lines_only else base_and_shade(img, lm | hm, k, tol, min_area, valid, shade_min, levels, shade_tol, sigma)
     if lines_only:
         hsegs = []
-    if line_join:  # 어두운 선: 갈림길을 이은 긴 획(면보다 곡선 수 절반 — 면은 양쪽 테두리가 생긴다)
+    if line_join and line_map is None:  # 어두운 선: 갈림길을 이은 긴 획(면보다 곡선 수 절반 — 면은 양쪽 테두리가 생긴다)
         lsegs = joined_strokes(img, lm, max(tol, 1.5), sigma=max(sigma, 2.0) if sigma else 2.0)
-    if line_map is not None and not line_brush:
+    if line_map is not None and line_join:
+        # 선화 지도 → 가운데 줄기 긴 획(선 객체 = 곡선 + 굵기). 사용자 시연: 어깨선 하나 = 곡선 2개짜리 선. 채우기 면은 양쪽 테두리마다
+        # 점이 빼곡해 앱에서 지저분했다(2026-10-25)
+        src = cv2.cvtColor(line_map, cv2.COLOR_GRAY2BGR)
+        lsegs = [g[:7] + [v * 0.35 for v in g[7:10]] for g in joined_strokes(src, lm, max(tol, 2.5), min_len=8, sigma=max(sigma, 3.0))]
+    elif line_map is not None and not line_brush:
         # 선화 지도 → potrace 윤곽 채우기(사용자: 잡프로그램만도 못하다 → 표준 벡터화 도구로). 선 색 하나(진한 회흑)
         from potrace_lines import trace_shapes
         layers.append({"kind": "line", "color": [30.0, 30.0, 30.0], "alpha": 1.0, "shapes": trace_shapes(line_map)})
