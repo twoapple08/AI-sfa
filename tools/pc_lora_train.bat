@@ -67,6 +67,10 @@ if not "%MSIZE%"=="6938040736" (
 for %%A in ("%MODEL%") do set MSIZE=%%~zA
 if not "%MSIZE%"=="6938040736" (echo [오류] 기본 모델을 다 받지 못했습니다. 다시 실행하면 이어 받습니다. & pause & exit /b 1)
 
+rem 4-2) 글자 처리기(토크나이저) 파일 - 파이썬이 PC방 네트워크의 인증서를 거부해서(SSL: EE certificate key too weak, 2026-10-25) curl로 미리 받아 둠
+for %%T in (openai/clip-vit-large-patch14 laion/CLIP-ViT-bigG-14-laion2B-39B-b160k) do call :gettok %%T
+if not exist %ROOT%\tokenizers\laion_CLIP-ViT-bigG-14-laion2B-39B-b160k\merges.txt (echo [오류] 글자 처리기 파일을 받지 못했습니다. & pause & exit /b 1)
+
 rem 5) 학습 자료 풀기
 if not exist %ROOT%\data\c0001.txt (
   echo [5/6] 학습 자료 푸는 중...
@@ -80,8 +84,11 @@ if /i "%~1"=="prep" (echo. & echo 준비 끝: 설치, 기본 모델, 학습 자료가 모두 H에
 
 rem 6) 학습 - 2바퀴마다 저장(out 폴더), 중간에 멈추면 마지막 저장본부터 다시 할 수 있음
 echo [6/6] 학습 시작 - 몇 시간 걸립니다. 진행 막대의 it/s 숫자와 남은 시간을 보면 됩니다.
+set HF_HUB_OFFLINE=1
+set TRANSFORMERS_OFFLINE=1
 pushd %ROOT%\sd-scripts
 "%PY%" sdxl_train_network.py ^
+  --tokenizer_cache_dir %ROOT%\tokenizers ^
   --pretrained_model_name_or_path "%MODEL%" ^
   --dataset_config %ROOT%\dataset.toml ^
   --output_dir %ROOT%\out --output_name nkmr_fx_ilxl ^
@@ -101,3 +108,11 @@ echo.
 for /f "tokens=3" %%S in ('dir /-c C:\ ^| find "bytes free"') do echo C 드라이브 남은 공간: %%S 바이트
 echo 끝났습니다. %ROOT%\out 폴더의 nkmr_fx_ilxl*.safetensors 파일들을 Drive AI-sfa/05_모델/이펙트LoRA/ 에 올려 주세요.
 pause
+exit /b 0
+
+:gettok
+set TOKD=%ROOT%\tokenizers\%~1
+set TOKD=%TOKD:/=_%
+if not exist "%TOKD%" mkdir "%TOKD%"
+for %%F in (vocab.json merges.txt tokenizer_config.json special_tokens_map.json) do if not exist "%TOKD%\%%F" curl -sSL -o "%TOKD%\%%F" https://huggingface.co/%~1/resolve/main/%%F
+exit /b 0
