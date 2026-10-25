@@ -42,6 +42,7 @@ class Writer:
     def __init__(self):
         self.oid = 1
         self.pid = 1
+        self.xoff = 0  # --fit pad: 좁은 그림을 16:9 화면 가운데에 놓을 때 x 이동(px)
 
     def curve_ao(self, out, seg, W, color, ts, glow=None):
         """glow=(GlowRadius, GlowThickness, GlowColor ARGB, GlowAlpha 0–255) — 스틱파이터 글로우(가우스 번짐)."""
@@ -53,7 +54,7 @@ class Writer:
         out.append(f'<AO ID="{oid}" TypeId="3" Color="{color}" LayerId="0" DrawOrder="{oid}" ThicknessScale="{ts:.3f}" '
                    f'ObjectScale="1.0" GlowRadius="{gr:.1f}" GlowThickness="{gt:.1f}" GlowColor="{gc}" GlowAlpha="{ga:.1f}">')
         for i, (x, y) in enumerate(((x0, y0), (cx, cy), (x1, y1))):
-            out.append(f'<AP ID="{p + i}" Flags="5" Index="{i}" X="{x / W * 100:.3f}" Y="{y / H * 100:.3f}" />')
+            out.append(f'<AP ID="{p + i}" Flags="5" Index="{i}" X="{(x + self.xoff) / W * 100:.3f}" Y="{y / H * 100:.3f}" />')
         out.append('</AO>')
         return oid, p
 
@@ -122,6 +123,7 @@ def decontaminate(img, valid, de, band):
 
 
 def main():
+    global H
     ap = argparse.ArgumentParser()
     ap.add_argument("video")
     ap.add_argument("start", type=int)
@@ -138,10 +140,13 @@ def main():
                     help="배경 오염 빼기(Lab ΔE, 0=끔, 2026-10-24 기본 25 — 외곽선 현상 019 시험에서 95% ΔE 10→2.6): 마스크 가장자리 띠에서 주변 배경색(마스크 바깥 근처 평균)과 이보다 가까운 픽셀을 뺀다 "
                          "(2026-10-23: 흰·보라 배경이 테두리로 들어옴)")
     ap.add_argument("--band", type=int, default=6, help="--decontam이 보는 가장자리 띠 두께(px)")
-    ap.add_argument("--fit", default="crop", choices=["crop", "none"],
+    ap.add_argument("--fit", default="crop", choices=["crop", "pad", "none"],
                     help="16:9가 아닌 원본(4:3 등): crop = 위아래를 잘라 16:9로 채움(2026-10-23 사용자: 목표 16:9 고정). "
-                         "SFA 화면은 16:9라 그대로 두면 가로로 늘어난다(2026-10-24 008·015·035)")
+                         "SFA 화면은 16:9라 그대로 두면 가로로 늘어난다(2026-10-24 008·015·035). "
+                         "pad = 높이를 화면에 맞추고 가운데에 둔다(세로 그림, 2026-10-25 사용자). 분해는 그림만 한다 — 흰 여백까지 넣고 분해하니 옅은 살색이 흰색에 묶였다")
+    ap.add_argument("--height", type=int, default=540, help="분해 해상도 높이(기본 540). 세로 인물 그림은 1080 이상(540에선 선이 덩어리로 뭉개짐)")
     a = ap.parse_args()
+    H = a.height
     bg = None if a.bg == "auto" else [int(v) for v in a.bg.split(",")]
     masks = None
     if a.mask:
@@ -158,6 +163,7 @@ def main():
     W = None
     for pos, f in enumerate(frames):
         img = read_frame(a.video, f, H)
+        wr.xoff = 0
         W = img.shape[1]
         valid = None
         if masks is not None:
@@ -174,6 +180,8 @@ def main():
             if valid is not None:
                 valid = cv2.resize(valid[y0:y0 + th], (tw, H), interpolation=cv2.INTER_NEAREST)
             W = tw
+        elif a.fit == "pad" and W < tw - 2:
+            wr.xoff = (tw - W) // 2
         if valid is not None and a.decontam > 0:
             valid = decontaminate(img, valid, a.decontam, a.band)
         # 분해는 원본 그림으로 한다(바깥을 바탕색으로 칠하면 이펙트 가장자리가 선으로 잡혔다). 비교 그림만 바깥을 바탕색으로
@@ -182,6 +190,11 @@ def main():
             img = np.where(valid[..., None] > 0, img, np.array(bg or [0, 0, 0], np.uint8))
         if bg is None:
             bg = [0, 0, 0] if a.mask else [int(v) for v in np.median(np.concatenate([img[0], img[-1], img[:, 0], img[:, -1]]), axis=0)]
+        if wr.xoff:
+            pad = np.empty((H, tw, 3), np.uint8)
+            pad[:] = np.array(bg, np.uint8)
+            pad[:, wr.xoff:wr.xoff + W] = img
+            img, W = pad, tw
         body.append(frame_xml(doc, pos, wr, W, argb(bg)))
         stats.append(doc["stats"])
         imgs.append(img)
