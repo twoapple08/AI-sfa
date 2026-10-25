@@ -16,6 +16,26 @@ import cv2
 import numpy as np
 
 
+def clean(M, min_part, persist):
+    """작은 덩어리(화면 대비 min_part 미만)와 앞뒤 ±2장 어디에도 겹치는 게 없는 덩어리(한두 장에만 반짝 나타남)를 버린다."""
+    T, H, W = M.shape
+    out = np.zeros_like(M)
+    for i in range(T):
+        k, cc, st, _ = cv2.connectedComponentsWithStats(M[i], 8)
+        near = np.zeros((H, W), np.uint8)
+        for j in range(max(0, i - 2), min(T, i + 3)):
+            if j != i:
+                near |= M[j]
+        for c in range(1, k):
+            if st[c, cv2.CC_STAT_AREA] < min_part * H * W:
+                continue
+            part = cc == c
+            if persist and T >= 3 and (near[part] > 0).mean() < 0.2:
+                continue
+            out[i][part] = 1
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("clips")
@@ -25,34 +45,57 @@ def main():
     ap.add_argument("--conf", type=float, default=0.25)
     ap.add_argument("--grow", type=int, default=3, help="인물 마스크 넓히기(px) — 머리카락·옷 가장자리 잔여 줄이기")
     ap.add_argument("--sheet")
+    ap.add_argument("--clean", action="store_true", help="작은 덩어리·한두 장에만 나타나는 덩어리 버리기")
+    ap.add_argument("--min-part", type=float, default=0.005)
+    ap.add_argument("--persist", type=int, default=1)
     a = ap.parse_args()
-    if a.model == "gdino":  # 글로 사람 형체를 찾고(Grounding DINO) 상자 안을 SAM 2로 오린다 — 2026-10-25 시험
+    if a.model == "gdino":  # 글로 사람 형체를 찾고(Grounding DINO) 상자 안을 SAM 2로 오린다 — 2026-10-25 도구 4종 비교에서 가장 나음
         import torch
         from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
         from sam2.sam2_image_predictor import SAM2ImagePredictor
+        dev = "cuda" if torch.cuda.is_available() else "cpu"
         gid = "IDEA-Research/grounding-dino-base"
         proc = AutoProcessor.from_pretrained(gid)
-        det = AutoModelForZeroShotObjectDetection.from_pretrained(gid).eval()
-        sam = SAM2ImagePredictor.from_pretrained("facebook/sam2.1-hiera-small", device="cpu")
-        prompt = "person. character. human silhouette. humanoid robot."
+        det = AutoModelForZeroShotObjectDetection.from_pretrained(gid).to(dev).eval()
+        sam = SAM2ImagePredictor.from_pretrained("facebook/sam2.1-hiera-small", device=dev)
+        PERSON = ("person", "character", "human silhouette", "humanoid robot")
+        # 반대 낱말: 같은 덩어리를 이쪽으로 더 높게 보면 사람 상자를 버린다(연기 덩어리·섬광·파편을 사람으로 잡았다, c0200·c0100·c0720)
+        NEG = ("smoke", "explosion", "flash of light", "debris", "fire", "dust cloud")
+        prompt = ". ".join(PERSON + NEG) + "."
+
+        def iou(p, q):
+            x0, y0, x1, y1 = max(p[0], q[0]), max(p[1], q[1]), min(p[2], q[2]), min(p[3], q[3])
+            inter = max(0, x1 - x0) * max(0, y1 - y0)
+            return inter / max((p[2] - p[0]) * (p[3] - p[1]) + (q[2] - q[0]) * (q[3] - q[1]) - inter, 1e-6)
 
         def segment(img):
             h, w = img.shape[:2]
             rgb = img[..., ::-1].copy()
             with torch.inference_mode():
-                inp = proc(images=rgb, text=prompt, return_tensors="pt")
+                inp = proc(images=rgb, text=prompt, return_tensors="pt").to(dev)
                 out = det(**inp)
                 r = proc.post_process_grounded_object_detection(out, inp.input_ids, box_threshold=a.conf, text_threshold=a.conf,
                                                                 target_sizes=[(h, w)])[0]
-            boxes = [b.tolist() for b in r["boxes"] if (b[2] - b[0]) * (b[3] - b[1]) < 0.9 * h * w]  # 화면 전체 상자 = 장면 전체를 사람으로 본 것
+            dets = [(b.tolist(), float(s), str(l)) for b, s, l in zip(r["boxes"], r["scores"], r["labels"])]
+            pos = [d for d in dets if any(x in d[2] for x in ("person", "character", "silhouette", "robot", "human"))]
+            neg = [d for d in dets if d not in pos]
+            boxes = []
+            for b, s, _ in pos:
+                if (b[2] - b[0]) * (b[3] - b[1]) >= 0.9 * h * w:  # 화면 전체 상자 = 장면 전체를 사람으로 본 것
+                    continue
+                if any(iou(b, nb) > 0.5 and ns >= s for nb, ns, _ in neg):
+                    continue
+                boxes.append(b)
             m = np.zeros((h, w), np.uint8)
             if not boxes:
                 return m
             with torch.inference_mode():
                 sam.set_image(rgb)
                 ms, _, _ = sam.predict(box=np.array(boxes, np.float32), multimask_output=False)
-            ms = ms.reshape(-1, h, w)
-            return (ms > 0).any(0).astype(np.uint8)
+            m = (ms.reshape(-1, h, w) > 0).any(0).astype(np.uint8)
+            hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+            m[(hsv[..., 2] > 235) & (hsv[..., 1] < 40)] = 0  # 손에 붙은 흰 섬광은 인물이 아니다(c0004)
+            return m
     elif a.model == "florence":  # Florence-2 글 지시 검출(사람 형체) + SAM 2 오리기 — 2026-10-25 비교 시험
         import torch
         from unittest.mock import patch
@@ -130,7 +173,11 @@ def main():
         M = np.zeros((len(frames), H, W), np.uint8)
         k = np.ones((2 * a.grow + 1, 2 * a.grow + 1), np.uint8)
         for i, f in enumerate(frames):
-            M[i] = cv2.dilate(segment(f), k)
+            M[i] = segment(f)
+        if a.clean:
+            M = clean(M, a.min_part, a.persist)
+        for i in range(len(M)):
+            M[i] = cv2.dilate(M[i], k)
         np.savez_compressed(os.path.join(a.out, f"{cid}.npz"), mask=np.packbits(M, axis=-1), shape=np.array(M.shape))
         print(cid, "인물 면적", f"{M.mean() * 100:.1f}%", flush=True)
         if a.sheet:
