@@ -106,7 +106,7 @@ def join_paths(paths, max_turn=60, look=6):
         paths = [p for k, p in enumerate(paths) if k not in (i, j)] + [pi + pj[1:]]
 
 
-def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0):
+def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0, dark=None, wrange=(0.8, 3.2), taper=0.55):
     """가는 마스크 → 갈림길을 이어 붙인 긴 획(2차 베지어 [x0,y0,cx,cy,x1,y1,굵기,B,G,R]). 점을 가우스로 다듬어 곡선 하나가 길게 덮게."""
     dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
     segs = []
@@ -122,11 +122,19 @@ def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0):
             P[0], P[-1] = path[0][::-1], path[-1][::-1]  # 끝점은 그대로(이웃 선과 맞물림)
         out = []
         fit([tuple(p) for p in P], tol, out)
-        for a, c, b in out:
+        for si, (a, c, b) in enumerate(out):
             C = curve([*a, *c, *b], max(3, int(math.dist(a, b))))
             yi = np.clip(np.round(C[:, 1]).astype(int), 0, img.shape[0] - 1)
             xi = np.clip(np.round(C[:, 0]).astype(int), 0, img.shape[1] - 1)
-            wd = max(1.0, 2 * float(np.median(dist[yi, xi])) - 0.5)  # 거리변환 중심값×2는 실제보다 약 1px 굵었다
+            if dark is None:
+                wd = max(1.0, 2 * float(np.median(dist[yi, xi])) - 0.5)  # 거리변환 중심값×2는 실제보다 약 1px 굵었다
+            else:
+                # 굵기 바리에이션(2026-10-25 사용자): 선화 지도에서 진한 선(외곽·턱선)은 굵게, 옅은 선(머리카락 결)은 가늘게
+                v = float(np.median(dark[yi, xi]))
+                k = np.clip((215 - v) / 185, 0, 1) ** 0.8
+                wd = wrange[0] + (wrange[1] - wrange[0]) * k
+                if len(out) > 1 and si in (0, len(out) - 1):
+                    wd *= taper  # 선의 양 끝 곡선은 가늘게(끝이 빠지는 느낌)
             segs.append([*map(float, a), *map(float, c), *map(float, b), wd, *np.median(img[yi, xi], 0).round(1).tolist()])
     return segs
 
@@ -339,7 +347,9 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
         # 선화 지도 → 가운데 줄기 긴 획(선 객체 = 곡선 + 굵기). 사용자 시연: 어깨선 하나 = 곡선 2개짜리 선. 채우기 면은 양쪽 테두리마다
         # 점이 빼곡해 앱에서 지저분했다(2026-10-25)
         src = cv2.cvtColor(line_map, cv2.COLOR_GRAY2BGR)
-        lsegs = [g[:7] + [v * 0.35 for v in g[7:10]] for g in joined_strokes(src, lm, max(tol, 2.5), min_len=8, sigma=max(sigma, 3.0))]
+        lsegs = [g[:7] + [v * 0.35 for v in g[7:10]] for g in joined_strokes(src, lm, max(tol, 2.5), min_len=8, sigma=max(sigma, 3.0),
+                                                                              dark=cv2.erode(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), np.ones((3, 3), np.uint8)),
+                                                                              wrange=(0.6, 4.5))]  # 진하기는 원본 그림에서(외곽 검정 / 머리 결 회색). 선화 지도는 선 진하기가 고르다
     elif line_map is not None and not line_brush:
         # 선화 지도 → potrace 윤곽 채우기(사용자: 잡프로그램만도 못하다 → 표준 벡터화 도구로). 선 색 하나(진한 회흑)
         from potrace_lines import trace_shapes
