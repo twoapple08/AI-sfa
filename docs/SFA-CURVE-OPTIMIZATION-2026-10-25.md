@@ -38,3 +38,7 @@
 - `tools/effect_clip_sfa.py`: `--line-map`(선화 지도) `--line-join`(선 객체) `--line-scale`(굵기 배율, 기본 0.6) `--lines-only` `--parts`(부위 레이어) `--thick-fill` `--compact` `--fit pad --height`(세로 그림 16:9 가운데)
 - `tools/lineart_map.py`(선화 추출, samenv), `tools/part_masks.py`(부위 지도, GDINO+SAM2, samenv), `tools/potrace_lines.py`
 - 시험 결과 SFA·그림은 서버 scratch(`gw/`, `parts/`, `lineart/`)에만 있음(사용자 그림체 LoRA 생성물).
+
+## 이펙트 컷 적용 (2026-10-25, 사용자 "이펙트 컷에도 적용해서 하나")
+- 나카무라 폭발 c0426(테두리선 없는 그림): 선화 추출기는 색 경계마다 원본에 없는 선을 만들어 쓰지 않는다. 색 덩어리를 곡선으로 성기게 — `--compact --tol 3 --shade-tol 4 --smooth 4 --shade-min 300 --line-join`(실제 어두운 선만 선 객체).
+- 결과: AO 16,233 → 2,702(0.8MB → 0.1MB), ΔE 9.9 → 10.6. 불꽃 덩어리 형태는 유지, 배경 잔무늬는 더 단순해짐.
