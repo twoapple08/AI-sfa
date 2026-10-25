@@ -1,5 +1,7 @@
 # AI-sfa 현행 인수인계 — 2026-10-23 (밤 늦게)
 
+> **현재 계획(2026-10-25):** [docs/PLAN-2026-10-25.md](docs/PLAN-2026-10-25.md) · 아티팩트 https://claude.ai/artifact/Fa52kfMG3C88CoDv5k6WPC
+>
 > 2026-10-16 배경(AOT 분석·환경 복구)은 [docs/history/HANDOFF-2026-10-16-archive.md](docs/history/HANDOFF-2026-10-16-archive.md). 상세 프롬프트는 [docs/HANDOFF-PROMPT.md](docs/HANDOFF-PROMPT.md).
 
 ## GPT 이펙트 35구간 마스크 좌표 지시 완료 — 2026-10-24
