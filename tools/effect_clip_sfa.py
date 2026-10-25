@@ -147,10 +147,13 @@ def main():
     ap.add_argument("--height", type=int, default=540, help="분해 해상도 높이(기본 540). 세로 인물 그림은 1080 이상(540에선 선이 덩어리로 뭉개짐)")
     ap.add_argument("--shade-min", type=int, help="명암 조각 최소 넓이(px). 기본 = 밑색과 같은 20. 2026-10-25 최적화: 200이면 명암 곡선 절반")
     ap.add_argument("--levels", help="명암 단계(쉼표). 기본 14단계. 셀 채색 그림은 0.12,0.25,0.4,0.55,0.7,0.85로 충분")
-    ap.add_argument("--compact", action="store_true", help="용량 최적화 묶음 = --tol 2 --shade-min 200 --levels 6단계(2026-10-25 생성 인물: 곡선 24,036 → 4,229, ΔE 4.96 → 5.65)")
+    ap.add_argument("--shade-tol", type=float, help="명암 윤곽만 곡선 오차(px). 기본 = --tol")
+    ap.add_argument("--line-dark", type=int, help="어두운 선으로 볼 최대 밝기(기본 140). 흰 머리·옅은 회색 선이 점선으로 끊기는 인물 그림은 200")
+    ap.add_argument("--line-fill", action="store_true", help="어두운 선을 획 대신 선 모양 채우기 면으로(인물 선화: 획은 점선·덩어리가 됨)")
+    ap.add_argument("--compact", action="store_true", help="용량 최적화 묶음 = 명암만 곡선 오차 2px + --shade-min 200 + 명암 6단계. 밑색·선은 --tol 그대로(2026-10-25: 전부 2px로 하니 인물 윤곽이 자글자글해짐)")
     a = ap.parse_args()
     if a.compact:
-        a.tol = max(a.tol, 2.0)
+        a.shade_tol = a.shade_tol or 2.0
         a.shade_min = a.shade_min or 200
         a.levels = a.levels or "0.12,0.25,0.4,0.55,0.7,0.85"
     levels = [float(v) for v in a.levels.split(",")] if a.levels else None
@@ -193,7 +196,7 @@ def main():
         if valid is not None and a.decontam > 0:
             valid = decontaminate(img, valid, a.decontam, a.band)
         # 분해는 원본 그림으로 한다(바깥을 바탕색으로 칠하면 이펙트 가장자리가 선으로 잡혔다). 비교 그림만 바깥을 바탕색으로
-        doc, _ = decompose(img, a.k, a.tol, valid=valid, shade_min=a.shade_min, levels=levels)
+        doc, _ = decompose(img, a.k, a.tol, valid=valid, shade_min=a.shade_min, levels=levels, shade_tol=a.shade_tol, line_dark=a.line_dark, line_fill=a.line_fill)
         if valid is not None:
             img = np.where(valid[..., None] > 0, img, np.array(bg or [0, 0, 0], np.uint8))
         if bg is None:

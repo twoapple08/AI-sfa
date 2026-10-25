@@ -75,8 +75,9 @@ def mask_strokes(img, m, tol=1.0, min_len=6):
     return segs
 
 
-def base_and_shade(img, line_mask, k, tol, min_area, valid=None, shade_min=None, levels=None):
+def base_and_shade(img, line_mask, k, tol, min_area, valid=None, shade_min=None, levels=None, shade_tol=None):
     shade_min = min_area if shade_min is None else shade_min
+    shade_tol = tol if shade_tol is None else shade_tol
     clean = cv2.inpaint(img, cv2.dilate(line_mask, np.ones((3, 3), np.uint8)), 3, cv2.INPAINT_TELEA)
     smooth = cv2.bilateralFilter(clean, 7, 30, 7)
     lab = cv2.cvtColor(smooth, cv2.COLOR_BGR2LAB).reshape(-1, 3).astype(np.float32)
@@ -145,12 +146,27 @@ def base_and_shade(img, line_mask, k, tol, min_area, valid=None, shade_min=None,
                 # 테두리 선으로 덮으면 반투명이 겹쳐 밝은 선이 생겨서, 면 자체를 넓힌다.
                 # 밑색 이음새 선(SEAM 2px)이 영역 밖으로 1px 나가므로 명암도 영역 밖 1px까지 덮는다(안 덮으면 밑색 띠가 테두리로 보였다, 020)
                 m = cv2.dilate(m, np.ones((3, 3), np.uint8)) & reg_out
-                _, sh = outline_mask(m * 255, tol, shade_min)
+                _, sh = outline_mask(m * 255, shade_tol, shade_min)
                 if sh:
                     layers.append({"kind": "shade", "tone": sign, "color": S.round(1).tolist(),
                                    "alpha": round(1 - (1 - lv) / (1 - prev), 4), "level": lv, "shapes": sh})
                 prev = lv
     return layers
+
+
+def line_fill_layers(img, lm, tol, bands=(0, 90, 150, 256)):
+    """선 마스크 → 밝기 구간별 불투명 채우기 층(위에 얹힘). 구간 색 = 그 구간 선 픽셀의 중앙값."""
+    g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    out = []
+    for lo, hi in zip(bands, bands[1:]):
+        m = ((lm > 0) & (g >= lo) & (g < hi)).astype(np.uint8)
+        if m.sum() < 6:
+            continue
+        m = cv2.dilate(m, np.ones((2, 2), np.uint8)) & cv2.dilate(lm, np.ones((3, 3), np.uint8))  # 구간 사이 틈 막기
+        _, shapes = outline_mask(m * 255, tol, 4)
+        if shapes:
+            out.append({"kind": "line", "color": np.median(img[m > 0], 0).round(1).tolist(), "alpha": 1.0, "shapes": shapes})
+    return out
 
 
 def fill_mask(shapes, shape):
@@ -202,15 +218,23 @@ def delta_e(a, b):
     return np.linalg.norm(la - lb, axis=2)
 
 
-def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels=None):
-    """valid(0/1 마스크)가 있으면 그 안만 분해한다(이펙트 분리 결과, tools/kaggle_fx_worker.py). ΔE도 그 안에서만 잰다."""
+def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels=None, shade_tol=None, line_dark=None,
+              line_fill=False):
+    """shade_tol: 명암 윤곽만 곡선 오차를 따로(2026-10-25 최적화: 밑색·선까지 2px로 하니 인물 윤곽이 자글자글해짐).
+    line_dark: 어두운 선으로 볼 최대 밝기(기본 DARK_MAX 140). 흰 머리 위 회색 선(150–200)이 끊겨 점선이 되던 인물 그림은 200.
+    line_fill: 어두운 선을 획 대신 선 모양 그대로의 채우기 면으로(밝기 3단계 색). 획은 갈림길마다 끊기고 굵기가 부풀어
+    인물 선화가 점선·덩어리가 됐다(2026-10-25 광사 시험). 면은 붓선 굵기 변화도 그대로 남는다.
+    valid(0/1 마스크)가 있으면 그 안만 분해한다(이펙트 분리 결과, tools/kaggle_fx_worker.py). ΔE도 그 안에서만 잰다."""
     if valid is not None and valid.sum() < min_area:  # 이펙트가 없는 프레임: 빈 그림
         doc = {"size": list(img.shape[:2]), "layers": [], "lines": [],
                "stats": {"base": 0, "shade": 0, "line_segs": 0, "light_segs": 0, "segs": 0, "dE_mean": 0.0, "dE_p95": 0.0}}
         return doc, np.zeros_like(img)
-    lm, lsegs, lcol = line_layer(img, tol, valid=valid)
+    lm, lsegs, lcol = line_layer(img, tol, dark_max=line_dark, valid=valid)
     hm, hsegs, hcol = line_layer(img, tol, light=True, valid=valid)
-    layers = base_and_shade(img, lm | hm, k, tol, min_area, valid, shade_min, levels)
+    layers = base_and_shade(img, lm | hm, k, tol, min_area, valid, shade_min, levels, shade_tol)
+    if line_fill:
+        layers += line_fill_layers(img, lm, tol)
+        lsegs = []
     doc = {"size": list(img.shape[:2]), "layers": layers,
            "lines": [{"tone": "dark", "color": lcol, "segs": lsegs}, {"tone": "light", "color": hcol, "segs": hsegs}]}
     rec = render(doc, img.shape[:2])
