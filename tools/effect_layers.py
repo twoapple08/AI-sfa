@@ -312,7 +312,7 @@ def delta_e(a, b):
 
 
 def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels=None, shade_tol=None, line_dark=None,
-              line_fill=False, sigma=0.0, line_join=False, line_brush=False):
+              line_fill=False, sigma=0.0, line_join=False, line_brush=False, lines_only=False):
     """shade_tol: 명암 윤곽만 곡선 오차를 따로(2026-10-25 최적화: 밑색·선까지 2px로 하니 인물 윤곽이 자글자글해짐).
     line_dark: 어두운 선으로 볼 최대 밝기(기본 DARK_MAX 140). 흰 머리 위 회색 선(150–200)이 끊겨 점선이 되던 인물 그림은 200.
     line_fill: 어두운 선을 획 대신 선 모양 그대로의 채우기 면으로(밝기 3단계 색). 획은 갈림길마다 끊기고 굵기가 부풀어
@@ -324,7 +324,10 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
         return doc, np.zeros_like(img)
     lm, lsegs, lcol = line_layer(img, tol, dark_max=line_dark, valid=valid)
     hm, hsegs, hcol = line_layer(img, tol, light=True, valid=valid)
-    layers = base_and_shade(img, lm | hm, k, tol, min_area, valid, shade_min, levels, shade_tol, sigma)
+    # lines_only: 채색 없이 선화만(2026-10-25 사용자: "채색하지 말고 테두리 윤곽을 따라 그려봐")
+    layers = [] if lines_only else base_and_shade(img, lm | hm, k, tol, min_area, valid, shade_min, levels, shade_tol, sigma)
+    if lines_only:
+        hsegs = []
     if line_join:  # 어두운 선: 갈림길을 이은 긴 획(면보다 곡선 수 절반 — 면은 양쪽 테두리가 생긴다)
         lsegs = joined_strokes(img, lm, max(tol, 1.5), sigma=max(sigma, 2.0) if sigma else 2.0)
     if line_brush:  # 어두운 선: 끝이 빠지는 붓선 면(선마다 FR 하나, 색 하나)

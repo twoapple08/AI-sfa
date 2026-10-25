@@ -155,6 +155,7 @@ def main():
     ap.add_argument("--line-fill", action="store_true", help="어두운 선을 획 대신 선 모양 채우기 면으로(인물 선화: 획은 점선·덩어리가 됨)")
     ap.add_argument("--line-join", action="store_true", help="어두운 선을 갈림길에서 이은 긴 획으로(선화 인물 권장, 면보다 곡선 절반)")
     ap.add_argument("--smooth", type=float, default=0.0, help="윤곽을 둘레 따라 가우스로 다듬는 정도(점 단위). 곡선 하나가 길게 휘며 덮게 한다")
+    ap.add_argument("--lines-only", action="store_true", help="채색 없이 선화만(바탕은 흰색 권장: --bg 255,255,255)")
     ap.add_argument("--line-brush", action="store_true", help="어두운 선을 끝이 빠지는 붓선 면으로(왼쪽·오른쪽 변 긴 곡선 + 채우기, 사용자 시연 방식)")
     ap.add_argument("--line-scale", type=float, default=0.6, help="선 획 굵기 배율(앱 하한 ThicknessScale 0.1). 앱에서 선이 두꺼우면 0.5 안팎")
     ap.add_argument("--compact", action="store_true", help="용량 최적화 묶음 = 윤곽 다듬기 3 + 밑색 오차 2px + 명암 오차 3px + --shade-min 200 + 명암 6단계"
@@ -208,7 +209,8 @@ def main():
             valid = decontaminate(img, valid, a.decontam, a.band)
         # 분해는 원본 그림으로 한다(바깥을 바탕색으로 칠하면 이펙트 가장자리가 선으로 잡혔다). 비교 그림만 바깥을 바탕색으로
         doc, _ = decompose(img, a.k, a.tol, valid=valid, shade_min=a.shade_min, levels=levels, shade_tol=a.shade_tol, line_dark=a.line_dark, line_fill=a.line_fill,
-                         sigma=a.smooth, line_join=a.line_join, line_brush=a.line_brush)
+                         sigma=a.smooth, line_join=a.line_join, line_brush=a.line_brush,
+                         lines_only=a.lines_only)
         if valid is not None:
             img = np.where(valid[..., None] > 0, img, np.array(bg or [0, 0, 0], np.uint8))
         if bg is None:
