@@ -312,7 +312,7 @@ def delta_e(a, b):
 
 
 def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels=None, shade_tol=None, line_dark=None,
-              line_fill=False, sigma=0.0, line_join=False, line_brush=False, lines_only=False):
+              line_fill=False, sigma=0.0, line_join=False, line_brush=False, lines_only=False, line_map=None):
     """shade_tol: 명암 윤곽만 곡선 오차를 따로(2026-10-25 최적화: 밑색·선까지 2px로 하니 인물 윤곽이 자글자글해짐).
     line_dark: 어두운 선으로 볼 최대 밝기(기본 DARK_MAX 140). 흰 머리 위 회색 선(150–200)이 끊겨 점선이 되던 인물 그림은 200.
     line_fill: 어두운 선을 획 대신 선 모양 그대로의 채우기 면으로(밝기 3단계 색). 획은 갈림길마다 끊기고 굵기가 부풀어
@@ -323,6 +323,11 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
                "stats": {"base": 0, "shade": 0, "line_segs": 0, "light_segs": 0, "segs": 0, "dE_mean": 0.0, "dE_p95": 0.0}}
         return doc, np.zeros_like(img)
     lm, lsegs, lcol = line_layer(img, tol, dark_max=line_dark, valid=valid)
+    if line_map is not None:
+        # 학습된 선화 추출기 결과(흰 바탕 검은 선, 0–255). 규칙(가는 어두운 선)은 굵은 테·칠한 눈·색 경계를 놓쳤다(2026-10-25 광사:
+        # 선글라스·눈·입이 통째로 빠짐) → ControlNet lineart(sk_model) 선화를 그대로 쓴다
+        lm = (line_map < 200).astype(np.uint8)  # 열기(2x2)는 1–2px 선을 지워 선화가 거의 사라졌다 — 쓰지 않는다
+        lsegs = []
     hm, hsegs, hcol = line_layer(img, tol, light=True, valid=valid)
     # lines_only: 채색 없이 선화만(2026-10-25 사용자: "채색하지 말고 테두리 윤곽을 따라 그려봐")
     layers = [] if lines_only else base_and_shade(img, lm | hm, k, tol, min_area, valid, shade_min, levels, shade_tol, sigma)
@@ -331,7 +336,10 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
     if line_join:  # 어두운 선: 갈림길을 이은 긴 획(면보다 곡선 수 절반 — 면은 양쪽 테두리가 생긴다)
         lsegs = joined_strokes(img, lm, max(tol, 1.5), sigma=max(sigma, 2.0) if sigma else 2.0)
     if line_brush:  # 어두운 선: 끝이 빠지는 붓선 면(선마다 FR 하나, 색 하나)
-        for sh, col in brush_shapes(img, lm, max(tol, 1.5)):
+        src = img if line_map is None else cv2.cvtColor(line_map, cv2.COLOR_GRAY2BGR)  # 선화 지도면 선 색도 거기서(검정~회색)
+        for sh, col in brush_shapes(src, lm, max(tol, 1.5), sigma=1.2 if line_map is not None else 2.0, taper=0.15):
+            if line_map is not None:
+                col = (np.array(col) * 0.35).round(1).tolist()  # 선화 지도 선은 옅은 회색(약 120) → 원본 선처럼 진하게
             layers.append({"kind": "line", "color": col, "alpha": 1.0, "shapes": [sh]})
         lsegs = []
     if line_fill:
