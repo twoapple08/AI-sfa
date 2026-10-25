@@ -46,7 +46,7 @@ if not exist %ROOT%\clips\c0001.mp4 (
 )
 
 rem 4) 인물 자르기
-echo [4/4] 인물 자르기 시작 (클립마다 한 줄씩 나옵니다)
+echo [4/4] 인물 자르기 시작 - 클립마다 한 줄씩 나옵니다
 "%PY%" %ROOT%\lora_person_mask.py %ROOT%\clips %ROOT%\person --model mix --anime %ROOT%\isnetis.onnx --conf 0.3 --grow 2 --clean --sheet %ROOT%\person_check.jpg
 if errorlevel 1 (echo [오류] 실행 중 문제가 생겼습니다. 이 창을 찍어 보내 주세요. & pause & exit /b 1)
 
