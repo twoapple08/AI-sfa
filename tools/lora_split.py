@@ -7,7 +7,7 @@
 - 컬러 쪽: 나머지. 실제 채도(HSV S 평균)로 muted colors(<40) / vivid colors(>110) 태그를 신호 낱말 바로 뒤에 붙여
   옅은 장면이 기본값을 회색으로 끌지 않게 하고, 생성 때 vivid colors로 색을 끌어올릴 수 있게 한다.
 - 인물 뺀 판(<클립>_np)은 원래 그림을 따라간다.
-- 컬러 쪽 옅은 그림(muted)은 color_muted 폴더로 따로 둔다. 학습 설정에서 color는 2번, color_muted는 1번 보게 해 저채도 비중을 30% → 약 18%로 낮춘다.
+- 컬러 쪽 옅은 그림(muted)은 color_muted 폴더로 따로 둔다. 학습 설정에서 color는 2번, color_muted는 1번 보게 해 학습 중 저채도 비중을 약 15%(206 / (597×2+206))로 낮춘다.
 사용: python tools/lora_split.py <캡션 폴더(jpg+txt)> <출력 폴더>  → <출력>/color, color_muted, impact
 """
 import glob
