@@ -41,7 +41,7 @@ if not exist %ROOT%\sd-scripts\sdxl_train_network.py (echo [오류] 학습 프로그램�
 
 rem 3) 파이썬 3.10 + 패키지(학습 전용 환경, 인물 자르기 환경과 따로)
 set PY=%ROOT%\env\Scripts\python.exe
-"%PY%" -c "import torch, library, lycoris, bitsandbytes; assert torch.cuda.is_available()" >nul 2>&1
+"%PY%" -c "import numpy, cv2, torch, library, lycoris, bitsandbytes; assert numpy.__version__.startswith('1.'); assert torch.cuda.is_available()" >nul 2>&1
 if errorlevel 1 (
   echo [3/6] 파이썬과 패키지 설치 중... 처음 한 번은 약 4GB를 받습니다.
   if not exist "%PY%" "%UV%" venv %ROOT%\env --python 3.10 || (echo [오류] 파이썬 설치 실패 & pause & exit /b 1)
@@ -50,6 +50,8 @@ if errorlevel 1 (
   "%UV%" pip install --python "%PY%" -r requirements.txt || (popd & echo [오류] 학습 프로그램 부품 설치 실패 & pause & exit /b 1)
   popd
   "%UV%" pip install --python "%PY%" lycoris-lora==3.1.1 || (echo [오류] LyCORIS 설치 실패 & pause & exit /b 1)
+  rem sd-scripts v0.9.1의 opencv 4.8은 numpy 1.x용 - torch가 numpy 2를 끌어오면 cv2 불러오기가 깨진다(2026-10-25 PC방: _ARRAY_API not found)
+  "%UV%" pip install --python "%PY%" "numpy==1.26.4" || (echo [오류] numpy 설치 실패 & pause & exit /b 1)
 ) else (
   echo [3/6] 설치돼 있음 - 건너뜀
 )
