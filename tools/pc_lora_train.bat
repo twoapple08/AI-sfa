@@ -96,7 +96,7 @@ pushd %ROOT%\sd-scripts
   --network_args "algo=locon" "preset=full" "conv_dim=16" "conv_alpha=4" ^
   --network_train_unet_only --unet_lr 4e-4 ^
   --optimizer_type AdamW8bit --lr_scheduler cosine --lr_warmup_steps 100 ^
-  --max_train_epochs 10 --save_every_n_epochs 2 --save_model_as safetensors ^
+  --max_train_epochs 8 --save_every_n_epochs 2 --save_model_as safetensors ^
   --mixed_precision bf16 --save_precision bf16 --sdpa --gradient_checkpointing ^
   --cache_latents --cache_latents_to_disk --cache_text_encoder_outputs --cache_text_encoder_outputs_to_disk ^
   --min_snr_gamma 5 --max_data_loader_n_workers 0 --seed 42 --save_state

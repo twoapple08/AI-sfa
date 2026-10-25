@@ -96,7 +96,9 @@ def main():
         shutil.copy(src, os.path.join(a.out, f"{cid}.jpg"))
         open(os.path.join(a.out, f"{cid}.txt"), "w", encoding="utf-8").write(caption(r, art.get(cid, "")))
         n += 1
-        if a.person and r["인물"] not in ("없음", ""):
+        # 흑백·반전·임팩트 프레임은 인물 자르기가 획·덩어리를 사람으로 잡는 일이 많아(2026-10-25 c0219) 인물 뺀 판을 만들지 않는다
+        bw = any(x in r["채색"] for x in ("흑백", "반전")) or "임팩트프레임" in r["종류"]
+        if a.person and r["인물"] not in ("없음", "") and not bw:
             p = os.path.join(a.person, f"{cid}.npz")
             if os.path.exists(p):  # 대표 장 = 클립 가운데 장(lora_clips.py)
                 z = np.load(p)
