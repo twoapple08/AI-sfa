@@ -4,7 +4,8 @@
 이펙트는 경계가 흐려 오리기 어렵지만 사람은 윤곽이 뚜렷하다. 사람 분할 모델(YOLO 분할, 사람 종류만)로 장마다 인물 마스크를 만든다.
 결과는 '인물 뺀 장면'(인물 자리 = 검정) 학습 예시와, 생성 결과에서 인물을 빼는 데 쓴다. 애니 인물은 실사보다 덜 잡힐 수 있어 시트로 확인한다.
 출력: <출력>/<클립>.npz (mask[T,H,W/8] packbits, 인물=1) + --sheet 이면 확인 그림(인물 자리 빨강)
-사용: python tools/lora_person_mask.py <클립 폴더> <출력 폴더> [--only c0001,c0002] [--model gdino|florence|isnetis.onnx|yolo11l-seg.pt] [--conf 0.5] [--sheet 그림.jpg]
+사용: python tools/lora_person_mask.py <클립 폴더> <출력 폴더> [--only c0001,c0002] [--model mix|gdino|florence|isnetis.onnx|yolo11l-seg.pt] [--conf 0.5] [--sheet 그림.jpg]
+  --model mix = gdino(+--clean) 결과 + 애니 전용(--anime isnetis.onnx)으로 인물 안 구멍 메우기 — 권장
   --model gdino = 글로 찾기(Grounding DINO, conf = 상자 문턱 0.3 권장) + SAM 2 오리기
   --model *.onnx = 애니 캐릭터 전용(권장, conf = 마스크 문턱), 그 밖 = YOLO 사람 분할(conf = 검출 신뢰도)
 """
@@ -14,6 +15,15 @@ import os
 
 import cv2
 import numpy as np
+
+
+def fill_outline(m):
+    """인물 덩어리를 닫고 속을 채운 영역 — 애니 전용 결과는 이 안에서만 더한다(얼굴 구멍은 메우고 손 옆 섬광은 안 더함)."""
+    c = cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((25, 25), np.uint8))
+    cs, _ = cv2.findContours(c, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    o = np.zeros_like(m)
+    cv2.drawContours(o, cs, -1, 1, -1)
+    return o
 
 
 def clean(M, min_part, persist):
@@ -45,10 +55,15 @@ def main():
     ap.add_argument("--conf", type=float, default=0.25)
     ap.add_argument("--grow", type=int, default=3, help="인물 마스크 넓히기(px) — 머리카락·옷 가장자리 잔여 줄이기")
     ap.add_argument("--sheet")
+    ap.add_argument("--anime", default="isnetis.onnx", help="--model mix 때 애니 전용 모델 파일")
     ap.add_argument("--clean", action="store_true", help="작은 덩어리·한두 장에만 나타나는 덩어리 버리기")
     ap.add_argument("--min-part", type=float, default=0.005)
     ap.add_argument("--persist", type=int, default=1)
     a = ap.parse_args()
+    if a.model == "mix":  # 섞기(2026-10-25 사용자 "잘 적용된 부분만 모아서"): Grounding DINO 개선판 + 애니 전용으로 인물 안 구멍 메우기
+        a.model, anime_path = "gdino", a.anime
+    else:
+        anime_path = None
     if a.model == "gdino":  # 글로 사람 형체를 찾고(Grounding DINO) 상자 안을 SAM 2로 오린다 — 2026-10-25 도구 4종 비교에서 가장 나음
         import torch
         from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
@@ -161,6 +176,21 @@ def main():
                 return np.zeros(img.shape[:2], np.uint8)
             m = (r.masks.data.cpu().numpy() > 0.5).any(0).astype(np.uint8)
             return cv2.resize(m, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST) if m.shape != img.shape[:2] else m
+    anime = None
+    if anime_path:
+        import onnxruntime as ort
+        asess = ort.InferenceSession(anime_path, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
+
+        def anime(img):
+            s = 1024
+            h, w = img.shape[:2]
+            r = s / max(h, w)
+            nh, nw = int(h * r), int(w * r)
+            x = np.zeros((s, s, 3), np.float32)
+            ph, pw = (s - nh) // 2, (s - nw) // 2
+            x[ph:ph + nh, pw:pw + nw] = cv2.resize(img[..., ::-1], (nw, nh)).astype(np.float32) / 255
+            m = asess.run(None, {asess.get_inputs()[0].name: x.transpose(2, 0, 1)[None]})[0][0, 0]
+            return (cv2.resize(m[ph:ph + nh, pw:pw + nw], (w, h)) > 0.5).astype(np.uint8)
     os.makedirs(a.out, exist_ok=True)
     only = set(a.only.split(",")) if a.only else None
     rows = []
@@ -182,6 +212,11 @@ def main():
             M[i] = segment(f)
         if a.clean:
             M = clean(M, a.min_part, a.persist)
+        if anime is not None:
+            for i, f in enumerate(frames):
+                am = anime(f)
+                if am.mean() < 0.8:  # 화면 대부분 = 임팩트 프레임을 인물로 본 것
+                    M[i] |= am & fill_outline(M[i])
         for i in range(len(M)):
             M[i] = cv2.dilate(M[i], k)
         np.savez_compressed(os.path.join(a.out, f"{cid}.npz"), mask=np.packbits(M, axis=-1), shape=np.array(M.shape))
