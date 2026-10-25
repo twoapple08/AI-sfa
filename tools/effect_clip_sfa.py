@@ -21,7 +21,7 @@ import zipfile
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from effect_layers import SEAM, decompose, delta_e  # noqa: E402
+from effect_layers import SEAM, curve, decompose, delta_e  # noqa: E402
 from effect_vectorize import read_frame  # noqa: E402
 
 H = 540
@@ -44,14 +44,14 @@ class Writer:
         self.pid = 1
         self.xoff = 0  # --fit pad: 좁은 그림을 16:9 화면 가운데에 놓을 때 x 이동(px)
 
-    def curve_ao(self, out, seg, W, color, ts, glow=None):
+    def curve_ao(self, out, seg, W, color, ts, glow=None, layer=0):
         """glow=(GlowRadius, GlowThickness, GlowColor ARGB, GlowAlpha 0–255) — 스틱파이터 글로우(가우스 번짐)."""
         x0, y0, cx, cy, x1, y1 = seg[:6]
         oid, p = self.oid, self.pid
         self.oid += 1
         self.pid += 3
         gr, gt, gc, ga = glow if glow else (0.0, 0.0, 4294967295, 0.0)
-        out.append(f'<AO ID="{oid}" TypeId="3" Color="{color}" LayerId="0" DrawOrder="{oid}" ThicknessScale="{ts:.3f}" '
+        out.append(f'<AO ID="{oid}" TypeId="3" Color="{color}" LayerId="{layer}" DrawOrder="{oid}" ThicknessScale="{ts:.3f}" '
                    f'ObjectScale="1.0" GlowRadius="{gr:.1f}" GlowThickness="{gt:.1f}" GlowColor="{gc}" GlowAlpha="{ga:.1f}">')
         for i, (x, y) in enumerate(((x0, y0), (cx, cy), (x1, y1))):
             out.append(f'<AP ID="{p + i}" Flags="5" Index="{i}" X="{(x + self.xoff) / W * 100:.3f}" Y="{y / H * 100:.3f}" />')
@@ -84,9 +84,11 @@ SHADE_SEAM = 0.0  # 명암 층 테두리 선 굵기(SEAM 배수, 0 = 투명 선)
 # 반투명 면 위에 같은 알파 선이 겹쳐 밝은 선이 생겼다(020·017) → 0으로 두고 effect_layers에서 명암 면을 1px 넓힌다.
 
 
-def frame_xml(doc, pos, wr, W, bg):
-    out = [f'<Frame BackgroundColor="{bg & 0xFFFFFFFF}" ID="{pos + 1}" Position="{pos}">',
-           '<LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false" />']
+def frame_xml(doc, pos, wr, W, bg, layer_names=None):
+    """layer_names: {LayerId: 이름} — 부위 레이어(--parts). 선마다 doc lines의 lids(부위 번호)를 LayerId로 쓴다."""
+    out = [f'<Frame BackgroundColor="{bg & 0xFFFFFFFF}" ID="{pos + 1}" Position="{pos}">']
+    for lid, nm in sorted((layer_names or {0: "Layer 1"}).items()):
+        out.append(f'<LayerDef ID="{lid}" Name="{nm}" Visible="true" Locked="false" />')
     # 밑색을 모두 먼저(어두운 것 → 밝은 것), 명암은 그 뒤에. 밑색 이음새 선(SEAM)은 이웃 영역으로 반 굵기만큼 넘어가는데,
     # 덩어리마다 '밑색 → 명암' 순서로 그리면 뒤에 그린 어두운 밑색의 이음새가 앞 덩어리의 밝은 명암 위에 검은 선으로 남았다(2026-10-24 016·017·020).
     bases = sorted((L for L in doc["layers"] if L["kind"] == "base"), key=lambda L: sum(L["color"][:3]))
@@ -98,8 +100,10 @@ def frame_xml(doc, pos, wr, W, bg):
             c = argb(L["color"], L["alpha"])
             wr.fill(out, L["shapes"], W, c, c if SHADE_SEAM > 0 else 0, thick(SEAM * SHADE_SEAM, W) if SHADE_SEAM > 0 else 0.02)
     for ln in doc["lines"]:
-        for seg in ln["segs"]:
-            wr.curve_ao(out, seg, W, argb(seg[7:10] if len(seg) >= 10 else ln["color"]), max(TS_MIN, thick(seg[6], W) * LINE_SCALE))
+        lids = ln.get("lids") or [0] * len(ln["segs"])
+        for seg, lid in zip(ln["segs"], lids):
+            wr.curve_ao(out, seg, W, argb(seg[7:10] if len(seg) >= 10 else ln["color"]), max(TS_MIN, thick(seg[6], W) * LINE_SCALE),
+                        layer=lid)
     out.append('</Frame>')
     return "\n".join(out)
 
@@ -156,6 +160,8 @@ def main():
     ap.add_argument("--line-join", action="store_true", help="어두운 선을 갈림길에서 이은 긴 획으로(선화 인물 권장, 면보다 곡선 절반)")
     ap.add_argument("--smooth", type=float, default=0.0, help="윤곽을 둘레 따라 가우스로 다듬는 정도(점 단위). 곡선 하나가 길게 휘며 덮게 한다")
     ap.add_argument("--line-map", help="선화 그림(흰 바탕 검은 선, 원본과 같은 크기). tools/lineart_map.py(ControlNet lineart)로 만든다")
+    ap.add_argument("--thick-fill", action="store_true", help="굵게 칠한 검은 덩어리(속눈썹 등)를 채우기 면으로(선화 지도 + --line-join일 때)")
+    ap.add_argument("--parts", help="부위 지도 npz(tools/part_masks.py) — 선을 부위 레이어(머리카락·눈·눈동자·속눈썹…)로 나눈다")
     ap.add_argument("--lines-only", action="store_true", help="채색 없이 선화만(바탕은 흰색 권장: --bg 255,255,255)")
     ap.add_argument("--line-brush", action="store_true", help="어두운 선을 끝이 빠지는 붓선 면으로(왼쪽·오른쪽 변 긴 곡선 + 채우기, 사용자 시연 방식)")
     ap.add_argument("--line-scale", type=float, default=0.6, help="선 획 굵기 배율(앱 하한 ThicknessScale 0.1). 앱에서 선이 두꺼우면 0.5 안팎")
@@ -215,17 +221,44 @@ def main():
         # 분해는 원본 그림으로 한다(바깥을 바탕색으로 칠하면 이펙트 가장자리가 선으로 잡혔다). 비교 그림만 바깥을 바탕색으로
         doc, _ = decompose(img, a.k, a.tol, valid=valid, shade_min=a.shade_min, levels=levels, shade_tol=a.shade_tol, line_dark=a.line_dark, line_fill=a.line_fill,
                          sigma=a.smooth, line_join=a.line_join, line_brush=a.line_brush,
-                         lines_only=a.lines_only, line_map=lmap)
+                         lines_only=a.lines_only, line_map=lmap, thick_fill=a.thick_fill)
         if valid is not None:
             img = np.where(valid[..., None] > 0, img, np.array(bg or [0, 0, 0], np.uint8))
         if bg is None:
             bg = [0, 0, 0] if a.mask else [int(v) for v in np.median(np.concatenate([img[0], img[-1], img[:, 0], img[:, -1]]), axis=0)]
+        lnames = None
+        if a.parts:
+            import cv2
+            z = np.load(a.parts)
+            lab = cv2.resize(z["label"], (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST)
+            names = [str(v) for v in z["names"]]
+            used = set()
+            hair = names.index("머리카락") if "머리카락" in names else -1
+            face = names.index("얼굴") if "얼굴" in names else -1
+            for ln in doc["lines"]:
+                ln["lids"] = []
+                for seg in ln["segs"]:
+                    P = curve(seg, 7)
+                    v = lab[np.clip(np.round(P[:, 1]).astype(int), 0, lab.shape[0] - 1), np.clip(np.round(P[:, 0]).astype(int), 0, lab.shape[1] - 1)]
+                    ln["lids"].append(int(np.bincount(v).argmax()))  # 곡선이 가장 많이 지나는 부위
+                # 앞머리: 머리카락에서 시작해 얼굴로 내려온 선(같은 줄기 번호에 머리카락·얼굴 곡선이 섞임)은 통째로 머리카락
+                by = {}
+                for k, seg in enumerate(ln["segs"]):
+                    if len(seg) > 10:
+                        by.setdefault(seg[10], []).append(k)
+                for ks in by.values():
+                    if any(ln["lids"][k] == hair for k in ks):
+                        for k in ks:
+                            if ln["lids"][k] == face:
+                                ln["lids"][k] = hair
+                used |= set(ln["lids"])
+            lnames = {i: names[i] for i in sorted(used | {0})}
         if wr.xoff:
             pad = np.empty((H, tw, 3), np.uint8)
             pad[:] = np.array(bg, np.uint8)
             pad[:, wr.xoff:wr.xoff + W] = img
             img, W = pad, tw
-        body.append(frame_xml(doc, pos, wr, W, argb(bg)))
+        body.append(frame_xml(doc, pos, wr, W, argb(bg), lnames))
         stats.append(doc["stats"])
         imgs.append(img)
         print(f, doc["stats"], flush=True)

@@ -110,7 +110,7 @@ def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0, dark=None, wrange=(0.8
     """가는 마스크 → 갈림길을 이어 붙인 긴 획(2차 베지어 [x0,y0,cx,cy,x1,y1,굵기,B,G,R]). 점을 가우스로 다듬어 곡선 하나가 길게 덮게."""
     dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
     segs = []
-    for path in join_paths(trace(skeletonize(m.astype(bool)))):
+    for pid, path in enumerate(join_paths(trace(skeletonize(m.astype(bool))))):  # pid = 선(이어 붙인 줄기) 번호, 부위 레이어 판단용
         if len(path) < min_len:
             continue
         P = np.array([(x, y) for y, x in path], float)
@@ -135,7 +135,7 @@ def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0, dark=None, wrange=(0.8
                 wd = wrange[0] + (wrange[1] - wrange[0]) * k
                 if len(out) > 1 and si in (0, len(out) - 1):
                     wd *= taper  # 선의 양 끝 곡선은 가늘게(끝이 빠지는 느낌)
-            segs.append([*map(float, a), *map(float, c), *map(float, b), wd, *np.median(img[yi, xi], 0).round(1).tolist()])
+            segs.append([*map(float, a), *map(float, c), *map(float, b), wd, *np.median(img[yi, xi], 0).round(1).tolist(), pid])
     return segs
 
 
@@ -320,7 +320,8 @@ def delta_e(a, b):
 
 
 def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels=None, shade_tol=None, line_dark=None,
-              line_fill=False, sigma=0.0, line_join=False, line_brush=False, lines_only=False, line_map=None):
+              line_fill=False, sigma=0.0, line_join=False, line_brush=False, lines_only=False, line_map=None,
+              thick_fill=False):
     """shade_tol: 명암 윤곽만 곡선 오차를 따로(2026-10-25 최적화: 밑색·선까지 2px로 하니 인물 윤곽이 자글자글해짐).
     line_dark: 어두운 선으로 볼 최대 밝기(기본 DARK_MAX 140). 흰 머리 위 회색 선(150–200)이 끊겨 점선이 되던 인물 그림은 200.
     line_fill: 어두운 선을 획 대신 선 모양 그대로의 채우기 면으로(밝기 3단계 색). 획은 갈림길마다 끊기고 굵기가 부풀어
@@ -353,13 +354,13 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
         r = max(3, int(round(img.shape[0] / 1152 * 3)))  # 반폭 3px(1152 기준) 이상인 검은 곳
         ker = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
         thick = cv2.morphologyEx((gray < 80).astype(np.uint8), cv2.MORPH_OPEN, ker)
-        if thick.any():
+        if thick_fill and thick.any():  # 사용자: 눈 수정판도 별로 → 기본은 끔(직전 판)
             from potrace_lines import trace_shapes
             blob = cv2.dilate(thick, np.ones((3, 3), np.uint8))
             layers.append({"kind": "line", "color": np.median(img[thick > 0], 0).round(1).tolist(), "alpha": 1.0,
                            "shapes": trace_shapes(np.where(blob > 0, 0, 255).astype(np.uint8), turdsize=8)})
             lm = lm & (1 - cv2.dilate(thick, np.ones((5, 5), np.uint8)))
-        lsegs = [g[:7] + [v * 0.35 for v in g[7:10]] for g in joined_strokes(src, lm, max(tol, 2.5), min_len=8, sigma=max(sigma, 3.0),
+        lsegs = [g[:7] + [v * 0.35 for v in g[7:10]] + g[10:] for g in joined_strokes(src, lm, max(tol, 2.5), min_len=8, sigma=max(sigma, 3.0),
                                                                               dark=cv2.erode(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), np.ones((3, 3), np.uint8)),
                                                                               wrange=(0.6, 4.5))]  # 진하기는 원본 그림에서(외곽 검정 / 머리 결 회색). 선화 지도는 선 진하기가 고르다
     elif line_map is not None and not line_brush:
