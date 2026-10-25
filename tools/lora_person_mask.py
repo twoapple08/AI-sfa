@@ -214,6 +214,8 @@ def main():
             M = clean(M, a.min_part, a.persist)
         if anime is not None:
             for i, f in enumerate(frames):
+                if not M[i].any():  # 사람이 안 잡힌 장은 메울 구멍도 없다(애니 모델은 CPU라 느려서 건너뜀)
+                    continue
                 am = anime(f)
                 if am.mean() < 0.8:  # 화면 대부분 = 임팩트 프레임을 인물로 본 것
                     M[i] |= am & fill_outline(M[i])
@@ -232,8 +234,11 @@ def main():
             bar = np.zeros((18, 960, 3), np.uint8)
             cv2.putText(bar, f"{cid}  person {M.mean() * 100:.1f}%", (4, 13), 0, 0.45, (255, 255, 255), 1)
             rows.append(np.vstack([bar, np.hstack(th)]))
-    if a.sheet and rows:
-        cv2.imwrite(a.sheet, np.vstack(rows), [cv2.IMWRITE_JPEG_QUALITY, 82])
+    if a.sheet and rows:  # JPG 높이 한계(65,535px) 때문에 50클립씩 나눠 저장: 그림.jpg, 그림_02.jpg …
+        base, ext = os.path.splitext(a.sheet)
+        for k in range(0, len(rows), 50):
+            name = a.sheet if k == 0 else f"{base}_{k // 50 + 1:02d}{ext}"
+            cv2.imwrite(name, np.vstack(rows[k:k + 50]), [cv2.IMWRITE_JPEG_QUALITY, 82])
 
 
 if __name__ == "__main__":
