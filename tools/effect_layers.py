@@ -335,6 +335,11 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
         hsegs = []
     if line_join:  # 어두운 선: 갈림길을 이은 긴 획(면보다 곡선 수 절반 — 면은 양쪽 테두리가 생긴다)
         lsegs = joined_strokes(img, lm, max(tol, 1.5), sigma=max(sigma, 2.0) if sigma else 2.0)
+    if line_map is not None and not line_brush:
+        # 선화 지도 → potrace 윤곽 채우기(사용자: 잡프로그램만도 못하다 → 표준 벡터화 도구로). 선 색 하나(진한 회흑)
+        from potrace_lines import trace_shapes
+        layers.append({"kind": "line", "color": [30.0, 30.0, 30.0], "alpha": 1.0, "shapes": trace_shapes(line_map)})
+        lsegs = []
     if line_brush:  # 어두운 선: 끝이 빠지는 붓선 면(선마다 FR 하나, 색 하나)
         src = img if line_map is None else cv2.cvtColor(line_map, cv2.COLOR_GRAY2BGR)  # 선화 지도면 선 색도 거기서(검정~회색)
         for sh, col in brush_shapes(src, lm, max(tol, 1.5), sigma=1.2 if line_map is not None else 2.0, taper=0.15):
