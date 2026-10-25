@@ -132,7 +132,7 @@ def main():
     ap.add_argument("--step", type=int, default=1)
     ap.add_argument("--check")
     ap.add_argument("--mask")
-    ap.add_argument("--bg", default="0,0,0")
+    ap.add_argument("--bg", default="auto", help="프레임 바탕색 B,G,R. auto = 마스크가 있으면 검정, 없으면 그림 가장자리 색(2026-10-25 사용자: 흰 그림에 검은 틀이 보임 — 바탕 검정이 화면 가장자리에 드러남)")
     ap.add_argument("--grow", type=int, default=0, help="마스크 넓히기(px, 음수면 좁히기). 2026-10-24 기본 2→0: 넓히면 배경색 띠가 외곽선처럼 남았다")
     ap.add_argument("--decontam", type=float, default=25.0,
                     help="배경 오염 빼기(Lab ΔE, 0=끔, 2026-10-24 기본 25 — 외곽선 현상 019 시험에서 95% ΔE 10→2.6): 마스크 가장자리 띠에서 주변 배경색(마스크 바깥 근처 평균)과 이보다 가까운 픽셀을 뺀다 "
@@ -142,7 +142,7 @@ def main():
                     help="16:9가 아닌 원본(4:3 등): crop = 위아래를 잘라 16:9로 채움(2026-10-23 사용자: 목표 16:9 고정). "
                          "SFA 화면은 16:9라 그대로 두면 가로로 늘어난다(2026-10-24 008·015·035)")
     a = ap.parse_args()
-    bg = [int(v) for v in a.bg.split(",")]
+    bg = None if a.bg == "auto" else [int(v) for v in a.bg.split(",")]
     masks = None
     if a.mask:
         import cv2
@@ -179,7 +179,9 @@ def main():
         # 분해는 원본 그림으로 한다(바깥을 바탕색으로 칠하면 이펙트 가장자리가 선으로 잡혔다). 비교 그림만 바깥을 바탕색으로
         doc, _ = decompose(img, a.k, a.tol, valid=valid)
         if valid is not None:
-            img = np.where(valid[..., None] > 0, img, np.array(bg, np.uint8))
+            img = np.where(valid[..., None] > 0, img, np.array(bg or [0, 0, 0], np.uint8))
+        if bg is None:
+            bg = [0, 0, 0] if a.mask else [int(v) for v in np.median(np.concatenate([img[0], img[-1], img[:, 0], img[:, -1]]), axis=0)]
         body.append(frame_xml(doc, pos, wr, W, argb(bg)))
         stats.append(doc["stats"])
         imgs.append(img)
