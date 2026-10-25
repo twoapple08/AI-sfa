@@ -77,6 +77,9 @@ class Writer:
         out.extend(frs)
 
 
+LINE_SCALE = 1.0  # 선 획 굵기 배율(--line-scale). 2026-10-25 사용자: 앱에서 선이 기본적으로 너무 두껍다
+TS_MIN = 0.1  # 앱 굵기 조절 하한(기본의 10%, 사용자)
+
 SHADE_SEAM = 0.0  # 명암 층 테두리 선 굵기(SEAM 배수, 0 = 투명 선). 2026-10-24 '외곽선 현상' 시험에서 0.6을 써 보니
 # 반투명 면 위에 같은 알파 선이 겹쳐 밝은 선이 생겼다(020·017) → 0으로 두고 effect_layers에서 명암 면을 1px 넓힌다.
 
@@ -96,7 +99,7 @@ def frame_xml(doc, pos, wr, W, bg):
             wr.fill(out, L["shapes"], W, c, c if SHADE_SEAM > 0 else 0, thick(SEAM * SHADE_SEAM, W) if SHADE_SEAM > 0 else 0.02)
     for ln in doc["lines"]:
         for seg in ln["segs"]:
-            wr.curve_ao(out, seg, W, argb(seg[7:10] if len(seg) >= 10 else ln["color"]), thick(seg[6], W))
+            wr.curve_ao(out, seg, W, argb(seg[7:10] if len(seg) >= 10 else ln["color"]), max(TS_MIN, thick(seg[6], W) * LINE_SCALE))
     out.append('</Frame>')
     return "\n".join(out)
 
@@ -123,7 +126,7 @@ def decontaminate(img, valid, de, band):
 
 
 def main():
-    global H
+    global H, LINE_SCALE
     ap = argparse.ArgumentParser()
     ap.add_argument("video")
     ap.add_argument("start", type=int)
@@ -152,6 +155,7 @@ def main():
     ap.add_argument("--line-fill", action="store_true", help="어두운 선을 획 대신 선 모양 채우기 면으로(인물 선화: 획은 점선·덩어리가 됨)")
     ap.add_argument("--line-join", action="store_true", help="어두운 선을 갈림길에서 이은 긴 획으로(선화 인물 권장, 면보다 곡선 절반)")
     ap.add_argument("--smooth", type=float, default=0.0, help="윤곽을 둘레 따라 가우스로 다듬는 정도(점 단위). 곡선 하나가 길게 휘며 덮게 한다")
+    ap.add_argument("--line-scale", type=float, default=1.0, help="선 획 굵기 배율(앱 하한 ThicknessScale 0.1). 앱에서 선이 두꺼우면 0.5 안팎")
     ap.add_argument("--compact", action="store_true", help="용량 최적화 묶음 = 윤곽 다듬기 3 + 밑색 오차 2px + 명암 오차 3px + --shade-min 200 + 명암 6단계"
                     "(2026-10-25 사용자: 곡선 하나의 구부림으로 길게 덮을 수 있는데 테두리마다 점이 빼곡). 광사 그림: --line-join과 함께 24,036 → 3,017")
     a = ap.parse_args()
@@ -162,6 +166,7 @@ def main():
         a.shade_min = a.shade_min or 200
         a.levels = a.levels or "0.12,0.25,0.4,0.55,0.7,0.85"
     levels = [float(v) for v in a.levels.split(",")] if a.levels else None
+    LINE_SCALE = a.line_scale
     H = a.height
     bg = None if a.bg == "auto" else [int(v) for v in a.bg.split(",")]
     masks = None
