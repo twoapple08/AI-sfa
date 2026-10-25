@@ -1,0 +1,17 @@
+# 이펙트 화풍 LoRA 학습 자료 설정(kohya sd-scripts, 2026-10-25) — tools/pc_lora_train.bat가 씀
+# 캡션 맨 앞 신호 낱말(nkmr_fx 등)은 그대로, 텍스트 인코더 출력을 미리 계산해 8GB에 맞추므로 캡션 섞기는 끈다.
+[general]
+caption_extension = ".txt"
+shuffle_caption = false
+
+[[datasets]]
+resolution = 1024
+batch_size = 1
+enable_bucket = true
+min_bucket_reso = 640
+max_bucket_reso = 1536
+bucket_reso_steps = 64
+
+  [[datasets.subsets]]
+  image_dir = "H:/fx/train/data"
+  num_repeats = 1
