@@ -6,7 +6,7 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 - Priority (2026-10-16 사용자 전환): (나) 분석형 스타일 학습 — 이펙트·연출·배경 우선, 뿌리 yutaka_nakamura(이펙트·배경·연출; 에반게리온 제외, 구작·최신작 공통 방식 가중; **impact_frames는 판정 '맞음'이면 연필·디지털·단색섬광 모두 학습 자료로 쓴다(2026-10-20 사용자, 이전의 '4B 연필만' 규칙 대체). 중요도 순위는 나중에 정하며 302394(비질란테)는 기본 낮음 — 최중요**)·nian41(**몸 뼈대 움직임 1순위**(옷·머리카락·장식·근육·얼굴 제외); 2026-10-20부터 배경·이펙트·연출 **보충 자료**로도 포함, 그림체는 제외). **배경·이펙트·연출은 나카무라가 압도적 1순위**이고 다른 애니메이터(nian41·riooo·optical-core·yukina_kosaka)는 나카무라에 없거나 적은 부분을 보충한다(2026-10-20 사용자, docs/PRIORITY-TIERS-2026-10-20.md). 현재 계획은 docs/STYLE-LEARNING-PLAN-2026-10-16.md, 후보는 docs/ARTIST-CANDIDATES-2026-10-16.md. 추가 애니메이터는 사용자 승낙 후에만 포함(2026-10-18 승낙: riooo — 규모 큰 전투씬의 이펙트·연출만, 인체·불 이펙트 제외; optical-core — 이펙트·연출만, 인체 제외. yukina_kosaka — 이펙트·연출·연필 임팩트, 인체 제외. 반려(원본 삭제): katsumi_ishizuka·sota_shigetsugu·isuta_meister. 범위는 docs/INTAKE-PROCEDURE-2026-10-18.md §4). 영상 원본은 저장소에 넣지 않고 분석 뒤 임시본을 지운다. Stick Fighter 기능 분석 결과는 생성 제약으로 재사용한다.
 - Distinguish stored-state probes, inferred algorithms, and actual app/UI verification.
 - Do not publish provided APKs, other users' animation/video originals, or decompiled app source.
-- FPS order is (tween_fps, playback_fps).
+- FPS order is (tween_fps, playback_fps). **사용자는 생성물을 항상 (24,24)로 만든다 — 앱 트위닝을 쓰지 않고 24장/초를 모두 직접 그린다(2026-10-25).**
 - Run tests from repository root: `python -m unittest discover -s tests -v`.
 - Generated probe files are reproducible with `python build_feature_probes.py`.
 - Fetch current remote state before changing GitHub; preserve unrelated work.
