@@ -94,7 +94,13 @@ def main():
                 ms, _, _ = sam.predict(box=np.array(boxes, np.float32), multimask_output=False)
             m = (ms.reshape(-1, h, w) > 0).any(0).astype(np.uint8)
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-            m[(hsv[..., 2] > 235) & (hsv[..., 1] < 40)] = 0  # 손에 붙은 흰 섬광은 인물이 아니다(c0004)
+            # 손에 붙은 흰 섬광은 인물이 아니다(c0004). 단 인물 안에만 있는 흰 부분(얼굴·옷 밝은 면)은 남긴다(c0100 얼굴에 구멍)
+            bright = ((hsv[..., 2] > 235) & (hsv[..., 1] < 40)).astype(np.uint8)
+            kb, cb, sb, _ = cv2.connectedComponentsWithStats(bright, 8)
+            for c in range(1, kb):
+                part = cb == c
+                if (m[part] == 0).mean() > 0.3:  # 인물 밖으로 크게 번진 흰 덩어리 = 섬광
+                    m[part] = 0
             return m
     elif a.model == "florence":  # Florence-2 글 지시 검출(사람 형체) + SAM 2 오리기 — 2026-10-25 비교 시험
         import torch
