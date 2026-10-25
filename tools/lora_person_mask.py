@@ -4,7 +4,8 @@
 이펙트는 경계가 흐려 오리기 어렵지만 사람은 윤곽이 뚜렷하다. 사람 분할 모델(YOLO 분할, 사람 종류만)로 장마다 인물 마스크를 만든다.
 결과는 '인물 뺀 장면'(인물 자리 = 검정) 학습 예시와, 생성 결과에서 인물을 빼는 데 쓴다. 애니 인물은 실사보다 덜 잡힐 수 있어 시트로 확인한다.
 출력: <출력>/<클립>.npz (mask[T,H,W/8] packbits, 인물=1) + --sheet 이면 확인 그림(인물 자리 빨강)
-사용: python tools/lora_person_mask.py <클립 폴더> <출력 폴더> [--only c0001,c0002] [--model yolo11l-seg.pt] [--conf 0.25] [--sheet 그림.jpg]
+사용: python tools/lora_person_mask.py <클립 폴더> <출력 폴더> [--only c0001,c0002] [--model isnetis.onnx|yolo11l-seg.pt] [--conf 0.5] [--sheet 그림.jpg]
+  --model *.onnx = 애니 캐릭터 전용(권장, conf = 마스크 문턱), 그 밖 = YOLO 사람 분할(conf = 검출 신뢰도)
 """
 import argparse
 import glob
@@ -24,8 +25,31 @@ def main():
     ap.add_argument("--grow", type=int, default=3, help="인물 마스크 넓히기(px) — 머리카락·옷 가장자리 잔여 줄이기")
     ap.add_argument("--sheet")
     a = ap.parse_args()
-    from ultralytics import YOLO
-    model = YOLO(a.model)
+    if a.model.endswith(".onnx"):  # 애니 캐릭터 전용 분할(skytnt anime-segmentation, isnetis.onnx) — 2026-10-25 YOLO가 애니 인물을 놓쳐 교체
+        import onnxruntime as ort
+        sess = ort.InferenceSession(a.model, providers=["CPUExecutionProvider"])
+
+        def segment(img):
+            s = 1024
+            h, w = img.shape[:2]
+            r = s / max(h, w)
+            nh, nw = int(h * r), int(w * r)
+            x = np.zeros((s, s, 3), np.float32)
+            ph, pw = (s - nh) // 2, (s - nw) // 2
+            x[ph:ph + nh, pw:pw + nw] = cv2.resize(img[..., ::-1], (nw, nh)).astype(np.float32) / 255
+            m = sess.run(None, {sess.get_inputs()[0].name: x.transpose(2, 0, 1)[None]})[0][0, 0]
+            m = cv2.resize(m[ph:ph + nh, pw:pw + nw], (w, h))
+            return (m > a.conf).astype(np.uint8)
+    else:
+        from ultralytics import YOLO
+        model = YOLO(a.model)
+
+        def segment(img):
+            r = model.predict(img, classes=[0], conf=a.conf, retina_masks=True, verbose=False)[0]
+            if r.masks is None:
+                return np.zeros(img.shape[:2], np.uint8)
+            m = (r.masks.data.cpu().numpy() > 0.5).any(0).astype(np.uint8)
+            return cv2.resize(m, (img.shape[1], img.shape[0]), interpolation=cv2.INTER_NEAREST) if m.shape != img.shape[:2] else m
     os.makedirs(a.out, exist_ok=True)
     only = set(a.only.split(",")) if a.only else None
     rows = []
@@ -44,12 +68,7 @@ def main():
         M = np.zeros((len(frames), H, W), np.uint8)
         k = np.ones((2 * a.grow + 1, 2 * a.grow + 1), np.uint8)
         for i, f in enumerate(frames):
-            r = model.predict(f, classes=[0], conf=a.conf, retina_masks=True, verbose=False)[0]
-            if r.masks is not None:
-                m = (r.masks.data.cpu().numpy() > 0.5).any(0).astype(np.uint8)
-                if m.shape != (H, W):
-                    m = cv2.resize(m, (W, H), interpolation=cv2.INTER_NEAREST)
-                M[i] = cv2.dilate(m, k)
+            M[i] = cv2.dilate(segment(f), k)
         np.savez_compressed(os.path.join(a.out, f"{cid}.npz"), mask=np.packbits(M, axis=-1), shape=np.array(M.shape))
         print(cid, "인물 면적", f"{M.mean() * 100:.1f}%", flush=True)
         if a.sheet:
