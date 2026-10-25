@@ -31,7 +31,11 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--sheet")
     ap.add_argument("--box-thr", type=float, default=0.3)
+    ap.add_argument("--prompts", help="인물 대신 다른 부위(예: 폭발=explosion. fire.;로봇=robot. mecha.) — 뒤에 적을수록 위(덮어씀). 눈·옷 후처리 안 함")
     a = ap.parse_args()
+    person = not a.prompts
+    parts = PARTS if person else [("배경", None, False)] + [(kv.split("=", 1)[0], kv.split("=", 1)[1], True) for kv in a.prompts.split(";")]
+    names = NAMES if person else [p[0] for p in parts]
     img = cv2.imread(a.image)
     H, W = img.shape[:2]
     pil = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
@@ -42,7 +46,7 @@ def main():
     sam.set_image(np.array(pil))
     label = np.zeros((H, W), np.uint8)
     eye_boxes, face_box = [], None
-    for li, (name, text, multi) in enumerate(PARTS):
+    for li, (name, text, multi) in enumerate(parts):
         if text is None:
             continue
         inp = proc(images=pil, text=text, return_tensors="pt")
@@ -70,14 +74,14 @@ def main():
             label[m] = li
         print(name, len(boxes), "개")
     # 옷 상자가 그림 전체를 덮어 뒤쪽 노란 원 가장자리가 옷으로 잡혔다 → 턱보다 위의 옷은 배경으로
-    if face_box is not None:
+    if person and face_box is not None:
         top = int(face_box[3] * 0.97)
         label[:top][label[:top] == NAMES.index("옷")] = 0
     # 눈 안쪽: 눈동자(채도 높은 둥근 덩어리) / 속눈썹(눈 위쪽 절반의 진한 곳)
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    ie, ii, il = NAMES.index("눈"), NAMES.index("눈동자"), NAMES.index("속눈썹")
-    for b in eye_boxes:
+    ie, ii, il = (NAMES.index("눈"), NAMES.index("눈동자"), NAMES.index("속눈썹")) if person else (0, 0, 0)
+    for b in (eye_boxes if person else []):
         x0, y0, x1, y1 = (int(round(v)) for v in b)
         sub = np.zeros((H, W), np.uint8); sub[y0:y1, x0:x1] = 1
         iris = ((hsv[..., 1] > 70) & (hsv[..., 2] > 50) & (sub > 0)).astype(np.uint8)
@@ -94,11 +98,11 @@ def main():
             cy = (y0 + y1) // 2
         lash = (gray < 90) & (sub > 0) & (np.arange(H)[:, None] < cy) & (label == ie)
         label[cv2.dilate(lash.astype(np.uint8), np.ones((3, 3), np.uint8)) > 0 & (label == ie)] = il
-    np.savez_compressed(a.out, label=label, names=np.array(NAMES))
-    print({n: int((label == i).sum()) for i, n in enumerate(NAMES)})
+    np.savez_compressed(a.out, label=label, names=np.array(names))
+    print({n: int((label == i).sum()) for i, n in enumerate(names)})
     if a.sheet:
         rng = np.random.RandomState(3)
-        pal = rng.randint(40, 255, (len(NAMES), 3)).astype(np.uint8); pal[0] = 0
+        pal = rng.randint(40, 255, (len(names), 3)).astype(np.uint8); pal[0] = 0
         cv2.imwrite(a.sheet, np.hstack([img, (img * 0.4 + pal[label] * 0.6).astype(np.uint8)]))
 
 
