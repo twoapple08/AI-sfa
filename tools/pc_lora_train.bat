@@ -82,7 +82,7 @@ if not exist %ROOT%\data\c0001.txt (
 
 if /i "%~1"=="prep" (echo. & echo 준비 끝: 설치, 기본 모델, 학습 자료가 모두 H에 있습니다. 학습은 pc_lora_train.bat를 더블클릭하면 시작합니다. & pause & exit /b 0)
 
-rem 6) 학습 - 2바퀴마다 저장(out 폴더), 중간에 멈추면 마지막 저장본부터 다시 할 수 있음
+rem 6) 학습 - 8GB GPU와 적은 램에 맞춤: 기본 모델을 fp8, 학습은 bf16, 모델을 램 대신 GPU로 바로 올림(2026-10-25 PC방: U-Net 읽다가 말없이 꺼짐) - 2바퀴마다 저장(out 폴더), 중간에 멈추면 마지막 저장본부터 다시 할 수 있음
 echo [6/6] 학습 시작 - 몇 시간 걸립니다. 진행 막대의 it/s 숫자와 남은 시간을 보면 됩니다.
 set HF_HUB_OFFLINE=1
 set TRANSFORMERS_OFFLINE=1
@@ -97,7 +97,7 @@ pushd %ROOT%\sd-scripts
   --network_train_unet_only --unet_lr 4e-4 ^
   --optimizer_type AdamW8bit --lr_scheduler cosine --lr_warmup_steps 100 ^
   --max_train_epochs 8 --save_every_n_epochs 2 --save_model_as safetensors ^
-  --mixed_precision bf16 --save_precision bf16 --sdpa --gradient_checkpointing ^
+  --mixed_precision bf16 --save_precision bf16 --full_bf16 --fp8_base --lowram --sdpa --gradient_checkpointing ^
   --cache_latents --cache_latents_to_disk --cache_text_encoder_outputs --cache_text_encoder_outputs_to_disk ^
   --min_snr_gamma 5 --max_data_loader_n_workers 0 --seed 42 --save_state
 set RC=%errorlevel%
