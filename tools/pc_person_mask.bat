@@ -10,7 +10,21 @@ set UV_CACHE_DIR=H:\fx\uvcache
 set UV_PYTHON_INSTALL_DIR=H:\fx\py
 set PIP_NO_CACHE_DIR=1
 set SAM2_BUILD_CUDA=0
-for %%D in (H:\fx\tmp H:\fx\hf H:\fx\uvcache H:\fx\py H:\fx\tools) do if not exist %%D mkdir %%D
+rem C 드라이브에 아무것도 남기지 않게(PC방 C 여유 1GB, 2026-10-25): 실행 중 사용자 폴더·AppData·각종 캐시를 H로
+set USERPROFILE=H:\fx\home
+set HOME=H:\fx\home
+set APPDATA=H:\fx\home\AppData\Roaming
+set LOCALAPPDATA=H:\fx\home\AppData\Local
+set CUDA_CACHE_PATH=H:\fx\cudacache
+set TORCH_HOME=H:\fx\torch
+set XDG_CACHE_HOME=H:\fx\home\.cache
+set TRITON_CACHE_DIR=H:\fx\home\.triton
+set PYTHONUSERBASE=H:\fx\home\pyuser
+set MPLCONFIGDIR=H:\fx\home\mpl
+set PIP_CACHE_DIR=H:\fx\uvcache\pip
+set HF_HUB_DISABLE_XET=1
+for %%D in (H:\fx\tmp H:\fx\hf H:\fx\uvcache H:\fx\py H:\fx\tools H:\fx\home\AppData\Roaming H:\fx\home\AppData\Local H:\fx\cudacache H:\fx\torch) do if not exist %%D mkdir %%D
+for /f "tokens=3" %%S in ('dir /-c C:\ ^| find "bytes free"') do echo C 드라이브 남은 공간: %%S 바이트
 cd /d %ROOT% || (echo [오류] %ROOT% 폴더가 없습니다. 안내서 1번대로 파일을 넣어 주세요. & pause & exit /b 1)
 
 for %%F in (lora_person_mask.py isnetis.onnx) do if not exist %ROOT%\%%F (echo [오류] %ROOT%\%%F 가 없습니다. Drive PC실행 폴더에서 받아 넣어 주세요. & pause & exit /b 1)
@@ -51,5 +65,6 @@ echo [4/4] 인물 자르기 시작 - 클립마다 한 줄씩 나옵니다
 if errorlevel 1 (echo [오류] 실행 중 문제가 생겼습니다. 이 창을 찍어 보내 주세요. & pause & exit /b 1)
 
 echo.
+for /f "tokens=3" %%S in ('dir /-c C:\ ^| find "bytes free"') do echo C 드라이브 남은 공간: %%S 바이트
 echo 끝났습니다. %ROOT%\person 폴더를 Drive AI-sfa/02_분석자료/LoRA_클립/인물마스크/ 에 올려 주세요.
 pause
