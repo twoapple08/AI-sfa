@@ -48,6 +48,7 @@ if errorlevel 1 (
 ) else (
   echo [2/4] 설치돼 있음 - 건너뜀
 )
+"%PY%" -c "import psutil" >nul 2>&1 || "%UV%" pip install --python "%PY%" psutil
 "%PY%" -c "import torch; print('GPU:', torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else '')"
 
 rem 3) 클립 풀기
@@ -59,10 +60,18 @@ if not exist %ROOT%\clips\c0001.mp4 (
   echo [3/4] 클립 있음 - 건너뜀
 )
 
-rem 4) 인물 자르기
-echo [4/4] 인물 자르기 시작 - 클립마다 한 줄씩 나옵니다
-"%PY%" %ROOT%\lora_person_mask.py %ROOT%\clips %ROOT%\person --model mix --anime %ROOT%\isnetis.onnx --conf 0.3 --grow 2 --clean --sheet %ROOT%\person_check.jpg
-if errorlevel 1 (echo [오류] 실행 중 문제가 생겼습니다. 이 창을 찍어 보내 주세요. & pause & exit /b 1)
+rem 4) 인물 자르기 - 두 단계로 나눠 메모리를 적게 씀(한 번에 다 켜니 C의 pagefile이 8GB 넘게 늘었다). 다시 실행하면 끝난 클립은 건너뜀
+echo 다른 프로그램(크롬 등)을 닫아 두면 C 드라이브 가상 메모리가 덜 늘어납니다.
+echo [4/4] 1단계: GPU로 인물 찾기 - 클립마다 한 줄씩 나옵니다
+"%PY%" %ROOT%\lora_person_mask.py %ROOT%\clips %ROOT%\person_raw --model mix --stage gdino --conf 0.3 --clean --resume
+if errorlevel 1 (
+  echo 반정밀도에서 문제가 생겨 보통 정밀도로 다시 합니다.
+  "%PY%" %ROOT%\lora_person_mask.py %ROOT%\clips %ROOT%\person_raw --model mix --stage gdino --conf 0.3 --clean --resume --half 0
+  if errorlevel 1 (echo [오류] 1단계 실행 중 문제가 생겼습니다. 이 창을 찍어 보내 주세요. & pause & exit /b 1)
+)
+echo [4/4] 2단계: 인물 안 구멍 메우기
+"%PY%" %ROOT%\lora_person_mask.py %ROOT%\clips %ROOT%\person --model mix --stage anime --raw %ROOT%\person_raw --anime %ROOT%\isnetis.onnx --grow 2 --sheet %ROOT%\person_check.jpg
+if errorlevel 1 (echo [오류] 2단계 실행 중 문제가 생겼습니다. 이 창을 찍어 보내 주세요. & pause & exit /b 1)
 
 echo.
 for /f "tokens=3" %%S in ('dir /-c C:\ ^| find "bytes free"') do echo C 드라이브 남은 공간: %%S 바이트

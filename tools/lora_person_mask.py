@@ -46,6 +46,27 @@ def clean(M, min_part, persist):
     return out
 
 
+def ram():
+    """이 프로그램이 쓰는 메모리(커밋, GB) — 클립마다 늘어나는지 보려고(psutil 없으면 빈칸)."""
+    try:
+        import psutil
+        mi = psutil.Process().memory_info()
+        return f"[메모리 {getattr(mi, 'private', mi.rss) / 1e9:.1f}GB]"
+    except Exception:
+        return ""
+
+
+def free_mem():
+    import gc
+    gc.collect()
+    try:
+        import torch
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        pass
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("clips")
@@ -59,11 +80,22 @@ def main():
     ap.add_argument("--clean", action="store_true", help="작은 덩어리·한두 장에만 나타나는 덩어리 버리기")
     ap.add_argument("--min-part", type=float, default=0.005)
     ap.add_argument("--persist", type=int, default=1)
+    ap.add_argument("--stage", choices=["all", "gdino", "anime"], default="all")
+    ap.add_argument("--raw", help="--stage anime 때 gdino 단계 결과 폴더")
+    ap.add_argument("--half", type=int, default=1, help="GPU 반정밀도(bf16) 1/0")
+    ap.add_argument("--resume", action="store_true", help="이미 있는 결과 파일은 건너뜀")
     a = ap.parse_args()
     if a.model == "mix":  # 섞기(2026-10-25 사용자 "잘 적용된 부분만 모아서"): Grounding DINO 개선판 + 애니 전용으로 인물 안 구멍 메우기
         a.model, anime_path = "gdino", a.anime
     else:
         anime_path = None
+    # 단계 나누기(2026-10-25 PC방: 한 프로그램에 GPU 모델 둘 + CPU 애니 모델을 함께 켜니 윈도 pagefile이 C에서 8GB 넘게 늘었다)
+    #   --stage gdino: GPU 모델만 켜서 원본 마스크(--clean 반영, 넓히기 전)를 저장하고 끝낸다
+    #   --stage anime: 그 결과(--raw 폴더)를 읽어 애니 모델로 인물 안 구멍을 메우고 넓혀 최종 저장(torch를 켜지 않는다)
+    if a.stage == "gdino":
+        anime_path = None
+    elif a.stage == "anime":
+        a.model = "none"
     if a.model == "gdino":  # 글로 사람 형체를 찾고(Grounding DINO) 상자 안을 SAM 2로 오린다 — 2026-10-25 도구 4종 비교에서 가장 나음
         import torch
         from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
@@ -83,10 +115,15 @@ def main():
             inter = max(0, x1 - x0) * max(0, y1 - y0)
             return inter / max((p[2] - p[0]) * (p[3] - p[1]) + (q[2] - q[0]) * (q[3] - q[1]) - inter, 1e-6)
 
+        half = a.half and dev == "cuda"
+
+        def amp():  # 반정밀도(bf16): GPU 메모리와 윈도 예약 메모리를 줄인다
+            return torch.autocast("cuda", dtype=torch.bfloat16, enabled=half)
+
         def segment(img):
             h, w = img.shape[:2]
             rgb = img[..., ::-1].copy()
-            with torch.inference_mode():
+            with torch.inference_mode(), amp():
                 inp = proc(images=rgb, text=prompt, return_tensors="pt").to(dev)
                 out = det(**inp)
                 r = proc.post_process_grounded_object_detection(out, inp.input_ids, box_threshold=a.conf, text_threshold=a.conf,
@@ -104,10 +141,10 @@ def main():
             m = np.zeros((h, w), np.uint8)
             if not boxes:
                 return m
-            with torch.inference_mode():
+            with torch.inference_mode(), amp():
                 sam.set_image(rgb)
                 ms, _, _ = sam.predict(box=np.array(boxes, np.float32), multimask_output=False)
-            m = (ms.reshape(-1, h, w) > 0).any(0).astype(np.uint8)
+            m = (np.asarray(ms, np.float32).reshape(-1, h, w) > 0).any(0).astype(np.uint8)
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
             # 손에 붙은 흰 섬광은 인물이 아니다(c0004). 단 인물 안에만 있는 흰 부분(얼굴·옷 밝은 면)은 남긴다(c0100 얼굴에 구멍)
             bright = ((hsv[..., 2] > 235) & (hsv[..., 1] < 40)).astype(np.uint8)
@@ -151,6 +188,8 @@ def main():
                 sam.set_image(rgb)
                 ms, _, _ = sam.predict(box=np.array(boxes, np.float32), multimask_output=False)
             return (ms.reshape(-1, h, w) > 0).any(0).astype(np.uint8)
+    elif a.model == "none":
+        segment = None
     elif a.model.endswith(".onnx"):  # 애니 캐릭터 전용 분할(skytnt anime-segmentation, isnetis.onnx) — 2026-10-25 YOLO가 애니 인물을 놓쳐 교체
         import onnxruntime as ort
         sess = ort.InferenceSession(a.model, providers=["CPUExecutionProvider"])
@@ -198,6 +237,11 @@ def main():
         cid = os.path.splitext(os.path.basename(p))[0]
         if only and cid not in only:
             continue
+        out_path = os.path.join(a.out, f"{cid}.npz")
+        if a.resume and os.path.exists(out_path) and not a.sheet:  # 이어 하기: 끝난 클립은 건너뜀
+            continue
+        if a.stage == "anime" and not os.path.exists(os.path.join(a.raw, f"{cid}.npz")):
+            continue
         cap = cv2.VideoCapture(p)
         frames = []
         while True:
@@ -206,12 +250,21 @@ def main():
                 break
             frames.append(x)
         H, W = frames[0].shape[:2]
-        M = np.zeros((len(frames), H, W), np.uint8)
         k = np.ones((2 * a.grow + 1, 2 * a.grow + 1), np.uint8)
-        for i, f in enumerate(frames):
-            M[i] = segment(f)
-        if a.clean:
-            M = clean(M, a.min_part, a.persist)
+        if a.stage == "anime":
+            z = np.load(os.path.join(a.raw, f"{cid}.npz"))
+            M = np.unpackbits(z["mask"], axis=-1)[..., :W].copy()
+        else:
+            M = np.zeros((len(frames), H, W), np.uint8)
+            for i, f in enumerate(frames):
+                M[i] = segment(f)
+            if a.clean:
+                M = clean(M, a.min_part, a.persist)
+        if a.stage == "gdino":  # 원본 마스크만 저장(넓히기·구멍 메우기는 anime 단계에서)
+            np.savez_compressed(out_path, mask=np.packbits(M, axis=-1), shape=np.array(M.shape))
+            print(cid, "인물 면적", f"{M.mean() * 100:.1f}%", ram(), flush=True)
+            free_mem()
+            continue
         if anime is not None:
             for i, f in enumerate(frames):
                 if not M[i].any():  # 사람이 안 잡힌 장은 메울 구멍도 없다(애니 모델은 CPU라 느려서 건너뜀)
@@ -221,8 +274,9 @@ def main():
                     M[i] |= am & fill_outline(M[i])
         for i in range(len(M)):
             M[i] = cv2.dilate(M[i], k)
-        np.savez_compressed(os.path.join(a.out, f"{cid}.npz"), mask=np.packbits(M, axis=-1), shape=np.array(M.shape))
-        print(cid, "인물 면적", f"{M.mean() * 100:.1f}%", flush=True)
+        np.savez_compressed(out_path, mask=np.packbits(M, axis=-1), shape=np.array(M.shape))
+        print(cid, "인물 면적", f"{M.mean() * 100:.1f}%", ram(), flush=True)
+        free_mem()
         if a.sheet:
             pick = np.linspace(0, len(frames) - 1, 4).round().astype(int)
             th = []

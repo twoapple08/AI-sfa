@@ -12,6 +12,7 @@
 1. `H:\fx\lora` 폴더를 만들고 Drive `PC실행/`의 파일 4개(`lora_clips_781.zip`, `lora_person_mask.py`, `isnetis.onnx`, `pc_person_mask.bat`)를 넣는다.
 2. `pc_person_mask.bat`를 더블클릭한다. 파이썬·패키지를 모두 H 드라이브(`H:\fx\py`, `H:\fx\lora\env`)에 깔고(처음 한 번 약 3GB, 다음부터는 건너뜀) 클립을 풀어 실행한다. C 드라이브는 쓰지 않는다.
 3. 끝나면 `H:\fx\lora\person` 폴더를 Drive에 올린다(아래 4번).
+- 2026-10-25 PC방 실행에서 GPU 모델 둘과 애니 모델을 한 프로그램에 함께 켜니 윈도 가상 메모리(`C:\pagefile.sys`)가 8.4GB로 늘어 C가 찼다. 그래서 bat은 두 단계(1단계 GPU 인물 찾기 → `person_raw`, 2단계 애니 모델 구멍 메우기 → `person`)로 나눠 돌리고, GPU는 반정밀도(bf16, 문제 생기면 자동으로 보통 정밀도)로 쓴다. 클립마다 `[메모리 x.xGB]`가 찍힌다. 다시 실행하면 끝난 클립은 건너뛴다. 크롬 등 다른 프로그램은 닫아 둔다.
 아래 1–3번은 bat 없이 손으로 할 때의 순서다.
 
 ## 1. 받기
