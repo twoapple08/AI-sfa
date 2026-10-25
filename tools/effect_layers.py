@@ -347,6 +347,18 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
         # 선화 지도 → 가운데 줄기 긴 획(선 객체 = 곡선 + 굵기). 사용자 시연: 어깨선 하나 = 곡선 2개짜리 선. 채우기 면은 양쪽 테두리마다
         # 점이 빼곡해 앱에서 지저분했다(2026-10-25)
         src = cv2.cvtColor(line_map, cv2.COLOR_GRAY2BGR)
+        # 굵게 칠한 검은 덩어리(속눈썹·눈동자 가운데 등)는 줄기를 따면 여러 갈래로 갈라져 찌그러졌다(2026-10-25 사용자: 눈 부분)
+        # → 덩어리 모양 그대로 potrace 채우기, 그 자리 선은 획에서 뺀다
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        r = max(3, int(round(img.shape[0] / 1152 * 3)))  # 반폭 3px(1152 기준) 이상인 검은 곳
+        ker = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))
+        thick = cv2.morphologyEx((gray < 80).astype(np.uint8), cv2.MORPH_OPEN, ker)
+        if thick.any():
+            from potrace_lines import trace_shapes
+            blob = cv2.dilate(thick, np.ones((3, 3), np.uint8))
+            layers.append({"kind": "line", "color": np.median(img[thick > 0], 0).round(1).tolist(), "alpha": 1.0,
+                           "shapes": trace_shapes(np.where(blob > 0, 0, 255).astype(np.uint8), turdsize=8)})
+            lm = lm & (1 - cv2.dilate(thick, np.ones((5, 5), np.uint8)))
         lsegs = [g[:7] + [v * 0.35 for v in g[7:10]] for g in joined_strokes(src, lm, max(tol, 2.5), min_len=8, sigma=max(sigma, 3.0),
                                                                               dark=cv2.erode(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), np.ones((3, 3), np.uint8)),
                                                                               wrange=(0.6, 4.5))]  # 진하기는 원본 그림에서(외곽 검정 / 머리 결 회색). 선화 지도는 선 진하기가 고르다
