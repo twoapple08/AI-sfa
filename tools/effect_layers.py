@@ -75,7 +75,8 @@ def mask_strokes(img, m, tol=1.0, min_len=6):
     return segs
 
 
-def base_and_shade(img, line_mask, k, tol, min_area, valid=None):
+def base_and_shade(img, line_mask, k, tol, min_area, valid=None, shade_min=None, levels=None):
+    shade_min = min_area if shade_min is None else shade_min
     clean = cv2.inpaint(img, cv2.dilate(line_mask, np.ones((3, 3), np.uint8)), 3, cv2.INPAINT_TELEA)
     smooth = cv2.bilateralFilter(clean, 7, 30, 7)
     lab = cv2.cvtColor(smooth, cv2.COLOR_BGR2LAB).reshape(-1, 3).astype(np.float32)
@@ -134,17 +135,17 @@ def base_and_shade(img, line_mask, k, tol, min_area, valid=None):
             # 정규화 흐림: 영역 밖 0과 섞이면 가장자리 알파가 낮아져 가장자리에 밑색 띠(밝은·어두운 테두리)가 생겼다(2026-10-24 020)
             a = cv2.GaussianBlur(a, (0, 0), 1.0) / np.maximum(cv2.GaussianBlur(reg.astype(np.float32), (0, 0), 1.0), 1e-3) * reg
             prev = 0.0
-            for lv in LEVELS:
+            for lv in (LEVELS if levels is None else levels):
                 m0 = (a >= lv).astype(np.uint8)
                 m = cv2.morphologyEx(m0, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
                 m |= m0 & edge_band  # 영역 가장자리는 열기로 깎지 않는다(계단진 마스크 가장자리마다 밑색이 선처럼 남았다, 020)
-                if m.sum() < min_area:
+                if m.sum() < shade_min:
                     break
                 # 1px 넓혀 윤곽을 딴다: 곡선 맞춤이 윤곽을 안으로 당겨 생긴 틈으로 어두운 밑색이 테두리처럼 보였다(2026-10-24 '외곽선 현상').
                 # 테두리 선으로 덮으면 반투명이 겹쳐 밝은 선이 생겨서, 면 자체를 넓힌다.
                 # 밑색 이음새 선(SEAM 2px)이 영역 밖으로 1px 나가므로 명암도 영역 밖 1px까지 덮는다(안 덮으면 밑색 띠가 테두리로 보였다, 020)
                 m = cv2.dilate(m, np.ones((3, 3), np.uint8)) & reg_out
-                _, sh = outline_mask(m * 255, tol, min_area)
+                _, sh = outline_mask(m * 255, tol, shade_min)
                 if sh:
                     layers.append({"kind": "shade", "tone": sign, "color": S.round(1).tolist(),
                                    "alpha": round(1 - (1 - lv) / (1 - prev), 4), "level": lv, "shapes": sh})
@@ -201,7 +202,7 @@ def delta_e(a, b):
     return np.linalg.norm(la - lb, axis=2)
 
 
-def decompose(img, k=8, tol=1.0, min_area=20, valid=None):
+def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels=None):
     """valid(0/1 마스크)가 있으면 그 안만 분해한다(이펙트 분리 결과, tools/kaggle_fx_worker.py). ΔE도 그 안에서만 잰다."""
     if valid is not None and valid.sum() < min_area:  # 이펙트가 없는 프레임: 빈 그림
         doc = {"size": list(img.shape[:2]), "layers": [], "lines": [],
@@ -209,7 +210,7 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None):
         return doc, np.zeros_like(img)
     lm, lsegs, lcol = line_layer(img, tol, valid=valid)
     hm, hsegs, hcol = line_layer(img, tol, light=True, valid=valid)
-    layers = base_and_shade(img, lm | hm, k, tol, min_area, valid)
+    layers = base_and_shade(img, lm | hm, k, tol, min_area, valid, shade_min, levels)
     doc = {"size": list(img.shape[:2]), "layers": layers,
            "lines": [{"tone": "dark", "color": lcol, "segs": lsegs}, {"tone": "light", "color": hcol, "segs": hsegs}]}
     rec = render(doc, img.shape[:2])
