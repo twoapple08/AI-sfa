@@ -131,6 +131,43 @@ def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0):
     return segs
 
 
+def brush_shapes(img, m, tol=1.5, min_len=4, sigma=2.0, taper=0.25, width_scale=1.0):
+    """가는 마스크 → 붓선 면: 가운데 줄기(갈림길 이음) 양옆으로 굵기만큼 벌린 왼쪽·오른쪽 변을 긴 곡선으로 맞추고 양 끝을 모아 닫는다.
+    2026-10-25 사용자 시연: 곡선 4개 + 채우기로 끝이 빠지는 붓선 하나. 획(굵기 하나)은 끝이 안 빠지고, 픽셀 윤곽 면은 점이 빼곡했다.
+    반환: [(shape, BGR)] — shape = {'hole': False, 'segs': [...]} (선마다 색 하나)."""
+    dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
+    out = []
+    for path in join_paths(trace(skeletonize(m.astype(bool)))):
+        if len(path) < min_len:
+            continue
+        P = np.array([(x, y) for y, x in path], float)
+        if sigma > 0 and len(P) > 4:
+            r = int(3 * sigma)
+            w = np.exp(-0.5 * (np.arange(-r, r + 1) / sigma) ** 2); w /= w.sum()
+            Q = np.pad(P, ((r, r), (0, 0)), mode="edge")
+            P = np.stack([np.convolve(Q[:, 0], w, "valid"), np.convolve(Q[:, 1], w, "valid")], 1)
+        yi = np.clip(np.round(P[:, 1]).astype(int), 0, img.shape[0] - 1)
+        xi = np.clip(np.round(P[:, 0]).astype(int), 0, img.shape[1] - 1)
+        hw = np.maximum(dist[yi, xi] - 0.25, 0.35) * width_scale  # 반폭(px). 거리변환 중심값은 약 0.5px 크다
+        hw = np.convolve(np.pad(hw, 3, mode="edge"), np.ones(7) / 7, "valid")
+        n = len(P)
+        t = np.linspace(0, 1, n)
+        k = max(taper, 1e-3)
+        hw = hw * np.clip(np.minimum(t, 1 - t) / k, 0, 1) ** 0.6  # 양 끝으로 갈수록 가늘게(뾰족한 끝)
+        d = np.gradient(P, axis=0)
+        d /= np.maximum(np.linalg.norm(d, axis=1, keepdims=True), 1e-6)
+        nrm = np.stack([-d[:, 1], d[:, 0]], 1)
+        Lp, Rp = P + nrm * hw[:, None], P - nrm * hw[:, None]
+        segs = []
+        for side in (Lp, Rp[::-1]):
+            o2 = []
+            fit([tuple(p) for p in side], tol, o2)
+            segs += [[*map(float, a), *map(float, c), *map(float, b)] for a, c, b in o2]
+        col = np.median(img[yi, xi], 0).round(1).tolist()
+        out.append(({"hole": False, "segs": segs}, col))
+    return out
+
+
 def base_and_shade(img, line_mask, k, tol, min_area, valid=None, shade_min=None, levels=None, shade_tol=None, sigma=0.0):
     shade_min = min_area if shade_min is None else shade_min
     shade_tol = tol if shade_tol is None else shade_tol
@@ -275,7 +312,7 @@ def delta_e(a, b):
 
 
 def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels=None, shade_tol=None, line_dark=None,
-              line_fill=False, sigma=0.0, line_join=False):
+              line_fill=False, sigma=0.0, line_join=False, line_brush=False):
     """shade_tol: 명암 윤곽만 곡선 오차를 따로(2026-10-25 최적화: 밑색·선까지 2px로 하니 인물 윤곽이 자글자글해짐).
     line_dark: 어두운 선으로 볼 최대 밝기(기본 DARK_MAX 140). 흰 머리 위 회색 선(150–200)이 끊겨 점선이 되던 인물 그림은 200.
     line_fill: 어두운 선을 획 대신 선 모양 그대로의 채우기 면으로(밝기 3단계 색). 획은 갈림길마다 끊기고 굵기가 부풀어
@@ -290,6 +327,10 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
     layers = base_and_shade(img, lm | hm, k, tol, min_area, valid, shade_min, levels, shade_tol, sigma)
     if line_join:  # 어두운 선: 갈림길을 이은 긴 획(면보다 곡선 수 절반 — 면은 양쪽 테두리가 생긴다)
         lsegs = joined_strokes(img, lm, max(tol, 1.5), sigma=max(sigma, 2.0) if sigma else 2.0)
+    if line_brush:  # 어두운 선: 끝이 빠지는 붓선 면(선마다 FR 하나, 색 하나)
+        for sh, col in brush_shapes(img, lm, max(tol, 1.5)):
+            layers.append({"kind": "line", "color": col, "alpha": 1.0, "shapes": [sh]})
+        lsegs = []
     if line_fill:
         layers += line_fill_layers(img, lm, tol, sigma=sigma)
         lsegs = []
