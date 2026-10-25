@@ -1,7 +1,7 @@
 @echo off
-chcp 65001 >nul
 setlocal
-rem AI-sfa ì¸ë¬¼ ìë¥´ê¸° í•œ ë²ˆì— ì‹¤í–‰ (PCë°©ìš©, ëª¨ë‘ H ë“œë¼ì´ë¸Œì— ì„¤ì¹˜) â€” docs/PC-PERSON-MASK-GUIDE-2026-10-25.md
+rem (ÇÑ±¹¾î À©µµ cmd ±âº» ÄÚµåÆäÀÌÁö 949¿¡ ¸ÂÃç CP949·Î ÀúÀå. UTF-8+chcp 65001Àº ÁÙÀ» Àß¸ø ÀĞ¾ú´Ù, 2026-10-25)
+rem AI-sfa ÀÎ¹° ÀÚ¸£±â ÇÑ ¹ø¿¡ ½ÇÇà (PC¹æ¿ë, ¸ğµÎ H µå¶óÀÌºê¿¡ ¼³Ä¡) - docs/PC-PERSON-MASK-GUIDE-2026-10-25.md
 set ROOT=H:\fx\lora
 set TMP=H:\fx\tmp
 set TEMP=H:\fx\tmp
@@ -10,7 +10,7 @@ set UV_CACHE_DIR=H:\fx\uvcache
 set UV_PYTHON_INSTALL_DIR=H:\fx\py
 set PIP_NO_CACHE_DIR=1
 set SAM2_BUILD_CUDA=0
-rem C ë“œë¼ì´ë¸Œì— ì•„ë¬´ê²ƒë„ ë‚¨ê¸°ì§€ ì•Šê²Œ(PCë°© C ì—¬ìœ  1GB, 2026-10-25): ì‹¤í–‰ ì¤‘ ì‚¬ìš©ì í´ë”Â·AppDataÂ·ê°ì¢… ìºì‹œë¥¼ Hë¡œ
+rem C µå¶óÀÌºê¿¡ ¾Æ¹«°Íµµ ³²±âÁö ¾Ê°Ô(PC¹æ C ¿©À¯ 1GB, 2026-10-25): ½ÇÇà Áß »ç¿ëÀÚ Æú´õ,AppData,°¢Á¾ Ä³½Ã¸¦ H·Î
 set USERPROFILE=H:\fx\home
 set HOME=H:\fx\home
 set APPDATA=H:\fx\home\AppData\Roaming
@@ -24,47 +24,47 @@ set MPLCONFIGDIR=H:\fx\home\mpl
 set PIP_CACHE_DIR=H:\fx\uvcache\pip
 set HF_HUB_DISABLE_XET=1
 for %%D in (H:\fx\tmp H:\fx\hf H:\fx\uvcache H:\fx\py H:\fx\tools H:\fx\home\AppData\Roaming H:\fx\home\AppData\Local H:\fx\cudacache H:\fx\torch) do if not exist %%D mkdir %%D
-for /f "tokens=3" %%S in ('dir /-c C:\ ^| find "bytes free"') do echo C ë“œë¼ì´ë¸Œ ë‚¨ì€ ê³µê°„: %%S ë°”ì´íŠ¸
-cd /d %ROOT% || (echo [ì˜¤ë¥˜] %ROOT% í´ë”ê°€ ì—†ìŠµë‹ˆë‹¤. ì•ˆë‚´ì„œ 1ë²ˆëŒ€ë¡œ íŒŒì¼ì„ ë„£ì–´ ì£¼ì„¸ìš”. & pause & exit /b 1)
+for /f "tokens=3" %%S in ('dir /-c C:\ ^| find "bytes free"') do echo C µå¶óÀÌºê ³²Àº °ø°£: %%S ¹ÙÀÌÆ®
+cd /d %ROOT% || (echo [¿À·ù] %ROOT% Æú´õ°¡ ¾ø½À´Ï´Ù. ¾È³»¼­ 1¹ø´ë·Î ÆÄÀÏÀ» ³Ö¾î ÁÖ¼¼¿ä. & pause & exit /b 1)
 
-for %%F in (lora_person_mask.py isnetis.onnx) do if not exist %ROOT%\%%F (echo [ì˜¤ë¥˜] %ROOT%\%%F ê°€ ì—†ìŠµë‹ˆë‹¤. Drive PCì‹¤í–‰ í´ë”ì—ì„œ ë°›ì•„ ë„£ì–´ ì£¼ì„¸ìš”. & pause & exit /b 1)
+for %%F in (lora_person_mask.py isnetis.onnx) do if not exist %ROOT%\%%F (echo [¿À·ù] %ROOT%\%%F °¡ ¾ø½À´Ï´Ù. Drive PC½ÇÇà Æú´õ¿¡¼­ ¹Ş¾Æ ³Ö¾î ÁÖ¼¼¿ä. & pause & exit /b 1)
 
-rem 1) ì„¤ì¹˜ ë„êµ¬ uv (íŒŒì¼ í•˜ë‚˜)
+rem 1) ¼³Ä¡ µµ±¸ uv (ÆÄÀÏ ÇÏ³ª)
 if not exist H:\fx\tools\uv.exe (
-  echo [1/4] ì„¤ì¹˜ ë„êµ¬ uv ë°›ëŠ” ì¤‘...
+  echo [1/4] ¼³Ä¡ µµ±¸ uv ¹Ş´Â Áß...
   powershell -NoProfile -ExecutionPolicy Bypass -Command "Invoke-WebRequest https://github.com/astral-sh/uv/releases/download/0.5.31/uv-x86_64-pc-windows-msvc.zip -OutFile H:\fx\tmp\uv.zip; Expand-Archive -Force H:\fx\tmp\uv.zip H:\fx\tools"
 )
-if not exist H:\fx\tools\uv.exe (echo [ì˜¤ë¥˜] uvë¥¼ ë°›ì§€ ëª»í–ˆìŠµë‹ˆë‹¤. ì¸í„°ë„· ì—°ê²°ì„ í™•ì¸í•´ ì£¼ì„¸ìš”. & pause & exit /b 1)
+if not exist H:\fx\tools\uv.exe (echo [¿À·ù] uv¸¦ ¹ŞÁö ¸øÇß½À´Ï´Ù. ÀÎÅÍ³İ ¿¬°áÀ» È®ÀÎÇØ ÁÖ¼¼¿ä. & pause & exit /b 1)
 set UV=H:\fx\tools\uv.exe
 
-rem 2) íŒŒì´ì¬ 3.11 + íŒ¨í‚¤ì§€ (ì´ë¯¸ ë˜ë©´ ê±´ë„ˆëœ€)
+rem 2) ÆÄÀÌ½ã 3.11 + ÆĞÅ°Áö (ÀÌ¹Ì µÇ¸é °Ç³Ê¶Ü)
 set PY=%ROOT%\env\Scripts\python.exe
 "%PY%" -c "import torch, sam2, cv2, transformers, onnxruntime; assert torch.cuda.is_available()" >nul 2>&1
 if errorlevel 1 (
-  echo [2/4] íŒŒì´ì¬ê³¼ íŒ¨í‚¤ì§€ ì„¤ì¹˜ ì¤‘... ì²˜ìŒ í•œ ë²ˆì€ ì•½ 3GBë¥¼ ë°›ìŠµë‹ˆë‹¤.
-  if not exist "%PY%" "%UV%" venv %ROOT%\env --python 3.11 || (echo [ì˜¤ë¥˜] íŒŒì´ì¬ ì„¤ì¹˜ ì‹¤íŒ¨ & pause & exit /b 1)
-  "%UV%" pip install --python "%PY%" torch==2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu124 || (echo [ì˜¤ë¥˜] torch ì„¤ì¹˜ ì‹¤íŒ¨ & pause & exit /b 1)
-  "%UV%" pip install --python "%PY%" sam2 huggingface_hub opencv-python "transformers==4.49.0" onnxruntime || (echo [ì˜¤ë¥˜] íŒ¨í‚¤ì§€ ì„¤ì¹˜ ì‹¤íŒ¨ & pause & exit /b 1)
+  echo [2/4] ÆÄÀÌ½ã°ú ÆĞÅ°Áö ¼³Ä¡ Áß... Ã³À½ ÇÑ ¹øÀº ¾à 3GB¸¦ ¹Ş½À´Ï´Ù.
+  if not exist "%PY%" "%UV%" venv %ROOT%\env --python 3.11 || (echo [¿À·ù] ÆÄÀÌ½ã ¼³Ä¡ ½ÇÆĞ & pause & exit /b 1)
+  "%UV%" pip install --python "%PY%" torch==2.5.1 torchvision==0.20.1 --index-url https://download.pytorch.org/whl/cu124 || (echo [¿À·ù] torch ¼³Ä¡ ½ÇÆĞ & pause & exit /b 1)
+  "%UV%" pip install --python "%PY%" sam2 huggingface_hub opencv-python "transformers==4.49.0" onnxruntime || (echo [¿À·ù] ÆĞÅ°Áö ¼³Ä¡ ½ÇÆĞ & pause & exit /b 1)
 ) else (
-  echo [2/4] ì„¤ì¹˜ë¼ ìˆìŒ - ê±´ë„ˆëœ€
+  echo [2/4] ¼³Ä¡µÅ ÀÖÀ½ - °Ç³Ê¶Ü
 )
 "%PY%" -c "import torch; print('GPU:', torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else '')"
 
-rem 3) í´ë¦½ í’€ê¸°
+rem 3) Å¬¸³ Ç®±â
 if not exist %ROOT%\clips\c0001.mp4 (
-  if not exist %ROOT%\lora_clips_781.zip (echo [ì˜¤ë¥˜] lora_clips_781.zip ì´ ì—†ìŠµë‹ˆë‹¤. & pause & exit /b 1)
-  echo [3/4] í´ë¦½ ì••ì¶• í‘¸ëŠ” ì¤‘...
-  tar -xf %ROOT%\lora_clips_781.zip -C %ROOT% || (echo [ì˜¤ë¥˜] ì••ì¶• í’€ê¸° ì‹¤íŒ¨ & pause & exit /b 1)
+  if not exist %ROOT%\lora_clips_781.zip (echo [¿À·ù] lora_clips_781.zip ÀÌ ¾ø½À´Ï´Ù. & pause & exit /b 1)
+  echo [3/4] Å¬¸³ ¾ĞÃà Çª´Â Áß...
+  tar -xf %ROOT%\lora_clips_781.zip -C %ROOT% || (echo [¿À·ù] ¾ĞÃà Ç®±â ½ÇÆĞ & pause & exit /b 1)
 ) else (
-  echo [3/4] í´ë¦½ ìˆìŒ - ê±´ë„ˆëœ€
+  echo [3/4] Å¬¸³ ÀÖÀ½ - °Ç³Ê¶Ü
 )
 
-rem 4) ì¸ë¬¼ ìë¥´ê¸°
-echo [4/4] ì¸ë¬¼ ìë¥´ê¸° ì‹œì‘ - í´ë¦½ë§ˆë‹¤ í•œ ì¤„ì”© ë‚˜ì˜µë‹ˆë‹¤
+rem 4) ÀÎ¹° ÀÚ¸£±â
+echo [4/4] ÀÎ¹° ÀÚ¸£±â ½ÃÀÛ - Å¬¸³¸¶´Ù ÇÑ ÁÙ¾¿ ³ª¿É´Ï´Ù
 "%PY%" %ROOT%\lora_person_mask.py %ROOT%\clips %ROOT%\person --model mix --anime %ROOT%\isnetis.onnx --conf 0.3 --grow 2 --clean --sheet %ROOT%\person_check.jpg
-if errorlevel 1 (echo [ì˜¤ë¥˜] ì‹¤í–‰ ì¤‘ ë¬¸ì œê°€ ìƒê²¼ìŠµë‹ˆë‹¤. ì´ ì°½ì„ ì°ì–´ ë³´ë‚´ ì£¼ì„¸ìš”. & pause & exit /b 1)
+if errorlevel 1 (echo [¿À·ù] ½ÇÇà Áß ¹®Á¦°¡ »ı°å½À´Ï´Ù. ÀÌ Ã¢À» Âï¾î º¸³» ÁÖ¼¼¿ä. & pause & exit /b 1)
 
 echo.
-for /f "tokens=3" %%S in ('dir /-c C:\ ^| find "bytes free"') do echo C ë“œë¼ì´ë¸Œ ë‚¨ì€ ê³µê°„: %%S ë°”ì´íŠ¸
-echo ëë‚¬ìŠµë‹ˆë‹¤. %ROOT%\person í´ë”ë¥¼ Drive AI-sfa/02_ë¶„ì„ìë£Œ/LoRA_í´ë¦½/ì¸ë¬¼ë§ˆìŠ¤í¬/ ì— ì˜¬ë ¤ ì£¼ì„¸ìš”.
+for /f "tokens=3" %%S in ('dir /-c C:\ ^| find "bytes free"') do echo C µå¶óÀÌºê ³²Àº °ø°£: %%S ¹ÙÀÌÆ®
+echo ³¡³µ½À´Ï´Ù. %ROOT%\person Æú´õ¸¦ Drive AI-sfa/02_ºĞ¼®ÀÚ·á/LoRA_Å¬¸³/ÀÎ¹°¸¶½ºÅ©/ ¿¡ ¿Ã·Á ÁÖ¼¼¿ä.
 pause
