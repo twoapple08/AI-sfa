@@ -150,10 +150,15 @@ def main():
     ap.add_argument("--shade-tol", type=float, help="명암 윤곽만 곡선 오차(px). 기본 = --tol")
     ap.add_argument("--line-dark", type=int, help="어두운 선으로 볼 최대 밝기(기본 140). 흰 머리·옅은 회색 선이 점선으로 끊기는 인물 그림은 200")
     ap.add_argument("--line-fill", action="store_true", help="어두운 선을 획 대신 선 모양 채우기 면으로(인물 선화: 획은 점선·덩어리가 됨)")
-    ap.add_argument("--compact", action="store_true", help="용량 최적화 묶음 = 명암만 곡선 오차 2px + --shade-min 200 + 명암 6단계. 밑색·선은 --tol 그대로(2026-10-25: 전부 2px로 하니 인물 윤곽이 자글자글해짐)")
+    ap.add_argument("--line-join", action="store_true", help="어두운 선을 갈림길에서 이은 긴 획으로(선화 인물 권장, 면보다 곡선 절반)")
+    ap.add_argument("--smooth", type=float, default=0.0, help="윤곽을 둘레 따라 가우스로 다듬는 정도(점 단위). 곡선 하나가 길게 휘며 덮게 한다")
+    ap.add_argument("--compact", action="store_true", help="용량 최적화 묶음 = 윤곽 다듬기 3 + 밑색 오차 2px + 명암 오차 3px + --shade-min 200 + 명암 6단계"
+                    "(2026-10-25 사용자: 곡선 하나의 구부림으로 길게 덮을 수 있는데 테두리마다 점이 빼곡). 광사 그림: --line-join과 함께 24,036 → 3,017")
     a = ap.parse_args()
     if a.compact:
-        a.shade_tol = a.shade_tol or 2.0
+        a.shade_tol = a.shade_tol or 3.0
+        a.tol = max(a.tol, 2.0)
+        a.smooth = a.smooth or 3.0
         a.shade_min = a.shade_min or 200
         a.levels = a.levels or "0.12,0.25,0.4,0.55,0.7,0.85"
     levels = [float(v) for v in a.levels.split(",")] if a.levels else None
@@ -196,7 +201,8 @@ def main():
         if valid is not None and a.decontam > 0:
             valid = decontaminate(img, valid, a.decontam, a.band)
         # 분해는 원본 그림으로 한다(바깥을 바탕색으로 칠하면 이펙트 가장자리가 선으로 잡혔다). 비교 그림만 바깥을 바탕색으로
-        doc, _ = decompose(img, a.k, a.tol, valid=valid, shade_min=a.shade_min, levels=levels, shade_tol=a.shade_tol, line_dark=a.line_dark, line_fill=a.line_fill)
+        doc, _ = decompose(img, a.k, a.tol, valid=valid, shade_min=a.shade_min, levels=levels, shade_tol=a.shade_tol, line_dark=a.line_dark, line_fill=a.line_fill,
+                         sigma=a.smooth, line_join=a.line_join)
         if valid is not None:
             img = np.where(valid[..., None] > 0, img, np.array(bg or [0, 0, 0], np.uint8))
         if bg is None:

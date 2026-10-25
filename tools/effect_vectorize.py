@@ -147,7 +147,9 @@ def outline(img, tol=1.0, min_area=12):
     return outline_mask(m, tol, min_area)
 
 
-def outline_mask(m, tol=1.0, min_area=12):
+def outline_mask(m, tol=1.0, min_area=12, sigma=0.0):
+    """sigma > 0: 윤곽점을 둘레를 따라 가우스(점 단위)로 매끄럽게 한 뒤 맞춘다. 픽셀 계단을 그대로 따라가면 곡선이 7px마다 끊겨
+    테두리마다 점이 빼곡했다(2026-10-25 사용자: 곡선 하나의 구부림으로 길게 덮을 수 있다)."""
     cs, hier = cv2.findContours(m, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
     shapes = []
     if hier is None:
@@ -157,7 +159,12 @@ def outline_mask(m, tol=1.0, min_area=12):
             continue
         P = c[:, 0, :].astype(float)
         # 계단 모양을 줄이는 가벼운 평활(끝점 위치는 거의 그대로)
-        P = (np.roll(P, 1, 0) + 2 * P + np.roll(P, -1, 0)) / 4
+        if sigma > 0 and len(P) > 6 * sigma:
+            r = int(3 * sigma)
+            w = np.exp(-0.5 * (np.arange(-r, r + 1) / sigma) ** 2); w /= w.sum()
+            P = sum(wi * np.roll(P, -j, 0) for wi, j in zip(w, range(-r, r + 1)))
+        else:
+            P = (np.roll(P, 1, 0) + 2 * P + np.roll(P, -1, 0)) / 4
         cut = corners(P)
         if len(cut) < 2:   # 꺾인 곳이 없으면 멀리 떨어진 두 점에서 나눈다
             j = int(np.linalg.norm(P - P[0], axis=1).argmax()); cut = sorted({0, j})

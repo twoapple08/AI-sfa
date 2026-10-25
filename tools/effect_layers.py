@@ -75,7 +75,63 @@ def mask_strokes(img, m, tol=1.0, min_len=6):
     return segs
 
 
-def base_and_shade(img, line_mask, k, tol, min_area, valid=None, shade_min=None, levels=None, shade_tol=None):
+def join_paths(paths, max_turn=60, look=6):
+    """뼈대 조각을 갈림길에서 가장 곧게 이어지는 짝끼리 붙인다. 갈림길마다 획이 끊겨 선화가 점선이 됐다(2026-10-25 광사)."""
+    paths = [list(p) for p in paths if len(p) >= 2]
+    while True:
+        ends = {}
+        for i, p in enumerate(paths):
+            ends.setdefault(p[0], []).append((i, 0))
+            ends.setdefault(p[-1], []).append((i, 1))
+        best = None
+        for node, lst in ends.items():
+            for a in range(len(lst)):
+                for b in range(a + 1, len(lst)):
+                    (i, ei), (j, ej) = lst[a], lst[b]
+                    if i == j:
+                        continue
+                    pi = paths[i] if ei == 1 else paths[i][::-1]   # node에서 끝나게
+                    pj = paths[j] if ej == 0 else paths[j][::-1]   # node에서 시작하게
+                    u = np.subtract(pi[-1], pi[max(0, len(pi) - 1 - look)])
+                    v = np.subtract(pj[min(len(pj) - 1, look)], pj[0])
+                    nu, nv = np.linalg.norm(u), np.linalg.norm(v)
+                    if nu == 0 or nv == 0:
+                        continue
+                    turn = math.degrees(math.acos(np.clip(np.dot(u, v) / (nu * nv), -1, 1)))
+                    if turn <= max_turn and (best is None or turn < best[0]):
+                        best = (turn, i, j, pi, pj)
+        if best is None:
+            return paths
+        _, i, j, pi, pj = best
+        paths = [p for k, p in enumerate(paths) if k not in (i, j)] + [pi + pj[1:]]
+
+
+def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0):
+    """가는 마스크 → 갈림길을 이어 붙인 긴 획(2차 베지어 [x0,y0,cx,cy,x1,y1,굵기,B,G,R]). 점을 가우스로 다듬어 곡선 하나가 길게 덮게."""
+    dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
+    segs = []
+    for path in join_paths(trace(skeletonize(m.astype(bool)))):
+        if len(path) < min_len:
+            continue
+        P = np.array([(x, y) for y, x in path], float)
+        if sigma > 0 and len(P) > 4:
+            r = int(3 * sigma)
+            w = np.exp(-0.5 * (np.arange(-r, r + 1) / sigma) ** 2)
+            Q = np.pad(P, ((r, r), (0, 0)), mode="edge")
+            P = np.stack([np.convolve(Q[:, 0], w / w.sum(), "valid"), np.convolve(Q[:, 1], w / w.sum(), "valid")], 1)
+            P[0], P[-1] = path[0][::-1], path[-1][::-1]  # 끝점은 그대로(이웃 선과 맞물림)
+        out = []
+        fit([tuple(p) for p in P], tol, out)
+        for a, c, b in out:
+            C = curve([*a, *c, *b], max(3, int(math.dist(a, b))))
+            yi = np.clip(np.round(C[:, 1]).astype(int), 0, img.shape[0] - 1)
+            xi = np.clip(np.round(C[:, 0]).astype(int), 0, img.shape[1] - 1)
+            wd = max(1.0, 2 * float(np.median(dist[yi, xi])) - 0.5)  # 거리변환 중심값×2는 실제보다 약 1px 굵었다
+            segs.append([*map(float, a), *map(float, c), *map(float, b), wd, *np.median(img[yi, xi], 0).round(1).tolist()])
+    return segs
+
+
+def base_and_shade(img, line_mask, k, tol, min_area, valid=None, shade_min=None, levels=None, shade_tol=None, sigma=0.0):
     shade_min = min_area if shade_min is None else shade_min
     shade_tol = tol if shade_tol is None else shade_tol
     clean = cv2.inpaint(img, cv2.dilate(line_mask, np.ones((3, 3), np.uint8)), 3, cv2.INPAINT_TELEA)
@@ -122,7 +178,7 @@ def base_and_shade(img, line_mask, k, tol, min_area, valid=None, shade_min=None,
         if reg.sum() < min_area:
             continue
         B = np.median(fimg[(lab_idx == gi)], 0)
-        _, shapes = outline_mask(reg * 255, tol, min_area)
+        _, shapes = outline_mask(reg * 255, tol, min_area, sigma)
         layers.append({"kind": "base", "color": B.round(1).tolist(), "alpha": 1.0, "stroke": SEAM, "shapes": shapes})
         C = fimg[reg > 0]
         reg_out = cv2.dilate(reg, np.ones((3, 3), np.uint8))
@@ -146,7 +202,7 @@ def base_and_shade(img, line_mask, k, tol, min_area, valid=None, shade_min=None,
                 # 테두리 선으로 덮으면 반투명이 겹쳐 밝은 선이 생겨서, 면 자체를 넓힌다.
                 # 밑색 이음새 선(SEAM 2px)이 영역 밖으로 1px 나가므로 명암도 영역 밖 1px까지 덮는다(안 덮으면 밑색 띠가 테두리로 보였다, 020)
                 m = cv2.dilate(m, np.ones((3, 3), np.uint8)) & reg_out
-                _, sh = outline_mask(m * 255, shade_tol, shade_min)
+                _, sh = outline_mask(m * 255, shade_tol, shade_min, sigma)
                 if sh:
                     layers.append({"kind": "shade", "tone": sign, "color": S.round(1).tolist(),
                                    "alpha": round(1 - (1 - lv) / (1 - prev), 4), "level": lv, "shapes": sh})
@@ -154,7 +210,7 @@ def base_and_shade(img, line_mask, k, tol, min_area, valid=None, shade_min=None,
     return layers
 
 
-def line_fill_layers(img, lm, tol, bands=(0, 90, 150, 256)):
+def line_fill_layers(img, lm, tol, bands=(0, 90, 150, 256), sigma=0.0):
     """선 마스크 → 밝기 구간별 불투명 채우기 층(위에 얹힘). 구간 색 = 그 구간 선 픽셀의 중앙값."""
     g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     out = []
@@ -163,7 +219,7 @@ def line_fill_layers(img, lm, tol, bands=(0, 90, 150, 256)):
         if m.sum() < 6:
             continue
         m = cv2.dilate(m, np.ones((2, 2), np.uint8)) & cv2.dilate(lm, np.ones((3, 3), np.uint8))  # 구간 사이 틈 막기
-        _, shapes = outline_mask(m * 255, tol, 4)
+        _, shapes = outline_mask(m * 255, tol, 4, min(sigma, 1.0))  # 선은 가늘어 많이 다듬으면 끊긴다
         if shapes:
             out.append({"kind": "line", "color": np.median(img[m > 0], 0).round(1).tolist(), "alpha": 1.0, "shapes": shapes})
     return out
@@ -219,7 +275,7 @@ def delta_e(a, b):
 
 
 def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels=None, shade_tol=None, line_dark=None,
-              line_fill=False):
+              line_fill=False, sigma=0.0, line_join=False):
     """shade_tol: 명암 윤곽만 곡선 오차를 따로(2026-10-25 최적화: 밑색·선까지 2px로 하니 인물 윤곽이 자글자글해짐).
     line_dark: 어두운 선으로 볼 최대 밝기(기본 DARK_MAX 140). 흰 머리 위 회색 선(150–200)이 끊겨 점선이 되던 인물 그림은 200.
     line_fill: 어두운 선을 획 대신 선 모양 그대로의 채우기 면으로(밝기 3단계 색). 획은 갈림길마다 끊기고 굵기가 부풀어
@@ -231,9 +287,11 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
         return doc, np.zeros_like(img)
     lm, lsegs, lcol = line_layer(img, tol, dark_max=line_dark, valid=valid)
     hm, hsegs, hcol = line_layer(img, tol, light=True, valid=valid)
-    layers = base_and_shade(img, lm | hm, k, tol, min_area, valid, shade_min, levels, shade_tol)
+    layers = base_and_shade(img, lm | hm, k, tol, min_area, valid, shade_min, levels, shade_tol, sigma)
+    if line_join:  # 어두운 선: 갈림길을 이은 긴 획(면보다 곡선 수 절반 — 면은 양쪽 테두리가 생긴다)
+        lsegs = joined_strokes(img, lm, max(tol, 1.5), sigma=max(sigma, 2.0) if sigma else 2.0)
     if line_fill:
-        layers += line_fill_layers(img, lm, tol)
+        layers += line_fill_layers(img, lm, tol, sigma=sigma)
         lsegs = []
     doc = {"size": list(img.shape[:2]), "layers": layers,
            "lines": [{"tone": "dark", "color": lcol, "segs": lsegs}, {"tone": "light", "color": hcol, "segs": hsegs}]}
