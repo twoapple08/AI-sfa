@@ -103,6 +103,7 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--check")
     ap.add_argument("--shade-alpha", type=float, default=0.3)
+    ap.add_argument("--lines-only", action="store_true", help="채색(배경 색 묶음·밑색·명암) 없이 흰 바탕 + 선화만")
     a = ap.parse_args()
     img = cv2.imread(a.image)
     H, W = img.shape[:2]
@@ -122,14 +123,14 @@ def main():
         return len(layers) - 1
 
     # 1) 배경: 흰 바탕 사각형 + 배경 안 색 묶음(노란 원 등)을 성긴 면으로
-    bgcol = np.median(img[(lab == names.index("배경")) & ~line], 0) if "배경" in names else np.array([255, 255, 255])
+    bgcol = np.median(img[(lab == names.index("배경")) & ~line], 0) if "배경" in names and not a.lines_only else np.array([255, 255, 255])
     k = lid("배경")
     rect = {"hole": False, "cid": 0, "parent": -1,
             "segs": [[x0, y0, (x0 + x1) / 2, (y0 + y1) / 2, x1, y1] for (x0, y0), (x1, y1) in
                      zip([(-xoff, 0), (W + xoff, 0), (W + xoff, H), (-xoff, H)], [(W + xoff, 0), (W + xoff, H), (-xoff, H), (-xoff, 0)])]}
     stats["면"] += wr.fill([rect], argb(bgcol), k)
     bgm = (lab == names.index("배경")) & ~line
-    if bgm.sum() > 1000:
+    if bgm.sum() > 1000 and not a.lines_only:
         lab3 = cv2.cvtColor(img, cv2.COLOR_BGR2LAB).astype(np.float32)
         smp = lab3[bgm][:: max(1, int(bgm.sum() // 40000))]
         cv2.setRNGSeed(0)
@@ -147,7 +148,7 @@ def main():
     #    (1차 시험: '옷'에 베이지 코트와 검은 목폴라가 같이 있어 한 색으로 칠하자 검정이 회색 명암 덩어리가 됐고, 흰 머리 끝의 파랑·노란 눈동자도 빠졌다)
     lab3 = cv2.cvtColor(cv2.bilateralFilter(img, 7, 25, 7), cv2.COLOR_BGR2LAB).astype(np.float32)
     bases = []  # (부위, 묶음 마스크, 색, 밝기)
-    for nm in FILL_ORDER[1:]:
+    for nm in ([] if a.lines_only else FILL_ORDER[1:]):
         if nm not in names:
             continue
         m = (lab == names.index(nm))
@@ -191,7 +192,7 @@ def main():
             stats["면 경계 조각"] += sum(len(s["segs"]) for s in sh)
             bases.append((nm, ((gidx == g) & sel), col, float(np.median(Lp[lt]))))
     # 3) 명암: 묶음 안 밑색보다 어두운 곳 → 뼈대를 따라 그 폭만큼 반투명 붓선(사람 그림처럼 옅게). 너무 넓은 그늘은 폭을 줄여 여러 줄로 보이게 하지 않고 건너뛴다
-    k = lid("명암")
+    k = lid("명암") if bases else None
     for nm, gm, col0, bL in bases:
         if bL < 40:
             continue  # 검은 옷 같은 아주 어두운 밑색은 명암 생략
