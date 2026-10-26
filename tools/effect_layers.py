@@ -75,6 +75,58 @@ def mask_strokes(img, m, tol=1.0, min_len=6):
     return segs
 
 
+def prune_spurs(paths, spur=6, rounds=3):
+    """뼈대 잔가시 가지치기: 한쪽 끝이 어디에도 이어지지 않은(끝점 차수 1) 짧은 가지를 지운다.
+    선화 뼈대는 테두리 요철마다 잔가시가 돋아 1,807가닥 중 1,352가닥이 8px 미만이었다(2026-10-26 광사) — 갈림길이 늘어 선이 끊겼다."""
+    paths = [list(p) for p in paths if len(p) >= 2]
+    for _ in range(rounds):
+        deg = {}
+        for p in paths:
+            for e in (p[0], p[-1]):
+                deg[e] = deg.get(e, 0) + 1
+        keep = [p for p in paths if not (len(p) < spur and (deg[p[0]] == 1) != (deg[p[-1]] == 1))]
+        if len(keep) == len(paths):
+            break
+        paths = keep
+    return paths
+
+
+def bridge_gaps(paths, gap=4.0, max_turn=45, look=6, min_len=8):
+    """끝점끼리 gap px 안이고 방향이 이어지면 잇는다(선화 지도에서 끊긴 짧은 틈). min_len 미만 조각은 건드리지 않는다(속도: 전부 비교하면 6분)."""
+    short = [list(p) for p in paths if len(p) < min_len]
+    paths = [list(p) for p in paths if len(p) >= min_len]
+    while True:
+        tips = []
+        for i, p in enumerate(paths):
+            if len(p) < 3:
+                continue
+            tips.append((i, 0, np.array(p[0], float), np.subtract(p[0], p[min(look, len(p) - 1)])))
+            tips.append((i, 1, np.array(p[-1], float), np.subtract(p[-1], p[max(0, len(p) - 1 - look)])))
+        best = None
+        for a in range(len(tips)):
+            for b in range(a + 1, len(tips)):
+                (i, ei, pi, di), (j, ej, pj, dj) = tips[a], tips[b]
+                if i == j:
+                    continue
+                d = np.linalg.norm(pi - pj)
+                if d > gap or d == 0:
+                    continue
+                g = pj - pi  # i의 끝에서 j의 끝으로
+                ni, nj, ng = np.linalg.norm(di), np.linalg.norm(dj), np.linalg.norm(g)
+                if ni == 0 or nj == 0:
+                    continue
+                t1 = math.degrees(math.acos(np.clip(np.dot(di, g) / (ni * ng), -1, 1)))   # i가 향하는 쪽에 j가 있나
+                t2 = math.degrees(math.acos(np.clip(np.dot(dj, -g) / (nj * ng), -1, 1)))
+                if max(t1, t2) <= max_turn and (best is None or d < best[0]):
+                    best = (d, i, ei, j, ej)
+        if best is None:
+            return paths + short
+        _, i, ei, j, ej = best
+        pi = paths[i] if ei == 1 else paths[i][::-1]
+        pj = paths[j] if ej == 0 else paths[j][::-1]
+        paths = [p for k, p in enumerate(paths) if k not in (i, j)] + [pi + pj]
+
+
 def join_paths(paths, max_turn=60, look=6):
     """뼈대 조각을 갈림길에서 가장 곧게 이어지는 짝끼리 붙인다. 갈림길마다 획이 끊겨 선화가 점선이 됐다(2026-10-25 광사)."""
     paths = [list(p) for p in paths if len(p) >= 2]
@@ -106,11 +158,21 @@ def join_paths(paths, max_turn=60, look=6):
         paths = [p for k, p in enumerate(paths) if k not in (i, j)] + [pi + pj[1:]]
 
 
-def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0, dark=None, wrange=(0.8, 3.2), taper=0.55):
+def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0, dark=None, wrange=(0.8, 3.2), taper=0.55, clean=False):
     """가는 마스크 → 갈림길을 이어 붙인 긴 획(2차 베지어 [x0,y0,cx,cy,x1,y1,굵기,B,G,R]). 점을 가우스로 다듬어 곡선 하나가 길게 덮게."""
     dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
     segs = []
-    for pid, path in enumerate(join_paths(trace(skeletonize(m.astype(bool))))):  # pid = 선(이어 붙인 줄기) 번호, 부위 레이어 판단용
+    if clean:  # 선 마스크를 살짝 다듬고 작은 구멍을 메운 뒤 뼈대: 잔가시·갈림길이 절반으로(조각 4,579 → 2,011, 잇기 199초 → 12초)
+        from skimage.morphology import remove_small_holes
+        mb = cv2.GaussianBlur(m.astype(np.float32), (0, 0), 1.0) > 0.5
+        mb = remove_small_holes(mb, 12)
+        raw = prune_spurs(trace(skeletonize(mb)))
+    else:
+        raw = trace(skeletonize(m.astype(bool)))
+    joined = join_paths(raw)
+    if clean:
+        joined = bridge_gaps(joined)
+    for pid, path in enumerate(joined):  # pid = 선(이어 붙인 줄기) 번호, 부위 레이어 판단용
         if len(path) < min_len:
             continue
         P = np.array([(x, y) for y, x in path], float)
@@ -362,7 +424,7 @@ def decompose(img, k=8, tol=1.0, min_area=20, valid=None, shade_min=None, levels
             lm = lm & (1 - cv2.dilate(thick, np.ones((5, 5), np.uint8)))
         lsegs = [g[:7] + [v * 0.35 for v in g[7:10]] + g[10:] for g in joined_strokes(src, lm, max(tol, 2.5), min_len=8, sigma=max(sigma, 3.0),
                                                                               dark=cv2.erode(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), np.ones((3, 3), np.uint8)),
-                                                                              wrange=(0.6, 4.5))]  # 진하기는 원본 그림에서(외곽 검정 / 머리 결 회색). 선화 지도는 선 진하기가 고르다
+                                                                              wrange=(0.6, 4.5), clean=False)]  # clean=True(잔가시·다듬기)는 입·코가 지워지고 선이 끊겨 끔(2026-10-26 실험 1)  # 진하기는 원본 그림에서(외곽 검정 / 머리 결 회색). 선화 지도는 선 진하기가 고르다
     elif line_map is not None and not line_brush:
         # 선화 지도 → potrace 윤곽 채우기(사용자: 잡프로그램만도 못하다 → 표준 벡터화 도구로). 선 색 하나(진한 회흑)
         from potrace_lines import trace_shapes
