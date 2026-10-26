@@ -42,6 +42,15 @@ def blob(mask, blur=2.0, tips=False):
     return cv2.morphologyEx(m.astype(np.uint8), cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
 
 
+def vivid_median(img, sel):
+    """묶음 대표색: 채도가 묶음 중앙값 이상인 픽셀의 중앙값. 전체 중앙값은 검은 바탕에 깔린 가는 붉은 무늬(나카무라 회로)가
+    검정과 섞여 탁한 갈색이 됐다(2026-10-26 c0426)."""
+    px = img[sel]
+    s = cv2.cvtColor(px.reshape(-1, 1, 3), cv2.COLOR_BGR2HSV)[:, 0, 1]
+    keep = s >= np.median(s)
+    return np.median(px[keep], 0) if keep.any() else np.median(px, 0)
+
+
 def bg_lab(img):
     return cv2.cvtColor(cv2.bilateralFilter(img, 7, 30, 7), cv2.COLOR_BGR2LAB).astype(np.float32)
 
@@ -199,7 +208,7 @@ def convert(img, a, wr, robot, names_out, sh=None):
                 continue
             m = blob(under(sel, fire, a.overlap), 1.0)
             if sel.sum() > 50 and m.any():
-                fill_layer(wr, body, shapes_of(m), W, argb(sh["bg_cols"][c] if sh else np.median(img[sel], 0)), k)
+                fill_layer(wr, body, shapes_of(m), W, argb(sh["bg_cols"][c] if sh else vivid_median(img, sel)), k)
     else:  # 밝기 단계(바탕보다 밝은 무늬부터)
         ts = sh["bg_ts"] if sh else list(levels(bg, L, a.bg_levels))
         for j, t in enumerate(ts):
