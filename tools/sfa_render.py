@@ -282,6 +282,13 @@ def render_frame(seq, fr, W=1920, H=1080):
                 draw_base(a, path)
                 if not PARAMS['fill_first']:
                     fills_of(a)
+    # 남은 채우기(주인 곡선이 어느 레이어에도 안 그려진 것)만 마지막에. 주인 곡선이 숨긴 레이어에 있으면 그리지 않는다
+    # (2026-10-26 사용자 색칠공부 SFA: 숨긴 '중간 레이어'의 채색 면이 그려져 앱 화면과 달랐다)
+    hidden = {l.get('ID') for l in layers if l.get('Visible') == 'false'}
+    for owner, rs in fr_owner.items():
+        if owner in by_id and by_id[owner][2].get('LayerId', '0') in hidden:
+            for r in rs:
+                drawn.add(id(r))
     for r in frs:
         if id(r) not in drawn:
             draw_fill(r)
