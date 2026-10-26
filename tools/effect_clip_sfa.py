@@ -151,7 +151,7 @@ def main():
                     help="16:9가 아닌 원본(4:3 등): crop = 위아래를 잘라 16:9로 채움(2026-10-23 사용자: 목표 16:9 고정). "
                          "SFA 화면은 16:9라 그대로 두면 가로로 늘어난다(2026-10-24 008·015·035). "
                          "pad = 높이를 화면에 맞추고 가운데에 둔다(세로 그림, 2026-10-25 사용자). 분해는 그림만 한다 — 흰 여백까지 넣고 분해하니 옅은 살색이 흰색에 묶였다")
-    ap.add_argument("--height", type=int, default=540, help="분해 해상도 높이(기본 540). 세로 인물 그림은 1080 이상(540에선 선이 덩어리로 뭉개짐)")
+    ap.add_argument("--height", type=int, default=540, help="분해 해상도 높이(기본 540, 0이면 그림 원래 높이). 세로 인물 그림은 1080 이상(540에선 선이 덩어리로 뭉개짐)")
     ap.add_argument("--shade-min", type=int, help="명암 조각 최소 넓이(px). 기본 = 밑색과 같은 20. 2026-10-25 최적화: 200이면 명암 곡선 절반")
     ap.add_argument("--levels", help="명암 단계(쉼표). 기본 14단계. 셀 채색 그림은 0.12,0.25,0.4,0.55,0.7,0.85로 충분")
     ap.add_argument("--shade-tol", type=float, help="명암 윤곽만 곡선 오차(px). 기본 = --tol")
@@ -177,6 +177,11 @@ def main():
     levels = [float(v) for v in a.levels.split(",")] if a.levels else None
     LINE_SCALE = a.line_scale
     H = a.height
+    if H <= 0:  # 0 = 그림 원래 높이(학교 PC 끌어다 놓기 bat, 2026-10-26)
+        import cv2
+        cap = cv2.VideoCapture(a.video)
+        ok, fr = cap.read()
+        H = fr.shape[0] if ok else 540
     bg = None if a.bg == "auto" else [int(v) for v in a.bg.split(",")]
     masks = None
     if a.mask:
