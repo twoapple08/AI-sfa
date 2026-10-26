@@ -86,13 +86,18 @@ def main():
         img = np.zeros((H, W, 3), np.uint8); img[:] = (70, 30, 15)
         for (x0, y0, x1, y1) in city:
             cv2.rectangle(img, (x0, y0), (x1, y1), (25, 15, 10), -1)
-        nsplit = int(np.ceil(post * splits)) if f > tp else 0
-        main_r = R * (1 - 0.12 * nsplit)
+        # 갈라짐: 조각 j는 정점 뒤 j/splits 시점에 큰 덩어리 안에서 작게 나와 커지며 멀어진다. 큰 덩어리는 이어서 조금씩 줄어든다
+        # (조각이 나올 때마다 한 번에 12%씩 줄이고 전체는 4%씩 키웠더니 크기가 줄고-커지고를 반복해 바운스처럼 보였다, 2026-10-26 사용자)
+        main_r = R * (1 - 0.12 * splits * post)
         blobs = [(cx, cy, main_r, harm)]
-        for j in range(nsplit):
+        for j in range(splits):
+            age = post * splits - j  # 0에서 나옴, 1 = 다음 조각 나올 때
+            if f <= tp or age <= 0:
+                continue
             ang, sz, hh = pieces[j]
-            dist = R * (0.55 + 0.6 * post)
-            blobs.append((cx + dist * np.cos(ang), cy + dist * np.sin(ang) * 0.85, R * sz * (1 - 0.3 * post), hh))
+            k = min(1.0, age)
+            dist = R * (0.3 + 0.35 * k + 0.3 * post)
+            blobs.append((cx + dist * np.cos(ang), cy + dist * np.sin(ang) * 0.85, R * sz * k * (1 - 0.3 * post), hh))
         for s, col in layers:
             core = s < 0.5
             ss = s * (1.0 if f <= tp else max(0.3, 1 - post))  if core else s  # 심은 정점 뒤 줄어듦
