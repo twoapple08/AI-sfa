@@ -28,15 +28,16 @@ TOL, SIGMA = 2.5, 3.0  # 덩어리 윤곽: 크게 다듬고 넉넉한 오차(곡
 MIN_AREA, MIN_HOLE = 60, 200
 
 
-TIPS = False  # --tips: 꺾인 점을 고정하고 사이만 다듬음 + 불 층 흐림을 줄이고 열림(가는 끝을 지움)을 뺌
+TIPS = False  # --tips: 불 층만 꺾인 점을 고정하고 사이만 다듬음 + 흐림을 줄이고 열림(가는 끝을 지움)을 뺌.
+# 배경(연기·하늘)·로봇은 예전처럼 매끈하게 — 모두에 걸면 연기 가장자리에 잔톱니가 생겼다(2026-10-26)
 
 
-def blob(mask, blur=2.0):
+def blob(mask, blur=2.0, tips=False):
     """덩어리를 매끈하게(흐림 후 반 넘는 곳) — 픽셀 계단·잔점을 없앤다."""
-    if TIPS:
+    if tips:
         blur = min(blur, 1.0)
     m = cv2.GaussianBlur(mask.astype(np.float32), (0, 0), blur) > 0.5
-    if TIPS:  # 열림은 3px 미만 불꽃 끝을 지운다 → 잔점은 넓이로만 거른다(MIN_AREA)
+    if tips:  # 열림은 3px 미만 불꽃 끝을 지운다 → 잔점은 넓이로만 거른다(MIN_AREA)
         return m.astype(np.uint8)
     return cv2.morphologyEx(m.astype(np.uint8), cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
 
@@ -64,10 +65,19 @@ def bg_clusters(img, bg, k, cent=None):
     return [(idx == c) & (bg > 0) for c in range(len(cent))]
 
 
-def shapes_of(mask, pad=4):
+def under(sel, upper, r):
+    """아래 층을 위 층 밑으로 r px 넓힌다(위 층 자리로만). 배경은 불 자리를 비우고 둘 다 다듬기로 안쪽으로 당겨져
+    그 틈으로 바탕색이 검은 선처럼 보였다(2026-10-26 사용자 앱 화면). 불 쪽을 넓히면 불꽃 끝이 둥글어지고 테가 생겨서, 배경 쪽을 넓힌다."""
+    if r <= 0:
+        return sel
+    k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * int(r) + 1,) * 2)
+    return (sel | (cv2.dilate(sel.astype(np.uint8), k).astype(bool) & (upper > 0))).astype(bool)
+
+
+def shapes_of(mask, pad=4, tips=False):
     """가장자리에 닿은 면은 화면 밖으로 pad px 늘려 윤곽을 딴다 — 안 그러면 윤곽 다듬기가 안쪽으로 당겨 화면 둘레에 바탕색 틀이 보인다."""
     mk = cv2.copyMakeBorder(mask.astype(np.uint8), pad, pad, pad, pad, cv2.BORDER_REPLICATE)
-    _, sh = outline_mask(mk * 255, TOL, MIN_AREA, SIGMA, pin=TIPS)
+    _, sh = outline_mask(mk * 255, TOL, MIN_AREA, SIGMA, pin=tips)
     for s in sh:
         s["segs"] = [[v - pad for v in g[:6]] + list(g[6:]) for g in s["segs"]]
     out = []
@@ -111,7 +121,7 @@ def regions(img, robot):
     L = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)[..., 0].astype(np.float32)
     warm = ((hsv[..., 0] <= 35) | (hsv[..., 0] >= 170)) & (hsv[..., 1] > 90) & (hsv[..., 2] > 150)
     # 불은 로봇 자리도 포함해 그린다(로봇 층이 위에서 덮음) — 비워 두면 로봇 둘레에 틈이 생겨 로봇 층을 넓혀야 했고, 그게 굵은 갈색 테두리가 됐다
-    fire = blob(warm | (L > 225), 3.0)
+    fire = blob(warm | (L > 225), 3.0, TIPS)
     n, cc, st, _ = cv2.connectedComponentsWithStats(fire)  # 큰 덩어리만(배경의 붉은 잔무늬 제외)
     fire = np.isin(cc, [i for i in range(1, n) if st[i, cv2.CC_STAT_AREA] > H * W * 0.01]).astype(np.uint8)
     bg = (fire == 0).astype(np.uint8)  # 배경도 로봇 밑까지 칠함(로봇 층이 위에서 덮음)
@@ -187,7 +197,7 @@ def convert(img, a, wr, robot, names_out, sh=None):
         for c, sel in enumerate(cl):
             if c == 0:  # 가장 넓은 묶음은 바탕색 층이 이미 덮음 → 나머지를 넓은 것부터 위에
                 continue
-            m = blob(sel, 1.0)
+            m = blob(under(sel, fire, a.overlap), 1.0)
             if sel.sum() > 50 and m.any():
                 fill_layer(wr, body, shapes_of(m), W, argb(sh["bg_cols"][c] if sh else np.median(img[sel], 0)), k)
     else:  # 밝기 단계(바탕보다 밝은 무늬부터)
@@ -196,7 +206,7 @@ def convert(img, a, wr, robot, names_out, sh=None):
             if j == 0:
                 continue
             sel = (bg > 0) & (L >= t)
-            m = blob(sel, 1.0)
+            m = blob(under(sel, fire, a.overlap), 1.0)
             if sel.any():
                 fill_layer(wr, body, shapes_of(m), W, argb(sh["bg_cols"][j] if sh else np.median(img[sel], 0)), k)
     # 3. 회로 선: 배경 안 '주변보다 밝은 가는 선' → 선 객체
@@ -211,10 +221,7 @@ def convert(img, a, wr, robot, names_out, sh=None):
     for i, t in enumerate(ts):
         hi = ts[i + 1] if i + 1 < len(ts) else 256
         sel = (fire > 0) & (L >= t) & (L < hi)
-        m = fire if i == 0 else blob((fire > 0) & (L >= t), 2.0)
-        if i == 0 and a.overlap > 0:  # 맨 아래 불 층을 배경 위로 넉넉히 깐다 — 배경은 불 자리를 비우고 둘 다 다듬기로 안쪽으로 당겨져 바탕색 틈(검은 선)이 보였다(2026-10-26 사용자 앱 화면)
-            r = int(round(a.overlap))
-            m = cv2.dilate(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1)))
+        m = fire if i == 0 else blob((fire > 0) & (L >= t), 2.0, TIPS)
         if not (m.any() and (sel.any() or sh)):
             continue
         k = lid(layer_names(a, False)[3 + i])
@@ -222,10 +229,10 @@ def convert(img, a, wr, robot, names_out, sh=None):
         if a.feather > 0 and i > 0:  # 넓고 옅은 번짐 먼저
             r = int(round(a.feather))
             wide = cv2.dilate(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))) & fire
-            fill_layer(wr, body, shapes_of(wide), W, argb(col, 0.35), k)
+            fill_layer(wr, body, shapes_of(wide, tips=TIPS), W, argb(col, 0.35), k)
         core = i == len(ts) - 1
         glow = (a.glow, 100.0, argb(col), 180.0) if (core and a.glow > 0) else None
-        fill_layer(wr, body, shapes_of(m), W, argb(col), k, glow)
+        fill_layer(wr, body, shapes_of(m, tips=TIPS), W, argb(col), k, glow)
     # 5. 로봇: 몸체 밝기 단계 + 어두운 선
     if robot.any():
         k = lid("로봇")
@@ -277,7 +284,7 @@ def main():
     ap.add_argument("--shared", action="store_true", help="영상: 문턱·색·배경 묶음을 클립 전체 공통으로(실험 3)")
     ap.add_argument("--hold", type=float, default=6.0, help="영상: 직전 장과 평균 차가 이보다 작으면 같은 그림(걸이)으로 보고 직전 그림을 다시 씀. 0이면 끔")
     ap.add_argument("--check")
-    ap.add_argument("--overlap", type=float, default=4.0, help="맨 아래 불 층을 이만큼(px) 넓혀 배경과의 틈을 덮음. 0이면 끔")
+    ap.add_argument("--overlap", type=float, default=4.0, help="배경 층을 불 밑으로 이만큼(px) 넓혀 틈을 덮음. 0이면 끔")
     ap.add_argument("--tips", action="store_true", help="테두리 마감: 불꽃 끝·가시를 살린다(꺾인 점 고정 다듬기, 흐림↓, 열림 끔)")
     a = ap.parse_args()
     global TIPS
