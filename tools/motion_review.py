@@ -27,7 +27,7 @@ def main():
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     zipfile.ZipFile(a.zip).extractall(a.out)
-    root = next(d for d in (os.path.join(a.out, "m"), os.path.join(a.out, "m2")) if os.path.isdir(d))
+    root = next(d for d in (os.path.join(a.out, x) for x in ("m", "m2", "m3", "m4")) if os.path.isdir(d))
     for j in glob.glob(os.path.join(a.out, "*flicker.json")):
         for k, v in json.load(open(j, encoding="utf-8")).items():
             print(f"깜빡임 {k}: {v}")

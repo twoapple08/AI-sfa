@@ -158,7 +158,7 @@ def join_paths(paths, max_turn=60, look=6):
         paths = [p for k, p in enumerate(paths) if k not in (i, j)] + [pi + pj[1:]]
 
 
-def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0, dark=None, wrange=(0.8, 3.2), taper=0.55, clean=False):
+def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0, dark=None, wrange=(0.8, 3.2), taper=0.55, clean=False, gap=4.0, bridge=False):
     """가는 마스크 → 갈림길을 이어 붙인 긴 획(2차 베지어 [x0,y0,cx,cy,x1,y1,굵기,B,G,R]). 점을 가우스로 다듬어 곡선 하나가 길게 덮게."""
     dist = cv2.distanceTransform(m, cv2.DIST_L2, 3)
     segs = []
@@ -170,8 +170,8 @@ def joined_strokes(img, m, tol=1.5, min_len=3, sigma=2.0, dark=None, wrange=(0.8
     else:
         raw = trace(skeletonize(m.astype(bool)))
     joined = join_paths(raw)
-    if clean:
-        joined = bridge_gaps(joined)
+    if clean or bridge:  # bridge: 선 마스크는 그대로 두고 틈만 잇는다(clean의 흐림이 1px 선을 지워 오히려 끊겼다, 2026-10-26 광사)
+        joined = bridge_gaps(joined, gap=gap)
     for pid, path in enumerate(joined):  # pid = 선(이어 붙인 줄기) 번호, 부위 레이어 판단용
         if len(path) < min_len:
             continue

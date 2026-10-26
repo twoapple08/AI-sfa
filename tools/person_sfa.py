@@ -14,6 +14,7 @@
 원본(사용자 그림체 LoRA 생성물)과 결과는 저장소에 넣지 않는다.
 """
 import argparse
+import math
 import os
 import subprocess
 import sys
@@ -85,6 +86,41 @@ class W2:
         return n
 
 
+def drop_doubles(runs, H, W, r=2, cover=0.8):
+    """나란히 붙은 두 줄을 하나로: 굵은 곡선부터 그려 두고, 곡선의 80% 이상이 이미 그린 선 r px 안에 들면 뺀다.
+    선화 지도의 굵은 선이 속이 빈 테두리로 잡히면 뼈대가 두 줄이 됐다(2026-10-26 광사 머리 가장자리·코트 끝).
+    긴 줄기부터 남기자 가는 쪽이 살고 굵은 윤곽이 빠져 강약이 사라졌다 → 굵기 순.
+    빼낸 곡선 때문에 줄기가 끊기면 남은 곡선을 이어진 토막끼리 나눠 반환한다(연결 AC가 실제로 맞닿은 끝끼리만 되게)."""
+    def pts(s):
+        t = np.linspace(0, 1, max(3, int(math.dist(s[0:2], s[4:6]))))[:, None]
+        P = (1 - t) ** 2 * np.array(s[0:2]) + 2 * (1 - t) * t * np.array(s[2:4]) + t ** 2 * np.array(s[4:6])
+        return np.clip(np.round(P).astype(int), 0, [W - 1, H - 1])
+    occ = np.zeros((H, W), np.uint8)
+    keep = [[True] * len(g) for g in runs]
+    order = sorted(((gi, si) for gi, g in enumerate(runs) for si in range(len(g))),
+                   key=lambda t: (-runs[t[0]][t[1]][6], -math.dist(runs[t[0]][t[1]][0:2], runs[t[0]][t[1]][4:6])))
+    dropped = 0
+    for gi, si in order:
+        P = pts(runs[gi][si])
+        if occ[P[:, 1], P[:, 0]].mean() >= cover:
+            keep[gi][si] = False
+            dropped += 1
+        else:
+            cv2.polylines(occ, [P.astype(np.int32)], False, 1, 2 * r + 1)
+    out = []
+    for g, kg in zip(runs, keep):
+        cur = []
+        for s, kp in zip(g, kg):
+            if kp:
+                cur.append(s)
+            elif cur:
+                out.append(cur)
+                cur = []
+        if cur:
+            out.append(cur)
+    return out, dropped
+
+
 def coarse(mask, tol=4.0, sigma=4.0, min_area=150):
     """성긴 윤곽: 크게 다듬고 넉넉한 오차로 맞춘다(면당 곡선 조각 적게)."""
     pad = 6
@@ -103,6 +139,9 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--check")
     ap.add_argument("--shade-alpha", type=float, default=0.3)
+    ap.add_argument("--black", action="store_true", help="선 색을 검정 하나로(원본 선 색을 따르면 눈·머리 끝 선이 노랑·회색으로 흐렸다)")
+    ap.add_argument("--clean", action="store_true", help="끊긴 틈 잇기(--gap px) + 나란한 두 줄 하나로")
+    ap.add_argument("--gap", type=float, default=8.0)
     ap.add_argument("--lines-only", action="store_true", help="채색(배경 색 묶음·밑색·명암) 없이 흰 바탕 + 선화만")
     a = ap.parse_args()
     img = cv2.imread(a.image)
@@ -221,13 +260,20 @@ def main():
     # 4) 선화(맨 위): 진한 선 0.3, 옅은 결 0.1, 이어지는 곡선 끝점 연결
     k = lid("선화")
     px_lo, px_hi = TS_MIN * 1.14 * 8 * CW / 1920, TS_MAX * 1.14 * 8 * CW / 1920
-    segs = joined_strokes(img, line.astype(np.uint8), tol=1.5, min_len=6, sigma=1.5, dark=lm, wrange=(px_lo, px_hi), taper=0.6)
+    segs = joined_strokes(img, line.astype(np.uint8), tol=1.5, min_len=6, sigma=1.5, dark=lm, wrange=(px_lo, px_hi), taper=0.6,
+                          bridge=a.clean, gap=a.gap)
     groups = {}
     for s in segs:
         groups.setdefault(s[10], []).append(s)
-    for g in groups.values():
+    runs = list(groups.values())
+    if a.clean:
+        runs, stats["겹친 곡선 뺌"] = drop_doubles(runs, H, W)
+    for g in runs:
         ts = [min(TS_MAX, max(TS_MIN, s[6] * (1920 / CW) / (1.14 * 8))) for s in g]
-        cols = [argb(np.minimum(np.array(s[7:10]), 90)) for s in g]  # 선 색: 원본 선 색(너무 밝으면 어둡게)
+        if a.black:
+            cols = [argb(np.array([24, 24, 24]))] * len(g)
+        else:
+            cols = [argb(np.minimum(np.array(s[7:10]), 90)) for s in g]  # 선 색: 원본 선 색(너무 밝으면 어둡게)
         wr.chain(g, cols, ts, k)
         stats["선 곡선"] += len(g)
     defs = "".join(f'<LayerDef ID="{i}" Name="{n}" Visible="true" Locked="false"/>' for i, n in enumerate(layers))
