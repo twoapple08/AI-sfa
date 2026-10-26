@@ -91,7 +91,72 @@ def bez_fit(P):
     return c, err
 
 
+FIT_MODE = "split"  # (실험 1 검증 전까지 기본은 split) "dp" = 곡선 개수 최소 분할(2026-10-26 실험 1), "split" = 예전 최대오차점 재귀 분할
+
+
+def bez_fit_refined(P, iters=2):
+    """끝점 고정 2차 베지어: 현 길이 매개변수로 시작해 점마다 곡선 위 가장 가까운 t로 다시 맞춘다.
+    오차 = 양방향 거리의 최댓값(점→곡선, 곡선→점). 현 길이 대응 오차만 보면 실제보다 크게 나와 곡선이 더 잘게 끊겼다."""
+    P = np.asarray(P, float)
+    a, b = P[0], P[-1]
+    d = np.r_[0, np.cumsum(np.linalg.norm(np.diff(P, axis=0), axis=1))]
+    t = d / d[-1] if d[-1] > 0 else np.linspace(0, 1, len(P))
+    ts = np.linspace(0, 1, 64)
+    for it in range(iters + 1):
+        w = 2 * t * (1 - t)
+        r = P - np.outer((1 - t) ** 2, a) - np.outer(t ** 2, b)
+        c = (w[:, None] * r).sum(0) / max((w * w).sum(), 1e-9)
+        Q = np.outer((1 - ts) ** 2, a) + np.outer(2 * ts * (1 - ts), c) + np.outer(ts ** 2, b)
+        D = np.linalg.norm(P[:, None, :] - Q[None, :, :], axis=2)
+        if it < iters:
+            t = ts[D.argmin(1)]
+    return c, max(D.min(1).max(), D.min(0).max())
+
+
+def fit_dp(P, tol, out, max_cand=160):
+    """허용 오차 안에서 곡선 개수가 가장 적은 분할(후보점 위 동적계획법). 모든 곡선이 오차를 지킨다
+    (예전 fit은 깊이 12·점 6개 미만이면 오차와 무관하게 받아들였다 — GPT 조사 2026-10-25 지적)."""
+    P = [tuple(map(float, p)) for p in P]
+    n = len(P)
+    if n < 3:
+        out.append((P[0], ((P[0][0] + P[-1][0]) / 2, (P[0][1] + P[-1][1]) / 2), P[-1]))
+        return
+    step = max(1, int(np.ceil(n / max_cand)))
+    cand = list(range(0, n - 1, step)) + [n - 1]
+    m = len(cand)
+    INF = 10 ** 9
+    D = [INF] * m
+    back = [-1] * m
+    ctl = [None] * m
+    D[0] = 0
+    for i in range(m - 1):
+        if D[i] >= INF:
+            continue
+        fails = 0
+        for j in range(i + 1, m):
+            seg = P[cand[i]:cand[j] + 1]
+            c, e = bez_fit_refined(seg)
+            if e <= tol or j == i + 1:  # 이웃 후보 사이는 항상 이어 준다(후보 간격 안에서 꺾이는 곳)
+                if D[i] + 1 < D[j]:
+                    D[j], back[j], ctl[j] = D[i] + 1, i, tuple(c)
+                if e > tol:
+                    fails += 1
+            else:
+                fails += 1
+            if fails >= 3:
+                break
+    segs, j = [], m - 1
+    while j > 0:
+        i = back[j]
+        segs.append((P[cand[i]], ctl[j], P[cand[j]]))
+        j = i
+    out.extend(reversed(segs))
+
+
 def fit(P, tol, out, depth=0):
+    if FIT_MODE == "dp" and depth == 0:
+        fit_dp(P, tol, out)
+        return
     if len(P) < 3:
         out.append((P[0], (np.asarray(P[0]) + np.asarray(P[-1])) / 2, P[-1]))
         return
