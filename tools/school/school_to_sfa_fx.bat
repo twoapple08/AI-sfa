@@ -7,7 +7,7 @@ if "%~1"=="" (echo 그림 파일을 이 bat 위로 끌어다 놓아 주세요. & pause & exit /b
 :next
 if "%~1"=="" goto done
 echo %~nx1 변환 중...
-D:\sfa\env\Scripts\python.exe D:\sfa\aisfa\tools\stack_layers_sfa.py "%~1" "%~dpn1_fx.sfa" --check "%~dpn1_fx_check.jpg"
+D:\sfa\env\Scripts\python.exe D:\sfa\aisfa\tools\stack_layers_sfa.py "%~1" "%~dpn1_fx.sfa" --feather 6 --glow 10 --bg-k 9 --tips --fire-levels 10 --check "%~dpn1_fx_check.jpg"
 shift
 goto next
 :done

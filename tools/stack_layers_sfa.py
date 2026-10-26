@@ -28,9 +28,16 @@ TOL, SIGMA = 2.5, 3.0  # 덩어리 윤곽: 크게 다듬고 넉넉한 오차(곡
 MIN_AREA, MIN_HOLE = 60, 200
 
 
+TIPS = False  # --tips: 꺾인 점을 고정하고 사이만 다듬음 + 불 층 흐림을 줄이고 열림(가는 끝을 지움)을 뺌
+
+
 def blob(mask, blur=2.0):
     """덩어리를 매끈하게(흐림 후 반 넘는 곳) — 픽셀 계단·잔점을 없앤다."""
+    if TIPS:
+        blur = min(blur, 1.0)
     m = cv2.GaussianBlur(mask.astype(np.float32), (0, 0), blur) > 0.5
+    if TIPS:  # 열림은 3px 미만 불꽃 끝을 지운다 → 잔점은 넓이로만 거른다(MIN_AREA)
+        return m.astype(np.uint8)
     return cv2.morphologyEx(m.astype(np.uint8), cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
 
 
@@ -60,7 +67,7 @@ def bg_clusters(img, bg, k, cent=None):
 def shapes_of(mask, pad=4):
     """가장자리에 닿은 면은 화면 밖으로 pad px 늘려 윤곽을 딴다 — 안 그러면 윤곽 다듬기가 안쪽으로 당겨 화면 둘레에 바탕색 틀이 보인다."""
     mk = cv2.copyMakeBorder(mask.astype(np.uint8), pad, pad, pad, pad, cv2.BORDER_REPLICATE)
-    _, sh = outline_mask(mk * 255, TOL, MIN_AREA, SIGMA)
+    _, sh = outline_mask(mk * 255, TOL, MIN_AREA, SIGMA, pin=TIPS)
     for s in sh:
         s["segs"] = [[v - pad for v in g[:6]] + list(g[6:]) for g in s["segs"]]
     out = []
@@ -261,7 +268,10 @@ def main():
     ap.add_argument("--shared", action="store_true", help="영상: 문턱·색·배경 묶음을 클립 전체 공통으로(실험 3)")
     ap.add_argument("--hold", type=float, default=6.0, help="영상: 직전 장과 평균 차가 이보다 작으면 같은 그림(걸이)으로 보고 직전 그림을 다시 씀. 0이면 끔")
     ap.add_argument("--check")
+    ap.add_argument("--tips", action="store_true", help="테두리 마감: 불꽃 끝·가시를 살린다(꺾인 점 고정 다듬기, 흐림↓, 열림 끔)")
     a = ap.parse_args()
+    global TIPS
+    TIPS = a.tips
     imgs = read_frames(a.image, a.clip[0], a.clip[1], 1) if a.clip else [cv2.imread(a.image)]
     H, W = imgs[0].shape[:2]
     ecs.H = H
