@@ -52,7 +52,7 @@
 | 1 | Kaggle 3차 컬러 LoRA(grey smoke 태그 185장 + 마스크 손실 255장) | **완료**: 3바퀴 채택. 부정어 grey smoke는 회색을 빼지만(10→2%) 보라·청록·보라 물체가 끼어 기본으로 안 씀 |
 | 2 | 움직임 시험 1: 숫자/실루엣 블로킹 × 강도 0.4·0.55·0.7 독립 img2img(tools/kaggle_motion1.ipynb, 3차 3바퀴) | 준비 끝, 사용자 실행 대기 |
 | 3 | 움직임 시험 2: 따로/고정 스타일 참조(IP-Adapter)/이전 장 참조(큰 변화 장은 고정 참조로 되돌림), tools/kaggle_motion2.ipynb — diffusers LoRA 합침(788 모듈)·IP-Adapter 생성은 서버 CPU 2스텝으로 확인. Hotshot/AnimateDiff는 다음 | 준비 끝 |
-| 4 | Wan VACE 1.3B 블로킹 → 스타일 vid2vid 추론(T4), 되면 나카무라 클립 100개 영상 LoRA 100 step 측정 | 준비 전 |
+| 4 | 움직임 시험 3: Wan2.1 VACE 1.3B — 블로킹을 조절 영상으로, 3차 LoRA 폭발 그림을 참조 그림으로(있음/없음), tools/kaggle_motion3_vace.ipynb. diffusers 0.35.1 WanVACEPipeline 인자·크기 규칙만 확인(모델은 서버 디스크 부족으로 미적재), T4 bf16은 에뮬레이션 | 준비 끝, 시험 1·2 뒤 Kaggle |
 | 5 | 앱 확인: c0426_6_rc.sfa(로봇 층), g4_t10c.sfa(틈·끝 고침) | 파일 보냄 |
 | 6 | 10초 이상 긴 파일의 앱 한계 | 실제 작품 때 |
 | 7 | 학교 PC school_setup.bat 실행·속도 | PC 없음 |
