@@ -270,7 +270,7 @@ def read_frames(path, start, n, step):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("image", help="그림, 또는 --clip이면 영상")
+    ap.add_argument("image", help="그림, 또는 --clip이면 영상(쉼표로 여러 개)")
     ap.add_argument("out")
     ap.add_argument("--parts")
     ap.add_argument("--fire-levels", type=int, default=6)
@@ -289,7 +289,8 @@ def main():
     a = ap.parse_args()
     global TIPS
     TIPS = a.tips
-    imgs = read_frames(a.image, a.clip[0], a.clip[1], 1) if a.clip else [cv2.imread(a.image)]
+    # 영상 여러 개를 쉼표로 이으면 각 영상에서 같은 구간을 차례로 붙인다(앱 한계 시험용 긴 파일)
+    imgs = [f for v in a.image.split(",") for f in read_frames(v, a.clip[0], a.clip[1], 1)] if a.clip else [cv2.imread(a.image)]
     H, W = imgs[0].shape[:2]
     ecs.H = H
     robot = np.zeros((H, W), np.uint8)
