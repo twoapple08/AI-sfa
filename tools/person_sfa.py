@@ -102,7 +102,7 @@ def main():
     ap.add_argument("parts")
     ap.add_argument("out")
     ap.add_argument("--check")
-    ap.add_argument("--shade-alpha", type=float, default=0.45)
+    ap.add_argument("--shade-alpha", type=float, default=0.3)
     a = ap.parse_args()
     img = cv2.imread(a.image)
     H, W = img.shape[:2]
@@ -143,46 +143,80 @@ def main():
                 sh = coarse(m, 3.0, 3.0, 800)
                 stats["면"] += wr.fill(sh, argb(np.median(img[(idx == c) & bgm], 0)), k)
                 stats["면 경계 조각"] += sum(len(s["segs"]) for s in sh)
-    # 2) 부위 밑색: 불투명, 성긴 곡선, 3px 넓혀 이웃과 틈 없게
-    base_col, base_L = {}, {}
+    # 2) 부위 밑색: 부위 안을 색 묶음(최대 3, 가까운 묶음은 합침)으로 나눠 묶음마다 불투명 면 — 한 부위에 색이 둘 이상일 수 있다
+    #    (1차 시험: '옷'에 베이지 코트와 검은 목폴라가 같이 있어 한 색으로 칠하자 검정이 회색 명암 덩어리가 됐고, 흰 머리 끝의 파랑·노란 눈동자도 빠졌다)
+    lab3 = cv2.cvtColor(cv2.bilateralFilter(img, 7, 25, 7), cv2.COLOR_BGR2LAB).astype(np.float32)
+    bases = []  # (부위, 묶음 마스크, 색, 밝기)
     for nm in FILL_ORDER[1:]:
         if nm not in names:
             continue
         m = (lab == names.index(nm))
         if m.sum() < 200:
             continue
-        px = img[m & ~line]
-        Lp = L[m & ~line]
-        if len(px) == 0:
+        sel = m & ~line
+        if sel.sum() < 100:
             continue
-        lightish = Lp >= np.percentile(Lp, 40)  # 밑색 = 밝은 쪽 중앙값(그늘 빼고)
-        base_col[nm] = np.median(px[lightish], 0)
-        base_L[nm] = float(np.median(Lp[lightish]))
-        mm = cv2.dilate(m.astype(np.uint8), np.ones((7, 7), np.uint8))
-        sh = coarse(mm, 4.0 if nm not in ("눈동자", "입", "눈") else 2.0, 4.0 if nm not in ("눈동자", "입", "눈") else 1.5,
-                    150 if nm not in ("눈동자", "입", "눈") else 30)
+        smp = lab3[sel][:: max(1, int(sel.sum() // 30000))]
+        kk = 3 if sel.sum() > 3000 else 1
+        cv2.setRNGSeed(0)
+        _, lbl, cent = cv2.kmeans(smp, kk, None, (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 20, 1.0), 3, cv2.KMEANS_PP_CENTERS)
+        # 가까운 묶음 합치기(ΔE < 18)
+        groups = list(range(kk))
+        for i in range(kk):
+            for j in range(i):
+                if np.linalg.norm(cent[i] - cent[j]) < 18:
+                    groups = [groups[j] if g == groups[i] else g for g in groups]
+        idx = np.linalg.norm(lab3[..., None, :] - cent[None, None], axis=3).argmin(2)
+        gidx = np.array(groups)[idx]
+        gidx = cv2.medianBlur(gidx.astype(np.uint8), 7)
         k = lid(nm)
-        stats["면"] += wr.fill(sh, argb(base_col[nm]), k)
-        stats["면 경계 조각"] += sum(len(s["segs"]) for s in sh)
-    # 3) 명암: 부위 안 밑색보다 어두운 곳 → 뼈대를 따라 그 폭만큼 굵은 반투명 붓선(두 단계)
-    k = lid("명암")
-    for nm, bL in base_L.items():
-        m = (lab == names.index(nm)) & ~line
-        for step, (d, al) in enumerate(((14, a.shade_alpha), (32, a.shade_alpha))):
-            sm = (m & (L < bL - d)).astype(np.uint8)
-            sm = cv2.morphologyEx(sm, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
-            sm = cv2.GaussianBlur(sm.astype(np.float32), (0, 0), 1.5) > 0.5
-            if sm.sum() < 150:
+        parts_g = sorted(set(groups), key=lambda g: -int(((gidx == g) & m).sum()))
+        for gi, g in enumerate(parts_g):
+            gm = (gidx == g) & m
+            if gi > 0 and gm.sum() < max(300, 0.03 * m.sum()):
                 continue
-            col = np.median(img[sm], 0)
-            segs = joined_strokes(img, sm.astype(np.uint8), tol=2.5, min_len=6, sigma=2.5)
-            groups = {}
-            for s in segs:
-                groups.setdefault(s[10], []).append(s)
-            for g in groups.values():
-                ts = [max(TS_MIN, s[6] * (CW / 1920 if False else 1) * (1920 / CW) / (1.14 * 8)) for s in g]
-                wr.chain(g, argb(col, al), ts, k)
-                stats["명암 붓선"] += len(g)
+            if gi == 0:
+                gm = m  # 가장 넓은 묶음은 부위 전체를 깐다(나머지가 위에 얹힘)
+            gm = cv2.morphologyEx(gm.astype(np.uint8), cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8))
+            mm = cv2.dilate(gm, np.ones((7, 7), np.uint8)) if gi == 0 else gm
+            small = nm in ("눈동자", "입", "눈")
+            sh = coarse(mm, 2.0 if small else 4.0, 1.5 if small else 4.0, 30 if small else 150)
+            px = img[(gidx == g) & sel]
+            if len(px) == 0:
+                continue
+            Lp = cv2.cvtColor(px.reshape(-1, 1, 3), cv2.COLOR_BGR2LAB)[:, 0, 0].astype(np.float32)
+            lt = (Lp >= np.percentile(Lp, 20)) & (Lp <= np.percentile(Lp, 80))  # 가운데 톤(밝은 쪽만 쓰자 베이지 코트가 흰색이 됐다)
+            col = np.median(px[lt], 0)
+            stats["면"] += wr.fill(sh, argb(col), k)
+            stats["면 경계 조각"] += sum(len(s["segs"]) for s in sh)
+            bases.append((nm, ((gidx == g) & sel), col, float(np.median(Lp[lt]))))
+    # 3) 명암: 묶음 안 밑색보다 어두운 곳 → 뼈대를 따라 그 폭만큼 반투명 붓선(사람 그림처럼 옅게). 너무 넓은 그늘은 폭을 줄여 여러 줄로 보이게 하지 않고 건너뛴다
+    k = lid("명암")
+    for nm, gm, col0, bL in bases:
+        if bL < 40:
+            continue  # 검은 옷 같은 아주 어두운 밑색은 명암 생략
+        sm = (gm & (L < bL - 16)).astype(np.uint8)
+        sm = cv2.morphologyEx(sm, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+        sm = (cv2.GaussianBlur(sm.astype(np.float32), (0, 0), 1.5) > 0.5).astype(np.uint8)
+        if sm.sum() < 150:
+            continue
+        col = np.median(img[sm > 0], 0)
+        # 넓은 그늘(폭 26px 넘음)은 붓선 하나로 덮으면 소시지 덩어리가 됐다(1차 시험 코트) → 그 부분만 성긴 반투명 면, 가는 그늘은 붓선
+        wide = cv2.morphologyEx(sm, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (27, 27)))
+        if wide.sum() > 400:
+            wide = cv2.dilate(wide, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (9, 9))) & sm
+            sh = coarse(wide, 3.0, 3.0, 300)
+            stats["면"] += wr.fill(sh, argb(col, a.shade_alpha), k)
+            stats["면 경계 조각"] += sum(len(s["segs"]) for s in sh)
+        thin = (sm & (1 - wide)).astype(np.uint8)
+        segs = joined_strokes(img, thin, tol=2.5, min_len=8, sigma=2.5) if thin.sum() > 100 else []
+        groups = {}
+        for s in segs:
+            groups.setdefault(s[10], []).append(s)
+        for g in groups.values():
+            ts = [max(TS_MIN, s[6] * (1920 / CW) / (1.14 * 8)) for s in g]
+            wr.chain(g, argb(col, a.shade_alpha), ts, k)
+            stats["명암 붓선"] += len(g)
     # 4) 선화(맨 위): 진한 선 0.3, 옅은 결 0.1, 이어지는 곡선 끝점 연결
     k = lid("선화")
     px_lo, px_hi = TS_MIN * 1.14 * 8 * CW / 1920, TS_MAX * 1.14 * 8 * CW / 1920
