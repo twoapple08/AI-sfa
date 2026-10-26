@@ -29,9 +29,13 @@ FX = os.path.join(ROOT, "data/p3/fx_timing_2026-10-22.json")
 DEBRIS = os.path.join(ROOT, "data/p4/nakamura_debris_rhythm_2026-10-21.json")
 
 
-def lumpy(cx, cy, r, phase, harm, n=360):
+def lumpy(cx, cy, r, phase, harm, n=360, tips=()):
+    """울퉁불퉁한 원. tips=[(각, 폭(라디안), 높이)]: 뾰족한 불꽃 끝(삼각 봉우리, 높이 음수면 찢어진 홈)."""
     t = np.linspace(0, 2 * np.pi, n, endpoint=False)
     rr = r * (1 + sum(a * np.sin(k * t + p + phase * (0.3 + 0.1 * k)) for k, a, p in harm))
+    for ang, w, h in tips:
+        d = np.abs((t - ang + np.pi) % (2 * np.pi) - np.pi)
+        rr = rr + r * h * np.clip(1 - d / w, 0, 1) ** 1.6
     return np.stack([cx + rr * np.cos(t), cy + rr * np.sin(t) * 0.85], 1).astype(np.int32)
 
 
@@ -51,6 +55,8 @@ def main():
     ap.add_argument("--seed", type=int, default=3)
     ap.add_argument("--orbit", type=float, default=0.0,
                     help="폭발 중심을 도는 카메라(2D 시차): 전체 길이 동안 가까운 빌딩이 옮겨 가는 거리(화면폭 비). 0이면 고정. 음수면 반대 방향")
+    ap.add_argument("--angular", action="store_true",
+                    help="각진 불꽃 끝·비대칭으로 찢어진 심(GPT 판정 2026-10-26: 둥근 꽃잎 블로킹을 따르면 둥근 폭발이 나온다)")
     ap.add_argument("--sample", action="store_true", help="길이·정점·면적을 실측 사분위 안에서 뽑기(없으면 중앙값)")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
@@ -86,6 +92,11 @@ def main():
     deb = [(rng.uniform(0, 2 * np.pi), rng.uniform(0.6, 1.4), rng.uniform(3, 7)) for _ in range(ndeb)]
     layers = [(1.0, (30, 25, 150)), (0.82, (20, 90, 235)), (0.62, (60, 200, 255)), (0.4, (225, 250, 255))]  # BGR 바깥 → 심
 
+    # 각진 모양(--angular): 바깥 층에 뾰족한 끝 9–14개(바깥으로 갈수록 길게), 심은 한쪽으로 치우치고 찢어진 홈 2–3개
+    ra = np.random.default_rng(a.seed + 1000)
+    otips = [(ra.uniform(0, 2 * np.pi), ra.uniform(0.10, 0.22), ra.uniform(0.18, 0.45)) for _ in range(int(ra.integers(9, 15)))] if a.angular else []
+    cdir = ra.uniform(0, 2 * np.pi)
+    ctear = [(cdir + np.pi + ra.uniform(-0.8, 0.8), ra.uniform(0.15, 0.3), -ra.uniform(0.35, 0.6)) for _ in range(int(ra.integers(2, 4)))] if a.angular else []
     imgs = {}
     if a.orbit:  # 카메라가 움직이는 동안 같은 그림을 두 장 쓰면 배경이 멈춘다 → 폭발 모양만 유지하고 장마다 그린다
         shape_of = draw_of
@@ -124,8 +135,20 @@ def main():
             core = s < 0.5
             ss = s * (1.0 if f <= tp else max(0.3, 1 - post))  if core else s  # 심은 정점 뒤 줄어듦
             ov = img.copy()
-            for bx, by, br, hh in blobs:
-                cv2.fillPoly(ov, [lumpy(bx, by, br * ss, f * 0.4, hh)], col, cv2.LINE_AA)
+            for bi, (bx, by, br, hh) in enumerate(blobs):
+                if a.angular:
+                    grow = min(1.0, (f + 1) / (tp + 1)) * (1.0 + 0.25 * post)  # 끝은 커지며 길어지고 정점 뒤 조금 더 뻗음
+                    rot = 0.03 * f  # 끝이 조금씩 돈다(같은 자리 반복 방지)
+                    if core:
+                        tips = [(g0 + rot, w0, h0) for g0, w0, h0 in ctear]
+                        off = br * ss * 0.18 * (1 + post)  # 심이 한쪽으로 치우치며 찢어짐
+                        bx, by = bx + off * np.cos(cdir), by + off * np.sin(cdir) * 0.85
+                    else:
+                        sc = (1.0 - s) * 1.6 + 0.4  # 바깥 층일수록 끝이 길다
+                        tips = [(g0 + rot + bi, w0, h0 * grow * sc) for g0, w0, h0 in otips]
+                else:
+                    tips = ()
+                cv2.fillPoly(ov, [lumpy(bx, by, br * ss, f * 0.4, hh, n=720 if a.angular else 360, tips=tips)], col, cv2.LINE_AA)
             img = cv2.addWeighted(ov, alpha, img, 1 - alpha, 0)
         if f >= tp - 1:  # 파편: 정점 무렵 가장자리에서 튀어나가 속도 반감(실측)
             t = f - (tp - 1)
@@ -139,7 +162,7 @@ def main():
         imgs[d] = img
     for f, d in enumerate(draw_of):
         cv2.imwrite(os.path.join(a.out, f"f{f:03d}.png"), imgs[d])
-    info = {"장수": n, "정점(장)": tp, "정점면적": round(float(area), 3), "갈라짐": splits, "그림번호": shape_of, "카메라_돌기": a.orbit,
+    info = {"장수": n, "정점(장)": tp, "정점면적": round(float(area), 3), "갈라짐": splits, "그림번호": shape_of, "카메라_돌기": a.orbit, "각진": a.angular,
             "그림수": len(set(draw_of)), "파편": {"수": ndeb, "정점속도_화면높이": db["peak_speed_h_median"], "반감(장)": half},
             "출처": ["data/p3/fx_timing_2026-10-22.json explosion", "data/p4/nakamura_debris_rhythm_2026-10-21.json 폭발 파편"],
             "가정": ["면적 곡선 모양(빠르게 커져 정점 뒤 유지)", "갈라진 조각 흩어짐으로 무게중심 이동 대신"]}
