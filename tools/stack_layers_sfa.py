@@ -110,10 +110,11 @@ def regions(img, robot):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     L = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)[..., 0].astype(np.float32)
     warm = ((hsv[..., 0] <= 35) | (hsv[..., 0] >= 170)) & (hsv[..., 1] > 90) & (hsv[..., 2] > 150)
-    fire = blob((warm | (L > 225)) & (robot == 0), 3.0)
+    # 불은 로봇 자리도 포함해 그린다(로봇 층이 위에서 덮음) — 비워 두면 로봇 둘레에 틈이 생겨 로봇 층을 넓혀야 했고, 그게 굵은 갈색 테두리가 됐다
+    fire = blob(warm | (L > 225), 3.0)
     n, cc, st, _ = cv2.connectedComponentsWithStats(fire)  # 큰 덩어리만(배경의 붉은 잔무늬 제외)
     fire = np.isin(cc, [i for i in range(1, n) if st[i, cv2.CC_STAT_AREA] > H * W * 0.01]).astype(np.uint8)
-    bg = ((fire == 0) & (robot == 0)).astype(np.uint8)
+    bg = (fire == 0).astype(np.uint8)  # 배경도 로봇 밑까지 칠함(로봇 층이 위에서 덮음)
     return L, fire, bg
 
 
@@ -233,10 +234,13 @@ def convert(img, a, wr, robot, names_out, sh=None):
             hi = rts[i + 1] if i + 1 < len(rts) else 256
             sel = (robot > 0) & (L >= t) & (L < hi)
             m = robot if i == 0 else blob((robot > 0) & (L >= t), 1.5)
-            if i == 0 and a.overlap > 0:
-                m = cv2.dilate(m, np.ones((2 * int(a.overlap) + 1,) * 2, np.uint8))
             if sel.any() and m.any():
                 fill_layer(wr, body, shapes_of(m), W, argb(np.median(img[sel], 0)), k)
+        # 밝은 가는 선(역광 테두리·반사광): 회로 선과 같은 톱햇, 로봇 안쪽만
+        thr = cv2.morphologyEx(img.max(2), cv2.MORPH_TOPHAT, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+        hm = ((thr > 30) & (cv2.erode(robot, np.ones((3, 3), np.uint8)) > 0)).astype(np.uint8)
+        for seg in joined_strokes(img, hm, 1.5, min_len=8, sigma=1.5):
+            wr.curve_ao(body, seg, W, argb(seg[7:10]), max(ecs.TS_MIN, thick(seg[6], W) * ecs.LINE_SCALE), layer=k)
         dm, _, _ = line_layer(img, 1.5, valid=cv2.erode(robot, np.ones((5, 5), np.uint8)))
         for seg in joined_strokes(img, dm, 2.0, min_len=6, sigma=1.5):
             wr.curve_ao(body, seg, W, argb(seg[7:10]), max(ecs.TS_MIN, thick(seg[6], W) * ecs.LINE_SCALE), layer=k)
@@ -273,7 +277,7 @@ def main():
     ap.add_argument("--shared", action="store_true", help="영상: 문턱·색·배경 묶음을 클립 전체 공통으로(실험 3)")
     ap.add_argument("--hold", type=float, default=6.0, help="영상: 직전 장과 평균 차가 이보다 작으면 같은 그림(걸이)으로 보고 직전 그림을 다시 씀. 0이면 끔")
     ap.add_argument("--check")
-    ap.add_argument("--overlap", type=float, default=4.0, help="맨 아래 불·로봇 층을 이만큼(px) 넓혀 배경과의 틈을 덮음. 0이면 끔")
+    ap.add_argument("--overlap", type=float, default=4.0, help="맨 아래 불 층을 이만큼(px) 넓혀 배경과의 틈을 덮음. 0이면 끔")
     ap.add_argument("--tips", action="store_true", help="테두리 마감: 불꽃 끝·가시를 살린다(꺾인 점 고정 다듬기, 흐림↓, 열림 끔)")
     a = ap.parse_args()
     global TIPS
