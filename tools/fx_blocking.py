@@ -49,6 +49,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("out")
     ap.add_argument("--seed", type=int, default=3)
+    ap.add_argument("--orbit", type=float, default=0.0,
+                    help="폭발 중심을 도는 카메라(2D 시차): 전체 길이 동안 가까운 빌딩이 옮겨 가는 거리(화면폭 비). 0이면 고정. 음수면 반대 방향")
     ap.add_argument("--sample", action="store_true", help="길이·정점·면적을 실측 사분위 안에서 뽑기(없으면 중앙값)")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
@@ -66,10 +68,18 @@ def main():
     draw_of = holds(n, ex["그림유지"], rng)
 
     harm = [(k, rng.uniform(0.04, 0.12) / (1 + 0.15 * k), rng.uniform(0, 6.3)) for k in (3, 5, 7, 9, 13)]
-    city, x = [], 0
-    while x < W:  # 빌딩 실루엣(고정)
-        w = int(rng.integers(60, 160)); h = int(rng.integers(120, 360))
-        city.append((x, H - h, x + w, H)); x += w + int(rng.integers(0, 20))
+    # 빌딩 실루엣: 깊이 3층(먼 0.35·중간 1.0·가까운 1.8 — 폭발은 중간층 깊이). 고정 카메라면 중간층만 그린다
+    # 도는 카메라(2026-10-26 사용자 제안): 3D 없이 층마다 다른 속도로 옆으로 밀어 시차를 낸다. 폭발과 같은 깊이(중간층)는 화면에서 거의 안 움직이고,
+    # 먼 층은 반대로 조금, 가까운 층은 크게 움직인다 → 폭발 둘레를 도는 것처럼 보임. 층마다 화면 2배 폭을 만들어 밀어도 비지 않게.
+    depths = [(0.35, (40, 22, 14), (60, 180)), (1.0, (25, 15, 10), (120, 360)), (1.8, (12, 8, 6), (90, 230))] if a.orbit else \
+             [(1.0, (25, 15, 10), (120, 360))]
+    city = []
+    for dep, colb, (hmin, hmax) in depths:
+        x = -W if a.orbit else 0  # 고정 카메라는 이전과 같은 난수 순서(같은 블로킹)
+        while x < (2 * W if a.orbit else W):
+            w = int(rng.integers(60, 160) * dep ** 0.5); h = int(rng.integers(hmin, hmax))
+            gap = int(rng.integers(0, 20) * dep) if dep <= 1.0 else int(rng.integers(120, 420))  # 가까운 층은 드문드문(높고 빽빽하면 폭발을 다 가렸다)
+            city.append((dep, colb, x, H - h, x + w, H)); x += w + gap
     cx, cy = W * 0.52, H * 0.55
     # 갈라진 조각: 정점 뒤 splits번에 걸쳐 하나씩 떨어져 나와 흩어짐
     pieces = [(rng.uniform(0, 2 * np.pi), rng.uniform(0.35, 0.55), [(k, a_ * 1.3, p) for k, a_, p in harm]) for _ in range(splits)]
@@ -77,15 +87,27 @@ def main():
     layers = [(1.0, (30, 25, 150)), (0.82, (20, 90, 235)), (0.62, (60, 200, 255)), (0.4, (225, 250, 255))]  # BGR 바깥 → 심
 
     imgs = {}
+    if a.orbit:  # 카메라가 움직이는 동안 같은 그림을 두 장 쓰면 배경이 멈춘다 → 폭발 모양만 유지하고 장마다 그린다
+        shape_of = draw_of
+        draw_of = list(range(n))
+    else:
+        shape_of = draw_of
     for d in sorted(set(draw_of)):
         f = draw_of.index(d)  # 그림이 처음 나오는 장 시각
+        fc = f  # 카메라 시각(도는 카메라면 장마다), 폭발 모양은 그림 유지 규칙의 시각
+        f = shape_of.index(shape_of[fc])
         g = (f + 1) / (tp + 1)
         R = Rp * (g ** 0.7 if f < tp else 1.0 + 0.04 * (f - tp))  # 가정: 빠르게 커져 정점, 뒤로 거의 유지
         post = max(0, f - tp) / max(1, n - 1 - tp)  # 정점 뒤 진행 0→1
         alpha = 1.0 if f < n - 3 else (n - f) / 4  # 밝기 평평 → 끝 3장에서만 사라짐
         img = np.zeros((H, W, 3), np.uint8); img[:] = (70, 30, 15)
-        for (x0, y0, x1, y1) in city:
-            cv2.rectangle(img, (x0, y0), (x1, y1), (25, 15, 10), -1)
+        cam = a.orbit * W * (fc / max(1, n - 1) - 0.5)  # 카메라 옆 이동(중간층 기준 0)
+        near = [c for c in city if c[0] > 1.0]
+        for dep, colb, x0, y0, x1, y1 in city:
+            if dep > 1.0:
+                continue  # 가까운 층은 폭발 위에 나중에 그린다
+            dx = int(round(-cam * (dep - 1.0) / 0.8))
+            cv2.rectangle(img, (x0 + dx, y0), (x1 + dx, y1), colb, -1)
         # 갈라짐: 조각 j는 정점 뒤 j/splits 시점에 큰 덩어리 안에서 작게 나와 커지며 멀어진다. 큰 덩어리는 이어서 조금씩 줄어든다
         # (조각이 나올 때마다 한 번에 12%씩 줄이고 전체는 4%씩 키웠더니 크기가 줄고-커지고를 반복해 바운스처럼 보였다, 2026-10-26 사용자)
         main_r = R * (1 - 0.12 * splits * post)
@@ -111,10 +133,13 @@ def main():
                 dist = R * 0.85 + v0 * sp * half / np.log(2) * (1 - 0.5 ** (t / half)) * 3
                 p = (int(cx + dist * np.cos(ang)), int(cy + dist * np.sin(ang) * 0.85))
                 cv2.circle(img, p, int(size), (60, 160, 255), -1, cv2.LINE_AA)
+        for dep, colb, x0, y0, x1, y1 in near:  # 가까운 빌딩이 폭발 앞을 지나가며 가림
+            dx = int(round(-cam * (dep - 1.0) / 0.8))
+            cv2.rectangle(img, (x0 + dx, y0), (x1 + dx, y1), colb, -1)
         imgs[d] = img
     for f, d in enumerate(draw_of):
         cv2.imwrite(os.path.join(a.out, f"f{f:03d}.png"), imgs[d])
-    info = {"장수": n, "정점(장)": tp, "정점면적": round(float(area), 3), "갈라짐": splits, "그림번호": draw_of,
+    info = {"장수": n, "정점(장)": tp, "정점면적": round(float(area), 3), "갈라짐": splits, "그림번호": shape_of, "카메라_돌기": a.orbit,
             "그림수": len(set(draw_of)), "파편": {"수": ndeb, "정점속도_화면높이": db["peak_speed_h_median"], "반감(장)": half},
             "출처": ["data/p3/fx_timing_2026-10-22.json explosion", "data/p4/nakamura_debris_rhythm_2026-10-21.json 폭발 파편"],
             "가정": ["면적 곡선 모양(빠르게 커져 정점 뒤 유지)", "갈라진 조각 흩어짐으로 무게중심 이동 대신"]}
