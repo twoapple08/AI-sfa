@@ -46,8 +46,9 @@ def shapes_of(mask):
     return out
 
 
-def fill_layer(wr, out, shapes, W, col, layer):
-    """한 층: 바깥 윤곽마다 FR(구멍 포함), 경계 곡선은 투명·최소 굵기, 지정 레이어."""
+def fill_layer(wr, out, shapes, W, col, layer, glow=None):
+    """한 층: 바깥 윤곽마다 FR(구멍 포함), 경계 곡선은 투명·최소 굵기, 지정 레이어.
+    glow=(반경, 두께, ARGB, 알파 0–255): 투명 경계 곡선에 글로우만 걸어 면 둘레에 빛 번짐(글로우는 선 색과 따로 그려짐, docs/SFA-VIEWER)."""
     holes = {}
     for s in shapes:
         if s["hole"]:
@@ -57,7 +58,7 @@ def fill_layer(wr, out, shapes, W, col, layer):
         fs = []
         for ci, c in enumerate([o] + holes.get(o.get("cid", -1), [])):
             for seg in c["segs"]:
-                oid, p = wr.curve_ao(out, seg, W, 0, ecs.TS_MIN, layer=layer)
+                oid, p = wr.curve_ao(out, seg, W, 0, ecs.TS_MIN, glow if (glow and ci == 0) else None, layer=layer)
                 fs.append(f'<FS Kind="0" ObjId="{oid}" StartPtId="{p}" EndPtId="{p + 2}" StartT="0.0" EndT="1.0" Contour="{ci}" />')
         frs.append(f'<FR Color="{col}">' + "".join(fs) + '</FR>')
     out.extend(frs)
@@ -77,6 +78,9 @@ def main():
     ap.add_argument("--fire-levels", type=int, default=6)
     ap.add_argument("--bg-levels", type=int, default=3)
     ap.add_argument("--robot-levels", type=int, default=3)
+    ap.add_argument("--feather", type=float, default=0.0,
+                    help="번짐: 폭발 층마다 이만큼(px) 넓힌 같은 모양을 옅은 알파(0.35)로 먼저 깐다 — 바깥 넓고 옅게 → 안쪽 좁고 진하게(AGENTS 원칙). 0이면 끔")
+    ap.add_argument("--glow", type=float, default=0.0, help="중심부 층 둘레 글로우 반경(px). 0이면 끔")
     ap.add_argument("--check")
     a = ap.parse_args()
     img = cv2.imread(a.image)
@@ -136,7 +140,14 @@ def main():
         m = fire if i == 0 else blob((fire > 0) & (L >= t), 2.0)
         if sel.any() and m.any():
             k = lid(f"폭발 {i + 1}" + (" (가장 어두움)" if i == 0 else " (중심부)" if i == len(ts) - 1 else ""))
-            fill_layer(wr, body, shapes_of(m), W, argb(np.median(img[sel], 0)), k)
+            col = np.median(img[sel], 0)
+            if a.feather > 0 and i > 0:  # 넓고 옅은 번짐 먼저
+                r = int(round(a.feather))
+                wide = cv2.dilate(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1))) & fire
+                fill_layer(wr, body, shapes_of(wide), W, argb(col, 0.35), k)
+            core = i == len(ts) - 1
+            glow = (a.glow, 100.0, argb(col), 180.0) if (core and a.glow > 0) else None
+            fill_layer(wr, body, shapes_of(m), W, argb(col), k, glow)
     # 5. 로봇: 몸체 밝기 단계 + 어두운 선
     if robot.any():
         k = lid("로봇")
