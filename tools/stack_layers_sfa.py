@@ -211,6 +211,9 @@ def convert(img, a, wr, robot, names_out, sh=None):
         hi = ts[i + 1] if i + 1 < len(ts) else 256
         sel = (fire > 0) & (L >= t) & (L < hi)
         m = fire if i == 0 else blob((fire > 0) & (L >= t), 2.0)
+        if i == 0 and a.overlap > 0:  # 맨 아래 불 층을 배경 위로 넉넉히 깐다 — 배경은 불 자리를 비우고 둘 다 다듬기로 안쪽으로 당겨져 바탕색 틈(검은 선)이 보였다(2026-10-26 사용자 앱 화면)
+            r = int(round(a.overlap))
+            m = cv2.dilate(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * r + 1, 2 * r + 1)))
         if not (m.any() and (sel.any() or sh)):
             continue
         k = lid(layer_names(a, False)[3 + i])
@@ -230,6 +233,8 @@ def convert(img, a, wr, robot, names_out, sh=None):
             hi = rts[i + 1] if i + 1 < len(rts) else 256
             sel = (robot > 0) & (L >= t) & (L < hi)
             m = robot if i == 0 else blob((robot > 0) & (L >= t), 1.5)
+            if i == 0 and a.overlap > 0:
+                m = cv2.dilate(m, np.ones((2 * int(a.overlap) + 1,) * 2, np.uint8))
             if sel.any() and m.any():
                 fill_layer(wr, body, shapes_of(m), W, argb(np.median(img[sel], 0)), k)
         dm, _, _ = line_layer(img, 1.5, valid=cv2.erode(robot, np.ones((5, 5), np.uint8)))
@@ -268,6 +273,7 @@ def main():
     ap.add_argument("--shared", action="store_true", help="영상: 문턱·색·배경 묶음을 클립 전체 공통으로(실험 3)")
     ap.add_argument("--hold", type=float, default=6.0, help="영상: 직전 장과 평균 차가 이보다 작으면 같은 그림(걸이)으로 보고 직전 그림을 다시 씀. 0이면 끔")
     ap.add_argument("--check")
+    ap.add_argument("--overlap", type=float, default=4.0, help="맨 아래 불·로봇 층을 이만큼(px) 넓혀 배경과의 틈을 덮음. 0이면 끔")
     ap.add_argument("--tips", action="store_true", help="테두리 마감: 불꽃 끝·가시를 살린다(꺾인 점 고정 다듬기, 흐림↓, 열림 끔)")
     a = ap.parse_args()
     global TIPS
