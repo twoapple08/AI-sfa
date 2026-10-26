@@ -31,6 +31,8 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 - Use relevant tools/skills when they improve accuracy or reduce unnecessary work. Tool discovery/loading is selective, and does not by itself justify redundant downloads or repeated reads.
 - When new wasteful behavior is observed, update this guidance and the compact handoff at the next meaningful checkpoint. Keep performance/verification limits explicit rather than sacrificing accuracy to reduce tokens.
 
+- 셸에서 `cat >> 파일`을 입력(heredoc) 없이 쓰지 않는다. 표준입력을 기다리며 명령 묶음 전체가 멈췄다(2026-10-26, 두 번). 파일 덧붙이기는 heredoc이나 Edit로만.
+
 - For large assembly reads, count/select semantic annotations or address windows before printing. Size the output budget to the selected excerpt; if truncated, recover only the missing address window. Trace a closure’s enclosing function before treating its name as a global planner rule.
 
 ## Standing GitHub authorization — 2026-10-15
