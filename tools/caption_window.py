@@ -269,13 +269,16 @@ def _inside_clauses(cap, w0, w1):
     return out
 
 
-def _covered(name, colors, span, clauses):
+def _covered(name, colors, frames, clauses):
+    """대상의 조각 안 장(frames)을 이름·색 낱말이 같은 GPT 문장들의 장 번호가 모두 덮으면 True(구조 문장 생략)."""
     stems = STEMS.get(name, [name])
+    got = set()
     for text, refs in clauses:
         low = text.lower()
-        if any(a <= span[1] and span[0] <= b for a, b in refs) and (any(s in low for s in stems) or any(c in low for c in colors)):
-            return True
-    return False
+        if any(s in low for s in stems) or any(c in low for c in colors):
+            for a, b in refs:
+                got.update(range(a, b + 1))
+    return bool(frames) and frames <= got
 
 
 def _rhythm(g, w0, w1):
@@ -374,8 +377,8 @@ def window_caption(g, cap, w0, w1):
         if not ph:
             continue
         a0, b1 = ph[0][0], max(b for _, b, _ in ph)
-        span = (max(a0, w0), min(b1, w1))
-        if a0 >= w0 and b1 <= w1 and _covered(e['name'], e['cols'], span, clauses):
+        inside = {k for x, y, _ in ph for k in range(max(x, w0), min(y, w1) + 1)}
+        if a0 >= w0 and b1 <= w1 and _covered(e['name'], e['cols'], inside, clauses):
             continue  # 조각 안에서 시작·끝나고 GPT 문장이 이미 말함
         pl = e['name'] in PLURAL
         groups = []  # (동사, [(lo, hi)]) — 이어지는 같은 동사는 묶는다
