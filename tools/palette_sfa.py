@@ -94,6 +94,44 @@ def relabel_mix(idx, mix, fx):
     return out
 
 
+def relabel_band(idx, cent, fx, mix, near_px=40, max_res=18.0, min_dl=12.0):
+    """번짐 띠를 위치 기준으로 지운다(2026-10-27 3차). 폭발 색 영역 둘레 near_px 고리 안에서, 색이 '바깥 배경색 ↔ 가장 가까운
+    폭발색' 사이 선분 가까이(Lab 잔차 < max_res, 0.05 < t < 1)에 있는 픽셀만 바깥 배경 색으로 돌린다. 색 기준 띠(mix)도 함께.
+    같은 회색·황토가 폭발에서 먼 하늘·땅에도 있으면 색 기준으로는 못 잡던 띠를 잡고, 고리 밖의 같은 색은 그대로 둔다."""
+    idx = relabel_mix(idx, mix, fx)
+    E = np.isin(idx, np.where(fx)[0])
+    if not E.any():
+        return idx
+    ker = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * near_px + 1, 2 * near_px + 1))
+    near = cv2.dilate(E.astype(np.uint8), ker) > 0
+    ring = near & ~E
+    bg = ~near & ~E
+    if not ring.any() or not bg.any():
+        return idx
+    _, lab_b = cv2.distanceTransformWithLabels((~bg).astype(np.uint8), cv2.DIST_L2, 5, labelType=cv2.DIST_LABEL_PIXEL)
+    _, lab_e = cv2.distanceTransformWithLabels((~E).astype(np.uint8), cv2.DIST_L2, 5, labelType=cv2.DIST_LABEL_PIXEL)
+    src_b = np.zeros(lab_b.max() + 1, np.int64)
+    ys, xs = np.where(bg)
+    src_b[lab_b[ys, xs]] = idx[ys, xs]
+    src_e = np.zeros(lab_e.max() + 1, np.int64)
+    ys, xs = np.where(E)
+    src_e[lab_e[ys, xs]] = idx[ys, xs]
+    ry, rx = np.where(ring)
+    cb = src_b[lab_b[ry, rx]]
+    ce = src_e[lab_e[ry, rx]]
+    cp = idx[ry, rx]
+    P, B, F = cent[cp], cent[cb], cent[ce]
+    d = F - B
+    t = ((P - B) * d).sum(1) / np.maximum((d * d).sum(1), 1e-6)
+    res = np.linalg.norm(P - (B + t[:, None] * d), axis=1)
+    # 촬영 글로우는 배경에 빛을 '더한' 색(남색 하늘 → 회청색)이라 폭발색과의 선분 위에 있지 않다 → 배경보다 밝아진 색도 띠로 본다
+    brighter = (P[:, 0] - B[:, 0]) > min_dl
+    band = (cp != cb) & ~fx[cp] & (((t > 0.05) & (t < 1.0) & (res < max_res)) | brighter)
+    out = idx.copy()
+    out[ry[band], rx[band]] = cb[band]
+    return out
+
+
 def fit_glow(samples, cent_bgr, order, fx, tol, sigma, min_area, grow):
     """폭발 색 층마다 (띠 폭 Wg, 흐림, 알파)를 대표 장들에서 고른다(아래 층부터, 위 층은 면만). 반환 {색: (Wg, sigma, alpha)}."""
     q = 0.25
@@ -171,6 +209,9 @@ def main():
     ap.add_argument("--grow", type=int, default=2)
     ap.add_argument("--hold", type=float, default=3.0)
     ap.add_argument("--glow", action="store_true", help="번짐 띠 색을 배경으로 돌리고 폭발 색 층 테두리에 맞춘 글로우")
+    ap.add_argument("--band", choices=["color", "pos"], default="color", help="번짐 띠 찾기: color=색 기준(2차), pos=폭발 둘레 위치+섞인 색(3차)")
+    ap.add_argument("--band-px", type=int, default=40, help="pos: 폭발 둘레 고리 폭(1920 기준 px)")
+    ap.add_argument("--band-res", type=float, default=18.0, help="pos: 섞인 색 판정 Lab 잔차 상한")
     ap.add_argument("--check")
     a = ap.parse_args()
     c = cv2.VideoCapture(a.video)
@@ -188,7 +229,8 @@ def main():
     if a.glow:
         print("폭발 색", list(np.where(fx)[0]), "번짐 띠 색", list(np.where(mix)[0]))
         reps = [frames[i] for i in (len(frames) // 4, len(frames) // 2, 3 * len(frames) // 4)]
-        glow = fit_glow([(f, relabel_mix(label(f, cent), mix, fx)) for f in reps], bgr.astype(np.float32), order, fx,
+        fix = (lambda i: relabel_band(i, cent, fx, mix, a.band_px, a.band_res)) if a.band == "pos" else (lambda i: relabel_mix(i, mix, fx))
+        glow = fit_glow([(f, fix(label(f, cent))) for f in reps], bgr.astype(np.float32), order, fx,
                         a.tol, a.sigma, a.min_area, a.grow)
     wr = Writer(W, H)
     body, prev_small, prev_xml, held = [], None, None, 0
@@ -201,7 +243,7 @@ def main():
             start = len(wr.out)
             idx = label(f, cent)
             if a.glow:
-                idx = relabel_mix(idx, mix, fx)
+                idx = fix(idx)
             frame_xml(wr, idx, bgr, order, layer_of, a.tol, a.sigma, a.min_area, a.grow, glow)
             xml = "\n".join(wr.out[start:])
             prev_small = small
