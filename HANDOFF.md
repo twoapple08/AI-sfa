@@ -8,6 +8,13 @@
 - 태깅: GPT 제안(대상×동작 단위, 그림 특징은 캡션·움직임은 프레임 구간+수치, 판정 기준, 없음/불명/미검토)을 영상 학습 캡션으로 쓴다. 수치는 자동 측정(tools/fx_atlas.py), 눈 판정은 GPT. 태깅엔 인물 지운 판이 필요 없다(인물은 '가림').
 - PC ProPainter 배치(10-27 사용자 실행): 514개 완료·실패 0, 클립당 13.8초. 품질 나쁨 — 인물 마스크 빈 장 350/514(잔상), 큰 인물(30%↑) 격자 흐림, 마스크가 로봇·흰 충격판을 잡음. 이 단계에선 필수 아님(보류).
 
+### 바로 할 일(영상 스타일 AI, 10-27 밤 기준)
+1. **GPT 움직임 태깅 시험 30**: 프롬프트 docs/GPT-PROMPT-SHOT-MOTION-TAGS-2026-10-27.md(사용자에게 전달됨) → 결과 JSONL을 받으면 data/style_kb/ai_results/gpt_SHOT_MOTION_30_2026-10-27.jsonl로 저장 → 컷 경계로 재자르기 + caption_en을 wan_lora_dataset.py --gpt로.
+2. **PC방 영상 LoRA 시험(10-28, 5060 4시간)**: tools/pc_wan_lora.bat 하나(설치 → 모델 14.5GB HF → Drive wanlora.zip(ID 1YdosWijIlDx0vaTvIxos8rhlkY3CRH8m, 공유 '링크 있는 모든 사용자' 필요 — Claude가 공유 권한 변경은 자동 검토 거절) → tools/pc_wan_lora_run.py: 캐시 → Wan2.1 T2V 1.3B LoRA(fp8_base, 일찍 실패 시 blocks_to_swap 15→29, 150스텝마다 저장) → 프롬프트 4개 LoRA 없음/있음 33장 24fps → C:\aisfa\wan_out.zip). **서버에서 musubi-tuner 실행 시험은 못 함(외부 코드 실행 자동 검토 거절)** — 명령 인자는 소스(커밋 f8a1b037)와 대조만.
+3. 확인 기준(사용자와 합의 전 제안): 10-29까지 같은 프롬프트 LoRA 없음/있음 비교에서 사용자가 '나카무라 같다'고 보는 쪽이 LoRA에 확실히 많으면 계속.
+- 자료: 나카무라 클립 671 → 원본 컷 단위 438구간(data/style_kb/nk_shots_rough_2026-10-27.csv, 자동 컷 분리 부정확: 카메라가 매 장 움직이는 구간에서 여러 컷이 붙음 — GPT가 컷 표시) → 학습용 277컷(이펙트 있음·17장 이상, 인물 있는 컷 포함, 캡션은 옛 태그 영어 낱말) 12,208장 512×288 24fps(source_fps 안 씀: 2·3장 리듬 보존).
+- 서버 scratch(컨테이너 바뀌면 사라짐): nk_src(원본 99편), nk_shots, nk_sheets30, wanlora(+zip), ppb_in/ppb_res(ProPainter), exA(기준작 A v2·v3), pp_src·venvpp(ProPainter CPU), musubi-tuner.
+
 ## 이전 방향 (2026-10-27 오전)
 - **GPT 계획 채택**(docs/GPT-FX-PLAN-2026-10-27.md, 바탕 docs/GPT-FRESH-SESSION-2026-10-27.md): 이펙트의 시간 변화·형태를 함께 기록하는 **벡터 자료집 → 검색·변형 생성기 → 필요한 부분부터 학습**. 순서: ① 렌더러 제약 시험표 ✅ → ② 폭발 복원 기준작 A(진행 중) → ③ 새 폭발 B0/B1 → ④ 벡터 시퀀스 검색 생성기 → ⑤ 선택·시간·형태 보정 모델.
 - **중단**: 영상·그림 모델이 그림체·배경·움직임을 한꺼번에 생성하는 시험(움직임 시험 3–8, docs/DECISIONS-2026-10-26.md). 사용자 "솔직히 전부 짜쳐". LoRA는 그림을 흐리게·파편 적게 바꿀 뿐 형태를 못 배움(시험 8).
