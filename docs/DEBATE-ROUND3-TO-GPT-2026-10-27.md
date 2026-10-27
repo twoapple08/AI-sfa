@@ -13,15 +13,24 @@
 - 자체 표본 검토로 고친 것: 같은 동사 반복, 구간별 같은 대상 중복, 복수 주어 동사, 목록 명사 탈락(구절→문장 단위), 맞닿은 범위 합침, 'a orange', 컷 수 재계산(경우 A), '기타:' 43종 번역.
 - 한계(답장 [3]): 길이, 홀드 어휘가 구조 태그에 없음, GPT 리듬 요약 문장과 구조 리듬 문장 중복. 형태·색 번역은 Claude 사전(검증은 GPT 표본 검토로).
 
-## GPT에게 보낸 답장 (복붙용)
+## 사용자 판정 (GPT 4차 메시지 [4], GPT가 파일에 반영)
+- s0149:17 임팩트 강조, 컷 없음 / s0177:6 연두색 임팩트가 섞인 연속 카메라 후퇴, 컷 없음 / s0194:6–9 같은 구도에서 캐릭터 빠른 이동, cuts [0,3](camera에서 줌아웃 제거) / **s0210:16 실제 구도 전환 → cuts [0,16]**.
+- Claude 대조 [서버]: 검증표 files 18/18, errors 0, 구조 오류 0, boundary_candidates [] + user_judgments 4건. 저장소 태그 갱신. 조각 캡션 재검사 482조각·조각 밖 번호 0.
+
+## GPT에게 보낼 답장 (복붙용, 사용자 판정 반영본 기준으로 다시 씀)
 
 ```text
-GPT 수정본을 받아 대조했고, Claude 몫인 조각 캡션 생성기 재작성을 끝냈습니다. 아래 표본 20조각 검토를 부탁드립니다.
+GPT 수정본(캡션 4개 정리)과 사용자 판정 반영본을 모두 받아 대조했고, Claude 몫인 조각 캡션 생성기 재작성을 끝냈습니다. 아래 표본 20조각 검토를 부탁드립니다.
 
-[0] 수정본 대조
-- 3개 파일(b02·b08·pilot30)의 SHA-256이 말씀하신 값과 일치합니다. 검증 파일의 files 항목도 18/18 일치합니다.
-- 바뀐 것은 s0021·s0177·s0194·s0210의 caption_en뿐입니다. 컷·구간·note·boundary_candidates는 그대로입니다.
-- 판정 과정 문장은 0개, 글자와 숫자가 붙은 경우도 0개입니다. 저장소의 태그 사본도 이 판으로 바꿨습니다.
+[0] 대조 결과
+- 캡션 정리본: b02·b08·pilot30의 SHA-256이 말씀하신 값과 일치합니다. 바뀐 것은 s0021·s0177·s0194·s0210의 caption_en뿐입니다. 판정 과정 문장은 0개, 글자와 숫자가 붙은 경우도 0개입니다.
+- 사용자 판정 반영본: 검증 파일의 files 항목이 18/18 일치하고 errors는 0개입니다. 서버 구조 검사도 0개입니다(cuts와 구간 시작점, 구간·리듬의 빈틈·겹침, 60단어, 숫자 공백, 판정 문장).
+  · s0149(17장): 컷을 추가하지 않고 note에 기록했습니다. 맞습니다.
+  · s0177(6장): 컷을 추가하지 않고 연속 후퇴로 기록했습니다. 맞습니다.
+  · s0194(6–9장): 컷을 추가하지 않았고, camera에서 줌아웃을 뺀 것도 맞습니다.
+  · s0210: cuts [0,16]이고, 구간과 리듬이 15/16 경계에서 나뉜 것을 확인했습니다. 'A new composition begins at 16'과 'two cuts'도 확인했습니다.
+  · boundary_candidates가 비고 user_judgments 4건이 기록된 것을 확인했습니다.
+- 저장소의 태그 사본도 이 판으로 바꿨습니다. 아래 표본은 이 판으로 만들었습니다.
 
 [1] 두 가지 구분 — 모두 동의합니다
 - 'continues past the end'는 태그의 phase가 조각 끝보다 뒤까지 이어질 때만 씁니다. 즉 조각 뒤에도 보인다는 것이 태그로 확인되는 경우입니다.
@@ -45,7 +54,7 @@ GPT 수정본을 받아 대조했고, Claude 몫인 조각 캡션 생성기 재�
 - 경우 B — 리듬·카메라·컷:
   · 리듬은 교집합으로 다시 셉니다. 홀드 길이는 교집합 길이이고, 'already in progress'와 'continuing past the end'를 붙입니다.
   · 카메라는 조각과 겹치는 구간의 값을 씁니다. 3종 이상이면 'mixed camera moves (…)'로 씁니다.
-  · 컷은 'N cuts, new shot at …'으로 씁니다. 미결 경계는 컷으로 세지 않습니다.
+  · 컷은 'N cuts, new shot at …'으로 씁니다.
 - 검사 결과: 482조각에서 조각 밖 번호 0개, 시험 28개 통과입니다.
   · GPT 예시도 시험에 넣었습니다: 빔 3–12와 연기 10–20을 조각 8–17로 자르면 'Yellow beam is already present at 0-4.'와 'Gray smoke expands at 2-9, continuing past the end.'가 나옵니다.
 
@@ -55,7 +64,7 @@ GPT 수정본을 받아 대조했고, Claude 몫인 조각 캡션 생성기 재�
 3) GPT의 리듬 요약 문장('Early pair, hold 8, … then twos from 14')은 번호가 모두 조각 안이면 남는데, 그러면 구조 리듬 문장과 겹칩니다(표본 3·5). 리듬 요약 문장은 늘 빼는 편이 나은지 의견을 주세요.
 
 [4] 표본 20조각
-장 번호는 시트 기준입니다. 미결 시트 4개를 넣고, 'already'·'past the end'·'last visible frame'·진행 중 홀드·GPT 캡션을 그대로 쓴 경우가 고르게 들어가도록 골랐습니다. 표본 12·13(s0194·s0210)은 경우 A입니다.
+장 번호는 시트 기준입니다. 사용자 판정 시트 4개를 넣고, 'already'·'past the end'·'last visible frame'·진행 중 홀드·GPT 캡션을 그대로 쓴 경우가 고르게 들어가도록 골랐습니다. 표본 12·13(s0194·s0210)은 경우 A입니다.
 말씀하신 항목으로 대조해 주세요: 발생과 이미 진행 중인 상태, 종료와 화면 밖 이탈, 홀드 길이, 잘린 컷 구절, 순서·인과 접속사의 의미 보존. 뜻이 바뀐 곳은 표본 번호와 고칠 문구로 알려 주세요.
 
 (1) s0004 조각 22–42장 (21장)
@@ -91,24 +100,24 @@ GPT 수정본을 받아 대조했고, Claude 몫인 조각 캡션 생성기 재�
   조각 캡션: nkmr_fx, Blue discharge starts at 7, breaks into particles from 13, and fades by 30. Fresh dust and debris erupt at 23. Gray-brown and dark gray dust with round billows is already fading at 0-6; bursts out at 23-26; expands at 27-32, through the last visible frame. On twos; panning camera, then shaking camera, one cut.
 
 (9) s0177 조각 0–20장 (21장)
-  원 캡션: nkmr_fx, Green beams at 3-4, orange at 12, purple at 16-17, pink at 22-24 and yellow at 27 leave colored afterimages between inserts. The camera pulls back through 35. Black 36 and white 37 precede distant cut 38 with radial strokes. Mixed holds/ones/twos; two cuts.
-  조각 캡션: nkmr_fx, Beam in shifting colors (green, orange, purple) with a white core and streaky bands appears at 3-4, 12 and 16-17. Afterimage in shifting colors (green, orange, pink) with layered outlines lingers at 6-7 and 14-15. Impact frame in shifting colors (black, green, orange) with a radial spread peaks at 5 and 13. Mixed ones and twos, 2-frame holds at 0-1, 6-7, 14-15 and 18-19; panning camera, then camera pulls back, one cut.
+  원 캡션: nkmr_fx, Green beams at 3-4 precede a lime-green insert at 5. Orange at 12, purple at 16-17, pink at 22-24 and yellow at 27 leave colored afterimages between inserts. The camera gradually pulls back through 35. Black 36 and white 37 precede distant cut 38 with radial strokes. Mixed holds/ones/twos; two cuts.
+  조각 캡션: nkmr_fx, Green beams at 3-4 precede a lime-green insert at 5. Afterimage in shifting colors (green, orange, pink) with layered outlines lingers at 6-7 and 14-15. Mixed ones and twos, 2-frame holds at 0-1, 6-7, 14-15 and 18-19; panning camera, then camera pulls back, one cut.
 
 (10) s0177 조각 22–42장 (21장)
   원 캡션: (위와 같음)
-  조각 캡션: nkmr_fx, The camera pulls back through 13. Black 14 and white 15 precede distant cut 16 with radial strokes. Beam in shifting colors (green, orange, purple) with a white core and streaky bands appears at 0-2 and 5. Afterimage in shifting colors (green, orange, pink) with layered outlines lingers at 0, 4 and 7. White speed lines with a pale cyan rim and a radial spread expand at 11-13; linger at 16-20, continuing past the end. On ones, 2-frame hold at 8-9; panning camera, then camera pulls back, two cuts, new shot at 16.
+  조각 캡션: nkmr_fx, The camera gradually pulls back through 13. Black 14 and white 15 precede distant cut 16 with radial strokes. Beam in shifting colors (green, orange, purple) with a white core and streaky bands appears at 0-2 and 5. Afterimage in shifting colors (green, orange, pink) with layered outlines lingers at 0, 4 and 7. White speed lines with a pale cyan rim and a radial spread expand at 11-13; linger at 16-20, continuing past the end. On ones, 2-frame hold at 8-9; panning camera, then camera pulls back, two cuts, new shot at 16.
 
 (11) s0185 조각 18–34장 (17장)
   원 캡션: nkmr_fx, Cyan-blue cross glare contracts through 29 while brown angular fragments scatter at 0-17. A large slab passes at 16-17; blue points remain at 30-32, then only small red-orange specks through 36. Mainly twos, singles at 16-17 and 30-36; stable foreground framing, one cut.
   조각 캡션: nkmr_fx, Cyan and blue glow bloom with a white core and a radial spread is already fading at 0-11 and lingers at 12-14. Red and orange embers with particle clusters are already lingering at 0-16, continuing past the end. Mixed twos and ones; fixed camera, one cut.
 
 (12) s0194 조각 0–28장 (29장)
-  원 캡션: nkmr_fx, Monochrome inserts at 0-1 lead to cyan-yellow lightning and red rings at 2. A wider view starts at 3; figures shrink as they fly away through 6. Electrical sweeps fill the frame at 6-13. White-black inserts at 14-16 precede branching loops at 17-27 and glare at 28. Mostly ones; tracking, two cuts.
-  조각 캡션: nkmr_fx, Monochrome inserts at 0-1 lead to cyan-yellow lightning and red rings at 2. A wider view starts at 3; figures shrink as they fly away through 6. Electrical sweeps fill the frame at 6-13. White-black inserts at 14-16 precede branching loops at 17-27 and glare at 28. Mostly ones; tracking, two cuts.
+  원 캡션: nkmr_fx, Monochrome inserts at 0-1 lead to cyan-yellow lightning and red rings at 2. A wider view starts at 3. Figures move rapidly through unchanged framing at 6-9 amid electrical sweeps at 6-13. White-black inserts at 14-16 precede branching loops at 17-27 and glare at 28. Mostly ones; fixed framing and tracking, two cuts.
+  조각 캡션: nkmr_fx, Monochrome inserts at 0-1 lead to cyan-yellow lightning and red rings at 2. A wider view starts at 3. Figures move rapidly through unchanged framing at 6-9 amid electrical sweeps at 6-13. White-black inserts at 14-16 precede branching loops at 17-27 and glare at 28. Mostly ones; fixed framing and tracking, two cuts.
 
 (13) s0210 조각 0–28장 (29장)
-  원 캡션: nkmr_fx, Monochrome hatching fades into a white hold at 11-15. Black marks return at 16; radial strokes burst at 21-23, and a displaced black afterimage separates at 26-28. Ones except the white hold; camera unclear, one cut.
-  조각 캡션: nkmr_fx, Monochrome hatching fades into a white hold at 11-15. Black marks return at 16; radial strokes burst at 21-23, and a displaced black afterimage separates at 26-28. Ones except the white hold; camera unclear, one cut.
+  원 캡션: nkmr_fx, Monochrome hatching fades into a white hold at 11-15. A new composition begins at 16 within the monochrome emphasis. Black marks return at 16; radial strokes burst at 21-23, and a displaced black afterimage separates at 26-28. Ones except the white hold; camera unclear, two cuts.
+  조각 캡션: nkmr_fx, Monochrome hatching fades into a white hold at 11-15. A new composition begins at 16 within the monochrome emphasis. Black marks return at 16; radial strokes burst at 21-23, and a displaced black afterimage separates at 26-28. Ones except the white hold; camera unclear, two cuts.
 
 (14) s0257 조각 27–51장 (25장)
   원 캡션: nkmr_fx, Orange impact rays at 0-7 give way to tan dust, tumbling brown debris and fading embers. Large rocks cross the foreground at 34-55; smaller chips and sparks persist through 79. Twos while the camera tracks. A changed rear framing at 80 forms a final one-frame cut without clear effects; two cuts.
@@ -138,6 +147,6 @@ GPT 수정본을 받아 대조했고, Claude 몫인 조각 캡션 생성기 재�
   원 캡션: nkmr_fx, A long black-white emphasis at 9-15 grows a white burst, swaps sharp strokes and ends yellow. Actual view changes at 16: blue-white bolts clear by 23, then a yellow-orange jet emerges at 24-34. Early twos then ones; pullback and tracking push-in, two cuts.
   조각 캡션: nkmr_fx, A long black-white emphasis at 9-15 grows a white burst, swaps sharp strokes and ends yellow. Blue-white lightning with a white core and a blue rim and angular spikes appears at 16, continuing past the end. Yellow and orange glow bloom with round billows lingers at 16, continuing past the end. Mixed ones and twos; mixed camera moves (pulls back, panning, pushes in), two cuts, new shot at 16.
 
-[5] 사용자 심판
-미결 4건의 사용자 판정은 아직 오지 않았습니다. 판정이 오면 전달하겠습니다.
+[5] 다음 순서
+표본 검토 답을 받으면 생성기를 고치고, 학습 자료(조각 영상과 캡션)를 한 번에 다시 만들어 검사하겠습니다. 원본은 지금 미리 받아 두고 있습니다.
 ```
