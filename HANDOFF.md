@@ -8,7 +8,7 @@
 GPT와 Claude는 각자 잘하는 일을 한다(AGENTS '다 GPT에 맡기지 말 것'). GPT = 시트 눈 판정·태깅, Claude = 측정·처리·검증·학습 준비·1차 평가.
 
 ## 바로 할 일 (다음 세션)
-1. **GPT↔Claude 태그 토론(다음 세션)**: 사용자가 메시지를 중계, **첫 순서 = GPT 보고**. Claude는 그 보고에 근거로 반대·인정·대안 제안. Claude 준비 자료(쟁점·입장·근거): **docs/DEBATE-SHOT-TAGS-2026-10-27.md** — GPT 보고보다 먼저 보내지 않는다. 결론이 태그를 바꾸면 GPT가 Drive 같은 파일 ID로 갱신 → Claude가 받아 대조·저장소 반영·학습 자료 재생성.
+1. **GPT↔Claude 태그 토론 진행 중**: GPT 1차 보고(5쟁점 + pilot30) 받음. Claude가 최신 Drive 태그·원본 영상으로 대조한 결과 → **docs/DEBATE-ROUND1-CLAUDE-2026-10-27.md**(s0149 27 반대·14 추가, s0177 8·18 반대, s0194 5·6 반대, s0299 41 일관성 반대, s0208·s0355 동의). **바로 할 일: 그 문서로 'GPT에게 보낼 검토 의견'(복붙용) 완성 → 사용자 전달.** 아직 GPT에 안 보냄. 측정 도구 `tools/cutcheck_*.py`.
 2. **PC 영상 LoRA 시험**: `tools/pc_wan_lora.bat` 하나(설치 → 모델 14.5GB → Drive wanlora.zip → 캐시 → Wan2.1 T2V 1.3B LoRA → 비교 영상 → C:\aisfa\wan_out.zip). 토론 결과를 기다릴 필요는 없다(바뀌어도 몇 컷). 결과 오면 Claude가 LoRA 없음/있음 1차 평가 → GPT 2차 → 사용자 최종.
 3. 앱 측정 대기(SFA 로딩 원인 가르기): `ink_12fps_slim10_alt.sfa` 로딩 시간 — 16초 근처면 '서로 다른 ID 수', 1:50 근처면 '앞 장과 ID 연속성'이 원인(docs/REF-SFA-FILE-BUILDER-2026-10-27.md 끝).
 
@@ -34,6 +34,7 @@ GPT와 Claude는 각자 잘하는 일을 한다(AGENTS '다 GPT에 맡기지 말
 - 저장소 `/home/user/ai-sfa-pc`, 브랜치 `ccr-bccf15a6-d6ee46`(주) + 세션 배정 브랜치에 같은 HEAD 푸시. 시험: `python -m unittest discover -s tests` 23개 통과(10-27 밤).
 - scratch(이번 세션): `/tmp/claude-0/-home-user/6f3d…/scratchpad`(nk_src 원본 99편, nk_shots/shots.csv, nk_sheets30·nk_sheets_all/b01–b17 시트, wanlora7 = 현재 학습 자료, gpt_merged.jsonl, fetch_any.py, musubi-tuner, venvpp = torch cpu) / `/tmp/claude-0/-home-user-ai-sfa/6f3d…/scratchpad`(slim·human SFA 시험, review/ 검사 스크립트·cut_metrics.csv, gpt_review/).
   없으면 Drive에서 복구: 원본 `01_원본영상/yutaka_nakamura_디지털/`, 시트 `02_분석자료/영상LoRA_컷/시트_전체/b01–b17`·`시트_시험30`, 학습 자료 `07_도구/PC_WanLoRA/wanlora.zip`, GPT 태그 폴더(공개) `1T2i1_QlI6D43pU4pS7TAJDtOg2uWw5us`(embeddedfolderview로 목록 → drive.usercontent 다운로드).
+- (10-27 밤 세션) rclone 미설치·`RCLONE_CONFIG_GDRIVE_TOKEN` 없음 → 공개 링크로 받음(`tools/cutcheck_drive_ls.py`로 폴더 목록, drive.usercontent 다운로드). 사용자가 환경 변수를 조정함 → 새 세션에서 rclone 인증 먼저 확인.
 - rclone `gdrive:`는 환경 변수 RCLONE_CONFIG_GDRIVE_*, 범위 drive.file(이 앱이 만든 파일만 보임). GPT가 올린 파일은 공개 링크로만.
 - 렌더(skia)는 `apt-get install libegl1 libgl1`. 디스크 여유 작음.
 

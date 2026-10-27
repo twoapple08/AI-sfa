@@ -2,7 +2,7 @@
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. 시작할 때 fetch·merge하고, 시스템이 다른 브랜치를 배정하면 같은 HEAD를 그 브랜치에도 푸시한다. **모든 답을 한국어로만 쓴다.**
 
-**읽기 순서:** AGENTS.md → HANDOFF.md(현재 우선순위·바로 할 일·막힌 것·환경) → docs/DEBATE-SHOT-TAGS-2026-10-27.md(토론 쟁점과 Claude 입장). 필요할 때만 docs/REVIEW-GPT-SHOT-TAGS-2026-10-27.md(Claude 검토), docs/GPT-REVIEW-SHOT-TAGS-2026-10-27.md(GPT 검토), docs/REF-SFA-FILE-BUILDER-2026-10-27.md(SFA 로딩·가볍게 만들기).
+**읽기 순서:** AGENTS.md → HANDOFF.md(현재 우선순위·바로 할 일·막힌 것·환경) → docs/DEBATE-SHOT-TAGS-2026-10-27.md(토론 쟁점과 Claude 입장) → **docs/DEBATE-ROUND1-CLAUDE-2026-10-27.md(GPT 1차 보고에 대한 원본 대조 결과, GPT에 보낼 의견 작성 전)**. 필요할 때만 docs/REVIEW-GPT-SHOT-TAGS-2026-10-27.md(Claude 검토), docs/GPT-REVIEW-SHOT-TAGS-2026-10-27.md(GPT 검토), docs/REF-SFA-FILE-BUILDER-2026-10-27.md(SFA 로딩·가볍게 만들기).
 
 ## 목표 한 줄
 지금은 1단계: 나카무라 이펙트 **영상** 스타일 AI(Wan2.1 T2V 1.3B LoRA). SFA 변환은 2단계.
