@@ -1,51 +1,41 @@
-# AI-sfa 현행 인수인계 — 2026-10-27
+# AI-sfa 현행 인수인계 — 2026-10-27 밤
 
-이전 인수인계(10-23–26, LoRA·움직임 시험 3–8 상세): docs/history/HANDOFF-2026-10-23-to-26.md. 새 대화 시작 문구: docs/HANDOFF-PROMPT.md.
+이전(10-27 낮까지: 오전 '벡터 자료집' 방향, ProPainter 배치, 기준작 A, 환경 상세): docs/history/HANDOFF-2026-10-27-day.md. 새 대화 시작 문구: docs/HANDOFF-PROMPT.md.
 
-## 지금 방향 (2026-10-27 저녁 사용자 결정 — 아래 이전 방향보다 우선)
-- **"꼭 SFA로 하려고 하지 말고, 먼저 나카무라 애니메이션 스타일을 따라 만드는 AI를 만들자. SFA는 그다음 로토스코핑이든 추가 패치든 하자. 너무 SFA에 바로 적용하려 했던 것 같다."** → 1단계 목표 = 나카무라식 이펙트 **영상(픽셀)** 생성 AI. SFA 변환(palette_sfa 등)은 2단계로 미룸.
-- 같은 대화의 합의: 방법을 바꾸기 전에 **성공 기준·확인 날짜**를 먼저 정하고 그 전엔 바꾸지 않는다(열흘간 큰 방향 4–5번 변경으로 어느 방법도 제대로 끝까지 못 감). Claude는 짧은 결과물(영상·시트)을 먼저 보여 준다.
-- 태깅: GPT 제안(대상×동작 단위, 그림 특징은 캡션·움직임은 프레임 구간+수치, 판정 기준, 없음/불명/미검토)을 영상 학습 캡션으로 쓴다. 수치는 자동 측정(tools/fx_atlas.py), 눈 판정은 GPT. 태깅엔 인물 지운 판이 필요 없다(인물은 '가림').
-- PC ProPainter 배치(10-27 사용자 실행): 514개 완료·실패 0, 클립당 13.8초. 품질 나쁨 — 인물 마스크 빈 장 350/514(잔상), 큰 인물(30%↑) 격자 흐림, 마스크가 로봇·흰 충격판을 잡음. 이 단계에선 필수 아님(보류).
+## 현재 우선순위
+**1단계 = 나카무라 이펙트 '영상(픽셀)' 스타일 AI** (사용자 10-27 저녁 결정: "꼭 SFA로 하려고 하지 말고 먼저 나카무라 스타일을 따라 만드는 AI, SFA는 그다음"). SFA 변환은 2단계.
+합의: 방법을 바꾸기 전에 성공 기준·확인 날짜를 먼저 정한다. 제안 기준: 같은 프롬프트 LoRA 없음/있음 비교에서 사용자가 '나카무라 같다'고 보는 쪽이 LoRA에 확실히 많으면 계속.
+GPT와 Claude는 각자 잘하는 일을 한다(AGENTS '다 GPT에 맡기지 말 것'). GPT = 시트 눈 판정·태깅, Claude = 측정·처리·검증·학습 준비·1차 평가.
 
-### 바로 할 일(영상 스타일 AI, 10-27 밤 기준)
-1. **GPT 움직임 태깅 완료·이중 검토(10-27 밤)**: Claude 검토(docs/REVIEW-GPT-SHOT-TAGS-2026-10-27.md)와 GPT 검토(71컷 보완, 시험30 v2 전환)를 대조해 GPT 검토본 채택(s0177만 미결). 캡션 띄어쓰기 결함은 학습 자료에서 정규화. 이전 기록: 247컷 + 시험 30 = 277컷(data/style_kb/ai_results/gpt_SHOT_MOTION_ALL·_30). Claude 표본 점검 묶음당 2–3컷. 학습 자료 재생성: 274컷 전부 GPT 캡션(s0298은 앞뒤 조각 정리 후 16장이라 빠짐, 이펙트 없음 판정 5컷 포함·기록). **장 번호 정합(15:25, 1장 밀림 정정 15:57)**: 예전 slide 창 1,213개 중 64%가 캡션 번호와 어긋남 → 컷을 17–33장(4N+1) 조각 479개(11,299장)로 나누고 tools/caption_window.py로 조각 기준 번호 재작성, dataset.toml은 frame_extraction=full·max_frames=33(musubi 설정 해석기로 확인). wanlora.zip 같은 Drive ID에 덮어씀. pc_wan_lora_run.py 비교 프롬프트를 GPT 캡션 문체로 바꿈.
-2. **PC방 영상 LoRA 시험(10-28, 5060 4시간)**: tools/pc_wan_lora.bat 하나(설치 → 모델 14.5GB HF → Drive wanlora.zip(ID 1YdosWijIlDx0vaTvIxos8rhlkY3CRH8m, 공유 '링크 있는 모든 사용자' 필요 — Claude가 공유 권한 변경은 자동 검토 거절) → tools/pc_wan_lora_run.py: 캐시 → Wan2.1 T2V 1.3B LoRA(fp8_base, 일찍 실패 시 blocks_to_swap 15→29, 150스텝마다 저장) → 프롬프트 4개 LoRA 없음/있음 33장 24fps → C:\aisfa\wan_out.zip). **서버에서 musubi-tuner 실행 시험은 못 함(외부 코드 실행 자동 검토 거절)** — 명령 인자는 소스(커밋 f8a1b037)와 대조만.
-3. 확인 기준(사용자와 합의 전 제안): 10-29까지 같은 프롬프트 LoRA 없음/있음 비교에서 사용자가 '나카무라 같다'고 보는 쪽이 LoRA에 확실히 많으면 계속.
-- 자료: 나카무라 클립 671 → 원본 컷 단위 438구간(data/style_kb/nk_shots_rough_2026-10-27.csv, 자동 컷 분리 부정확: 카메라가 매 장 움직이는 구간에서 여러 컷이 붙음 — GPT가 컷 표시) → 학습용 274컷(이펙트 있음·17장 이상, 인물 있는 컷 포함, 캡션 전부 GPT 움직임 태그) → 조각 479개 11,299장 512×288 24fps(source_fps 안 씀: 2·3장 리듬 보존).
-- 서버 scratch(컨테이너 바뀌면 사라짐): nk_src(원본 99편), nk_shots, nk_sheets30, wanlora(+zip), ppb_in/ppb_res(ProPainter), exA(기준작 A v2·v3), pp_src·venvpp(ProPainter CPU), musubi-tuner.
+## 바로 할 일 (다음 세션)
+1. **GPT↔Claude 태그 토론**(사용자가 메시지를 중계): 쟁점·근거는 **docs/DEBATE-SHOT-TAGS-2026-10-27.md**. 규칙: 반대할 건 근거(시트 장 번호·측정값)로 반대, 맞는 건 인정, 더 나은 방법이 있으면 찾아 제안. 결론이 태그를 바꾸면 GPT가 Drive 같은 파일 ID로 갱신 → Claude가 받아 대조·저장소 반영·학습 자료 재생성.
+2. **PC 영상 LoRA 시험**: `tools/pc_wan_lora.bat` 하나(설치 → 모델 14.5GB → Drive wanlora.zip → 캐시 → Wan2.1 T2V 1.3B LoRA → 비교 영상 → C:\aisfa\wan_out.zip). 토론 결과를 기다릴 필요는 없다(바뀌어도 몇 컷). 결과 오면 Claude가 LoRA 없음/있음 1차 평가 → GPT 2차 → 사용자 최종.
+3. 앱 측정 대기(SFA 로딩 원인 가르기): `ink_12fps_slim10_alt.sfa` 로딩 시간 — 16초 근처면 '서로 다른 ID 수', 1:50 근처면 '앞 장과 ID 연속성'이 원인(docs/REF-SFA-FILE-BUILDER-2026-10-27.md 끝).
 
-## 이전 방향 (2026-10-27 오전)
-- **GPT 계획 채택**(docs/GPT-FX-PLAN-2026-10-27.md, 바탕 docs/GPT-FRESH-SESSION-2026-10-27.md): 이펙트의 시간 변화·형태를 함께 기록하는 **벡터 자료집 → 검색·변형 생성기 → 필요한 부분부터 학습**. 순서: ① 렌더러 제약 시험표 ✅ → ② 폭발 복원 기준작 A(진행 중) → ③ 새 폭발 B0/B1 → ④ 벡터 시퀀스 검색 생성기 → ⑤ 선택·시간·형태 보정 모델.
-- **중단**: 영상·그림 모델이 그림체·배경·움직임을 한꺼번에 생성하는 시험(움직임 시험 3–8, docs/DECISIONS-2026-10-26.md). 사용자 "솔직히 전부 짜쳐". LoRA는 그림을 흐리게·파편 적게 바꿀 뿐 형태를 못 배움(시험 8).
-- 품질 천장 시험: 실제 나카무라 장면을 옛 변환기로 옮기면 각진 평면색이 둥근 10단계 덩어리로, 번개 선이 면으로 → 변환기부터 고침.
-- 원칙(AGENTS): 3D 금지, (24,24) 직접 그리기, 글로우·투명도가 핵심, 곡선 원칙 = 픽셀당 오브젝트 비효율 방지(픽셀→SFA 경로 자체는 OK), 채색(캐릭터)은 보류, GPT는 유리하면 언급 없어도 이용.
+## 막힌 것
+- wanlora.zip(Drive ID `1YdosWijIlDx0vaTvIxos8rhlkY3CRH8m`, 10-27 18:19 갱신) 공유가 '링크 있는 모든 사용자'인지 **미확인**. Claude의 공유 권한 변경은 자동 검토 거절 → 사용자가 설정.
+- 서버엔 GPU 없음, musubi-tuner 실행 시험은 자동 검토 거절(설정 해석기 파싱만 확인). PC 사용 가능 시간은 사용자에게 확인.
 
-## 확인된 사실 (2026-10-27)
-- **앱은 소수점 글로우 값(`GlowRadius="20.0"`)이면 글로우를 끈다** → 정수로 써야 함 [앱 내보내기 확인]. effect_clip_sfa·glow_fit·glow_testgrid·palette_sfa 정수로 고침. **10-26 이전에 만든 SFA의 글로우는 앱에서 꺼져 있었다.**
-- 안 보이는 선은 색 알파 0(알파 10은 글로우 가운데 검은 줄).
-- **서버 렌더러(tools/sfa_render.py) ≈ 앱**: 시험표 1–6장 평균 차 0.2–0.7 [앱 확인]. 글로우 띠 폭 = 8·굵기·두께/10, 흐림 ≈ 반경.
-- **SFA 로딩 시간은 '서로 다른 AO ID 수'가 좌우한다**: 가져오기가 새 AO ID마다 DB 객체를 만든다. 장마다 새 ID인 변환본(slim10, 곡선 104,657) 1:50 → 장 사이 ID 재사용(`tools/sfa_reuse_ids.py`, 새 객체 1,781) **16초** [앱 확인 10-27], 앱 내보내기 영상도 원본과 평균 차 0.36(서버≈앱 기준치 안). 변환기 출력은 기본으로 ID 재사용(그리는 순서 j번째에 같은 ID, 같은 ID의 TypeId·점 수 고정, 트위닝은 끄거나 tween=playback). 근거·표: docs/REF-SFA-FILE-BUILDER-2026-10-27.md
-- **정정(10-27 밤): 'cv2 set(POS_FRAMES, a)는 a+1을 준다'는 예전 결론이 틀렸다.** 원본 12편 29컷 중 27컷은 a 그대로. 학습 자료가 시트(=GPT 장 번호)보다 대부분 1장 밀려 있었다(266/274컷, 조각 끝에 다음 컷 1장 섞임). wan_lora_dataset.sheet_offset으로 컷마다 탐색 첫 장과 같은 차례 장을 찾아 맞춤(off 0:266·1:8·2:2, 일치 오차 0) → 조각 479개 중 첫 장이 시트와 일치 459, 같은 그림이라 구분 불가 19, 애매 1(s0051_c0). rhythm_check도 같은 보정 후 결론 같음.
-- ProPainter(영상 인페인팅)가 LaMa보다 메운 자리를 원래 불 모양·바위 경계로 이어 준다(불 벽 32장, PC 5060) [서버 비교].
+## 상태 (10-27 밤, 검증 범위 표시)
+- **태그**: 277컷(시험 30 + b01–b17) 전부 v2. Claude 독립 검토(docs/REVIEW-GPT-SHOT-TAGS-2026-10-27.md)와 GPT 독립 검토(docs/GPT-REVIEW-SHOT-TAGS-2026-10-27.md, 71컷 보완)를 대조해 **GPT 검토본 채택**. 독립 일치: s0208 과분할 수정, 시험 30 재작성. 저장소 `data/style_kb/ai_results/gpt_SHOT_MOTION_ALL·_30_2026-10-27.jsonl`(GPT 원본 그대로), 검토 기록 `…_review_log_…`.
+  GPT 검토본 결함: 고친 캡션 39개 숫자 앞 띄어쓰기 누락 → `caption_window.normalize`로 학습 자료에서만 정규화.
+- **학습 자료**: `tools/wan_lora_dataset.py` → 274컷 → 17–33장(4N+1) 조각 479개 11,323장 512×288 24fps, 캡션 장 번호는 조각 기준(`tools/caption_window.py`), `frame_extraction="full"`·`max_frames=33`(musubi 설정 해석기로 확인). 검사: 조각 밖 번호 0, 붙은 숫자 0, 내용 빠진 조각 1, 첫 장–시트 일치 459/479(19 같은 그림, 1 애매) [서버 측정].
+- **정정**: 'cv2 set(POS_FRAMES,a)는 a+1' 결론이 틀렸다(29컷 중 27컷 a 그대로). 시트 위치는 컷마다 측정(`sheet_offset`). 그 전 학습 자료는 266/274컷이 1장 밀려 있었다.
+- **비교 프롬프트**: `tools/pc_wan_lora_run.py` PROMPTS 4개를 GPT 캡션 문체로.
 
-## 진행 중
-1. **폭발 기준작 A**: 239068(콘크리트 레볼루티오) 926–956장(31장, 957 컷). `tools/palette_sfa.py`(공통 팔레트 16색 평면 면, 각진 윤곽, 홀드 재사용) 1차 원본 차 10.66, `--glow` 2차 11.07 — 폭발 둘레 회색·황토 번짐 띠가 남음(띠 색을 색 기준으로 1개만 찾음). **다음: 띠를 위치 기준(폭발 둘레에만 얇게 나타나는 색)으로 지우고 큰 글로우가 덮게.** 결과 scratch `exA/`(A_v1·A_v2 .sfa/.mp4).
-2. **PC 배치(사용자 실행 중, 10-27)**: `tools/pc_propainter_batch.bat` → 인물 있는 나카무라 이펙트 클립 514개(인물 면적 3–30% 408개 먼저)를 ProPainter로 인물 지우기, 160분 제한·이어하기, 결과 `C:\aisfa\ppb_out.zip`(JPG 95) → 사용자가 Drive 링크 줌. 입력 Drive `07_도구/PC_ProPainter/ppb.zip`(클립 = `02_분석자료/LoRA_클립/클립/`, 마스크 = `…/인물마스크_최종/`). 설치는 `tools/pc_propainter.bat`(C:\aisfa, Python 3.11 + torch cu128).
-3. 레이어 분리 도구: `tools/scene_layers.py`(배경·선화·불·번개), `tools/remove_lightning.py`(번개 + 번짐 지우고 앞뒤 장 + LaMa로 메움). 사용자: 바위와 불은 하나의 배경, 번개만 따로.
+## 확인된 사실 (SFA·앱)
+- 앱은 소수점 글로우 값이면 글로우를 끈다 → 정수 [앱 확인]. 안 보이는 선은 색 알파 0.
+- 서버 렌더러 `tools/sfa_render.py` ≈ 앱(평균 차 0.2–0.7) [앱 확인].
+- **SFA 로딩**: 장마다 새 AO ID인 변환본 1:50 → 장 사이 ID 재사용 16초 [앱 확인], 앱 내보내기 영상도 원본과 같음 [앱 확인]. 사람 파일 ID 압축(47,677→26,693)은 1:34→1:31로 거의 효과 없음 [앱 확인] → '서로 다른 ID 수' 단독 원인설은 약해짐, '앞 장과 ID 연속성' 가설 시험 중(위 3). 변환기 출력은 장 사이 ID 재사용을 기본으로.
+  도구: `sfa_slim.py`(겹쳐 칠하기 경계 단순화, 곡선 34%↓), `sfa_reuse_ids.py`(장마다 j번째 = 같은 ID, `--alternate` 시험), `sfa_pack_ids.py`(앱 제작 파일 ID 압축, 레이어별 순서 유지).
+- 외부 스킬 sfa-file-builder 검토(받아갈 것 6·버릴 것): docs/REF-SFA-FILE-BUILDER-2026-10-27.md. 원문·결과물은 저장소에 안 넣음.
 
-## 바로 할 일
-1. PC 배치 결과 받기 → 깨끗한 이펙트 판을 기준작·자료집 재료로(서버에 받아 시트로 확인).
-2. 기준작 A 번짐 띠 처리(위 1) → 사용자 앱 확인 → 같은 폭발 종류 다른 장면에 적용(단계별: 폭발 → 번개(선+글로우) → 연기(반투명) → 파편).
-3. 벡터 자료집 형식 설계(GPT 1번 답: 레이어별 도형 + 덩어리 생성·분열·소멸 관계 + 프레임별 변화 + 관측 신뢰도).
-
-## 환경
-- **PC방 PC(2026-10-27 오늘·내일 각 4시간, 이후 5060 못 씀)**: RTX 5060 8GB, RAM 31.6GB, CPU 4.41GHz, C 52GB 여유(작업 C:\aisfa), D(LV-MA)는 공유 드라이브로 보여 안 씀. 재부팅 시 초기화 가능 → 결과는 바로 Drive. 계정·토큰 남기지 않음.
-- 학교 PC: GTX 1050 Ti 4GB. Kaggle/Colab T4는 무료로 가끔.
-- 서버(GPU 없음): scratch `/tmp/claude-0/…/scratchpad`(컨테이너 바뀌면 사라짐) — `exA/`(기준작 A), `mha/`(히어로즈 라이징 280456 불 벽, lay·rl2), `ppres/`(ProPainter 결과), `pmask/`(인물 마스크 728), `grid2/`(시험표·앱 영상), `models/big-lama.pt`, `venv313`(torch cpu·simple-lama). rclone은 `tools/codex_setup.sh`(환경 변수 `RCLONE_GDRIVE_AUTH_B64`); 렌더(skia)는 `apt-get install libegl1 libgl1`.
-- 원본 영상: Drive `01_원본영상/yutaka_nakamura_디지털/<post>_<연도>_완성.mp4`(854×480, 23.976fps).
-- 브랜치: `ccr-bccf15a6-d6ee46`(주) + 세션이 배정한 브랜치에 같은 HEAD 푸시. 푸시 전 fetch·merge.
-- 디스크 여유가 작다(약 4GB). Drive에 사본 있는 큰 파일만 지운다.
+## 환경 (컨테이너 바뀌면 scratch 사라짐)
+- 저장소 `/home/user/ai-sfa-pc`, 브랜치 `ccr-bccf15a6-d6ee46`(주) + 세션 배정 브랜치에 같은 HEAD 푸시. 시험: `python -m unittest discover -s tests` 23개 통과(10-27 밤).
+- scratch(이번 세션): `/tmp/claude-0/-home-user/6f3d…/scratchpad`(nk_src 원본 99편, nk_shots/shots.csv, nk_sheets30·nk_sheets_all/b01–b17 시트, wanlora7 = 현재 학습 자료, gpt_merged.jsonl, fetch_any.py, musubi-tuner, venvpp = torch cpu) / `/tmp/claude-0/-home-user-ai-sfa/6f3d…/scratchpad`(slim·human SFA 시험, review/ 검사 스크립트·cut_metrics.csv, gpt_review/).
+  없으면 Drive에서 복구: 원본 `01_원본영상/yutaka_nakamura_디지털/`, 시트 `02_분석자료/영상LoRA_컷/시트_전체/b01–b17`·`시트_시험30`, 학습 자료 `07_도구/PC_WanLoRA/wanlora.zip`, GPT 태그 폴더(공개) `1T2i1_QlI6D43pU4pS7TAJDtOg2uWw5us`(embeddedfolderview로 목록 → drive.usercontent 다운로드).
+- rclone `gdrive:`는 환경 변수 RCLONE_CONFIG_GDRIVE_*, 범위 drive.file(이 앱이 만든 파일만 보임). GPT가 올린 파일은 공개 링크로만.
+- 렌더(skia)는 `apt-get install libegl1 libgl1`. 디스크 여유 작음.
 
 ## 보호
-원본 영상·다른 작가 그림에서 뗀 형태·변환 결과 SFA/mp4·학습 자료·가중치는 저장소에 넣지 않는다(Drive·scratch만). 사용자가 준 SFA는 scratch `usfa/`만. 토큰·키 출력 금지. Drive 삭제는 사용자 승인 후.
+원본 영상·다른 작가 그림에서 뗀 형태·변환 결과 SFA/mp4·학습 자료·가중치·다른 사람 SFA/스킬 원문은 저장소에 넣지 않는다(Drive·scratch만). 토큰·키 출력 금지. Drive 삭제는 사용자 승인 후. 3D 금지, SFA 글로우 정수, 24fps 리듬 보존.
