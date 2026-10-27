@@ -224,7 +224,7 @@ def _describe(t):
     extra = [_a(f'{c} {p}') for c, p in parts]
     sh = [SHAPE[x] for x in t.get('shape', []) if x in SHAPE][:1]
     if extra or sh:
-        d += ' with ' + ' and '.join(extra + sh)
+        d += (' and ' if ' with ' in name else ' with ') + ' and '.join(extra + sh)  # 'blue gush with particles' 뒤 with 겹침 방지
     return d
 
 
