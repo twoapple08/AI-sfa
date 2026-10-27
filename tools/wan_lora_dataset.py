@@ -9,6 +9,8 @@
   이 밀린 기준(시트 k = 원본 a+1+k)이다. 여기서는 원본을 처음부터 순서대로 읽어, GPT 태그가 있으면 시트 기준 그대로 맞추고
   GPT 컷 경계로 앞뒤 1–2장 옆 컷 조각을 자르며(가장 긴 컷 구간 묶음 유지), 태그가 없으면 원본 a..b(검출 컷 그대로)를 쓴다.
   GPT가 이펙트 없음으로 본 컷도 빼지 않고 넣는다(사용자 10-27: 애니메이션 스타일 전체가 목표, 옛 태그와 판정이 엇갈림) → no_effect_shots.csv에 기록.
+- 조각(10-27 밤, 기본 --chunk 33): 예전 slide(17·33장 창, 12장 간격)는 창 1,213개 중 64%가 0번이 아닌 장에서 시작해 캡션 장 번호와 어긋났다.
+  이제 컷을 17–33장(4N+1) 조각으로 고르게 나누고 caption_window.rewrite로 조각 기준 번호를 다시 매기며, 학습은 조각 통째(full, max_frames).
 원본 그림이므로 결과는 Drive·scratch만(저장소에는 이 도구와 목록만).
 사용: python tools/wan_lora_dataset.py <원본 폴더> <shots.csv> <out 폴더> [--gpt gpt_SHOT_MOTION.jsonl] [--size 512 288]
 """
@@ -22,6 +24,7 @@ import cv2
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lora_captions import caption  # noqa: E402
+from caption_window import rewrite  # noqa: E402
 
 TAGS = "data/style_kb/ai_results/gpt_LORA_TAGS_2026-10-25.csv"
 
@@ -34,10 +37,10 @@ enable_bucket = false
 [[datasets]]
 video_directory = "{root}/video"
 cache_directory = "{root}/cache"
-target_frames = [17, 33]
-frame_extraction = "slide"
-frame_stride = 12
+{extract}
 """
+SLIDE = 'target_frames = [17, 33]\nframe_extraction = "slide"\nframe_stride = 12'
+FULL = 'frame_extraction = "full"\nmax_frames = {chunk}'
 
 
 _CACHE = {}
@@ -67,6 +70,7 @@ def main():
     ap.add_argument("--size", type=int, nargs=2, default=[512, 288])
     ap.add_argument("--min", type=int, default=17)
     ap.add_argument("--exclude", default="", help="쉼표로 뺄 컷 id(예: 움직임 없는 홀드 컷)")
+    ap.add_argument("--chunk", type=int, default=33, help="컷을 17..이 값(4N+1)장 조각으로 나눠 조각마다 캡션 장 번호를 다시 매김(full 추출). 0이면 예전 slide")
     a = ap.parse_args()
     tags = {r["클립"]: r for r in csv.DictReader(open(TAGS, encoding="utf-8"))}
     gcap, gobj = {}, {}
@@ -102,28 +106,42 @@ def main():
             k0, k1 = segs[0][0], segs[-1][1]
             s0, s1 = int(s["시작"]) + 1 + k0, int(s["시작"]) + 1 + k1
         else:
+            k0 = None
             s0, s1 = int(s["시작"]), int(s["끝"])
         if s1 - s0 + 1 < a.min:
             continue
         frames = read_range(os.path.join(a.src, s["원본"]), s0, s1, a.size)
-        vw = cv2.VideoWriter(os.path.join(vd, s["id"] + ".mp4"), cv2.VideoWriter_fourcc(*"mp4v"), 24.0, tuple(a.size))
-        k = 0
-        for f in frames:
-            vw.write(f)
-            k += 1
-        vw.release()
-        open(os.path.join(vd, s["id"] + ".txt"), "w", encoding="utf-8").write(cap)
-        rows.append((s["id"], k, "gpt" if s["id"] in gcap else "old_tags", cap))
+        L = len(frames)
+        if a.chunk:  # 조각: 고르게 나눠 각 4N+1장(17..chunk), 캡션 번호는 조각 기준
+            m = -(-L // a.chunk)
+            starts = [round(i * L / m) for i in range(m)] + [L]
+            pieces = [(starts[i], (starts[i + 1] - starts[i] - 1) // 4 * 4 + 1) for i in range(m)]
+        else:
+            pieces = [(0, L)]
+        for ci, (st, ln) in enumerate(pieces):
+            if ln < a.min:
+                continue
+            name = s["id"] if len(pieces) == 1 and not a.chunk else f'{s["id"]}_c{ci}'
+            c = cap
+            if a.chunk and g is not None:
+                c = rewrite(cap, k0 + st, k0 + st + ln - 1, g["cuts"])
+            vw = cv2.VideoWriter(os.path.join(vd, name + ".mp4"), cv2.VideoWriter_fourcc(*"mp4v"), 24.0, tuple(a.size))
+            for f in frames[st:st + ln]:
+                vw.write(f)
+            vw.release()
+            open(os.path.join(vd, name + ".txt"), "w", encoding="utf-8").write(c)
+            rows.append((name, ln, "gpt" if s["id"] in gcap else "old_tags", c))
+            fr_total += ln
         n += 1
         ng += s["id"] in gcap
-        fr_total += k
-    open(os.path.join(a.out, "dataset.toml"), "w", encoding="utf-8").write(TOML.format(w=a.size[0], h=a.size[1], root="DATA_ROOT"))
+    ext = FULL.format(chunk=a.chunk) if a.chunk else SLIDE
+    open(os.path.join(a.out, "dataset.toml"), "w", encoding="utf-8").write(TOML.format(w=a.size[0], h=a.size[1], root="DATA_ROOT", extract=ext))
     with open(os.path.join(a.out, "captions.csv"), "w", newline="", encoding="utf-8") as fh:
         csv.writer(fh).writerows([("shot", "frames", "caption_from", "caption")] + rows)
     with open(os.path.join(a.out, "no_effect_shots.csv"), "w", newline="", encoding="utf-8") as fh:
         csv.writer(fh).writerows([("shot", "old_tag_이펙트")] + no_fx)
     print(f"GPT 이펙트 없음(포함함) {len(no_fx)}: {[x[0] for x in no_fx]}")
-    print(f"컷 {n} 장 {fr_total} | GPT 캡션 {ng}, 옛 태그 캡션 {n - ng} | {a.size[0]}x{a.size[1]} 24fps")
+    print(f"컷 {n} 조각 {len(rows)} 장 {fr_total} | GPT 캡션 컷 {ng}, 옛 태그 캡션 컷 {n - ng} | {a.size[0]}x{a.size[1]} 24fps")
 
 
 if __name__ == "__main__":

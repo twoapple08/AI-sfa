@@ -2,7 +2,7 @@
 """PC방 5060(8GB): Wan2.1 T2V 1.3B 나카무라 스타일 LoRA — 캐시 → 학습(시간 제한) → 학습 전/후 비교 영상 → zip (2026-10-27).
 
 사용자 결정(10-27 저녁): SFA보다 먼저 나카무라 스타일 영상 AI. 첫 시험은 '이 PC에서 영상 LoRA 학습이 되는지 + LoRA가 화풍·움직임을 바꾸는지'.
-학습 도구: kohya-ss/musubi-tuner(고정 커밋, pc_wan_lora.bat가 받음). 자료: wanlora.zip(tools/wan_lora_dataset.py, 274컷 12,013장 512×288 24fps, 캡션 전부 GPT 움직임 태그).
+학습 도구: kohya-ss/musubi-tuner(고정 커밋, pc_wan_lora.bat가 받음). 자료: wanlora.zip(tools/wan_lora_dataset.py, 274컷 → 17–33장 조각 479개 11,299장 512×288 24fps, 캡션 전부 GPT 움직임 태그·조각 기준 장 번호, full 추출).
 메모리: DiT fp8(--fp8_base) + gradient checkpointing, 처음 몇 분 안에 실패하면 블록 교체(--blocks_to_swap)를 늘려 다시.
 시간: --minutes 안에 학습을 끊고(150스텝마다 저장) 남은 시간에 비교 영상을 만든다. 서버에서는 실행 시험을 못 했다(외부 코드 실행 거절) — 명령 형식은 소스 대조만.
 사용: python pc_wan_lora_run.py <작업 폴더 C:\\aisfa\\wan> --minutes 170
