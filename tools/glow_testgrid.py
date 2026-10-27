@@ -23,7 +23,7 @@ import zipfile
 
 W, H = 1920, 1080
 ORANGE, YELLOW, RED, CYAN, WHITE = 0xFFFF8020, 0xFFFFE040, 0xFFFF2020, 0xFF40E0FF, 0xFFFFFFFF
-INVIS = 0x0A000000  # 사용자 파일 '배'의 안 보이는 선 색(알파 10, 검정)
+INVIS = 0x0A000000  # 사용자 파일 '배'의 안 보이는 선 색(알파 10, 검정). 2차 앱 시험: 알파 0도 글로우가 나오고, 10은 검은 줄이 비쳐 0이 낫다
 
 
 class Writer:
