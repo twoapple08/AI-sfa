@@ -26,7 +26,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lora_captions import caption  # noqa: E402
-from caption_window import content_poor, rewrite, targets_sentence  # noqa: E402
+from caption_window import content_poor, normalize, rewrite, targets_sentence  # noqa: E402
 
 TAGS = "data/style_kb/ai_results/gpt_LORA_TAGS_2026-10-25.csv"
 
@@ -97,7 +97,7 @@ def main():
             if line.startswith("{"):
                 d = json.loads(line)
                 if d.get("caption_en"):
-                    gcap[d["shot"]] = d["caption_en"]
+                    gcap[d["shot"]] = normalize(d["caption_en"])
                     gobj[d["shot"]] = d
     vd = os.path.join(a.out, "video")
     os.makedirs(vd, exist_ok=True)

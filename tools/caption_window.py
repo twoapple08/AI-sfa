@@ -13,7 +13,8 @@ import re
 
 NUM = re.compile(r'(?<![\w.])(\d+)(?:\s*[-–]\s*(\d+))?(?!\w|\.\d)')
 WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
-CUTS = re.compile(r'\b(?:(one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(?:actual\s+|real\s+)?cuts?)\b', re.I)
+# 컷 수는 구절 끝('…, two cuts.')만. 'at 0 cuts to …'(0번에서 장면 전환) 같은 동사 'cuts'는 건드리지 않는다
+CUTS = re.compile(r'\b(?:(one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(?:actual\s+|real\s+)?cuts?)(?=\s*(?:[.;,]|$))', re.I)
 
 
 def _clause(c, w0, w1):
@@ -137,3 +138,8 @@ def targets_sentence(shot, w0, w1):
         return ''
     s = ' and '.join(f'{n} {v}' for n, v in out)
     return s[0].upper() + s[1:] + f' at 0-{w1 - w0}.'
+
+
+def normalize(cap):
+    """GPT 검토본(10-27 밤) 캡션 39개에서 숫자 앞 띄어쓰기가 빠짐('at0-39', 'ones8-13') → 글자 바로 뒤 숫자 앞에 공백."""
+    return re.sub(r'(?<=[A-Za-z])(?=\d)', ' ', cap)
