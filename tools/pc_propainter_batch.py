@@ -4,7 +4,7 @@
 GPT 계획 4단계(레이어 분리: 분할 + 배경 메우기). 불 벽 시험에서 ProPainter가 LaMa보다 원래 불 모양·바위 경계를 이어 메웠다.
 입력: clips/<cid>.mp4 (LoRA 클립 781개 중 고른 것), masks/<cid>.npz (인물 마스크, tools/lora_person_mask.py --model mix 결과; mask[T,H,W/8] packbits)
 순서: order.txt (인물 면적 3–30% 먼저 — 너무 작으면 지울 게 적고 너무 크면 메울 근거가 적다)
-출력: out/<cid>/00000.png… (메운 장), log.csv (cid, 장수, 초). 이미 끝난 클립은 건너뜀(다시 실행해도 이어서).
+출력: out/<cid>/00000.jpg… (메운 장, JPG 95), log.csv (cid, 장수, 초). 이미 끝난 클립은 건너뜀(다시 실행해도 이어서).
 사용: python pc_propainter_batch.py <작업 폴더> <ProPainter 폴더> [--limit 분]
 """
 import argparse
@@ -73,6 +73,11 @@ def main():
                 csv.writer(fh).writerow([cid, T, round(sec, 1), "fail"])
             continue
         shutil.move(got, dst)
+        for fn in sorted(os.listdir(dst)):  # PNG는 클립 500개면 약 3GB → JPG 95(약 1/4)로 Drive 올리기 쉽게
+            if fn.endswith(".png"):
+                im = cv2.imread(os.path.join(dst, fn))
+                cv2.imwrite(os.path.join(dst, fn[:-4] + ".jpg"), im, [cv2.IMWRITE_JPEG_QUALITY, 95])
+                os.remove(os.path.join(dst, fn))
         shutil.rmtree(tmp, ignore_errors=True)
         with open(log, "a", newline="", encoding="utf-8") as fh:
             csv.writer(fh).writerow([cid, T, round(sec, 1), "ok"])
