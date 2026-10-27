@@ -133,7 +133,7 @@ class Writer:
         self.oid += 1
         self.pid += 3
         o = [f'<AO ID="{oid}" TypeId="3" Color="{color}" LayerId="{layer}" DrawOrder="{oid}" ThicknessScale="{ts:.3f}" ObjectScale="1.0" '
-             f'GlowRadius="{gr:.1f}" GlowThickness="{gt:.1f}" GlowColor="{gc}" GlowAlpha="{ga:.1f}">']
+             f'GlowRadius="{round(gr)}" GlowThickness="{round(gt)}" GlowColor="{gc}" GlowAlpha="{round(ga)}">']
         for i, (x, y) in enumerate((seg[0:2], seg[2:4], seg[4:6])):
             link = links[0] if i == 0 else links[1] if i == 2 else None
             ac = f'<AC ConnPtId="{link}"/>' if link else ""

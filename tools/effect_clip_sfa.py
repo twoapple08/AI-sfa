@@ -52,7 +52,7 @@ class Writer:
         self.pid += 3
         gr, gt, gc, ga = glow if glow else (0.0, 0.0, 4294967295, 0.0)
         out.append(f'<AO ID="{oid}" TypeId="3" Color="{color}" LayerId="{layer}" DrawOrder="{oid}" ThicknessScale="{ts:.3f}" '
-                   f'ObjectScale="1.0" GlowRadius="{gr:.1f}" GlowThickness="{gt:.1f}" GlowColor="{gc}" GlowAlpha="{ga:.1f}">')
+                   f'ObjectScale="1.0" GlowRadius="{round(gr)}" GlowThickness="{round(gt)}" GlowColor="{gc}" GlowAlpha="{round(ga)}">')
         for i, (x, y) in enumerate(((x0, y0), (cx, cy), (x1, y1))):
             out.append(f'<AP ID="{p + i}" Flags="5" Index="{i}" X="{(x + self.xoff) / W * 100:.3f}" Y="{y / H * 100:.3f}" />')
         out.append('</AO>')

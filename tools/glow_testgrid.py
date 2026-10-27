@@ -23,19 +23,23 @@ import zipfile
 
 W, H = 1920, 1080
 ORANGE, YELLOW, RED, CYAN, WHITE = 0xFFFF8020, 0xFFFFE040, 0xFFFF2020, 0xFF40E0FF, 0xFFFFFFFF
+INVIS = 0x0A000000  # 사용자 파일 '배'의 안 보이는 선 색(알파 10, 검정)
 
 
 class Writer:
     def __init__(self):
         self.oid, self.pid, self.out = 1, 1, []
 
-    def curve(self, pts, color, ts, glow=(0, 0, 0xFFFFFFFF, 0), links=(None, None)):
+    def curve(self, pts, color, ts, glow=(0, 0, 0xFFFFFFFF, 0), links=(None, None), floatfmt=False):
+        """글로우 값은 정수로 쓴다: 1차 앱 시험(2026-10-27)에서 '20.0'처럼 소수점을 붙인 파일은 글로우가 전혀 안 나왔다
+        (사용자 파일 '배'는 GlowRadius="28" 같은 정수). floatfmt=True는 그 비교용."""
         gr, gt, gc, ga = glow
+        f = (lambda v: f"{v:.1f}") if floatfmt else (lambda v: str(round(v)))
         oid, p = self.oid, self.pid
         self.oid += 1
         self.pid += 3
         o = [f'<AO ID="{oid}" TypeId="3" Color="{color}" LayerId="0" DrawOrder="{oid}" ThicknessScale="{ts:.3f}" ObjectScale="1.0" '
-             f'GlowRadius="{gr:.1f}" GlowThickness="{gt:.1f}" GlowColor="{gc}" GlowAlpha="{ga:.1f}">']
+             f'GlowRadius="{f(gr)}" GlowThickness="{f(gt)}" GlowColor="{gc}" GlowAlpha="{f(ga)}">']
         for i, (x, y) in enumerate(pts):
             link = links[0] if i == 0 else links[1] if i == 2 else None
             ac = f'<AC ConnPtId="{link}"/>' if link else ""
@@ -77,17 +81,17 @@ def main():
         wr = frame()
         for r, ts in enumerate(tss):
             for c, gt in enumerate(gts):
-                grid(wr, 4, 3, r, c, WHITE if vis else 0, ts, (10, gt, ORANGE, 255),
+                grid(wr, 4, 3, r, c, WHITE if vis else INVIS, ts, (10, gt, ORANGE, 255),
                      dict(block="A" if vis else "B", 굵기=ts, 글로우두께=gt, 반경=10, 알파=255, 선="보임" if vis else "안 보임"), len(frames) - 1)
     wr = frame()  # 3장 C 반경
     for c, gr in enumerate([0, 5, 20, 50, 100]):
         for r, ts in enumerate([1.0, 0.3]):
-            grid(wr, 2, 5, r, c, 0, ts, (gr, 100, ORANGE, 255), dict(block="C", 굵기=ts, 글로우두께=100, 반경=gr, 알파=255), 2)
+            grid(wr, 2, 5, r, c, INVIS, ts, (gr, 100, ORANGE, 255), dict(block="C", 굵기=ts, 글로우두께=100, 반경=gr, 알파=255), 2)
     wr = frame()  # 4장 D 알파·색
     for c, ga in enumerate([32, 64, 128, 255]):
-        grid(wr, 2, 4, 0, c, 0, 1.0, (20, 100, ORANGE, ga), dict(block="D", 굵기=1.0, 글로우두께=100, 반경=20, 알파=ga, 색="주황"), 3)
+        grid(wr, 2, 4, INVIS, c, 0, 1.0, (20, 100, ORANGE, ga), dict(block="D", 굵기=1.0, 글로우두께=100, 반경=20, 알파=ga, 색="주황"), 3)
     for c, (gc, nm) in enumerate(((YELLOW, "노랑"), (RED, "빨강"), (CYAN, "하늘"), (WHITE, "흰"))):
-        grid(wr, 2, 4, 1, c, 0, 1.0, (20, 100, gc, 255), dict(block="D", 굵기=1.0, 글로우두께=100, 반경=20, 알파=255, 색=nm), 3)
+        grid(wr, 2, 4, 1, c, INVIS, 1.0, (20, 100, gc, 255), dict(block="D", 굵기=1.0, 글로우두께=100, 반경=20, 알파=255, 색=nm), 3)
     wr = frame()  # 5장 E 반투명 면 + 테두리 글로우
     for c, a in enumerate([64, 128, 192, 255]):
         x0 = 160 + c * 300
@@ -103,8 +107,15 @@ def main():
         for _ in range(n):
             wr.rect_fill(x0, 200, x0 + 170, 600, (64 << 24) | 0xFFFFFF)
         cells.append(dict(block="F", 장=6, 흰면알파=64, 겹=n, x=round(x0 + 85), y=400))
-    wr.curve([(1300, 540), (1500, 480), (1700, 540)], 0, 1.0, (40, 300, ORANGE, 255))
+    wr.curve([(1300, 540), (1500, 480), (1700, 540)], INVIS, 1.0, (40, 300, ORANGE, 255))
     cells.append(dict(block="F", 장=6, 굵기=1.0, 글로우두께=300, 반경=40, 알파=255, 설명="'배' 파일급 큰 글로우", x=1500, y=530))
+    wr = frame()  # 7장: 원인 가르기 — 줄 1 정수·선 색 알파 0 / 줄 2 정수·알파 10 / 줄 3 소수점 형식·알파 10 / 줄 4 보이는 흰 선·소수점 형식
+    for r, (col, ff, nm) in enumerate(((0, False, "정수·투명0"), (INVIS, False, "정수·알파10"), (INVIS, True, "소수점·알파10"), (WHITE, True, "소수점·흰선"))):
+        for c, gt in enumerate([30, 100]):
+            cw, ch = W / 2, H / 4
+            cx, cy = (c + 0.5) * cw, (r + 0.5) * ch
+            wr.curve([(cx - 150, cy), (cx, cy - 30), (cx + 150, cy)], col, 1.0, (10, gt, ORANGE, 255), floatfmt=ff)
+            cells.append(dict(block="G", 장=7, 형식=nm, 굵기=1.0, 글로우두께=gt, 반경=10, x=round(cx), y=round(cy)))
     body = [f'<Frame BackgroundColor="4278190080" ID="{fi + 1}" Position="{fi}">'
             '<LayerDef ID="0" Name="시험표" Visible="true" Locked="false"/>\n' + "\n".join(wr.out) + "\n</Frame>" for fi, wr in enumerate(frames)]
     oid = frames[-1].oid
