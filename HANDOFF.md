@@ -9,7 +9,8 @@
 GPT와 Claude는 각자 잘하는 일을 한다(AGENTS '다 GPT에 맡기지 말 것'). GPT = 시트 눈 판정·태깅, Claude = 측정·처리·검증·학습 준비·1차 평가.
 
 ## 바로 할 일 (다음 세션)
-1. **GPT↔Claude 태그 토론 진행 중**: GPT 1차 보고(5쟁점 + pilot30) 받음. Claude가 최신 Drive 태그·원본 영상으로 대조한 결과 → **docs/DEBATE-ROUND1-CLAUDE-2026-10-27.md**(s0149 27 반대·14 추가, s0177 8·18 반대, s0194 5·6 반대, s0299 41 일관성 반대, s0208·s0355 동의). 복붙용 의견 완성(10-27 밤): **docs/DEBATE-ROUND1-TO-GPT-2026-10-27.md**(판별 원칙 제안 + 시트별 동의/반대 + 형식·미답 쟁점 3개) → 사용자에게 전달함. **바로 할 일: GPT 답이 오면 같은 방법(원본 장 격자·ORB)으로 대조**하고, 태그가 바뀌면 Drive 같은 ID 갱신 확인 → 저장소 반영 → 학습 자료 재생성. 측정 도구 `tools/cutcheck_*.py`.
+1. **GPT↔Claude 태그 토론 2차까지 진행**: 1차 의견 docs/DEBATE-ROUND1-TO-GPT-2026-10-27.md → GPT 2차 답변(s0149 [0,14,19,29], s0177 [0,38], s0194 [0,3], s0299 41 추가, 미결 4건 검증표 `boundary_candidates`) → Claude 대조·답장 **docs/DEBATE-ROUND2-TO-GPT-2026-10-27.md**(SHA 18/18, 구조 오류 0, 캡션 속 판정 문장 6곳 수정 요청). 저장소 태그를 GPT 최신본으로 갱신함.
+   **바로 할 일**: (a) 사용자 심판 대기 — 미결 4건(s0149:17, s0177:6, s0194:6–9, s0210:16) 판정 영상·장나열 전달함. 판정 오면 GPT에 전달 문구 작성. (b) GPT 캡션 수정본 오면 SHA·구조 대조 후 저장소 반영. (c) Claude 몫: `tools/caption_window.py`를 구조 태그 기반 조각 캡션(구간 교집합, already present/continues, 길이 재계산, 조각 밖 인과 접속사 금지, 홀드 어휘 4종)으로 재작성 → 표본 20조각 표를 GPT에 / `cutcheck` 도구에 영역 분리·내점 분포·재투영 오차 추가 / 학습 자료 재생성(원본 99편 필요, rclone `gdrive:AI-sfa/01_원본영상/yutaka_nakamura_디지털`으로 받음).
 2. **PC 영상 LoRA 시험**: `tools/pc_wan_lora.bat` 하나(설치 → 모델 14.5GB → Drive wanlora.zip → 캐시 → Wan2.1 T2V 1.3B LoRA → 비교 영상 → C:\aisfa\wan_out.zip). 토론 결과를 기다릴 필요는 없다(바뀌어도 몇 컷). 결과 오면 Claude가 LoRA 없음/있음 1차 평가 → GPT 2차 → 사용자 최종.
 3. 앱 측정 대기(SFA 로딩 원인 가르기): `ink_12fps_slim10_alt.sfa` 로딩 시간 — 16초 근처면 '서로 다른 ID 수', 1:50 근처면 '앞 장과 ID 연속성'이 원인(docs/REF-SFA-FILE-BUILDER-2026-10-27.md 끝).
 
