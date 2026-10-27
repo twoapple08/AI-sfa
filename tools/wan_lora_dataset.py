@@ -11,7 +11,7 @@
   GPT 컷 경계로 앞뒤 1–2장 옆 컷 조각을 자르며(가장 긴 컷 구간 묶음 유지), 태그가 없으면 원본 a..b(검출 컷 그대로)를 쓴다.
   GPT가 이펙트 없음으로 본 컷도 빼지 않고 넣는다(사용자 10-27: 애니메이션 스타일 전체가 목표, 옛 태그와 판정이 엇갈림) → no_effect_shots.csv에 기록.
 - 조각(10-27 밤, 기본 --chunk 33): 예전 slide(17·33장 창, 12장 간격)는 창 1,213개 중 64%가 0번이 아닌 장에서 시작해 캡션 장 번호와 어긋났다.
-  이제 컷을 17–33장(4N+1) 조각으로 고르게 나누고 caption_window.rewrite로 조각 기준 번호를 다시 매기며, 학습은 조각 통째(full, max_frames).
+  이제 컷을 17–33장(4N+1) 조각으로 고르게 나누고 caption_window.window_caption으로 조각 캡션을 만들며(조각 안 GPT 문장 + 구조 태그 교집합), 학습은 조각 통째(full, max_frames).
 원본 그림이므로 결과는 Drive·scratch만(저장소에는 이 도구와 목록만).
 사용: python tools/wan_lora_dataset.py <원본 폴더> <shots.csv> <out 폴더> [--gpt gpt_SHOT_MOTION.jsonl] [--size 512 288]
 """
@@ -26,7 +26,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lora_captions import caption  # noqa: E402
-from caption_window import content_poor, normalize, rewrite, targets_sentence  # noqa: E402
+from caption_window import normalize, window_caption  # noqa: E402
 
 TAGS = "data/style_kb/ai_results/gpt_LORA_TAGS_2026-10-25.csv"
 
@@ -145,11 +145,7 @@ def main():
             name = s["id"] if len(pieces) == 1 and not a.chunk else f'{s["id"]}_c{ci}'
             c = cap
             if a.chunk and g is not None:
-                c = rewrite(cap, k0 + st, k0 + st + ln - 1, g["cuts"])
-                if content_poor(c):  # 긴 컷 가운데 조각에서 내용 문장이 다 빠지면 구조 태그로 한 문장 보충
-                    extra = targets_sentence(g, k0 + st, k0 + st + ln - 1)
-                    if extra:
-                        c = c.replace("nkmr_fx, ", "nkmr_fx, " + extra + " ", 1)
+                c = window_caption(g, cap, k0 + st, k0 + st + ln - 1)  # 구조 태그·구간 교집합 기반(10-27 밤 GPT 토론 2차 합의)
             vw = cv2.VideoWriter(os.path.join(vd, name + ".mp4"), cv2.VideoWriter_fourcc(*"mp4v"), 24.0, tuple(a.size))
             for f in frames[st:st + ln]:
                 vw.write(f)
