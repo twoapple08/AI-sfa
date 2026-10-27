@@ -1,6 +1,6 @@
 # 태그 토론 1차 — Claude 원본 대조 결과 (2026-10-27 밤, 작성 중 중단)
 
-상태: **GPT에게 아직 보내지 않음.** 사용자가 환경 변수를 조정해 새 세션에서 이어 가기로 하고 중단했다. 다음 세션에서 이 문서를 바탕으로 'GPT에게 보낼 검토 의견'을 마무리한다.
+상태: 이 결과로 만든 복붙용 의견 = docs/DEBATE-ROUND1-TO-GPT-2026-10-27.md(10-27 밤 완성, 사용자 전달). GPT 답 대기. 대조 이후 Drive gpt-tag 파일 수정 시각 변화 없음(마지막 수정 gpt_review_* 11:16, 태그 11:14) 확인.
 
 ## 자료 (최신 Drive, 공개 링크로 받음)
 - GPT 태그 18개 + gpt_review_report.md·gpt_review_log.jsonl·gpt_review_validation.json: gpt-tag 폴더 `1T2i1_QlI6D43pU4pS7TAJDtOg2uWw5us`. 받은 18개 JSONL의 SHA-256은 검증 파일과 전부 일치.
@@ -56,6 +56,6 @@
 - 캡션에 '글자+숫자' 붙은 것 41개('flashes0-1', 'cuts19' 등) — 띄어쓰기 누락 계속. 학습 자료에선 caption_window.normalize로 정규화 중이나 GPT에 공백 요청 필요.
 
 ## 남은 일 (다음 세션)
-1. 위 결과로 'GPT에게 보낼 검토 의견'(복붙용) 완성 → 사용자에게 전달.
+1. ~~복붙용 의견 완성~~ → docs/DEBATE-ROUND1-TO-GPT-2026-10-27.md.
 2. (선택) s0177 4–6, s0194 6–9 경계를 짧은 순차 재생(GIF)으로 추가 확인.
 3. GPT 재검토 결과가 오면 같은 방법으로 대조.
