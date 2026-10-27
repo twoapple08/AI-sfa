@@ -25,6 +25,15 @@ def _clause(c, w0, w1):
     for m in hits:
         a = int(m.group(1))
         b = int(m.group(2)) if m.group(2) else a
+        after = c[m.end():m.end() + 8].lower()
+        before = re.findall(r'([A-Za-z]+)\s*$', c[:m.start()])
+        if m.group(2) is None and (re.match(r'\s*-?\s*frames?\b', after) or (before and before[0].lower() in ('hold', 'holds'))):
+            # 길이('23 frames', 'Hold 95')는 장 번호가 아님 → 조각 길이 이하로만 줄임
+            out.append(c[pos:m.start()])
+            out.append(str(min(a, w1 - w0 + 1)))
+            pos = m.end()
+            inside = True
+            continue
         prev = re.findall(r'([A-Za-z]+)\s*$', c[:m.start()])
         prev = prev[0].lower() if prev else ''
         if prev in ('from', 'since', 'after') and a < w0 <= b or (prev in ('from', 'since', 'after') and a < w0 and m.group(2) is None):
