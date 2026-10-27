@@ -8,7 +8,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 지금은 1단계: 나카무라 이펙트 **영상** 스타일 AI(Wan2.1 T2V 1.3B LoRA). SFA 변환은 2단계.
 
 ## 이번 세션의 진행 방식 — 토론
-- 사용자가 GPT와 Claude 사이 메시지를 중계한다. 첫 순서는 GPT가 Claude 검토 의견(토론 문서)에 반대·인정·대안으로 답한 것이다. GPT 메시지가 오면 Claude도 **반대할 것은 근거(시트 장 번호·측정값)로 반대하고, 맞는 것은 인정하고, 더 나은 방법이 있으면 찾아 제안**한다. 동의를 위해 동의하지 않는다.
+- 사용자가 GPT와 Claude 사이 메시지를 중계한다. **첫 순서는 GPT의 보고**다. Claude는 먼저 말하지 않고, GPT 메시지가 오면 반대할 것은 근거(시트 장 번호·측정값)로 반대하고, 맞는 것은 인정하고, 더 나은 방법이 있으면 찾아 제안한다. 동의하려고 동의하지 않는다. 준비 자료: docs/DEBATE-SHOT-TAGS-2026-10-27.md.
 - 근거가 필요하면 시트를 직접 보거나 측정한다(scratch가 없으면 HANDOFF '환경'의 Drive 경로에서 필요한 시트만 받는다). 결론마다 무엇이 바뀌는지(태그·학습 자료) 한 줄로.
 - 태그가 바뀌면 GPT가 Drive 같은 파일 ID로 갱신 → Claude가 받아 대조 → 저장소 `data/style_kb/ai_results/gpt_SHOT_MOTION_*`에 GPT 원본 그대로 반영 → `tools/wan_lora_dataset.py`로 학습 자료 재생성·검사 → wanlora.zip 같은 Drive ID에 덮어쓰기.
 - 토론과 별개로 PC 학습(`tools/pc_wan_lora.bat`)은 지금 자료로 돌려도 된다.
