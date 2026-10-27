@@ -44,6 +44,7 @@ def main():
     ap.add_argument("--gpt")
     ap.add_argument("--size", type=int, nargs=2, default=[512, 288])
     ap.add_argument("--min", type=int, default=17)
+    ap.add_argument("--exclude", default="", help="쉼표로 뺄 컷 id(예: 움직임 없는 홀드 컷)")
     a = ap.parse_args()
     tags = {r["클립"]: r for r in csv.DictReader(open(TAGS, encoding="utf-8"))}
     gcap = {}
@@ -61,7 +62,7 @@ def main():
     for s in csv.DictReader(open(a.shots, encoding="utf-8")):
         cl = [tags[c] for c in s["원래클립"].split(";")]
         L = int(s["장수"])
-        if L < a.min or all(t["이펙트"] == "없음" for t in cl):
+        if L < a.min or all(t["이펙트"] == "없음" for t in cl) or s["id"] in a.exclude.split(","):
             continue
         cap = gcap.get(s["id"])
         if cap:
