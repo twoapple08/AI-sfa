@@ -9,7 +9,7 @@
 - PC ProPainter 배치(10-27 사용자 실행): 514개 완료·실패 0, 클립당 13.8초. 품질 나쁨 — 인물 마스크 빈 장 350/514(잔상), 큰 인물(30%↑) 격자 흐림, 마스크가 로봇·흰 충격판을 잡음. 이 단계에선 필수 아님(보류).
 
 ### 바로 할 일(영상 스타일 AI, 10-27 밤 기준)
-1. **GPT 움직임 태깅 완료(10-27)**: 247컷 + 시험 30 = 277컷(data/style_kb/ai_results/gpt_SHOT_MOTION_ALL·_30). Claude 표본 점검 묶음당 2–3컷. 학습 자료 재생성: 274컷 전부 GPT 캡션(s0298은 앞뒤 조각 정리 후 16장이라 빠짐, 이펙트 없음 판정 5컷 포함·기록). **장 번호 정합(15:25)**: 예전 slide 창 1,213개 중 64%가 캡션 번호와 어긋남 → 컷을 17–33장(4N+1) 조각 479개(11,299장)로 나누고 tools/caption_window.py로 조각 기준 번호 재작성, dataset.toml은 frame_extraction=full·max_frames=33(musubi 설정 해석기로 확인). wanlora.zip 같은 Drive ID에 덮어씀. pc_wan_lora_run.py 비교 프롬프트를 GPT 캡션 문체로 바꿈.
+1. **GPT 움직임 태깅 완료(10-27)**: 247컷 + 시험 30 = 277컷(data/style_kb/ai_results/gpt_SHOT_MOTION_ALL·_30). Claude 표본 점검 묶음당 2–3컷. 학습 자료 재생성: 274컷 전부 GPT 캡션(s0298은 앞뒤 조각 정리 후 16장이라 빠짐, 이펙트 없음 판정 5컷 포함·기록). **장 번호 정합(15:25, 1장 밀림 정정 15:57)**: 예전 slide 창 1,213개 중 64%가 캡션 번호와 어긋남 → 컷을 17–33장(4N+1) 조각 479개(11,299장)로 나누고 tools/caption_window.py로 조각 기준 번호 재작성, dataset.toml은 frame_extraction=full·max_frames=33(musubi 설정 해석기로 확인). wanlora.zip 같은 Drive ID에 덮어씀. pc_wan_lora_run.py 비교 프롬프트를 GPT 캡션 문체로 바꿈.
 2. **PC방 영상 LoRA 시험(10-28, 5060 4시간)**: tools/pc_wan_lora.bat 하나(설치 → 모델 14.5GB HF → Drive wanlora.zip(ID 1YdosWijIlDx0vaTvIxos8rhlkY3CRH8m, 공유 '링크 있는 모든 사용자' 필요 — Claude가 공유 권한 변경은 자동 검토 거절) → tools/pc_wan_lora_run.py: 캐시 → Wan2.1 T2V 1.3B LoRA(fp8_base, 일찍 실패 시 blocks_to_swap 15→29, 150스텝마다 저장) → 프롬프트 4개 LoRA 없음/있음 33장 24fps → C:\aisfa\wan_out.zip). **서버에서 musubi-tuner 실행 시험은 못 함(외부 코드 실행 자동 검토 거절)** — 명령 인자는 소스(커밋 f8a1b037)와 대조만.
 3. 확인 기준(사용자와 합의 전 제안): 10-29까지 같은 프롬프트 LoRA 없음/있음 비교에서 사용자가 '나카무라 같다'고 보는 쪽이 LoRA에 확실히 많으면 계속.
 - 자료: 나카무라 클립 671 → 원본 컷 단위 438구간(data/style_kb/nk_shots_rough_2026-10-27.csv, 자동 컷 분리 부정확: 카메라가 매 장 움직이는 구간에서 여러 컷이 붙음 — GPT가 컷 표시) → 학습용 274컷(이펙트 있음·17장 이상, 인물 있는 컷 포함, 캡션 전부 GPT 움직임 태그) → 조각 479개 11,299장 512×288 24fps(source_fps 안 씀: 2·3장 리듬 보존).
@@ -26,6 +26,7 @@
 - 안 보이는 선은 색 알파 0(알파 10은 글로우 가운데 검은 줄).
 - **서버 렌더러(tools/sfa_render.py) ≈ 앱**: 시험표 1–6장 평균 차 0.2–0.7 [앱 확인]. 글로우 띠 폭 = 8·굵기·두께/10, 흐림 ≈ 반경.
 - **SFA 로딩 시간은 '서로 다른 AO ID 수'가 좌우한다**: 가져오기가 새 AO ID마다 DB 객체를 만든다. 장마다 새 ID인 변환본(slim10, 곡선 104,657) 1:50 → 장 사이 ID 재사용(`tools/sfa_reuse_ids.py`, 새 객체 1,781) **16초** [앱 확인 10-27], 앱 내보내기 영상도 원본과 평균 차 0.36(서버≈앱 기준치 안). 변환기 출력은 기본으로 ID 재사용(그리는 순서 j번째에 같은 ID, 같은 ID의 TypeId·점 수 고정, 트위닝은 끄거나 tween=playback). 근거·표: docs/REF-SFA-FILE-BUILDER-2026-10-27.md
+- **정정(10-27 밤): 'cv2 set(POS_FRAMES, a)는 a+1을 준다'는 예전 결론이 틀렸다.** 원본 12편 29컷 중 27컷은 a 그대로. 학습 자료가 시트(=GPT 장 번호)보다 대부분 1장 밀려 있었다(266/274컷, 조각 끝에 다음 컷 1장 섞임). wan_lora_dataset.sheet_offset으로 컷마다 탐색 첫 장과 같은 차례 장을 찾아 맞춤(off 0:266·1:8·2:2, 일치 오차 0) → 조각 479개 중 첫 장이 시트와 일치 459, 같은 그림이라 구분 불가 19, 애매 1(s0051_c0). rhythm_check도 같은 보정 후 결론 같음.
 - ProPainter(영상 인페인팅)가 LaMa보다 메운 자리를 원래 불 모양·바위 경계로 이어 준다(불 벽 32장, PC 5060) [서버 비교].
 
 ## 진행 중

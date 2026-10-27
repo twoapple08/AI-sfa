@@ -91,3 +91,40 @@ def rewrite(cap, w0, w1, cuts):
     body = CUTS.sub(lambda m: rep[0].upper() + rep[1:] if m.group(0)[0].isupper() else rep, body)
     body = re.sub(r'\s+([,;.])', r'\1', body)
     return (head + ' ' + body).strip() if head else body
+
+
+TGT = {'폭발': 'explosion', '연기': 'smoke', '먼지': 'dust', '파편': 'debris', '불': 'fire', '불티': 'embers', '섬광': 'flash',
+       '빛번짐': 'glow bloom', '후광': 'halo', '빔': 'beam', '번개': 'lightning', '충격파': 'shockwave', '물보라': 'spray',
+       '집중선': 'speed lines', '궤적선': 'motion trails', '잔상': 'afterimage', '임팩트프레임': 'impact frame'}
+PH = {'응축': 'gathers', '발생': 'appears', '급팽창': 'bursts', '팽창': 'expands', '정점': 'peaks', '분열': 'splits',
+      '흩어짐': 'scatters', '잔류': 'lingers', '소멸': 'fades'}
+STYLE = set(('nkmr_fx twos ones threes on with and then mostly fixed camera pan pans one two three four five six cut cuts singles single '
+             'hold holds held frames frame shaking slight slightly moving view zoom pullback lateral continuous mixed late early brief '
+             'pairs transition at through from to the a of in by during').split())
+
+
+def content_poor(cap):
+    """리듬·카메라 낱말 말고 남은 내용 낱말이 4개 미만."""
+    return len([w for w in re.findall(r'[A-Za-z]+', cap.lower()) if w not in STYLE]) < 4
+
+
+def targets_sentence(shot, w0, w1):
+    """GPT 구조 태그(targets·phases)에서 조각과 겹치는 대상의 단계를 영어 한 문장으로(내용이 다 빠진 조각 보충용)."""
+    out = []
+    for seg in shot['segments']:
+        for t in seg['targets']:
+            name = TGT.get(t['target'])
+            if not name:
+                continue
+            best, ov = None, 0
+            for p in t.get('phases', []):
+                a, b = p['frames']
+                o = min(b, w1) - max(a, w0) + 1
+                if o > ov:
+                    best, ov = p['phase'], o
+            if best in PH and name not in [x[0] for x in out]:
+                out.append((name, PH[best]))
+    if not out:
+        return ''
+    s = ' and '.join(f'{n} {v}' for n, v in out)
+    return s[0].upper() + s[1:] + f' at 0-{w1 - w0}.'
