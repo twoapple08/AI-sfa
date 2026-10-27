@@ -28,6 +28,7 @@ def main():
     ap.add_argument('src')
     ap.add_argument('dst')
     ap.add_argument('--name', default='')
+    ap.add_argument('--alternate', type=int, default=0, help='시험용: 홀수 장은 ID에 이 값을 더함(앞 장과 ID 연속성 0%, 서로 다른 ID는 2배)')
     a = ap.parse_args()
     name = a.name or os.path.splitext(os.path.basename(a.dst))[0]
     zin = zipfile.ZipFile(a.src)
@@ -51,7 +52,8 @@ def main():
     xs = ['<?xml version="1.0" encoding="UTF-8" ?><Sequence ' + ' '.join(f'{k}="{v}"' for k, v in seq.items()) + '>']
     n_entries = slots = 0
     for fattr, layers, aos, frs in frames:
-        remap = {x.get('ID'): str(BASE + j) for j, x in enumerate(aos)}
+        off = a.alternate if a.alternate and len(xs) and fattr.get('Position') and int(fattr['Position']) % 2 else 0
+        remap = {x.get('ID'): str(BASE + off + j) for j, x in enumerate(aos)}
         slots = max(slots, len(aos))
         n_entries += len(aos)
         xs.append('<Frame ' + ' '.join(f'{k}="{v}"' for k, v in fattr.items()) + '>')

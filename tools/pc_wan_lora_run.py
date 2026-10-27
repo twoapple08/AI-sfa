@@ -2,7 +2,7 @@
 """PC방 5060(8GB): Wan2.1 T2V 1.3B 나카무라 스타일 LoRA — 캐시 → 학습(시간 제한) → 학습 전/후 비교 영상 → zip (2026-10-27).
 
 사용자 결정(10-27 저녁): SFA보다 먼저 나카무라 스타일 영상 AI. 첫 시험은 '이 PC에서 영상 LoRA 학습이 되는지 + LoRA가 화풍·움직임을 바꾸는지'.
-학습 도구: kohya-ss/musubi-tuner(고정 커밋, pc_wan_lora.bat가 받음). 자료: wanlora.zip(tools/wan_lora_dataset.py, 277컷 512×288 24fps).
+학습 도구: kohya-ss/musubi-tuner(고정 커밋, pc_wan_lora.bat가 받음). 자료: wanlora.zip(tools/wan_lora_dataset.py, 274컷 12,013장 512×288 24fps, 캡션 전부 GPT 움직임 태그).
 메모리: DiT fp8(--fp8_base) + gradient checkpointing, 처음 몇 분 안에 실패하면 블록 교체(--blocks_to_swap)를 늘려 다시.
 시간: --minutes 안에 학습을 끊고(150스텝마다 저장) 남은 시간에 비교 영상을 만든다. 서버에서는 실행 시험을 못 했다(외부 코드 실행 거절) — 명령 형식은 소스 대조만.
 사용: python pc_wan_lora_run.py <작업 폴더 C:\\aisfa\\wan> --minutes 170
@@ -15,11 +15,11 @@ import sys
 import time
 import zipfile
 
-PROMPTS = [
-    "nkmr_fx, anime screencap, explosion, flash, debris, white core orange rim, layered cel shading, sharp tips, expanding, dispersing, large effect, no humans, rocky ground, wide shot, hand-drawn 2D anime effects animation",
-    "nkmr_fx, anime screencap, lightning, energy beam, streaks, white core blue rim, sharp tips, sustained, shaking, no humans, night sky, hand-drawn 2D anime effects animation",
-    "nkmr_fx, anime screencap, smoke, dust cloud, debris, grey smoke, angular shapes, slowly spreading, flying, large effect, city, wide shot, hand-drawn 2D anime effects animation",
-    "nkmr_fx, anime screencap, impact frame, shockwave, speed lines, flash, black and white, radial shape, expanding, anime character, close-up, hand-drawn 2D anime effects animation",
+PROMPTS = [  # GPT 움직임 캡션 문체(대상·장 번호·변화·리듬·카메라·컷 수, 2026-10-27). 33장 = 0–32
+    "nkmr_fx, A white-yellow flash at 0-1 bursts into an orange fireball with angular dark smoke at 2-9, splits into sharp flame tongues at 10-17, and thins into gray dust through 32. Small dark debris chips scatter from 4. Mostly twos with singles at the burst; fixed camera, one cut.",
+    "nkmr_fx, A cyan-white lightning bolt with a pink rim strikes down at 0-1, branches into jagged forks at 2-7, flickers on ones at 8-15, then fades into a thin glowing afterimage through 32. Fixed camera, one cut.",
+    "nkmr_fx, Gray blocks tumble across 0-32 while a brown dust cloud with angular edges spreads from the ground at 3-12 and curls upward at 13-32. Mostly twos; slow lateral pan, one cut.",
+    "nkmr_fx, A black-and-white radial impact frame alternates on ones at 0-3, then an orange shockwave ring with speed lines expands from the center at 4-15, holds its peak for three frames, and breaks into fading streaks through 32. Fixed camera, one cut.",
 ]
 
 

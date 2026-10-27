@@ -88,9 +88,7 @@ def main():
         if L < a.min or all(t["이펙트"] == "없음" for t in cl) or s["id"] in a.exclude.split(","):
             continue
         cap = gcap.get(s["id"])
-        if cap:
-            ng += 1
-        else:
+        if not cap:
             cap = caption(cl[0], "yutaka_nakamura") + ", hand-drawn 2D anime effects animation"
         g = gobj.get(s["id"])
         if g is not None and not any(seg["targets"] for seg in g["segments"]):
@@ -117,6 +115,7 @@ def main():
         open(os.path.join(vd, s["id"] + ".txt"), "w", encoding="utf-8").write(cap)
         rows.append((s["id"], k, "gpt" if s["id"] in gcap else "old_tags", cap))
         n += 1
+        ng += s["id"] in gcap
         fr_total += k
     open(os.path.join(a.out, "dataset.toml"), "w", encoding="utf-8").write(TOML.format(w=a.size[0], h=a.size[1], root="DATA_ROOT"))
     with open(os.path.join(a.out, "captions.csv"), "w", newline="", encoding="utf-8") as fh:
