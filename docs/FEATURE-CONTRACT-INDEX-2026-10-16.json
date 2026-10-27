@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "date_kst": "2026-10-16",
-  "source_commit": "bf5ea5d3576e1e454c958b3e7c2692d3b8d3806a",
+  "date_kst": "2026-10-27",
+  "source_commit": "afc4be303b3e7b0099fc0f8d7cc62bd469adb50e",
   "purpose": "기존 보고서의 기능별 근거 색인; 새 AOT 또는 runtime 검증 아님",
   "exhaustive_feature_inventory": false,
   "all_solo_analysis_complete": false,
@@ -47,20 +47,39 @@
       "complete": false
     },
     {
+      "id": "color",
+      "title_ko": "선 색상",
+      "evidence_reports": [
+        "docs/AOT-MODIFY-COLOR-GLOW-APPLY-TRACE-2026-10-27.md"
+      ],
+      "existing_runtime_samples": [],
+      "static_scope": [
+        "상세 패널 색상 탭 초기화·원래 색 보관·휠/알파/hex/견본/되돌리기 setter",
+        "HSV↔ARGB 변환식·ApplyOnlyColor의 대상 전체 ARGB 덮어쓰기·최근색7/프리셋16 저장"
+      ],
+      "remaining": [
+        "색 휠 터치→HSV 좌표식·견본 UI 배치·저장 backend·실제 화면 색"
+      ],
+      "complete": false
+    },
+    {
       "id": "glow",
       "title_ko": "글로우",
       "evidence_reports": [
         "docs/AOT-DRAW-GLOW-TRACE-2026-10-15.md",
-        "docs/AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md"
+        "docs/AOT-GROUP-SHADER-TIMELINE-TRACE-2026-10-15.md",
+        "docs/AOT-MODIFY-COLOR-GLOW-APPLY-TRACE-2026-10-27.md"
       ],
       "existing_runtime_samples": [
         "02: 수평선 두께·반경·알파·독립 객체 중첩"
       ],
       "static_scope": [
-        "객체별 backend 선택·그룹 객체별 순회·uniform·셰이더 수학"
+        "객체별 backend 선택·그룹 객체별 순회·uniform·셰이더 수학",
+        "상세 패널 글로우 탭 초기화(첫 AO·두께≤0→20)·강도/범위/알파 setter·hex·ApplyOnlyGlow의 네 필드 일괄 기록"
       ],
       "remaining": [
-        "곡선·링·연결 그룹의 backend별 픽셀·blend"
+        "곡선·링·연결 그룹의 backend별 픽셀·blend",
+        "글로우 휠 터치식·비정상 반경/두께 입력의 실제 결과"
       ],
       "complete": false
     },

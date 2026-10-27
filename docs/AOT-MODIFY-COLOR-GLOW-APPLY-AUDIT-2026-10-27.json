@@ -1,0 +1,1183 @@
+{
+ "date_kst": "2026-10-27",
+ "scope": "234 selected annotation/ELF instruction checks plus FormatException stub tag; not full semantics, UI behavior or runtime",
+ "checks": [
+  {
+   "group": "ApplyOnlyColor",
+   "address": "0x635c10",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyColor",
+   "address": "0x635c18",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyColor",
+   "address": "0x635c20",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyColor",
+   "address": "0x635c24",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyColor",
+   "address": "0x635c40",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyColor",
+   "address": "0x635c48",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyColor",
+   "address": "0x635c4c",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyColor",
+   "address": "0x635c58",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyColor",
+   "address": "0x635c64",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyColor",
+   "address": "0x635c68",
+   "matched": true
+  },
+  {
+   "group": "GetCurrentColor",
+   "address": "0x52e5d4",
+   "matched": true
+  },
+  {
+   "group": "GetCurrentColor",
+   "address": "0x52e5e0",
+   "matched": true
+  },
+  {
+   "group": "GetCurrentColor",
+   "address": "0x52e5e4",
+   "matched": true
+  },
+  {
+   "group": "GetCurrentColor",
+   "address": "0x52e5ec",
+   "matched": true
+  },
+  {
+   "group": "GetCurrentColor",
+   "address": "0x52e5f8",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x635588",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x63558c",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x635594",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x63559c",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x6355a0",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x6355b8",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x6355bc",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x6355c0",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x6355ec",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x6355f0",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x6355f4",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x6355f8",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x635604",
+   "matched": true
+  },
+  {
+   "group": "ApplyOnlyGlow",
+   "address": "0x635608",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4060",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4064",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e40a0",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e40a8",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e40ac",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e40b4",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e40c0",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e40c4",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e40ec",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e40f0",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e40f4",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e40f8",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4100",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4104",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e410c",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4110",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4114",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4118",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e411c",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4120",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4128",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4130",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4138",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4140",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4144",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4148",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e414c",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4150",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4154",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e415c",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e4164",
+   "matched": true
+  },
+  {
+   "group": "InitDataFromObject",
+   "address": "0x4e416c",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e296c",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e2974",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e298c",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e29a0",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e29a4",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e29ac",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e29b4",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e29b8",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e29d0",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e2a08",
+   "matched": true
+  },
+  {
+   "group": "SetupColorTab",
+   "address": "0x4e2a10",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e320c",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3214",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3220",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3250",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3254",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e325c",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3260",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3264",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e326c",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3274",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3278",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e327c",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3280",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e32cc",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e32ec",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e32fc",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3304",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e331c",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3324",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3348",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3358",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3360",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e3370",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e33c4",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e33f8",
+   "matched": true
+  },
+  {
+   "group": "ColorToHsv",
+   "address": "0x4e342c",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3810",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3830",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3838",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e387c",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e38cc",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e38e0",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3910",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3924",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3938",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e394c",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3990",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3998",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e39b0",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e39d4",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e39d8",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e39dc",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e39e4",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3a04",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3a24",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3a40",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3a60",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3a9c",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3aa0",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3ae0",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3b00",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3b0c",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3b2c",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3bbc",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3c48",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3c50",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3c54",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3c58",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3c5c",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3c60",
+   "matched": true
+  },
+  {
+   "group": "HsvToColor",
+   "address": "0x4e3c64",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x635154",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x63515c",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x635168",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x635174",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x635178",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x63518c",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x635194",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x63519c",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x6351a4",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x6351ac",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x6351b4",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x6351bc",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x6351c4",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x6351d0",
+   "matched": true
+  },
+  {
+   "group": "ApplyAllPendingChangesAndDismiss",
+   "address": "0x6351d8",
+   "matched": true
+  },
+  {
+   "group": "AddRecentColor",
+   "address": "0x635268",
+   "matched": true
+  },
+  {
+   "group": "AddRecentColor",
+   "address": "0x63530c",
+   "matched": true
+  },
+  {
+   "group": "AddRecentColor",
+   "address": "0x6353e8",
+   "matched": true
+  },
+  {
+   "group": "AddRecentColor",
+   "address": "0x635400",
+   "matched": true
+  },
+  {
+   "group": "AddRecentColor",
+   "address": "0x63541c",
+   "matched": true
+  },
+  {
+   "group": "AddRecentColor",
+   "address": "0x63552c",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x52e20c",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x52e210",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637d5c",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637d68",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637d7c",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637de4",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637de8",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637dfc",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637e04",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637e74",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637e88",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x6379a4",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x6379ac",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637a1c",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637a24",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637a34",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637a38",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637a40",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637a5c",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637ab8",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637b38",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637b50",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637b54",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637b68",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637b80",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637b98",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637410",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637414",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x637438",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x638430",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x638434",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x638438",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x63844c",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x6375a8",
+   "matched": true
+  },
+  {
+   "group": "ColorSetters",
+   "address": "0x6375ac",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x52f00c",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x52f010",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63a02c",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63a034",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63a038",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63a098",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63a0a4",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63a0b8",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x639cd0",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x639cd8",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x639ce8",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x639d0c",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x639d1c",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x639e20",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63a30c",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63a310",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63a540",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63a544",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63ab54",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63ab58",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63ab68",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63ab6c",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63ab74",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63ab84",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63ab8c",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63ab94",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63ab9c",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63abb4",
+   "matched": true
+  },
+  {
+   "group": "GlowSetters",
+   "address": "0x63abc0",
+   "matched": true
+  },
+  {
+   "group": "GlowSliderBuild",
+   "address": "0x6390e4",
+   "matched": true
+  },
+  {
+   "group": "GlowSliderBuild",
+   "address": "0x639114",
+   "matched": true
+  },
+  {
+   "group": "GlowSliderBuild",
+   "address": "0x639120",
+   "matched": true
+  },
+  {
+   "group": "GlowSliderBuild",
+   "address": "0x639130",
+   "matched": true
+  },
+  {
+   "group": "GlowSliderBuild",
+   "address": "0x639138",
+   "matched": true
+  },
+  {
+   "group": "GlowSliderBuild",
+   "address": "0x639164",
+   "matched": true
+  },
+  {
+   "group": "GlowSliderBuild",
+   "address": "0x639208",
+   "matched": true
+  },
+  {
+   "group": "GlowSliderBuild",
+   "address": "0x639250",
+   "matched": true
+  },
+  {
+   "group": "GlowSliderBuild",
+   "address": "0x6392f4",
+   "matched": true
+  },
+  {
+   "group": "GlowSliderBuild",
+   "address": "0x639350",
+   "matched": true
+  },
+  {
+   "group": "AnimationObjectGetXml",
+   "address": "0x5af274",
+   "matched": true
+  },
+  {
+   "group": "AnimationObjectGetXml",
+   "address": "0x5af31c",
+   "matched": true
+  },
+  {
+   "group": "AnimationObjectGetXml",
+   "address": "0x5af368",
+   "matched": true
+  },
+  {
+   "group": "AnimationObjectGetXml",
+   "address": "0x5af3b4",
+   "matched": true
+  },
+  {
+   "group": "AnimationObjectGetXml",
+   "address": "0x5af3ec",
+   "matched": true
+  },
+  {
+   "group": "AnimationObjectGetXml",
+   "address": "0x5af45c",
+   "matched": true
+  }
+ ],
+ "format_exception_stub": {
+  "address": "0x2f1838",
+  "tags": "0xfe921c",
+  "class_id": "0xfe9",
+  "matched": true
+ },
+ "runtime_verified": false
+}

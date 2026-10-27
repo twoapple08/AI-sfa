@@ -65,6 +65,7 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 ## Environment continuity — 2026-10-16
 
 - ‘캐시 정상’은 영구 보장이 아니다. 이번 환경에서는 지정된 과거 private 경로가 없어 공개 repo만 복구했다. 최신 HANDOFF/ANALYSIS-READINESS의 현행 관측을 우선한다. 자료가 없으면 본문 의미를 추측하거나 과거 audit를 새 ELF 검사로 표시하지 않는다. 원본 APKS 보유와 AOT/PP/objs/도구 캐시 보유를 구분한다. 사용자 금지인 설치·전체 재decompile·기존 시험 반복으로 차단을 우회하지 않는다.
+- private cache 경로는 컨테이너마다 다를 수 있다. 새 대화에서는 과거 `/workspace/scratch/...` 외에 `/root/sfa-cache/extracted` 같은 환경 제공 cache를 먼저 찾고 `CACHE-MANIFEST.json` hash로 대조한 뒤 재사용한다(2026-10-27 확인).
 - 저장소 tree/Library 목록은 필요한 경로·이름·크기만 필터 출력한다. raw 전체 tree/metadata/도우미 본문 출력은 피한다. 기존 근거를 정리한 색인은 새 함수 분석이나 runtime 검증으로 세지 않는다.
 
 ## 서버 분석 환경 복구 상시 예외 — 2026-10-16 02:02 KST

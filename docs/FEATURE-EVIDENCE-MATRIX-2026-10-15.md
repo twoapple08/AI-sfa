@@ -16,7 +16,7 @@
 |---|---|---|---|
 | 채우기·구멍 | 01의 단순 사각형 구멍, 윤곽 방향 반전, 겹침 출력 관찰 | contour 경로 조합·보간 대응·저장/공유 복원 | 복잡한 윤곽/부분 경계와 픽셀 재현 전체 검증 |
 | 객체·채우기 순서 | FR 목록 반전 후에도 겹침 결과 유지; 반대 DrawOrder 지정은 왕복 중 바뀌어 의도한 시험 불성립 | DB 정렬·draw unit 배치·그룹 단위·DrawOrder 저장 | 일반 AO 순서 변경 UI는 제한된 이름·문자열 검색에서 미식별; 상세 3탭의 확인한 경로에도 미식별; 앱 전체 부재 증명 아님 |
-| 독립 객체 glow | 02 수평선의 radius/thickness/alpha, 기본선 알파0, 독립 객체 두 개 중첩 표본 | 객체별 backend·shader 수학·cache key·영향 unit 전파 | 곡선/링/연결 그룹을 포함한 전체 픽셀·blend 결과 |
+| 독립 객체 glow·선 색상 | 02 수평선의 radius/thickness/alpha, 기본선 알파0, 독립 객체 두 개 중첩 표본 | 객체별 backend·shader 수학·cache key·영향 unit 전파; 상세 패널 색상/글로우 setter→HSV↔ARGB→대상 전체 일괄 기록(MODIFY-COLOR-GLOW-APPLY) | 곡선/링/연결 그룹을 포함한 전체 픽셀·blend 결과 |
 | 그룹·해제 | 04에서 AC/Flags 변화와 동반 이동·해제 후 독립 이동 | UI Flags→구조 갱신, 기반 그룹 참조 상대화↔복원 | 중첩·그룹 트위닝·잠금 UI의 전체 계약; 올그룹 상자/레이어 필터·모서리 확대·회전 보조는 새 정적 근거 참조; 그룹 이동 표본을 그룹 glow 합성 검증으로 세지 않음 |
 | 크기 변형·늘이기 | 04 UI 크기 적용 후 ObjectScale2 유지; 손끝 드래그와 전체 확대가 누적된 표본 | 상세 패널 pending 일괄 적용·pivot 선택·c+m(p−c)·두 속성 배율과 저장/복원 | 대상 closure/AO ID 중복 제거 연결은 확인; 손끝 drag의 도구/점 유형 분기·branch 경계·트리 ID 정렬과 잔여 map 순서 확인; 전체 hit-test·비정상 연결은 미완. 02 입력2→왕복1을 기능 무효로 일반화 금지 |
 | 원근 | 04 첫 표본의 사영변환 적합, 두 번째 표본의 아핀 좌표 변화/속성 배율 관찰 | 일반8핸들·시작snapshot·사영/쌍선형 선택·실패fallback·좌표저장(아래 원근 보고서) | 올가미→AllGroup 및 선택screenmap키 필터도 확인; 앞단tap·곡선/원 최종 픽셀·실제 수치 경계 |
@@ -53,3 +53,5 @@ PC는 사용자20:26 보고로 현재 사용 불가다. 서버 cache는 정상�
 
 
 2026-10-16 추가: [ROOT-COPY-DB-BRANCHES](AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)에서 root prefix(절반이상) 재사용/새root/source rebase시도/targetbase 범위·점ID예약 schema·같은/다른sequence AO DB복사 정상분기를49선택명령으로 보충했다. 실제복사/실패보장·전체UI coverage는 별개다.
+
+2026-10-27 추가: [MODIFY-COLOR-GLOW-APPLY](AOT-MODIFY-COLOR-GLOW-APPLY-TRACE-2026-10-27.md)에서 상세 패널 색상·글로우 탭의 초기화(첫 AO, 글로우 두께≤0→20)·휠/알파/hex/견본/되돌리기 setter·HSV↔ARGB 변환·ApplyOnlyColor/Glow의 대상 전체 덮어쓰기·최근색/프리셋 저장을 234선택명령으로 연결했다. UI 라벨 강도=GlowRadius, 범위=GlowThickness. 실제 화면 색·휠 터치식·비정상 입력은 별개다.
