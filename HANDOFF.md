@@ -8,7 +8,7 @@
 GPT와 Claude는 각자 잘하는 일을 한다(AGENTS '다 GPT에 맡기지 말 것'). GPT = 시트 눈 판정·태깅, Claude = 측정·처리·검증·학습 준비·1차 평가.
 
 ## 바로 할 일 (다음 세션)
-1. **GPT↔Claude 태그 토론**(사용자가 메시지를 중계): 쟁점·근거는 **docs/DEBATE-SHOT-TAGS-2026-10-27.md**. 규칙: 반대할 건 근거(시트 장 번호·측정값)로 반대, 맞는 건 인정, 더 나은 방법이 있으면 찾아 제안. 결론이 태그를 바꾸면 GPT가 Drive 같은 파일 ID로 갱신 → Claude가 받아 대조·저장소 반영·학습 자료 재생성.
+1. **GPT↔Claude 태그 토론**(사용자가 메시지를 중계, 첫 순서 = GPT가 Claude 의견에 답함 — 10-27 밤 GPT 시작 프롬프트 전달): 쟁점·근거는 **docs/DEBATE-SHOT-TAGS-2026-10-27.md**. 규칙: 반대할 건 근거(시트 장 번호·측정값)로 반대, 맞는 건 인정, 더 나은 방법이 있으면 찾아 제안. 결론이 태그를 바꾸면 GPT가 Drive 같은 파일 ID로 갱신 → Claude가 받아 대조·저장소 반영·학습 자료 재생성.
 2. **PC 영상 LoRA 시험**: `tools/pc_wan_lora.bat` 하나(설치 → 모델 14.5GB → Drive wanlora.zip → 캐시 → Wan2.1 T2V 1.3B LoRA → 비교 영상 → C:\aisfa\wan_out.zip). 토론 결과를 기다릴 필요는 없다(바뀌어도 몇 컷). 결과 오면 Claude가 LoRA 없음/있음 1차 평가 → GPT 2차 → 사용자 최종.
 3. 앱 측정 대기(SFA 로딩 원인 가르기): `ink_12fps_slim10_alt.sfa` 로딩 시간 — 16초 근처면 '서로 다른 ID 수', 1:50 근처면 '앞 장과 ID 연속성'이 원인(docs/REF-SFA-FILE-BUILDER-2026-10-27.md 끝).
 
