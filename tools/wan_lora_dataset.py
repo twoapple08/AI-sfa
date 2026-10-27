@@ -87,10 +87,16 @@ def main():
     ap.add_argument("--size", type=int, nargs=2, default=[512, 288])
     ap.add_argument("--min", type=int, default=17)
     ap.add_argument("--exclude", default="", help="쉼표로 뺄 컷 id(예: 움직임 없는 홀드 컷)")
+    ap.add_argument("--window-captions", help="GPT가 쓴 조각 캡션 JSONL({shot,w0,w1,caption}, 시트 장 번호). 있으면 그 조각은 이것을 씀(tools/window_factsheet.py check로 검사한 것)")
     ap.add_argument("--chunk", type=int, default=33, help="컷을 17..이 값(4N+1)장 조각으로 나눠 조각마다 캡션 장 번호를 다시 매김(full 추출). 0이면 예전 slide")
     a = ap.parse_args()
     tags = {r["클립"]: r for r in csv.DictReader(open(TAGS, encoding="utf-8"))}
-    gcap, gobj = {}, {}
+    gcap, gobj, wcap = {}, {}, {}
+    if a.window_captions:
+        for line in open(a.window_captions, encoding="utf-8"):
+            if line.strip():
+                d = json.loads(line)
+                wcap[(d["shot"], d["w0"], d["w1"])] = d["caption"]
     if a.gpt and os.path.exists(a.gpt):
         for line in open(a.gpt, encoding="utf-8"):
             line = line.strip()
@@ -145,13 +151,13 @@ def main():
             name = s["id"] if len(pieces) == 1 and not a.chunk else f'{s["id"]}_c{ci}'
             c = cap
             if a.chunk and g is not None:
-                c = window_caption(g, cap, k0 + st, k0 + st + ln - 1)  # 구조 태그·구간 교집합 기반(10-27 밤 GPT 토론 2차 합의)
+                c = wcap.get((s["id"], k0 + st, k0 + st + ln - 1)) or window_caption(g, cap, k0 + st, k0 + st + ln - 1)  # GPT 조각 캡션 우선, 없으면 구조 태그 기반
             vw = cv2.VideoWriter(os.path.join(vd, name + ".mp4"), cv2.VideoWriter_fourcc(*"mp4v"), 24.0, tuple(a.size))
             for f in frames[st:st + ln]:
                 vw.write(f)
             vw.release()
             open(os.path.join(vd, name + ".txt"), "w", encoding="utf-8").write(c)
-            rows.append((name, ln, "gpt" if s["id"] in gcap else "old_tags", c))
+            rows.append((name, ln, "gpt_window" if (s["id"], (k0 or 0) + st, (k0 or 0) + st + ln - 1) in wcap else "gpt" if s["id"] in gcap else "old_tags", c))
             fr_total += ln
         n += 1
         ng += s["id"] in gcap

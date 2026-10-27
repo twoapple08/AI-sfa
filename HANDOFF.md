@@ -9,9 +9,9 @@
 GPT와 Claude는 각자 잘하는 일을 한다(AGENTS '다 GPT에 맡기지 말 것'). GPT = 시트 눈 판정·태깅, Claude = 측정·처리·검증·학습 준비·1차 평가.
 
 ## 바로 할 일 (다음 세션)
-1. **GPT↔Claude 태그 토론 3차까지 진행**: 1차 docs/DEBATE-ROUND1-TO-GPT → 2차 docs/DEBATE-ROUND2-TO-GPT(컷 합의: s0149 [0,14,19,29], s0177 [0,38], s0194 [0,3], s0299 +41) → **3차 docs/DEBATE-ROUND3-TO-GPT-2026-10-27.md**(GPT 캡션 정리 대조, 조각 캡션 생성기 재작성 `caption_window.window_caption`, 표본 20 검토 요청 + 질문 3: 길이·홀드 어휘 형식·리듬 문장 중복). 저장소 태그 = GPT 최신(10-27 밤 3차).
-   사용자 판정 4건 완료·GPT 반영(s0149:17·s0177:6·s0194:6–9 컷 없음, **s0210 [0,16]**), 저장소 태그 = GPT 4차본. 사용자 추가: s0194 컷 그대로, 카메라는 점점 뒤로 감 → GPT에 camera 줌아웃 복원 요청(범위 3–28 가정).
-   **바로 할 일**: (a) GPT 표본 20 검토 답 대조 → 생성기 수정(질문 3: 길이·홀드 어휘 형식·리듬 문장 중복). (b) 학습 자료 한 번에 재생성(원본 99편 scratch `nk_src`로 받는 중/받음, `tools/wan_lora_dataset.py --gpt`) → 검사 → wanlora.zip 같은 Drive ID 갱신. (c) 남은 Claude 몫: `cutcheck` 도구에 영역 분리·내점 분포·재투영 오차.
+1. **GPT↔Claude 태그 토론 4차까지 진행**: 1–3차 docs/DEBATE-ROUND1~3-TO-GPT → **4차 docs/DEBATE-ROUND4-TO-GPT-2026-10-27.md**. 컷 합의·사용자 판정 끝(s0149 [0,14,19,29], s0177 [0,38], s0194 [0,3] + 3–28 카메라 후퇴, s0210 [0,16], s0299 +41). 저장소 태그 = GPT 5차본(s0177 색별 target 분리, s0149 흑백 구간 색 정정).
+   조각 캡션: 생성기 3차(`caption_window.window_caption`, 정확하나 장황: 60단어 이내 287/482) → **제안: 경우 B 443조각은 GPT가 Claude 사실표(`tools/window_factsheet.py sheet`, 4분할 파일 전달)로 60단어 캡션 작성, Claude가 `window_factsheet.py check`로 전수 검사**.
+   **바로 할 일**: (a) GPT 답(제안 수락 여부, 조각 캡션 JSONL) → check → 묶음마다 원본 대조 몇 개. (b) 학습 자료 재생성 `tools/wan_lora_dataset.py SRC data/style_kb/nk_shots_rough_2026-10-27.csv OUT --gpt <ALL+30 합본> --window-captions <GPT 조각 캡션>`(원본 99편 scratch `nk_src`에 받아 둠) → 검사 → wanlora.zip 같은 Drive ID 갱신. (c) 남은 Claude 몫: `cutcheck` 도구에 영역 분리·내점 분포·재투영 오차.
 2. **PC 영상 LoRA 시험**: `tools/pc_wan_lora.bat` 하나(설치 → 모델 14.5GB → Drive wanlora.zip → 캐시 → Wan2.1 T2V 1.3B LoRA → 비교 영상 → C:\aisfa\wan_out.zip). 토론 결과를 기다릴 필요는 없다(바뀌어도 몇 컷). 결과 오면 Claude가 LoRA 없음/있음 1차 평가 → GPT 2차 → 사용자 최종.
 3. 앱 측정 대기(SFA 로딩 원인 가르기): `ink_12fps_slim10_alt.sfa` 로딩 시간 — 16초 근처면 '서로 다른 ID 수', 1:50 근처면 '앞 장과 ID 연속성'이 원인(docs/REF-SFA-FILE-BUILDER-2026-10-27.md 끝).
 
