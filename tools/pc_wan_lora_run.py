@@ -41,6 +41,13 @@ def run(cmd, cwd, log, timeout=None):
         return p.returncode, killed, time.time() - t0
 
 
+# Wan 기본 부정 프롬프트(musubi wan/configs/shared_config.py sample_neg_prompt) 뒤에 인물 낱말을 덧붙인다.
+# --negative_prompt를 주면 기본값을 대신하므로 기본값을 그대로 앞에 둔다(10-28 첫 비교: 학습 자료의 인물 컷 때문에 프롬프트에 없는 인물이 생김).
+NEG_NOPERSON = ("色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，"
+                "画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走，"
+                "人物，人，角色，脸，person, character, human, face")
+
+
 def merge_ready(lora, dit):
     """영상 생성 때 LoRA가 실제로 합쳐지도록 키 이름을 DiT 파일 키에 맞춘 사본을 만든다(10-28 첫 실행: 900개 키가 전부 안 쓰여 LoRA 있음/없음 영상이 같았다).
     ComfyUI 재포장 DiT는 키가 'model.diffusion_model.'로 시작하고, musubi는 생성 때 그 원래 키로 LoRA 이름('lora_unet_' + 키의 '.'→'_')을 찾는다
@@ -78,6 +85,7 @@ def main():
     ap.add_argument("--swap", type=int, default=0)
     ap.add_argument("--steps", type=int, default=3000)
     ap.add_argument("--samples-only", action="store_true", help="학습 없이, 저장된 마지막 LoRA로 비교 영상(LoRA 있음)만 다시 만든다")
+    ap.add_argument("--eval", action="store_true", help="학습 없이, 마지막 LoRA를 세기 0.6·0.8·1.0과 '인물 빼기' 부정 프롬프트(1.0)로 비교 영상 16개를 만든다")
     a = ap.parse_args()
     t_start = time.time()
     W = os.path.abspath(a.work)
@@ -94,7 +102,7 @@ def main():
     os.makedirs(out, exist_ok=True)
 
     swap = a.swap
-    if not a.samples_only:
+    if not (a.samples_only or a.eval):
         # 다시 실행할 때 이미 끝난 캐시는 건너뛴다(조각 영상 수만큼 캐시 파일이 있으면 완료로 본다)
         nvid = len(glob.glob(os.path.join(data, "video", "*.mp4")))
         cfiles = glob.glob(os.path.join(data, "cache", "*.safetensors"))
@@ -145,14 +153,19 @@ def main():
     print("저장된 LoRA:", [os.path.basename(x) for x in loras], flush=True)
 
     print("[4/4] 비교 영상(LoRA 없음/있음, 33장 24fps)", flush=True)
-    sd = os.path.join(W, "samples2" if a.samples_only else "samples")
+    sd = os.path.join(W, "samples3" if a.eval else "samples2" if a.samples_only else "samples")
     os.makedirs(sd, exist_ok=True)
     gen_lora = merge_ready(loras[-1], dit) if loras else None
     if gen_lora and gen_lora != loras[-1]:
         print(f"  LoRA 키 이름을 영상 생성용으로 바꿈 → {os.path.basename(gen_lora)}", flush=True)
-    tags = (("lora", gen_lora),) if a.samples_only else (("base", None), ("lora", gen_lora))
+    if a.eval:  # 태그, LoRA, 세기, 부정 프롬프트(None = 기본)
+        tags = [(f"m{m}", gen_lora, m, None) for m in (0.6, 0.8, 1.0)] + [("m1.0_noperson", gen_lora, 1.0, NEG_NOPERSON)]
+    elif a.samples_only:
+        tags = [("lora", gen_lora, 1.0, None)]
+    else:
+        tags = [("base", None, 1.0, None), ("lora", gen_lora, 1.0, None)]
     for i, p in enumerate(PROMPTS):
-        for tag, lw in tags:
+        for tag, lw, mult, neg in tags:
             if glob.glob(os.path.join(sd, f"p{i}_{tag}", "*.mp4")):
                 continue  # 이미 만든 영상은 건너뜀(다시 실행하면 빠진 것만)
             if tag == "lora" and not lw:
@@ -161,7 +174,9 @@ def main():
                    "--video_size", "288", "512", "--video_length", "33", "--fps", "24", "--infer_steps", "25", "--seed", str(100 + i),
                    "--prompt", p, "--save_path", os.path.join(sd, f"p{i}_{tag}")]
             if lw:
-                cmd += ["--lora_weight", lw, "--lora_multiplier", "1.0"]
+                cmd += ["--lora_weight", lw, "--lora_multiplier", str(mult)]
+            if neg:
+                cmd += ["--negative_prompt", neg]
             if swap:
                 cmd += ["--blocks_to_swap", str(swap)]
             for tries in range(3):  # 생성 때 토크나이저 설정을 허깅페이스에서 읽다 연결이 끊기면 실패(10-28 p0·p3) → 다시 시도
@@ -171,9 +186,9 @@ def main():
                 print(f"  p{i} {tag} 실패 rc={rc}, {tries + 2}번째 시도", flush=True)
                 time.sleep(10)
             print(f"  p{i} {tag} rc={rc} {sec:.0f}초", flush=True)
-    zp = os.path.join(os.path.dirname(W), "wan_out_samples.zip" if a.samples_only else "wan_out.zip")
+    zp = os.path.join(os.path.dirname(W), "wan_out_eval.zip" if a.eval else "wan_out_samples.zip" if a.samples_only else "wan_out.zip")
     with zipfile.ZipFile(zp, "w", zipfile.ZIP_DEFLATED) as z:
-        for f in ([] if a.samples_only else loras[-3:]):
+        for f in ([] if a.samples_only or a.eval else loras[-3:]):
             z.write(f, "lora/" + os.path.basename(f))
         for f in glob.glob(os.path.join(sd, "**", "*"), recursive=True):
             if os.path.isfile(f):
