@@ -9,9 +9,9 @@
 GPT와 Claude는 각자 잘하는 일을 한다(AGENTS '다 GPT에 맡기지 말 것'). GPT = 시트 눈 판정·태깅, Claude = 측정·처리·검증·학습 준비·1차 평가.
 
 ## 바로 할 일 (다음 세션)
-1. **GPT↔Claude 태그 토론 4차까지 진행**: 1–3차 docs/DEBATE-ROUND1~3-TO-GPT → **4차 docs/DEBATE-ROUND4-TO-GPT-2026-10-27.md**. 컷 합의·사용자 판정 끝(s0149 [0,14,19,29], s0177 [0,38], s0194 [0,3] + 3–28 카메라 후퇴, s0210 [0,16], s0299 +41). 저장소 태그 = GPT 5차본(s0177 색별 target 분리, s0149 흑백 구간 색 정정).
-   조각 캡션: 생성기 3차(`caption_window.window_caption`, 정확하나 장황: 60단어 이내 287/482) → **제안: 경우 B 443조각은 GPT가 Claude 사실표(`tools/window_factsheet.py sheet`, 4분할 파일 전달)로 60단어 캡션 작성, Claude가 `window_factsheet.py check`로 전수 검사**.
-   **바로 할 일**: (a) GPT 답(제안 수락 여부, 조각 캡션 JSONL) → check → 묶음마다 원본 대조 몇 개. (b) 학습 자료 재생성 `tools/wan_lora_dataset.py SRC data/style_kb/nk_shots_rough_2026-10-27.csv OUT --gpt <ALL+30 합본> --window-captions <GPT 조각 캡션>`(원본 99편 scratch `nk_src`에 받아 둠) → 검사 → wanlora.zip 같은 Drive ID 갱신. (c) 남은 Claude 몫: `cutcheck` 도구에 영역 분리·내점 분포·재투영 오차.
+1. **GPT↔Claude 태그 토론 5차까지 진행**: 1–4차 docs/DEBATE-ROUND1~4-TO-GPT → **5차 docs/DEBATE-ROUND5-TO-GPT-2026-10-28.md**. 컷 합의·사용자 판정 끝. 저장소 태그 = GPT 5차본.
+   조각 캡션: GPT가 경우 B 443조각 작성 → 저장소 `data/style_kb/ai_results/gpt_WINDOW_CAPTIONS_2026-10-28.jsonl`. 기계 검사 필수 오류 0, 원본 표본 8 중 수정 3·보완 1 요청(s0415·s0349·s0047·s0274).
+   **바로 할 일**: (a) GPT 수정본 대조 → 저장소 갱신 → 다음 묶음 표본 대조(반복 깜빡임·흑백 삽입·태그 누락 유형 집중). (b) 사용자 지시 시 학습 자료 재생성 `tools/wan_lora_dataset.py <nk_src> data/style_kb/nk_shots_rough_2026-10-27.csv <OUT> --gpt <ALL+30 합본> --window-captions data/style_kb/ai_results/gpt_WINDOW_CAPTIONS_2026-10-28.jsonl`(원본 99편 scratch `nk_src`) → 검사 → wanlora.zip 같은 Drive ID. 사용자는 캡션 먼저 끝내길 원함(10-28). PC는 10-28 새벽 기준 약 4시간 뒤 가능하다고 함. (c) 남은 Claude 몫: `cutcheck` 영역 분리·내점 분포·재투영 오차.
 2. **PC 영상 LoRA 시험**: `tools/pc_wan_lora.bat` 하나(설치 → 모델 14.5GB → Drive wanlora.zip → 캐시 → Wan2.1 T2V 1.3B LoRA → 비교 영상 → C:\aisfa\wan_out.zip). 토론 결과를 기다릴 필요는 없다(바뀌어도 몇 컷). 결과 오면 Claude가 LoRA 없음/있음 1차 평가 → GPT 2차 → 사용자 최종.
 3. 앱 측정 대기(SFA 로딩 원인 가르기): `ink_12fps_slim10_alt.sfa` 로딩 시간 — 16초 근처면 '서로 다른 ID 수', 1:50 근처면 '앞 장과 ID 연속성'이 원인(docs/REF-SFA-FILE-BUILDER-2026-10-27.md 끝).
 

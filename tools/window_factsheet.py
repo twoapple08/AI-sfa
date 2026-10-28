@@ -61,7 +61,9 @@ def facts(g, w0, w1):
                            'color_scope_check': out and (len({c for c in t.get('color', []) if not c.endswith(('심', '테', '음영'))}) >= 3
                                                          or '색 단계 변화' in t.get('change', []))})
     last = g['segments'][-1]['frames'][1]
+    # 시트(컷 전체) 끝인지, 조각 끝 장이 한 컷(구간)의 끝인지 따로 둔다 — 뒤는 새 컷이거나 정리로 뺀 1–2장 옆 컷 조각(GPT 4차 질문 8조각)
     return {'segments': segs, 'events': events, 'window_ends_at_shot_end': w1 == last,
+            'window_ends_at_cut_end': any(s['frames'][1] == w1 for s in g['segments']),
             'cuts_in_window': [c - w0 for c in g['cuts'] if w0 < c <= w1]}
 
 

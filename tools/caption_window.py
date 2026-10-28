@@ -445,7 +445,7 @@ def window_caption(g, cap, w0, w1):
             bits = [f'{v} {_ranges(rs)}' for v, rs in groups]
             if b1 > w1:
                 bits[-1] += ', continuing beyond the window'
-            elif b1 == w1 == last and ph[-1][2] != '소멸':
+            elif b1 == w1 and any(x['frames'][1] == w1 for x in g['segments']) and ph[-1][2] != '소멸':  # 조각 끝 = 컷(구간) 끝
                 bits[-1] += ', through the last visible frame'
             if si and g['segments'][si]['frames'][0] in cuts and a0 == g['segments'][si]['frames'][0]:
                 d = d + ' in the new shot'
