@@ -95,7 +95,21 @@ def build_eval3():
              "받기·설치 → 63개 GPU 나눠서 → 시트 → zip")
 
 
+def build_train(data_url):
+    notebook("""
+# AI-sfa 나카무라 Wan LoRA 본 학습 2차 — Kaggle T4 (fp16)
+
+학습 자료 2판(효과 없음 23조각 제외 + 인물·로봇 캡션 문장)으로 3000스텝 학습한다(학습 시험: 4.41초/스텝 → 약 3.7시간).
+GPU 0이 학습하는 동안 GPU 1이 1000·2000·3000스텝 저장본으로 평가 영상(프롬프트 7 × 씨앗 3, 세기 0.8, CPU 노이즈)을 만든다 — 평가 3판 기준선과 같은 씨앗.
+""" + SETUP_MD.replace("02_분석자료/WanLoRA_평가/", "07_도구/PC_WanLoRA/") + """
+**실행:** **Save Version → Save & Run All (Commit)**. 예상 5–6시간(추정). 결과 `nkmr_wan13_v2_out.zip`(LoRA 저장본 500스텝마다, 저장본 평가 시트 `ckpt_compare/`, 기록 `train/`).
+""", "tools/kaggle_wan_train_worker.py", f"--out /kaggle/working --data-url '{data_url}'", "tools/kaggle_wan_train.ipynb",
+             "받기·설치 → 캐시(GPU 2장) → GPU0 학습 + GPU1 저장본 평가 → zip")
+
+
 if __name__ == "__main__":
     build()
     build_train_test()
     build_eval3()
+    if os.environ.get("WANLORA_V2_URL"):  # 학습 자료 2판을 Drive에 올린 뒤 그 공유 주소로 만든다
+        build_train(os.environ["WANLORA_V2_URL"])
