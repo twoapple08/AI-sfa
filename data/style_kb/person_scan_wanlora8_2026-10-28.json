@@ -1,0 +1,4767 @@
+[
+{
+"clip": "s0001_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 16,
+"conf": 0.302,
+"area": 0.171,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0001_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0002_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 18,
+"conf": 0.918,
+"area": 0.993,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0002_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 24,
+"conf": 0.92,
+"area": 0.994,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0003_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 5,
+"conf": 0.551,
+"area": 0.083,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0003_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 15,
+"conf": 0.754,
+"area": 0.076,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0004_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 15,
+"conf": 0.328,
+"area": 0.966,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0004_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 15,
+"conf": 0.602,
+"area": 0.97,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0005_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 28,
+"conf": 0.301,
+"area": 0.073,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0005_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 28,
+"conf": 0.602,
+"area": 0.079,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0005_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 7,
+"conf": 0.725,
+"area": 0.084,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": true
+},
+{
+"clip": "s0006_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0006_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 3,
+"frame": 14,
+"conf": 0.739,
+"area": 0.983,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0007_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.849,
+"area": 0.136,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0007_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 24,
+"conf": 0.772,
+"area": 0.301,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0007_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 24,
+"conf": 0.806,
+"area": 0.385,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0008_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 7,
+"conf": 0.674,
+"area": 0.098,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0008_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 5,
+"frame": 16,
+"conf": 0.713,
+"area": 0.126,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0008_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 14,
+"conf": 0.642,
+"area": 0.112,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0009_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 21,
+"conf": 0.78,
+"area": 0.177,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0011_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 20,
+"conf": 0.357,
+"area": 0.887,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0013_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 5,
+"conf": 0.549,
+"area": 0.245,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0013_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 20,
+"conf": 0.745,
+"area": 0.992,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0014_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0015_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 12,
+"conf": 0.587,
+"area": 0.977,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0015_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 21,
+"conf": 0.348,
+"area": 0.973,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0015_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 2,
+"frame": 6,
+"conf": 0.831,
+"area": 0.988,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0016_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 8,
+"conf": 0.323,
+"area": 0.976,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0018_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0018_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0019_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 5,
+"conf": 0.548,
+"area": 0.454,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0019_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 10,
+"conf": 0.542,
+"area": 0.967,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0019_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 5,
+"conf": 0.528,
+"area": 0.825,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0020_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0020_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0021_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0022_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0023_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.802,
+"area": 0.449,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0023_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 20,
+"conf": 0.722,
+"area": 0.703,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0025_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.574,
+"area": 0.124,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0025_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.364,
+"area": 0.236,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0026_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0027_c0",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0028_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": true
+},
+{
+"clip": "s0029_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 20,
+"conf": 0.666,
+"area": 0.962,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0029_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.646,
+"area": 0.968,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0030_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0031_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0032_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0032_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 20,
+"conf": 0.541,
+"area": 0.985,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0033_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 3,
+"frame": 15,
+"conf": 0.572,
+"area": 0.982,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0033_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 3,
+"frame": 20,
+"conf": 0.721,
+"area": 0.986,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0037_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 15,
+"conf": 0.466,
+"area": 0.946,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0037_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 20,
+"conf": 0.878,
+"area": 0.988,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0038_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0038_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0039_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0039_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0040_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0040_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0040_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": true
+},
+{
+"clip": "s0041_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0041_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0041_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0042_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 3,
+"frame": 10,
+"conf": 0.516,
+"area": 0.97,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0042_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 3,
+"frame": 0,
+"conf": 0.622,
+"area": 0.756,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0042_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 0,
+"conf": 0.803,
+"area": 0.469,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0044_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0045_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 3,
+"frame": 18,
+"conf": 0.675,
+"area": 0.408,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0047_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 18,
+"conf": 0.385,
+"area": 0.618,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0047_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.421,
+"area": 0.81,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0050_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0051_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 2,
+"frame": 28,
+"conf": 0.621,
+"area": 0.497,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0051_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 3,
+"frame": 28,
+"conf": 0.69,
+"area": 0.502,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0051_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 7,
+"conf": 0.681,
+"area": 0.516,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0052_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0053_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 6,
+"conf": 0.415,
+"area": 0.94,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0053_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 24,
+"conf": 0.412,
+"area": 0.174,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0053_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.428,
+"area": 0.226,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0054_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 2,
+"frame": 7,
+"conf": 0.661,
+"area": 0.076,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0054_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0055_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 3,
+"frame": 14,
+"conf": 0.612,
+"area": 0.983,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0055_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.844,
+"area": 0.091,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0055_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 14,
+"conf": 0.833,
+"area": 0.097,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0056_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0056_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0056_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0058_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 24,
+"conf": 0.839,
+"area": 0.99,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0062_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 5,
+"conf": 0.701,
+"area": 0.249,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0062_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 5,
+"conf": 0.796,
+"area": 0.199,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0062_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 20,
+"conf": 0.727,
+"area": 0.116,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0063_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0063_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0063_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0064_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.767,
+"area": 0.477,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0064_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.788,
+"area": 0.474,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0064_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 21,
+"conf": 0.77,
+"area": 0.473,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0065_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0065_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0065_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0066_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 24,
+"conf": 0.886,
+"area": 0.421,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0066_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.881,
+"area": 0.399,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0066_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 18,
+"conf": 0.856,
+"area": 0.433,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0069_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0069_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0070_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0070_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0071_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": true
+},
+{
+"clip": "s0071_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0072_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0072_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0075_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0075_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0075_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0076_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0076_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0077_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0077_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0078_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": true
+},
+{
+"clip": "s0078_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0078_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0081_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 21,
+"conf": 0.846,
+"area": 0.29,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0081_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 7,
+"conf": 0.697,
+"area": 0.444,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0081_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 2,
+"frame": 7,
+"conf": 0.791,
+"area": 0.306,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0083_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.683,
+"area": 0.964,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0083_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.587,
+"area": 0.959,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0083_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.614,
+"area": 0.959,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0084_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0084_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0084_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0086_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 5,
+"frame": 16,
+"conf": 0.819,
+"area": 0.983,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0086_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 10,
+"conf": 0.784,
+"area": 0.98,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0088_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 14,
+"conf": 0.875,
+"area": 0.977,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0089_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 10,
+"conf": 0.625,
+"area": 0.946,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0089_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 15,
+"conf": 0.634,
+"area": 0.968,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0090_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0090_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 5,
+"conf": 0.412,
+"area": 0.789,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0093_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 18,
+"conf": 0.571,
+"area": 0.919,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0094_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.533,
+"area": 0.961,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0095_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 2,
+"frame": 28,
+"conf": 0.532,
+"area": 0.608,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": true
+},
+{
+"clip": "s0095_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 3,
+"frame": 32,
+"conf": 0.751,
+"area": 0.965,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0095_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.753,
+"area": 0.964,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0096_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 5,
+"conf": 0.44,
+"area": 0.105,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0097_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 4,
+"frame": 8,
+"conf": 0.878,
+"area": 0.983,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0098_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0098_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 24,
+"conf": 0.368,
+"area": 0.148,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0098_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 6,
+"conf": 0.404,
+"area": 0.16,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0099_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0100_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0100_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 1,
+"frame": 16,
+"conf": 0.741,
+"area": 0.954,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0100_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.432,
+"area": 0.256,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0101_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.789,
+"area": 0.327,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0101_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 20,
+"conf": 0.755,
+"area": 0.541,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0102_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0102_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0104_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 20,
+"conf": 0.811,
+"area": 0.193,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0106_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0107_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0107_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0114_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0114_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 15,
+"conf": 0.473,
+"area": 0.899,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0116_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 15,
+"conf": 0.437,
+"area": 0.162,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0119_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 3,
+"frame": 0,
+"conf": 0.953,
+"area": 0.995,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0124_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.534,
+"area": 0.198,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0125_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.33,
+"area": 0.958,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0127_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0129_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 20,
+"conf": 0.475,
+"area": 0.963,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0129_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.41,
+"area": 0.781,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0130_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 15,
+"conf": 0.774,
+"area": 0.286,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0130_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 5,
+"conf": 0.707,
+"area": 0.493,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0132_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 15,
+"conf": 0.465,
+"area": 0.533,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0132_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 15,
+"conf": 0.542,
+"area": 0.782,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0132_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 20,
+"conf": 0.845,
+"area": 0.373,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0134_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 28,
+"conf": 0.65,
+"area": 0.875,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0134_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.484,
+"area": 0.506,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0136_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 7,
+"conf": 0.641,
+"area": 0.724,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0136_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0136_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 14,
+"conf": 0.775,
+"area": 0.976,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0137_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 15,
+"conf": 0.623,
+"area": 0.981,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0137_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 5,
+"conf": 0.491,
+"area": 0.969,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0140_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 14,
+"conf": 0.304,
+"area": 0.236,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0140_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0140_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0142_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 1,
+"frame": 4,
+"conf": 0.586,
+"area": 0.956,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0142_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 16,
+"conf": 0.486,
+"area": 0.965,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0144_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.463,
+"area": 0.756,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0144_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.464,
+"area": 0.013,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0144_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0149_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 15,
+"conf": 0.512,
+"area": 0.486,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0149_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 10,
+"conf": 0.429,
+"area": 0.991,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0152_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 2,
+"frame": 18,
+"conf": 0.533,
+"area": 0.925,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": true
+},
+{
+"clip": "s0152_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.51,
+"area": 0.431,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0153_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 12,
+"conf": 0.745,
+"area": 0.99,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0153_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0156_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 18,
+"conf": 0.596,
+"area": 0.316,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0156_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 6,
+"conf": 0.329,
+"area": 0.301,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0157_c0",
+"frames": 33,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.663,
+"area": 0.088,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0157_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 1,
+"frame": 16,
+"conf": 0.597,
+"area": 0.148,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0158_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 4,
+"frame": 4,
+"conf": 0.802,
+"area": 0.978,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0160_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 7,
+"conf": 0.824,
+"area": 0.434,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0160_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 21,
+"conf": 0.749,
+"area": 0.474,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0164_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0164_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0164_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0165_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0165_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 18,
+"conf": 0.511,
+"area": 0.975,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0167_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0167_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"frame": 32,
+"conf": 0.376,
+"area": 0.974,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0167_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0171_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0171_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0172_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 10,
+"conf": 0.617,
+"area": 0.093,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": true
+},
+{
+"clip": "s0173_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.603,
+"area": 0.13,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0173_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 7,
+"conf": 0.522,
+"area": 0.85,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0175_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 0,
+"conf": 0.544,
+"area": 0.926,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0177_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 0,
+"conf": 0.89,
+"area": 0.985,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0177_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 0,
+"conf": 0.848,
+"area": 0.535,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0178_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0178_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 1,
+"frame": 12,
+"conf": 0.573,
+"area": 0.054,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0180_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0180_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0180_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0182_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0182_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0183_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.415,
+"area": 0.979,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0183_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 18,
+"conf": 0.431,
+"area": 0.973,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0184_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 7,
+"conf": 0.507,
+"area": 0.723,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0185_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0185_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0186_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0188_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0191_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0192_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0192_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0193_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 20,
+"conf": 0.741,
+"area": 0.606,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0193_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 3,
+"frame": 20,
+"conf": 0.803,
+"area": 0.975,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0194_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 21,
+"conf": 0.394,
+"area": 0.176,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0195_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 18,
+"conf": 0.706,
+"area": 0.267,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": true
+},
+{
+"clip": "s0195_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 6,
+"conf": 0.402,
+"area": 0.867,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": true
+},
+{
+"clip": "s0195_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 18,
+"conf": 0.577,
+"area": 0.265,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": true
+},
+{
+"clip": "s0196_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.413,
+"area": 0.982,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0201_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.409,
+"area": 0.976,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0201_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0204_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0208_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 1,
+"frame": 16,
+"conf": 0.751,
+"area": 0.983,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0208_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 4,
+"frame": 4,
+"conf": 0.909,
+"area": 0.989,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0210_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0212_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 5,
+"frame": 12,
+"conf": 0.86,
+"area": 0.546,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0214_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.834,
+"area": 0.499,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0215_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 1,
+"frame": 16,
+"conf": 0.514,
+"area": 0.425,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0217_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0217_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 18,
+"conf": 0.584,
+"area": 0.038,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0217_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0219_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0220_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 1,
+"frame": 12,
+"conf": 0.586,
+"area": 0.405,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": true
+},
+{
+"clip": "s0220_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0223_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 3,
+"frame": 4,
+"conf": 0.692,
+"area": 0.195,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0225_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 5,
+"frame": 8,
+"conf": 0.691,
+"area": 0.203,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0226_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0226_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0228_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0228_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.445,
+"area": 0.022,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0229_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0229_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0230_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0230_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 2,
+"frame": 0,
+"conf": 0.638,
+"area": 0.085,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0231_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0231_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0232_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 28,
+"conf": 0.612,
+"area": 0.892,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0232_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.701,
+"area": 0.891,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0234_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.885,
+"area": 0.978,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0236_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 8,
+"conf": 0.496,
+"area": 0.975,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0240_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 7,
+"conf": 0.314,
+"area": 0.45,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0240_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"frame": 24,
+"conf": 0.443,
+"area": 0.812,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0240_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 21,
+"conf": 0.57,
+"area": 0.991,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0241_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 28,
+"conf": 0.356,
+"area": 0.5,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0241_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 2,
+"frame": 21,
+"conf": 0.531,
+"area": 0.594,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0241_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 7,
+"conf": 0.749,
+"area": 0.574,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0242_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 24,
+"conf": 0.645,
+"area": 0.879,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0243_c0",
+"frames": 33,
+"sampled": 5,
+"hits": 3,
+"frame": 24,
+"conf": 0.586,
+"area": 0.709,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0244_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 8,
+"conf": 0.391,
+"area": 0.976,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0247_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.577,
+"area": 0.618,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0249_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0249_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0252_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0252_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0253_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 8,
+"conf": 0.368,
+"area": 0.982,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0253_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 2,
+"frame": 16,
+"conf": 0.887,
+"area": 0.989,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": true
+},
+{
+"clip": "s0254_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0254_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0255_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 5,
+"conf": 0.664,
+"area": 0.34,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0257_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 24,
+"conf": 0.422,
+"area": 0.056,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0257_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 3,
+"frame": 24,
+"conf": 0.773,
+"area": 0.09,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0257_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 24,
+"conf": 0.777,
+"area": 0.242,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0259_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 4,
+"conf": 0.479,
+"area": 0.983,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0261_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 15,
+"conf": 0.613,
+"area": 0.037,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0261_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 20,
+"conf": 0.645,
+"area": 0.955,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0261_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0263_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0264_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 2,
+"frame": 8,
+"conf": 0.644,
+"area": 0.951,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0265_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0271_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 21,
+"conf": 0.639,
+"area": 0.667,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0271_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 5,
+"frame": 24,
+"conf": 0.544,
+"area": 0.688,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0271_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 3,
+"frame": 28,
+"conf": 0.922,
+"area": 0.997,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0272_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0272_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0274_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 5,
+"frame": 12,
+"conf": 0.688,
+"area": 0.155,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0276_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0277_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0278_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.492,
+"area": 0.331,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0278_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 0,
+"conf": 0.723,
+"area": 0.481,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0280_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 28,
+"conf": 0.69,
+"area": 0.686,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0280_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 0,
+"conf": 0.625,
+"area": 0.64,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0281_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0282_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 5,
+"conf": 0.714,
+"area": 0.477,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0284_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0284_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0285_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0286_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0286_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0287_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 14,
+"conf": 0.693,
+"area": 0.592,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0289_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 28,
+"conf": 0.602,
+"area": 0.485,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0290_c0",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0291_c0",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0292_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 16,
+"conf": 0.308,
+"area": 0.88,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0292_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.4,
+"area": 0.916,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0293_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0293_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0294_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0296_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.357,
+"area": 0.739,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0297_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 0,
+"conf": 0.877,
+"area": 0.985,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0299_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 2,
+"frame": 16,
+"conf": 0.957,
+"area": 0.995,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0299_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 0,
+"conf": 0.642,
+"area": 0.989,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0301_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.583,
+"area": 0.993,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0301_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0302_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0303_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0304_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.529,
+"area": 0.979,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0304_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 10,
+"conf": 0.576,
+"area": 0.134,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0305_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 3,
+"frame": 18,
+"conf": 0.615,
+"area": 0.994,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0306_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.389,
+"area": 0.703,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0306_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.59,
+"area": 0.687,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0308_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 10,
+"conf": 0.724,
+"area": 0.98,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0308_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 3,
+"frame": 10,
+"conf": 0.684,
+"area": 0.979,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0309_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 2,
+"frame": 4,
+"conf": 0.51,
+"area": 0.664,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": true
+},
+{
+"clip": "s0310_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 3,
+"frame": 14,
+"conf": 0.606,
+"area": 0.173,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0311_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0311_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0313_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 2,
+"frame": 24,
+"conf": 0.613,
+"area": 0.282,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0314_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 6,
+"conf": 0.465,
+"area": 0.373,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0314_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 28,
+"conf": 0.38,
+"area": 0.987,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0315_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 7,
+"conf": 0.395,
+"area": 0.176,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0315_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 1,
+"frame": 24,
+"conf": 0.534,
+"area": 0.126,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0315_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 21,
+"conf": 0.511,
+"area": 0.491,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0316_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 16,
+"conf": 0.341,
+"area": 0.811,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0317_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 4,
+"frame": 4,
+"conf": 0.524,
+"area": 0.862,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0319_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 5,
+"frame": 12,
+"conf": 0.697,
+"area": 0.603,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0320_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 20,
+"conf": 0.483,
+"area": 0.824,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": true
+},
+{
+"clip": "s0321_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 21,
+"conf": 0.849,
+"area": 0.99,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0324_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 20,
+"conf": 0.724,
+"area": 0.989,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0326_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 16,
+"conf": 0.366,
+"area": 0.981,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0326_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 4,
+"conf": 0.459,
+"area": 0.976,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0327_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 20,
+"conf": 0.467,
+"area": 0.947,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0328_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0329_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0329_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0329_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0330_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 3,
+"frame": 12,
+"conf": 0.738,
+"area": 0.986,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0331_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 3,
+"frame": 20,
+"conf": 0.515,
+"area": 0.308,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0332_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.396,
+"area": 0.196,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0333_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 2,
+"frame": 14,
+"conf": 0.66,
+"area": 0.633,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0333_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 7,
+"conf": 0.66,
+"area": 0.456,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0334_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 15,
+"conf": 0.705,
+"area": 0.984,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0335_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.407,
+"area": 0.349,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0336_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0336_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 18,
+"conf": 0.394,
+"area": 0.825,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0336_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 18,
+"conf": 0.357,
+"area": 0.799,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0337_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0337_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.394,
+"area": 0.98,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0339_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 18,
+"conf": 0.421,
+"area": 0.772,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": true
+},
+{
+"clip": "s0339_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 18,
+"conf": 0.651,
+"area": 0.986,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": true
+},
+{
+"clip": "s0340_c0",
+"frames": 33,
+"sampled": 5,
+"hits": 2,
+"frame": 16,
+"conf": 0.516,
+"area": 0.26,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0341_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0342_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 15,
+"conf": 0.538,
+"area": 0.522,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0342_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 3,
+"frame": 10,
+"conf": 0.704,
+"area": 0.975,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0342_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.523,
+"area": 0.971,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0343_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 10,
+"conf": 0.585,
+"area": 0.122,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0346_c0",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0346_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0347_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 10,
+"conf": 0.413,
+"area": 0.958,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": true
+},
+{
+"clip": "s0348_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 24,
+"conf": 0.604,
+"area": 0.974,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0348_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.61,
+"area": 0.95,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0349_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 21,
+"conf": 0.302,
+"area": 0.971,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0349_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 1,
+"frame": 16,
+"conf": 0.561,
+"area": 0.988,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0350_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 3,
+"frame": 12,
+"conf": 0.613,
+"area": 0.201,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0352_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0355_c0",
+"frames": 33,
+"sampled": 5,
+"hits": 4,
+"frame": 24,
+"conf": 0.852,
+"area": 0.972,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0355_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 3,
+"frame": 16,
+"conf": 0.903,
+"area": 0.988,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0356_c0",
+"frames": 33,
+"sampled": 5,
+"hits": 4,
+"frame": 0,
+"conf": 0.875,
+"area": 0.964,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0357_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 5,
+"conf": 0.855,
+"area": 0.913,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0358_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 0,
+"conf": 0.813,
+"area": 0.945,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0362_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 21,
+"conf": 0.519,
+"area": 0.927,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0364_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0364_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.402,
+"area": 0.166,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": true
+},
+{
+"clip": "s0365_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 1,
+"frame": 4,
+"conf": 0.732,
+"area": 0.097,
+"group": "3군_작은인물_10%미만",
+"no_visible_effects": false
+},
+{
+"clip": "s0365_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 16,
+"conf": 0.303,
+"area": 0.128,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": true
+},
+{
+"clip": "s0366_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 6,
+"conf": 0.601,
+"area": 0.103,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0367_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 3,
+"frame": 10,
+"conf": 0.87,
+"area": 0.992,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0368_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 10,
+"conf": 0.904,
+"area": 0.992,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0369_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 6,
+"conf": 0.407,
+"area": 0.912,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0369_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 24,
+"conf": 0.424,
+"area": 0.969,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0370_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 24,
+"conf": 0.477,
+"area": 0.378,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0371_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 10,
+"conf": 0.304,
+"area": 0.979,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0371_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0372_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 5,
+"conf": 0.612,
+"area": 0.961,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0374_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 1,
+"frame": 20,
+"conf": 0.683,
+"area": 0.858,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0374_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 3,
+"frame": 0,
+"conf": 0.702,
+"area": 0.449,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0378_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 12,
+"conf": 0.766,
+"area": 0.992,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0378_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 6,
+"conf": 0.848,
+"area": 0.991,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0378_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0380_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0380_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0382_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0384_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0386_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.428,
+"area": 0.588,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0391_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0391_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"frame": 18,
+"conf": 0.442,
+"area": 0.206,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0394_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 3,
+"frame": 12,
+"conf": 0.832,
+"area": 0.261,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0394_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 5,
+"frame": 28,
+"conf": 0.748,
+"area": 0.233,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0395_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 1,
+"frame": 6,
+"conf": 0.598,
+"area": 0.165,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": true
+},
+{
+"clip": "s0395_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0399_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 0,
+"conf": 0.541,
+"area": 0.947,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0399_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 4,
+"frame": 15,
+"conf": 0.616,
+"area": 0.731,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0401_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0401_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0401_c2",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0402_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 2,
+"frame": 0,
+"conf": 0.58,
+"area": 0.936,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0402_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 4,
+"conf": 0.499,
+"area": 0.671,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0403_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 7,
+"conf": 0.451,
+"area": 0.123,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0404_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0405_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.493,
+"area": 0.759,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0405_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 3,
+"frame": 8,
+"conf": 0.699,
+"area": 0.478,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": true
+},
+{
+"clip": "s0406_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 1,
+"frame": 16,
+"conf": 0.616,
+"area": 0.989,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0407_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0407_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0407_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0409_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0410_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.393,
+"area": 0.782,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0410_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0411_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 2,
+"frame": 0,
+"conf": 0.577,
+"area": 0.98,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0411_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 5,
+"frame": 20,
+"conf": 0.778,
+"area": 0.987,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0412_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 21,
+"conf": 0.567,
+"area": 0.416,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0414_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 4,
+"frame": 21,
+"conf": 0.747,
+"area": 0.984,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0414_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 0,
+"conf": 0.639,
+"area": 0.968,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0414_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 7,
+"conf": 0.374,
+"area": 0.978,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0415_c0",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0415_c1",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0415_c2",
+"frames": 25,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0416_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0416_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 28,
+"conf": 0.557,
+"area": 0.991,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0416_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 2,
+"frame": 0,
+"conf": 0.507,
+"area": 0.972,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0418_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0419_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"frame": 12,
+"conf": 0.377,
+"area": 0.941,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0419_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.395,
+"area": 0.953,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0420_c0",
+"frames": 33,
+"sampled": 5,
+"hits": 3,
+"frame": 16,
+"conf": 0.574,
+"area": 0.849,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0421_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0422_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0422_c1",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"frame": 15,
+"conf": 0.411,
+"area": 0.963,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0424_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 14,
+"conf": 0.451,
+"area": 0.039,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0424_c1",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": true
+},
+{
+"clip": "s0427_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 2,
+"frame": 4,
+"conf": 0.568,
+"area": 0.456,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0427_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 2,
+"frame": 12,
+"conf": 0.507,
+"area": 0.833,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0429_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0430_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0430_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 3,
+"frame": 12,
+"conf": 0.691,
+"area": 0.966,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0431_c0",
+"frames": 21,
+"sampled": 5,
+"hits": 0,
+"group": "none",
+"no_visible_effects": false
+},
+{
+"clip": "s0434_c0",
+"frames": 17,
+"sampled": 5,
+"hits": 3,
+"frame": 16,
+"conf": 0.54,
+"area": 0.545,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0434_c1",
+"frames": 17,
+"sampled": 5,
+"hits": 4,
+"frame": 16,
+"conf": 0.683,
+"area": 0.983,
+"group": "1군_크고지속_면적10%이상_5장중3장이상",
+"no_visible_effects": false
+},
+{
+"clip": "s0436_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 1,
+"frame": 28,
+"conf": 0.549,
+"area": 0.964,
+"group": "2군_크지만잠깐_면적10%이상_1-2장",
+"no_visible_effects": false
+},
+{
+"clip": "s0436_c1",
+"frames": 33,
+"sampled": 5,
+"hits": 0,
+"frame": 16,
+"conf": 0.399,
+"area": 0.971,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0436_c2",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 7,
+"conf": 0.363,
+"area": 0.973,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+},
+{
+"clip": "s0437_c0",
+"frames": 29,
+"sampled": 5,
+"hits": 0,
+"frame": 0,
+"conf": 0.385,
+"area": 0.337,
+"group": "4군_의심_확신낮음",
+"no_visible_effects": false
+}
+]
