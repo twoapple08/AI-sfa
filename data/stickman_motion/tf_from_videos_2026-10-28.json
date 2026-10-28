@@ -1,0 +1,118 @@
+[
+ {
+  "file": "묶음4_영상짝/스파 연계 교본.sfa",
+  "video": "4.mp4, 54f03c85eb7628c5.mp4",
+  "frames": 34,
+  "video_fps": 16,
+  "video_frames": 34,
+  "T": 16,
+  "F": 16,
+  "state": "확정",
+  "note": "장 수 = 영상 프레임 수"
+ },
+ {
+  "file": "묶음4_영상짝/스파 연계 교본.sfa",
+  "video": "2.mp4",
+  "frames": 34,
+  "video_fps": 60,
+  "video_frames": 128,
+  "T": 60,
+  "F": 16,
+  "state": "확정",
+  "note": "트윈: ceil(34·60/16)=128 일치, 다른 장 125/128"
+ },
+ {
+  "file": "묶음3_무기도구/S2aqoie_pt.sfa",
+  "video": "S2aqoie_pt.mp4",
+  "frames": 106,
+  "video_fps": 15,
+  "video_frames": 106,
+  "T": 15,
+  "F": 15,
+  "state": "확정",
+  "note": "사용자 확인값과 일치"
+ },
+ {
+  "file": "묶음3_무기도구/sr.sfa",
+  "video": "sr_2.mp4",
+  "frames": 63,
+  "video_fps": 24,
+  "video_frames": 126,
+  "T": 24,
+  "F": 12,
+  "state": "확정",
+  "note": "126=63×2, 다른 장 약 113"
+ },
+ {
+  "file": "묶음3_무기도구/뇌 빼고.sfa",
+  "video": "15.mp4",
+  "frames": 81,
+  "video_fps": 24,
+  "video_frames": 162,
+  "T": 24,
+  "F": 12,
+  "state": "확정",
+  "note": "162=81×2, 연속 차이가 두 장씩 같음(선형 트윈 중간 장)"
+ },
+ {
+  "file": "묶음3_무기도구/대홍련빙륜환의 올바른 사용법.sfa",
+  "video": "4832145e771734fa.mp4",
+  "frames": 64,
+  "video_fps": 24,
+  "video_frames": 128,
+  "T": 24,
+  "F": 12,
+  "state": "확정",
+  "note": "128=64×2, 유사도 0.93"
+ },
+ {
+  "file": "묶음3_무기도구/수평선.sfa",
+  "video": "12.mp4",
+  "frames": 18,
+  "video_fps": 24,
+  "video_frames": 36,
+  "T": 24,
+  "F": 12,
+  "state": "확정",
+  "note": "36=18×2"
+ },
+ {
+  "file": "묶음3_무기도구/ㅇㅇㅇㅇㅇㅇ (1).sfa",
+  "video": "1-1.mp4",
+  "frames": 57,
+  "video_fps": "36(평균 30.08)",
+  "video_frames": 188,
+  "T": null,
+  "F": null,
+  "state": "미정",
+  "note": "짝은 맞음(0.83). 188/57≈3.3, 재인코딩 의심. (30,9)이면 190장으로 가까움"
+ },
+ {
+  "file": "묶음3_무기도구/A.sfa",
+  "video": "UNTITLED.mov",
+  "frames": 66,
+  "video_fps": 32,
+  "video_frames": 180,
+  "T": null,
+  "F": null,
+  "state": "미정",
+  "note": "짝 유사도 0.66(낮음). 180/66≈2.7, 앞부분 정지 장 있음"
+ },
+ {
+  "file": "묶음3_무기도구/kirara jump.sfa",
+  "video": "kirara_jump.mov",
+  "frames": 19,
+  "video_fps": 24,
+  "video_frames": 25,
+  "T": null,
+  "F": null,
+  "state": "미정",
+  "note": "다른 장 약 18 ≈ 19 → 트윈 없음, (24,24) 추정. 영상 앞 정지 장 6"
+ },
+ {
+  "file": null,
+  "video": "KakaoTalk_20261003_210934547.mp4, Video_ede00881….mp4, Screen_Recording_…STICK_FIGHTER.mp4",
+  "state": "짝 못 찾음",
+  "note": "최고 유사도 0.45–0.62, 비슷한 SPECTRUM 파일 둘이 비슷한 점수 → 확정 불가"
+ }
+]
