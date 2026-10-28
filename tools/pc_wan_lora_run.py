@@ -4,8 +4,8 @@
 사용자 결정(10-27 저녁): SFA보다 먼저 나카무라 스타일 영상 AI. 첫 시험은 '이 PC에서 영상 LoRA 학습이 되는지 + LoRA가 화풍·움직임을 바꾸는지'.
 학습 도구: kohya-ss/musubi-tuner(고정 커밋, pc_wan_lora.bat가 받음). 자료: wanlora.zip(tools/wan_lora_dataset.py, 275컷 → 17–33장 조각 482개 11,410장 512×288 24fps, 캡션 = GPT 조각 캡션 444 + 컷 캡션 38·조각 기준 장 번호, full 추출, 10-28 갱신).
 메모리: DiT fp8(--fp8_base) + gradient checkpointing, 처음 몇 분 안에 실패하면 블록 교체(--blocks_to_swap)를 늘려 다시.
-시간: --minutes 안에 학습을 끊고(150스텝마다 저장) 남은 시간에 비교 영상을 만든다. 서버에서는 실행 시험을 못 했다(외부 코드 실행 거절) — 명령 형식은 소스 대조만.
-사용: python pc_wan_lora_run.py <작업 폴더 C:\\aisfa\\wan> --minutes 170
+시간: --minutes(또는 --total: bat 시작부터 쓸 수 있는 시간, 설치·다운로드 시간을 자동으로 뺌) 안에 학습을 끊고(150스텝마다 저장) 남은 시간에 비교 영상을 만든다. 서버에서는 실행 시험을 못 했다(외부 코드 실행 거절) — 명령 형식은 소스 대조만.
+사용: python pc_wan_lora_run.py <작업 폴더 C:\\aisfa\\wan> --total 240 --start-file C:\\aisfa\\run_start.txt  (또는 --minutes 170)
 """
 import argparse
 import glob
@@ -45,10 +45,19 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("work")
     ap.add_argument("--minutes", type=float, default=170, help="이 스크립트 전체 시간(캐시·학습·비교 영상 포함)")
+    ap.add_argument("--total", type=float, help="bat 시작부터 PC를 쓸 수 있는 전체 시간(분). 주면 설치·다운로드에 걸린 시간과 여유 10분을 빼서 --minutes를 정한다")
+    ap.add_argument("--start-file", help="bat 시작 때 만든 표시 파일(수정 시각 = 시작 시각)")
     ap.add_argument("--swap", type=int, default=0)
     ap.add_argument("--steps", type=int, default=3000)
     a = ap.parse_args()
     t_start = time.time()
+    if a.total:
+        used = (t_start - os.path.getmtime(a.start_file)) / 60 if a.start_file and os.path.exists(a.start_file) else 0
+        a.minutes = a.total - used - 10
+        print(f"PC 사용 시간 {a.total:.0f}분 중 설치·다운로드 {used:.0f}분, 여유 10분 → 캐시·학습·비교 영상에 {a.minutes:.0f}분", flush=True)
+        if a.minutes < 45:
+            print("남은 시간이 45분보다 적어 학습을 의미 있게 못 합니다. 다음에 더 긴 시간으로 다시 실행해 주세요(설치·다운로드는 남아 있으면 건너뜀).", flush=True)
+            sys.exit(1)
     W = os.path.abspath(a.work)
     mt = os.path.join(W, "musubi")
     src = os.path.join(mt, "src", "musubi_tuner")
