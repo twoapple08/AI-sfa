@@ -4,10 +4,9 @@ rem Nakamura-style video LoRA (Wan2.1 T2V 1.3B) on PC-bang RTX 5060 8GB. One fil
 rem Install (Python 3.11, torch cu128, musubi-tuner) -> models 14.5GB (HuggingFace, no login) -> data (Drive)
 rem -> cache -> train with time limit -> before/after sample videos -> C:\aisfa\wan_out.zip
 rem No accounts/tokens. Everything under C:\aisfa. Delete C:\aisfa when done.
-rem How many minutes you can use this PC from NOW (default 240 = 4 hours). Install/download time is subtracted automatically,
-rem 10 minutes are kept as a margin, and training stops in time to make the comparison videos. Example: pc_wan_lora.bat 180
-set TOTAL=240
-if not "%1"=="" set TOTAL=%1
+rem Total time limit for cache+train+samples (minutes). Default 170 leaves about 40-60 min for install/download in a 4 hour slot.
+set MINUTES=170
+if not "%1"=="" set MINUTES=%1
 set ROOT=C:\aisfa
 set W=%ROOT%\wan
 set PY=%ROOT%\py\python.exe
@@ -16,8 +15,6 @@ set MT=f8a1b03794a49239a3539015075f5123d6c07d66
 set HF=https://huggingface.co
 if not exist %W%\models mkdir %W%\models
 cd /d %ROOT%
-echo start> %ROOT%\run_start.txt
-echo PC time from now: %TOTAL% minutes (install/download time is subtracted automatically)
 
 echo [setup 1/4] Python 3.11
 if not exist %PY% (
@@ -52,8 +49,8 @@ if not exist %W%\data\video (
 )
 curl -L -o %W%\pc_wan_lora_run.py %RAW%/pc_wan_lora_run.py
 
-echo Running cache + train + samples within the remaining part of %TOTAL% minutes.
-%PY% %W%\pc_wan_lora_run.py %W% --total %TOTAL% --start-file %ROOT%\run_start.txt
+echo Running cache + train + samples, up to %MINUTES% minutes.
+%PY% %W%\pc_wan_lora_run.py %W% --minutes %MINUTES%
 echo.
 echo DONE. Upload C:\aisfa\wan_out.zip to Drive and send the link. Also send the lines with "s/it" or "it/s" above.
 pause
