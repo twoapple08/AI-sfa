@@ -42,6 +42,9 @@ def run(cmd, cwd, log, timeout=None):
 
 
 def main():
+    # 한국어 윈도우 콘솔(cp949)에서 학습 프로그램이 일본어 로그('学…')를 찍다 UnicodeEncodeError로 멈췄다(10-28 첫 실행) → 자식 프로세스 출력을 UTF-8로
+    os.environ["PYTHONUTF8"] = "1"
+    os.environ["PYTHONIOENCODING"] = "utf-8"
     ap = argparse.ArgumentParser()
     ap.add_argument("work")
     ap.add_argument("--minutes", type=float, default=170, help="이 스크립트 전체 시간(캐시·학습·비교 영상 포함)")
@@ -62,12 +65,24 @@ def main():
     out = os.path.join(W, "out")
     os.makedirs(out, exist_ok=True)
 
-    print("[1/4] 잠재 캐시(VAE)", flush=True)
-    rc, _, sec = run([py, os.path.join(src, "wan_cache_latents.py"), "--dataset_config", toml, "--vae", vae, "--vae_cache_cpu"], mt, log)
-    print(f"  끝 rc={rc} {sec / 60:.1f}분", flush=True)
-    print("[2/4] 글 캐시(T5 fp8)", flush=True)
-    rc2, _, sec = run([py, os.path.join(src, "wan_cache_text_encoder_outputs.py"), "--dataset_config", toml, "--t5", t5, "--batch_size", "8", "--fp8_t5"], mt, log)
-    print(f"  끝 rc={rc2} {sec / 60:.1f}분", flush=True)
+    # 다시 실행할 때 이미 끝난 캐시는 건너뛴다(조각 영상 수만큼 캐시 파일이 있으면 완료로 본다)
+    nvid = len(glob.glob(os.path.join(data, "video", "*.mp4")))
+    cfiles = glob.glob(os.path.join(data, "cache", "*.safetensors"))
+    n_te = sum("_te" in os.path.basename(f) for f in cfiles)
+    n_lat = len(cfiles) - n_te
+    rc = rc2 = 0
+    if nvid and n_lat >= nvid:
+        print(f"[1/4] 잠재 캐시 이미 있음({n_lat}/{nvid}) — 건너뜀", flush=True)
+    else:
+        print("[1/4] 잠재 캐시(VAE)", flush=True)
+        rc, _, sec = run([py, os.path.join(src, "wan_cache_latents.py"), "--dataset_config", toml, "--vae", vae, "--vae_cache_cpu"], mt, log)
+        print(f"  끝 rc={rc} {sec / 60:.1f}분", flush=True)
+    if nvid and n_te >= nvid:
+        print(f"[2/4] 글 캐시 이미 있음({n_te}/{nvid}) — 건너뜀", flush=True)
+    else:
+        print("[2/4] 글 캐시(T5 fp8)", flush=True)
+        rc2, _, sec = run([py, os.path.join(src, "wan_cache_text_encoder_outputs.py"), "--dataset_config", toml, "--t5", t5, "--batch_size", "8", "--fp8_t5"], mt, log)
+        print(f"  끝 rc={rc2} {sec / 60:.1f}분", flush=True)
     if rc or rc2:
         print("캐시 실패 — run_log.txt 끝부분을 Claude에게 보내 주세요", flush=True)
 
@@ -91,9 +106,11 @@ def main():
         print(f"  학습 끝 rc={rc} 시간 제한으로 멈춤={killed} {sec / 60:.1f}분", flush=True)
         if killed or rc == 0:
             break
-        if sec < 900:  # 일찍 실패 = 메모리 부족일 가능성 → 블록 교체 늘려 다시
+        tail = open(log, encoding="utf-8", errors="replace").read()[-6000:]
+        if sec < 900 and ("OutOfMemory" in tail or "out of memory" in tail):  # 메모리 부족일 때만 블록 교체 늘려 다시
             swap = 15 if swap == 0 else 29
             continue
+        print("학습이 메모리 부족이 아닌 이유로 멈췄습니다 — 화면 마지막 줄들을 Claude에게 보내 주세요", flush=True)
         break
     loras = sorted(glob.glob(os.path.join(out, "nkmr_wan13*.safetensors")), key=os.path.getmtime)
     print("저장된 LoRA:", [os.path.basename(x) for x in loras], flush=True)
