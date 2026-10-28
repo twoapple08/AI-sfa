@@ -101,7 +101,7 @@ def build_train(data_url):
 
 학습 자료 2판(효과 없음 23조각 제외 + 인물·로봇 캡션 문장)으로 3000스텝 학습한다(학습 시험: 4.41초/스텝 → 약 3.7시간).
 GPU 0이 학습하는 동안 GPU 1이 1000·2000·3000스텝 저장본으로 평가 영상(프롬프트 7 × 씨앗 3, 세기 0.8, CPU 노이즈)을 만든다 — 평가 3판 기준선과 같은 씨앗.
-""" + SETUP_MD.replace("02_분석자료/WanLoRA_평가/", "07_도구/PC_WanLoRA/") + """
+""" + SETUP_MD.replace("02_분석자료/WanLoRA_평가/", "07_도구/PC_WanLoRA/").replace("3. (선택)", "3. **(필수 — 학습 자료가 비공개 Drive에 있음)**") + """
 **실행:** **Save Version → Save & Run All (Commit)**. 예상 5–6시간(추정). 결과 `nkmr_wan13_v2_out.zip`(LoRA 저장본 500스텝마다, 저장본 평가 시트 `ckpt_compare/`, 기록 `train/`).
 """, "tools/kaggle_wan_train_worker.py", f"--out /kaggle/working --data-url '{data_url}'", "tools/kaggle_wan_train.ipynb",
              "받기·설치 → 캐시(GPU 2장) → GPU0 학습 + GPU1 저장본 평가 → zip")
