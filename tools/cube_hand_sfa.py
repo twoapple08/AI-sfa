@@ -136,7 +136,8 @@ def build(img, spec, band, scale, ts_all=None, vis=9):
                           + "".join(f'<AC ConnPtId="{c}"/>' for c in links.get(i, [])) + "</AP>" for k, (i, x) in enumerate(pts))
             objs.append(f'<AO ID="{o}" TypeId="1" Color="{argb(col)}" LayerId="0" DrawOrder="{o}" ThicknessScale="{tsc:.3f}" ObjectScale="1.0" '
                         f'GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">{aps}</AO>')
-        for f in cube["faces"]:
+        fbgr = {k: np.array(v, float) for k, v in cube.get("face_bgr", {}).items()}  # 폭 1–3px 얇은 면은 자동 찾기에서 잰 색(cube_auto_spec)
+        for fi, f in enumerate(cube["faces"]):
             ring = list(zip(f, f[1:] + f[:1]))
             k0 = min(range(len(ring)), key=lambda k: ids[tuple(sorted(ring[k]))][0])  # 가장 앞 번호 모서리부터
             ring = ring[k0:] + ring[:k0]
@@ -147,7 +148,7 @@ def build(img, spec, band, scale, ts_all=None, vis=9):
                 fwd = (i, j) == e
                 fs.append(f'<FS Kind="0" ObjId="{o}" StartPtId="{p0 if fwd else p1}" EndPtId="{p1 if fwd else p0}" '
                           f'StartT="{0.0 if fwd else 1.0}" EndT="{1.0 if fwd else 0.0}" Contour="0"/>')
-            frs.append((ids[tuple(sorted(ring[0]))][0], f'<FR Color="{argb(face_color(img, V[f]))}">' + "".join(fs) + "</FR>"))
+            frs.append((ids[tuple(sorted(ring[0]))][0], f'<FR Color="{argb(fbgr[str(fi)] if str(fi) in fbgr else face_color(img, V[f]))}">' + "".join(fs) + "</FR>"))
         report.append({"name": cube.get("name"), "edges": len(edges), "faces": len(cube["faces"]),
                        "ink_px": [npx[e] for e in edges], "moved_px": float(np.abs(V / scale - np.array(cube["v"]) / scale).max())})
     # 채우기는 주인 오브젝트(첫 테두리) 바로 뒤에 둬도 렌더 순서는 오브젝트 차례를 따른다

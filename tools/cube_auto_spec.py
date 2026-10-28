@@ -106,6 +106,86 @@ def find(img, box, ink_max=70, radius=8.0, min_area=60, ring_ink=0.6):
     return cubes, faces
 
 
+def _line_hit(p, u, q, w):
+    """직선 p+su 와 q+tw 의 교점."""
+    A = np.array([u, -w]).T
+    s = np.linalg.solve(A, q - p)[0]
+    return p + s * u
+
+
+def thin_faces(img, cubes, ink_max=70, need=0.6):
+    """바깥 모서리 바깥쪽에 '먹선 - 무채색 띠 - 먹선'이 이어지면 폭 1–3px의 얇은 면(두께면)으로 보고 추가한다.
+    480p에서 쐐기 블록 왼쪽 두께면이 폭 약 1px라 먹선과 붙어 영역으로 잡히지 않았다(10-28 사용자 지적).
+    빨간 줄무늬 바탕도 밝기는 먹선만큼 어두워 밝기만으로는 오판 → 사이 봉우리가 무채색(Lab a·b가 128 근처, 채도 < 15)이어야 한다.
+    (바깥 먹선은 2px라 주황 바탕과 섞여 채도 약 24 → 두 번째 골짜기는 색을 보지 않는다. 빨간 줄무늬 사이는 채도 58)"""
+    g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype(np.float32)
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB).astype(np.float32)
+    S = np.arange(-2, 9, 0.5)
+
+    def px(a, p):
+        return cv2.getRectSubPix(a, (1, 1), (float(p[0]), float(p[1]))).reshape(-1)
+
+    def chroma(p):
+        v = px(lab, p)
+        return np.hypot(v[1] - 128, v[2] - 128)
+
+    added = 0
+    for c in cubes:
+        V = [np.array(v, float) for v in c["v"]]
+        F = c["faces"]
+        own = {}
+        for fi, f in enumerate(F):
+            for i, j in zip(f, f[1:] + f[:1]):
+                own.setdefault(tuple(sorted((i, j))), []).append(fi)
+        outer = [e for e, fs in own.items() if len(fs) == 1]
+        new_faces = []
+        for e in outer:
+            a, b = V[e[0]], V[e[1]]
+            u = (b - a) / np.linalg.norm(b - a)
+            n = np.array([-u[1], u[0]])
+            if n @ ((a + b) / 2 - np.mean([V[k] for k in F[own[e][0]]], 0)) < 0:
+                n = -n
+            hits = []
+            for t in np.linspace(0.15, 0.85, 11):
+                q = a + (b - a) * t
+                pr = np.array([px(g, q + n * s)[0] for s in S])
+                mins = [i for i in range(1, len(pr) - 1) if pr[i] <= pr[i - 1] and pr[i] <= pr[i + 1] and pr[i] < ink_max]
+                for i in mins:
+                    js = [j for j in mins if 3 <= j - i <= 10]
+                    if not js:
+                        continue
+                    j = js[0]
+                    k = i + int(np.argmax(pr[i:j + 1]))
+                    if pr[k] >= max(pr[i], pr[j]) + 10 and pr[k] < 120 and chroma(q + n * S[k]) < 15:
+                        hits.append((S[i], S[j], q + n * S[k]))
+                        break
+            if len(hits) < need * 11:
+                continue
+            off = float(np.median([h[1] - h[0] for h in hits]))  # 두 먹선 중심 사이 = 얇은 면 바깥 테두리까지 거리
+            # 새 꼭짓점: 평행선(off 바깥)과, 그 꼭짓점의 다른 바깥 모서리 연장선의 교점
+            nv = []
+            for k in e:
+                other = [x for x in outer if k in x and x != e]
+                p = V[k] + n * off
+                if other:
+                    o = other[0]
+                    w = V[o[0]] - V[o[1]]
+                    w /= np.linalg.norm(w)
+                    if abs(w @ u) < 0.95:
+                        p = _line_hit(V[k] + n * off, u, V[k], w)
+                nv.append(p)
+            ia, ib = len(V), len(V) + 1
+            V += nv
+            col = np.median([px(img.astype(np.float32), h[2]) for h in hits], 0)
+            new_faces.append(([e[0], e[1], ib, ia], col))
+            added += 1
+        c["v"] = [[round(float(x), 1), round(float(y), 1)] for x, y in V]
+        for f, col in new_faces:
+            c["faces"].append(f)
+            c.setdefault("face_bgr", {})[str(len(c["faces"]) - 1)] = [round(float(x)) for x in col]
+    return added
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("image")
@@ -113,11 +193,14 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--ink-max", type=int, default=70)
     ap.add_argument("--radius", type=float, default=8.0, help="면마다 따로 잡힌 꼭짓점을 하나로 묶는 거리(px)")
+    ap.add_argument("--no-thin", action="store_true", help="얇은 면(두께면) 찾기 끄기")
     ap.add_argument("--vis")
     a = ap.parse_args()
     img = cv2.imread(a.image)
     box = [int(v) for v in a.box.split(",")]
     cubes, faces = find(img, box, a.ink_max, a.radius)
+    if not a.no_thin:
+        print("얇은 면 추가", thin_faces(img, cubes, a.ink_max))
     json.dump({"cubes": cubes, "ink_max": a.ink_max}, open(a.out, "w", encoding="utf-8"), ensure_ascii=False)
     for c in cubes:
         print(c["name"], "꼭짓점", len(c["v"]), "면", c["faces"])
