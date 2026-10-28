@@ -39,3 +39,10 @@
 {"clip": "s0407_c1", "person": "medium", "kind": "robot", "frames": "all", "fx_link": "emits", "unsure": false, "why": "같은 장면 — Claude 전체 검토(1–12쪽 나머지 252)"}
 {"clip": "s0407_c2", "person": "medium", "kind": "robot", "frames": "all", "fx_link": "emits", "unsure": false, "why": "같은 장면 — Claude 전체 검토(1–12쪽 나머지 252)"}
 {"clip": "s0416_c0", "person": "medium", "kind": "body", "frames": "some", "fx_link": "hit", "unsure": false, "why": "거대한 몸 일부(GPT none) — Claude 전체 검토(1–12쪽 나머지 252)"}
+{"clip": "s0045_c0", "person": "large", "kind": "several", "frames": "all", "fx_link": "strike", "unsure": false, "why": "해머 든 소녀들과 바위 골렘(GPT robot) — Claude 전체 검토(13–14쪽 27)"}
+{"clip": "s0062_c2", "person": "small", "kind": "body", "frames": "all", "fx_link": "none", "unsure": false, "why": "어두운 숲의 작은 인물·개(GPT medium) — Claude 전체 검토(13–14쪽 27)"}
+{"clip": "s0309_c0", "person": "medium", "kind": "body", "frames": "all", "fx_link": "hit", "unsure": false, "why": "쓰러진 인물 전신(GPT fist_arm) — Claude 전체 검토(13–14쪽 27)"}
+{"clip": "s0339_c1", "person": "none", "kind": "none", "frames": "all", "fx_link": "none", "unsure": false, "why": "빛뿐, 인물 없음 확정(GPT unsure) — Claude 전체 검토(13–14쪽 27)"}
+{"clip": "s0173_c1", "person": "small", "kind": "body", "frames": "some", "fx_link": "none", "unsure": false, "why": "눈밭의 작은 인물들 확정 — Claude 전체 검토(unsure 정리)"}
+{"clip": "s0346_c0", "person": "small", "kind": "body", "frames": "some", "fx_link": "emits", "unsure": false, "why": "번개 속 작은 인물 확정 — Claude 전체 검토(unsure 정리)"}
+{"clip": "s0346_c1", "person": "small", "kind": "body", "frames": "some", "fx_link": "emits", "unsure": false, "why": "같은 장면 — Claude 전체 검토(unsure 정리)"}

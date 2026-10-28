@@ -56,7 +56,10 @@ def main():
     data = os.path.join(W, "data_v2")
     if not os.path.exists(os.path.join(data, "a")):
         zp = os.path.join(W, "wanlora_v2.zip")
-        subprocess.run(["curl", "-sSL", "--retry", "5", "-o", zp, a.data_url], check=True)
+        if a.data_url.startswith("gdrive:"):  # 비공개 Drive 파일 — 노트북 1번 셀의 rclone 연결(비밀값 RCLONE_GDRIVE_AUTH_B64) 필요
+            subprocess.run(["rclone", "copyto", a.data_url, zp], check=True)
+        else:
+            subprocess.run(["curl", "-sSL", "--retry", "5", "-o", zp, a.data_url], check=True)
         with zipfile.ZipFile(zp) as z:
             mp4 = sorted(n for n in z.namelist() if n.startswith("video/") and n.endswith(".mp4"))
             for k, n in enumerate(mp4):
