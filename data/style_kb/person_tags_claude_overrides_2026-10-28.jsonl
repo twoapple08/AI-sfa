@@ -54,3 +54,4 @@
 {"clip": "s0382_c0", "person": "none", "kind": "none", "frames": "all", "fx_link": "none", "unsure": false, "why": "사용자 판정: 없음 (10-28)"}
 {"clip": "s0006_c0", "person": "none", "kind": "none", "frames": "all", "fx_link": "none", "unsure": false, "why": "사용자 판정: 독특한 물체, 사람 아님 (10-28)"}
 {"clip": "s0006_c1", "person": "none", "kind": "none", "frames": "all", "fx_link": "none", "unsure": false, "why": "사용자 판정: 독특한 물체, 사람 아님 (10-28)"}
+{"clip": "s0281_c0", "person": "small", "kind": "body", "frames": "all", "fx_link": "hit", "unsure": false, "why": "사용자 판정: 먼 카메라로 캐릭터가 공격을 막는 장면 (10-28)"}
