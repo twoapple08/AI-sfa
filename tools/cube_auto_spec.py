@@ -193,13 +193,13 @@ def main():
     ap.add_argument("out")
     ap.add_argument("--ink-max", type=int, default=70)
     ap.add_argument("--radius", type=float, default=8.0, help="면마다 따로 잡힌 꼭짓점을 하나로 묶는 거리(px)")
-    ap.add_argument("--no-thin", action="store_true", help="얇은 면(두께면) 찾기 끄기")
+    ap.add_argument("--thin", action="store_true", help="얇은 면(두께면) 찾기 켜기. 기본은 끔: cube_hand_sfa.py의 볼록 검사가 같은 자리를 빈틈 채움으로 더 간단히 처리했다(10-28, 오브젝트 19 vs 22)")
     ap.add_argument("--vis")
     a = ap.parse_args()
     img = cv2.imread(a.image)
     box = [int(v) for v in a.box.split(",")]
     cubes, faces = find(img, box, a.ink_max, a.radius)
-    if not a.no_thin:
+    if a.thin:
         print("얇은 면 추가", thin_faces(img, cubes, a.ink_max))
     json.dump({"cubes": cubes, "ink_max": a.ink_max}, open(a.out, "w", encoding="utf-8"), ensure_ascii=False)
     for c in cubes:

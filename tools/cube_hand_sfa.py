@@ -72,6 +72,92 @@ def solve_cube(ink, cube, band):
     return V2, edges, {e: fits[e][2] for e in edges}
 
 
+def edges_of(faces):
+    edges = []
+    for f in faces:
+        for i, j in zip(f, f[1:] + f[:1]):
+            e = tuple(sorted((i, j)))
+            if e not in edges:
+                edges.append(e)
+    return edges
+
+
+def convex_fix(img, ink, V, faces, min_area=2.0):
+    """볼록 블록 검사(10-28 사용자: 육면체 윤곽이 안으로 꺾이고 그 안이 비는 건 현실적으로 말이 안 된다).
+    바깥 윤곽(면 하나에만 속한 모서리의 고리)에서 볼록 껍질 꼭짓점이 아닌 점 = 안으로 꺾인 점.
+    껍질 꼭짓점 사이 꺾인 점 묶음마다 빈틈 다각형 [h1, r..., h2]을 만들고 원본 그림과 대조한다:
+    - 틈 안이 먹선·기존 면 색이면(> 50%) 빠진 면 → 그 틈을 면으로 채운다(얇은 두께면 등).
+    - 아니면(바탕) 잘못 잡힌 꼭짓점 → 꺾인 점을 h1–h2 직선 위로 편다.
+    면적 < min_area(px²)인 틈은 펴기만 한다. 돌려주는 값: (V, faces, 새 면 색 {면 번호: BGR}, 기록)."""
+    V = V.copy()
+    faces = [list(f) for f in faces]
+    own = {}
+    for fi, f in enumerate(faces):
+        for i, j in zip(f, f[1:] + f[:1]):
+            own.setdefault(tuple(sorted((i, j))), []).append(fi)
+    outer = [e for e, fs in own.items() if len(fs) == 1]
+    nb = {}
+    for a, b in outer:
+        nb.setdefault(a, []).append(b)
+        nb.setdefault(b, []).append(a)
+    if not nb or any(len(v) != 2 for v in nb.values()):
+        return V, faces, {}, ["바깥 윤곽이 고리 하나가 아니라 검사 생략"]
+    start = next(iter(nb))
+    ring, prev = [start], None
+    while True:
+        nxt = [x for x in nb[ring[-1]] if x != prev][0]
+        if nxt == start:
+            break
+        prev = ring[-1]
+        ring.append(nxt)
+    hull = set(cv2.convexHull(V[ring].astype(np.float32), returnPoints=False).ravel().tolist())
+    hull = {ring[i] for i in hull}
+    if not hull or len(hull) == len(ring):
+        return V, faces, {}, []
+    k0 = next(i for i, v in enumerate(ring) if v in hull)
+    ring = ring[k0:] + ring[:k0]
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB).astype(np.float32)
+    fmask = np.zeros(img.shape[:2], np.uint8)
+    for f in faces:
+        cv2.fillPoly(fmask, [np.round(V[f]).astype(np.int32)], 1)
+    fcols = [np.median(lab[cv2.erode(m, np.ones((3, 3), np.uint8)) > 0], 0)
+             for m in (cv2.fillPoly(np.zeros(img.shape[:2], np.uint8), [np.round(V[f]).astype(np.int32)], 1) for f in faces)
+             if cv2.erode(m, np.ones((3, 3), np.uint8)).any()]
+    new_cols, log = {}, []
+    ring.append(ring[0])
+    i = 0
+    while i < len(ring) - 1:
+        j = i + 1
+        while ring[j] not in hull:
+            j += 1
+        if j > i + 1:
+            gap = ring[i:j + 1]
+            P = V[gap]
+            area = 0.5 * abs(np.dot(P[:, 0], np.roll(P[:, 1], 1)) - np.dot(P[:, 1], np.roll(P[:, 0], 1)))
+            m = cv2.fillPoly(np.zeros(img.shape[:2], np.uint8), [np.round(P).astype(np.int32)], 1)
+            m[fmask > 0] = 0
+            px = lab[m > 0]
+            filled = False
+            if area >= min_area and len(px):
+                like = ink[m > 0].astype(bool)
+                for c in fcols:
+                    like |= np.linalg.norm(px - c, axis=1) < 20
+                if like.mean() > 0.5:
+                    faces.append(gap)
+                    nonink = img[(m > 0) & (ink == 0)]
+                    new_cols[len(faces) - 1] = np.median(nonink if len(nonink) >= 3 else img[m > 0], 0)
+                    log.append(f"빈틈 채움 {gap} 면적 {area:.1f} 먹선·면색 {like.mean():.0%}")
+                    filled = True
+            if not filled:
+                h1, h2 = V[gap[0]], V[gap[-1]]
+                u = (h2 - h1) / np.linalg.norm(h2 - h1)
+                for r in gap[1:-1]:
+                    V[r] = h1 + u * ((V[r] - h1) @ u)
+                log.append(f"꺾임 폄 {gap[1:-1]} 면적 {area:.1f}")
+        i = j
+    return V, faces, new_cols, log
+
+
 def face_color(img, poly, shrink=0.25):
     c = poly.mean(0)
     m = np.zeros(img.shape[:2], np.uint8)
@@ -79,7 +165,7 @@ def face_color(img, poly, shrink=0.25):
     return np.median(img[m > 0], axis=0) if m.any() else np.array([128, 128, 128])
 
 
-def build(img, spec, band, scale, ts_all=None, vis=9):
+def build(img, spec, band, scale, ts_all=None, vis=9, convex=True):
     g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ink = (g < spec.get("ink_max", 70)).astype(np.uint8)
     ink_col = np.median(img[cv2.erode(ink, np.ones((3, 3), np.uint8)) > 0], axis=0)
@@ -94,6 +180,12 @@ def build(img, spec, band, scale, ts_all=None, vis=9):
     for cube in spec["cubes"]:
         cube = dict(cube, v=[[x * scale, y * scale] for x, y in cube["v"]])
         V, edges, npx = solve_cube(ink, cube, band * scale)
+        if convex:  # 먹선 맞춤 뒤 볼록 검사: 안으로 꺾인 윤곽은 빈틈을 채우거나 편다
+            V, faces, newc, log = convex_fix(img, ink, V, cube["faces"])
+            if log:
+                print(cube.get("name"), "볼록 검사:", "; ".join(log))
+            cube = dict(cube, faces=faces, face_bgr={**cube.get("face_bgr", {}), **{str(k): v for k, v in newc.items()}})
+            edges = edges_of(faces)
         # 공유 모서리(면 2개)를 앞에: 채우기가 첫 테두리 차례에 그려지므로 뒤 선을 덮지 않는다
         share = {e: sum(set(e) <= set(f) and any({f[k], f[(k + 1) % len(f)]} == set(e) for k in range(len(f))) for f in cube["faces"])
                  for e in edges}
@@ -150,7 +242,7 @@ def build(img, spec, band, scale, ts_all=None, vis=9):
                           f'StartT="{0.0 if fwd else 1.0}" EndT="{1.0 if fwd else 0.0}" Contour="0"/>')
             frs.append((ids[tuple(sorted(ring[0]))][0], f'<FR Color="{argb(fbgr[str(fi)] if str(fi) in fbgr else face_color(img, V[f]))}">' + "".join(fs) + "</FR>"))
         report.append({"name": cube.get("name"), "edges": len(edges), "faces": len(cube["faces"]),
-                       "ink_px": [npx[e] for e in edges], "moved_px": float(np.abs(V / scale - np.array(cube["v"]) / scale).max())})
+                       "ink_px": [npx.get(e, 0) for e in edges], "moved_px": float(np.abs(V / scale - np.array(cube["v"]) / scale).max())})
     # 채우기는 주인 오브젝트(첫 테두리) 바로 뒤에 둬도 렌더 순서는 오브젝트 차례를 따른다
     body = objs + [x for _, x in sorted(frs)]
     return body, report, oid - 1
@@ -166,12 +258,13 @@ def main():
     ap.add_argument("--bg", default="", help="바탕 BGR(쉼표). 비우면 그림 가장자리 중앙값")
     ap.add_argument("--ts", type=float, default=None, help="모든 선 굵기(ThicknessScale). 비우면 먹선 굵기 중앙값 하나로 통일")
     ap.add_argument("--vis", type=int, default=9, choices=(5, 9), help="꼭짓점에 보이는 점의 Flags(9: 기존 출력, 5: 사람 파일의 끝점). 겹친 나머지는 vis-1로 숨김")
+    ap.add_argument("--no-convex", action="store_true", help="볼록 블록 검사 끄기(오목한 물체)")
     ap.add_argument("--check")
     a = ap.parse_args()
     img0 = cv2.imread(a.image)
     img = cv2.resize(img0, None, fx=a.scale, fy=a.scale, interpolation=cv2.INTER_CUBIC)
     spec = json.load(open(a.spec, encoding="utf-8"))
-    body, rep, n = build(img, spec, a.band, a.scale, a.ts, a.vis)
+    body, rep, n = build(img, spec, a.band, a.scale, a.ts, a.vis, not a.no_convex)
     H, W = img.shape[:2]
     bg = np.array([int(x) for x in a.bg.split(",")]) if a.bg else np.median(np.r_[img[0], img[-1], img[:, 0], img[:, -1]], axis=0)
     name = os.path.splitext(os.path.basename(a.out))[0]
