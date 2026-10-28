@@ -123,20 +123,27 @@ def set_t5_dtype(mt, dt):
 
 
 def run_group(job, gpu, t5_lock):
-    """한 묶음(같은 DiT·세기·부정 프롬프트)을 한 번의 실행으로 — T5·DiT를 한 번만 읽는다. 결과 = sd/p{i}_{tag}.mp4"""
+    """한 묶음(같은 DiT·세기·부정 프롬프트)을 한 번의 실행으로 — T5·DiT를 한 번만 읽는다. 결과 = sd/p{키}_{tag}.mp4
+    items: (키, 프롬프트) — 씨앗 100+키(PC 실행과 같음), 또는 (키, 프롬프트, 씨앗). lora가 None이면 LoRA 없이(학습 전)."""
     tag, mult, neg, items, dit, lora, mt, sd, logdir = (job[k] for k in ("tag", "mult", "neg", "items", "dit", "lora", "mt", "sd", "logdir"))
-    d = os.path.join(sd, "_" + tag)
+    part = job.get("part", "")
+    d = os.path.join(sd, "_" + tag + part)
     os.makedirs(d, exist_ok=True)
-    todo = [(i, p) for i, p in items if not os.path.exists(os.path.join(sd, f"p{i}_{tag}.mp4"))]
+    items = [(it[0], it[1], it[2] if len(it) > 2 else 100 + it[0]) for it in items]
+    todo = [(k, p, sd_) for k, p, sd_ in items if not os.path.exists(os.path.join(sd, f"p{k}_{tag}.mp4"))]
     if not todo:
         return
     pf = os.path.join(d, "prompts.txt")
-    open(pf, "w", encoding="utf-8").write("".join(f"{p} --d {100 + i}\n" for i, p in todo))  # 씨앗 = PC 실행과 같은 100+i
+    open(pf, "w", encoding="utf-8").write("".join(f"{p} --d {seed}\n" for _, p, seed in todo))
     m = os.path.join(W, "models")
     cmd = [sys.executable, os.path.join(mt, "src", "musubi_tuner", "wan_generate_video.py"), "--task", "t2v-1.3B", "--dit", dit,
            "--vae", os.path.join(m, "wan_2.1_vae.safetensors"), "--t5", os.path.join(m, "models_t5_umt5-xxl-enc-bf16.pth"),
            "--video_size", "288", "512", "--video_length", "33", "--fps", "24", "--infer_steps", "25",
-           "--lora_weight", lora, "--lora_multiplier", str(mult), "--from_file", pf, "--save_path", d]
+           "--from_file", pf, "--save_path", d]
+    if lora:
+        cmd += ["--lora_weight", lora, "--lora_multiplier", str(mult)]
+    if job.get("cpu_noise"):
+        cmd += ["--cpu_noise"]  # 초기 노이즈를 CPU에서 — GPU 종류가 달라도 같은 씨앗이면 같은 출발점(10-28 PC·T4 불일치)
     if neg:
         cmd += ["--negative_prompt", neg]
     if T5_FP8[0]:
@@ -145,7 +152,8 @@ def run_group(job, gpu, t5_lock):
     t5_lock.acquire()  # RAM(약 29GB)에 T5(11GB)를 둘이 동시에 올리지 않도록 T5 단계만 차례로
     held = True
     t0 = time.time()
-    with open(os.path.join(logdir, tag + ".log"), "w", encoding="utf-8") as log:
+    logf = os.path.join(logdir, tag + part + ".log")
+    with open(logf, "w", encoding="utf-8") as log:
         p = subprocess.Popen(cmd, cwd=mt, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
         for line in p.stdout:
             log.write(line)
@@ -157,18 +165,18 @@ def run_group(job, gpu, t5_lock):
         p.wait()
     if held:
         t5_lock.release()
-    for i, _ in todo:
-        f = glob.glob(os.path.join(d, f"*_{100 + i}_*.mp4")) or glob.glob(os.path.join(d, f"*_{100 + i}.mp4"))
+    for k, _, seed in todo:
+        f = glob.glob(os.path.join(d, f"*_{seed}_*.mp4")) or glob.glob(os.path.join(d, f"*_{seed}.mp4"))
         if f:
-            shutil.move(sorted(f)[-1], os.path.join(sd, f"p{i}_{tag}.mp4"))
-    say(f"GPU{gpu} {tag} rc={p.returncode} {(time.time() - t0) / 60:.1f}분")
-    if p.returncode and T5_FP8[0] and "loading text encoder" in open(os.path.join(logdir, tag + ".log"), encoding="utf-8").read().lower() \
-            and "Loading DiT model" not in open(os.path.join(logdir, tag + ".log"), encoding="utf-8").read():
+            shutil.move(sorted(f)[-1], os.path.join(sd, f"p{k}_{tag}.mp4"))
+    say(f"GPU{gpu} {tag}{part} rc={p.returncode} {(time.time() - t0) / 60:.1f}분")
+    if p.returncode and T5_FP8[0] and "loading text encoder" in open(logf, encoding="utf-8").read().lower() \
+            and "Loading DiT model" not in open(logf, encoding="utf-8").read():
         say(f"{tag}: T5 단계에서 실패 → T5 fp8 끄고 다시")
         T5_FP8[0] = False
         return run_group(job, gpu, t5_lock)
     if p.returncode:
-        raise RuntimeError(f"{tag} 실패 — {logdir}/{tag}.log 끝부분 확인")
+        raise RuntimeError(f"{tag}{part} 실패 — {logf} 끝부분 확인")
 
 
 def run_parallel(jobs, ng, lock):

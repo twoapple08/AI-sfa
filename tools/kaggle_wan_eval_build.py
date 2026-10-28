@@ -82,6 +82,20 @@ GPU 0 = fp16 학습, GPU 1 = bf16 학습(PC와 같은 방식, T4에선 에뮬레
              "받기·설치 → 48조각 캐시 → fp16·bf16 학습 100스텝 → 요약")
 
 
+def build_eval3():
+    notebook("""
+# AI-sfa 나카무라 Wan LoRA 평가 3판 — 여러 씨앗 + CPU 노이즈 기준선
+
+2판에서 같은 씨앗이라도 PC와 Kaggle 결과가 구도부터 달랐다(GPU 난수 차이가 유력) → 씨앗 하나로는 판정할 수 없다.
+3판: 초기 노이즈를 CPU에서 만들어 장비와 상관없이 재현, 프롬프트 7개(기존 4 + 학습 캡션 낱말판 번개·임팩트 고리 + 로봇) × 씨앗 3개 × (학습 전·세기 0.6·0.8) = 영상 63개.
+재학습한 LoRA와 같은 씨앗으로 비교할 기준선이 된다.
+""" + SETUP_MD + """
+**실행:** **Save Version → Save & Run All (Commit)**. 예상 60–90분(추정). 결과 `wan_out_eval3.zip`: `compare3/p{이름}_sheet.jpg`(줄 = 조건×씨앗), `p{이름}_grid.mp4`(3×3 나란히 재생), `samples3/`, `logs3/`.
+""", "tools/kaggle_wan_eval3_worker.py", "--out /kaggle/working", "tools/kaggle_wan_eval3.ipynb",
+             "받기·설치 → 63개 GPU 나눠서 → 시트 → zip")
+
+
 if __name__ == "__main__":
     build()
     build_train_test()
+    build_eval3()
