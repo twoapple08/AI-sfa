@@ -383,12 +383,13 @@ def _camera(g, cap, w0, w1):
 
 
 def whole_ok(g, cap, w0, w1):
-    """경우 A: 조각이 컷 거의 전체(끝 1–3장만 빠짐), 빠진 장에 컷·새 단계 시작 없음, 캡션 장 번호·길이가 모두 조각 안."""
+    """경우 A: 조각이 컷 거의 전체(끝 1–3장만 빠짐), 빠진 장에 컷·새 단계·리듬 시작 없음, 캡션 장 번호·길이가 모두 조각 안."""
     first, last = g['segments'][0]['frames'][0], g['segments'][-1]['frames'][1]
     refs, lens = _frame_refs(cap)
     dropped = set(range(first, w0)) | set(range(w1 + 1, last + 1))
     new_in_dropped = any(c in dropped for c in g['cuts'][1:]) or any(
-        p['frames'][0] in dropped for s in g['segments'] for t in s['targets'] for p in t.get('phases', []))
+        p['frames'][0] in dropped for s in g['segments'] for t in s['targets'] for p in t.get('phases', [])) or any(
+        r[0] in dropped and (r[1] < w0 or r[0] > w1) for s in g['segments'] for r in s['rhythm'])  # 빠진 장에만 있는 리듬(예: 마지막 홀드 2장, s0274)
     return (w0 - first) + (last - w1) <= 3 and not new_in_dropped and all(w0 <= a and b <= w1 for _, a, b in refs) \
         and all(x <= w1 - w0 + 1 for _, x in lens)
 

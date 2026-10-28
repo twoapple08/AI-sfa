@@ -86,6 +86,11 @@ class WindowCaptionTest(unittest.TestCase):
         self.assertIn('in the new shot', c)
         self.assertIn('camera unclear before 10, then shaky push-in from 10', c)
 
+    def test_whole_shot_not_reused_when_dropped_frames_start_rhythm(self):
+        g = shot('nkmr_fx, Flash at 2. Mainly ones, final two-frame hold; one cut.', [tgt('섬광', [((2, 27), '잔류')])], last=27,
+                 rhythm=[[0, 25, '1s'], [26, 27, '홀드2']])
+        self.assertNotEqual(window_caption(g, g['caption_en'], 0, 24), g['caption_en'])
+
 
 if __name__ == '__main__':
     unittest.main()
