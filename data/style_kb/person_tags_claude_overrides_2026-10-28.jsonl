@@ -46,3 +46,9 @@
 {"clip": "s0173_c1", "person": "small", "kind": "body", "frames": "some", "fx_link": "none", "unsure": false, "why": "눈밭의 작은 인물들 확정 — Claude 전체 검토(unsure 정리)"}
 {"clip": "s0346_c0", "person": "small", "kind": "body", "frames": "some", "fx_link": "emits", "unsure": false, "why": "번개 속 작은 인물 확정 — Claude 전체 검토(unsure 정리)"}
 {"clip": "s0346_c1", "person": "small", "kind": "body", "frames": "some", "fx_link": "emits", "unsure": false, "why": "같은 장면 — Claude 전체 검토(unsure 정리)"}
+{"clip": "s0050_c0", "person": "none", "kind": "none", "frames": "all", "fx_link": "none", "unsure": false, "why": "사용자 판정: 먼지 이펙트뿐 (10-28)"}
+{"clip": "s0191_c0", "person": "none", "kind": "none", "frames": "all", "fx_link": "none", "unsure": false, "why": "사용자 판정: 그냥 폭발 (10-28)"}
+{"clip": "s0284_c0", "person": "none", "kind": "none", "frames": "all", "fx_link": "none", "unsure": false, "why": "사용자 판정: 없음 (10-28)"}
+{"clip": "s0284_c1", "person": "none", "kind": "none", "frames": "all", "fx_link": "none", "unsure": false, "why": "사용자 판정: 없음 (10-28)"}
+{"clip": "s0302_c0", "person": "medium", "kind": "silhouette", "frames": "some", "fx_link": "none", "unsure": false, "why": "사용자 판정: 첫 장이 임팩트 프레임과 이어지는 장면, 인물 2명이 함께 있는 실루엣 하나 (10-28)"}
+{"clip": "s0382_c0", "person": "none", "kind": "none", "frames": "all", "fx_link": "none", "unsure": false, "why": "사용자 판정: 없음 (10-28)"}
