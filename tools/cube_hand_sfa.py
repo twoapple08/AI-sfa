@@ -79,10 +79,15 @@ def face_color(img, poly, shrink=0.25):
     return np.median(img[m > 0], axis=0) if m.any() else np.array([128, 128, 128])
 
 
-def build(img, spec, band, scale):
+def build(img, spec, band, scale, ts_all=None):
     g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ink = (g < spec.get("ink_max", 70)).astype(np.uint8)
     ink_col = np.median(img[cv2.erode(ink, np.ones((3, 3), np.uint8)) > 0], axis=0)
+    if ts_all is None:  # 선 굵기는 모두 같게(10-28 사용자): 그림 전체 먹선 굵기 중앙값 하나
+        d = cv2.distanceTransform(ink, cv2.DIST_L2, 3)
+        from skimage.morphology import skeletonize
+        w_all = float(np.median(d[skeletonize(ink > 0)])) * 2
+        ts_all = max(0.05, max(w_all, 1.0) * (1920 / img.shape[1]) / (1.14 * 8))
     H, W = img.shape[:2]
     objs, frs, report = [], [], []
     oid = pid = 1
@@ -101,7 +106,7 @@ def build(img, spec, band, scale):
             w = np.median([dist[int(round(y)), int(round(x))] for x, y in (a + (b - a) * t for t in ts)
                            if 0 <= int(round(y)) < H and 0 <= int(round(x)) < W]) * 2
             col = ink_col  # 선 위 표본은 가는 선 옆 바탕색(주황)이 섞여 갈색이 됐다 → 그림 전체 먹선 색 하나
-            tsc = max(0.05, max(w, 1.0) * (1920 / W) / (1.14 * 8))
+            tsc = ts_all if ts_all else max(0.05, max(w, 1.0) * (1920 / W) / (1.14 * 8))
             ids[e] = (oid, pid, pid + 1)
             objs.append(f'<AO ID="{oid}" TypeId="1" Color="{argb(col)}" LayerId="0" DrawOrder="{oid}" ThicknessScale="{tsc:.3f}" ObjectScale="1.0" '
                         f'GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">'
@@ -136,12 +141,13 @@ def main():
     ap.add_argument("--scale", type=float, default=2.0)
     ap.add_argument("--band", type=float, default=2.5, help="모서리 대략 선분에서 이 거리(원본 px) 안의 먹선 픽셀로 맞춤")
     ap.add_argument("--bg", default="", help="바탕 BGR(쉼표). 비우면 그림 가장자리 중앙값")
+    ap.add_argument("--ts", type=float, default=None, help="모든 선 굵기(ThicknessScale). 비우면 먹선 굵기 중앙값 하나로 통일")
     ap.add_argument("--check")
     a = ap.parse_args()
     img0 = cv2.imread(a.image)
     img = cv2.resize(img0, None, fx=a.scale, fy=a.scale, interpolation=cv2.INTER_CUBIC)
     spec = json.load(open(a.spec, encoding="utf-8"))
-    body, rep, n = build(img, spec, a.band, a.scale)
+    body, rep, n = build(img, spec, a.band, a.scale, a.ts)
     H, W = img.shape[:2]
     bg = np.array([int(x) for x in a.bg.split(",")]) if a.bg else np.median(np.r_[img[0], img[-1], img[:, 0], img[:, -1]], axis=0)
     name = os.path.splitext(os.path.basename(a.out))[0]
