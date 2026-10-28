@@ -11,6 +11,7 @@
 - 글로우: W = 8*S*ThicknessScale*max(GlowThickness/10,0), R = GlowRadius*S, sigma = sqrt(R^2+0.29^2).
   셰이더는 폭 W 띠를 Gaussian(sigma)으로 적분한 커버리지 × GlowColor(GlowAlpha). 여기서는 같은 띠를 그린 뒤 Gaussian 블러로 근사한다.
 - 채우기(FR): FS마다 ObjId 곡선의 [StartT, EndT] 구간을 이어 붙인 닫힌 경로. 직선은 선형, 곡선은 2차 베지어.
+작은 미리보기: PARAMS['thick_mul'] = W/1920 이면 선·글로우를 그림 크기에 맞춰 줄인다(기본 1.0 = 앱 1920 기준 고정 픽셀; 400px 시트에서 선이 4.8배 두꺼워 뭉개졌다, 10-28 사용자 지적).
 가정(영상 대조로 조정 중인 항목은 PARAMS에 모았다): 레이어 그리기 순서, FR이 그려지는 위치, ObjectScale의 효과.
 """
 import math, sys, zipfile, os
@@ -18,7 +19,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import skia
 
-PARAMS = dict(pad=6.0, base=8.0, stab=1.14, layer_order='normal', glow=True, fill_first=True, objscale_thick=False, circ_off=0, circ_dir=1, evenodd=True, gap=1.5, split_strict=False, gsig=1.0, gw=1.0, glow_mode='cv', groups=True, hole_mode='difference')
+PARAMS = dict(pad=6.0, base=8.0, stab=1.14, layer_order='normal', glow=True, fill_first=True, objscale_thick=False, circ_off=0, circ_dir=1, evenodd=True, gap=1.5, split_strict=False, gsig=1.0, gw=1.0, glow_mode='cv', groups=True, hole_mode='difference', thick_mul=1.0)
 
 
 def argb(v):
@@ -232,8 +233,8 @@ def render_frame(seq, fr, W=1920, H=1080):
         gr, gt, ga = float(a.get('GlowRadius') or 0), float(a.get('GlowThickness') or 0), float(a.get('GlowAlpha') or 0)
         if not (PARAMS['glow'] and gr > 0 and gt > 0 and ga > 0):
             return
-        Wg = PARAMS['base'] * max(S * T, 0) * max(gt / 10, 0) * PARAMS['gw']
-        sig = math.sqrt((gr * S * PARAMS['gsig']) ** 2 + 0.29 ** 2)
+        Wg = PARAMS['base'] * max(S * T, 0) * max(gt / 10, 0) * PARAMS['gw'] * PARAMS['thick_mul']
+        sig = math.sqrt((gr * S * PARAMS['gsig'] * PARAMS['thick_mul']) ** 2 + 0.29 ** 2)
         gc = int(a.get('GlowColor')) & 0xFFFFFFFF
         ga_ = min(max(ga if ga <= 1 else ga / 255, 0), 1)
         if PARAMS['glow_mode'] == 'cv':
@@ -249,7 +250,7 @@ def render_frame(seq, fr, W=1920, H=1080):
         if PARAMS['objscale_thick']:
             T *= float(a.get('ObjectScale') or 1)
         if alpha(a.get('Color')) > 0:
-            w = PARAMS['base'] * max(S * T, 0)
+            w = PARAMS['base'] * max(S * T, 0) * PARAMS['thick_mul']
             if w > 0:
                 sw = round(PARAMS['stab'] * w)
                 c.drawPath(path, skia.Paint(Color=argb(a.get('Color')), AntiAlias=True, Style=skia.Paint.kStroke_Style,
