@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stick Fighter PC (임시)</title>
+<!-- 2026-10-28 개인용 임시판. 앱 코드·자원 없이 저장소의 SFA 형식·그리기 규칙(sfa.py, tools/sfa_render.py)으로 새로 짬. 로그인 없음. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root { --bg:#1d1f24; --panel:#262930; --line:#3a3e48; --text:#e6e8ec; --dim:#9aa0ab; --acc:#4f8cff; --warn:#ff6b6b; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font:13px system-ui, sans-serif; display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+header { display:flex; gap:6px; align-items:center; padding:6px 8px; background:var(--panel); border-bottom:1px solid var(--line); flex-wrap:wrap; }
+header .title { font-weight:600; margin-right:8px; }
+button, select, input { background:#30343c; color:var(--text); border:1px solid var(--line); border-radius:5px; padding:4px 8px; font:inherit; }
+button:hover { border-color:var(--acc); }
+button.on { background:var(--acc); border-color:var(--acc); color:#fff; }
+input[type=number] { width:64px; }
+input[type=color] { padding:0; width:34px; height:26px; }
+main { flex:1; display:flex; min-height:0; }
+#tools { width:56px; background:var(--panel); border-right:1px solid var(--line); display:flex; flex-direction:column; gap:4px; padding:6px; }
+#tools button { width:44px; height:40px; font-size:18px; padding:0; }
+#stage { flex:1; display:flex; align-items:center; justify-content:center; min-width:0; background:#15161a; }
+canvas#cv { background:#000; max-width:100%; max-height:100%; cursor:crosshair; }
+#side { width:250px; background:var(--panel); border-left:1px solid var(--line); overflow:auto; padding:8px; }
+#side h3 { margin:10px 0 6px; font-size:12px; color:var(--dim); font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+.row { display:flex; align-items:center; gap:6px; margin:4px 0; }
+.row label { width:86px; color:var(--dim); }
+#layers div { display:flex; gap:4px; align-items:center; padding:3px; border-radius:4px; cursor:pointer; }
+#layers div.act { background:#34507f; }
+footer { background:var(--panel); border-top:1px solid var(--line); padding:6px 8px; }
+#frames { display:flex; gap:4px; overflow-x:auto; padding-bottom:4px; }
+#frames canvas { border:2px solid transparent; border-radius:4px; cursor:pointer; flex:none; background:#000; }
+#frames canvas.cur { border-color:var(--acc); }
+#status { color:var(--dim); margin-left:auto; }
+.hint { color:var(--dim); font-size:12px; line-height:1.5; }
+</style>
+</head>
+<body>
+<header>
+  <span class="title">Stick Fighter PC</span>
+  <button id="bNew">새로</button>
+  <button id="bOpen">열기</button><input id="file" type="file" accept=".sfa,.zip" hidden>
+  <button id="bSave">저장(.sfa)</button>
+  <button id="bPng">PNG</button>
+  <span style="width:10px"></span>
+  <button id="bUndo" title="Ctrl+Z">↶</button><button id="bRedo" title="Ctrl+Y">↷</button>
+  <span style="width:10px"></span>
+  <button id="bPlay" title="Space">▶ 재생</button>
+  fps <input id="fps" type="number" min="1" max="60" value="24">
+  <label><input id="onion" type="checkbox" checked> 어니언</label>
+  <span id="status"></span>
+</header>
+<main>
+  <div id="tools">
+    <button data-tool="select" title="선택·이동 (V)">⬚</button>
+    <button data-tool="line" title="직선 (L)">╱</button>
+    <button data-tool="curve" title="곡선 (C)">◠</button>
+    <button data-tool="circle" title="원 (O)">◯</button>
+  </div>
+  <div id="stage"><canvas id="cv" width="1280" height="720"></canvas></div>
+  <div id="side">
+    <h3>오브젝트</h3>
+    <div id="objInfo" class="hint">선택 없음 — 새로 그릴 때 아래 값을 씁니다.</div>
+    <div class="row"><label>색</label><input id="pColor" type="color" value="#000000"> <input id="pAlpha" type="number" min="0" max="255" value="255" title="알파 0–255"></div>
+    <div class="row"><label>굵기</label><input id="pThick" type="number" step="0.1" min="0" value="1"></div>
+    <div class="row"><label>글로우 반경</label><input id="pGR" type="number" step="1" min="0" value="0"></div>
+    <div class="row"><label>글로우 두께</label><input id="pGT" type="number" step="1" min="0" value="20"></div>
+    <div class="row"><label>글로우 색</label><input id="pGC" type="color" value="#ffffff"> <input id="pGA" type="number" min="0" max="255" value="0" title="글로우 알파 0–255"></div>
+    <div class="row"><button id="bToFront">맨 위로</button><button id="bDel" title="Delete">삭제</button></div>
+    <h3>장 배경</h3>
+    <div class="row"><label>배경색</label><input id="pBG" type="color" value="#ffffff"></div>
+    <h3>레이어</h3>
+    <div id="layers"></div>
+    <div class="row"><button id="bLayerAdd">+ 레이어</button></div>
+    <h3>도움말</h3>
+    <div class="hint">
+      직선·곡선·원: 끌어서 그립니다. 기존 점 위에서 시작·끝내면 그 점에 이어집니다(관절).<br>
+      선택: 점을 끌면 이어진 점도 함께 움직입니다. 곡선 가운데 점이 휨 조절점입니다. 선을 끌면 오브젝트 전체가 움직입니다.<br>
+      ←/→ 장 이동, Space 재생, Ctrl+D 장 복제, Delete 삭제.<br>
+      글로우 값은 정수로 둡니다(앱은 소수 글로우를 끔). 채우기 면은 열린 파일의 것을 보존·표시만 합니다.
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="row" style="margin:0 0 6px">
+    <button id="fAdd" title="Ctrl+D">+ 복제</button><button id="fBlank">+ 빈 장</button><button id="fDel">장 삭제</button>
+    <button id="fLeft">◀ 옮기기</button><button id="fRight">옮기기 ▶</button>
+    <span id="fInfo" class="hint"></span>
+  </div>
+  <div id="frames"></div>
+</footer>
+<script>
+'use strict';
+// ---------- 모델 ----------
+// seq = {attrs, frames:[{attrs, layers:[{ID,Name,Visible,Locked}], objs:[{a, pts:[{a, conns:[]}]}], extra:[{xml, objIds}]}]}
+let seq, cur = 0, tool = 'line', sel = null, layerAct = '0', playing = null, undo = [], redo = [];
+const $ = id => document.getElementById(id);
+const cv = $('cv'), ctx = cv.getContext('2d');
+const OBJ_ATTRS = ['ID', 'TypeId', 'Color', 'LayerId', 'DrawOrder', 'ThicknessScale', 'ObjectScale', 'GlowRadius', 'GlowThickness', 'GlowColor', 'GlowAlpha'];
+
+function blank() {
+  return { attrs: { Name: 'untitled', HeightWidthRatio: '0.5625', RatioX: '16', RatioY: '9', FrameCount: '1', BackgroundColor: '-1' },
+    frames: [{ attrs: { BackgroundColor: '4294967295', ID: '1', Position: '0' }, layers: [{ ID: '0', Name: 'Layer 1', Visible: 'true', Locked: 'false' }], objs: [], extra: [] }] };
+}
+
+// ---------- 색 ----------
+const u32 = v => (Number(v) >>> 0);
+function argbToHex(v) { v = u32(v); return '#' + [16, 8, 0].map(s => ((v >>> s) & 255).toString(16).padStart(2, '0')).join(''); }
+function argbAlpha(v) { return u32(v) >>> 24; }
+function css(v, mul = 1) { v = u32(v); return `rgba(${(v >>> 16) & 255},${(v >>> 8) & 255},${v & 255},${((v >>> 24) / 255) * mul})`; }
+function toArgb(hex, a) { const n = parseInt(hex.slice(1), 16); return String(((a & 255) * 16777216 + n) >>> 0); }
+
+// ---------- 열기·저장 ----------
+async function openSfa(file) {
+  const zip = await JSZip.loadAsync(file);
+  const name = Object.keys(zip.files).find(n => n.toLowerCase().endsWith('.xml'));
+  if (!name) throw new Error('SFA 안에 XML이 없습니다');
+  const xml = await zip.files[name].async('string');
+  if (/<!DOCTYPE|<!ENTITY/i.test(xml)) throw new Error('DTD/엔티티는 지원하지 않습니다');
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+  const root = doc.documentElement;
+  if (root.tagName !== 'Sequence') throw new Error('Sequence 루트가 아닙니다');
+  const s = { attrs: attrsOf(root), frames: [] };
+  const ser = new XMLSerializer();
+  for (const f of root.children) {
+    if (f.tagName !== 'Frame') continue;
+    const fr = { attrs: attrsOf(f), layers: [], objs: [], extra: [] };
+    for (const c of f.children) {
+      if (c.tagName === 'LayerDef') fr.layers.push(attrsOf(c));
+      else if (c.tagName === 'AO') fr.objs.push({ a: attrsOf(c), pts: [...c.children].filter(p => p.tagName === 'AP').map(p => ({ a: attrsOf(p), conns: [...p.children].filter(x => x.tagName === 'AC').map(x => x.getAttribute('ConnPtId')) })) });
+      else fr.extra.push({ xml: ser.serializeToString(c).replace(/ xmlns="[^"]*"/, ''), objIds: [...c.querySelectorAll('[ObjId]')].map(x => x.getAttribute('ObjId')) });
+    }
+    if (!fr.layers.length) fr.layers = [...new Set(fr.objs.map(o => o.a.LayerId || '0'))].map(id => ({ ID: id, Name: 'Layer ' + id, Visible: 'true', Locked: 'false' }));
+    s.frames.push(fr);
+  }
+  if (!s.frames.length) throw new Error('장이 없습니다');
+  return s;
+}
+function attrsOf(el) { const o = {}; for (const a of el.attributes) o[a.name] = a.value; return o; }
+const esc = v => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+const attrStr = o => Object.entries(o).map(([k, v]) => `${k}="${esc(v)}"`).join(' ');
+function toXml(s) {
+  s.attrs.FrameCount = String(s.frames.length);
+  const out = [`<?xml version='1.0' encoding='utf-8'?>`, `<Sequence ${attrStr(s.attrs)}>`];
+  s.frames.forEach((f, i) => {
+    f.attrs.Position = String(i);
+    out.push(`<Frame ${attrStr(f.attrs)}>`);
+    for (const l of f.layers) out.push(`<LayerDef ${attrStr(l)} />`);
+    for (const o of f.objs) {
+      out.push(`<AO ${attrStr(o.a)}>`);
+      o.pts.forEach((p, k) => {
+        p.a.Index = String(k);
+        out.push(p.conns.length ? `<AP ${attrStr(p.a)}>${p.conns.map(c => `<AC ConnPtId="${esc(c)}" />`).join('')}</AP>` : `<AP ${attrStr(p.a)} />`);
+      });
+      out.push('</AO>');
+    }
+    for (const e of f.extra) out.push(e.xml);
+    out.push('</Frame>');
+  });
+  out.push('</Sequence>');
+  return out.join('\n');
+}
+async function saveSfa() {
+  const name = (seq.attrs.Name || 'untitled').replace(/[\\/:*?"<>|]/g, '_');
+  const zip = new JSZip();
+  zip.file(name + '.xml', toXml(seq));
+  const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+  download(blob, name + '.sfa');
+}
+function download(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+
+// ---------- 화면 좌표 (sfa_render.Geo) ----------
+function geo(W, H) {
+  const R = parseFloat(seq.attrs.HeightWidthRatio) || 0.5625, P = 6 * W / 1920;
+  const aw = Math.max(W - 2 * P, 1), ah = Math.max(H - 2 * P, 1);
+  let uw, uh; if (ah / aw > R) { uw = aw; uh = aw * R; } else { uh = ah; uw = ah / R; }
+  return { ox: (W - uw) / 2, oy: (H - uh) / 2, uw, uh, k: W / 1920, S: (parseFloat(seq.attrs.Thickness) || 100) / 100 };
+}
+const P2 = (g, p) => [g.ox + g.uw * parseFloat(p.a.X) / 100, g.oy + g.uh * parseFloat(p.a.Y) / 100];
+
+// ---------- 그리기 (tools/sfa_render.py 규칙) ----------
+function objPath(o, g) {
+  const p = o.pts.map(q => P2(g, q)), t = o.a.TypeId, path = new Path2D();
+  if (t === '1' && p.length >= 2) { path.moveTo(...p[0]); path.lineTo(...p[1]); }
+  else if (t === '2' && p.length >= 2) { const [a, b] = p; path.arc((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, Math.hypot(b[0] - a[0], b[1] - a[1]) / 2, 0, Math.PI * 2); }
+  else if (t === '3' && p.length >= 3) { path.moveTo(...p[0]); path.quadraticCurveTo(...p[1], ...p[2]); }
+  return path;
+}
+function segPts(o, g, t0, t1) {
+  const p = o.pts.map(q => P2(g, q)), t = o.a.TypeId, out = [];
+  if (t === '1') { for (const s of [t0, t1]) out.push([p[0][0] + (p[1][0] - p[0][0]) * s, p[0][1] + (p[1][1] - p[0][1]) * s]); return out; }
+  const n = 40;
+  for (let i = 0; i <= n; i++) {
+    const s = t0 + (t1 - t0) * i / n;
+    if (t === '3') { const u = 1 - s; out.push([u * u * p[0][0] + 2 * u * s * p[1][0] + s * s * p[2][0], u * u * p[0][1] + 2 * u * s * p[1][1] + s * s * p[2][1]]); }
+    else if (t === '2') { const cx = (p[0][0] + p[1][0]) / 2, cy = (p[0][1] + p[1][1]) / 2, r = Math.hypot(p[1][0] - p[0][0], p[1][1] - p[0][1]) / 2, a0 = Math.atan2(p[0][1] - cy, p[0][0] - cx), a = a0 + 2 * Math.PI * s; out.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); }
+  }
+  return out;
+}
+function fillOf(c, f, e, g, byId) {
+  const doc = new DOMParser().parseFromString(e.xml, 'application/xml').documentElement;
+  if (doc.tagName !== 'FR' || argbAlpha(doc.getAttribute('Color')) === 0) return;
+  const groups = {};
+  for (const s of doc.getElementsByTagName('FS')) (groups[+(s.getAttribute('Contour') || 0)] ||= []).push(s);
+  const path = new Path2D();
+  for (const k of Object.keys(groups).sort((a, b) => a - b)) {
+    const pts = [];
+    for (const s of groups[k]) {
+      const o = byId[s.getAttribute('ObjId')]; if (!o) continue;
+      let t0 = parseFloat(s.getAttribute('StartT') || 0), t1 = parseFloat(s.getAttribute('EndT') ?? 1);
+      if (o.a.TypeId === '3') { t0 = Math.min(Math.max(t0, 0), 1); t1 = Math.min(Math.max(t1, 0), 1); if (Math.abs(t1 - t0) < 1e-6) continue; }
+      pts.push(...segPts(o, g, t0, t1));
+    }
+    if (pts.length < 3) continue;
+    path.moveTo(...pts[0]); for (const q of pts.slice(1)) path.lineTo(...q); path.closePath();
+  }
+  c.fillStyle = css(doc.getAttribute('Color')); c.fill(path, 'evenodd');
+}
+function drawFrame(c, f, W, H, opt = {}) {
+  const g = geo(W, H);
+  c.save();
+  c.fillStyle = css(f.attrs.BackgroundColor ?? seq.attrs.BackgroundColor ?? '-1'); c.fillRect(0, 0, W, H);
+  const byId = {}; for (const o of f.objs) byId[o.a.ID] = o;
+  // 채우기 주인 = 첫 FS의 ObjId
+  const owner = {}, drawnFill = new Set();
+  f.extra.forEach((e, i) => { const id = e.objIds.find(x => byId[x]); if (id !== undefined) (owner[id] ||= []).push(i); });
+  // 연결 그룹(AC) — 그룹마다 글로우 먼저, 그다음 채우기+선
+  const apOwner = {}; for (const o of f.objs) for (const p of o.pts) apOwner[p.a.ID] = o.a.ID;
+  const par = {}; for (const o of f.objs) par[o.a.ID] = o.a.ID;
+  const find = x => { while (par[x] !== x) { par[x] = par[par[x]]; x = par[x]; } return x; };
+  for (const o of f.objs) for (const p of o.pts) for (const cid of p.conns) { const b = apOwner[cid]; if (b !== undefined) { const ra = find(o.a.ID), rb = find(b); if (ra !== rb) par[ra] = rb; } }
+  const hidden = new Set(f.layers.filter(l => l.Visible === 'false').map(l => l.ID));
+  for (const L of f.layers) {
+    if (L.Visible === 'false') continue;
+    const objs = f.objs.filter(o => (o.a.LayerId || '0') === L.ID).sort((a, b) => (+a.a.DrawOrder || +a.a.ID) - (+b.a.DrawOrder || +b.a.ID));
+    const units = new Map(); for (const o of objs) { const r = find(o.a.ID); if (!units.has(r)) units.set(r, []); units.get(r).push(o); }
+    for (const grp of units.values()) {
+      const paths = grp.map(o => [o, objPath(o, g)]);
+      if (!opt.noGlow) for (const [o, p] of paths) glow(c, o, p, g, W, H);
+      for (const [o, p] of paths) {
+        for (const i of owner[o.a.ID] || []) if (!drawnFill.has(i)) { drawnFill.add(i); fillOf(c, f, f.extra[i], g, byId); }
+        const T = parseFloat(o.a.ThicknessScale || 1);
+        if (argbAlpha(o.a.Color) > 0 && T > 0) {
+          c.strokeStyle = css(o.a.Color); c.lineWidth = Math.max(Math.round(1.14 * 8 * g.S * T) * g.k, 0.5); c.lineCap = c.lineJoin = 'round'; c.stroke(p);
+        }
+      }
+    }
+  }
+  f.extra.forEach((e, i) => { const id = e.objIds.find(x => byId[x]); if (!drawnFill.has(i) && !(id !== undefined && hidden.has(byId[id].a.LayerId || '0'))) fillOf(c, f, e, g, byId); });
+  c.restore();
+}
+let glowCv = document.createElement('canvas');
+function glow(c, o, path, g, W, H) {
+  const gr = +o.a.GlowRadius || 0, gt = +o.a.GlowThickness || 0; let ga = +o.a.GlowAlpha || 0;
+  if (!(gr > 0 && gt > 0 && ga > 0)) return;
+  ga = Math.min(Math.max(ga <= 1 ? ga : ga / 255, 0), 1);
+  const T = parseFloat(o.a.ThicknessScale || 1), Wg = 8 * Math.max(g.S * T, 0) * Math.max(gt / 10, 0) * g.k, sig = Math.sqrt((gr * g.S) ** 2 + 0.29 ** 2) * g.k;
+  if (glowCv.width !== W || glowCv.height !== H) { glowCv.width = W; glowCv.height = H; }
+  const gc = glowCv.getContext('2d'); gc.clearRect(0, 0, W, H);
+  gc.strokeStyle = css(String((0xFF000000 | (u32(o.a.GlowColor) & 0xFFFFFF)) >>> 0)); gc.lineWidth = Math.max(Wg, 0.01); gc.lineCap = gc.lineJoin = 'round'; gc.stroke(path);
+  c.save(); c.globalAlpha = ga; c.filter = `blur(${sig.toFixed(2)}px)`; c.drawImage(glowCv, 0, 0); c.restore();
+}
+
+// ---------- 화면 ----------
+function render() {
+  const W = cv.width, H = cv.height, f = seq.frames[cur];
+  drawFrame(ctx, f, W, H);
+  if ($('onion').checked && !playing) {
+    for (const [d, col] of [[-1, 'rgba(255,60,60,0.28)'], [1, 'rgba(60,140,255,0.28)']]) {
+      const o = seq.frames[cur + d]; if (!o) continue;
+      const off = document.createElement('canvas'); off.width = W; off.height = H;
+      const oc = off.getContext('2d'); const g = geo(W, H);
+      oc.strokeStyle = col; oc.lineWidth = 2; oc.lineCap = 'round';
+      for (const ob of o.objs) oc.stroke(objPath(ob, g));
+      ctx.drawImage(off, 0, 0);
+    }
+  }
+  if (!playing) overlay();
+  $('fInfo').textContent = `장 ${cur + 1} / ${seq.frames.length} · 오브젝트 ${f.objs.length}`;
+  $('status').textContent = `${seq.attrs.Name || ''} · ${{ select: '선택', line: '직선', curve: '곡선', circle: '원' }[tool]}`;
+}
+function overlay() {
+  const g = geo(cv.width, cv.height), f = seq.frames[cur];
+  ctx.save();
+  for (const o of f.objs) {
+    if (layerLocked(o)) continue;
+    o.pts.forEach((p, k) => {
+      const [x, y] = P2(g, p);
+      const isCtl = o.a.TypeId === '3' && k === 1, selO = sel && sel.obj === o;
+      ctx.beginPath(); ctx.arc(x, y, selO ? 6 : 4, 0, Math.PI * 2);
+      ctx.fillStyle = isCtl ? 'rgba(255,200,0,0.9)' : p.a.Flags === '3' ? 'rgba(60,120,255,0.95)' : 'rgba(255,60,60,0.9)';
+      ctx.fill();
+    });
+    if (sel && sel.obj === o) { ctx.strokeStyle = 'rgba(79,140,255,0.8)'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]); ctx.stroke(objPath(o, g)); ctx.setLineDash([]); }
+  }
+  ctx.restore();
+}
+function thumbs() {
+  const box = $('frames'); box.innerHTML = '';
+  seq.frames.forEach((f, i) => {
+    const t = document.createElement('canvas'); t.width = 112; t.height = 63; t.title = `장 ${i + 1}`;
+    drawFrame(t.getContext('2d'), f, 112, 63, { noGlow: true });
+    if (i === cur) t.className = 'cur';
+    t.onclick = () => { cur = i; sel = null; refresh(); };
+    box.appendChild(t);
+  });
+  const c = box.children[cur]; if (c) c.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+}
+function layersUI() {
+  const f = seq.frames[cur], box = $('layers'); box.innerHTML = '';
+  if (!f.layers.some(l => l.ID === layerAct)) layerAct = f.layers[0]?.ID ?? '0';
+  for (const l of [...f.layers].reverse()) {
+    const d = document.createElement('div'); if (l.ID === layerAct) d.className = 'act';
+    const vis = document.createElement('input'); vis.type = 'checkbox'; vis.checked = l.Visible !== 'false';
+    vis.onclick = e => { e.stopPropagation(); edit(() => allFrames(l.ID, x => x.Visible = vis.checked ? 'true' : 'false')); };
+    const lock = document.createElement('button'); lock.textContent = l.Locked === 'true' ? '🔒' : '🔓'; lock.style.padding = '0 4px';
+    lock.onclick = e => { e.stopPropagation(); edit(() => allFrames(l.ID, x => x.Locked = x.Locked === 'true' ? 'false' : 'true')); };
+    const nm = document.createElement('span'); nm.textContent = l.Name; nm.ondblclick = () => { const n = prompt('레이어 이름', l.Name); if (n) edit(() => allFrames(l.ID, x => x.Name = n)); };
+    d.append(vis, lock, nm); d.onclick = () => { layerAct = l.ID; layersUI(); };
+    box.appendChild(d);
+  }
+}
+function allFrames(id, fn) { for (const f of seq.frames) for (const l of f.layers) if (l.ID === id) fn(l); }
+function layerLocked(o) { const l = seq.frames[cur].layers.find(x => x.ID === (o.a.LayerId || '0')); return l && (l.Locked === 'true' || l.Visible === 'false'); }
+function propsUI() {
+  const o = sel?.obj;
+  $('objInfo').textContent = o ? `ID ${o.a.ID} · ${{ 1: '직선', 2: '원', 3: '곡선' }[o.a.TypeId] || 'TypeId ' + o.a.TypeId} · 레이어 ${o.a.LayerId}` : '선택 없음 — 새로 그릴 때 아래 값을 씁니다.';
+  if (o) {
+    $('pColor').value = argbToHex(o.a.Color); $('pAlpha').value = argbAlpha(o.a.Color); $('pThick').value = o.a.ThicknessScale || 1;
+    $('pGR').value = o.a.GlowRadius || 0; $('pGT').value = o.a.GlowThickness || 0; $('pGC').value = argbToHex(o.a.GlowColor || 4294967295);
+    const ga = +o.a.GlowAlpha || 0; $('pGA').value = ga <= 1 ? Math.round(ga * 255) : ga;
+  }
+  $('pBG').value = argbToHex(seq.frames[cur].attrs.BackgroundColor ?? '4294967295');
+}
+function refresh() { render(); thumbs(); layersUI(); propsUI(); }
+
+// ---------- 편집·되돌리기 ----------
+function snap() { return JSON.stringify({ seq, cur }); }
+function edit(fn, noThumb) { undo.push(snap()); if (undo.length > 60) undo.shift(); redo = []; fn(); noThumb ? render() : refresh(); }
+function restore(st) { const o = JSON.parse(st); seq = o.seq; cur = Math.min(o.cur, seq.frames.length - 1); sel = null; refresh(); }
+$('bUndo').onclick = () => { if (undo.length) { redo.push(snap()); restore(undo.pop()); } };
+$('bRedo').onclick = () => { if (redo.length) { undo.push(snap()); restore(redo.pop()); } };
+
+function maxId(kind) {
+  let m = 0;
+  for (const f of seq.frames) for (const o of f.objs) { if (kind === 'AO') m = Math.max(m, +o.a.ID || 0); else for (const p of o.pts) m = Math.max(m, +p.a.ID || 0); }
+  return m;
+}
+function newObj(type, pts) {
+  const f = seq.frames[cur], id = String(maxId('AO') + 1);
+  let pid = maxId('AP');
+  const order = Math.max(0, ...f.objs.map(o => +o.a.DrawOrder || +o.a.ID || 0)) + 1;
+  const glowA = +$('pGA').value;
+  const o = { a: { ID: id, TypeId: type, Color: toArgb($('pColor').value, +$('pAlpha').value), LayerId: layerAct, DrawOrder: String(order),
+    ThicknessScale: String(+$('pThick').value || 1), ObjectScale: '1.0', GlowRadius: String(Math.round(+$('pGR').value)), GlowThickness: String(Math.round(+$('pGT').value)),
+    GlowColor: toArgb($('pGC').value, 255), GlowAlpha: String(Math.round(glowA)) },
+    pts: pts.map((xy, k) => ({ a: { ID: String(++pid), Flags: k === 0 ? '3' : '9', Index: String(k), X: fmt(xy[0]), Y: fmt(xy[1]) }, conns: [] })) };
+  f.objs.push(o);
+  return o;
+}
+const fmt = v => String(Math.round(v * 1000) / 1000);
+function link(a, b) { if (!a.conns.includes(b.a.ID)) a.conns.push(b.a.ID); if (!b.conns.includes(a.a.ID)) b.conns.push(a.a.ID); }
+
+// ---------- 마우스 ----------
+function evPos(e) { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; }
+function toUnit(x, y) { const g = geo(cv.width, cv.height); return [(x - g.ox) / g.uw * 100, (y - g.oy) / g.uh * 100]; }
+function hitPoint(x, y, skipObj) {
+  const g = geo(cv.width, cv.height); let best = null, bd = 9;
+  for (const o of seq.frames[cur].objs) { if (o === skipObj || layerLocked(o)) continue; o.pts.forEach((p, k) => { const [px, py] = P2(g, p); const d = Math.hypot(px - x, py - y); if (d < bd) { bd = d; best = { obj: o, pt: p, k }; } }); }
+  return best;
+}
+function hitObj(x, y) {
+  const g = geo(cv.width, cv.height), f = seq.frames[cur];
+  ctx.save(); ctx.lineWidth = 12;
+  for (let i = f.objs.length - 1; i >= 0; i--) { const o = f.objs[i]; if (!layerLocked(o) && ctx.isPointInStroke(objPath(o, g), x, y)) { ctx.restore(); return o; } }
+  ctx.restore(); return null;
+}
+function connectedSet(pt) {
+  const f = seq.frames[cur], byId = {}; for (const o of f.objs) for (const p of o.pts) byId[p.a.ID] = p;
+  const out = new Set([pt]), st = [pt];
+  while (st.length) { const p = st.pop(); for (const c of p.conns) { const q = byId[c]; if (q && !out.has(q)) { out.add(q); st.push(q); } } }
+  return [...out];
+}
+let drag = null;
+cv.addEventListener('mousedown', e => {
+  if (playing) return;
+  const [x, y] = evPos(e), [ux, uy] = toUnit(x, y);
+  if (tool === 'select') {
+    const h = hitPoint(x, y);
+    undo.push(snap()); redo = [];
+    if (h) { sel = { obj: h.obj }; drag = { kind: 'pt', pts: (h.obj.a.TypeId === '3' && h.k === 1) ? [h.pt] : connectedSet(h.pt), last: [ux, uy] }; }
+    else { const o = hitObj(x, y); sel = o ? { obj: o } : null; drag = o ? { kind: 'obj', pts: o.pts, last: [ux, uy] } : null; if (!o) undo.pop(); }
+    propsUI(); render();
+  } else {
+    const h = hitPoint(x, y);
+    const start = h ? [parseFloat(h.pt.a.X), parseFloat(h.pt.a.Y)] : [ux, uy];
+    undo.push(snap()); redo = [];
+    const type = { line: '1', curve: '3', circle: '2' }[tool];
+    const pts = type === '3' ? [start, start, start] : [start, start];
+    const o = newObj(type, pts);
+    if (h) link(o.pts[0], h.pt);
+    sel = { obj: o }; drag = { kind: 'new', obj: o };
+    render();
+  }
+});
+window.addEventListener('mousemove', e => {
+  if (!drag) return;
+  const [x, y] = evPos(e), [ux, uy] = toUnit(x, y);
+  if (drag.kind === 'new') {
+    const o = drag.obj, end = o.pts[o.pts.length - 1];
+    end.a.X = fmt(ux); end.a.Y = fmt(uy);
+    if (o.a.TypeId === '3') { const a = o.pts[0].a; const mx = (+a.X + ux) / 2, my = (+a.Y + uy) / 2, dx = ux - a.X, dy = uy - a.Y; o.pts[1].a.X = fmt(mx - dy * 0.25); o.pts[1].a.Y = fmt(my + dx * 0.25); }
+  } else {
+    const dx = ux - drag.last[0], dy = uy - drag.last[1]; drag.last = [ux, uy];
+    for (const p of drag.pts) { p.a.X = fmt(+p.a.X + dx); p.a.Y = fmt(+p.a.Y + dy); }
+  }
+  render();
+});
+window.addEventListener('mouseup', e => {
+  if (!drag) return;
+  if (drag.kind === 'new') {
+    const o = drag.obj, a = o.pts[0].a, b = o.pts[o.pts.length - 1].a;
+    if (Math.hypot(a.X - b.X, a.Y - b.Y) < 0.3) { seq.frames[cur].objs.pop(); undo.pop(); sel = null; }
+    else { const [x, y] = evPos(e); const h = hitPoint(x, y, o); if (h) { b.X = h.pt.a.X; b.Y = h.pt.a.Y; link(o.pts[o.pts.length - 1], h.pt); } }
+  }
+  drag = null; refresh();
+});
+
+// ---------- 속성 ----------
+function applyProp(fn) { if (sel) edit(() => fn(sel.obj.a)); }
+$('pColor').oninput = $('pAlpha').onchange = () => applyProp(a => a.Color = toArgb($('pColor').value, +$('pAlpha').value));
+$('pThick').onchange = () => applyProp(a => a.ThicknessScale = String(+$('pThick').value));
+$('pGR').onchange = () => applyProp(a => a.GlowRadius = String(Math.round(+$('pGR').value)));
+$('pGT').onchange = () => applyProp(a => a.GlowThickness = String(Math.round(+$('pGT').value)));
+$('pGC').oninput = () => applyProp(a => a.GlowColor = toArgb($('pGC').value, 255));
+$('pGA').onchange = () => applyProp(a => a.GlowAlpha = String(Math.round(+$('pGA').value)));
+$('pBG').oninput = () => edit(() => seq.frames[cur].attrs.BackgroundColor = toArgb($('pBG').value, 255));
+function delSel() {
+  if (!sel) return;
+  edit(() => {
+    const f = seq.frames[cur], o = sel.obj, ids = new Set(o.pts.map(p => p.a.ID));
+    f.objs = f.objs.filter(x => x !== o);
+    for (const x of f.objs) for (const p of x.pts) p.conns = p.conns.filter(c => !ids.has(c));
+    f.extra = f.extra.filter(e => !e.objIds.includes(o.a.ID));  // 이 오브젝트를 쓰는 채우기 면도 지움
+    sel = null;
+  });
+}
+$('bDel').onclick = delSel;
+$('bToFront').onclick = () => applyProp(a => { const f = seq.frames[cur]; a.DrawOrder = String(Math.max(...f.objs.map(o => +o.a.DrawOrder || +o.a.ID || 0)) + 1); });
+
+// ---------- 장 ----------
+function nextFrameId() { return String(Math.max(0, ...seq.frames.map(f => +f.attrs.ID || 0)) + 1); }
+$('fAdd').onclick = () => edit(() => { const c = JSON.parse(JSON.stringify(seq.frames[cur])); c.attrs.ID = nextFrameId(); seq.frames.splice(cur + 1, 0, c); cur++; sel = null; });
+$('fBlank').onclick = () => edit(() => { const f = seq.frames[cur]; seq.frames.splice(cur + 1, 0, { attrs: { BackgroundColor: f.attrs.BackgroundColor, ID: nextFrameId(), Position: '0' }, layers: JSON.parse(JSON.stringify(f.layers)), objs: [], extra: [] }); cur++; sel = null; });
+$('fDel').onclick = () => { if (seq.frames.length > 1) edit(() => { seq.frames.splice(cur, 1); cur = Math.min(cur, seq.frames.length - 1); sel = null; }); };
+$('fLeft').onclick = () => { if (cur > 0) edit(() => { const f = seq.frames.splice(cur, 1)[0]; seq.frames.splice(--cur, 0, f); }); };
+$('fRight').onclick = () => { if (cur < seq.frames.length - 1) edit(() => { const f = seq.frames.splice(cur, 1)[0]; seq.frames.splice(++cur, 0, f); }); };
+$('bLayerAdd').onclick = () => edit(() => { const id = String(Math.max(...seq.frames[cur].layers.map(l => +l.ID)) + 1); for (const f of seq.frames) f.layers.push({ ID: id, Name: 'Layer ' + (+id + 1), Visible: 'true', Locked: 'false' }); layerAct = id; });
+
+// ---------- 재생 ----------
+function togglePlay() {
+  if (playing) { clearInterval(playing); playing = null; $('bPlay').textContent = '▶ 재생'; refresh(); return; }
+  $('bPlay').textContent = '■ 정지'; sel = null;
+  playing = setInterval(() => { cur = (cur + 1) % seq.frames.length; render(); }, 1000 / Math.max(1, +$('fps').value || 24));
+}
+$('bPlay').onclick = togglePlay;
+
+// ---------- 파일 ----------
+$('bNew').onclick = () => { if (confirm('새로 시작할까요? 저장하지 않은 내용은 사라집니다.')) { seq = blank(); cur = 0; sel = null; undo = []; redo = []; refresh(); } };
+$('bOpen').onclick = () => $('file').click();
+$('file').onchange = async () => {
+  const f = $('file').files[0]; if (!f) return;
+  $('status').textContent = '여는 중…';
+  try { seq = await openSfa(f); cur = 0; sel = null; undo = []; redo = []; refresh(); }
+  catch (err) { alert('열기 실패: ' + err.message); }
+  $('file').value = '';
+};
+$('bSave').onclick = () => { const n = prompt('파일 이름', seq.attrs.Name || 'untitled'); if (n) { seq.attrs.Name = n; saveSfa(); } };
+$('bPng').onclick = () => { const c = document.createElement('canvas'); c.width = 1920; c.height = 1080; drawFrame(c.getContext('2d'), seq.frames[cur], 1920, 1080); c.toBlob(b => download(b, `${seq.attrs.Name || 'frame'}_${cur + 1}.png`)); };
+
+// ---------- 도구·단축키 ----------
+function setTool(t) { tool = t; document.querySelectorAll('#tools button').forEach(b => b.classList.toggle('on', b.dataset.tool === t)); cv.style.cursor = t === 'select' ? 'default' : 'crosshair'; render(); }
+document.querySelectorAll('#tools button').forEach(b => b.onclick = () => setTool(b.dataset.tool));
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.ctrlKey && e.key.toLowerCase() === 'z') { e.preventDefault(); $('bUndo').click(); }
+  else if (e.ctrlKey && e.key.toLowerCase() === 'y') { e.preventDefault(); $('bRedo').click(); }
+  else if (e.ctrlKey && e.key.toLowerCase() === 'd') { e.preventDefault(); $('fAdd').click(); }
+  else if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'ArrowLeft' && cur > 0) { cur--; sel = null; refresh(); }
+  else if (e.key === 'ArrowRight' && cur < seq.frames.length - 1) { cur++; sel = null; refresh(); }
+  else if (e.key === 'Delete' || e.key === 'Backspace') delSel();
+  else if (!e.ctrlKey) { const t = { v: 'select', l: 'line', c: 'curve', o: 'circle' }[e.key.toLowerCase()]; if (t) setTool(t); }
+});
+$('onion').onchange = render;
+seq = blank(); setTool('line'); refresh();
+</script>
+</body>
+</html>
