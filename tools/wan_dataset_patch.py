@@ -29,7 +29,8 @@ def person_sentence(t):
         subj = f"A close-up of a {noun}"
         plural = False
     else:
-        adj = {"small": "small, distant ", "large": "" if kind == "robot" else "large "}.get(size, "")  # 'large giant robot' 피함
+        # 'large'는 붙이지 않는다: 1–4쪽 대조에서 GPT가 작은·중간 인물을 large로 적은 경우가 15개 중 4개(크기 과대) → 틀릴 수 있는 크기 정보는 빼고 존재만
+        adj = "small, distant " if size == "small" else ""
         subj = f"{'Several' if plural else 'A'} {adj}{noun}"
     brief = "briefly " if t.get("frames") == "some" else ""
     link = t.get("fx_link", "none")

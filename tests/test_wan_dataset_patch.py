@@ -24,6 +24,7 @@ class PersonSentenceTest(unittest.TestCase):
         self.assertEqual(self.t(person="small"), "A small, distant character is visible.")
         self.assertEqual(self.t(kind="several", frames="some"), "Several characters are briefly visible.")
         self.assertEqual(self.t(person="large", kind="robot", fx_link="emits"), "A giant robot emits the effect.")
+        self.assertEqual(self.t(person="large"), "A character is visible.")
         self.assertEqual(self.t(kind="creature", fx_link="hit", frames="some"), "A creature is briefly hit by the effect.")
 
 

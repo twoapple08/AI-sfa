@@ -59,3 +59,9 @@ unsure: 이펙트에 가려 인물인지 애매하면 true
 - 459줄·조각 번호 일치 검사, 시트마다 2–3조각 직접 대조.
 - 문장 변환(예): large+face → "A character's face is visible in close-up." / small+body → "A small, distant character is visible." / frames=some → "briefly visible". creature → "a creature", robot → "a giant robot", robot_part → "a robot's arm/armor in close-up". fx_link: emits → "…emitting the effect", hit → "…hit by the effect", strike → "…striking".
 - 효과 없음 23조각(`data/style_kb/wan_exclude_no_effect_2026-10-28.txt`) 제거 → 새 wanlora.zip.
+
+## 1–4쪽 결과 Claude 대조(10-28 밤)
+- 144줄, 조각 번호·순서 keep 목록과 일치, 중복 0. none 58 / large 68 / medium 14 / small 4, unsure 6. robot 13·robot_part 4.
+- 검출기와 엇갈린 43조각 중 15개 직접 대조: 있음/없음은 대부분 맞음(빔·포탄을 사람으로 잡은 검출기 오검출을 GPT가 none으로 바로잡음: s0033·s0032·s0013_c1).
+  틀림: 크기 과대 4(s0001_c1·s0005_c0·s0114_c0 등 작거나 중간 인물을 large), 놓침 1(s0009_c0 작은 검은 인물).
+- 조치: 캡션에서 'large' 형용사를 빼고 존재·종류·관계만(작음은 유지), 남은 쪽은 크기 기준을 다시 알림.
