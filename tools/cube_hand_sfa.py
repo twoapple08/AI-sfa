@@ -79,7 +79,7 @@ def face_color(img, poly, shrink=0.25):
     return np.median(img[m > 0], axis=0) if m.any() else np.array([128, 128, 128])
 
 
-def build(img, spec, band, scale, ts_all=None):
+def build(img, spec, band, scale, ts_all=None, vis=9):
     g = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     ink = (g < spec.get("ink_max", 70)).astype(np.uint8)
     ink_col = np.median(img[cv2.erode(ink, np.ones((3, 3), np.uint8)) > 0], axis=0)
@@ -123,9 +123,16 @@ def build(img, spec, band, scale, ts_all=None):
         for ps in at_v.values():
             for x in ps:
                 links[x] = [y for y in ps if y != x]
+        # 10-28 녹화: 겹친 점 중 Flags 8만 있는 꼭짓점은 점이 안 보이고, 파란점(3) 위에 9가 덮여 주황으로 보였다.
+        # 문서상 bit0(1) = 점 표시·선택, Flags & 0x2e = 점 종류(2 = 파란 기준점). → 꼭짓점마다 점 하나만 표시(bit0), 나머지는 bit0을 끈다.
         blue = ids[edges[0]][1]
+        flag = {}
+        for ps in at_v.values():
+            shown = blue if blue in ps else ps[0]
+            for x in ps:
+                flag[x] = 3 if x == blue else (vis if x == shown else vis - 1)
         for o, pts, tsc, col in objs_c:
-            aps = "".join(f'<AP ID="{i}" Flags="{3 if i == blue else (8 if k == 0 else 9)}" Index="{k}" X="{x[0] / W * 100:.3f}" Y="{x[1] / H * 100:.3f}">'
+            aps = "".join(f'<AP ID="{i}" Flags="{flag[i]}" Index="{k}" X="{x[0] / W * 100:.3f}" Y="{x[1] / H * 100:.3f}">'
                           + "".join(f'<AC ConnPtId="{c}"/>' for c in links.get(i, [])) + "</AP>" for k, (i, x) in enumerate(pts))
             objs.append(f'<AO ID="{o}" TypeId="1" Color="{argb(col)}" LayerId="0" DrawOrder="{o}" ThicknessScale="{tsc:.3f}" ObjectScale="1.0" '
                         f'GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">{aps}</AO>')
@@ -157,12 +164,13 @@ def main():
     ap.add_argument("--band", type=float, default=2.5, help="모서리 대략 선분에서 이 거리(원본 px) 안의 먹선 픽셀로 맞춤")
     ap.add_argument("--bg", default="", help="바탕 BGR(쉼표). 비우면 그림 가장자리 중앙값")
     ap.add_argument("--ts", type=float, default=None, help="모든 선 굵기(ThicknessScale). 비우면 먹선 굵기 중앙값 하나로 통일")
+    ap.add_argument("--vis", type=int, default=9, choices=(5, 9), help="꼭짓점에 보이는 점의 Flags(9: 기존 출력, 5: 사람 파일의 끝점). 겹친 나머지는 vis-1로 숨김")
     ap.add_argument("--check")
     a = ap.parse_args()
     img0 = cv2.imread(a.image)
     img = cv2.resize(img0, None, fx=a.scale, fy=a.scale, interpolation=cv2.INTER_CUBIC)
     spec = json.load(open(a.spec, encoding="utf-8"))
-    body, rep, n = build(img, spec, a.band, a.scale, a.ts)
+    body, rep, n = build(img, spec, a.band, a.scale, a.ts, a.vis)
     H, W = img.shape[:2]
     bg = np.array([int(x) for x in a.bg.split(",")]) if a.bg else np.median(np.r_[img[0], img[-1], img[:, 0], img[:, -1]], axis=0)
     name = os.path.splitext(os.path.basename(a.out))[0]
