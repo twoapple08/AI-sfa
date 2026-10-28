@@ -5,7 +5,8 @@
 해결: GPT 인물 태그(docs/GPT-PROMPT-PERSON-TAGS-2026-10-28.md 형식 JSONL)를 정해진 영어 문장으로 바꿔 캡션 끝에 붙인다.
   로봇은 나카무라의 주요 소재라 지우지 않고 'giant robot'으로 따로 부를 수 있게 한다(10-28 사용자).
   unsure=true는 붙이지 않는다(틀린 문장이 섞이는 것보다 원래대로가 낫다).
-사용: python tools/wan_dataset_patch.py wanlora.zip --exclude data/style_kb/wan_exclude_no_effect_2026-10-28.txt --tags person_tags.jsonl -o wanlora_v2.zip
+사용: python tools/wan_dataset_patch.py wanlora.zip --exclude data/style_kb/wan_exclude_no_effect_2026-10-28.txt --tags 태그1.jsonl 태그2.jsonl …
+      --override data/style_kb/person_tags_claude_overrides_2026-10-28.jsonl -o wanlora_v2.zip
 """
 import argparse
 import csv
@@ -49,16 +50,18 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("zip")
     ap.add_argument("--exclude", required=True)
-    ap.add_argument("--tags", required=True)
+    ap.add_argument("--tags", required=True, nargs="+", help="GPT 태그 JSONL(여러 파일 가능)")
+    ap.add_argument("--override", nargs="*", default=[], help="Claude 직접 판정 JSONL — GPT 태그보다 우선")
     ap.add_argument("-o", required=True)
     a = ap.parse_args()
     ex = {x.strip() for x in open(a.exclude, encoding="utf-8") if x.strip()}
     tags = {}
-    for line in open(a.tags, encoding="utf-8"):
-        line = line.strip()
-        if line.startswith("{"):
-            t = json.loads(line)
-            tags[t["clip"]] = t
+    for path in a.tags + a.override:  # 뒤에 오는 파일(수정본)이 앞을 덮는다
+        for line in open(path, encoding="utf-8"):
+            line = line.strip()
+            if line.startswith("{"):
+                t = json.loads(line)
+                tags[t["clip"]] = t
     zin = zipfile.ZipFile(a.zip)
     clips = sorted(n[len("video/"):-4] for n in zin.namelist() if n.startswith("video/") and n.endswith(".mp4"))
     keep = [c for c in clips if c not in ex]
