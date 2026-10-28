@@ -9,26 +9,7 @@ import os
 from colab_p1_build import ROOT, code, md
 
 
-def build():
-    worker = open(os.path.join(ROOT, "tools/kaggle_wan_eval_worker.py"), encoding="utf-8").read()
-    cells = [
-        md("""
-# AI-sfa 나카무라 Wan LoRA 평가 2판 — Kaggle GPU
-
-PC방 학습 결과(LoRA 3000스텝)로 비교 영상 16개를 만든다: 프롬프트 4개 × (LoRA 세기 0.6 · 0.8 · 1.0 · 1.0+인물 빼기).
-**2판(10-28 저녁):** 1판은 프롬프트 해석기(T5)를 fp16으로 돌려 PC 결과와 구도부터 달랐다 → T5를 PC와 같은 bf16으로.
-먼저 p1·p2를 PC와 같은 조건으로 다시 만들어 PC 영상과 비교(재현 확인)한 뒤 16개를 만든다.
-모델은 HuggingFace, LoRA·PC 영상은 Drive 공유 링크에서 노트북이 직접 받는다.
-
-**설정:**
-1. **Settings → Accelerator → GPU T4 x2**
-2. **Settings → Internet → On**
-3. (선택) **Add-ons → Secrets**에 `RCLONE_GDRIVE_AUTH_B64`를 붙이면 결과가 Drive `AI-sfa/02_분석자료/WanLoRA_평가/`로 올라간다. 없으면 Output 탭에서 받는다.
-
-**실행:** 오른쪽 위 **Save Version → Save & Run All (Commit)** — 브라우저를 닫아도 돈다. 예상 40–80분(추정, bf16 쪽이 느림).
-결과 `wan_out_eval2.zip`: `repro/`(PC·DiT fp16·DiT bf16 재현 비교), `samples/` 영상, `compare/p{번호}_sheet.jpg`·`p{번호}_side.mp4`, `logs/`.
-"""),
-        code("""
+DRIVE_CELL = """
 # 1. (선택) Drive 연결 — 비밀값이 없으면 건너뛴다. 인증값은 출력하지 않는다
 import os, json, base64, pathlib, subprocess
 try:
@@ -46,20 +27,61 @@ try:
     print('Drive 연결됨')
 except Exception as e:
     print('Drive 연결 없이 진행(결과는 Output 탭):', type(e).__name__)
-"""),
-        code("""
-# 2. 작업자 파일 쓰기 → 실행(받기·설치 → PC 재현 확인 → 16개 GPU 나눠서 → 비교 시트 → zip)
-open('/tmp/kaggle_wan_eval_worker.py', 'w', encoding='utf-8').write(%s)
-!python -u /tmp/kaggle_wan_eval_worker.py --out /kaggle/working
-""" % json.dumps(worker, ensure_ascii=False)),
-    ]
+"""
+
+
+def notebook(intro, worker_rel, run_args, out_rel, step_note):
+    worker = open(os.path.join(ROOT, worker_rel), encoding="utf-8").read()
+    name = os.path.basename(worker_rel)
+    cells = [md(intro), code(DRIVE_CELL), code("""
+# 2. 작업자 파일 쓰기 → 실행(%s)
+open('/tmp/%s', 'w', encoding='utf-8').write(%s)
+!python -u /tmp/%s %s
+""" % (step_note, name, json.dumps(worker, ensure_ascii=False), name, run_args))]
     nb = {"cells": cells, "metadata": {"kernelspec": {"name": "python3", "display_name": "Python 3"},
                                        "language_info": {"name": "python"}},
           "nbformat": 4, "nbformat_minor": 4}
-    p = os.path.join(ROOT, "tools/kaggle_wan_eval.ipynb")
+    p = os.path.join(ROOT, out_rel)
     json.dump(nb, open(p, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print("→", p)
 
 
+SETUP_MD = """
+**설정:**
+1. **Settings → Accelerator → GPU T4 x2**
+2. **Settings → Internet → On**
+3. (선택) **Add-ons → Secrets**에 `RCLONE_GDRIVE_AUTH_B64`를 붙이면 결과가 Drive `AI-sfa/02_분석자료/WanLoRA_평가/`로 올라간다. 없으면 Output 탭에서 받는다.
+"""
+
+
+def build():
+    notebook("""
+# AI-sfa 나카무라 Wan LoRA 평가 2판 — Kaggle GPU
+
+PC방 학습 결과(LoRA 3000스텝)로 비교 영상 16개를 만든다: 프롬프트 4개 × (LoRA 세기 0.6 · 0.8 · 1.0 · 1.0+인물 빼기).
+**2판(10-28 저녁):** 1판은 프롬프트 해석기(T5)를 fp16으로 돌려 PC 결과와 구도부터 달랐다 → T5를 PC와 같은 bf16으로.
+먼저 p1·p2를 PC와 같은 조건으로 다시 만들어 PC 영상과 비교(재현 확인)한 뒤 16개를 만든다.
+모델은 HuggingFace, LoRA·PC 영상은 Drive 공유 링크에서 노트북이 직접 받는다.
+
+""" + SETUP_MD + """
+**실행:** 오른쪽 위 **Save Version → Save & Run All (Commit)** — 브라우저를 닫아도 돈다. 예상 40–80분(추정, bf16 쪽이 느림).
+결과 `wan_out_eval2.zip`: `repro/`(PC·DiT fp16·DiT bf16 재현 비교), `samples/` 영상, `compare/p{번호}_sheet.jpg`·`p{번호}_side.mp4`, `logs/`.
+""", "tools/kaggle_wan_eval_worker.py", "--out /kaggle/working", "tools/kaggle_wan_eval.ipynb",
+             "받기·설치 → PC 재현 확인 → 16개 GPU 나눠서 → 비교 시트 → zip")
+
+
+def build_train_test():
+    notebook("""
+# AI-sfa Wan LoRA 학습 시험 — Kaggle T4에서 학습이 되는지
+
+사용자 GPU가 당분간 1050 Ti뿐이라 학습을 Kaggle로 옮길 수 있는지 잰다. 학습 자료 48조각, 100스텝만(결과 LoRA는 안 씀).
+GPU 0 = fp16 학습, GPU 1 = bf16 학습(PC와 같은 방식, T4에선 에뮬레이션)을 동시에 돌려 속도·손실·메모리를 PC(2.85초/스텝, 손실 0.16)와 비교한다.
+""" + SETUP_MD + """
+**실행:** **Save Version → Save & Run All (Commit)**. 예상 40–70분(추정). 결과 `wan_train_test.zip` 안 `train_test/summary.json`을 Claude에게.
+""", "tools/kaggle_wan_train_test_worker.py", "--out /kaggle/working --steps 100", "tools/kaggle_wan_train_test.ipynb",
+             "받기·설치 → 48조각 캐시 → fp16·bf16 학습 100스텝 → 요약")
+
+
 if __name__ == "__main__":
     build()
+    build_train_test()
