@@ -14,15 +14,20 @@ DRIVE_CELL = """
 import os, json, base64, pathlib, subprocess
 try:
     from kaggle_secrets import UserSecretsClient
-    raw = UserSecretsClient().get_secret('RCLONE_GDRIVE_AUTH_B64').strip()
-    d = json.loads(base64.b64decode(raw + '=' * (-len(raw) % 4)))
+    sc = UserSecretsClient()
+    try:  # 사용자 Claude 환경 변수와 같은 이름: rclone 토큰 JSON 그대로(10-28)
+        d = {'token': sc.get_secret('RCLONE_CONFIG_GDRIVE_TOKEN').strip()}
+        json.loads(d['token'])
+    except Exception:  # 예전 방식: client_id·secret·token을 담은 base64 JSON
+        raw = sc.get_secret('RCLONE_GDRIVE_AUTH_B64').strip()
+        d = json.loads(base64.b64decode(raw + '=' * (-len(raw) % 4)))
     p = pathlib.Path.home() / '.config/rclone'; p.mkdir(parents=True, exist_ok=True)
     lines = ['[gdrive]', 'type = drive', 'scope = drive.readonly,drive.file']
     if d.get('client_id'): lines.append('client_id = ' + d['client_id'])
     if d.get('client_secret'): lines.append('client_secret = ' + d['client_secret'])
     lines.append('token = ' + d['token'])
     (p / 'rclone.conf').write_text('\\n'.join(lines) + '\\n'); os.chmod(p / 'rclone.conf', 0o600)
-    del raw, d, lines
+    del d, lines
     subprocess.run('cd /tmp && curl -sSLo rc.zip https://downloads.rclone.org/rclone-current-linux-amd64.zip && unzip -qo rc.zip && cp rclone-*/rclone /usr/local/bin/', shell=True, check=True)
     print('Drive 연결됨')
 except Exception as e:
@@ -50,7 +55,7 @@ SETUP_MD = """
 **설정:**
 1. **Settings → Accelerator → GPU T4 x2**
 2. **Settings → Internet → On**
-3. (선택) **Add-ons → Secrets**에 `RCLONE_GDRIVE_AUTH_B64`를 붙이면 결과가 Drive `AI-sfa/02_분석자료/WanLoRA_평가/`로 올라간다. 없으면 Output 탭에서 받는다.
+3. (선택) **Add-ons → Secrets**에 `RCLONE_CONFIG_GDRIVE_TOKEN`(Claude 환경 변수와 같은 이름·값, 예전 `RCLONE_GDRIVE_AUTH_B64`도 됨)을 붙이면 결과가 Drive `AI-sfa/02_분석자료/WanLoRA_평가/`로 올라간다. 없으면 Output 탭에서 받는다.
 """
 
 
