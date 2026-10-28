@@ -100,6 +100,7 @@ def build(img, spec, band, scale, ts_all=None):
         edges.sort(key=lambda e: -share[e])
         dist = cv2.distanceTransform(ink, cv2.DIST_L2, 3)
         ids = {}
+        objs_c = []  # (oid, pts, tsc) — 연결(AC)을 다 모은 뒤 쓴다
         for e in edges:
             a, b = V[e[0]], V[e[1]]
             ts = np.linspace(0.2, 0.8, 9)
@@ -108,12 +109,26 @@ def build(img, spec, band, scale, ts_all=None):
             col = ink_col  # 선 위 표본은 가는 선 옆 바탕색(주황)이 섞여 갈색이 됐다 → 그림 전체 먹선 색 하나
             tsc = ts_all if ts_all else max(0.05, max(w, 1.0) * (1920 / W) / (1.14 * 8))
             ids[e] = (oid, pid, pid + 1)
-            objs.append(f'<AO ID="{oid}" TypeId="1" Color="{argb(col)}" LayerId="0" DrawOrder="{oid}" ThicknessScale="{tsc:.3f}" ObjectScale="1.0" '
-                        f'GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">'
-                        f'<AP ID="{pid}" Flags="8" Index="0" X="{a[0] / W * 100:.3f}" Y="{a[1] / H * 100:.3f}"></AP>'
-                        f'<AP ID="{pid + 1}" Flags="9" Index="1" X="{b[0] / W * 100:.3f}" Y="{b[1] / H * 100:.3f}"></AP></AO>')
+            objs_c.append((oid, ((pid, a), (pid + 1, b)), tsc, col))
             oid += 1
             pid += 2
+        # 앱에서 한 덩어리로 움직이게(10-28 사용자: 파란점이 없고 선끼리 안 이어짐): 같은 꼭짓점에 닿는 선 끝점끼리 서로 AC로 잇고,
+        # 큐브마다 파란점(Flags=3) 하나. 나머지 점은 8(시작)/9 — sfa_slim.py와 같은 방식(앱에서 열림 확인된 형식)
+        at_v = {}
+        for e in edges:
+            o, p0, p1 = ids[e]
+            at_v.setdefault(e[0], []).append(p0)
+            at_v.setdefault(e[1], []).append(p1)
+        links = {}
+        for ps in at_v.values():
+            for x in ps:
+                links[x] = [y for y in ps if y != x]
+        blue = ids[edges[0]][1]
+        for o, pts, tsc, col in objs_c:
+            aps = "".join(f'<AP ID="{i}" Flags="{3 if i == blue else (8 if k == 0 else 9)}" Index="{k}" X="{x[0] / W * 100:.3f}" Y="{x[1] / H * 100:.3f}">'
+                          + "".join(f'<AC ConnPtId="{c}"/>' for c in links.get(i, [])) + "</AP>" for k, (i, x) in enumerate(pts))
+            objs.append(f'<AO ID="{o}" TypeId="1" Color="{argb(col)}" LayerId="0" DrawOrder="{o}" ThicknessScale="{tsc:.3f}" ObjectScale="1.0" '
+                        f'GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">{aps}</AO>')
         for f in cube["faces"]:
             ring = list(zip(f, f[1:] + f[:1]))
             k0 = min(range(len(ring)), key=lambda k: ids[tuple(sorted(ring[k]))][0])  # 가장 앞 번호 모서리부터
