@@ -11,12 +11,12 @@ GPT와 Claude는 각자 잘하는 일을 한다(AGENTS '다 GPT에 맡기지 말
 ## 바로 할 일 (다음 세션)
 1. **GPT↔Claude 태그 토론 5차까지 진행**: 1–4차 docs/DEBATE-ROUND1~4-TO-GPT → **5차 docs/DEBATE-ROUND5-TO-GPT-2026-10-28.md**. 컷 합의·사용자 판정 끝. 저장소 태그 = GPT 5차본.
    조각 캡션: GPT가 경우 B 443조각 작성·수정(6차) → 저장소 `data/style_kb/ai_results/gpt_WINDOW_CAPTIONS_2026-10-28.jsonl`, 태그도 GPT 6차본. check 필수 오류 0. 경우 A 조건 보강(빠진 장 리듬)으로 경우 B 444조각 — s0031 0–28은 GPT가 채팅으로 준 한 줄을 합본 끝에 더함(Drive 파일엔 없음). **캡션 완료: check 444 필수 오류 0, 사실표와 1:1.**
-   **바로 할 일**: (a) 사용자 확인 후 학습 자료 재생성(아래 b). (b) 사용자 지시 시 학습 자료 재생성 `tools/wan_lora_dataset.py <nk_src> data/style_kb/nk_shots_rough_2026-10-27.csv <OUT> --gpt <ALL+30 합본> --window-captions data/style_kb/ai_results/gpt_WINDOW_CAPTIONS_2026-10-28.jsonl`(원본 99편 scratch `nk_src`) → 검사 → wanlora.zip 같은 Drive ID. 사용자는 캡션 먼저 끝내길 원함(10-28). PC는 10-28 새벽 기준 약 4시간 뒤 가능하다고 함. (c) 남은 Claude 몫: `cutcheck` 영역 분리·내점 분포·재투영 오차.
+   **학습 자료 재생성 완료(10-28 01:01 UTC)**: 275컷 → 482조각 11,410장(GPT 조각 캡션 444 + 컷 캡션 38), 검사: 태그 조각 길이 일치·캡션 조각 밖 번호 0·mp4 장 수/txt 일치·시트 위치 보정 off 0:267/1:8/2:2. wanlora.zip(97.7MB) 같은 Drive ID 덮어씀, **로그인 없는 공개 다운로드가 새 파일과 SHA 일치 → 공유 설정 문제 해결 확인**.
+   **바로 할 일**: (a) 사용자 PC에서 `tools/pc_wan_lora.bat` 실행 → wan_out.zip 받으면 LoRA 없음/있음 1차 평가. (b) 사용자 지시 시 학습 자료 재생성 `tools/wan_lora_dataset.py <nk_src> data/style_kb/nk_shots_rough_2026-10-27.csv <OUT> --gpt <ALL+30 합본> --window-captions data/style_kb/ai_results/gpt_WINDOW_CAPTIONS_2026-10-28.jsonl`(원본 99편 scratch `nk_src`) → 검사 → wanlora.zip 같은 Drive ID. 사용자는 캡션 먼저 끝내길 원함(10-28). PC는 10-28 새벽 기준 약 4시간 뒤 가능하다고 함. (c) 남은 Claude 몫: `cutcheck` 영역 분리·내점 분포·재투영 오차.
 2. **PC 영상 LoRA 시험**: `tools/pc_wan_lora.bat` 하나(설치 → 모델 14.5GB → Drive wanlora.zip → 캐시 → Wan2.1 T2V 1.3B LoRA → 비교 영상 → C:\aisfa\wan_out.zip). 토론 결과를 기다릴 필요는 없다(바뀌어도 몇 컷). 결과 오면 Claude가 LoRA 없음/있음 1차 평가 → GPT 2차 → 사용자 최종.
 3. 앱 측정 대기(SFA 로딩 원인 가르기): `ink_12fps_slim10_alt.sfa` 로딩 시간 — 16초 근처면 '서로 다른 ID 수', 1:50 근처면 '앞 장과 ID 연속성'이 원인(docs/REF-SFA-FILE-BUILDER-2026-10-27.md 끝).
 
 ## 막힌 것
-- wanlora.zip(Drive ID `1YdosWijIlDx0vaTvIxos8rhlkY3CRH8m`, 10-27 18:19 갱신) 공유가 '링크 있는 모든 사용자'인지 **미확인**. Claude의 공유 권한 변경은 자동 검토 거절 → 사용자가 설정.
 - 서버엔 GPU 없음, musubi-tuner 실행 시험은 자동 검토 거절(설정 해석기 파싱만 확인). PC 사용 가능 시간은 사용자에게 확인.
 
 ## 상태 (10-27 밤, 검증 범위 표시)
