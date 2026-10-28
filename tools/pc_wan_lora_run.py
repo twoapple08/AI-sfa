@@ -153,6 +153,8 @@ def main():
     tags = (("lora", gen_lora),) if a.samples_only else (("base", None), ("lora", gen_lora))
     for i, p in enumerate(PROMPTS):
         for tag, lw in tags:
+            if glob.glob(os.path.join(sd, f"p{i}_{tag}", "*.mp4")):
+                continue  # 이미 만든 영상은 건너뜀(다시 실행하면 빠진 것만)
             if tag == "lora" and not lw:
                 continue
             cmd = [py, os.path.join(src, "wan_generate_video.py"), "--task", "t2v-1.3B", "--dit", dit, "--vae", vae, "--t5", t5, "--fp8_t5",
@@ -162,7 +164,12 @@ def main():
                 cmd += ["--lora_weight", lw, "--lora_multiplier", "1.0"]
             if swap:
                 cmd += ["--blocks_to_swap", str(swap)]
-            rc, _, sec = run(cmd, mt, log, timeout=300)
+            for tries in range(3):  # 생성 때 토크나이저 설정을 허깅페이스에서 읽다 연결이 끊기면 실패(10-28 p0·p3) → 다시 시도
+                rc, _, sec = run(cmd, mt, log, timeout=300)
+                if rc == 0:
+                    break
+                print(f"  p{i} {tag} 실패 rc={rc}, {tries + 2}번째 시도", flush=True)
+                time.sleep(10)
             print(f"  p{i} {tag} rc={rc} {sec:.0f}초", flush=True)
     zp = os.path.join(os.path.dirname(W), "wan_out_samples.zip" if a.samples_only else "wan_out.zip")
     with zipfile.ZipFile(zp, "w", zipfile.ZIP_DEFLATED) as z:
