@@ -21,6 +21,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import unicodedata
 import zipfile
 import xml.etree.ElementTree as ET
 
@@ -253,6 +254,12 @@ def one(job):
     rel, out_dir, seed, max_frames, res = job
     rng = np.random.default_rng(seed)
     path = os.path.join(ROOT, rel)
+    if not os.path.exists(path):  # 맥에서 온 이름은 한글 자모가 분리(NFD)되어 Windows에서 못 찾을 수 있다(5060 실행, 10-29)
+        for form in ('NFD', 'NFC'):
+            q = unicodedata.normalize(form, path)
+            if os.path.exists(q):
+                path = q
+                break
     try:
         z = zipfile.ZipFile(path)
         root = ET.fromstring(z.read(z.namelist()[0]))

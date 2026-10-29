@@ -54,7 +54,7 @@ if not exist %ROOT%\rclone.exe (
   for /d %%D in (%ROOT%\rclone-*-windows-amd64) do copy %%D\rclone.exe %ROOT%\rclone.exe >nul
 )
 set RC=%ROOT%\rclone.exe
-%ROOT%\rclone.exe listremotes | findstr /c:"gdrive:" >nul || %ROOT%\rclone.exe config create gdrive drive scope=drive.file
+%ROOT%\rclone.exe listremotes | findstr /c:"gdrive:" >nul || %ROOT%\rclone.exe config create gdrive drive scope=drive.file >nul
 %ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc" || (echo Drive login failed - continuing without Drive backup & set RC=)
 
 echo [6/6] data -> short test -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
