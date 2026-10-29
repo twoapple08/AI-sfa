@@ -24,7 +24,13 @@ import torchvision
 STAGES = [('1920', 0.20), ('1280', 0.25), ('854', 0.25), ('640', 0.30)]  # (해상도 폴더, 시간 몫)
 CROP_W, CROP_H = 512, 256
 N_ATTR = 16  # vec_data.ATTR: 선 굵기, 선 RGBA, 글로우(반경·두께·세기·RGB), 면 RGBA, 그리는 순서
-OUT_CH = 5 + N_ATTR
+# 출력 채널: 0 가운데, 1 선 끝, 2–3 방향, 4 면, 5–20 속성, 21 관절(이어진 선 끝), 22–24 종류(직선·원·곡선), 25–27 배경색(사용자 10-29)
+# 정답 채널: 0–20 같음, 21 관절, 22 종류 번호(0 없음·1 직선·2 원·3 곡선), 23–25 배경색
+OUT_CH = 28
+
+
+def d_get(d, key, t, sl, h):
+    return d[key][t][sl].astype(np.float32) if key in d.files else np.zeros((h, CROP_W), np.float32)
 
 
 class DS(torch.utils.data.Dataset):
@@ -54,7 +60,10 @@ class DS(torch.utils.data.Dataset):
             c = center[t][sl].astype(np.float32)
             y = np.stack([c, pts[t][sl] / 255.0, ori[t][0][sl] / 127.0, ori[t][1][sl] / 127.0, fill[t][sl].astype(np.float32)], 0)
             at = attr[t][(slice(None),) + sl].astype(np.float32) / 255.0 if attr is not None else np.zeros((N_ATTR, h, CROP_W), np.float32)
-            y = np.concatenate([y, at], 0)
+            jt = d_get(d, 'joint', t, sl, h) / 255.0
+            kd = d_get(d, 'kind', t, sl, h)
+            bgc = (d['bg'][t].astype(np.float32) / 255.0 if 'bg' in d.files else np.ones(3, np.float32))[:, None, None] * np.ones((3, h, CROP_W), np.float32)
+            y = np.concatenate([y, at, jt[None], kd[None], bgc], 0)
             if random.random() < 0.5:  # 좌우 뒤집기: θ → π−θ ⇒ cos2θ 그대로, sin2θ 부호 반대
                 x = x[:, ::-1]
                 y = y[:, :, ::-1].copy()
@@ -140,8 +149,15 @@ def loss_fn(p, y):
     lg = l1(slice(5, 11), on_line)     # 글로우
     lfa = l1(slice(11, 15), on_fill)   # 면 RGBA
     lo2 = l1(slice(15, 16), on_any)    # 그리는 순서(레이어·앞뒤)
-    tot = lc + dice + 10 * lp + lo + lf + 2 * ll + 2 * lg + lfa + lo2
-    return tot, dict(c=lc.item(), dice=dice.item(), p=lp.item(), o=lo.item(), f=lf.item(), line=ll.item(), glow=lg.item(), fill_rgba=lfa.item(), order=lo2.item())
+    hj = torch.sigmoid(p[:, 21:22])
+    lj = ((hj - y[:, 21:22]) ** 2 * (1 + 20 * y[:, 21:22])).mean()           # 관절
+    kt = y[:, 22].long()
+    km = kt > 0
+    lk = F.cross_entropy(p[:, 22:25].permute(0, 2, 3, 1)[km], kt[km] - 1) if km.any() else p.sum() * 0  # 종류(가운데선 픽셀)
+    lb = (torch.sigmoid(p[:, 25:28]) - y[:, 23:26]).abs().mean()             # 배경색(모든 픽셀, 쓸 때는 중앙값)
+    tot = lc + dice + 10 * lp + lo + lf + 2 * ll + 2 * lg + lfa + lo2 + 10 * lj + 0.5 * lk + lb
+    return tot, dict(c=lc.item(), dice=dice.item(), p=lp.item(), o=lo.item(), f=lf.item(), line=ll.item(), glow=lg.item(), fill_rgba=lfa.item(),
+                     order=lo2.item(), joint=lj.item(), kind=lk.item(), bg=lb.item())
 
 
 def files_of(data, res):

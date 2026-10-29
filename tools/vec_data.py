@@ -8,6 +8,8 @@
 정답(640 폭, 파일 기하에서 직접): 오브젝트를 그리는 순서대로 번호를 칠한 번호판에서 '화면에 보이는 부분'만
 - center: 선 가운데(1px)       - pts: 선 끝(점 찍을 자리, 가우스 σ 1.5)    - ori: 선 방향(cos2θ, sin2θ ×127)
 - fill: 칠한 면                - cid: 가운데선 픽셀의 오브젝트 번호(장 안 순서+1, 같은 선 판단·채점용)
+- joint: 다른 선과 이어진 선 끝(관절)   - kind: 오브젝트 종류(1 직선·2 원·3 곡선)   - aoid: AO ID(장 사이 같은 오브젝트, 다음 단계용)
+- bg: 장 배경색 RGB             - attr: 속성 16채널(ATTR 참고)
 투명(알파 0) 선은 그리지 않는다(보이지 않음). 글로우는 그림에만 들어가고 정답에는 없다.
 출력: 파일·설정마다 npz 하나(img uint8 [N,H,640,3], center/pts/fill uint8 [N,H,640], ori int8 [N,2,H,640], cid uint16).
 사용: python tools/vec_data.py <out_dir> [--files 경로목록.txt] [--max-frames 40] [--workers 4] [--seed 0] [--exclude-4711]
@@ -136,14 +138,22 @@ def targets(seq, fr, W, H, thick_mul):
                    g_thick=_lg(gt, 300) if glow else 0, g_alpha=int(min(ga, 255)) if glow else 0, gr=gr, gg=gg, gb=gb)
         items.append(('line', att))
         i = len(items) - 1
+        aps = a.findall('AP')
+        linked = (bool(aps[0].findall('AC')), bool(aps[-1].findall('AC'))) if aps else (False, False)
         if la > 0 and w > 0:  # 글로우만 있는 투명 선은 아래를 가리지 않는다
             cv2.polylines(buf, [np.round(P).astype(np.int32)], k == '2', int(i), max(1, int(round(min(w, 4 * W)))), lineType=cv2.LINE_8)
-        objs.append((i, k, P, la > 0 and w > 0))
+        objs.append((i, k, P, la > 0 and w > 0, int(a.get('ID') or 0), linked))
     N = max(len(items) - 1, 1)
     center = np.zeros((H, W), np.uint8)
     cid = np.zeros((H, W), np.uint16)
     ori = np.zeros((2, H, W), np.int8)
     attr = np.zeros((len(ATTR), H, W), np.uint8)
+    kind = np.zeros((H, W), np.uint8)   # 가운데선 픽셀의 오브젝트 종류: 1 직선, 2 원, 3 곡선
+    aoid = np.zeros((H, W), np.int32)   # 가운데선 픽셀의 AO ID(장 사이 같은 오브젝트 — 다음 단계용)
+    # 선 끝마다: 다른 오브젝트와 이어진 관절인지(AC 연결이 있거나 다른 선 끝과 1.5px 안에 겹침, 옛 파일은 AC 없이 겹쳐 둠)
+    ends_all = [(i, e, P[0 if e == 0 else -1]) for i, k, P, *_ in objs if k in ('1', '3') for e in (0, 1)]
+    E_xy = np.array([q for *_, q in ends_all]) if ends_all else np.zeros((0, 2))
+    E_id = np.array([i for i, *_ in ends_all]) if ends_all else np.zeros(0, int)
     # 면 속성·순서(맨 위 것)
     for j, it in enumerate(items):
         if it is None:
@@ -156,7 +166,8 @@ def targets(seq, fr, W, H, thick_mul):
             for c, v in zip((11, 12, 13, 14), it[1]):
                 attr[c][m] = v
     pts = []
-    for i, k, P, opaque in objs:
+    jpts = []
+    for i, k, P, opaque, ao_id, linked in objs:
         q = np.round(P).astype(int)
         ok = (q[:, 0] >= 0) & (q[:, 0] < W) & (q[:, 1] >= 0) & (q[:, 1] < H)
         if not ok.any():
@@ -171,6 +182,8 @@ def targets(seq, fr, W, H, thick_mul):
         ys, xs = q[vis, 1], q[vis, 0]
         center[ys, xs] = 1
         cid[ys, xs] = min(i, 65535)
+        kind[ys, xs] = int(k) if k in ('1', '2', '3') else 0
+        aoid[ys, xs] = ao_id
         ori[0, ys, xs] = np.round(np.cos(2 * th[vis]) * 127).astype(np.int8)
         ori[1, ys, xs] = np.round(np.sin(2 * th[vis]) * 127).astype(np.int8)
         att = items[i][1]
@@ -184,20 +197,26 @@ def targets(seq, fr, W, H, thick_mul):
                     win = buf[max(0, y - 2):y + 3, max(0, x - 2):x + 3]
                     if (win == i).any() or (not opaque and (win <= i).all()):
                         pts.append((P[e][0], P[e][1]))
-    heat = np.zeros((H, W), np.float32)
-    if pts:
+                        near = (np.linalg.norm(E_xy - P[e], axis=1) <= 1.5) & (E_id != i) if len(E_xy) else np.zeros(0, bool)
+                        if linked[0 if e == 0 else 1] or near.any():
+                            jpts.append((P[e][0], P[e][1]))
+    def heatmap(pp):
+        heat = np.zeros((H, W), np.float32)
         yy, xx = np.mgrid[0:H, 0:W]
-        for x, y in pts:
+        for x, y in pp:
             x0, x1, y0, y1 = int(max(0, x - 5)), int(min(W, x + 6)), int(max(0, y - 5)), int(min(H, y + 6))
             if x0 >= x1 or y0 >= y1:
                 continue
             g = np.exp(-((xx[y0:y1, x0:x1] - x) ** 2 + (yy[y0:y1, x0:x1] - y) ** 2) / (2 * 1.5 ** 2))
             heat[y0:y1, x0:x1] = np.maximum(heat[y0:y1, x0:x1], g)
+        return np.round(heat * 255).astype(np.uint8)
+    heat, jheat = heatmap(pts), heatmap(jpts)
+    bg = _argb(fr.get('BackgroundColor', seq.get('BackgroundColor', '-1')))[:3]  # 장 배경색(사용자 10-29)
     fill = np.zeros((H, W), np.uint8)
     for j, it in enumerate(items):
         if it is not None and it[0] == 'fill':
             fill[buf == j] = 1
-    return dict(center=center, pts=np.round(heat * 255).astype(np.uint8), ori=ori, fill=fill, cid=cid, attr=attr)
+    return dict(center=center, pts=heat, joint=jheat, ori=ori, fill=fill, cid=cid, attr=attr, kind=kind, aoid=aoid, bg=np.array(bg, np.uint8))
 
 
 def encode_decode(frames_rgb, crf, fps=24):
@@ -254,7 +273,8 @@ def one(job):
     np.savez_compressed(os.path.join(out_dir, name), img=dec,
                         center=np.stack([t['center'] for t in tg]), pts=np.stack([t['pts'] for t in tg]),
                         ori=np.stack([t['ori'] for t in tg]), fill=np.stack([t['fill'] for t in tg]), cid=np.stack([t['cid'] for t in tg]),
-                        attr=np.stack([t['attr'] for t in tg]),
+                        attr=np.stack([t['attr'] for t in tg]), joint=np.stack([t['joint'] for t in tg]), kind=np.stack([t['kind'] for t in tg]),
+                        aoid=np.stack([t['aoid'] for t in tg]), bg=np.stack([t['bg'] for t in tg]),
                         meta=json.dumps(dict(file=rel, W_enc=W_enc, thick=u, crf=crf, hwr=hwr, frames=len(tg), attr=ATTR)))
     return rel, f'ok {len(tg)}'
 
