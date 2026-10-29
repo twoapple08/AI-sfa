@@ -21,6 +21,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import unicodedata
 import zipfile
 import xml.etree.ElementTree as ET
@@ -328,6 +329,7 @@ def main():
     ap.add_argument('--seed', type=int, default=0)
     ap.add_argument('--limit', type=int, default=0)
     ap.add_argument('--repeat', type=int, default=1, help='파일마다 다른 무작위 설정으로 몇 번 만들지')
+    ap.add_argument('--job-timeout', type=float, default=600, help='파일 하나 최대 초(넘으면 건너뜀)')
     ap.add_argument('--res', type=int, default=0, help='영상 폭 고정(1920·1280·854·640). 0이면 무작위')
     a = ap.parse_args()
     os.makedirs(a.out_dir, exist_ok=True)
@@ -345,15 +347,33 @@ def main():
     jobs = [(f, a.out_dir, a.seed * 100003 + i * 7919 + r, a.max_frames, a.res) for r in range(a.repeat) for i, f in enumerate(files)]
     from multiprocessing import Pool
     ok, bad, names = 0, [], []
-    with Pool(a.workers) as pool:
-        for k, (rel, st, *nm) in enumerate(pool.imap_unordered(one, jobs)):
+    pool = Pool(a.workers)
+    pend = {i: pool.apply_async(one, (j,)) for i, j in enumerate(jobs)}
+    last_done = time.time()
+    k = 0
+    # 남은 작업이 작업자 수 이하(모두 실행 중)인데 --job-timeout초 동안 아무것도 안 끝나면 남은 것을 건너뛴다
+    # — 파일 하나 때문에 전체가 멈추지 않게(5060 실행 10-29: 마지막 몇 개에서 오래 멈춤)
+    while pend:
+        stuck = len(pend) <= a.workers and time.time() - last_done > a.job_timeout
+        for i, r in list(pend.items()):
+            if r.ready():
+                rel, st, *nm = r.get()
+                last_done = time.time()
+            elif stuck:
+                rel, st, nm = jobs[i][0], 'err:timeout', []
+            else:
+                continue
+            del pend[i]
             if st.startswith('ok'):
                 ok += 1
                 names.append(nm[0])
             elif st not in ('empty',):
                 bad.append((rel, st))
-            if not st.startswith('ok') or k % 25 == 0:
+            if not st.startswith('ok') or k % 25 == 0 or len(pend) < 5:
                 print(k + 1, '/', len(jobs), rel, st, flush=True)
+            k += 1
+        time.sleep(0.5)
+    pool.terminate()
     # 완료 표시(GPT 검토 17·2차): 성공 조건을 통과한 뒤에만, 설정과 함께 원자적으로. 실패하면 이전 표시도 지운다
     done = os.path.join(a.out_dir, '_done.json')
     if ok < 0.8 * len(jobs) and not a.limit:
