@@ -57,6 +57,74 @@ def ensure_drive(rclone, path):
     return ''
 
 
+def run_logged(cmd, out):
+    """명령을 실행하며 화면 출력을 out/train_console.txt에도 남긴다(줄마다 열고 닫기). 실패면 CalledProcessError."""
+    print('$', cmd, flush=True)
+    con = os.path.join(out, 'train_console.txt')
+    env = dict(os.environ, PYTHONUTF8='1', PYTHONIOENCODING='utf-8')  # 파이프로 받을 때 한글이 cp949로 깨지지 않게
+    pr = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace', env=env)
+    for line in pr.stdout:
+        print(line, end='', flush=True)
+        with open(con, 'a', encoding='utf-8') as f:  # 열어 둔 파일은 Windows가 크기를 늦게 갱신해 올리기가 건너뜀
+            f.write(line)
+    if pr.wait() != 0:
+        raise subprocess.CalledProcessError(pr.returncode, cmd)
+
+
+def fetch_init(rclone, init_from, out):
+    """이전 학습의 best.pt(없으면 best_fallback_last.pt)를 out/init.pt로 받고 열어 본다. 실패면 ''."""
+    ip = os.path.join(out, 'init.pt')
+    if os.path.exists(ip):
+        os.remove(ip)  # 예전에 남은 파일을 '받기 성공'으로 착각하지 않게
+    src = f'{DRIVE_BASE}/{init_from}'
+    for nm in ('best.pt', 'best_fallback_last.pt') if rclone else ():
+        r = sh(f'"{rclone}" copyto "{src}/{nm}" "{ip}"', check=False)
+        if r.returncode == 0 and os.path.exists(ip):
+            try:
+                import torch
+                sd = torch.load(ip, map_location='cpu', weights_only=False)
+                assert isinstance(sd, dict) and len(sd) > 10
+            except Exception as e:
+                print('받은 시작 가중치를 열 수 없음:', nm, e, flush=True)
+                os.remove(ip)
+                continue
+            print('시작 가중치:', init_from, nm, flush=True)
+            return ip
+    return ''
+
+
+def quick(a):
+    """몇 분짜리 시험(사용자 10-30, 1050 Ti): 지금 실행 흐름 그대로 아주 작게 — Drive·시작 가중치 받기·합성 자료·양보 모드·예열·화면 기록·종류별 검증·이어하기."""
+    tools = os.path.join(a.root, 'repo', 'tools')
+    data = os.path.join(a.root, 'vd_quick')
+    out = os.path.join(a.root, 'quick_out')
+    if os.path.exists(out):
+        shutil.rmtree(out)
+    os.makedirs(out)
+    py = sys.executable
+    t0 = time.time()
+    import torch
+    print('GPU', torch.cuda.get_device_name(0), round(torch.cuda.get_device_properties(0).total_memory / 2**30, 1), 'GB',
+          '계산 능력', torch.cuda.get_device_capability(0), flush=True)
+    init = fetch_init(a.rclone, a.init_from, out) if a.init_from else ''
+    print('[1/5] 시작 가중치', '받음' if init else '없음(처음부터로 시험)', flush=True)
+    w = max(2, (os.cpu_count() or 4) // 2)
+    sh(f'cd /d "{tools}" && "{py}" -u vec_data.py "{os.path.join(data, "640")}" --res 640 --limit 42 --max-frames 4 --workers {w} --seed 640 --synth 0.5 --low-priority')
+    print(f'[2/5] 자료(640, 42파일 + 합성) 정상 {(time.time() - t0) / 60:.1f}분', flush=True)
+    t1 = time.time()
+    run_logged(f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours 0.04 --plan-hours 0.15 --workers 2 --yield' + (f' --init "{init}"' if init else ''), out)  # 계획을 길게 잡아 진행 약 25%에서 끝 → 이어하기가 실제로 이어 학습하는지 본다
+    print(f'[3/5] 짧은 학습(양보 모드) 정상 {(time.time() - t1) / 60:.1f}분', flush=True)
+    recs = [json.loads(l) for l in open(os.path.join(out, 'log.jsonl'), encoding='utf-8')]
+    for r in recs[-3:]:
+        print('  걸음', r['step'], '학습', r['train'], '검증', r['val'], '종류별', r.get('val_cat'), '헛걸음', r.get('skipped'), '학습률', f"{r['lr']:.2e}", flush=True)
+    run_logged(f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours 0.02 --workers 2 --yield --resume "{os.path.join(out, "ckpt.pt")}"', out)
+    print('[4/5] 이어하기 정상', flush=True)
+    if a.rclone:
+        r = subprocess.run(f'"{a.rclone}" copy "{out}" "{DRIVE}" --include "log.jsonl" --include "train_console.txt"', shell=True)
+        print('[5/5] Drive 올리기', '정상' if r.returncode == 0 else '실패', DRIVE, flush=True)
+    print(f'빠른 시험 끝 {(time.time() - t0) / 60:.1f}분. 이 창 아래쪽을 사진으로 보내 주세요.', flush=True)
+
+
 def check(a):
     tools = os.path.join(a.root, 'repo', 'tools')
     data = os.path.join(a.root, 'vd_check')
@@ -92,6 +160,7 @@ def main():
     ap.add_argument('--run', default='pc2', help='학습 이름 = Drive 폴더·이 PC 출력 폴더(1차 pc, 2차 pc2). 같은 이름이면 이어서')
     ap.add_argument('--init-from', default='pc', help='처음 시작할 때 가중치를 받아 올 이전 학습 이름(그 폴더의 best.pt, 없으면 best_fallback_last.pt). 빈 값이면 처음부터')
     ap.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(4060 PC, 사용자 10-29): 게임·클립 스튜디오와 같이 돌아도 되게 — 낮은 우선순위·작업자 절반·학습은 vec_train --yield')
+    ap.add_argument('--quick', action='store_true', help='몇 분짜리 시험(1050 Ti 등): 지금 실행 흐름 그대로 아주 작게')
     ap.add_argument('--check', action='store_true', help='빠른 확인(사용자 10-29, 1050 Ti 1시간): 파일 12개·장 6개·1080/360만, 짧은 시험(배치 1) + 3분 학습, Drive 올리기 시험')
     a = ap.parse_args()
     global DRIVE
@@ -100,6 +169,8 @@ def main():
         a.rclone = ensure_drive(a.rclone, DRIVE)
     t_start = time.time()  # PC 사용 시간 계산의 시작(이전 저장본 받기도 포함)
     keep_awake()
+    if a.quick:
+        return quick(a)
     if a.check:
         return check(a)
     tools = os.path.join(a.root, 'repo', 'tools')
@@ -122,26 +193,9 @@ def main():
             print('이전 저장본에서 이어서(ckpt.pt)', flush=True)
     init = ''
     if not resume and a.init_from:  # 2차 학습: 1차 최고 모델의 가중치에서 출발. 실패하면 학습 전에 멈춘다(GPT 5차 2: 조용히 처음부터 하지 않게)
-        ip = os.path.join(out, 'init.pt')
-        if os.path.exists(ip):
-            os.remove(ip)  # 예전에 남은 파일을 '받기 성공'으로 착각하지 않게
-        src = f'{DRIVE_BASE}/{a.init_from}'
-        for nm in ('best.pt', 'best_fallback_last.pt') if a.rclone else ():
-            r = sh(f'"{a.rclone}" copyto "{src}/{nm}" "{ip}"', check=False)
-            if r.returncode == 0 and os.path.exists(ip):
-                try:
-                    import torch
-                    sd = torch.load(ip, map_location='cpu', weights_only=False)
-                    assert isinstance(sd, dict) and len(sd) > 10
-                except Exception as e:
-                    print('받은 시작 가중치를 열 수 없음:', nm, e, flush=True)
-                    os.remove(ip)
-                    continue
-                init = ip
-                print('시작 가중치:', a.init_from, nm, flush=True)
-                break
+        init = fetch_init(a.rclone, a.init_from, out)
         if not init:
-            raise SystemExit(f'1차 모델({src}/best.pt)을 받지 못해 멈춤. Drive 연결을 확인하거나, 처음부터 하려면: pc_vec_5060.bat(또는 4060) {a.hours} scratch')
+            raise SystemExit(f'1차 모델({DRIVE_BASE}/{a.init_from}/best.pt)을 받지 못해 멈춤. Drive 연결을 확인하거나, 처음부터 하려면: pc_vec_5060.bat(또는 4060) {a.hours} scratch')
     t0 = time.time()
     for res in ('1920', '1280', '854', '640'):
         d = os.path.join(data, res)
@@ -172,17 +226,7 @@ def main():
     elif init:
         cmd += f' --init "{init}"'
     try:
-        # 학습 화면 출력을 파일(train_console.txt)에도 남겨 Drive로 — 사람이 없을 때 멈춘 이유를 알 수 있게(4060 2차 첫 시도: 원인 모를 종료)
-        print('$', cmd, flush=True)
-        con = os.path.join(out, 'train_console.txt')
-        env = dict(os.environ, PYTHONUTF8='1', PYTHONIOENCODING='utf-8')  # 파이프로 받을 때 한글이 cp949로 깨지지 않게
-        pr = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace', env=env)
-        for line in pr.stdout:
-            print(line, end='', flush=True)
-            with open(con, 'a', encoding='utf-8') as f:  # 줄마다 열고 닫기(열어 둔 파일은 Windows가 크기를 늦게 갱신해 올리기가 건너뜀)
-                f.write(line)
-        if pr.wait() != 0:
-            raise subprocess.CalledProcessError(pr.returncode, cmd)
+        run_logged(cmd, out)  # 학습 화면을 train_console.txt에도 — 사람이 없을 때 멈춘 이유를 알 수 있게(4060 2차 첫 시도: 원인 모를 종료)
     finally:  # 학습이 오류로 끝나도 마지막 저장본은 올린다(GPT 검토 16)
         stop.set()
         if up is not None:
