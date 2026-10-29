@@ -104,7 +104,14 @@ def figures(frame):
         e[2] += 1
         if a.get('TypeId') == '2':
             e[1].append(a.get('ID'))
-    return [e for e in g.values() if all(map(math.isfinite, [v for q in e[0] for v in q]))]
+    # 좌표가 NaN·화면에서 아주 먼 묶음은 뺀다(옛 파일에 1e30 같은 좌표가 섞여 그림자·머리 채우기가 거대해져 MemoryError, 10-29 시험)
+    return [e for e in g.values() if all(math.isfinite(v) and -50 < v < 150 for q in e[0] for v in q)]
+
+
+def head_ok(o):
+    """머리로 칠할 원: 지름 30 이하(화면 폭의 30%) — 거대한 원(연출용 큰 원)은 칠하지 않는다."""
+    p = [(float(q.get('X')), float(q.get('Y'))) for q in o.findall('AP')]
+    return len(p) >= 2 and math.hypot(p[1][0] - p[0][0], p[1][1] - p[0][1]) <= 30
 
 
 def floor_y(root):
@@ -118,18 +125,20 @@ def floor_y(root):
     return max(set(ys), key=ys.count) if ys else None
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('src')
-    ap.add_argument('out')
-    ap.add_argument('--seed', type=int, default=0)
-    ap.add_argument('--scene', default='', help='night·dusk·indoor·day·cave (비우면 무작위)')
-    a = ap.parse_args()
-    rnd = random.Random(a.seed)
-    z = zipfile.ZipFile(a.src)
-    name = z.namelist()[0]
-    root = ET.fromstring(z.read(name))
-    scene = a.scene or rnd.choice(list(SCENES))
+def is_white(root):
+    """합성 대상: 모든 장 바탕이 흰색이고 면이 거의 없는 파일(이미 칠한 작품은 건드리지 않는다)."""
+    sb = root.get('BackgroundColor', '-1')
+    frs = root.findall('Frame')
+    if not frs:
+        return False
+    white = all(int(f.get('BackgroundColor', sb)) & 0xFFFFFF == 0xFFFFFF for f in frs)
+    fills = sum(len(f.findall('FR')) for f in frs)
+    return white and fills <= len(frs)
+
+
+def synth(root, rnd, scene=''):
+    """root(시퀀스 XML)를 그 자리에서 바꾼다. 반환: 장면 이름."""
+    scene = scene or rnd.choice(list(SCENES))
     (h0, h1), (s0, s1), (v0, v1) = SCENES[scene]
     hue = rnd.uniform(h0, h1)
     sat = rnd.uniform(s0, s1)
@@ -142,16 +151,21 @@ def main():
     ground_y = fl if fl else horizon
     head = hsv(rnd.random(), rnd.uniform(0.0, 0.5), rnd.uniform(0.85, 1.0)) if dark else hsv(rnd.random(), rnd.uniform(0.2, 0.7), rnd.uniform(0.7, 1.0))
     light = hsv(rnd.uniform(0.08, 0.18), rnd.uniform(0.1, 0.5), 1.0)
-    la = rnd.randint(40, 110)          # 빛 원뿔 알파(옅게)
+    la = rnd.randint(40, 110)          # 빛 알파(옅게)
     sa = rnd.randint(90, 180)          # 그림자 알파(실제 분위 안)
-    lx = rnd.uniform(20, 80)
     # 장면 모양은 한 번만 정한다(장마다 바꾸면 배경이 깜빡이고, 면 수가 달라져 ID 구간이 어긋난다)
-    nb = rnd.randint(3, 5)
-    bands = [(100 * (i + 1) / (nb + 1) - 10, int(rnd.uniform(0.25, 0.45) * 255)) for i in range(nb)]
+    nb = rnd.randint(2, 6)
+    bands = [(100 * (i + 1) / (nb + 1) - 10, int(rnd.uniform(0.2, 0.5) * 255)) for i in range(nb)]
     wob = [horizon + rnd.uniform(-2, 2) for _ in range(5)]
-    cone = (rnd.uniform(18, 30), rnd.uniform(18, 30))
+    use = dict(ground=rnd.random() < 0.8, head=rnd.random() < 0.7, shadow=rnd.random() < 0.8,
+               light=rnd.choice(['위', '옆', '없음']), vignette=rnd.random() < 0.4, tint=rnd.random() < 0.3)
+    lx = rnd.uniform(15, 85)
+    cone = (rnd.uniform(10, 35), rnd.uniform(10, 35), rnd.uniform(2, 8))
+    side = rnd.choice([-1, 1])
+    ly = rnd.uniform(10, 50)
+    vg = (int(rnd.uniform(0.3, 0.6) * 255), rnd.uniform(6, 18))
+    tint = (hsv(rnd.random(), rnd.uniform(0.3, 0.8), rnd.uniform(0.4, 1.0)), rnd.randint(20, 60))
     ids = Ids(root)
-    print('장면', scene, '위', top, '아래', bot, '땅', ground, '어두움', dark)
     root.set('BackgroundColor', str(int(argb(*top)) - (1 << 32)))
     for fr in root.findall('Frame'):
         fr.set('BackgroundColor', argb(*top))
@@ -183,23 +197,25 @@ def main():
                 if o.get('Color') in ('-16777216', '4278190080'):
                     o.set('Color', argb(235, 235, 235))
         # 2) 머리 채우기: 몸(선 3개 이상)과 이어진 원만 — 글자 'ㅇ' 같은 따로 떨어진 원은 칠하지 않는다(사용자 10-29 '챙!' 글자)
-        heads = {cid for pts, cids, n in figs if n >= 3 for cid in cids}
-        for o in aos:
-            if o.get('TypeId') == '2' and o.get('Color') != '0' and o.get('ID') in heads:
-                r = ET.Element('FR', dict(Color=argb(*head)))
-                ET.SubElement(r, 'FS', dict(Kind='1', ObjId=o.get('ID')))
-                fr.append(r)
+        if use['head']:
+            heads = {cid for pts, cids, n in figs if n >= 3 for cid in cids}
+            for o in aos:
+                if o.get('TypeId') == '2' and o.get('Color') != '0' and o.get('ID') in heads and head_ok(o):
+                    r = ET.Element('FR', dict(Color=argb(*head)))
+                    ET.SubElement(r, 'FS', dict(Kind='1', ObjId=o.get('ID')))
+                    fr.append(r)
         # 1) 배경(맨 아래): 바탕 면 → 그라데이션 띠 → 땅
         order = hi + 1000
         ids.at(0)
         order = poly(fr, ids, [(-2, -2), (102, -2), (102, 102), (-2, 102)], argb(*top), order, bottom_layer)
         for y0, ba in bands:
             order = poly(fr, ids, [(-2, y0), (102, y0), (102, 102), (-2, 102)], argb(*bot, ba), order, bottom_layer)
-        gp = [(-2, wob[0])] + [(25 * i, wob[i]) for i in range(1, 4)] + [(102, wob[4]), (102, 102), (-2, 102)]
-        order = poly(fr, ids, gp, argb(*ground), order, bottom_layer)
+        if use['ground']:
+            gp = [(-2, wob[0])] + [(25 * i, wob[i]) for i in range(1, 4)] + [(102, wob[4]), (102, 102), (-2, 102)]
+            order = poly(fr, ids, gp, argb(*ground), order, bottom_layer)
         # 3) 그림자: 발이 바닥 가까이 있는 인물만, 바닥 높이에 납작하게(공중의 칼·글자 조각에 달리던 그림자 제거, 사용자 10-29)
         k = 0
-        for pts, cids, n in figs:
+        for pts, cids, n in (figs if use['shadow'] else []):
             if n < 3 or not cids or k >= 40:
                 continue
             ys = [q[1] for q in pts]
@@ -213,10 +229,38 @@ def main():
             k += 1
             ring = [(cx + rw * math.cos(t), ground_y + rh * math.sin(t)) for t in [2 * math.pi * j / 16 for j in range(16)]]
             order = poly(fr, ids, ring, argb(0, 0, 0, sa), order, bottom_layer)
-        # 3) 빛 원뿔(맨 위, 반투명)
+        # 3) 빛(맨 위, 반투명): 위에서 내려오는 원뿔 / 옆에서 들어오는 빛줄기 / 없음 + 비네팅·색조 덮개
         order += 100
-        ids.at(5000)
-        poly(fr, ids, [(lx - 4, -2), (lx + 4, -2), (lx + cone[0], 102), (lx - cone[1], 102)], argb(*light, la), order, top_layer)
+        if use['light'] == '위':
+            ids.at(5000)
+            order = poly(fr, ids, [(lx - cone[2], -2), (lx + cone[2], -2), (lx + cone[0], 102), (lx - cone[1], 102)], argb(*light, la), order, top_layer)
+        elif use['light'] == '옆':
+            ids.at(5000)
+            x0, x1 = (-2, 102) if side > 0 else (102, -2)
+            order = poly(fr, ids, [(x0, ly - cone[2]), (x0, ly + cone[2]), (x1, ly + cone[0] + 20), (x1, ly + 20 - cone[1])], argb(*light, la), order, top_layer)
+        if use['vignette']:
+            ids.at(5100)
+            a_, t = vg
+            for q in ([(-2, -2), (102, -2), (102 - t, t), (t - 2, t)], [(-2, 102), (102, 102), (102 - t, 102 - t), (t - 2, 102 - t)],
+                      [(-2, -2), (t - 2, t), (t - 2, 102 - t), (-2, 102)], [(102, -2), (102, 102), (102 - t, 102 - t), (102 - t, t)]):
+                order = poly(fr, ids, q, argb(0, 0, 0, a_), order, top_layer)
+        if use['tint']:
+            ids.at(5200)
+            poly(fr, ids, [(-2, -2), (102, -2), (102, 102), (-2, 102)], argb(*tint[0], tint[1]), order, top_layer)
+    return scene + ' ' + ','.join(k for k, v in use.items() if v and v != '없음') + f" 빛{use['light']}"
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('src')
+    ap.add_argument('out')
+    ap.add_argument('--seed', type=int, default=0)
+    ap.add_argument('--scene', default='', help='night·dusk·indoor·day·cave (비우면 무작위)')
+    a = ap.parse_args()
+    z = zipfile.ZipFile(a.src)
+    name = z.namelist()[0]
+    root = ET.fromstring(z.read(name))
+    print(synth(root, random.Random(a.seed), a.scene))
     xml = ET.tostring(root, encoding='unicode')
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as zz:
         zz.writestr(name, '<?xml version="1.0" encoding="UTF-8" ?>' + xml)

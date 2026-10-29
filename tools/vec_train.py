@@ -239,6 +239,7 @@ def main():
     ap.add_argument('--workers', type=int, default=4)
     ap.add_argument('--smoke', action='store_true', help='단계마다 몇 걸음만(문법·메모리 확인)')
     ap.add_argument('--resume', default='', help='ckpt.pt(모델·최적화기·AMP·진행·최고 점수) — 이어서')
+    ap.add_argument('--init', default='', help='가중치만 불러와 새 계획으로 시작(2차 학습: 1차 best.pt에서 출발). --resume이 있으면 무시')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -253,6 +254,11 @@ def main():
     # 마지막 검증·저장 시간을 미리 떼어 둔다(서버 실행 시험: 학습이 시간을 다 쓰면 마지막 검증이 바로 멈춰 마지막 모델이 최고 선택에서 빠졌다)
     reserve = min(300.0, 0.05 * a.hours * 3600)
     st = dict(progress=0.0, step=0, skipped=0, best=1e9, plan=(a.plan_hours or a.hours) * 3600 - reserve, max_n=10 ** 9, lr=a.lr)
+    if not (a.resume and os.path.exists(a.resume)) and a.init and os.path.exists(a.init):
+        sd = torch.load(a.init, map_location=dev, weights_only=False)
+        sd = sd.get('model', sd) if isinstance(sd, dict) and 'model' in sd else sd
+        net.load_state_dict(sd)
+        print('가중치 불러옴(새 계획으로 시작):', os.path.basename(a.init), flush=True)
     if a.resume and os.path.exists(a.resume):  # 완전한 이어하기(GPT 검토 15): 가중치만이 아니라 최적화기·AMP·진행·최고 점수까지
         ck = torch.load(a.resume, map_location=dev, weights_only=False)
         net.load_state_dict(ck['model'])
@@ -261,7 +267,7 @@ def main():
             scaler.load_state_dict(ck['scaler'])
         st.update(ck['state'])
         print(f"이어서: 진행 {st['progress'] * 100:.1f}%, {st['step']}걸음, 최고 검증 {st['best']:.4f}", flush=True)
-    log = open(os.path.join(a.out, 'log.jsonl'), 'a')
+    log_path = os.path.join(a.out, 'log.jsonl')  # 쓸 때마다 열고 닫는다 — Windows는 열린 파일의 크기·시각을 늦게 갱신해 15분 올리기가 기록을 건너뛰었다(1차 학습)
     t_sess = time.time()
     prog0 = st['progress']
     progress = lambda: prog0 + (time.time() - t_sess) / st['plan']
@@ -371,8 +377,8 @@ def main():
                        parts={k: round(v, 4) for k, v in last[1].items()}, lr=opt.param_groups[0]['lr'],
                        progress=round(progress() * 100, 1), min=round((time.time() - t_sess) / 60, 1))
             print(json.dumps(rec, ensure_ascii=False), flush=True)
-            log.write(json.dumps(rec, ensure_ascii=False) + '\n')
-            log.flush()
+            with open(log_path, 'a', encoding='utf-8') as lf:
+                lf.write(json.dumps(rec, ensure_ascii=False) + '\n')
             if si == len(STAGES) - 1 and complete and vl < st['best']:  # 최종 단계, 검증을 끝까지 한 경우만(GPT 2차 18)
                 if save(net.state_dict(), os.path.join(a.out, 'best.pt')):  # 저장에 성공했을 때만 최고 점수 갱신(GPT 3차 12)
                     st['best'] = vl

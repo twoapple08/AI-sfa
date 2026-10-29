@@ -16,7 +16,8 @@ import time
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__))))
 from vec_data import done_ok  # noqa: E402
 
-DRIVE = 'gdrive:AI-sfa/02_분석자료/vec/pc'
+DRIVE_BASE = 'gdrive:AI-sfa/02_분석자료/vec'
+DRIVE = DRIVE_BASE + '/pc'  # main()에서 --run으로 바꾼다(1차 pc, 2차 pc2 …)
 
 
 def sh(cmd, check=True):
@@ -72,15 +73,19 @@ def main():
     ap.add_argument('--hours', type=float, default=1.2)
     ap.add_argument('--repeat', type=int, default=2)
     ap.add_argument('--rclone', default='')
+    ap.add_argument('--run', default='pc2', help='학습 이름 = Drive 폴더·이 PC 출력 폴더(1차 pc, 2차 pc2). 같은 이름이면 이어서')
+    ap.add_argument('--init-from', default='pc', help='처음 시작할 때 가중치를 받아 올 이전 학습 이름(그 폴더의 best.pt, 없으면 best_fallback_last.pt). 빈 값이면 처음부터')
     ap.add_argument('--check', action='store_true', help='빠른 확인(사용자 10-29, 1050 Ti 1시간): 파일 12개·장 6개·1080/360만, 짧은 시험(배치 1) + 3분 학습, Drive 올리기 시험')
     a = ap.parse_args()
+    global DRIVE
+    DRIVE = f'{DRIVE_BASE}/{a.run}'
     t_start = time.time()  # PC 사용 시간 계산의 시작(이전 저장본 받기도 포함)
     keep_awake()
     if a.check:
         return check(a)
     tools = os.path.join(a.root, 'repo', 'tools')
     data = os.path.join(a.root, 'vd')
-    out = os.path.join(a.root, 'vec_out')
+    out = os.path.join(a.root, 'vec_out' if a.run == 'pc' else f'vec_out_{a.run}')  # 학습마다 따로(1차 ckpt.pt를 이어받아 '이미 100%'로 끝나지 않게)
     os.makedirs(out, exist_ok=True)
     py = sys.executable
     cpus = os.cpu_count() or 4
@@ -93,6 +98,15 @@ def main():
         if os.path.exists(os.path.join(out, 'ckpt.pt')):  # 모델·최적화기·진행·최고 점수가 한 파일(GPT 검토 15·16)
             resume = os.path.join(out, 'ckpt.pt')
             print('이전 저장본에서 이어서(ckpt.pt)', flush=True)
+    init = ''
+    if not resume and a.init_from and a.rclone:  # 2차 학습: 1차 최고 모델의 가중치에서 출발
+        src = f'{DRIVE_BASE}/{a.init_from}'
+        for nm in ('best.pt', 'best_fallback_last.pt'):
+            sh(f'"{a.rclone}" copyto "{src}/{nm}" "{os.path.join(out, "init.pt")}"', check=False)
+            if os.path.exists(os.path.join(out, 'init.pt')):
+                init = os.path.join(out, 'init.pt')
+                print('시작 가중치:', a.init_from, nm, flush=True)
+                break
     t0 = time.time()
     for res in ('1920', '1280', '854', '640'):
         d = os.path.join(data, res)
@@ -118,6 +132,8 @@ def main():
     cmd = f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours {left:.2f} --workers {min(6, max(2, cpus - 2))}'
     if resume:
         cmd += f' --resume "{resume}"'
+    elif init:
+        cmd += f' --init "{init}"'
     try:
         sh(cmd)
     finally:  # 학습이 오류로 끝나도 마지막 저장본은 올린다(GPT 검토 16)

@@ -4,6 +4,7 @@ rem PC-bang RTX 5060: video -> SFA deep learning (2026-10-29). One file does eve
 rem Install (Python 3.11, torch cu128, skia, opencv, ffmpeg, rclone) -> repo (SFA files + tools) -> Drive login once (browser)
 rem -> data (1080/720/480/360) -> short test -> train (default 1.2 hours) with Drive backup every 15 min -> resumes next time.
 rem RTX 5060 MAIN TRAINING. Double-click. Default 3.2 hours of training (fits a 4.5 hour PC slot). Other length: pc_vec_5060.bat 2.5
+rem 2nd run (2026-10-29): Drive folder vec/pc2, starts from 1st run best.pt (vec/pc). Paint synthesis in data. bf16.
 set HOURS=3.2
 set CHECK=
 if not "%1"=="" set HOURS=%1
@@ -55,10 +56,12 @@ if not exist %ROOT%\rclone.exe (
 )
 set RC=%ROOT%\rclone.exe
 %ROOT%\rclone.exe listremotes | findstr /c:"gdrive:" >nul || %ROOT%\rclone.exe config create gdrive drive scope=drive.file >nul
-%ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc" || (echo Drive login failed - continuing without Drive backup & set RC=)
+rem If access was removed after the 1st run, the saved login no longer works: reconnect once (browser opens)
+%ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc2" >nul 2>&1 || %ROOT%\rclone.exe config reconnect gdrive: >nul
+%ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc2" || (echo Drive login failed - continuing without Drive backup and WITHOUT the 1st run model & set RC=)
 
 echo [6/6] data -> short test -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
-%PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" %CHECK%
+%PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" --run pc2 --init-from pc %CHECK%
 echo.
-echo DONE. Results: Drive AI-sfa/02_분석자료/vec/pc and Desktop\vec_out.zip
+echo DONE. Results: Drive AI-sfa/02_분석자료/vec/pc2 and Desktop\vec_out.zip
 pause

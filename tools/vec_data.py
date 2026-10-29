@@ -31,6 +31,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sfa_render as R  # noqa: E402
+import sfa_paint_synth as SY  # noqa: E402
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'user_sfa')
 OUT_W = 640
@@ -75,7 +76,7 @@ def draw_order(fr):
     return out
 
 
-DATA_VERSION = 3  # 정답 형식·규칙이 바뀌면 올린다(완료 표시와 대조)
+DATA_VERSION = 4  # 4: 페인트 합성(--synth) 추가(2026-10-29)
 OPAQUE = 128  # 알파가 이보다 작은 선·면은 뒤를 가리지 않는 것으로 본다(GPT 검토 3)
 ATTR = ['thick', 'lr', 'lg', 'lb', 'la', 'g_rad', 'g_thick', 'g_alpha', 'gr', 'gg', 'gb', 'fr', 'fg', 'fb', 'fa', 'order']
 # 속성 정답(사용자 10-29 "페인트·글로우·투명도·선 굵기·색·레이어까지 모든 기능을 적재적소에"): uint8 16채널
@@ -252,7 +253,8 @@ def encode_decode(frames_rgb, crf, fps=24):
 
 
 def one(job):
-    rel, out_dir, seed, max_frames, res = job
+    rel, out_dir, seed, max_frames, res, *rest = job
+    p_syn = rest[0] if rest else 0.0
     rng = np.random.default_rng(seed)
     path = os.path.join(ROOT, rel)
     if not os.path.exists(path):  # 맥에서 온 이름은 한글 자모가 분리(NFD)되어 Windows에서 못 찾을 수 있다(5060 실행, 10-29)
@@ -266,6 +268,13 @@ def one(job):
         root = ET.fromstring(z.read(z.namelist()[0]))
     except Exception as e:
         return rel, 'err:' + type(e).__name__
+    # 페인트 합성(2026-10-29 자료 충당: 색 배경·면·반투명 면 부족): 흰 바탕 파일 일부를 그 자리에서 배경·명암·빛을 더한 판으로.
+    # 이름 끝에 _syn(원본 이름은 그대로 — 검증 나누기 src_key가 같아 누수 없음)
+    syn = ''
+    if p_syn > 0 and rng.random() < p_syn and SY.is_white(root):
+        import random as _r
+        SY.synth(root, _r.Random(seed))
+        syn = '_syn'
     frs = root.findall('Frame')
     if not frs:
         return rel, 'empty'
@@ -293,7 +302,7 @@ def one(job):
         return rel, f'err:frames {len(dec)}/{len(tg)}'
     dec = np.stack([cv2.resize(f, (OUT_W, H), interpolation=cv2.INTER_AREA) for f in dec])
     # 이름에 seed — 같은 해상도 반복본이 압축값이 같아 덮어쓰지 않게(GPT 검토 6). 다 쓴 뒤 바꿔치기
-    name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__w{W_enc}_c{crf}_s{seed % 1000000}.npz'
+    name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__w{W_enc}_c{crf}_s{seed % 1000000}{syn}.npz'
     tmp = os.path.join(out_dir, name + '.tmp')
     with open(tmp, 'wb') as fh:
         np.savez_compressed(fh, img=dec,
@@ -301,7 +310,7 @@ def one(job):
                             ori=np.stack([t['ori'] for t in tg]), fill=np.stack([t['fill'] for t in tg]), cid=np.stack([t['cid'] for t in tg]),
                             attr=np.stack([t['attr'] for t in tg]), joint=np.stack([t['joint'] for t in tg]), kind=np.stack([t['kind'] for t in tg]),
                             aoid=np.stack([t['aoid'] for t in tg]), bg=np.stack([t['bg'] for t in tg]),
-                            meta=json.dumps(dict(file=rel, W_enc=W_enc, thick=u, crf=crf, hwr=hwr, frames=len(tg), attr=ATTR, seed=seed)))
+                            meta=json.dumps(dict(file=rel, W_enc=W_enc, thick=u, crf=crf, hwr=hwr, frames=len(tg), attr=ATTR, seed=seed, synth=bool(syn))))
     os.replace(tmp, os.path.join(out_dir, name))
     return rel, f'ok {len(tg)}', name
 
@@ -330,6 +339,7 @@ def main():
     ap.add_argument('--limit', type=int, default=0)
     ap.add_argument('--repeat', type=int, default=1, help='파일마다 다른 무작위 설정으로 몇 번 만들지')
     ap.add_argument('--job-timeout', type=float, default=600, help='파일 하나 최대 초(넘으면 건너뜀)')
+    ap.add_argument('--synth', type=float, default=0.3, help='흰 바탕 파일을 페인트 합성판으로 만들 확률(sfa_paint_synth)')
     ap.add_argument('--res', type=int, default=0, help='영상 폭 고정(1920·1280·854·640). 0이면 무작위')
     a = ap.parse_args()
     os.makedirs(a.out_dir, exist_ok=True)
@@ -344,7 +354,7 @@ def main():
     assert sorted(hold) == sorted(expect) and len(files) == 404 and not set(files) & set(hold), '시험용 제외 확인 실패'  # GPT 검토 12: 따로 적은 목록과 대조
     if a.limit:
         files = files[:a.limit]
-    jobs = [(f, a.out_dir, a.seed * 100003 + i * 7919 + r, a.max_frames, a.res) for r in range(a.repeat) for i, f in enumerate(files)]
+    jobs = [(f, a.out_dir, a.seed * 100003 + i * 7919 + r, a.max_frames, a.res, a.synth) for r in range(a.repeat) for i, f in enumerate(files)]
     from multiprocessing import Pool
     ok, bad, names = 0, [], []
     pool = Pool(a.workers)
@@ -389,7 +399,7 @@ def main():
 
 def config(a):
     """완료 표시에 남기는 설정 — 설정·코드 판이 바뀌면 다시 만든다."""
-    return dict(version=DATA_VERSION, res=a.res, repeat=a.repeat, max_frames=a.max_frames, seed=a.seed, limit=a.limit)
+    return dict(version=DATA_VERSION, res=a.res, repeat=a.repeat, max_frames=a.max_frames, seed=a.seed, limit=a.limit, synth=a.synth)
 
 
 def done_ok(out_dir, **want):
