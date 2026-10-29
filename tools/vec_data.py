@@ -71,8 +71,24 @@ def draw_order(fr):
     return out
 
 
+ATTR = ['thick', 'lr', 'lg', 'lb', 'la', 'g_rad', 'g_thick', 'g_alpha', 'gr', 'gg', 'gb', 'fr', 'fg', 'fb', 'fa', 'order']
+# 속성 정답(사용자 10-29 "페인트·글로우·투명도·선 굵기·색·레이어까지 모든 기능을 적재적소에"): uint8 16채널
+# thick = 선 폭(px@640) log1p(w)/log1p(256)*255, lr..la = 선 RGBA, g_rad·g_thick = log1p(값)/log1p(300)*255, g_alpha = GlowAlpha,
+# gr..gb = 글로우 색, fr..fa = 칠한 면 RGBA, order = 그 픽셀 맨 위 것(가운데선 픽셀은 그 선 자신)의 그리는 순서/전체*255 → 레이어·앞뒤.
+# 선 속성·글로우는 가운데선 픽셀에만, 면 속성은 면 픽셀에만 의미가 있다(학습 손실도 그 자리만).
+
+
+def _argb(v):
+    v = int(v) & 0xFFFFFFFF
+    return (v >> 16) & 255, (v >> 8) & 255, v & 255, v >> 24
+
+
+def _lg(x, top):
+    return int(round(255 * np.log1p(max(min(x, top), 0)) / np.log1p(top)))
+
+
 def targets(seq, fr, W, H, thick_mul):
-    """정답 지도들(W×H)."""
+    """정답 지도들(W×H). 번호판 buf = 그리는 순서 번호(선·면 공통, 0 = 바탕) → 화면에 보이는 부분만 정답."""
     geo = R.Geo(seq, W, H)
     S = geo.S
     order = draw_order(fr)
@@ -81,9 +97,9 @@ def targets(seq, fr, W, H, thick_mul):
     for r in fr.findall('FR'):
         first = next((s.get('ObjId') for s in r.findall('FS') if s.get('ObjId') in by_id), None)
         owner.setdefault(first, []).append(r)
-    buf = np.zeros((H, W), np.int32)  # 0 바탕, +i 선 오브젝트 i, -j 채우기 j
-    objs = []  # (번호, kind, 표본점)
-    nfill = 0
+    buf = np.zeros((H, W), np.int32)
+    items = [None]  # 번호 → ('fill', rgba) | ('line', dict)
+    objs = []  # (번호, kind, 표본점, 보이는 선인지)
     for a in order:
         for r in owner.get(a.get('ID'), []):
             polys = {}
@@ -97,31 +113,50 @@ def targets(seq, fr, W, H, thick_mul):
                 if k == '3':
                     t0, t1 = min(max(t0, 0), 1), min(max(t1, 0), 1)
                 polys.setdefault(s.get('Contour', '0'), []).extend(R.seg_points(k, R.obj_points(o, geo), t0, t1))
-            cs = [np.round(np.array(p)).astype(np.int32) for p in polys.values() if len(p) >= 3]
+            cs = [np.round(np.clip(np.array(p), -20 * W, 20 * W)).astype(np.int32) for p in polys.values() if len(p) >= 3]
             if cs and R.alpha(r.get('Color')) > 0:
-                nfill += 1
+                items.append(('fill', _argb(r.get('Color'))))
                 m = np.zeros((H, W), np.uint8)
                 cv2.fillPoly(m, cs, 1)  # 여러 윤곽은 짝홀(cv2 기본)
-                buf[m > 0] = -nfill
-        if R.alpha(a.get('Color')) == 0:
-            continue
+                buf[m > 0] = len(items) - 1
+        la = R.alpha(a.get('Color'))
+        ga, gt = float(a.get('GlowAlpha') or 0), float(a.get('GlowThickness') or 0)
+        glow = ga > 0 and gt > 0
+        if la == 0 and not glow:
+            continue  # 선도 글로우도 안 보임
         k = a.get('TypeId')
         P = dense(k, R.obj_points(a, geo))
         if len(P) < 2 or np.abs(P).max() > 20 * W:  # 화면에서 아주 먼 오브젝트(보이지 않음)
             continue
-        T = float(a.get('ThicknessScale') or 1)
+        T = min(float(a.get('ThicknessScale') or 1), 1000.0)
         w = R.PARAMS['base'] * max(S * T, 0) * thick_mul * R.PARAMS['stab']
-        if w <= 0:
-            continue
-        i = len(objs) + 1
-        q = np.round(P).astype(np.int32)
-        cv2.polylines(buf, [q], k == '2', int(i), max(1, int(round(w))), lineType=cv2.LINE_8)
-        objs.append((i, k, P))
+        r, g, b, _ = _argb(a.get('Color'))
+        gr, gg, gb, _ = _argb(a.get('GlowColor') or 4294967295)
+        att = dict(thick=_lg(w, 256), lr=r, lg=g, lb=b, la=la, g_rad=_lg(float(a.get('GlowRadius') or 0) * S, 300),
+                   g_thick=_lg(gt, 300) if glow else 0, g_alpha=int(min(ga, 255)) if glow else 0, gr=gr, gg=gg, gb=gb)
+        items.append(('line', att))
+        i = len(items) - 1
+        if la > 0 and w > 0:  # 글로우만 있는 투명 선은 아래를 가리지 않는다
+            cv2.polylines(buf, [np.round(P).astype(np.int32)], k == '2', int(i), max(1, int(round(min(w, 4 * W)))), lineType=cv2.LINE_8)
+        objs.append((i, k, P, la > 0 and w > 0))
+    N = max(len(items) - 1, 1)
     center = np.zeros((H, W), np.uint8)
     cid = np.zeros((H, W), np.uint16)
     ori = np.zeros((2, H, W), np.int8)
+    attr = np.zeros((len(ATTR), H, W), np.uint8)
+    # 면 속성·순서(맨 위 것)
+    for j, it in enumerate(items):
+        if it is None:
+            continue
+        m = buf == j
+        if not m.any():
+            continue
+        attr[15][m] = int(round(255 * j / N))
+        if it[0] == 'fill':
+            for c, v in zip((11, 12, 13, 14), it[1]):
+                attr[c][m] = v
     pts = []
-    for i, k, P in objs:
+    for i, k, P, opaque in objs:
         q = np.round(P).astype(int)
         ok = (q[:, 0] >= 0) & (q[:, 0] < W) & (q[:, 1] >= 0) & (q[:, 1] < H)
         if not ok.any():
@@ -129,17 +164,25 @@ def targets(seq, fr, W, H, thick_mul):
         d = np.gradient(P, axis=0)
         th = np.arctan2(d[:, 1], d[:, 0])
         vis = np.zeros(len(P), bool)
-        vis[ok] = buf[q[ok, 1], q[ok, 0]] == i
-        center[q[vis, 1], q[vis, 0]] = 1
-        cid[q[vis, 1], q[vis, 0]] = min(i, 65535)
-        ori[0, q[vis, 1], q[vis, 0]] = np.round(np.cos(2 * th[vis]) * 127).astype(np.int8)
-        ori[1, q[vis, 1], q[vis, 0]] = np.round(np.sin(2 * th[vis]) * 127).astype(np.int8)
+        bq = buf[q[ok, 1], q[ok, 0]]
+        vis[ok] = (bq == i) if opaque else (bq <= i)  # 투명 선(글로우만)은 뒤에 그린 것에 덮이지 않은 곳
+        if not vis.any():
+            continue
+        ys, xs = q[vis, 1], q[vis, 0]
+        center[ys, xs] = 1
+        cid[ys, xs] = min(i, 65535)
+        ori[0, ys, xs] = np.round(np.cos(2 * th[vis]) * 127).astype(np.int8)
+        ori[1, ys, xs] = np.round(np.sin(2 * th[vis]) * 127).astype(np.int8)
+        att = items[i][1]
+        for c, key in enumerate(ATTR[:11]):
+            attr[c, ys, xs] = att[key]
+        attr[15, ys, xs] = int(round(255 * i / N))
         if k in ('1', '3'):
             for e in (0, len(P) - 1):
                 x, y = q[e]
                 if 0 <= x < W and 0 <= y < H:
                     win = buf[max(0, y - 2):y + 3, max(0, x - 2):x + 3]
-                    if (win == i).any():
+                    if (win == i).any() or (not opaque and (win <= i).all()):
                         pts.append((P[e][0], P[e][1]))
     heat = np.zeros((H, W), np.float32)
     if pts:
@@ -150,7 +193,11 @@ def targets(seq, fr, W, H, thick_mul):
                 continue
             g = np.exp(-((xx[y0:y1, x0:x1] - x) ** 2 + (yy[y0:y1, x0:x1] - y) ** 2) / (2 * 1.5 ** 2))
             heat[y0:y1, x0:x1] = np.maximum(heat[y0:y1, x0:x1], g)
-    return dict(center=center, pts=np.round(heat * 255).astype(np.uint8), ori=ori, fill=(buf < 0).astype(np.uint8), cid=cid)
+    fill = np.zeros((H, W), np.uint8)
+    for j, it in enumerate(items):
+        if it is not None and it[0] == 'fill':
+            fill[buf == j] = 1
+    return dict(center=center, pts=np.round(heat * 255).astype(np.uint8), ori=ori, fill=fill, cid=cid, attr=attr)
 
 
 def encode_decode(frames_rgb, crf, fps=24):
@@ -207,7 +254,8 @@ def one(job):
     np.savez_compressed(os.path.join(out_dir, name), img=dec,
                         center=np.stack([t['center'] for t in tg]), pts=np.stack([t['pts'] for t in tg]),
                         ori=np.stack([t['ori'] for t in tg]), fill=np.stack([t['fill'] for t in tg]), cid=np.stack([t['cid'] for t in tg]),
-                        meta=json.dumps(dict(file=rel, W_enc=W_enc, thick=u, crf=crf, hwr=hwr, frames=len(tg))))
+                        attr=np.stack([t['attr'] for t in tg]),
+                        meta=json.dumps(dict(file=rel, W_enc=W_enc, thick=u, crf=crf, hwr=hwr, frames=len(tg), attr=ATTR)))
     return rel, f'ok {len(tg)}'
 
 

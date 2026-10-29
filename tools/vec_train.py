@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """영상 → SFA 딥러닝 학습(Kaggle GPU용, 2026-10-29).
 
-입력: 앞·지금·뒤 3장(9채널) → 출력 5채널: 선 가운데, 점 자리(선 끝), 선 방향(cos2θ, sin2θ), 칠한 면.
+입력: 앞·지금·뒤 3장(9채널) → 출력 21채널: 선 가운데, 점 자리(선 끝), 선 방향(cos2θ, sin2θ), 칠한 면 + 속성 16(선 굵기·선 RGBA·글로우 반경·두께·세기·색·면 RGBA·그리는 순서).
 자료: tools/vec_data.py가 만든 npz(해상도별 폴더). 커리큘럼(사용자 10-29): 1920 → 1280 → 854 → 640 순, 단계마다 새 해상도 70% + 앞 단계 30%.
 모델: U-Net(torchvision ResNet34 인코더, ImageNet 가중치, 첫 층 9채널로 늘림). fp16 자동 혼합 정밀도, GPU 여러 장이면 DataParallel.
 손실: 가운데(3px로 넓힌 정답) BCE + Dice, 점 가중 MSE, 방향 L1(가운데 근처만), 면 BCE.
@@ -23,6 +23,8 @@ import torchvision
 
 STAGES = [('1920', 0.20), ('1280', 0.25), ('854', 0.25), ('640', 0.30)]  # (해상도 폴더, 시간 몫)
 CROP_W, CROP_H = 512, 256
+N_ATTR = 16  # vec_data.ATTR: 선 굵기, 선 RGBA, 글로우(반경·두께·세기·RGB), 면 RGBA, 그리는 순서
+OUT_CH = 5 + N_ATTR
 
 
 class DS(torch.utils.data.Dataset):
@@ -38,6 +40,7 @@ class DS(torch.utils.data.Dataset):
         f = random.choice(self.files)
         d = np.load(f)
         img, center, pts, ori, fill = d['img'], d['center'], d['pts'], d['ori'], d['fill']
+        attr = d['attr'] if 'attr' in d.files else None  # 속성 16채널(vec_data.ATTR)
         n, H, W = center.shape
         xs, ys = [], []
         for _ in range(self.k):
@@ -50,6 +53,8 @@ class DS(torch.utils.data.Dataset):
             x = np.concatenate([q[sl] for q in fr], -1).astype(np.float32) / 255.0  # h,w,9
             c = center[t][sl].astype(np.float32)
             y = np.stack([c, pts[t][sl] / 255.0, ori[t][0][sl] / 127.0, ori[t][1][sl] / 127.0, fill[t][sl].astype(np.float32)], 0)
+            at = attr[t][(slice(None),) + sl].astype(np.float32) / 255.0 if attr is not None else np.zeros((N_ATTR, h, CROP_W), np.float32)
+            y = np.concatenate([y, at], 0)
             if random.random() < 0.5:  # 좌우 뒤집기: θ → π−θ ⇒ cos2θ 그대로, sin2θ 부호 반대
                 x = x[:, ::-1]
                 y = y[:, :, ::-1].copy()
@@ -74,7 +79,7 @@ class Up(nn.Module):
 
 
 class Net(nn.Module):
-    def __init__(self, in_ch=9, out_ch=5, pretrained=True):
+    def __init__(self, in_ch=9, out_ch=OUT_CH, pretrained=True):
         super().__init__()
         r = torchvision.models.resnet34(weights='IMAGENET1K_V1' if pretrained else None)
         w = r.conv1.weight.data
@@ -125,8 +130,18 @@ def loss_fn(p, y):
     m = c
     lo = ((torch.tanh(p[:, 2:4]) - y[:, 2:4]).abs() * m).sum() / (m.sum() * 2 + 1)
     lf = F.binary_cross_entropy_with_logits(p[:, 4:5], y[:, 4:5])
-    tot = lc + dice + 10 * lp + lo + lf
-    return tot, dict(c=lc.item(), dice=dice.item(), p=lp.item(), o=lo.item(), f=lf.item())
+    # 속성(사용자 10-29: 페인트·글로우·투명도·선 굵기·색·레이어): 선 속성·글로우는 정답 가운데선 픽셀에서, 면 속성은 면 픽셀에서, 순서는 무언가 있는 픽셀에서
+    a, ya = torch.sigmoid(p[:, 5:]), y[:, 5:]
+    on_line = (y[:, 0:1] > 0).float()
+    on_fill = (y[:, 4:5] > 0).float()
+    on_any = (ya[:, 15:16] > 0).float()
+    l1 = lambda sl, m: ((a[:, sl] - ya[:, sl]).abs() * m).sum() / (m.sum() * (sl.stop - sl.start) + 1)
+    ll = l1(slice(0, 5), on_line)      # 굵기 + 선 RGBA
+    lg = l1(slice(5, 11), on_line)     # 글로우
+    lfa = l1(slice(11, 15), on_fill)   # 면 RGBA
+    lo2 = l1(slice(15, 16), on_any)    # 그리는 순서(레이어·앞뒤)
+    tot = lc + dice + 10 * lp + lo + lf + 2 * ll + 2 * lg + lfa + lo2
+    return tot, dict(c=lc.item(), dice=dice.item(), p=lp.item(), o=lo.item(), f=lf.item(), line=ll.item(), glow=lg.item(), fill_rgba=lfa.item(), order=lo2.item())
 
 
 def files_of(data, res):
