@@ -413,12 +413,48 @@ def argb(bgr, a=255):
     return v - (1 << 32) if v >= 1 << 31 else v
 
 
+RIG_OID, RIG_PID = 5_000_000, 50_000_000  # 스틱맨 뼈대의 고정 ID 시작(다른 오브젝트 번호와 겹치지 않게)
+
+
+def rig_xml(fig, p, c, ts, W, H):
+    """스틱맨 한 명 = 머리 원 + 몸통 + 팔 2×2 + 다리 2×2 (오브젝트 10). ID = 시작 + 사람 번호·뼈 번호(장마다 같음)."""
+    hc, r = np.asarray(p['head'][:2], float), float(p['head'][2])
+    neck, hip = np.asarray(p['neck'], float), np.asarray(p['hip'], float)
+    top = hc + (hc - neck)
+    objs = [('2', [neck, top]), ('1', [neck, hip])]
+    for a in p['arms']:
+        objs += [('1', [a[0], a[1]]), ('1', [a[1], a[2]])]
+    for l in p['legs']:
+        objs += [('1', [l[0], l[1]]), ('1', [l[1], l[2]])]
+    ob = RIG_OID + fig * 16
+    pb = RIG_PID + fig * 64
+    pid = lambda j, i: pb + 2 * j + i  # 오브젝트 j의 i번째 점
+    # 이음: 몸통 목 ↔ 머리 목쪽, 팔 뿌리 ↔ 몸통 목, 다리 뿌리 ↔ 몸통 엉덩이, 아래 마디 뿌리 ↔ 위 마디 끝
+    link = {(1, 0): pid(0, 0)}
+    for j in range(2, len(objs), 2):
+        link[(j, 0)] = pid(1, 0) if j < 6 else pid(1, 1)
+        link[(j + 1, 0)] = pid(j, 1)
+    out = []
+    for j, (kind, pts) in enumerate(objs):
+        a = [f'<AO ID="{ob + j}" TypeId="{kind}" Color="{c}" LayerId="0" DrawOrder="{ob + j}" ThicknessScale="{ts:.3f}" ObjectScale="1.0" '
+             'GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">']
+        for i, (x, y) in enumerate(pts):
+            ac = f'<AC ConnPtId="{link[(j, i)]}"/>' if (j, i) in link else ''
+            flags = 3 if (j == 1 and i == 1) else (8 if (j, i) in link else 9)
+            a.append(f'<AP ID="{pid(j, i)}" Flags="{flags}" Index="{i}" X="{x / W * 100:.3f}" Y="{y / H * 100:.3f}">{ac}</AP>')
+        out.append(''.join(a) + '</AO>')
+    return ''.join(out)
+
+
 def write_sfa(path, frames, W, H, ts, bg=-1, name=None):
-    """frames: [(regions, strokes), ...] → 여러 장 SFA(레이어 1개). 면(FR)이 아래, 선(굵기 균일)이 위."""
+    """frames: [(regions, strokes[, rigs]), ...] → 여러 장 SFA(레이어 1개). 면(FR)이 아래, 선(굵기 균일)이 위, 스틱맨 뼈대가 맨 위.
+    rigs: [(fig 번호, pose dict(video_stickman_track), bgr)] — 오브젝트·점 ID를 장 사이에 고정하고 관절을 AC로 잇는다(사람이 만든 스틱맨처럼)."""
     name = name or os.path.splitext(os.path.basename(path))[0]
     oid = pid = 1
     body = []
-    for k, (regions, strokes) in enumerate(frames):
+    for k, fr in enumerate(frames):
+        regions, strokes = fr[0], fr[1]
+        rigs = fr[2] if len(fr) > 2 else []
         o = [f'<Frame ID="{k + 1}" Position="{k}" BackgroundColor="{bg}"><LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false"/>']
         for group, col in regions:  # 채우기 면: 윤곽 조각을 AC로 잇고 FS로 묶음(cube_vector_sfa.Writer.region과 같은 형식), 테두리는 같은 색 가는 선
             c = argb(col)
@@ -450,6 +486,8 @@ def write_sfa(path, frames, W, H, ts, bg=-1, name=None):
                 prev = pid + len(pts) - 1
                 oid += 1
                 pid += len(pts)
+        for fig, pose, col in rigs:
+            o.append(rig_xml(fig, pose, argb(col), ts, W, H))
         body.append(''.join(o) + '</Frame>')
     xml = (f"<?xml version='1.0' encoding='utf-8'?>\n<Sequence Name=\"{name}\" HeightWidthRatio=\"{H / W:.6f}\" FrameCount=\"{len(frames)}\" "
            f"BackgroundColor=\"{bg}\">\n" + '\n'.join(body) + '\n</Sequence>\n')
