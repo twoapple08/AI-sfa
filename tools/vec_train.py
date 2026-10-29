@@ -198,7 +198,8 @@ def loss_fn(p, y):
 
 
 HEAVY = ('cod.exe', 'modernwarfare.exe', 'blackops6.exe', 'cod_hq.exe', 'cod24-cod.exe')   # 무거운 게임: 켜져 있으면 학습 멈춤
-LIGHT = ('league of legends.exe', 'clipstudiopaint.exe')                                  # 가벼운 것: 천천히
+LIGHT = ('league of legends.exe', 'clipstudiopaint.exe',                                 # 가벼운 것: 천천히
+         'hd-player.exe', 'dnplayer.exe', 'nox.exe', 'mumuplayer.exe')                    # 안드로이드 에뮬레이터(블루스택·LD·녹스·MuMu, 사용자 10-29)
 
 
 class Yielder:
