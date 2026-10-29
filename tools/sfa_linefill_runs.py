@@ -30,7 +30,7 @@ def key(o):
 
 def alone(root, f, objs, frs=()):
     """이 오브젝트(와 면)만 흰 바탕에 그린 그림."""
-    r2 = copy.deepcopy(root)
+    r2 = ET.Element('Sequence', dict(root.attrib))  # 렌더는 시퀀스 속성만 읽는다(전체 복사는 큰 파일에서 느림)
     r2.set('BackgroundColor', '-1')
     f2 = ET.SubElement(ET.Element('x'), 'Frame', dict(f.attrib))
     f2.set('BackgroundColor', '-1')
@@ -42,6 +42,28 @@ def alone(root, f, objs, frs=()):
     for r in frs:
         f2.append(r)
     return np.asarray(R.render_frame(r2, f2, W, H))[..., :3].astype(int)
+
+
+def quick_ok(run, geo, sc=0.25):
+    """빠른 거르기(저해상도 근사): 선끼리 많이 겹치고(덧칠) 윤곽 안에 빈틈이 거의 없어야 정밀 비교로 넘긴다."""
+    w0, h0 = int(W * sc), int(H * sc)
+    m = np.zeros((h0, w0), np.uint8)
+    tot = 0
+    for o in run:
+        p = np.array(R.obj_points(o, geo)) * sc
+        w = max(1, int(round(1.14 * 8 * geo.S * float(o.get('ThicknessScale') or 1) * sc)))
+        one = np.zeros_like(m)
+        q0, q1 = tuple(np.round(p[0]).astype(int)), tuple(np.round(p[-1]).astype(int))
+        cv2.line(one, q0, q1, 1, w)
+        tot += int(one.sum())
+        m |= one
+    area = int(m.sum())
+    if area < 50:
+        return False
+    cs, _ = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    full = np.zeros_like(m)
+    cv2.drawContours(full, cs, -1, 1, -1)
+    return tot / area >= 1.3 and (int(full.sum()) - area) / area < 0.05
 
 
 def main():
@@ -71,7 +93,7 @@ def main():
                 runs.append([o])
         ok = rej = 0
         for run in runs:
-            if len(run) < a.min_run or R.alpha(run[0].get('Color')) == 0:
+            if len(run) < a.min_run or R.alpha(run[0].get('Color')) == 0 or not quick_ok(run, geo):
                 continue
             img = alone(root, f, [copy.deepcopy(o) for o in run])
             mask = (np.abs(img - 255).max(-1) > 20).astype(np.uint8)
