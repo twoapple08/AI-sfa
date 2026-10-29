@@ -322,7 +322,7 @@ def main():
     if a.yield_:
         low_priority()
         if dev == 'cuda':
-            torch.cuda.set_per_process_memory_fraction(0.55)  # 8GB 중 약 4.4GB만 — 나머지는 게임·그림 프로그램 몫. 모자라면 OOM 장치가 조각 수를 줄인다
+            torch.cuda.set_per_process_memory_fraction(0.65)  # 8GB 중 약 4.4GB만 — 나머지는 게임·그림 프로그램 몫. 모자라면 OOM 장치가 조각 수를 줄인다
         print('양보 모드: 무거운 게임', ', '.join(yl.heavy), '/ 천천히', ', '.join(yl.light), flush=True)
     net = Net(pretrained=not a.smoke or dev == 'cuda').to(dev)
     # bf16(5060 등 지원 GPU): 수 범위가 fp32와 같아 넘침이 없다. 1차 학습은 fp16에서 디코더 값이 65,504를 넘어 검증 NaN·마지막 단계 출렁임(2026-10-29)
@@ -342,7 +342,7 @@ def main():
         sd = torch.load(a.init, map_location=dev, weights_only=False)
         sd = sd.get('model', sd) if isinstance(sd, dict) and 'model' in sd else sd
         net.load_state_dict(sd)
-        st['lr'] = a.lr * 0.5  # 이미 배운 가중치 — 처음부터보다 작은 학습률로(1e-3이면 초반에 배운 것이 크게 흔들린다)
+        st['lr'] = a.lr * 0.2  # 이미 배운 가중치 — 작은 학습률로. 4060 2차 첫 시도(5e-4, 예열 없음): 400걸음 만에 검증 9.6 → 27–34로 무너짐
         print('가중치 불러옴(새 계획으로 시작, 학습률', st['lr'], '):', os.path.basename(a.init), flush=True)
     if a.resume and os.path.exists(a.resume):  # 완전한 이어하기(GPT 검토 15): 가중치만이 아니라 최적화기·AMP·진행·최고 점수까지
         ck = torch.load(a.resume, map_location=dev, weights_only=False)
@@ -352,6 +352,9 @@ def main():
             scaler.load_state_dict(ck['scaler'])
         st.update(ck['state'])
         print(f"이어서: 진행 {st['progress'] * 100:.1f}%, {st['step']}걸음, 최고 검증 {st['best']:.4f}", flush=True)
+    resumed = bool(a.resume and os.path.exists(a.resume))
+    WARM = 0 if resumed else 500  # 이어하기는 최적화기 상태가 있으니 예열 없음
+    step_start = st['step']
     log_path = os.path.join(a.out, 'log.jsonl')  # 쓸 때마다 열고 닫는다 — Windows는 열린 파일의 크기·시각을 늦게 갱신해 15분 올리기가 기록을 건너뛰었다(1차 학습)
     t_sess = time.time()
     prog0 = st['progress']
@@ -404,7 +407,8 @@ def main():
                         it_new = iter(dl_new)
                         x, y = next(it_new)
                 for g in opt.param_groups:  # 학습률: 계획 전체 진행에 걸쳐 코사인(이어서 해도 이어짐)
-                    g['lr'] = st['lr'] * (0.05 + 0.95 * 0.5 * (1 + np.cos(np.pi * min(progress(), 1.0))))
+                    warm = min(1.0, (st['step'] - step_start + 1) / WARM) if WARM else 1.0  # 새 최적화기(처음·--init)는 첫 500걸음 예열: Adam 첫 걸음들이 배운 가중치를 크게 흔들지 않게
+                    g['lr'] = warm * st['lr'] * (0.05 + 0.95 * 0.5 * (1 + np.cos(np.pi * min(progress(), 1.0))))
                 try:
                     xb = x.flatten(0, 1)[:st['max_n']].to(dev, non_blocking=True)
                     yb = y.flatten(0, 1)[:st['max_n']].to(dev, non_blocking=True)
@@ -426,6 +430,11 @@ def main():
                     opt.zero_grad(set_to_none=True)
                     p = l = xb = yb = None
                     torch.cuda.empty_cache()
+                    if a.yield_ and st['max_n'] <= 4:  # 양보 모드: 다른 프로그램이 GPU 메모리를 잡은 것 — 더 줄이지 말고 기다렸다 다시(멈추지 않게)
+                        print(time.strftime('%H:%M'), 'GPU 메모리 부족(다른 프로그램) → 1분 기다렸다 다시', flush=True)
+                        time.sleep(60)
+                        yl.paused += 60
+                        continue
                     if st['max_n'] <= 1 or x.flatten(0, 1).shape[0] <= 1 and st['max_n'] < 10 ** 9:
                         raise SystemExit('조각 1개도 GPU 메모리에 안 들어감 — 중단')
                     st['max_n'] = max(1, min(st['max_n'], x.flatten(0, 1).shape[0]) // 2)

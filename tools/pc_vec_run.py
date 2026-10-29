@@ -37,7 +37,7 @@ def keep_awake():
 def uploader(out, rclone, stop, every=900):
     while not stop.wait(every):
         if os.path.exists(os.path.join(out, 'ckpt.pt')):
-            r = subprocess.run(f'"{rclone}" copy "{out}" "{DRIVE}" --include "ckpt.pt" --include "best.pt" --include "log.jsonl"', shell=True)
+            r = subprocess.run(f'"{rclone}" copy "{out}" "{DRIVE}" --include "ckpt.pt" --include "best.pt" --include "log.jsonl" --include "train_console.txt"', shell=True)
             print(time.strftime('%H:%M'), 'Drive 중간 저장', '정상' if r.returncode == 0 else f'실패({r.returncode})', flush=True)
 
 
@@ -172,7 +172,17 @@ def main():
     elif init:
         cmd += f' --init "{init}"'
     try:
-        sh(cmd)
+        # 학습 화면 출력을 파일(train_console.txt)에도 남겨 Drive로 — 사람이 없을 때 멈춘 이유를 알 수 있게(4060 2차 첫 시도: 원인 모를 종료)
+        print('$', cmd, flush=True)
+        con = os.path.join(out, 'train_console.txt')
+        env = dict(os.environ, PYTHONUTF8='1', PYTHONIOENCODING='utf-8')  # 파이프로 받을 때 한글이 cp949로 깨지지 않게
+        pr = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace', env=env)
+        for line in pr.stdout:
+            print(line, end='', flush=True)
+            with open(con, 'a', encoding='utf-8') as f:  # 줄마다 열고 닫기(열어 둔 파일은 Windows가 크기를 늦게 갱신해 올리기가 건너뜀)
+                f.write(line)
+        if pr.wait() != 0:
+            raise subprocess.CalledProcessError(pr.returncode, cmd)
     finally:  # 학습이 오류로 끝나도 마지막 저장본은 올린다(GPT 검토 16)
         stop.set()
         if up is not None:
@@ -180,7 +190,7 @@ def main():
             if up.is_alive():
                 print('중간 올리기가 아직 끝나지 않음 — 마지막 올리기와 겹칠 수 있음(파일은 rclone이 덮어씀)', flush=True)
         shutil.copy(os.path.join(tools, 'vec_train.py'), out)
-        keep = ['ckpt.pt', 'best.pt', 'best_fallback_last.pt', 'log.jsonl', 'vec_train.py']  # 이어하기·결과에 필요한 것만(단계별 저장본까지 올리면 약 1GB)
+        keep = ['ckpt.pt', 'best.pt', 'best_fallback_last.pt', 'log.jsonl', 'vec_train.py', 'train_console.txt']  # 이어하기·결과에 필요한 것만(단계별 저장본까지 올리면 약 1GB)
         if a.rclone:
             inc = ' '.join(f'--include "{k}"' for k in keep)
             r = subprocess.run(f'"{a.rclone}" copy "{out}" "{DRIVE}" {inc}', shell=True)

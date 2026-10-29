@@ -7,7 +7,7 @@ rem RTX 4060 (8GB, RAM 32GB) version of pc_vec_5060.bat - same settings, separat
 rem Double-click. Default 8 hours of ACTIVE training (no PC time limit; time paused for games is not counted). Other length: pc_vec_4060.bat 12
 rem YIELD MODE: Call of Duty running -> training pauses; League of Legends / Clip Studio running -> training slows. Low CPU priority, about half of GPU memory.
 rem You can close this window any time; the next run continues from the last save (every 200 steps).
-rem 2nd run (2026-10-29): Drive folder vec/pc2_4060, starts from 1st run best.pt (vec/pc). Paint synthesis in data. bf16 (Ada GPU).
+rem 2nd run, retry b (2026-10-30: first try pc2_4060 collapsed - val 9.6 -> 27-34 in 400 steps, lr warmup added): Drive folder vec/pc2b_4060, starts from 1st run best.pt (vec/pc). Paint synthesis in data. bf16 (Ada GPU).
 set HOURS=8
 set CHECK=
 set INIT=--init-from pc
@@ -73,7 +73,7 @@ set RC=%ROOT%\rclone.exe
 %ROOT%\rclone.exe listremotes | findstr /c:"gdrive:" >nul || %ROOT%\rclone.exe config create gdrive drive scope=drive.file >nul
 
 echo [6/6] data -> short test -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
-%PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" --run pc2_4060 --yield %INIT% %CHECK% || (echo. & echo FAILED - read the lines above and send a photo of this window & pause & exit /b 1)
+%PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" --run pc2b_4060 --yield %INIT% %CHECK% || (echo. & echo FAILED - read the lines above and send a photo of this window & pause & exit /b 1)
 echo.
-echo DONE. Results: Drive folder vec/pc2_4060 and %ROOT%\vec_out.zip
+echo DONE. Results: Drive folder vec/pc2b_4060 and %ROOT%\vec_out.zip
 pause
