@@ -341,7 +341,7 @@ def main():
     hold = file_list(only='holdout')
     print('학습 파일', len(files), '시험용(뺌)', len(hold), flush=True)
     expect = [l.strip() for l in open(os.path.join(ROOT, 'holdout_vec.txt'), encoding='utf-8') if l.strip()]
-    assert sorted(hold) == sorted(expect) and len(files) == 356 and not set(files) & set(hold), '시험용 제외 확인 실패'  # GPT 검토 12: 따로 적은 목록과 대조
+    assert sorted(hold) == sorted(expect) and len(files) == 357 and not set(files) & set(hold), '시험용 제외 확인 실패'  # GPT 검토 12: 따로 적은 목록과 대조
     if a.limit:
         files = files[:a.limit]
     jobs = [(f, a.out_dir, a.seed * 100003 + i * 7919 + r, a.max_frames, a.res) for r in range(a.repeat) for i, f in enumerate(files)]
