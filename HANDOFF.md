@@ -7,7 +7,8 @@
 상세 기록: docs/VIDEO-TO-SFA-2026-10-29.md(결정·시험), docs/TRAIN-DATA-COVERAGE-2026-10-29.md(자료 요소별 충당), GPT 검토 docs/GPT-PROMPT-VEC-REVIEW{,2..6}-2026-10-29.md(6차: 2차 실행 전 필수 없음).
 
 ## 바로 할 일
-1. **2차 학습 실행(사용자)**: `tools/pc_vec_5060.bat`(Drive `vec/pc2`) 또는 `tools/pc_vec_4060.bat`(Drive `vec/pc2_4060`, RAM 32GB PC, 동시 실행 가능). 실행마다 저장소를 새로 받음. 1차 best.pt(Drive `vec/pc`)를 받아 학습률 5e-4로 새 계획 시작, 못 받으면 학습 전에 멈춤(`bat 시간 scratch`로 처음부터). 화면 확인: '시작 가중치: pc best.pt', '혼합 정밀도 bf16'. 끝나면 사용자가 rclone 접근 해제.
+1. **2차 학습 실행(사용자)**: `tools/pc_vec_5060.bat`(Drive `vec/pc2`) 또는 `tools/pc_vec_4060.bat`(Drive `vec/pc2b_4060`, W 드라이브, 양보 모드, 실학습 8시간, RAM 32GB PC). 1차 best.pt(Drive `vec/pc`)에서 학습률 2e-4·500걸음 예열로 새 계획, 못 받으면 학습 전에 멈춤(`bat 시간 scratch`로 처음부터). 끝나면 사용자가 rclone 접근 해제.
+   **4060 첫 시도 `pc2_4060`(10-30 05:26 KST) 실패**: 400걸음 만에 검증 27.8→32.7(1차 best 같은 문제 9.6), 학습 4.8→14.5 불안정, 05:31 종료(원인 화면 못 봄 — 메모리 부족 연쇄 추정, 조각 16→8). bf16 정밀도는 원인 아님(서버 CPU bf16=fp32). 대응: 학습률 0.2배·예열, 양보 모드 메모리 65%·부족하면 1분 대기(가짜 메모리 부족으로 서버 시험), 학습 화면 `train_console.txt`를 Drive로, 이름 `pc2b_4060`(망가진 저장본 안 이어받음). 학습 자료(W:\aisfa\vec\vd)는 재사용.
 2. 끝나면 Claude: Drive에서 best·log 받기 → `tools/vec_compare.py`로 1차 best ↔ 2차 best(시험 앱 영상 S2aqoie_pt:40·sr_2:60, 애니 프레임, 오버드라이브 앱 영상) → log의 `val_cat`(원본·페인트·합성)·`skipped`·`val_bad` 확인. 총 검증 손실은 1차 4.87과 직접 비교하지 않는다(손실 항·자료 바뀜).
 3. 오버드라이브(시험용) 앱 12,12 영상 받음(scratch `combo/z/overdrive_12_12.mp4`, 15장): 우리 렌더러와 장마다 다른 픽셀 0.25–0.44% → 페인트 시험 장면으로 사용.
    **레이어 전체 투명도**(최근 앱 패치, 사용자 10-29): 쓴 파일 아직 없음 → 받으면 형식·렌더 방식 확인 후 렌더러·정답 반영(docs/FORMAT.md 끝).
