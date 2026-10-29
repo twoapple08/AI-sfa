@@ -9,6 +9,8 @@
 4) 어두운 바탕이면 검은 선을 밝게(어두운 장면에서 작가들이 쓰는 방식, 바탕과 선이 같은 색이 되지 않게).
 값 범위: 반투명 면 알파는 실제 파일 5개(922·포이즌 파트2·연출ㆍ이펙트ㆍ연기ㆍ능력·오버드라이브·dncncn) 분위 10–90% = 90–215.
 면 테두리 선은 투명(Color 0), 파란점 규칙(고리마다 Flags 3 하나, 꼭짓점마다 표시 하나).
+레이어(사용자 10-29 앱 확인: 같은 레이어에 그리는 순서 번호만 낮춰 깐 배경이 앱에서는 인물 선을 덮었다): 맨 아래 '배경'(바탕·띠·땅·그림자),
+원래 레이어들(번호 +1), 맨 위 '빛'(빛 원뿔). 레이어 안 그리는 순서는 기존보다 큰 번호로 차례대로.
 사용: python sfa_paint_synth.py 원본.sfa 출력.sfa [--seed 0]
 """
 import argparse
@@ -131,9 +133,23 @@ def main():
         aos = fr.findall('AO')
         if not aos:
             continue
-        layers = [l.get('ID') for l in fr.findall('LayerDef')] or ['0']
-        bottom_layer, top_layer = layers[0], layers[-1]
-        lo = min(int(o.get('DrawOrder') or o.get('ID')) for o in aos)
+        # 레이어: 배경 0 / 원래 레이어 +1 / 빛 맨 위
+        defs = fr.findall('LayerDef')
+        if not defs:  # 옛 형식: 원래 그림을 레이어 하나로
+            d = ET.Element('LayerDef', dict(ID='0', Name='Layer 1', Visible='true', Locked='false'))
+            fr.insert(0, d)
+            defs = [d]
+            for o in aos:
+                o.set('LayerId', '0')
+        for d in defs:
+            d.set('ID', str(int(d.get('ID')) + 1))
+        for o in aos:
+            o.set('LayerId', str(int(o.get('LayerId') or 0) + 1))
+        pos = list(fr).index(defs[0])
+        fr.insert(pos, ET.Element('LayerDef', dict(ID='0', Name='배경', Visible='true', Locked='false')))
+        top_id = str(max(int(d.get('ID')) for d in defs) + 1)
+        fr.insert(list(fr).index(defs[-1]) + 1, ET.Element('LayerDef', dict(ID=top_id, Name='빛', Visible='true', Locked='false')))
+        bottom_layer, top_layer = '0', top_id
         hi = max(int(o.get('DrawOrder') or o.get('ID')) for o in aos)
         figs = figures(fr)
         ids = Ids(fr)
@@ -149,7 +165,7 @@ def main():
                 ET.SubElement(r, 'FS', dict(Kind='1', ObjId=o.get('ID')))
                 fr.append(r)
         # 1) 배경(맨 아래): 바탕 면 → 그라데이션 띠 → 땅
-        order = lo - 200
+        order = hi + 1000
         order = poly(fr, ids, [(-2, -2), (102, -2), (102, 102), (-2, 102)], argb(*top), order, bottom_layer)
         nb = rnd.randint(3, 5)
         for i in range(nb):
@@ -164,7 +180,7 @@ def main():
             pts = [(cx + rw * math.cos(t), fy + rh * math.sin(t)) for t in [2 * math.pi * k / 16 for k in range(16)]]
             order = poly(fr, ids, pts, argb(0, 0, 0, sa), order, bottom_layer)
         # 3) 빛 원뿔(맨 위, 반투명)
-        order = hi + 10
+        order += 100
         poly(fr, ids, [(lx - 4, -2), (lx + 4, -2), (lx + rnd.uniform(18, 30), 102), (lx - rnd.uniform(18, 30), 102)], argb(*light, la), order, top_layer)
     xml = ET.tostring(root, encoding='unicode')
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as zz:
