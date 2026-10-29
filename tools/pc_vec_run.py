@@ -51,12 +51,15 @@ def check(a):
     print('GPU', torch.cuda.get_device_name(0), round(torch.cuda.get_device_properties(0).total_memory / 2**30, 1), 'GB', flush=True)
     for res in ('1920', '640'):
         sh(f'cd /d "{tools}" && "{py}" -u vec_data.py "{os.path.join(data, res)}" --res {res} --limit 12 --max-frames 6 --workers {cpus} --seed {res}')
-    print(f'[확인 1/3] 자료 만들기 정상 ({(time.time() - t0) / 60:.1f}분)', flush=True)
+    print(f'[확인 1/4] 자료 만들기 정상 ({(time.time() - t0) / 60:.1f}분)', flush=True)
     sh(f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --smoke --workers 2')  # 본 학습과 같은 배치(메모리 부족이면 조각을 줄여 계속 — 그 장치도 같이 확인)
-    print('[확인 2/3] 짧은 시험 정상', flush=True)
+    print('[확인 2/4] 짧은 시험 정상', flush=True)
     t1 = time.time()
     sh(f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours 0.05 --workers 2')
-    print(f'[확인 3/3] 3분 학습 정상 ({(time.time() - t1) / 60:.1f}분). 위 기록의 step 수로 속도를 잰다', flush=True)
+    print(f'[확인 3/4] 3분 학습 정상 ({(time.time() - t1) / 60:.1f}분). 위 기록의 step 수로 속도를 잰다', flush=True)
+    # 이어하기 시험(GPT 3차): 방금 저장된 ckpt.pt에서 이어서 짧게 — '이어서: 진행 …%' 줄이 나와야 함
+    sh(f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours 0.03 --workers 2 --resume "{os.path.join(out, "ckpt.pt")}"')
+    print('[확인 4/4] 이어하기 정상', flush=True)
     if a.rclone:
         r = subprocess.run(f'"{a.rclone}" copy "{out}" "{DRIVE}_check" --include "*.json*"', shell=True)
         print('Drive 올리기', '정상' if r.returncode == 0 else '실패', flush=True)
@@ -94,7 +97,7 @@ def main():
     for res in ('1920', '1280', '854', '640'):
         d = os.path.join(data, res)
         rep = 1 if res in ('1920', '1280') else a.repeat  # 큰 화질은 만드는 데 오래 걸려 1번(GPT 검토 14)
-        if done_ok(d, res=int(res), repeat=rep, max_frames=24, limit=0):  # 같은 설정으로 다 만든 표시가 있을 때만 건너뜀(GPT 2차 17)
+        if done_ok(d, res=int(res), repeat=rep, max_frames=24, limit=0, seed=int(res)):  # 같은 설정으로 다 만든 표시가 있을 때만 건너뜀(GPT 2차 17)
             continue
         t1 = time.time()
         sh(f'cd /d "{tools}" && "{py}" -u vec_data.py "{d}" --res {res} --repeat {rep} --max-frames 24 --workers {cpus} --seed {res}')
@@ -121,6 +124,8 @@ def main():
         stop.set()
         if up is not None:
             up.join(timeout=600)  # 중간 올리기가 끝난 뒤 마지막 올리기(겹치지 않게)
+            if up.is_alive():
+                print('중간 올리기가 아직 끝나지 않음 — 마지막 올리기와 겹칠 수 있음(파일은 rclone이 덮어씀)', flush=True)
         shutil.copy(os.path.join(tools, 'vec_train.py'), out)
         keep = ['ckpt.pt', 'best.pt', 'best_fallback_last.pt', 'log.jsonl', 'vec_train.py']  # 이어하기·결과에 필요한 것만(단계별 저장본까지 올리면 약 1GB)
         if a.rclone:

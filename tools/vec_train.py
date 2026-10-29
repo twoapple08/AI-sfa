@@ -199,7 +199,13 @@ def save(obj, path, tries=60):
 
 
 def files_of(data, res):
-    return sorted(glob.glob(os.path.join(data, res, '*.npz')))
+    """완료 표시(_done.json)에 기록된 성공 파일만 — 옛 자료가 섞이지 않게(GPT 3차 7). 표시가 없으면(직접 만든 시험 자료) 폴더 전체."""
+    d = os.path.join(data, res)
+    try:
+        names = json.load(open(os.path.join(d, '_done.json'), encoding='utf-8'))['files']
+        return sorted(os.path.join(d, n) for n in names if os.path.exists(os.path.join(d, n)))
+    except Exception:
+        return sorted(glob.glob(os.path.join(d, '*.npz')))
 
 
 def src_key(f):
@@ -251,9 +257,10 @@ def main():
     last = (float('nan'), {})  # 마지막으로 성공한 걸음의 손실
 
     def checkpoint(rec):
-        save(dict(model=net.state_dict(), opt=opt.state_dict(), scaler=scaler.state_dict(), state=dict(st, progress=progress()), rec=rec),
-             os.path.join(a.out, 'ckpt.pt'))
+        ok = save(dict(model=net.state_dict(), opt=opt.state_dict(), scaler=scaler.state_dict(), state=dict(st, progress=progress()), rec=rec),
+                  os.path.join(a.out, 'ckpt.pt'))
         save(net.state_dict(), os.path.join(a.out, 'last.pt'))
+        return ok
 
     for si, (res, frac) in enumerate(STAGES):
         tr, va = split(files_of(a.data, res))
@@ -313,11 +320,14 @@ def main():
             # 검증: 늘 같은 문제(파일·장·자리 고정, 모든 지나온 해상도). 빈 목록이면 건너뜀, 하나라도 실패하면 이번 점수는 최고 선택에 쓰지 않음(GPT 2차 18)
             model.eval()
             vl, n, nv = 0.0, 0, 0
+            vds = []
             if allv:
                 with torch.no_grad():
                     rs = random.getstate()
                     vds = DS(allv, k=4, length=8 if a.smoke else 40)
                     for i in range(len(vds)):
+                        if out_of_time():  # 시간이 다 되면 검증을 멈춤(미완료 → 최고 선택에 안 씀, GPT 3차 14)
+                            break
                         random.seed(1234 + i)  # 문제마다 고정 번호 — 미리 다 만들어 두면 RAM 약 3GB(조각 160 × 36채널 × 512×256 × 4바이트)
                         x, y = vds[i]
                         nv += 1
@@ -331,7 +341,7 @@ def main():
                         except torch.cuda.OutOfMemoryError:
                             torch.cuda.empty_cache()
                     random.setstate(rs)
-            complete = allv and n == nv
+            complete = bool(allv) and n == nv == len(vds)
             vl = vl / n if n else float('nan')
             ep += 1
             rec = dict(stage=si + 1, res=res, ep=ep, step=st['step'], train=round(last[0], 4), val=round(vl, 4) if n else None, val_complete=bool(complete),
@@ -341,9 +351,10 @@ def main():
             log.write(json.dumps(rec, ensure_ascii=False) + '\n')
             log.flush()
             if si == len(STAGES) - 1 and complete and vl < st['best']:  # 최종 단계, 검증을 끝까지 한 경우만(GPT 2차 18)
-                st['best'] = vl
-                save(net.state_dict(), os.path.join(a.out, 'best.pt'))
-            checkpoint(rec)
+                if save(net.state_dict(), os.path.join(a.out, 'best.pt')):  # 저장에 성공했을 때만 최고 점수 갱신(GPT 3차 12)
+                    st['best'] = vl
+            if not checkpoint(rec):
+                print('ckpt.pt 저장 실패 — 다음 저장 때 다시', flush=True)
             if a.smoke:
                 break
         print(f'단계 {si + 1} 학습 걸음 {st["step"] - steps0}', flush=True)  # 단계를 실제로 학습했는지(GPT 2차: 진행률 기준이라 0일 수도)

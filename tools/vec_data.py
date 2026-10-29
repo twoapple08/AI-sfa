@@ -295,7 +295,7 @@ def one(job):
                             aoid=np.stack([t['aoid'] for t in tg]), bg=np.stack([t['bg'] for t in tg]),
                             meta=json.dumps(dict(file=rel, W_enc=W_enc, thick=u, crf=crf, hwr=hwr, frames=len(tg), attr=ATTR, seed=seed)))
     os.replace(tmp, os.path.join(out_dir, name))
-    return rel, f'ok {len(tg)}'
+    return rel, f'ok {len(tg)}', name
 
 
 def file_list(exclude_holdout=True, only=None):
@@ -324,6 +324,10 @@ def main():
     ap.add_argument('--res', type=int, default=0, help='영상 폭 고정(1920·1280·854·640). 0이면 무작위')
     a = ap.parse_args()
     os.makedirs(a.out_dir, exist_ok=True)
+    # 새로 만들 때는 그 폴더의 이전 자료·완료 표시를 먼저 지운다 — 설정을 바꿔 다시 만들 때 옛 파일이 섞이지 않게(GPT 3차 7)
+    for f in os.listdir(a.out_dir):
+        if f.endswith(('.npz', '.tmp')) or f == '_done.json':
+            os.remove(os.path.join(a.out_dir, f))
     files = file_list()
     hold = file_list(only='holdout')
     print('학습 파일', len(files), '시험용(뺌)', len(hold), flush=True)
@@ -333,11 +337,12 @@ def main():
         files = files[:a.limit]
     jobs = [(f, a.out_dir, a.seed * 100003 + i * 7919 + r, a.max_frames, a.res) for r in range(a.repeat) for i, f in enumerate(files)]
     from multiprocessing import Pool
-    ok, bad = 0, []
+    ok, bad, names = 0, [], []
     with Pool(a.workers) as pool:
-        for k, (rel, st) in enumerate(pool.imap_unordered(one, jobs)):
+        for k, (rel, st, *nm) in enumerate(pool.imap_unordered(one, jobs)):
             if st.startswith('ok'):
                 ok += 1
+                names.append(nm[0])
             elif st not in ('empty',):
                 bad.append((rel, st))
             if not st.startswith('ok') or k % 25 == 0:
@@ -349,7 +354,7 @@ def main():
             os.remove(done)
         raise SystemExit(f'자료 만들기 실패가 너무 많음: 성공 {ok}/{len(jobs)}')
     tmp = done + '.tmp'
-    json.dump(dict(jobs=len(jobs), ok=ok, failed=bad, holdout=file_list(only='holdout'), config=config(a)),
+    json.dump(dict(jobs=len(jobs), ok=ok, failed=bad, files=sorted(names), holdout=file_list(only='holdout'), config=config(a)),
               open(tmp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     os.replace(tmp, done)
     print('끝', len(jobs), '성공', ok, '실패', len(bad))
@@ -361,13 +366,22 @@ def config(a):
 
 
 def done_ok(out_dir, **want):
-    """그 폴더 자료가 같은 설정으로 다 만들어졌는지."""
+    """그 폴더 자료가 같은 설정으로 다 만들어졌는지 — 설정 + 기록된 파일이 모두 있는지까지(GPT 3차 8: 표시만 있고 자료가 없어도 True였다)."""
+    fs = done_files(out_dir)
+    if not fs:
+        return False
+    c = json.load(open(os.path.join(out_dir, '_done.json'), encoding='utf-8')).get('config', {})
+    return c.get('version') == DATA_VERSION and all(c.get(k) == v for k, v in want.items())
+
+
+def done_files(out_dir):
+    """완료 표시에 기록된 성공 파일 목록(모두 있을 때만). 학습도 이 목록만 쓴다(GPT 3차 7)."""
     try:
         d = json.load(open(os.path.join(out_dir, '_done.json'), encoding='utf-8'))
     except Exception:
-        return False
-    c = d.get('config', {})
-    return c.get('version') == DATA_VERSION and all(c.get(k) == v for k, v in want.items())
+        return []
+    fs = [os.path.join(out_dir, n) for n in d.get('files', [])]
+    return fs if fs and all(os.path.exists(f) for f in fs) else []
 
 
 if __name__ == '__main__':
