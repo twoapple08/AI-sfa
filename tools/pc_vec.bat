@@ -3,9 +3,10 @@ chcp 65001 >nul
 rem PC-bang RTX 5060: video -> SFA deep learning (2026-10-29). One file does everything.
 rem Install (Python 3.11, torch cu128, skia, opencv, ffmpeg, rclone) -> repo (SFA files + tools) -> Drive login once (browser)
 rem -> data (1080/720/480/360) -> short test -> train (default 1.2 hours) with Drive backup every 15 min -> resumes next time.
-rem Usage: pc_vec.bat [hours]
+rem Usage: pc_vec.bat [hours]   or   pc_vec.bat check   (quick error check, about 30-40 min)
 set HOURS=1.2
-if not "%1"=="" set HOURS=%1
+set CHECK=
+if "%1"=="check" (set CHECK=--check) else if not "%1"=="" set HOURS=%1
 set ROOT=C:\aisfa
 set V=%ROOT%\vec
 set PY=%ROOT%\py\python.exe
@@ -20,10 +21,14 @@ if not exist %PY% (
 )
 %PY% --version || (echo Python install failed & pause & exit /b 1)
 
-echo [2/6] PyTorch cu128 + libraries
-%PY% -c "import torch;assert torch.cuda.is_available()" 2>nul || (
+echo [2/6] PyTorch + libraries (RTX 50xx: cu128 / GTX 10xx: cu126 - cu128 builds dropped Pascal)
+set CU=cu128
+for /f "delims=" %%G in ('nvidia-smi --query-gpu^=name --format^=csv^,noheader') do set GPU=%%G
+echo GPU: %GPU%
+echo %GPU% | findstr /i /c:"GTX 10" /c:"GTX 16" >nul && set CU=cu126
+%PY% -c "import torch;(torch.zeros(1).cuda()+1).item()" 2>nul || (
   %PY% -m pip install -q --upgrade pip
-  %PY% -m pip install -q torch torchvision --index-url https://download.pytorch.org/whl/cu128
+  %PY% -m pip install -q --force-reinstall torch torchvision --index-url https://download.pytorch.org/whl/%CU%
 )
 %PY% -m pip install -q skia-python opencv-python-headless numpy
 %PY% -c "import torch,skia,cv2;print('torch',torch.__version__,'cuda',torch.cuda.is_available(),torch.cuda.get_device_name(0))" || (echo torch/skia failed & pause & exit /b 1)
@@ -54,7 +59,7 @@ set RC=%ROOT%\rclone.exe
 %ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc" || (echo Drive login failed - continuing without Drive backup & set RC=)
 
 echo [6/6] data -> short test -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
-%PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%"
+%PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" %CHECK%
 echo.
 echo DONE. Results: Drive AI-sfa/02_분석자료/vec/pc and Desktop\vec_out.zip
 pause

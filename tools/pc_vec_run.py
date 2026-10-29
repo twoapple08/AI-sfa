@@ -37,14 +37,40 @@ def uploader(out, rclone, stop, every=900):
             print(time.strftime('%H:%M'), 'Drive 중간 저장', flush=True)
 
 
+def check(a):
+    tools = os.path.join(a.root, 'repo', 'tools')
+    data = os.path.join(a.root, 'vd_check')
+    out = os.path.join(a.root, 'check_out')
+    py = sys.executable
+    cpus = os.cpu_count() or 4
+    t0 = time.time()
+    import torch
+    print('GPU', torch.cuda.get_device_name(0), round(torch.cuda.get_device_properties(0).total_memory / 2**30, 1), 'GB', flush=True)
+    for res in ('1920', '640'):
+        sh(f'cd /d "{tools}" && "{py}" -u vec_data.py "{os.path.join(data, res)}" --res {res} --limit 12 --max-frames 6 --workers {cpus} --seed {res}')
+    print(f'[확인 1/3] 자료 만들기 정상 ({(time.time() - t0) / 60:.1f}분)', flush=True)
+    sh(f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --smoke --batch 1 --workers 2')
+    print('[확인 2/3] 짧은 시험 정상', flush=True)
+    t1 = time.time()
+    sh(f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours 0.05 --batch 1 --workers 2')
+    print(f'[확인 3/3] 3분 학습 정상 ({(time.time() - t1) / 60:.1f}분). 위 기록의 step 수로 속도를 잰다', flush=True)
+    if a.rclone:
+        r = subprocess.run(f'"{a.rclone}" copy "{out}" "{DRIVE}_check" --include "*.json*"', shell=True)
+        print('Drive 올리기', '정상' if r.returncode == 0 else '실패', flush=True)
+    print(f'빠른 확인 끝 {(time.time() - t0) / 60:.1f}분. 이 창 아래쪽을 사진으로 보내 주세요.', flush=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--root', default=r'C:\aisfa\vec')
     ap.add_argument('--hours', type=float, default=1.2)
     ap.add_argument('--repeat', type=int, default=2)
     ap.add_argument('--rclone', default='')
+    ap.add_argument('--check', action='store_true', help='빠른 확인(사용자 10-29, 1050 Ti 1시간): 파일 12개·장 6개·1080/360만, 짧은 시험(배치 1) + 3분 학습, Drive 올리기 시험')
     a = ap.parse_args()
     keep_awake()
+    if a.check:
+        return check(a)
     tools = os.path.join(a.root, 'repo', 'tools')
     data = os.path.join(a.root, 'vd')
     out = os.path.join(a.root, 'vec_out')
