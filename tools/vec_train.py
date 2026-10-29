@@ -152,6 +152,7 @@ def main():
     ap.add_argument('--workers', type=int, default=4)
     ap.add_argument('--smoke', action='store_true', help='단계마다 몇 걸음만(문법·메모리 확인)')
     ap.add_argument('--resume', default='')
+    ap.add_argument('--start-stage', type=int, default=1, help='이어서 학습할 때 시작 단계(1–4). 앞 단계 파일은 섞기용으로만 쓴다')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -177,8 +178,10 @@ def main():
         allv += va
         prev = seen[:]
         seen += tr
+        if si + 1 < a.start_stage:
+            continue
         mix = [tr, prev] if prev else [tr]
-        budget = total * frac
+        budget = total * frac / sum(f for _, f in STAGES[a.start_stage - 1:])  # 이어서 할 때는 남은 단계끼리 시간을 나눔
         ts = time.time()
         print(f'단계 {si + 1} 해상도 {res}: 학습 파일 {len(tr)} (앞 단계 {len(prev)}), 검증 {len(va)}, 시간 {budget / 60:.0f}분', flush=True)
         ds_new = DS(tr)
@@ -232,6 +235,7 @@ def main():
             log.write(json.dumps(rec, ensure_ascii=False) + '\n')
             log.flush()
             torch.save(net.state_dict(), os.path.join(a.out, 'last.pt'))
+            json.dump(dict(stage=si + 1, res=res, ep=ep, step=step, val=vl, min=rec['min']), open(os.path.join(a.out, 'state.json'), 'w'))
             if si == len(STAGES) - 1 and vl < best:  # 최종 단계(모든 해상도 검증)에서 가장 좋은 것
                 best = vl
                 torch.save(net.state_dict(), os.path.join(a.out, 'best.pt'))
