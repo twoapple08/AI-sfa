@@ -240,7 +240,9 @@ def main():
     model = nn.DataParallel(amp) if torch.cuda.device_count() > 1 else amp
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=1e-4)
     scaler = torch.amp.GradScaler('cuda', enabled=dev == 'cuda')
-    st = dict(progress=0.0, step=0, best=1e9, plan=(a.plan_hours or a.hours) * 3600, max_n=10 ** 9, lr=a.lr)
+    # 마지막 검증·저장 시간을 미리 떼어 둔다(서버 실행 시험: 학습이 시간을 다 쓰면 마지막 검증이 바로 멈춰 마지막 모델이 최고 선택에서 빠졌다)
+    reserve = min(300.0, 0.05 * a.hours * 3600)
+    st = dict(progress=0.0, step=0, best=1e9, plan=(a.plan_hours or a.hours) * 3600 - reserve, max_n=10 ** 9, lr=a.lr)
     if a.resume and os.path.exists(a.resume):  # 완전한 이어하기(GPT 검토 15): 가중치만이 아니라 최적화기·AMP·진행·최고 점수까지
         ck = torch.load(a.resume, map_location=dev, weights_only=False)
         net.load_state_dict(ck['model'])
@@ -252,7 +254,8 @@ def main():
     t_sess = time.time()
     prog0 = st['progress']
     progress = lambda: prog0 + (time.time() - t_sess) / st['plan']
-    out_of_time = lambda: time.time() - t_sess >= a.hours * 3600
+    out_of_time = lambda: time.time() - t_sess >= a.hours * 3600 - reserve  # 학습은 여기까지
+    hard_stop = lambda: time.time() - t_sess >= a.hours * 3600             # 검증은 여기까지
     allv, seen = [], []
     last = (float('nan'), {})  # 마지막으로 성공한 걸음의 손실
 
@@ -326,7 +329,7 @@ def main():
                     rs = random.getstate()
                     vds = DS(allv, k=4, length=8 if a.smoke else 40)
                     for i in range(len(vds)):
-                        if out_of_time():  # 시간이 다 되면 검증을 멈춤(미완료 → 최고 선택에 안 씀, GPT 3차 14)
+                        if hard_stop():  # 시간이 다 되면 검증을 멈춤(미완료 → 최고 선택에 안 씀, GPT 3차 14)
                             break
                         random.seed(1234 + i)  # 문제마다 고정 번호 — 미리 다 만들어 두면 RAM 약 3GB(조각 160 × 36채널 × 512×256 × 4바이트)
                         x, y = vds[i]
