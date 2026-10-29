@@ -51,6 +51,7 @@ class DS(torch.utils.data.Dataset):
 
     def __getitem__(self, i):
         f = random.choices(self.files, weights=self.w)[0]
+        self.last = f  # 검증에서 종류별 점수를 따로 세려고(작업자 없이 직접 부를 때만 의미 있음)
         d = np.load(f)
         img, center, pts, ori, fill = d['img'], d['center'], d['pts'], d['ori'], d['fill']
         n, H, W = center.shape
@@ -355,6 +356,7 @@ def main():
             # 검증: 늘 같은 문제(파일·장·자리 고정, 모든 지나온 해상도). 빈 목록이면 건너뜀, 하나라도 실패하면 이번 점수는 최고 선택에 쓰지 않음(GPT 2차 18)
             model.eval()
             vl, n, nv, nbad = 0.0, 0, 0, 0
+            cat = {}  # 종류별 검증(GPT 5차 6): 원본·페인트·합성 — 총점은 자료 구성에 따라 바뀌므로 종류별로 1·2차를 비교
             vds = []
             if allv:
                 with torch.no_grad():
@@ -376,13 +378,18 @@ def main():
                                 continue
                             vl += tot_i / x.shape[0]
                             n += 1
+                            nm = os.path.basename(vds.last)
+                            c = '합성' if '_syn' in nm else '페인트' if any(t in nm for t in PAINT_TAGS) else '원본'
+                            cs = cat.setdefault(c, [0.0, 0])
+                            cs[0] += tot_i / x.shape[0]
+                            cs[1] += 1
                         except torch.cuda.OutOfMemoryError:
                             torch.cuda.empty_cache()
                     random.setstate(rs)
             complete = bool(allv) and n == nv == len(vds) and nbad == 0
             vl = vl / n if n else float('nan')
             ep += 1
-            rec = dict(stage=si + 1, res=res, ep=ep, step=st['step'], train=round(last[0], 4), val=round(vl, 4) if n else None, val_complete=bool(complete), val_bad=nbad, skipped=st.get('skipped', 0),
+            rec = dict(stage=si + 1, res=res, ep=ep, step=st['step'], train=round(last[0], 4), val=round(vl, 4) if n else None, val_complete=bool(complete), val_bad=nbad, val_cat={k: [round(v / m, 4), m] for k, (v, m) in cat.items()}, skipped=st.get('skipped', 0),
                        parts={k: round(v, 4) for k, v in last[1].items()}, lr=opt.param_groups[0]['lr'],
                        progress=round(progress() * 100, 1), min=round((time.time() - t_sess) / 60, 1))
             print(json.dumps(rec, ensure_ascii=False), flush=True)

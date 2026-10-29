@@ -119,7 +119,7 @@ def main():
                 print('시작 가중치:', a.init_from, nm, flush=True)
                 break
         if not init:
-            raise SystemExit(f'1차 모델({src}/best.pt)을 받지 못해 멈춤. Drive 연결을 확인하거나, 처음부터 하려면: pc_vec_5060.bat {a.hours} scratch')
+            raise SystemExit(f'1차 모델({src}/best.pt)을 받지 못해 멈춤. Drive 연결을 확인하거나, 처음부터 하려면: pc_vec_5060.bat(또는 4060) {a.hours} scratch')
     t0 = time.time()
     for res in ('1920', '1280', '854', '640'):
         d = os.path.join(data, res)

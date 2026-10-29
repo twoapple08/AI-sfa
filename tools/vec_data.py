@@ -37,7 +37,8 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'u
 OUT_W = 640
 HOLDOUT = ('4711', '4.7.1.1', '47112',  # 4711_2 합작: 실제 영상 + 정답이 있어 최종 시험용으로 뺀다
            # 사용자 10-29 "4711만 말고 보내 준 애니메이션 중 최상위 퀄리티 파일들을 대상으로": 영상과 함께 배포된 대표작(앱 내보내기 영상 = 진짜 시험)
-           '스파 연계 교본', '묶음3_무기도구/sr.sfa', '뇌 빼고', '대홍련빙륜환', '수평선', 'S2aqoie_pt', 'kirara jump', 'ㅇㅇㅇㅇㅇㅇ (1)', '묶음3_무기도구/A.sfa')
+           '스파 연계 교본', '묶음3_무기도구/sr.sfa', '뇌 빼고', '대홍련빙륜환', '수평선', 'S2aqoie_pt', 'kirara jump', 'ㅇㅇㅇㅇㅇㅇ (1)', '묶음3_무기도구/A.sfa',
+           '묶음5_페인트/오버드라이브')  # 사용자 10-29: 페인트(반투명 면·색 배경·글로우) 시험용 — 앱 영상으로 채점
 
 
 def dense(kind, pts, step=1.0, max_n=4000):
@@ -353,7 +354,7 @@ def main():
     hold = file_list(only='holdout')
     print('학습 파일', len(files), '시험용(뺌)', len(hold), flush=True)
     expect = [l.strip() for l in open(os.path.join(ROOT, 'holdout_vec.txt'), encoding='utf-8') if l.strip()]
-    assert sorted(hold) == sorted(expect) and len(files) == 404 and not set(files) & set(hold), '시험용 제외 확인 실패'  # GPT 검토 12: 따로 적은 목록과 대조
+    assert sorted(hold) == sorted(expect) and len(files) == 403 and not set(files) & set(hold), '시험용 제외 확인 실패'  # GPT 검토 12: 따로 적은 목록과 대조
     if a.limit:
         files = files[:a.limit]
     jobs = [(f, a.out_dir, a.seed * 100003 + i * 7919 + r, a.max_frames, a.res, 0.0) for r in range(a.repeat) for i, f in enumerate(files)]
