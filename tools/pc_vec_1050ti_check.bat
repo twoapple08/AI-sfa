@@ -55,10 +55,9 @@ if not exist %ROOT%\rclone.exe (
 )
 set RC=%ROOT%\rclone.exe
 %ROOT%\rclone.exe listremotes | findstr /c:"gdrive:" >nul || %ROOT%\rclone.exe config create gdrive drive scope=drive.file >nul
-%ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc" || (echo Drive login failed - continuing without Drive backup & set RC=)
 
 echo [6/6] data -> short test -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
 %PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" %CHECK%
 echo.
-echo DONE. Results: Drive AI-sfa/02_분석자료/vec/pc and Desktop\vec_out.zip
+echo DONE. Results: Drive folder vec/pc and Desktop\vec_out.zip
 pause

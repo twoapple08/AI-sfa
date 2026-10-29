@@ -41,6 +41,22 @@ def uploader(out, rclone, stop, every=900):
             print(time.strftime('%H:%M'), 'Drive 중간 저장', '정상' if r.returncode == 0 else f'실패({r.returncode})', flush=True)
 
 
+def ensure_drive(rclone, path):
+    """Drive 폴더를 만든다. 안 되면(1차 뒤 접근 해제 등) 한 번 재연결(브라우저가 열림) 후 다시. 그래도 안 되면 '' — 시작 가중치가 필요하면 그 뒤에서 멈춘다."""
+    def mk():
+        return subprocess.run(f'"{rclone}" mkdir "{path}"', shell=True, capture_output=True).returncode == 0
+    if mk():
+        print('Drive 연결 정상:', path, flush=True)
+        return rclone
+    print('Drive 연결 안 됨 → 다시 로그인(브라우저에서 허용을 눌러 주세요)', flush=True)
+    subprocess.run(f'"{rclone}" config reconnect gdrive: --auto-confirm', shell=True, stdout=subprocess.DEVNULL)  # 화면에 토큰이 나오지 않게
+    if mk():
+        print('Drive 다시 연결됨:', path, flush=True)
+        return rclone
+    print('Drive 연결 실패 — Drive 저장 없이 진행(시작 가중치가 필요하면 곧 멈춤)', flush=True)
+    return ''
+
+
 def check(a):
     tools = os.path.join(a.root, 'repo', 'tools')
     data = os.path.join(a.root, 'vd_check')
@@ -80,6 +96,8 @@ def main():
     a = ap.parse_args()
     global DRIVE
     DRIVE = f'{DRIVE_BASE}/{a.run}'
+    if a.rclone:  # Drive 폴더 만들기·재연결은 여기서(bat에 한글 경로를 두면 cmd가 줄을 잘못 읽었다, 4060 PC 10-29)
+        a.rclone = ensure_drive(a.rclone, DRIVE)
     t_start = time.time()  # PC 사용 시간 계산의 시작(이전 저장본 받기도 포함)
     keep_awake()
     if a.check:

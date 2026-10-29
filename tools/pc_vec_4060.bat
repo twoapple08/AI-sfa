@@ -14,7 +14,7 @@ set INIT=--init-from pc
 if not "%1"=="" set HOURS=%1
 rem pc_vec_5060.bat 3.2 scratch  = start from zero (without the 1st run model)
 if "%2"=="scratch" set INIT=--init-from ""
-rem W drive (사용자 10-29: C 여유 3GB, W 200GB). Everything incl. pip/temp/torch caches goes to W.
+rem W drive (user 10-29: C has 3GB free, W 200GB). Everything incl. pip/temp/torch caches goes to W.
 if "%AISFA_DRIVE%"=="" set AISFA_DRIVE=W:
 set ROOT=%AISFA_DRIVE%\aisfa
 if not exist %ROOT% mkdir %ROOT%
@@ -71,12 +71,9 @@ if not exist %ROOT%\rclone.exe (
 )
 set RC=%ROOT%\rclone.exe
 %ROOT%\rclone.exe listremotes | findstr /c:"gdrive:" >nul || %ROOT%\rclone.exe config create gdrive drive scope=drive.file >nul
-rem If access was removed after the 1st run, the saved login no longer works: reconnect once (browser opens)
-%ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc2_4060" >nul 2>&1 || %ROOT%\rclone.exe config reconnect gdrive: --auto-confirm >nul
-%ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc2_4060" || (echo Drive login failed - the run will stop before training. To train from zero without Drive: pc_vec_4060.bat %HOURS% scratch & set RC=)
 
 echo [6/6] data -> short test -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
 %PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" --run pc2_4060 --yield %INIT% %CHECK% || (echo. & echo FAILED - read the lines above and send a photo of this window & pause & exit /b 1)
 echo.
-echo DONE. Results: Drive AI-sfa/02_분석자료/vec/pc2_4060 and %ROOT%\vec_out.zip
+echo DONE. Results: Drive folder vec/pc2_4060 and %ROOT%\vec_out.zip
 pause

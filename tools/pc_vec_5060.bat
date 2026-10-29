@@ -59,12 +59,9 @@ if not exist %ROOT%\rclone.exe (
 )
 set RC=%ROOT%\rclone.exe
 %ROOT%\rclone.exe listremotes | findstr /c:"gdrive:" >nul || %ROOT%\rclone.exe config create gdrive drive scope=drive.file >nul
-rem If access was removed after the 1st run, the saved login no longer works: reconnect once (browser opens)
-%ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc2" >nul 2>&1 || %ROOT%\rclone.exe config reconnect gdrive: --auto-confirm >nul
-%ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc2" || (echo Drive login failed - the run will stop before training. To train from zero without Drive: pc_vec_5060.bat %HOURS% scratch & set RC=)
 
 echo [6/6] data -> short test -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
 %PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" --run pc2 %INIT% %CHECK% || (echo. & echo FAILED - read the lines above and send a photo of this window & pause & exit /b 1)
 echo.
-echo DONE. Results: Drive AI-sfa/02_분석자료/vec/pc2 and Desktop\vec_out.zip
+echo DONE. Results: Drive folder vec/pc2 and Desktop\vec_out.zip
 pause
