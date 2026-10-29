@@ -112,7 +112,7 @@
 묶음1_Sfa__zip/청새치 정면.sfa,청새치 정면.sfa,청새치 정면,1,104,0,0,0,0.0,
 묶음1_Sfa__zip/프라이팬.sfa,프라이팬.sfa,프라이팬,1,16,0,0,0,0.0,
 묶음2_Drive/asdf_SPECTRUM.sfa,000_asdf_SPECTRUM.sfa,asdf,4,4896,0,0,0,0.67,
-묶음2_Drive/갈아엎기 전 1-2.sfa,003_갈아엎기 전 1-2.sfa,d2,5,77400,0,0,0,0.07,
+묶음2_Drive/갈아엎기 전 1-2.sfa,003_갈아엎기 전 1-2.sfa,d2,5,77400,0,0,0,0.07,선 칠 → 면 교체본 사용(면변환/)
 묶음2_Drive/전봇대.sfa,005_전봇대.sfa,전봇대,1,753,0,0,0,0.0,
 묶음2_Drive/4.7.1.1_2_8.sfa,008_4.7.1.1_2_8.sfa,찐막,49,1812,0,0,0,0.0,
 묶음2_Drive/4.7.1.1_2_1.sfa,009_4.7.1.1_2_1.sfa,드가자,141,11451,0,0,0,0.0,
@@ -203,7 +203,7 @@
 묶음2_Drive/temp_1746186121405.-1685223118.sfa,113_temp_1746186121405.-1685223118.sfa,ㅡ,579,19946,0,0,0,0.08,
 묶음2_Drive/7800_SPECTRUM.sfa,114_7800_SPECTRUM.sfa,7800,77,770,0,0,0,0.0,
 묶음2_Drive/건물1.sfa,115_건물1.sfa,건물1,6,762,0,0,0,0.0,
-묶음2_Drive/1_SPECTRUM (7).sfa,116_1_SPECTRUM (7).sfa,아콘1,14,1819,0,0,0,0.0,
+묶음2_Drive/1_SPECTRUM (7).sfa,116_1_SPECTRUM (7).sfa,아콘1,14,1819,0,0,0,0.0,선 칠 → 면 교체본 사용(면변환/)
 묶음2_Drive/MONITORINGBESTFRIENDREMIX_Pivot (1).sfa,118_MONITORINGBESTFRIENDREMIX_Pivot (1).sfa,MONITORING(BEST FRIEND REMIX),13,2176,0,0,0,0.0,
 묶음2_Drive/드림 이펙.sfa,120_드림 이펙.sfa,연기팩,1,595,0,0,0,0.0,
 묶음2_Drive/4.7.1.1_2_13.sfa,122_4.7.1.1_2_13.sfa,진짜,20,1866,0,0,0,0.0,
@@ -433,7 +433,7 @@
 묶음6_추가/K_SPECTRUM.sfa,K_SPECTRUM.sfa,K,1,111,0,0,0,0.0,
 묶음6_추가/Kdkeke.sfa,Kdkeke.sfa,Kdkeke,120,9955,1,0,0,0.16,
 묶음6_추가/Kdkeke_Pivot.sfa,Kdkeke_Pivot.sfa,Kdkeke,120,9955,0,0,0,0.16,근사 중복(Kdkeke.sfa 레이어판과 같은 내용)
-묶음6_추가/animation_Pivot (2).sfa,animation_Pivot (2).sfa,animation,1082,34676,0,0,0,0.08,
+묶음6_추가/animation_Pivot (2).sfa,animation_Pivot (2).sfa,animation,1082,34676,0,0,0,0.08,선 칠 → 면 교체본 사용(면변환/)
 묶음6_추가/circle_SPECTRUMcircle _SPECTRUM.sfa,circle_SPECTRUMcircle _SPECTRUM.sfa,circle ,1,142,0,0,0,1.0,
 묶음6_추가/djsksk_Pivot.sfa,djsksk_Pivot.sfa,djsksk,191,27692,0,0,0,0.01,
 묶음6_추가/ejej.sfa,ejej.sfa,ejej,23,318,1,0,0,0.0,
@@ -449,3 +449,6 @@
 묶음5_페인트/연습.sfa,_____.sfa,연습,408,82080,1,809,831,0.13,
 묶음6_추가/도시 v6.sfa,______v6.sfa,도시,1,8693,1,558,0,0.0,AI 생성(선 칠 비효율) — 면변환본 사용
 묶음6_추가/도시 v6 면변환.sfa,(도시 v6 변환),도시,1,2242,1,558,49,0.0,
+면변환/묶음2_Drive/갈아엎기 전 1-2.sfa,(갈아엎기 전 1-2.sfa 면변환),d2,5,44485,0,0,0,0.07,
+면변환/묶음6_추가/animation_Pivot (2).sfa,(animation_Pivot (2).sfa 면변환),animation,1082,32993,0,0,0,0.08,
+면변환/묶음2_Drive/1_SPECTRUM (7).sfa,(1_SPECTRUM (7).sfa 면변환),아콘1,14,1686,0,0,0,0.0,

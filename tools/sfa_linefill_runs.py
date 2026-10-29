@@ -53,6 +53,8 @@ def quick_ok(run, geo, sc=0.25):
     tot = 0
     for o in run:
         p = np.array(R.obj_points(o, geo)) * sc
+        if not np.isfinite(p).all() or np.abs(p).max() > 1e5:  # 좌표가 NaN·아주 먼 선이 섞인 묶음은 건드리지 않는다
+            return False
         w = max(1, int(round(1.14 * 8 * geo.S * float(o.get('ThicknessScale') or 1) * sc)))
         one = np.zeros_like(m)
         q0, q1 = tuple(np.round(p[0]).astype(int)), tuple(np.round(p[-1]).astype(int))
