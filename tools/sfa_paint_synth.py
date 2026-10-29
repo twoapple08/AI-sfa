@@ -39,9 +39,19 @@ def hsv(h, s, v):
 
 
 class Ids:
-    def __init__(self, frame):
-        self.ao = max([int(a.get('ID')) for a in frame.findall('AO')] + [0]) + 1
-        self.ap = max([int(p.get('ID')) for a in frame.findall('AO') for p in a.findall('AP')] + [0]) + 1
+    """앱은 AO ID 하나를 파일 전체의 '공통 오브젝트'로 만들고 레이어도 ID마다 하나로 저장한다(docs/AOT-PATH-TRACE-2026-10-15.md: 불러올 때 DrawOrder는 읽지 않고
+    처음 나온 순서로 새 순서값). 그래서 역할마다 ID 구간을 고정한다 — 장마다 '최대+1'로 매기면 그림자 개수가 다른 장에서 같은 ID가 빛·배경을 오가
+    빛이 배경 레이어로 묶였다(사용자 10-29 앱 확인). 점 ID는 파일 전체에서 겹치지 않게 이어서 센다."""
+
+    def __init__(self, root):
+        aos = [a for f in root.findall('Frame') for a in f.findall('AO')]
+        self.base = max([int(a.get('ID')) for a in aos] + [0]) + 1
+        self.ap = max([int(p.get('ID')) for a in aos for p in a.findall('AP')] + [0]) + 1
+        self.ao = self.base
+
+    def at(self, slot):
+        """역할 구간 시작: 0 배경 고정 면, 1000 + 20·k 그림자 k, 5000 빛."""
+        self.ao = self.base + slot
 
 
 def poly(frame, ids, pts, color, order, layer):
@@ -126,6 +136,12 @@ def main():
     la = rnd.randint(40, 110)          # 빛 원뿔 알파(옅게)
     sa = rnd.randint(90, 180)          # 그림자 알파(실제 분위 안)
     lx = rnd.uniform(20, 80)
+    # 장면 모양은 한 번만 정한다(장마다 바꾸면 배경이 깜빡이고, 면 수가 달라져 ID 구간이 어긋난다)
+    nb = rnd.randint(3, 5)
+    bands = [(100 * (i + 1) / (nb + 1) - 10, int(rnd.uniform(0.25, 0.45) * 255)) for i in range(nb)]
+    wob = [horizon + rnd.uniform(-2, 2) for _ in range(5)]
+    cone = (rnd.uniform(18, 30), rnd.uniform(18, 30))
+    ids = Ids(root)
     print('장면', scene, '위', top, '아래', bot, '땅', ground, '어두움', dark)
     root.set('BackgroundColor', str(int(argb(*top)) - (1 << 32)))
     for fr in root.findall('Frame'):
@@ -152,7 +168,6 @@ def main():
         bottom_layer, top_layer = '0', top_id
         hi = max(int(o.get('DrawOrder') or o.get('ID')) for o in aos)
         figs = figures(fr)
-        ids = Ids(fr)
         # 4) 어두운 바탕: 검은 선을 밝게
         if dark:
             for o in aos:
@@ -166,22 +181,22 @@ def main():
                 fr.append(r)
         # 1) 배경(맨 아래): 바탕 면 → 그라데이션 띠 → 땅
         order = hi + 1000
+        ids.at(0)
         order = poly(fr, ids, [(-2, -2), (102, -2), (102, 102), (-2, 102)], argb(*top), order, bottom_layer)
-        nb = rnd.randint(3, 5)
-        for i in range(nb):
-            y0 = 100 * (i + 1) / (nb + 1) - 10
-            order = poly(fr, ids, [(-2, y0), (102, y0), (102, 102), (-2, 102)], argb(*bot, int(rnd.uniform(0.25, 0.45) * 255)), order, bottom_layer)
-        wob = [horizon + rnd.uniform(-2, 2) for _ in range(5)]
+        for y0, ba in bands:
+            order = poly(fr, ids, [(-2, y0), (102, y0), (102, 102), (-2, 102)], argb(*bot, ba), order, bottom_layer)
         gp = [(-2, wob[0])] + [(25 * i, wob[i]) for i in range(1, 4)] + [(102, wob[4]), (102, 102), (-2, 102)]
         order = poly(fr, ids, gp, argb(*ground), order, bottom_layer)
         # 3) 그림자(땅 위, 인물 아래)
-        for cx, fy, w in figs:
+        for k, (cx, fy, w) in enumerate(figs[:40]):
+            ids.at(1000 + 20 * k)
             rw, rh = max(w * 0.6, 4), max(w * 0.12, 1.2)
             pts = [(cx + rw * math.cos(t), fy + rh * math.sin(t)) for t in [2 * math.pi * k / 16 for k in range(16)]]
             order = poly(fr, ids, pts, argb(0, 0, 0, sa), order, bottom_layer)
         # 3) 빛 원뿔(맨 위, 반투명)
         order += 100
-        poly(fr, ids, [(lx - 4, -2), (lx + 4, -2), (lx + rnd.uniform(18, 30), 102), (lx - rnd.uniform(18, 30), 102)], argb(*light, la), order, top_layer)
+        ids.at(5000)
+        poly(fr, ids, [(lx - 4, -2), (lx + 4, -2), (lx + cone[0], 102), (lx - cone[1], 102)], argb(*light, la), order, top_layer)
     xml = ET.tostring(root, encoding='unicode')
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as zz:
         zz.writestr(name, '<?xml version="1.0" encoding="UTF-8" ?>' + xml)
