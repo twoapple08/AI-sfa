@@ -30,7 +30,9 @@ import sfa_render as R  # noqa: E402
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'user_sfa')
 OUT_W = 640
-HOLDOUT = ('4711', '4.7.1.1', '47112')  # 4711_2 합작: 실제 영상 + 정답이 있어 최종 시험용으로 뺀다
+HOLDOUT = ('4711', '4.7.1.1', '47112',  # 4711_2 합작: 실제 영상 + 정답이 있어 최종 시험용으로 뺀다
+           # 사용자 10-29 "4711만 말고 보내 준 애니메이션 중 최상위 퀄리티 파일들을 대상으로": 영상과 함께 배포된 대표작(앱 내보내기 영상 = 진짜 시험)
+           '스파 연계 교본', '묶음3_무기도구/sr.sfa', '뇌 빼고', '대홍련빙륜환', '수평선', 'S2aqoie_pt', 'kirara jump', 'ㅇㅇㅇㅇㅇㅇ (1)', '묶음3_무기도구/A.sfa')
 
 
 def dense(kind, pts, step=1.0, max_n=4000):
