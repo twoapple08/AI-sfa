@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """영상 → SFA 딥러닝 학습(Kaggle GPU용, 2026-10-29).
 
-입력: 앞·지금·뒤 3장(9채널) → 출력 21채널: 선 가운데, 점 자리(선 끝), 선 방향(cos2θ, sin2θ), 칠한 면 + 속성 16(선 굵기·선 RGBA·글로우 반경·두께·세기·색·면 RGBA·그리는 순서).
-자료: tools/vec_data.py가 만든 npz(해상도별 폴더). 커리큘럼(사용자 10-29): 1920 → 1280 → 854 → 640 순, 단계마다 새 해상도 70% + 앞 단계 30%.
-모델: U-Net(torchvision ResNet34 인코더, ImageNet 가중치, 첫 층 9채널로 늘림). fp16 자동 혼합 정밀도, GPU 여러 장이면 DataParallel.
-손실: 가운데(3px로 넓힌 정답) BCE + Dice, 점 가중 MSE, 방향 L1(가운데 근처만), 면 BCE.
-검증: 파일의 5%를 떼어 둠. 단계 끝·에폭마다 저장(best.pt, last.pt), 기록 log.jsonl.
+입력: 앞·지금·뒤 3장(9채널) → 출력 28채널: 선 가운데, 선 끝, 방향(cos2θ, sin2θ), 칠한 면, 속성 16(선 굵기·선 RGBA·글로우·면 RGBA·그리는 순서),
+관절, 종류(직선·원·곡선), 배경색. 정답은 27채널(마지막 = 실제 그림이 있는 자리).
+자료: tools/vec_data.py가 만든 npz(해상도별 폴더). 커리큘럼(사용자 10-29): 1920 → 1280 → 854 → 640 순(계획 진행 20·45·70·100%), 단계마다 새 해상도 70% + 앞 단계 30%.
+모델: U-Net(torchvision ResNet34 인코더, ImageNet 가중치, 첫 층 9채널로 늘림 + 원래 크기 갈래). fp16 자동 혼합 정밀도, GPU 여러 장이면 DataParallel.
+손실: loss_fn 참고(가운데 BCE+Dice, 선 끝·관절 focal, 방향·속성은 1px 가운데선, 면 BCE·RGBA, 순서, 종류 CE, 배경색). GPT 검토 1·2차 반영(docs/VIDEO-TO-SFA-2026-10-29.md).
+검증: 원본 이름 해시로 5%. 200걸음마다 고정 문제로 검증, ckpt.pt(이어하기용 전체 상태)·last.pt·best.pt·log.jsonl.
 사용: python vec_train.py --data /kaggle/tmp/vd --out /kaggle/working/vec_out --hours 4 [--smoke]
 """
 import argparse
@@ -25,6 +26,7 @@ import torchvision
 STAGES = [('1920', 0.20), ('1280', 0.25), ('854', 0.25), ('640', 0.30)]  # (해상도 폴더, 시간 몫)
 CROP_W, CROP_H = 512, 256
 BOUNDS = np.cumsum([f for _, f in STAGES])  # 단계 끝 = 전체 진행의 20·45·70·100%
+BOUNDS[-1] = 1.0  # 소수점 오차로 마지막 단계가 일찍 끝나지 않게
 N_ATTR = 16  # vec_data.ATTR: 선 굵기, 선 RGBA, 글로우(반경·두께·세기·RGB), 면 RGBA, 그리는 순서
 # 출력 채널: 0 가운데, 1 선 끝, 2–3 방향, 4 면, 5–20 속성, 21 관절(이어진 선 끝), 22–24 종류(직선·원·곡선), 25–27 배경색(사용자 10-29)
 # 정답 채널: 0–20 같음, 21 관절, 22 종류 번호(0 없음·1 직선·2 원·3 곡선), 23–25 배경색
@@ -181,11 +183,19 @@ def loss_fn(p, y):
                      fill_rgba=lfa.item(), order=lo2.item(), joint=lj.item(), kind=lk.item(), bg=lb.item())
 
 
-def save(obj, path):
-    """다 쓴 뒤 한 번에 바꿔치기 — Drive로 올리는 도중에 반쯤 쓴 파일이 올라가지 않게. 모든 상태는 ckpt.pt 한 파일(GPT 검토 16)."""
+def save(obj, path, tries=60):
+    """다 쓴 뒤 한 번에 바꿔치기 — Drive로 올리는 도중에 반쯤 쓴 파일이 올라가지 않게. 모든 상태는 ckpt.pt 한 파일(GPT 검토 16).
+    Windows는 다른 프로그램(rclone 올리기)이 읽고 있는 파일을 바꿔치기하지 못한다 → 2초 간격으로 다시 시도, 끝내 안 되면 이번 저장만 건너뜀(학습은 계속)."""
     tmp = path + '.tmp'
     torch.save(obj, tmp)
-    os.replace(tmp, path)
+    for i in range(tries):
+        try:
+            os.replace(tmp, path)
+            return True
+        except PermissionError:
+            time.sleep(2)
+    print('저장 건너뜀(파일 사용 중):', os.path.basename(path), flush=True)
+    return False
 
 
 def files_of(data, res):
@@ -306,11 +316,10 @@ def main():
             if allv:
                 with torch.no_grad():
                     rs = random.getstate()
-                    random.seed(1234)
                     vds = DS(allv, k=4, length=8 if a.smoke else 40)
-                    items = [vds[i] for i in range(len(vds))]  # 표본을 먼저 고정(메모리 부족으로 조각 수가 바뀌어도 같은 문제)
-                    random.setstate(rs)
-                    for x, y in items:
+                    for i in range(len(vds)):
+                        random.seed(1234 + i)  # 문제마다 고정 번호 — 미리 다 만들어 두면 RAM 약 3GB(조각 160 × 36채널 × 512×256 × 4바이트)
+                        x, y = vds[i]
                         nv += 1
                         try:
                             tot_i = 0.0
@@ -321,6 +330,7 @@ def main():
                             n += 1
                         except torch.cuda.OutOfMemoryError:
                             torch.cuda.empty_cache()
+                    random.setstate(rs)
             complete = allv and n == nv
             vl = vl / n if n else float('nan')
             ep += 1
@@ -341,6 +351,9 @@ def main():
         del it_new, it_old, dl_new, dl_old  # 단계마다 자료 읽기 프로세스가 쌓이지 않게
         if out_of_time():
             break
+    if not os.path.exists(os.path.join(a.out, 'best.pt')):  # 마지막 단계 검증을 끝까지 못 한 경우 — 마지막 모델을 대신(이름으로 구분)
+        save(net.state_dict(), os.path.join(a.out, 'best_fallback_last.pt'))
+        print('best.pt 없음 → 마지막 모델을 best_fallback_last.pt로 저장(마지막 단계 검증 미완료)', flush=True)
     print(f"끝 {(time.time() - t_sess) / 60:.1f}분, 진행 {progress() * 100:.1f}%", flush=True)
 
 

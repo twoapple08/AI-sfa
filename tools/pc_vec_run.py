@@ -71,6 +71,7 @@ def main():
     ap.add_argument('--rclone', default='')
     ap.add_argument('--check', action='store_true', help='빠른 확인(사용자 10-29, 1050 Ti 1시간): 파일 12개·장 6개·1080/360만, 짧은 시험(배치 1) + 3분 학습, Drive 올리기 시험')
     a = ap.parse_args()
+    t_start = time.time()  # PC 사용 시간 계산의 시작(이전 저장본 받기도 포함)
     keep_awake()
     if a.check:
         return check(a)
@@ -101,16 +102,16 @@ def main():
         if res == '1920' and not resume:  # 1080 자료만으로 짧은 시험 먼저(오류면 여기서 멈춤)
             sh(f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{os.path.join(a.root, "smoke")}" --smoke --workers 2')
     print(f'자료 {(time.time() - t0) / 60:.1f}분', flush=True)
+    # 남은 시간 = 요청 시간 − 지금까지(저장본 받기·자료 만들기) − 마무리(올리기·zip) 6분. 모자라면 학습하지 않고 종료(GPT 2차)
+    left = a.hours - (time.time() - t_start) / 3600 - 0.1
+    if left < 0.1:
+        print('남은 시간이 없어 학습을 건너뜀(자료는 만들어 둠 — 다음 실행 때 바로 학습)', flush=True)
+        return
     stop = threading.Event()
     up = None
     if a.rclone:
         up = threading.Thread(target=uploader, args=(out, a.rclone, stop), daemon=True)
         up.start()
-    # 남은 시간 = 요청 시간 − 자료 만들기에 쓴 시간 − 마무리(올리기·zip) 6분. 모자라면 학습하지 않고 저장·종료(GPT 2차)
-    left = a.hours - (time.time() - t0) / 3600 - 0.1
-    if left < 0.1:
-        print('남은 시간이 없어 학습을 건너뜀(자료는 만들어 둠 — 다음 실행 때 바로 학습)', flush=True)
-        return
     cmd = f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours {left:.2f} --workers {min(6, max(2, cpus - 2))}'
     if resume:
         cmd += f' --resume "{resume}"'
@@ -121,10 +122,16 @@ def main():
         if up is not None:
             up.join(timeout=600)  # 중간 올리기가 끝난 뒤 마지막 올리기(겹치지 않게)
         shutil.copy(os.path.join(tools, 'vec_train.py'), out)
+        keep = ['ckpt.pt', 'best.pt', 'best_fallback_last.pt', 'log.jsonl', 'vec_train.py']  # 이어하기·결과에 필요한 것만(단계별 저장본까지 올리면 약 1GB)
         if a.rclone:
-            r = subprocess.run(f'"{a.rclone}" copy "{out}" "{DRIVE}" --exclude "*.tmp"', shell=True)
+            inc = ' '.join(f'--include "{k}"' for k in keep)
+            r = subprocess.run(f'"{a.rclone}" copy "{out}" "{DRIVE}" {inc}', shell=True)
             print('Drive에 올림:' if r.returncode == 0 else 'Drive 올리기 실패(바탕화면 zip 사용):', DRIVE, flush=True)
-        shutil.make_archive(os.path.join(os.path.expanduser('~'), 'Desktop', 'vec_out'), 'zip', out)
+        import zipfile
+        with zipfile.ZipFile(os.path.join(os.path.expanduser('~'), 'Desktop', 'vec_out.zip'), 'w') as z:
+            for k in keep:
+                if os.path.exists(os.path.join(out, k)):
+                    z.write(os.path.join(out, k), k)
         print('바탕화면 vec_out.zip 도 만듦. 끝.', flush=True)
 
 
