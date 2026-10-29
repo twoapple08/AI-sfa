@@ -271,7 +271,9 @@ def one(job):
     # 페인트 합성(2026-10-29 자료 충당: 색 배경·면·반투명 면 부족): 흰 바탕 파일 일부를 그 자리에서 배경·명암·빛을 더한 판으로.
     # 이름 끝에 _syn(원본 이름은 그대로 — 검증 나누기 src_key가 같아 누수 없음)
     syn = ''
-    if p_syn > 0 and rng.random() < p_syn and SY.is_white(root):
+    if p_syn:  # 합성 작업(원본 작업과 따로 '추가'되는 몫): 흰 바탕 파일만
+        if not SY.is_white(root):
+            return rel, 'skip'
         import random as _r
         SY.synth(root, _r.Random(seed))
         syn = '_syn'
@@ -339,7 +341,7 @@ def main():
     ap.add_argument('--limit', type=int, default=0)
     ap.add_argument('--repeat', type=int, default=1, help='파일마다 다른 무작위 설정으로 몇 번 만들지')
     ap.add_argument('--job-timeout', type=float, default=600, help='파일 하나 최대 초(넘으면 건너뜀)')
-    ap.add_argument('--synth', type=float, default=0.3, help='흰 바탕 파일을 페인트 합성판으로 만들 확률(sfa_paint_synth)')
+    ap.add_argument('--synth', type=float, default=0.3, help='흰 바탕 파일 중 이 비율만큼 페인트 합성판을 원본과 별도로 더 만든다(원본은 그대로 모두 — 흰 바탕이 사라지지 않게, 사용자 10-29)')
     ap.add_argument('--res', type=int, default=0, help='영상 폭 고정(1920·1280·854·640). 0이면 무작위')
     a = ap.parse_args()
     os.makedirs(a.out_dir, exist_ok=True)
@@ -354,7 +356,11 @@ def main():
     assert sorted(hold) == sorted(expect) and len(files) == 404 and not set(files) & set(hold), '시험용 제외 확인 실패'  # GPT 검토 12: 따로 적은 목록과 대조
     if a.limit:
         files = files[:a.limit]
-    jobs = [(f, a.out_dir, a.seed * 100003 + i * 7919 + r, a.max_frames, a.res, a.synth) for r in range(a.repeat) for i, f in enumerate(files)]
+    jobs = [(f, a.out_dir, a.seed * 100003 + i * 7919 + r, a.max_frames, a.res, 0.0) for r in range(a.repeat) for i, f in enumerate(files)]
+    import random as _r
+    pick = _r.Random(a.seed + 77)
+    jobs += [(f, a.out_dir, a.seed * 100003 + i * 7919 + r + 500009, a.max_frames, a.res, 1.0)
+             for r in range(a.repeat) for i, f in enumerate(files) if pick.random() < a.synth]
     from multiprocessing import Pool
     ok, bad, names = 0, [], []
     pool = Pool(a.workers)
@@ -377,7 +383,7 @@ def main():
             if st.startswith('ok'):
                 ok += 1
                 names.append(nm[0])
-            elif st not in ('empty',):
+            elif st not in ('empty', 'skip'):
                 bad.append((rel, st))
             if not st.startswith('ok') or k % 25 == 0 or len(pend) < 5:
                 print(k + 1, '/', len(jobs), rel, st, flush=True)
@@ -386,7 +392,7 @@ def main():
     pool.terminate()
     # 완료 표시(GPT 검토 17·2차): 성공 조건을 통과한 뒤에만, 설정과 함께 원자적으로. 실패하면 이전 표시도 지운다
     done = os.path.join(a.out_dir, '_done.json')
-    if ok < 0.8 * len(jobs) and not a.limit:
+    if ok < 0.8 * sum(1 for j in jobs if j[5] == 0.0) and not a.limit:  # 기준은 원본 작업 수(합성 작업은 흰 바탕이 아니면 건너뛰므로)
         if os.path.exists(done):
             os.remove(done)
         raise SystemExit(f'자료 만들기 실패가 너무 많음: 성공 {ok}/{len(jobs)}')
