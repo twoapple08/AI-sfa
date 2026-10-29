@@ -104,7 +104,7 @@ def main():
                     for t, q in enumerate((p0, p1)):
                         x, y = (q[0] - geo.ox) / geo.uw * 100, (q[1] - geo.oy) / geo.uh * 100
                         pid = pids[2 * k + t]
-                        ET.SubElement(o, 'AP', dict(ID=str(pid), Flags='8' if t == 0 else '9', Index=str(t), X=str(round(float(x), 4)), Y=str(round(float(y), 4))))
+                        ET.SubElement(o, 'AP', dict(ID=str(pid), Flags=('3' if j == 0 else '8') if t == 0 else '9', Index=str(t), X=str(round(float(x), 4)), Y=str(round(float(y), 4))))
                         pp.append(pid)
                     objs.append((o, pp))
                     k += 1
