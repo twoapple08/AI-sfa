@@ -245,7 +245,8 @@ def main():
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
     net = Net(pretrained=not a.smoke or dev == 'cuda').to(dev)
     # bf16(5060 등 지원 GPU): 수 범위가 fp32와 같아 넘침이 없다. 1차 학습은 fp16에서 디코더 값이 65,504를 넘어 검증 NaN·마지막 단계 출렁임(2026-10-29)
-    bf16 = dev == 'cuda' and torch.cuda.is_bf16_supported()
+    # 진짜 bf16 하드웨어(계산 능력 8.0 이상, RTX 30xx 이후)만. 최근 PyTorch의 is_bf16_supported()는 흉내 내기까지 True라 1050 Ti(6.1)에서 느린 bf16이 될 수 있다
+    bf16 = dev == 'cuda' and torch.cuda.get_device_capability(0)[0] >= 8
     amp = Amp(net, dev == 'cuda', torch.bfloat16 if bf16 else torch.float16)
     print('혼합 정밀도', 'bf16' if bf16 else ('fp16' if dev == 'cuda' else '없음(CPU)'), flush=True)
     model = nn.DataParallel(amp) if torch.cuda.device_count() > 1 else amp
@@ -258,7 +259,8 @@ def main():
         sd = torch.load(a.init, map_location=dev, weights_only=False)
         sd = sd.get('model', sd) if isinstance(sd, dict) and 'model' in sd else sd
         net.load_state_dict(sd)
-        print('가중치 불러옴(새 계획으로 시작):', os.path.basename(a.init), flush=True)
+        st['lr'] = a.lr * 0.5  # 이미 배운 가중치 — 처음부터보다 작은 학습률로(1e-3이면 초반에 배운 것이 크게 흔들린다)
+        print('가중치 불러옴(새 계획으로 시작, 학습률', st['lr'], '):', os.path.basename(a.init), flush=True)
     if a.resume and os.path.exists(a.resume):  # 완전한 이어하기(GPT 검토 15): 가중치만이 아니라 최적화기·AMP·진행·최고 점수까지
         ck = torch.load(a.resume, map_location=dev, weights_only=False)
         net.load_state_dict(ck['model'])

@@ -57,7 +57,7 @@ if not exist %ROOT%\rclone.exe (
 set RC=%ROOT%\rclone.exe
 %ROOT%\rclone.exe listremotes | findstr /c:"gdrive:" >nul || %ROOT%\rclone.exe config create gdrive drive scope=drive.file >nul
 rem If access was removed after the 1st run, the saved login no longer works: reconnect once (browser opens)
-%ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc2" >nul 2>&1 || %ROOT%\rclone.exe config reconnect gdrive: >nul
+%ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc2" >nul 2>&1 || %ROOT%\rclone.exe config reconnect gdrive: --auto-confirm >nul
 %ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc2" || (echo Drive login failed - continuing without Drive backup and WITHOUT the 1st run model & set RC=)
 
 echo [6/6] data -> short test -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
