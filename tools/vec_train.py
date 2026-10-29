@@ -160,12 +160,24 @@ def loss_fn(p, y):
                      order=lo2.item(), joint=lj.item(), kind=lk.item(), bg=lb.item())
 
 
+def save(obj, path):
+    """다 쓴 뒤 한 번에 바꿔치기 — Drive로 올리는 도중에 반쯤 쓴 파일이 올라가지 않게."""
+    tmp = path + '.tmp'
+    if isinstance(obj, dict) and 'stage' in obj:
+        json.dump(obj, open(tmp, 'w'))
+    else:
+        torch.save(obj, tmp)
+    os.replace(tmp, path)
+
+
 def files_of(data, res):
     return sorted(glob.glob(os.path.join(data, res, '*.npz')))
 
 
 def split(fs, val_frac=0.05):
     """같은 SFA 파일은 모두 같은 쪽(해상도·반복 상관없이)."""
+    if not fs:  # 그 해상도 자료가 없음(빠른 확인은 1080·360만 만든다 — 1050 Ti 확인에서 여기서 멈춤, 10-29)
+        return [], []
     key = lambda f: os.path.basename(f).split('__w')[0]
     names = sorted({key(f) for f in fs})
     rng = random.Random(0)
@@ -201,6 +213,8 @@ def main():
     allv = []
     seen = []
     step = 0
+    max_n = 10 ** 9  # 한 번에 보는 조각 수 상한(메모리 부족 때 줄어듦)
+    last = (float('nan'), {})  # 마지막으로 성공한 걸음의 손실
     for si, (res, frac) in enumerate(STAGES):
         tr, va = split(files_of(a.data, res))
         if not tr:
@@ -235,44 +249,58 @@ def main():
                     except StopIteration:
                         it_new = iter(dl_new)
                         x, y = next(it_new)
-                x = x.flatten(0, 1).to(dev, non_blocking=True)
-                y = y.flatten(0, 1).to(dev, non_blocking=True)
+                x = x.flatten(0, 1)[:max_n].to(dev, non_blocking=True)
+                y = y.flatten(0, 1)[:max_n].to(dev, non_blocking=True)
                 # 학습률: 전체 시간에 걸쳐 코사인
                 frac_t = min((time.time() - t0) / total, 1.0)
                 for g in opt.param_groups:
                     g['lr'] = a.lr * (0.05 + 0.95 * 0.5 * (1 + np.cos(np.pi * frac_t)))
-                p = model(x)
-                l, parts = loss_fn(p.float(), y)
-                opt.zero_grad(set_to_none=True)
-                scaler.scale(l).backward()
-                scaler.step(opt)
-                scaler.update()
+                try:
+                    p = model(x)
+                    l, parts = loss_fn(p.float(), y)
+                    opt.zero_grad(set_to_none=True)
+                    scaler.scale(l).backward()
+                    scaler.step(opt)
+                    scaler.update()
+                    last = (l.item(), parts)
+                except torch.cuda.OutOfMemoryError:  # 8GB 5060 대비: 멈추지 않고 한 번에 보는 조각을 절반으로
+                    opt.zero_grad(set_to_none=True)
+                    p = l = None
+                    torch.cuda.empty_cache()
+                    max_n = max(1, x.shape[0] // 2)
+                    print('GPU 메모리 부족 → 조각 수', max_n, flush=True)
+                    continue
                 step += 1
             # 검증(지금까지 나온 모든 해상도의 검증 파일)
             model.eval()
             vl, n = 0.0, 0
             with torch.no_grad():
+                st = random.getstate()
+                random.seed(1234)  # 모의고사는 늘 같은 문제(같은 파일·장·자리) — 점수 비교가 공정하게
                 vds = DS(allv, k=4, length=8 if a.smoke else 40)
-                for x, y in torch.utils.data.DataLoader(vds, batch_size=a.batch, num_workers=a.workers):
-                    x, y = x.flatten(0, 1).to(dev), y.flatten(0, 1).to(dev)
+                for i in range(len(vds)):
+                    x, y = vds[i]
+                    x, y = torch.as_tensor(x)[:max_n].to(dev), torch.as_tensor(y)[:max_n].to(dev)
                     p = model(x)
                     vl += loss_fn(p.float(), y)[0].item()
                     n += 1
+                random.setstate(st)
             vl /= max(n, 1)
             ep += 1
-            rec = dict(stage=si + 1, res=res, ep=ep, step=step, train=round(l.item(), 4), val=round(vl, 4), parts={k: round(v, 4) for k, v in parts.items()},
+            rec = dict(stage=si + 1, res=res, ep=ep, step=step, train=round(last[0], 4), val=round(vl, 4), parts={k: round(v, 4) for k, v in last[1].items()},
                        lr=opt.param_groups[0]['lr'], min=round((time.time() - t0) / 60, 1))
             print(json.dumps(rec, ensure_ascii=False), flush=True)
             log.write(json.dumps(rec, ensure_ascii=False) + '\n')
             log.flush()
-            torch.save(net.state_dict(), os.path.join(a.out, 'last.pt'))
-            json.dump(dict(stage=si + 1, res=res, ep=ep, step=step, val=vl, min=rec['min']), open(os.path.join(a.out, 'state.json'), 'w'))
+            save(net.state_dict(), os.path.join(a.out, 'last.pt'))
+            save(dict(stage=si + 1, res=res, ep=ep, step=step, val=vl, min=rec['min']), os.path.join(a.out, 'state.json'))
             if si == len(STAGES) - 1 and vl < best:  # 최종 단계(모든 해상도 검증)에서 가장 좋은 것
                 best = vl
-                torch.save(net.state_dict(), os.path.join(a.out, 'best.pt'))
+                save(net.state_dict(), os.path.join(a.out, 'best.pt'))
             if a.smoke:
                 break
-        torch.save(net.state_dict(), os.path.join(a.out, f'stage{si + 1}_{res}.pt'))
+        save(net.state_dict(), os.path.join(a.out, f'stage{si + 1}_{res}.pt'))
+        del it_new, it_old, dl_new, dl_old  # 단계마다 자료 읽기 프로세스가 쌓이지 않게
     print('끝', round((time.time() - t0) / 60, 1), '분', flush=True)
 
 
