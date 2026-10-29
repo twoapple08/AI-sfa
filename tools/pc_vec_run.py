@@ -168,11 +168,12 @@ def main():
             r = subprocess.run(f'"{a.rclone}" copy "{out}" "{DRIVE}" {inc}', shell=True)
             print('Drive에 올림:' if r.returncode == 0 else 'Drive 올리기 실패(바탕화면 zip 사용):', DRIVE, flush=True)
         import zipfile
-        with zipfile.ZipFile(os.path.join(os.path.expanduser('~'), 'Desktop', 'vec_out.zip'), 'w') as z:
+        zdir = os.environ.get('AISFA_ZIP_DIR') or os.path.join(os.path.expanduser('~'), 'Desktop')  # 4060 PC: C 여유가 적어 W에(사용자 10-29)
+        with zipfile.ZipFile(os.path.join(zdir, 'vec_out.zip'), 'w') as z:
             for k in keep:
                 if os.path.exists(os.path.join(out, k)):
                     z.write(os.path.join(out, k), k)
-        print('바탕화면 vec_out.zip 도 만듦. 끝.', flush=True)
+        print('vec_out.zip 도 만듦:', zdir, '끝.', flush=True)
 
 
 if __name__ == '__main__':

@@ -14,12 +14,21 @@ set INIT=--init-from pc
 if not "%1"=="" set HOURS=%1
 rem pc_vec_5060.bat 3.2 scratch  = start from zero (without the 1st run model)
 if "%2"=="scratch" set INIT=--init-from ""
-set ROOT=C:\aisfa
+rem W drive (사용자 10-29: C 여유 3GB, W 200GB). Everything incl. pip/temp/torch caches goes to W.
+if "%AISFA_DRIVE%"=="" set AISFA_DRIVE=W:
+set ROOT=%AISFA_DRIVE%\aisfa
+if not exist %ROOT% mkdir %ROOT%
+if not exist %ROOT%\tmp mkdir %ROOT%\tmp
+set TEMP=%ROOT%\tmp
+set TMP=%ROOT%\tmp
+set PIP_CACHE_DIR=%ROOT%\pipcache
+set TORCH_HOME=%ROOT%\torchhome
+set AISFA_ZIP_DIR=%ROOT%
 set V=%ROOT%\vec
 set PY=%ROOT%\py\python.exe
 set BR=ccr-bccf15a6-d6ee46
 if not exist %V% mkdir %V%
-cd /d %ROOT%
+cd /d %ROOT% || (echo Drive %AISFA_DRIVE% not found & pause & exit /b 1)
 
 echo [1/6] Python 3.11
 if not exist %PY% (
@@ -69,5 +78,5 @@ rem If access was removed after the 1st run, the saved login no longer works: re
 echo [6/6] data -> short test -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
 %PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" --run pc2_4060 --yield %INIT% %CHECK% || (echo. & echo FAILED - read the lines above and send a photo of this window & pause & exit /b 1)
 echo.
-echo DONE. Results: Drive AI-sfa/02_분석자료/vec/pc2_4060 and Desktop\vec_out.zip
+echo DONE. Results: Drive AI-sfa/02_분석자료/vec/pc2_4060 and %ROOT%\vec_out.zip
 pause
