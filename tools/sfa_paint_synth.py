@@ -81,7 +81,7 @@ def poly(frame, ids, pts, color, order, layer):
 
 
 def figures(frame):
-    """AC로 이어진 오브젝트 묶음(인물) → 묶음마다 (가로 중심, 발 높이, 폭)."""
+    """AC로 이어진 오브젝트 묶음 → 묶음마다 (점 목록, 원 ID 목록). 인물 판정은 호출 쪽(발이 바닥 가까이 + 선 3개 이상)."""
     aos = [a for a in frame.findall('AO') if a.get('Color') != '0']
     par = {a.get('ID'): a.get('ID') for a in aos}
     owner = {p.get('ID'): a.get('ID') for a in aos for p in a.findall('AP')}
@@ -99,16 +99,23 @@ def figures(frame):
                     par[find(a.get('ID'))] = find(o)
     g = {}
     for a in aos:
-        g.setdefault(find(a.get('ID')), []).extend((float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP'))
-    out = []
-    for pts in g.values():
-        if len(pts) < 8:  # 작은 조각(소품·파편)은 그림자 없음
-            continue
-        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
-        if not all(map(math.isfinite, xs + ys)):
-            continue
-        out.append(((min(xs) + max(xs)) / 2, max(ys), max(xs) - min(xs)))
-    return out
+        e = g.setdefault(find(a.get('ID')), [[], [], 0])
+        e[0].extend((float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP'))
+        e[2] += 1
+        if a.get('TypeId') == '2':
+            e[1].append(a.get('ID'))
+    return [e for e in g.values() if all(map(math.isfinite, [v for q in e[0] for v in q]))]
+
+
+def floor_y(root):
+    """바닥선: 화면을 가로지르는 수평 직선(폭 50 이상, 높이 30–100) 중 가장 많이 나오는 높이. 없으면 None."""
+    ys = []
+    for f in root.findall('Frame'):
+        for a in f.findall('AO'):
+            p = [(float(q.get('X')), float(q.get('Y'))) for q in a.findall('AP')]
+            if a.get('TypeId') == '1' and len(p) == 2 and abs(p[0][1] - p[1][1]) < 1 and abs(p[0][0] - p[1][0]) > 50 and 30 < p[0][1] < 100:
+                ys.append(round(p[0][1], 1))
+    return max(set(ys), key=ys.count) if ys else None
 
 
 def main():
@@ -130,7 +137,9 @@ def main():
     bot = hsv(hue + rnd.uniform(-0.05, 0.05), sat * rnd.uniform(0.6, 1.0), min(1, rnd.uniform(v0, v1) * rnd.uniform(0.9, 1.4)))
     ground = hsv(hue + rnd.uniform(-0.1, 0.1), sat * rnd.uniform(0.5, 1.0), rnd.uniform(v0, v1) * rnd.uniform(0.5, 0.8))
     dark = sum(top) / 3 < 110
-    horizon = rnd.uniform(62, 82)  # 땅 시작(위에서 %)
+    fl = floor_y(root)
+    horizon = fl - rnd.uniform(0.5, 4) if fl else rnd.uniform(62, 82)  # 땅 시작(위에서 %) — 원래 바닥선이 있으면 그 높이(사용자 10-29: 땅과 바닥선 어긋남)
+    ground_y = fl if fl else horizon
     head = hsv(rnd.random(), rnd.uniform(0.0, 0.5), rnd.uniform(0.85, 1.0)) if dark else hsv(rnd.random(), rnd.uniform(0.2, 0.7), rnd.uniform(0.7, 1.0))
     light = hsv(rnd.uniform(0.08, 0.18), rnd.uniform(0.1, 0.5), 1.0)
     la = rnd.randint(40, 110)          # 빛 원뿔 알파(옅게)
@@ -173,9 +182,10 @@ def main():
             for o in aos:
                 if o.get('Color') in ('-16777216', '4278190080'):
                     o.set('Color', argb(235, 235, 235))
-        # 2) 머리 채우기
+        # 2) 머리 채우기: 몸(선 3개 이상)과 이어진 원만 — 글자 'ㅇ' 같은 따로 떨어진 원은 칠하지 않는다(사용자 10-29 '챙!' 글자)
+        heads = {cid for pts, cids, n in figs if n >= 3 for cid in cids}
         for o in aos:
-            if o.get('TypeId') == '2' and o.get('Color') != '0':
+            if o.get('TypeId') == '2' and o.get('Color') != '0' and o.get('ID') in heads:
                 r = ET.Element('FR', dict(Color=argb(*head)))
                 ET.SubElement(r, 'FS', dict(Kind='1', ObjId=o.get('ID')))
                 fr.append(r)
@@ -187,12 +197,22 @@ def main():
             order = poly(fr, ids, [(-2, y0), (102, y0), (102, 102), (-2, 102)], argb(*bot, ba), order, bottom_layer)
         gp = [(-2, wob[0])] + [(25 * i, wob[i]) for i in range(1, 4)] + [(102, wob[4]), (102, 102), (-2, 102)]
         order = poly(fr, ids, gp, argb(*ground), order, bottom_layer)
-        # 3) 그림자(땅 위, 인물 아래)
-        for k, (cx, fy, w) in enumerate(figs[:40]):
+        # 3) 그림자: 발이 바닥 가까이 있는 인물만, 바닥 높이에 납작하게(공중의 칼·글자 조각에 달리던 그림자 제거, 사용자 10-29)
+        k = 0
+        for pts, cids, n in figs:
+            if n < 3 or not cids or k >= 40:
+                continue
+            ys = [q[1] for q in pts]
+            h = max(ys) - min(ys)
+            if abs(max(ys) - ground_y) > 6 or h < 3:
+                continue
+            feet = [q[0] for q in pts if q[1] > max(ys) - 0.25 * h]
+            cx, w = (min(feet) + max(feet)) / 2, max(feet) - min(feet)
+            rw, rh = max(w * 0.7, h * 0.25), max(h * 0.06, 1.0)
             ids.at(1000 + 20 * k)
-            rw, rh = max(w * 0.6, 4), max(w * 0.12, 1.2)
-            pts = [(cx + rw * math.cos(t), fy + rh * math.sin(t)) for t in [2 * math.pi * k / 16 for k in range(16)]]
-            order = poly(fr, ids, pts, argb(0, 0, 0, sa), order, bottom_layer)
+            k += 1
+            ring = [(cx + rw * math.cos(t), ground_y + rh * math.sin(t)) for t in [2 * math.pi * j / 16 for j in range(16)]]
+            order = poly(fr, ids, ring, argb(0, 0, 0, sa), order, bottom_layer)
         # 3) 빛 원뿔(맨 위, 반투명)
         order += 100
         ids.at(5000)
