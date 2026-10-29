@@ -4,7 +4,7 @@
 입력: 앞·지금·뒤 3장(9채널) → 출력 28채널: 선 가운데, 선 끝, 방향(cos2θ, sin2θ), 칠한 면, 속성 16(선 굵기·선 RGBA·글로우·면 RGBA·그리는 순서),
 관절, 종류(직선·원·곡선), 배경색. 정답은 27채널(마지막 = 실제 그림이 있는 자리).
 자료: tools/vec_data.py가 만든 npz(해상도별 폴더). 커리큘럼(사용자 10-29): 1920 → 1280 → 854 → 640 순(계획 진행 20·45·70·100%), 단계마다 새 해상도 70% + 앞 단계 30%.
-모델: U-Net(torchvision ResNet34 인코더, ImageNet 가중치, 첫 층 9채널로 늘림 + 원래 크기 갈래). fp16 자동 혼합 정밀도, GPU 여러 장이면 DataParallel.
+모델: U-Net(torchvision ResNet34 인코더, ImageNet 가중치, 첫 층 9채널로 늘림 + 원래 크기 갈래). bf16 자동 혼합 정밀도(지원 안 되면 fp16 + GradScaler), GPU 여러 장이면 DataParallel.
 손실: loss_fn 참고(가운데 BCE+Dice, 선 끝·관절 focal, 방향·속성은 1px 가운데선, 면 BCE·RGBA, 순서, 종류 CE, 배경색). GPT 검토 1·2차 반영(docs/VIDEO-TO-SFA-2026-10-29.md).
 검증: 원본 이름 해시로 5%. 200걸음마다 고정 문제로 검증, ckpt.pt(이어하기용 전체 상태)·last.pt·best.pt·log.jsonl.
 사용: python vec_train.py --data /kaggle/tmp/vd --out /kaggle/working/vec_out --hours 4 [--smoke]
@@ -27,6 +27,7 @@ STAGES = [('1920', 0.20), ('1280', 0.25), ('854', 0.25), ('640', 0.30)]  # (해�
 CROP_W, CROP_H = 512, 256
 BOUNDS = np.cumsum([f for _, f in STAGES])  # 단계 끝 = 전체 진행의 20·45·70·100%
 BOUNDS[-1] = 1.0  # 소수점 오차로 마지막 단계가 일찍 끝나지 않게
+PAINT_TAGS = ('묶음5_페인트', '면변환')
 N_ATTR = 16  # vec_data.ATTR: 선 굵기, 선 RGBA, 글로우(반경·두께·세기·RGB), 면 RGBA, 그리는 순서
 # 출력 채널: 0 가운데, 1 선 끝, 2–3 방향, 4 면, 5–20 속성, 21 관절(이어진 선 끝), 22–24 종류(직선·원·곡선), 25–27 배경색(사용자 10-29)
 # 정답 채널: 0–20 같음, 21 관절, 22 종류 번호(0 없음·1 직선·2 원·3 곡선), 23–25 배경색
@@ -40,14 +41,16 @@ def arr(d, key, n, shape, dtype=np.uint8):
 class DS(torch.utils.data.Dataset):
     """파일 하나에서 무작위 장 k개(앞·뒤 장 포함) 자르기. 압축 파일은 한 번만 풀어 k조각을 뽑는다(GPT 검토 13)."""
 
-    def __init__(self, files, k=8, length=2000):
+    def __init__(self, files, k=8, length=2000, paint_w=4.0):
         self.files, self.k, self.length = files, k, length
+        # 페인트 자료(채우기·반투명 면·색 배경이 많은 묶음5·면변환본)는 자주 뽑는다(2026-10-29 자료 충당 현황: 면 있는 장 5%뿐)
+        self.w = [paint_w if any(t in os.path.basename(f) for t in PAINT_TAGS) else 1.0 for f in files]
 
     def __len__(self):
         return self.length
 
     def __getitem__(self, i):
-        f = random.choice(self.files)
+        f = random.choices(self.files, weights=self.w)[0]
         d = np.load(f)
         img, center, pts, ori, fill = d['img'], d['center'], d['pts'], d['ori'], d['fill']
         n, H, W = center.shape
@@ -128,12 +131,12 @@ class Net(nn.Module):
 class Amp(nn.Module):
     """DataParallel은 GPU마다 다른 스레드에서 돌고 autocast는 스레드마다 따로라, 모델 안에서 켠다."""
 
-    def __init__(self, net, on):
+    def __init__(self, net, on, dtype=torch.float16):
         super().__init__()
-        self.net, self.on = net, on
+        self.net, self.on, self.dtype = net, on, dtype
 
     def forward(self, x):
-        with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=self.on):
+        with torch.autocast(device_type='cuda', dtype=self.dtype, enabled=self.on):
             return self.net(x)
 
 
@@ -178,8 +181,12 @@ def loss_fn(p, y):
     near = (F.max_pool2d(y[:, 0:1], 11, 1, 5) > 0).float()
     bgm = valid * (1 - on_any) * (1 - near)
     lb = ((torch.sigmoid(p[:, 25:28]) - y[:, 23:26]).abs() * bgm).sum() / (bgm.sum() * 3 + 1)
-    tot = lc + dice + lp + lo + lf + 2 * ll + lga + lg + lfa + lo2 + lj + 0.5 * lk + lb
-    return tot, dict(c=lc.item(), dice=dice.item(), p=lp.item(), o=lo.item(), f=lf.item(), line=ll.item(), glow_a=lga.item(), glow=lg.item(),
+    # 선 색(2026-10-29 1차 학습: 파란 선을 검게 예측) — 가운데선 1px만이 아니라 3px 띠에서도, 가중치 3. 띠의 정답은 가까운 가운데선 색(최댓값 풀링)
+    band = F.max_pool2d(on_line, 3, 1, 1) * valid
+    ycol = F.max_pool2d(ya[:, 1:4] * on_line, 3, 1, 1)
+    lcol = ((a[:, 1:4] - ycol).abs() * band).sum() / (band.sum() * 3 + 1)
+    tot = lc + dice + lp + lo + lf + 2 * ll + 3 * lcol + lga + lg + lfa + lo2 + lj + 0.5 * lk + lb
+    return tot, dict(c=lc.item(), dice=dice.item(), p=lp.item(), o=lo.item(), f=lf.item(), line=ll.item(), color=lcol.item(), glow_a=lga.item(), glow=lg.item(),
                      fill_rgba=lfa.item(), order=lo2.item(), joint=lj.item(), kind=lk.item(), bg=lb.item())
 
 
@@ -236,18 +243,22 @@ def main():
     os.makedirs(a.out, exist_ok=True)
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
     net = Net(pretrained=not a.smoke or dev == 'cuda').to(dev)
-    amp = Amp(net, dev == 'cuda')
+    # bf16(5060 등 지원 GPU): 수 범위가 fp32와 같아 넘침이 없다. 1차 학습은 fp16에서 디코더 값이 65,504를 넘어 검증 NaN·마지막 단계 출렁임(2026-10-29)
+    bf16 = dev == 'cuda' and torch.cuda.is_bf16_supported()
+    amp = Amp(net, dev == 'cuda', torch.bfloat16 if bf16 else torch.float16)
+    print('혼합 정밀도', 'bf16' if bf16 else ('fp16' if dev == 'cuda' else '없음(CPU)'), flush=True)
     model = nn.DataParallel(amp) if torch.cuda.device_count() > 1 else amp
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=1e-4)
-    scaler = torch.amp.GradScaler('cuda', enabled=dev == 'cuda')
+    scaler = torch.amp.GradScaler('cuda', enabled=dev == 'cuda' and not bf16)  # bf16은 배율 조정이 필요 없다
     # 마지막 검증·저장 시간을 미리 떼어 둔다(서버 실행 시험: 학습이 시간을 다 쓰면 마지막 검증이 바로 멈춰 마지막 모델이 최고 선택에서 빠졌다)
     reserve = min(300.0, 0.05 * a.hours * 3600)
-    st = dict(progress=0.0, step=0, best=1e9, plan=(a.plan_hours or a.hours) * 3600 - reserve, max_n=10 ** 9, lr=a.lr)
+    st = dict(progress=0.0, step=0, skipped=0, best=1e9, plan=(a.plan_hours or a.hours) * 3600 - reserve, max_n=10 ** 9, lr=a.lr)
     if a.resume and os.path.exists(a.resume):  # 완전한 이어하기(GPT 검토 15): 가중치만이 아니라 최적화기·AMP·진행·최고 점수까지
         ck = torch.load(a.resume, map_location=dev, weights_only=False)
         net.load_state_dict(ck['model'])
         opt.load_state_dict(ck['opt'])
-        scaler.load_state_dict(ck['scaler'])
+        if scaler.is_enabled() and ck.get('scaler'):
+            scaler.load_state_dict(ck['scaler'])
         st.update(ck['state'])
         print(f"이어서: 진행 {st['progress'] * 100:.1f}%, {st['step']}걸음, 최고 검증 {st['best']:.4f}", flush=True)
     log = open(os.path.join(a.out, 'log.jsonl'), 'a')
@@ -307,9 +318,15 @@ def main():
                     p = model(xb)
                     l, parts = loss_fn(p.float(), yb)
                     opt.zero_grad(set_to_none=True)
+                    if not torch.isfinite(l):  # 넘침·깨진 자료 — 이 걸음은 건너뛰고 센다(1차 학습에서 보이지 않던 헛걸음을 기록)
+                        st['skipped'] = st.get('skipped', 0) + 1
+                        continue
                     scaler.scale(l).backward()
+                    s0 = scaler.get_scale() if scaler.is_enabled() else None
                     scaler.step(opt)
                     scaler.update()
+                    if s0 is not None and scaler.get_scale() < s0:  # fp16 배율이 줄었다 = 기울기 넘침으로 이 걸음을 건너뜀
+                        st['skipped'] = st.get('skipped', 0) + 1
                     last = (l.item(), parts)
                     st['step'] += 1
                 except torch.cuda.OutOfMemoryError:  # 8GB 5060 대비: 멈추지 않고 한 번에 보는 조각을 절반으로
@@ -322,7 +339,7 @@ def main():
                     print('GPU 메모리 부족 → 조각 수', st['max_n'], flush=True)
             # 검증: 늘 같은 문제(파일·장·자리 고정, 모든 지나온 해상도). 빈 목록이면 건너뜀, 하나라도 실패하면 이번 점수는 최고 선택에 쓰지 않음(GPT 2차 18)
             model.eval()
-            vl, n, nv = 0.0, 0, 0
+            vl, n, nv, nbad = 0.0, 0, 0, 0
             vds = []
             if allv:
                 with torch.no_grad():
@@ -339,15 +356,18 @@ def main():
                             for j in range(0, x.shape[0], 2):  # 작은 묶음으로 끝까지
                                 p = model(x[j:j + 2].to(dev))
                                 tot_i += loss_fn(p.float(), y[j:j + 2].to(dev))[0].item() * min(2, x.shape[0] - j)
+                            if not np.isfinite(tot_i):  # NaN·무한대 문제는 평균에 넣지 않고, 이번 검증은 미완료(최고 선택 제외)
+                                nbad += 1
+                                continue
                             vl += tot_i / x.shape[0]
                             n += 1
                         except torch.cuda.OutOfMemoryError:
                             torch.cuda.empty_cache()
                     random.setstate(rs)
-            complete = bool(allv) and n == nv == len(vds)
+            complete = bool(allv) and n == nv == len(vds) and nbad == 0
             vl = vl / n if n else float('nan')
             ep += 1
-            rec = dict(stage=si + 1, res=res, ep=ep, step=st['step'], train=round(last[0], 4), val=round(vl, 4) if n else None, val_complete=bool(complete),
+            rec = dict(stage=si + 1, res=res, ep=ep, step=st['step'], train=round(last[0], 4), val=round(vl, 4) if n else None, val_complete=bool(complete), val_bad=nbad, skipped=st.get('skipped', 0),
                        parts={k: round(v, 4) for k, v in last[1].items()}, lr=opt.param_groups[0]['lr'],
                        progress=round(progress() * 100, 1), min=round((time.time() - t_sess) / 60, 1))
             print(json.dumps(rec, ensure_ascii=False), flush=True)
