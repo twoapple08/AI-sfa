@@ -13,6 +13,9 @@ import sys
 import threading
 import time
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__))))
+from vec_data import done_ok  # noqa: E402
+
 DRIVE = 'gdrive:AI-sfa/02_분석자료/vec/pc'
 
 
@@ -33,8 +36,8 @@ def keep_awake():
 def uploader(out, rclone, stop, every=900):
     while not stop.wait(every):
         if os.path.exists(os.path.join(out, 'ckpt.pt')):
-            subprocess.run(f'"{rclone}" copy "{out}" "{DRIVE}" --include "ckpt.pt" --include "best.pt" --include "log.jsonl"', shell=True)
-            print(time.strftime('%H:%M'), 'Drive 중간 저장', flush=True)
+            r = subprocess.run(f'"{rclone}" copy "{out}" "{DRIVE}" --include "ckpt.pt" --include "best.pt" --include "log.jsonl"', shell=True)
+            print(time.strftime('%H:%M'), 'Drive 중간 저장', '정상' if r.returncode == 0 else f'실패({r.returncode})', flush=True)
 
 
 def check(a):
@@ -79,7 +82,9 @@ def main():
     cpus = os.cpu_count() or 4
     # 이어서: Drive에 이전 저장본이 있으면 받는다
     resume = ''
-    if a.rclone:
+    if os.path.exists(os.path.join(out, 'ckpt.pt')):  # 이 PC에 남은 저장본도 이어서(GPT 2차 15)
+        resume = os.path.join(out, 'ckpt.pt')
+    if a.rclone and not resume:
         sh(f'"{a.rclone}" copy "{DRIVE}" "{out}" --include ckpt.pt --include best.pt --include log.jsonl', check=False)
         if os.path.exists(os.path.join(out, 'ckpt.pt')):  # 모델·최적화기·진행·최고 점수가 한 파일(GPT 검토 15·16)
             resume = os.path.join(out, 'ckpt.pt')
@@ -87,9 +92,9 @@ def main():
     t0 = time.time()
     for res in ('1920', '1280', '854', '640'):
         d = os.path.join(data, res)
-        if os.path.exists(os.path.join(d, '_done.json')):  # 다 만든 표시가 있을 때만 건너뜀(GPT 검토 17)
-            continue
         rep = 1 if res in ('1920', '1280') else a.repeat  # 큰 화질은 만드는 데 오래 걸려 1번(GPT 검토 14)
+        if done_ok(d, res=int(res), repeat=rep, max_frames=24, limit=0):  # 같은 설정으로 다 만든 표시가 있을 때만 건너뜀(GPT 2차 17)
+            continue
         t1 = time.time()
         sh(f'cd /d "{tools}" && "{py}" -u vec_data.py "{d}" --res {res} --repeat {rep} --max-frames 24 --workers {cpus} --seed {res}')
         print(f'자료 {res}: {(time.time() - t1) / 60:.1f}분', flush=True)
@@ -97,10 +102,15 @@ def main():
             sh(f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{os.path.join(a.root, "smoke")}" --smoke --workers 2')
     print(f'자료 {(time.time() - t0) / 60:.1f}분', flush=True)
     stop = threading.Event()
+    up = None
     if a.rclone:
-        threading.Thread(target=uploader, args=(out, a.rclone, stop), daemon=True).start()
-    # 남은 시간 = 요청 시간 − 자료 만들기에 쓴 시간(자료가 오래 걸려도 PC 사용 시간을 넘지 않게)
-    left = max(0.2, a.hours - (time.time() - t0) / 3600)
+        up = threading.Thread(target=uploader, args=(out, a.rclone, stop), daemon=True)
+        up.start()
+    # 남은 시간 = 요청 시간 − 자료 만들기에 쓴 시간 − 마무리(올리기·zip) 6분. 모자라면 학습하지 않고 저장·종료(GPT 2차)
+    left = a.hours - (time.time() - t0) / 3600 - 0.1
+    if left < 0.1:
+        print('남은 시간이 없어 학습을 건너뜀(자료는 만들어 둠 — 다음 실행 때 바로 학습)', flush=True)
+        return
     cmd = f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours {left:.2f} --workers {min(6, max(2, cpus - 2))}'
     if resume:
         cmd += f' --resume "{resume}"'
@@ -108,6 +118,8 @@ def main():
         sh(cmd)
     finally:  # 학습이 오류로 끝나도 마지막 저장본은 올린다(GPT 검토 16)
         stop.set()
+        if up is not None:
+            up.join(timeout=600)  # 중간 올리기가 끝난 뒤 마지막 올리기(겹치지 않게)
         shutil.copy(os.path.join(tools, 'vec_train.py'), out)
         if a.rclone:
             r = subprocess.run(f'"{a.rclone}" copy "{out}" "{DRIVE}" --exclude "*.tmp"', shell=True)

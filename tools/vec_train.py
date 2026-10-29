@@ -104,6 +104,9 @@ class Net(nn.Module):
         self.u4, self.u3, self.u2 = Up(512, 256, 256), Up(256, 128, 128), Up(128, 64, 64)
         self.u1, self.u0 = Up(64, 64, 64), Up(64, 32, 48)
         self.head = nn.Conv2d(48, out_ch, 1)
+        with torch.no_grad():  # 드문 점 지도(선 끝·관절)는 처음 확률을 1%로 — 빈 조각에서 focal 손실이 폭발하지 않게(GPT 2차: logit 0이면 약 2만)
+            self.head.bias[1] = -4.6
+            self.head.bias[21] = -4.6
 
     def forward(self, x):
         x0 = self.full(x)                                       # 1/1 (가는 선은 원래 크기 특징이 필요)
@@ -132,42 +135,46 @@ class Amp(nn.Module):
             return self.net(x)
 
 
-def focal(logit, y, pos_thr=0.9):
+def focal(logit, y, valid, pos_thr=0.99):
     """희소한 점 지도(선 끝·관절): 정답 점 개수로 나눈 focal 손실(CenterNet 방식) — 전체 픽셀 평균에 묻히지 않게(GPT 검토 8)."""
     p = torch.sigmoid(logit).clamp(1e-4, 1 - 1e-4)
-    pos = (y >= pos_thr).float()
+    pos = (y >= pos_thr).float() * valid
     lp = -(torch.log(p) * (1 - p) ** 2 * pos).sum()
-    ln = -(torch.log(1 - p) * p ** 2 * (1 - y) ** 4 * (1 - pos)).sum()
+    ln = -(torch.log(1 - p) * p ** 2 * (1 - y) ** 4 * (1 - pos) * valid).sum()
     return (lp + ln) / pos.sum().clamp(min=1)
 
 
 def loss_fn(p, y):
     """정답 채널: 0 가운데, 1 선 끝, 2–3 방향, 4 면, 5–20 속성, 21 관절, 22 종류, 23–25 배경, 26 실제 자리."""
-    valid = y[:, 26:27]
-    c = (F.max_pool2d(y[:, 0:1], 3, 1, 1) > 0).float()       # 가운데 정답을 3px로
-    lc = F.binary_cross_entropy_with_logits(p[:, 0:1], c, pos_weight=torch.tensor(5.0, device=p.device))
-    s = torch.sigmoid(p[:, 0:1])
+    valid = y[:, 26:27]  # 실제 그림이 있는 자리(아래 채운 빈칸 0) — 모든 공간 손실에 적용(GPT 2차 11)
+    vs = valid.sum() + 1
+    c = (F.max_pool2d(y[:, 0:1], 3, 1, 1) > 0).float() * valid       # 가운데 정답을 3px로
+    lc = (F.binary_cross_entropy_with_logits(p[:, 0:1], c, pos_weight=torch.tensor(5.0, device=p.device), reduction='none') * valid).sum() / vs
+    s = torch.sigmoid(p[:, 0:1]) * valid
     dice = 1 - (2 * (s * c).sum() + 1) / (s.sum() + c.sum() + 1)
-    lp = focal(p[:, 1:2], y[:, 1:2])
+    lp = focal(p[:, 1:2], y[:, 1:2], valid)
     on_line = (y[:, 0:1] > 0).float()  # 방향·선 속성·종류는 정확한 가운데선 픽셀에서만(GPT 검토 1: 넓힌 띠에는 방향 정답이 없다)
     lo = ((torch.tanh(p[:, 2:4]) - y[:, 2:4]).abs() * on_line).sum() / (on_line.sum() * 2 + 1)
-    lf = F.binary_cross_entropy_with_logits(p[:, 4:5], y[:, 4:5])
+    lf = (F.binary_cross_entropy_with_logits(p[:, 4:5], y[:, 4:5], reduction='none') * valid).sum() / vs
     # 속성(사용자 10-29: 페인트·글로우·투명도·선 굵기·색·레이어)
     a, ya = torch.sigmoid(p[:, 5:21]), y[:, 5:21]
     on_fill = (y[:, 4:5] > 0).float()
-    on_any = (ya[:, 15:16] > 0).float()
+    # 무언가 있는 픽셀: 순서 값 > 0 또는 가운데선·면(순서가 uint8로 0이 된 작은 번호도 포함, GPT 2차 11)
+    on_any = ((ya[:, 15:16] > 0) | (on_line > 0) | (on_fill > 0)).float()
     on_glow = on_line * (ya[:, 7:8] > 0).float()  # 글로우 값·색은 글로우가 있는 선에서만(GPT 검토 10)
     l1 = lambda sl, m: ((a[:, sl] - ya[:, sl]).abs() * m).sum() / (m.sum() * (sl.stop - sl.start) + 1)
     ll = l1(slice(0, 5), on_line)      # 굵기 + 선 RGBA
     lga = l1(slice(7, 8), on_line)     # 글로우 세기(없으면 0 = 글로우 없음)
     lg = l1(slice(5, 7), on_glow) + l1(slice(8, 11), on_glow)  # 글로우 반경·두께·색
     lfa = l1(slice(11, 15), on_fill)   # 면 RGBA
-    lo2 = l1(slice(15, 16), on_any)    # 그리는 순서(레이어·앞뒤)
-    lj = focal(p[:, 21:22], y[:, 21:22])                                   # 관절
+    lo2 = l1(slice(15, 16), (ya[:, 15:16] > 0).float())  # 그리는 순서(레이어·앞뒤)
+    lj = focal(p[:, 21:22], y[:, 21:22], valid)                            # 관절
     kt = y[:, 22].long()
     km = kt > 0
     lk = F.cross_entropy(p[:, 22:25].permute(0, 2, 3, 1)[km], kt[km] - 1) if km.any() else p.sum() * 0  # 종류(가운데선 픽셀)
-    bgm = valid * (1 - on_any) * (1 - c)  # 배경색은 실제로 배경이 보이는 픽셀에서만(GPT 검토 11)
+    # 배경색: 실제 자리 중 아무것도 없는 픽셀. 반투명·글로우 전용 선은 번호판에 폭이 없으니 가운데선 5px 안도 뺀다(GPT 2차 11)
+    near = (F.max_pool2d(y[:, 0:1], 11, 1, 5) > 0).float()
+    bgm = valid * (1 - on_any) * (1 - near)
     lb = ((torch.sigmoid(p[:, 25:28]) - y[:, 23:26]).abs() * bgm).sum() / (bgm.sum() * 3 + 1)
     tot = lc + dice + lp + lo + lf + 2 * ll + lga + lg + lfa + lo2 + lj + 0.5 * lk + lb
     return tot, dict(c=lc.item(), dice=dice.item(), p=lp.item(), o=lo.item(), f=lf.item(), line=ll.item(), glow_a=lga.item(), glow=lg.item(),
@@ -217,7 +224,7 @@ def main():
     model = nn.DataParallel(amp) if torch.cuda.device_count() > 1 else amp
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=1e-4)
     scaler = torch.amp.GradScaler('cuda', enabled=dev == 'cuda')
-    st = dict(progress=0.0, step=0, best=1e9, plan=(a.plan_hours or a.hours) * 3600, max_n=10 ** 9)
+    st = dict(progress=0.0, step=0, best=1e9, plan=(a.plan_hours or a.hours) * 3600, max_n=10 ** 9, lr=a.lr)
     if a.resume and os.path.exists(a.resume):  # 완전한 이어하기(GPT 검토 15): 가중치만이 아니라 최적화기·AMP·진행·최고 점수까지
         ck = torch.load(a.resume, map_location=dev, weights_only=False)
         net.load_state_dict(ck['model'])
@@ -254,6 +261,7 @@ def main():
         dl_old = torch.utils.data.DataLoader(DS(prev), batch_size=a.batch, num_workers=max(1, a.workers // 2)) if prev else None
         it_new, it_old = iter(dl_new), iter(dl_old) if dl_old else None
         ep = 0
+        steps0 = st['step']
         while (progress() < BOUNDS[si] or a.smoke) and not out_of_time():
             model.train()
             for _ in range(5 if a.smoke else 200):
@@ -272,7 +280,7 @@ def main():
                         it_new = iter(dl_new)
                         x, y = next(it_new)
                 for g in opt.param_groups:  # 학습률: 계획 전체 진행에 걸쳐 코사인(이어서 해도 이어짐)
-                    g['lr'] = a.lr * (0.05 + 0.95 * 0.5 * (1 + np.cos(np.pi * min(progress(), 1.0))))
+                    g['lr'] = st['lr'] * (0.05 + 0.95 * 0.5 * (1 + np.cos(np.pi * min(progress(), 1.0))))
                 try:
                     xb = x.flatten(0, 1)[:st['max_n']].to(dev, non_blocking=True)
                     yb = y.flatten(0, 1)[:st['max_n']].to(dev, non_blocking=True)
@@ -292,36 +300,43 @@ def main():
                         raise SystemExit('조각 1개도 GPU 메모리에 안 들어감 — 중단')
                     st['max_n'] = max(1, min(st['max_n'], x.flatten(0, 1).shape[0]) // 2)
                     print('GPU 메모리 부족 → 조각 수', st['max_n'], flush=True)
-            # 검증: 늘 같은 문제(파일·장·자리 고정, 모든 지나온 해상도)
+            # 검증: 늘 같은 문제(파일·장·자리 고정, 모든 지나온 해상도). 빈 목록이면 건너뜀, 하나라도 실패하면 이번 점수는 최고 선택에 쓰지 않음(GPT 2차 18)
             model.eval()
-            vl, n = 0.0, 0
-            with torch.no_grad():
-                rs = random.getstate()
-                random.seed(1234)
-                vds = DS(allv, k=4, length=8 if a.smoke else 40)
-                for i in range(len(vds)):
-                    x, y = vds[i]
-                    try:
-                        p = model(x[:st['max_n']].to(dev))
-                        vl += loss_fn(p.float(), y[:st['max_n']].to(dev))[0].item()
-                        n += 1
-                    except torch.cuda.OutOfMemoryError:
-                        torch.cuda.empty_cache()
-                random.setstate(rs)
-            vl /= max(n, 1)
+            vl, n, nv = 0.0, 0, 0
+            if allv:
+                with torch.no_grad():
+                    rs = random.getstate()
+                    random.seed(1234)
+                    vds = DS(allv, k=4, length=8 if a.smoke else 40)
+                    items = [vds[i] for i in range(len(vds))]  # 표본을 먼저 고정(메모리 부족으로 조각 수가 바뀌어도 같은 문제)
+                    random.setstate(rs)
+                    for x, y in items:
+                        nv += 1
+                        try:
+                            tot_i = 0.0
+                            for j in range(0, x.shape[0], 2):  # 작은 묶음으로 끝까지
+                                p = model(x[j:j + 2].to(dev))
+                                tot_i += loss_fn(p.float(), y[j:j + 2].to(dev))[0].item() * min(2, x.shape[0] - j)
+                            vl += tot_i / x.shape[0]
+                            n += 1
+                        except torch.cuda.OutOfMemoryError:
+                            torch.cuda.empty_cache()
+            complete = allv and n == nv
+            vl = vl / n if n else float('nan')
             ep += 1
-            rec = dict(stage=si + 1, res=res, ep=ep, step=st['step'], train=round(last[0], 4), val=round(vl, 4),
+            rec = dict(stage=si + 1, res=res, ep=ep, step=st['step'], train=round(last[0], 4), val=round(vl, 4) if n else None, val_complete=bool(complete),
                        parts={k: round(v, 4) for k, v in last[1].items()}, lr=opt.param_groups[0]['lr'],
                        progress=round(progress() * 100, 1), min=round((time.time() - t_sess) / 60, 1))
             print(json.dumps(rec, ensure_ascii=False), flush=True)
             log.write(json.dumps(rec, ensure_ascii=False) + '\n')
             log.flush()
-            if si == len(STAGES) - 1 and vl < st['best']:  # 최종 단계(모든 해상도 검증)에서 가장 좋은 것
+            if si == len(STAGES) - 1 and complete and vl < st['best']:  # 최종 단계, 검증을 끝까지 한 경우만(GPT 2차 18)
                 st['best'] = vl
                 save(net.state_dict(), os.path.join(a.out, 'best.pt'))
             checkpoint(rec)
             if a.smoke:
                 break
+        print(f'단계 {si + 1} 학습 걸음 {st["step"] - steps0}', flush=True)  # 단계를 실제로 학습했는지(GPT 2차: 진행률 기준이라 0일 수도)
         save(net.state_dict(), os.path.join(a.out, f'stage{si + 1}_{res}.pt'))
         del it_new, it_old, dl_new, dl_old  # 단계마다 자료 읽기 프로세스가 쌓이지 않게
         if out_of_time():

@@ -73,6 +73,7 @@ def draw_order(fr):
     return out
 
 
+DATA_VERSION = 3  # 정답 형식·규칙이 바뀌면 올린다(완료 표시와 대조)
 OPAQUE = 128  # 알파가 이보다 작은 선·면은 뒤를 가리지 않는 것으로 본다(GPT 검토 3)
 ATTR = ['thick', 'lr', 'lg', 'lb', 'la', 'g_rad', 'g_thick', 'g_alpha', 'gr', 'gg', 'gb', 'fr', 'fg', 'fb', 'fa', 'order']
 # 속성 정답(사용자 10-29 "페인트·글로우·투명도·선 굵기·색·레이어까지 모든 기능을 적재적소에"): uint8 16채널
@@ -218,6 +219,9 @@ def targets(seq, fr, W, H, thick_mul):
                 continue
             g = np.exp(-((xx[y0:y1, x0:x1] - x) ** 2 + (yy[y0:y1, x0:x1] - y) ** 2) / (2 * 1.5 ** 2))
             heat[y0:y1, x0:x1] = np.maximum(heat[y0:y1, x0:x1], g)
+            xi, yi = int(round(x)), int(round(y))  # 가장 가까운 픽셀은 정확히 1(소수점 중심이면 최대가 0.89라 양성이 사라졌다, GPT 2차 검토)
+            if 0 <= xi < W and 0 <= yi < H:
+                heat[yi, xi] = 1.0
         return np.round(heat * 255).astype(np.uint8)
     heat, jheat = heatmap(pts), heatmap(jpts)
     bg = _argb(fr.get('BackgroundColor', seq.get('BackgroundColor', '-1')))[:3]  # 장 배경색(사용자 10-29)
@@ -323,7 +327,8 @@ def main():
     files = file_list()
     hold = file_list(only='holdout')
     print('학습 파일', len(files), '시험용(뺌)', len(hold), flush=True)
-    assert not set(files) & set(hold) and len(hold) >= 37, '시험용 제외 확인 실패'  # GPT 검토 12
+    expect = [l.strip() for l in open(os.path.join(ROOT, 'holdout_vec.txt'), encoding='utf-8') if l.strip()]
+    assert sorted(hold) == sorted(expect) and len(files) == 352 and not set(files) & set(hold), '시험용 제외 확인 실패'  # GPT 검토 12: 따로 적은 목록과 대조
     if a.limit:
         files = files[:a.limit]
     jobs = [(f, a.out_dir, a.seed * 100003 + i * 7919 + r, a.max_frames, a.res) for r in range(a.repeat) for i, f in enumerate(files)]
@@ -337,12 +342,32 @@ def main():
                 bad.append((rel, st))
             if not st.startswith('ok') or k % 25 == 0:
                 print(k + 1, '/', len(jobs), rel, st, flush=True)
-    # 완료 표시(GPT 검토 17): 다음 실행은 이 파일이 있을 때만 '다 만들었다'로 본다
-    json.dump(dict(jobs=len(jobs), ok=ok, failed=bad, holdout=file_list(only='holdout')),
-              open(os.path.join(a.out_dir, '_done.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-    print('끝', len(jobs), '성공', ok, '실패', len(bad))
+    # 완료 표시(GPT 검토 17·2차): 성공 조건을 통과한 뒤에만, 설정과 함께 원자적으로. 실패하면 이전 표시도 지운다
+    done = os.path.join(a.out_dir, '_done.json')
     if ok < 0.8 * len(jobs) and not a.limit:
-        raise SystemExit('자료 만들기 실패가 너무 많음')
+        if os.path.exists(done):
+            os.remove(done)
+        raise SystemExit(f'자료 만들기 실패가 너무 많음: 성공 {ok}/{len(jobs)}')
+    tmp = done + '.tmp'
+    json.dump(dict(jobs=len(jobs), ok=ok, failed=bad, holdout=file_list(only='holdout'), config=config(a)),
+              open(tmp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    os.replace(tmp, done)
+    print('끝', len(jobs), '성공', ok, '실패', len(bad))
+
+
+def config(a):
+    """완료 표시에 남기는 설정 — 설정·코드 판이 바뀌면 다시 만든다."""
+    return dict(version=DATA_VERSION, res=a.res, repeat=a.repeat, max_frames=a.max_frames, seed=a.seed, limit=a.limit)
+
+
+def done_ok(out_dir, **want):
+    """그 폴더 자료가 같은 설정으로 다 만들어졌는지."""
+    try:
+        d = json.load(open(os.path.join(out_dir, '_done.json'), encoding='utf-8'))
+    except Exception:
+        return False
+    c = d.get('config', {})
+    return c.get('version') == DATA_VERSION and all(c.get(k) == v for k, v in want.items())
 
 
 if __name__ == '__main__':
