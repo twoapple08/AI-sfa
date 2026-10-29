@@ -342,9 +342,19 @@ def main():
     ap.add_argument('--limit', type=int, default=0)
     ap.add_argument('--repeat', type=int, default=1, help='파일마다 다른 무작위 설정으로 몇 번 만들지')
     ap.add_argument('--job-timeout', type=float, default=600, help='파일 하나 최대 초(넘으면 건너뜀)')
+    ap.add_argument('--low-priority', action='store_true', help='낮은 우선순위로(양보 모드)')
     ap.add_argument('--synth', type=float, default=0.3, help='흰 바탕 파일 중 이 비율만큼 페인트 합성판을 원본과 별도로 더 만든다(원본은 그대로 모두 — 흰 바탕이 사라지지 않게, 사용자 10-29)')
     ap.add_argument('--res', type=int, default=0, help='영상 폭 고정(1920·1280·854·640). 0이면 무작위')
     a = ap.parse_args()
+    if a.low_priority:  # 양보 모드(4060 PC): 게임·그림 프로그램이 CPU를 먼저 쓰게. 작업자(자식 프로세스)도 물려받는다
+        try:
+            if os.name == 'nt':
+                import ctypes
+                ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x4000)
+            else:
+                os.nice(10)
+        except Exception as e:
+            print('우선순위 낮추기 실패(무시):', e, flush=True)
     os.makedirs(a.out_dir, exist_ok=True)
     # 새로 만들 때는 그 폴더의 이전 자료·완료 표시를 먼저 지운다 — 설정을 바꿔 다시 만들 때 옛 파일이 섞이지 않게(GPT 3차 7)
     for f in os.listdir(a.out_dir):

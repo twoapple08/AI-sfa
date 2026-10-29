@@ -4,9 +4,11 @@ rem PC RTX 4060: video -> SFA deep learning (2026-10-29). One file does everythi
 rem Install (Python 3.11, torch cu128, skia, opencv, ffmpeg, rclone) -> repo (SFA files + tools) -> Drive login once (browser)
 rem -> data (1080/720/480/360) -> short test -> train (default 1.2 hours) with Drive backup every 15 min -> resumes next time.
 rem RTX 4060 (8GB, RAM 32GB) version of pc_vec_5060.bat - same settings, separate run name so both PCs can train at the same time.
-rem Double-click. Default 3.2 hours. Other length: pc_vec_4060.bat 2.5
+rem Double-click. Default 8 hours of ACTIVE training (no PC time limit; time paused for games is not counted). Other length: pc_vec_4060.bat 12
+rem YIELD MODE: Call of Duty running -> training pauses; League of Legends / Clip Studio running -> training slows. Low CPU priority, about half of GPU memory.
+rem You can close this window any time; the next run continues from the last save (every 200 steps).
 rem 2nd run (2026-10-29): Drive folder vec/pc2_4060, starts from 1st run best.pt (vec/pc). Paint synthesis in data. bf16 (Ada GPU).
-set HOURS=3.2
+set HOURS=8
 set CHECK=
 set INIT=--init-from pc
 if not "%1"=="" set HOURS=%1
@@ -65,7 +67,7 @@ rem If access was removed after the 1st run, the saved login no longer works: re
 %ROOT%\rclone.exe mkdir "gdrive:AI-sfa/02_분석자료/vec/pc2_4060" || (echo Drive login failed - the run will stop before training. To train from zero without Drive: pc_vec_4060.bat %HOURS% scratch & set RC=)
 
 echo [6/6] data -> short test -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
-%PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" --run pc2_4060 %INIT% %CHECK% || (echo. & echo FAILED - read the lines above and send a photo of this window & pause & exit /b 1)
+%PY% -u %V%\repo\tools\pc_vec_run.py --root %V% --hours %HOURS% --rclone "%RC%" --run pc2_4060 --yield %INIT% %CHECK% || (echo. & echo FAILED - read the lines above and send a photo of this window & pause & exit /b 1)
 echo.
 echo DONE. Results: Drive AI-sfa/02_분석자료/vec/pc2_4060 and Desktop\vec_out.zip
 pause

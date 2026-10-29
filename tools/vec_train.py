@@ -15,6 +15,7 @@ import hashlib
 import json
 import os
 import random
+import subprocess
 import time
 
 import numpy as np
@@ -196,6 +197,70 @@ def loss_fn(p, y):
                      fill_rgba=lfa.item(), order=lo2.item(), joint=lj.item(), kind=lk.item(), bg=lb.item())
 
 
+HEAVY = ('cod.exe', 'modernwarfare.exe', 'blackops6.exe', 'cod_hq.exe', 'cod24-cod.exe')   # 무거운 게임: 켜져 있으면 학습 멈춤
+LIGHT = ('league of legends.exe', 'clipstudiopaint.exe')                                  # 가벼운 것: 천천히
+
+
+class Yielder:
+    """양보 모드(사용자 10-29, 4060 PC: 시간 제한 없음 대신 콜 오브 듀티·롤·클립 스튜디오가 같이 돌아도 문제없어야).
+    30초마다 실행 중 프로그램 목록을 보고: 무거운 게임 → 끝날 때까지 학습 멈춤(GPU 캐시 비움), 가벼운 것 → 걸음마다 쉼.
+    쉰 시간은 paused에 모아 학습 계획(진행률)·시간 계산에서 뺀다."""
+
+    def __init__(self, on, extra_heavy='', extra_light=''):
+        self.on, self.paused, self.t_check, self.mode = on, 0.0, 0.0, ''
+        self.heavy = HEAVY + tuple(x.strip().lower() for x in extra_heavy.split(',') if x.strip())
+        self.light = LIGHT + tuple(x.strip().lower() for x in extra_light.split(',') if x.strip())
+
+    def _running(self):
+        try:
+            if os.name == 'nt':
+                out = subprocess.run('tasklist /fo csv /nh', shell=True, capture_output=True, text=True, errors='ignore').stdout.lower()
+                names = {l.split('","')[0].strip('"') for l in out.splitlines() if l}
+            else:
+                names = set(subprocess.run(['ps', '-eo', 'comm='], capture_output=True, text=True).stdout.lower().split())
+        except Exception:
+            return ''
+        if any(n in names for n in self.heavy):
+            return 'heavy'
+        return 'light' if any(n in names for n in self.light) else ''
+
+    def tick(self):
+        """학습 걸음마다 부른다."""
+        if not self.on:
+            return
+        now = time.time()
+        if now - self.t_check > 30:
+            self.t_check = now
+            m = self._running()
+            if m != self.mode:
+                print(time.strftime('%H:%M'), {'heavy': '무거운 게임 실행 중 → 학습 멈춤', 'light': '가벼운 프로그램 실행 중 → 천천히', '': '양보 끝 → 정상 속도'}[m], flush=True)
+                self.mode = m
+        if self.mode == 'heavy':
+            t0 = time.time()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            while self._running() == 'heavy':
+                time.sleep(30)
+            self.mode = ''
+            self.paused += time.time() - t0
+            print(time.strftime('%H:%M'), f'게임 끝 → 학습 다시({(time.time() - t0) / 60:.0f}분 쉼)', flush=True)
+        elif self.mode == 'light':
+            time.sleep(0.4)
+            self.paused += 0.4
+
+
+def low_priority():
+    """이 프로세스(와 자식: 자료 읽기 작업자)를 '보통 이하' 우선순위로 — 게임·그림 프로그램이 CPU를 먼저 쓰게."""
+    try:
+        if os.name == 'nt':
+            import ctypes
+            ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x4000)  # BELOW_NORMAL_PRIORITY_CLASS
+        else:
+            os.nice(10)
+    except Exception as e:
+        print('우선순위 낮추기 실패(무시):', e, flush=True)
+
+
 def save(obj, path, tries=60):
     """다 쓴 뒤 한 번에 바꿔치기 — Drive로 올리는 도중에 반쯤 쓴 파일이 올라가지 않게. 모든 상태는 ckpt.pt 한 파일(GPT 검토 16).
     Windows는 다른 프로그램(rclone 올리기)이 읽고 있는 파일을 바꿔치기하지 못한다 → 2초 간격으로 다시 시도, 끝내 안 되면 이번 저장만 건너뜀(학습은 계속)."""
@@ -245,10 +310,19 @@ def main():
     ap.add_argument('--workers', type=int, default=4)
     ap.add_argument('--smoke', action='store_true', help='단계마다 몇 걸음만(문법·메모리 확인)')
     ap.add_argument('--resume', default='', help='ckpt.pt(모델·최적화기·AMP·진행·최고 점수) — 이어서')
+    ap.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드: 낮은 우선순위, GPU 메모리 절반 남짓, 무거운 게임이면 멈춤·가벼운 것이면 천천히(4060 PC)')
+    ap.add_argument('--yield-heavy', default='', help='멈출 프로그램 이름 추가(쉼표, 예: game.exe)')
+    ap.add_argument('--yield-light', default='', help='천천히 돌릴 프로그램 이름 추가')
     ap.add_argument('--init', default='', help='가중치만 불러와 새 계획으로 시작(2차 학습: 1차 best.pt에서 출발). --resume이 있으면 무시')
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
+    yl = Yielder(a.yield_, a.yield_heavy, a.yield_light)
+    if a.yield_:
+        low_priority()
+        if dev == 'cuda':
+            torch.cuda.set_per_process_memory_fraction(0.55)  # 8GB 중 약 4.4GB만 — 나머지는 게임·그림 프로그램 몫. 모자라면 OOM 장치가 조각 수를 줄인다
+        print('양보 모드: 무거운 게임', ', '.join(yl.heavy), '/ 천천히', ', '.join(yl.light), flush=True)
     net = Net(pretrained=not a.smoke or dev == 'cuda').to(dev)
     # bf16(5060 등 지원 GPU): 수 범위가 fp32와 같아 넘침이 없다. 1차 학습은 fp16에서 디코더 값이 65,504를 넘어 검증 NaN·마지막 단계 출렁임(2026-10-29)
     # 진짜 bf16 하드웨어(계산 능력 8.0 이상, RTX 30xx 이후)만. 최근 PyTorch의 is_bf16_supported()는 흉내 내기까지 True라 1050 Ti(6.1)에서 느린 bf16이 될 수 있다
@@ -280,9 +354,10 @@ def main():
     log_path = os.path.join(a.out, 'log.jsonl')  # 쓸 때마다 열고 닫는다 — Windows는 열린 파일의 크기·시각을 늦게 갱신해 15분 올리기가 기록을 건너뛰었다(1차 학습)
     t_sess = time.time()
     prog0 = st['progress']
-    progress = lambda: prog0 + (time.time() - t_sess) / st['plan']
-    out_of_time = lambda: time.time() - t_sess >= a.hours * 3600 - reserve  # 학습은 여기까지
-    hard_stop = lambda: time.time() - t_sess >= a.hours * 3600             # 검증은 여기까지
+    active = lambda: time.time() - t_sess - yl.paused  # 양보로 쉰 시간은 뺀 실제 학습 시간
+    progress = lambda: prog0 + active() / st['plan']
+    out_of_time = lambda: active() >= a.hours * 3600 - reserve  # 학습은 여기까지
+    hard_stop = lambda: active() >= a.hours * 3600             # 검증은 여기까지
     allv, seen = [], []
     last = (float('nan'), {})  # 마지막으로 성공한 걸음의 손실
 
@@ -312,6 +387,7 @@ def main():
         while (progress() < BOUNDS[si] or a.smoke) and not out_of_time():
             model.train()
             for _ in range(5 if a.smoke else 200):
+                yl.tick()
                 if progress() >= BOUNDS[si] and not a.smoke or out_of_time():
                     break
                 if it_old is not None and random.random() < 0.3:
@@ -391,7 +467,7 @@ def main():
             ep += 1
             rec = dict(stage=si + 1, res=res, ep=ep, step=st['step'], train=round(last[0], 4), val=round(vl, 4) if n else None, val_complete=bool(complete), val_bad=nbad, val_cat={k: [round(v / m, 4), m] for k, (v, m) in cat.items()}, skipped=st.get('skipped', 0),
                        parts={k: round(v, 4) for k, v in last[1].items()}, lr=opt.param_groups[0]['lr'],
-                       progress=round(progress() * 100, 1), min=round((time.time() - t_sess) / 60, 1))
+                       progress=round(progress() * 100, 1), min=round((time.time() - t_sess) / 60, 1), paused_min=round(yl.paused / 60, 1))
             print(json.dumps(rec, ensure_ascii=False), flush=True)
             with open(log_path, 'a', encoding='utf-8') as lf:
                 lf.write(json.dumps(rec, ensure_ascii=False) + '\n')

@@ -75,6 +75,7 @@ def main():
     ap.add_argument('--rclone', default='')
     ap.add_argument('--run', default='pc2', help='학습 이름 = Drive 폴더·이 PC 출력 폴더(1차 pc, 2차 pc2). 같은 이름이면 이어서')
     ap.add_argument('--init-from', default='pc', help='처음 시작할 때 가중치를 받아 올 이전 학습 이름(그 폴더의 best.pt, 없으면 best_fallback_last.pt). 빈 값이면 처음부터')
+    ap.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(4060 PC, 사용자 10-29): 게임·클립 스튜디오와 같이 돌아도 되게 — 낮은 우선순위·작업자 절반·학습은 vec_train --yield')
     ap.add_argument('--check', action='store_true', help='빠른 확인(사용자 10-29, 1050 Ti 1시간): 파일 12개·장 6개·1080/360만, 짧은 시험(배치 1) + 3분 학습, Drive 올리기 시험')
     a = ap.parse_args()
     global DRIVE
@@ -89,6 +90,9 @@ def main():
     os.makedirs(out, exist_ok=True)
     py = sys.executable
     cpus = os.cpu_count() or 4
+    if a.yield_:
+        cpus = max(2, cpus // 2)  # 자료 만들기·읽기 작업자를 절반으로(게임 몫)
+    yf = ' --low-priority' if a.yield_ else ''
     # 이어서: Drive에 이전 저장본이 있으면 받는다
     resume = ''
     if os.path.exists(os.path.join(out, 'ckpt.pt')):  # 이 PC에 남은 저장본도 이어서(GPT 2차 15)
@@ -127,7 +131,7 @@ def main():
         if done_ok(d, res=int(res), repeat=rep, max_frames=24, limit=0, seed=int(res), synth=0.3):  # 같은 설정으로 다 만든 표시가 있을 때만 건너뜀(GPT 2차 17)
             continue
         t1 = time.time()
-        sh(f'cd /d "{tools}" && "{py}" -u vec_data.py "{d}" --res {res} --repeat {rep} --max-frames 24 --workers {cpus} --seed {res}')
+        sh(f'cd /d "{tools}" && "{py}" -u vec_data.py "{d}" --res {res} --repeat {rep} --max-frames 24 --workers {cpus} --seed {res}{yf}')
         print(f'자료 {res}: {(time.time() - t1) / 60:.1f}분', flush=True)
         if res == '1920' and not resume:  # 1080 자료만으로 짧은 시험 먼저(오류면 여기서 멈춤)
             sh(f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{os.path.join(a.root, "smoke")}" --smoke --workers 2')
@@ -143,6 +147,8 @@ def main():
         up = threading.Thread(target=uploader, args=(out, a.rclone, stop), daemon=True)
         up.start()
     cmd = f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours {left:.2f} --workers {min(6, max(2, cpus - 2))}'
+    if a.yield_:
+        cmd += ' --yield'
     if resume:
         cmd += f' --resume "{resume}"'
     elif init:
