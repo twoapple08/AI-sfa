@@ -32,9 +32,10 @@ def main():
     cpus = os.cpu_count() or 4
     def gen(res):
         d = os.path.join(data, res)
-        if os.path.isdir(d) and len(os.listdir(d)) > 50:
+        if os.path.exists(os.path.join(d, '_done.json')):  # 다 만든 표시(GPT 검토 17)
             return
-        sh(f'cd {tools} && python -u vec_data.py {d} --res {res} --repeat {a.repeat} --max-frames {a.max_frames} --workers {cpus} --seed {res}')
+        rep = 1 if res in ('1920', '1280') else a.repeat
+        sh(f'cd {tools} && python -u vec_data.py {d} --res {res} --repeat {rep} --max-frames {a.max_frames} --workers {cpus} --seed {res}')
     out = os.path.join(a.out, 'vec_out')
     # 1080 자료만 먼저 → 짧은 시험(문법·GPU 메모리; 서버에 torch가 없어 여기서 처음 돈다) → 나머지 자료 → 본 학습
     gen('1920')

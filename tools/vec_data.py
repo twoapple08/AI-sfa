@@ -73,6 +73,7 @@ def draw_order(fr):
     return out
 
 
+OPAQUE = 128  # 알파가 이보다 작은 선·면은 뒤를 가리지 않는 것으로 본다(GPT 검토 3)
 ATTR = ['thick', 'lr', 'lg', 'lb', 'la', 'g_rad', 'g_thick', 'g_alpha', 'gr', 'gg', 'gb', 'fr', 'fg', 'fb', 'fa', 'order']
 # 속성 정답(사용자 10-29 "페인트·글로우·투명도·선 굵기·색·레이어까지 모든 기능을 적재적소에"): uint8 16채널
 # thick = 선 폭(px@640) log1p(w)/log1p(256)*255, lr..la = 선 RGBA, g_rad·g_thick = log1p(값)/log1p(300)*255, g_alpha = GlowAlpha,
@@ -99,7 +100,8 @@ def targets(seq, fr, W, H, thick_mul):
     for r in fr.findall('FR'):
         first = next((s.get('ObjId') for s in r.findall('FS') if s.get('ObjId') in by_id), None)
         owner.setdefault(first, []).append(r)
-    buf = np.zeros((H, W), np.int32)
+    buf = np.zeros((H, W), np.int32)   # 뒤를 가리는 것(불투명)
+    tbuf = np.zeros((H, W), np.int32)  # 많이 투명한 면(뒤를 가리지 않음, 위에 보이기만)
     items = [None]  # 번호 → ('fill', rgba) | ('line', dict)
     objs = []  # (번호, kind, 표본점, 보이는 선인지)
     for a in order:
@@ -120,7 +122,8 @@ def targets(seq, fr, W, H, thick_mul):
                 items.append(('fill', _argb(r.get('Color'))))
                 m = np.zeros((H, W), np.uint8)
                 cv2.fillPoly(m, cs, 1)  # 여러 윤곽은 짝홀(cv2 기본)
-                buf[m > 0] = len(items) - 1
+                # 많이 투명한 면(알파 < 128)은 뒤의 선을 지우지 않는다 — 화면에서 비쳐 보인다(GPT 검토 3)
+                (buf if R.alpha(r.get('Color')) >= OPAQUE else tbuf)[m > 0] = len(items) - 1
         la = R.alpha(a.get('Color'))
         ga, gt = float(a.get('GlowAlpha') or 0), float(a.get('GlowThickness') or 0)
         glow = ga > 0 and gt > 0
@@ -128,8 +131,13 @@ def targets(seq, fr, W, H, thick_mul):
             continue  # 선도 글로우도 안 보임
         k = a.get('TypeId')
         P = dense(k, R.obj_points(a, geo))
-        if len(P) < 2 or np.abs(P).max() > 20 * W:  # 화면에서 아주 먼 오브젝트(보이지 않음)
+        if len(P) < 2:
             continue
+        if np.abs(P).max() > 20 * W:  # 화면에서 아주 먼 점이 있음: 화면을 지나가는 부분이 있으면 남기고 좌표만 자름(GPT 검토 5)
+            inside = (P[:, 0] > -W) & (P[:, 0] < 2 * W) & (P[:, 1] > -H) & (P[:, 1] < 2 * H)
+            if not inside.any():
+                continue
+            P = np.clip(P, -20 * W, 20 * W)
         T = min(float(a.get('ThicknessScale') or 1), 1000.0)
         w = R.PARAMS['base'] * max(S * T, 0) * thick_mul * R.PARAMS['stab']
         r, g, b, _ = _argb(a.get('Color'))
@@ -140,9 +148,9 @@ def targets(seq, fr, W, H, thick_mul):
         i = len(items) - 1
         aps = a.findall('AP')
         linked = (bool(aps[0].findall('AC')), bool(aps[-1].findall('AC'))) if aps else (False, False)
-        if la > 0 and w > 0:  # 글로우만 있는 투명 선은 아래를 가리지 않는다
+        if la >= OPAQUE and w > 0:  # 글로우만 있는 투명 선·많이 투명한 선은 아래를 가리지 않는다(GPT 검토 3)
             cv2.polylines(buf, [np.round(P).astype(np.int32)], k == '2', int(i), max(1, int(round(min(w, 4 * W)))), lineType=cv2.LINE_8)
-        objs.append((i, k, P, la > 0 and w > 0, int(a.get('ID') or 0), linked))
+        objs.append((i, k, P, la >= OPAQUE and w > 0, int(a.get('ID') or 0), linked))
     N = max(len(items) - 1, 1)
     center = np.zeros((H, W), np.uint8)
     cid = np.zeros((H, W), np.uint16)
@@ -155,10 +163,11 @@ def targets(seq, fr, W, H, thick_mul):
     E_xy = np.array([q for *_, q in ends_all]) if ends_all else np.zeros((0, 2))
     E_id = np.array([i for i, *_ in ends_all]) if ends_all else np.zeros(0, int)
     # 면 속성·순서(맨 위 것)
+    top = np.maximum(buf, tbuf)  # 맨 위에 보이는 것(투명 면이 불투명한 것보다 나중이면 투명 면)
     for j, it in enumerate(items):
         if it is None:
             continue
-        m = buf == j
+        m = top == j
         if not m.any():
             continue
         attr[15][m] = int(round(255 * j / N))
@@ -215,7 +224,7 @@ def targets(seq, fr, W, H, thick_mul):
     fill = np.zeros((H, W), np.uint8)
     for j, it in enumerate(items):
         if it is not None and it[0] == 'fill':
-            fill[buf == j] = 1
+            fill[top == j] = 1
     return dict(center=center, pts=heat, joint=jheat, ori=ori, fill=fill, cid=cid, attr=attr, kind=kind, aoid=aoid, bg=np.array(bg, np.uint8))
 
 
@@ -225,12 +234,12 @@ def encode_decode(frames_rgb, crf, fps=24):
     with tempfile.TemporaryDirectory() as d:
         p = os.path.join(d, 'v.mp4')
         enc = subprocess.Popen(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(fps),
-                                '-i', '-', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', str(crf), '-pix_fmt', 'yuv420p', p], stdin=subprocess.PIPE)
+                                '-i', '-', '-c:v', 'libx264', '-preset', 'veryfast', '-threads', '2', '-crf', str(crf), '-pix_fmt', 'yuv420p', p], stdin=subprocess.PIPE)
         for f in frames_rgb:
             enc.stdin.write(np.ascontiguousarray(f).tobytes())
         enc.stdin.close()
         enc.wait()
-        out = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-i', p, '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], capture_output=True).stdout
+        out = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-threads', '2', '-i', p, '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], capture_output=True).stdout
     a = np.frombuffer(out, np.uint8)
     n = a.size // (W * H * 3)
     return a[:n * W * H * 3].reshape(n, H, W, 3)
@@ -268,14 +277,20 @@ def one(job):
     except Exception as e:
         return rel, 'err:' + type(e).__name__
     dec = encode_decode(imgs, crf)
-    dec = np.stack([cv2.resize(f, (OUT_W, H), interpolation=cv2.INTER_AREA) for f in dec[:len(tg)]])
-    name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__w{W_enc}_c{crf}.npz'
-    np.savez_compressed(os.path.join(out_dir, name), img=dec,
-                        center=np.stack([t['center'] for t in tg]), pts=np.stack([t['pts'] for t in tg]),
-                        ori=np.stack([t['ori'] for t in tg]), fill=np.stack([t['fill'] for t in tg]), cid=np.stack([t['cid'] for t in tg]),
-                        attr=np.stack([t['attr'] for t in tg]), joint=np.stack([t['joint'] for t in tg]), kind=np.stack([t['kind'] for t in tg]),
-                        aoid=np.stack([t['aoid'] for t in tg]), bg=np.stack([t['bg'] for t in tg]),
-                        meta=json.dumps(dict(file=rel, W_enc=W_enc, thick=u, crf=crf, hwr=hwr, frames=len(tg), attr=ATTR)))
+    if len(dec) != len(tg):  # 인코딩 실패·장 수 어긋남은 저장하지 않는다(GPT 검토 17)
+        return rel, f'err:frames {len(dec)}/{len(tg)}'
+    dec = np.stack([cv2.resize(f, (OUT_W, H), interpolation=cv2.INTER_AREA) for f in dec])
+    # 이름에 seed — 같은 해상도 반복본이 압축값이 같아 덮어쓰지 않게(GPT 검토 6). 다 쓴 뒤 바꿔치기
+    name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__w{W_enc}_c{crf}_s{seed % 1000000}.npz'
+    tmp = os.path.join(out_dir, name + '.tmp')
+    with open(tmp, 'wb') as fh:
+        np.savez_compressed(fh, img=dec,
+                            center=np.stack([t['center'] for t in tg]), pts=np.stack([t['pts'] for t in tg]),
+                            ori=np.stack([t['ori'] for t in tg]), fill=np.stack([t['fill'] for t in tg]), cid=np.stack([t['cid'] for t in tg]),
+                            attr=np.stack([t['attr'] for t in tg]), joint=np.stack([t['joint'] for t in tg]), kind=np.stack([t['kind'] for t in tg]),
+                            aoid=np.stack([t['aoid'] for t in tg]), bg=np.stack([t['bg'] for t in tg]),
+                            meta=json.dumps(dict(file=rel, W_enc=W_enc, thick=u, crf=crf, hwr=hwr, frames=len(tg), attr=ATTR, seed=seed)))
+    os.replace(tmp, os.path.join(out_dir, name))
     return rel, f'ok {len(tg)}'
 
 
@@ -306,15 +321,28 @@ def main():
     a = ap.parse_args()
     os.makedirs(a.out_dir, exist_ok=True)
     files = file_list()
+    hold = file_list(only='holdout')
+    print('학습 파일', len(files), '시험용(뺌)', len(hold), flush=True)
+    assert not set(files) & set(hold) and len(hold) >= 37, '시험용 제외 확인 실패'  # GPT 검토 12
     if a.limit:
         files = files[:a.limit]
     jobs = [(f, a.out_dir, a.seed * 100003 + i * 7919 + r, a.max_frames, a.res) for r in range(a.repeat) for i, f in enumerate(files)]
     from multiprocessing import Pool
+    ok, bad = 0, []
     with Pool(a.workers) as pool:
         for k, (rel, st) in enumerate(pool.imap_unordered(one, jobs)):
+            if st.startswith('ok'):
+                ok += 1
+            elif st not in ('empty',):
+                bad.append((rel, st))
             if not st.startswith('ok') or k % 25 == 0:
                 print(k + 1, '/', len(jobs), rel, st, flush=True)
-    print('끝', len(jobs))
+    # 완료 표시(GPT 검토 17): 다음 실행은 이 파일이 있을 때만 '다 만들었다'로 본다
+    json.dump(dict(jobs=len(jobs), ok=ok, failed=bad, holdout=file_list(only='holdout')),
+              open(os.path.join(a.out_dir, '_done.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    print('끝', len(jobs), '성공', ok, '실패', len(bad))
+    if ok < 0.8 * len(jobs) and not a.limit:
+        raise SystemExit('자료 만들기 실패가 너무 많음')
 
 
 if __name__ == '__main__':
