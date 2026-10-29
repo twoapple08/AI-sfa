@@ -5,7 +5,9 @@
 2) 묶음만 흰 바탕에 렌더 → 덮인 영역 윤곽 → 직선으로 단순화한 면(FR, 같은 색) + 투명 테두리 선.
 3) 판정: 면으로 그린 묶음과 선으로 그린 묶음을 비교해 다른 픽셀이 묶음 넓이의 --max-diff 이하일 때만 교체
    (빗금 사이로 바탕이 보이는 '질감 칠'·반투명 겹침으로 색이 달라지는 칠은 자동으로 남는다).
-4) 테두리 선은 지운 선들의 ID·점 ID를 다시 써서 그리는 순서를 그대로 유지한다(채우기는 주인 선 자리에 그려짐).
+4) 점 표시(docs/REF-SFA-FILE-BUILDER-2026-10-27.md 파란점 규칙): 테두리 고리마다 파란점(Flags 3) 1개, 꼭짓점마다 겹친 두 끝점 중 하나만 표시(9, 다른 쪽 8).
+   파란점 자리의 다른 끝점도 8(9면 주황점이 파란점을 덮는다).
+5) 테두리 선은 지운 선들의 ID·점 ID를 다시 써서 그리는 순서를 그대로 유지한다(채우기는 주인 선 자리에 그려짐).
 사용: python sfa_linefill_runs.py 원본.sfa 출력.sfa [--eps 1.2] [--min-run 20] [--max-diff 0.03]
 """
 import argparse
@@ -126,7 +128,7 @@ def main():
                     for t, q in enumerate((p0, p1)):
                         x, y = (q[0] - geo.ox) / geo.uw * 100, (q[1] - geo.oy) / geo.uh * 100
                         pid = pids[2 * k + t]
-                        ET.SubElement(o, 'AP', dict(ID=str(pid), Flags=('3' if j == 0 else '8') if t == 0 else '9', Index=str(t), X=str(round(float(x), 4)), Y=str(round(float(y), 4))))
+                        ET.SubElement(o, 'AP', dict(ID=str(pid), Flags=('3' if j == 0 else '8') if t == 0 else ('8' if j == len(p) - 1 else '9'), Index=str(t), X=str(round(float(x), 4)), Y=str(round(float(y), 4))))
                         pp.append(pid)
                     objs.append((o, pp))
                     k += 1

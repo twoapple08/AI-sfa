@@ -97,7 +97,7 @@ def main():
             ids = []
             for j, q in enumerate((p0, p1)):
                 x, y = inv(*q)
-                ET.SubElement(o, 'AP', dict(ID=str(pid[0]), Flags=('3' if k == 0 else '8') if j == 0 else '9', Index=str(j), X=str(round(float(x), 4)), Y=str(round(float(y), 4))))
+                ET.SubElement(o, 'AP', dict(ID=str(pid[0]), Flags=('3' if k == 0 else '8') if j == 0 else ('8' if k == len(pts) - 1 else '9'), Index=str(j), X=str(round(float(x), 4)), Y=str(round(float(y), 4))))
                 ids.append(pid[0])
                 pid[0] += 1
             objs.append((o, ids))
