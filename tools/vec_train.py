@@ -182,8 +182,13 @@ def loss_fn(p, y):
     bgm = valid * (1 - on_any) * (1 - near)
     lb = ((torch.sigmoid(p[:, 25:28]) - y[:, 23:26]).abs() * bgm).sum() / (bgm.sum() * 3 + 1)
     # 선 색(2026-10-29 1차 학습: 파란 선을 검게 예측) — 가운데선 1px만이 아니라 3px 띠에서도, 가중치 3. 띠의 정답은 가까운 가운데선 색(최댓값 풀링)
+    # GPT 5차 1: 채널마다 최댓값을 따로 뽑으면 빨강+파랑 → 자홍처럼 섞인다. 띠 픽셀은 3×3 안 '가운데선 픽셀 하나'의 RGB를 통째로 가져오고,
+    # 가운데선 픽셀은 자기 색 그대로.
     band = F.max_pool2d(on_line, 3, 1, 1) * valid
-    ycol = F.max_pool2d(ya[:, 1:4] * on_line, 3, 1, 1)
+    _, idx = F.max_pool2d(on_line, 3, 1, 1, return_indices=True)
+    rgb = ya[:, 1:4]
+    got = rgb.flatten(2).gather(2, idx.flatten(2).expand(-1, 3, -1)).view_as(rgb)
+    ycol = torch.where(on_line > 0, rgb, got)
     lcol = ((a[:, 1:4] - ycol).abs() * band).sum() / (band.sum() * 3 + 1)
     tot = lc + dice + lp + lo + lf + 2 * ll + 3 * lcol + lga + lg + lfa + lo2 + lj + 0.5 * lk + lb
     return tot, dict(c=lc.item(), dice=dice.item(), p=lp.item(), o=lo.item(), f=lf.item(), line=ll.item(), color=lcol.item(), glow_a=lga.item(), glow=lg.item(),
@@ -255,7 +260,9 @@ def main():
     # 마지막 검증·저장 시간을 미리 떼어 둔다(서버 실행 시험: 학습이 시간을 다 쓰면 마지막 검증이 바로 멈춰 마지막 모델이 최고 선택에서 빠졌다)
     reserve = min(300.0, 0.05 * a.hours * 3600)
     st = dict(progress=0.0, step=0, skipped=0, best=1e9, plan=(a.plan_hours or a.hours) * 3600 - reserve, max_n=10 ** 9, lr=a.lr)
-    if not (a.resume and os.path.exists(a.resume)) and a.init and os.path.exists(a.init):
+    if a.init and not (a.resume and os.path.exists(a.resume)):
+        if not os.path.exists(a.init):  # GPT 5차 2: 지정한 시작 가중치가 없으면 조용히 처음부터 하지 않는다
+            raise SystemExit(f'시작 가중치 없음: {a.init}')
         sd = torch.load(a.init, map_location=dev, weights_only=False)
         sd = sd.get('model', sd) if isinstance(sd, dict) and 'model' in sd else sd
         net.load_state_dict(sd)

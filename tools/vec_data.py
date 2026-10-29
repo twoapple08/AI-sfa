@@ -362,7 +362,7 @@ def main():
     jobs += [(f, a.out_dir, a.seed * 100003 + i * 7919 + r + 500009, a.max_frames, a.res, 1.0)
              for r in range(a.repeat) for i, f in enumerate(files) if pick.random() < a.synth]
     from multiprocessing import Pool
-    ok, bad, names = 0, [], []
+    ok, ok_plain, bad, names = 0, 0, [], []
     pool = Pool(a.workers)
     pend = {i: pool.apply_async(one, (j,)) for i, j in enumerate(jobs)}
     last_done = time.time()
@@ -382,6 +382,7 @@ def main():
             del pend[i]
             if st.startswith('ok'):
                 ok += 1
+                ok_plain += jobs[i][5] == 0.0
                 names.append(nm[0])
             elif st not in ('empty', 'skip'):
                 bad.append((rel, st))
@@ -392,12 +393,12 @@ def main():
     pool.terminate()
     # 완료 표시(GPT 검토 17·2차): 성공 조건을 통과한 뒤에만, 설정과 함께 원자적으로. 실패하면 이전 표시도 지운다
     done = os.path.join(a.out_dir, '_done.json')
-    if ok < 0.8 * sum(1 for j in jobs if j[5] == 0.0) and not a.limit:  # 기준은 원본 작업 수(합성 작업은 흰 바탕이 아니면 건너뛰므로)
+    if ok_plain < 0.8 * sum(1 for j in jobs if j[5] == 0.0) and not a.limit:  # 원본 작업만으로 판정 — 합성 성공이 원본 실패를 가리지 않게(GPT 5차 8)
         if os.path.exists(done):
             os.remove(done)
         raise SystemExit(f'자료 만들기 실패가 너무 많음: 성공 {ok}/{len(jobs)}')
     tmp = done + '.tmp'
-    json.dump(dict(jobs=len(jobs), ok=ok, failed=bad, files=sorted(names), holdout=file_list(only='holdout'), config=config(a)),
+    json.dump(dict(jobs=len(jobs), ok=ok, ok_plain=ok_plain, failed=bad, files=sorted(names), holdout=file_list(only='holdout'), config=config(a)),
               open(tmp, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     os.replace(tmp, done)
     print('끝', len(jobs), '성공', ok, '실패', len(bad))

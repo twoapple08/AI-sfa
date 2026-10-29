@@ -99,19 +99,32 @@ def main():
             resume = os.path.join(out, 'ckpt.pt')
             print('이전 저장본에서 이어서(ckpt.pt)', flush=True)
     init = ''
-    if not resume and a.init_from and a.rclone:  # 2차 학습: 1차 최고 모델의 가중치에서 출발
+    if not resume and a.init_from:  # 2차 학습: 1차 최고 모델의 가중치에서 출발. 실패하면 학습 전에 멈춘다(GPT 5차 2: 조용히 처음부터 하지 않게)
+        ip = os.path.join(out, 'init.pt')
+        if os.path.exists(ip):
+            os.remove(ip)  # 예전에 남은 파일을 '받기 성공'으로 착각하지 않게
         src = f'{DRIVE_BASE}/{a.init_from}'
-        for nm in ('best.pt', 'best_fallback_last.pt'):
-            sh(f'"{a.rclone}" copyto "{src}/{nm}" "{os.path.join(out, "init.pt")}"', check=False)
-            if os.path.exists(os.path.join(out, 'init.pt')):
-                init = os.path.join(out, 'init.pt')
+        for nm in ('best.pt', 'best_fallback_last.pt') if a.rclone else ():
+            r = sh(f'"{a.rclone}" copyto "{src}/{nm}" "{ip}"', check=False)
+            if r.returncode == 0 and os.path.exists(ip):
+                try:
+                    import torch
+                    sd = torch.load(ip, map_location='cpu', weights_only=False)
+                    assert isinstance(sd, dict) and len(sd) > 10
+                except Exception as e:
+                    print('받은 시작 가중치를 열 수 없음:', nm, e, flush=True)
+                    os.remove(ip)
+                    continue
+                init = ip
                 print('시작 가중치:', a.init_from, nm, flush=True)
                 break
+        if not init:
+            raise SystemExit(f'1차 모델({src}/best.pt)을 받지 못해 멈춤. Drive 연결을 확인하거나, 처음부터 하려면: pc_vec_5060.bat {a.hours} scratch')
     t0 = time.time()
     for res in ('1920', '1280', '854', '640'):
         d = os.path.join(data, res)
         rep = 1 if res in ('1920', '1280') else a.repeat  # 큰 화질은 만드는 데 오래 걸려 1번(GPT 검토 14)
-        if done_ok(d, res=int(res), repeat=rep, max_frames=24, limit=0, seed=int(res)):  # 같은 설정으로 다 만든 표시가 있을 때만 건너뜀(GPT 2차 17)
+        if done_ok(d, res=int(res), repeat=rep, max_frames=24, limit=0, seed=int(res), synth=0.3):  # 같은 설정으로 다 만든 표시가 있을 때만 건너뜀(GPT 2차 17)
             continue
         t1 = time.time()
         sh(f'cd /d "{tools}" && "{py}" -u vec_data.py "{d}" --res {res} --repeat {rep} --max-frames 24 --workers {cpus} --seed {res}')
