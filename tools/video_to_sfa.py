@@ -182,6 +182,65 @@ def fit_circle(P, max_res=0.07, min_cover=300.0):
     return None
 
 
+def bridge_chains(chains, covered, max_gap, probe, max_turn=25.0, col_de=40.0, min_cov=0.7):
+    """끊긴 선 다시 잇기(사용자 10-29: '한 선으로 안 잇고 끊어내는 이유'). 두 획의 끝이
+    ① 서로를 향해 같은 방향으로 뻗고(각 끝의 바깥 방향과 두 끝을 잇는 방향 차 max_turn도 이하),
+    ② 색이 같고(BGR 거리 col_de 이하), ③ 사이 틈의 min_cov 이상이 원래 먹이나 지운 자리(= 다른 선에 가려짐)면 한 획으로 잇는다.
+    가장 잘 맞는(틈 짧고 곧은) 쌍부터, 더 이을 것이 없을 때까지."""
+    chains = [(np.asarray(p, float), np.asarray(c, float)) for p, c in chains]
+    H, W = covered.shape
+
+    def end_dir(P, at_end):
+        q = P[::-1] if at_end else P
+        L = np.r_[0, np.cumsum(np.linalg.norm(np.diff(q, axis=0), axis=1))]
+        j = min(int(np.searchsorted(L, probe)), len(q) - 1)
+        v = q[0] - q[j]  # 획 안쪽 → 끝 = 바깥 방향
+        return q[0], v / max(np.linalg.norm(v), 1e-9)
+
+    def gap_cov(a, b):
+        n = max(int(np.linalg.norm(b - a)), 2)
+        t = np.linspace(0, 1, n)[:, None]
+        q = a * (1 - t) + b * t
+        xs = np.clip(q[:, 0].astype(int), 0, W - 1)
+        ys = np.clip(q[:, 1].astype(int), 0, H - 1)
+        return float(covered[ys, xs].mean())
+    while True:
+        best = None
+        E = [(i, e) + end_dir(P, e == 1) for i, (P, _) in enumerate(chains) if len(P) >= 2 for e in (0, 1)]
+        for x in range(len(E)):
+            i, ei, pa, da = E[x]
+            for y in range(x + 1, len(E)):
+                j, ej, pb, db = E[y]
+                if i == j:
+                    continue
+                g = pb - pa
+                d = float(np.linalg.norm(g))
+                if d > max_gap or np.linalg.norm(chains[i][1] - chains[j][1]) > col_de:
+                    continue
+                if d > 1e-6:
+                    u = g / d
+                    ta = np.degrees(np.arccos(np.clip(np.dot(da, u), -1, 1)))
+                    tb = np.degrees(np.arccos(np.clip(np.dot(db, -u), -1, 1)))
+                else:
+                    ta = tb = 0.0
+                tt = np.degrees(np.arccos(np.clip(-np.dot(da, db), -1, 1)))
+                if max(ta, tb, tt) > max_turn:
+                    continue
+                if d > 3 and gap_cov(pa, pb) < min_cov:
+                    continue
+                score = d / max_gap + max(ta, tb, tt) / max_turn
+                if best is None or score < best[0]:
+                    best = (score, i, ei, j, ej)
+        if best is None:
+            return [(P, c) for P, c in chains]
+        _, i, ei, j, ej = best
+        A = chains[i][0] if ei == 1 else chains[i][0][::-1]  # A의 끝 = 잇는 끝
+        B = chains[j][0] if ej == 0 else chains[j][0][::-1]  # B의 시작 = 잇는 끝
+        la, lb = len(chains[i][0]), len(chains[j][0])
+        col = (chains[i][1] * la + chains[j][1] * lb) / (la + lb)
+        chains = [c for k, c in enumerate(chains) if k not in (i, j)] + [(np.vstack([A, B]), col)]
+
+
 def merge_strokes(out, gap, ang=8.0, off=1.5):
     """갈림점에서 끊긴 곧은 선을 같은 색끼리 다시 잇는다(cube_vector_sfa.join_lines, 색은 1/32 단위로 묶음)."""
     groups = {}
@@ -322,7 +381,8 @@ def find_circles(big, m, up, min_r=4.0, max_r=60.0, on_ring=0.85, inside_empty=0
     return out, m2
 
 
-def frame_strokes(img, up=2, ink_thr=28.0, corner=35.0, line_tol=1.0, quad_tol=1.4, min_len=6, join=True, mass_px=10.0, mode='points'):
+def frame_strokes(img, up=2, ink_thr=28.0, corner=35.0, line_tol=1.0, quad_tol=1.4, min_len=6, join=True, mass_px=10.0, mode='points', cover=None):
+    """cover: 입력 장 크기 마스크 — 지운 자리(예: 스틱맨). 끊긴 선 잇기에서 '가려진 틈'으로 인정한다."""
     from skimage.morphology import skeletonize
     big = cv2.resize(img, None, fx=up, fy=up, interpolation=cv2.INTER_CUBIC)
     lab = cv2.cvtColor(big, cv2.COLOR_BGR2LAB).astype(np.float32)
@@ -338,11 +398,19 @@ def frame_strokes(img, up=2, ink_thr=28.0, corner=35.0, line_tol=1.0, quad_tol=1
     n, cc, st, _ = cv2.connectedComponentsWithStats(m, 8)
     small = np.where(st[:, cv2.CC_STAT_AREA] < 4 * up * up)[0]
     m[np.isin(cc, small)] = 0
+    covered = m.copy()  # 원래 먹(덩어리·원 빼기 전) + 지운 자리 = 끊긴 선 사이 틈이 '가려진 것'인지 판단용
+    if cover is not None:
+        covered |= cv2.resize(cover.astype(np.uint8), (m.shape[1], m.shape[0]), interpolation=cv2.INTER_NEAREST)
     # 굵은 덩어리(먹 폭 10px@640 이상 — 흐린 360p에선 보통 선도 먹 폭 약 6.5px, 뭉개진 빗금·칠한 면은 14px 이상) → 채우기 면, 나머지 → 선
     R = int(mass_px * up / 2)
-    core = (cv2.distanceTransform(m, cv2.DIST_L2, 3) >= R).astype(np.uint8)
+    dtm = cv2.distanceTransform(m, cv2.DIST_L2, 3)
+    core = (dtm >= R).astype(np.uint8)
     n, cc, st, _ = cv2.connectedComponentsWithStats(core, 8)  # 선이 겹친 갈림점의 작은 핵은 덩어리가 아님
     core[np.isin(cc, np.where(st[:, cv2.CC_STAT_AREA] < 20 * up * up)[0])] = 0
+    # 가는 선 두 개가 붙은 띠(가시 'Λ', 칼날 겹선)는 핵이 길쭉하고 가장 두꺼운 곳이 폭 18px@640 미만 → 선으로 남김(사용자 10-29 끊김 지적)
+    peak = np.zeros(n)
+    np.maximum.at(peak, cc.ravel(), dtm.ravel())
+    core[np.isin(cc, np.where(peak < 9 * up)[0])] = 0
     ker = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * R + 3, 2 * R + 3))
     mass = cv2.dilate(core, ker) & m
     regions = mass_regions(big, lab, mass, up, corner, line_tol, quad_tol, closed=(mode == 'points')) if mass.sum() else []
@@ -387,7 +455,9 @@ def frame_strokes(img, up=2, ink_thr=28.0, corner=35.0, line_tol=1.0, quad_tol=1
     mask_w = 2 * float(np.median(dist[sk])) if sk.any() else 4.0 * up
     cols = [snap_black(np.median(np.array([big[y, x] for y, x in pth]), axis=0)) for pth in paths]
     out = []
-    for pts, col in chain_paths(paths, cols, node_r=0.7 * mask_w, spur=1.2 * mask_w):
+    chains = chain_paths(paths, cols, node_r=0.7 * mask_w, spur=1.2 * mask_w)
+    chains = bridge_chains(chains, covered, max_gap=max(6 * mask_w, 40 * up), probe=2 * mask_w)
+    for pts, col in chains:
         P = pts / up
         if float(np.linalg.norm(np.diff(P, axis=0), axis=1).sum()) < max(min_len / up, 1.5 * width / up):
             continue

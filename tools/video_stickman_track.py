@@ -458,8 +458,9 @@ def erase_figure(img, pose, col_bgr, bg_bgr, col_thr=45.0):
     for l in pose['arms'] + pose['legs']:
         cv2.polylines(m, [np.int32(np.round(l))], False, 1, 2 * w)
     out = img.copy()
-    out[(m > 0) & near_col] = bg_bgr
-    return out
+    er = (m > 0) & near_col
+    out[er] = bg_bgr
+    return out, er
 
 
 def convert_with_figures(video, idxs, out, lib, crop=None, thick_mul=0.7, colors=None, **kw):
@@ -476,12 +477,14 @@ def convert_with_figures(video, idxs, out, lib, crop=None, thick_mul=0.7, colors
         bg_bgr = cv2.cvtColor(np.uint8([[bgl]]), cv2.COLOR_LAB2BGR)[0, 0]
         rigs = []
         clean = im
+        cover = np.zeros(im.shape[:2], bool)
         for fig, (col, tr) in enumerate(zip(colors, tracks)):
             if tr[k] is not None:
-                clean = erase_figure(clean, tr[k], col, bg_bgr)
+                clean, er = erase_figure(clean, tr[k], col, bg_bgr)
+                cover |= er
                 rigs.append((fig, tr[k], col))
         if rigs:
-            (reg, st), w, bgl = V.frame_strokes(clean, **kw)
+            (reg, st), w, bgl = V.frame_strokes(clean, cover=cover, **kw)  # 지운 자리를 지나던 선은 다시 잇는다
         frames.append((reg, st, rigs))
         widths.append(w)
         bgs.append(bgl)
