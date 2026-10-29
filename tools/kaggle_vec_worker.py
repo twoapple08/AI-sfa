@@ -43,6 +43,10 @@ def main():
         gen(res)
     sh(f'du -sh {data}/*')
     print(f'자료 만들기·시험 {(time.time() - t0) / 60:.1f}분', flush=True)
+    import torch
+    if not torch.cuda.is_available():  # GPU 시간이 없을 때: 자료·짧은 시험까지만 확인하고 멈춤(사용자 10-29, Kaggle GPU 0시간)
+        print('GPU 없음 → 자료 만들기와 짧은 시험까지만 확인하고 멈춥니다. 오류 없이 여기까지 왔으면 GPU 시간이 돌아왔을 때 그대로 다시 실행하면 됩니다.', flush=True)
+        return
     sh(f'cd {tools} && python -u vec_train.py --data {data} --out {out} --hours {a.hours} --workers {max(2, cpus - 1)}')
     shutil.copy(os.path.join(tools, 'vec_train.py'), out)
     sh(f'cd {a.out} && zip -qr vec_out.zip vec_out')
