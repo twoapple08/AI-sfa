@@ -39,7 +39,7 @@ class Data:
 
     def __init__(self, folder, maxlen, in_w):
         self.in_w, self.in_h = in_w, in_w * 9 // 16
-        self.img, self.tok, self.fld, self.meta = [], [], [], []
+        self.img, self.tok, self.fld, self.meta, self.hwr = [], [], [], [], []
         for p in sorted(glob.glob(os.path.join(folder, '*.npz'))):
             d = np.load(p)
             meta = json.loads(str(d['meta']))
@@ -54,6 +54,7 @@ class Data:
                 self.tok.append(d['tok'][off[i]:off[i + 1]].astype(np.int64))
                 self.fld.append(d['fld'][off[i]:off[i + 1]].astype(np.int64))
                 self.meta.append(dict(meta, pos=int(d['pos'][i])))
+                self.hwr.append(float(meta.get('hwr', 0.5625)))
         self.ntok = sum(len(t) for t in self.tok)
 
     def __len__(self):
@@ -67,7 +68,8 @@ class Data:
             tok[b, :len(self.tok[i])] = torch.from_numpy(self.tok[i])
             fld[b, :len(self.fld[i])] = torch.from_numpy(self.fld[i])
         img = torch.from_numpy(np.stack([self.img[i] for i in idx])).permute(0, 3, 1, 2).float() / 255
-        return img, tok, fld
+        hwr = torch.tensor([self.hwr[i] for i in idx], dtype=torch.float32)
+        return img, tok, fld, hwr
 
 
 class Net(nn.Module):
@@ -81,6 +83,7 @@ class Net(nn.Module):
             bb = ctor(weights=None)
         self.enc = nn.Sequential(bb.conv1, bb.bn1, bb.relu, bb.maxpool, bb.layer1, bb.layer2, bb.layer3)   # 1/16, 256채널
         self.proj = nn.Conv2d(256, d, 1)
+        self.ratio = nn.Linear(1, d)   # 화면 비율(높이/폭) — 입력은 늘여 넣으므로 원이 타원으로 보이는 정도를 알려 준다
         self.row = nn.Embedding(128, d)
         self.col = nn.Embedding(128, d)
         self.emb = nn.Embedding(K.VOCAB, d)
@@ -94,11 +97,12 @@ class Net(nn.Module):
         self.register_buffer('mean', torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
         self.register_buffer('std', torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
 
-    def memory(self, img):
+    def memory(self, img, hwr):
         f = self.proj(self.enc((img - self.mean) / self.std))
         B, C, H, W = f.shape
         pe = self.row.weight[:H, None, :] + self.col.weight[None, :W, :]
-        return (f.flatten(2).transpose(1, 2) + pe.reshape(H * W, C)[None])
+        r = self.ratio(torch.log(hwr.view(-1, 1) / 0.5625))[:, None, :]
+        return f.flatten(2).transpose(1, 2) + pe.reshape(H * W, C)[None] + r
 
     def step(self, mem, tok, fld):
         T = tok.shape[1]
@@ -107,8 +111,8 @@ class Net(nn.Module):
         h = self.dec(x, mem, tgt_mask=causal, tgt_key_padding_mask=(tok == K.TOK['PAD']), tgt_is_causal=True)
         return self.head(self.norm(h))
 
-    def forward(self, img, tok, fld):
-        return self.step(self.memory(img), tok, fld)
+    def forward(self, img, tok, fld, hwr):
+        return self.step(self.memory(img, hwr), tok, fld)
 
 
 def loss_fn(logits, tgt, fld):
@@ -181,11 +185,11 @@ class Cache:
 
 
 @torch.no_grad()
-def generate(net, img, maxlen=None, temp=0.0):
+def generate(net, img, hwr, maxlen=None, temp=0.0):
     """문법 강제 생성(한 장, KV 캐시)."""
     dev = img.device
     maxlen = maxlen or net.maxlen
-    mem = net.memory(img[None])
+    mem = net.memory(img[None], torch.tensor([hwr], dtype=torch.float32, device=dev))
     cache = Cache(net, mem)
     g = K.grammar()
     al = next(g)
@@ -255,11 +259,11 @@ def train(a):
             chunks = [sorted(idx[i:i + a.batch * 50], key=lambda k: len(tr.tok[k])) for i in range(0, len(idx), a.batch * 50)]
             order = [c[i:i + a.batch] for c in chunks for i in range(0, len(c), a.batch)]
             random.shuffle(order)
-        img, tok, fld = (x.to(dev) for x in tr.batch(order.pop()))
+        img, tok, fld, hwr = (x.to(dev) for x in tr.batch(order.pop()))
         for g in opt.param_groups:
             g['lr'] = lr_at(step, total, a.lr)
         with torch.autocast(dev, dtype=dt, enabled=amp):
-            lg = net(img, tok[:, :-1], fld[:, :-1])
+            lg = net(img, tok[:, :-1], fld[:, :-1], hwr)
         loss, acc = loss_fn(lg, tok[:, 1:], fld[:, 1:])
         if not torch.isfinite(loss):
             opt.zero_grad(set_to_none=True)
@@ -283,9 +287,9 @@ def train(a):
             vl, vc, n = 0.0, 0.0, 0
             with torch.no_grad():
                 for i in range(0, min(len(va), a.val_n), a.batch):
-                    im, tk, fd = (x.to(dev) for x in va.batch(list(range(i, min(i + a.batch, len(va), a.val_n)))))
+                    im, tk, fd, hr = (x.to(dev) for x in va.batch(list(range(i, min(i + a.batch, len(va), a.val_n)))))
                     with torch.autocast(dev, dtype=dt, enabled=amp):
-                        lg = net(im, tk[:, :-1], fd[:, :-1])
+                        lg = net(im, tk[:, :-1], fd[:, :-1], hr)
                     l_, c_ = loss_fn(lg, tk[:, 1:], fd[:, 1:])
                     vl += l_.item()
                     vc += c_.item()
@@ -325,7 +329,7 @@ def draw(a):
     rng = random.Random(a.seed)
     pick = rng.sample(range(len(ds)), min(a.n, len(ds)))
     R.PARAMS['pad'] = 0.0
-    W, H = 640, 360
+    W = 640
     R.PARAMS['thick_mul'] = W / 1920
     rows = []
     scores = []
@@ -334,8 +338,10 @@ def draw(a):
     for k, i in enumerate(pick):
         t0 = time.time()
         img = torch.from_numpy(ds.img[i]).permute(2, 0, 1).float().to(dev) / 255
-        toks, done = generate(net, img, c['maxlen'])
-        seq = seq_xml(ds.meta[i]['hwr'])
+        hwr = ds.hwr[i]
+        toks, done = generate(net, img, hwr, c['maxlen'])
+        seq = seq_xml(hwr)
+        H = max(2, int(round(W * hwr)))   # 보여 줄 때는 파일 비율 그대로
         pred = K.decode(toks, fid=k + 1, pos=k, ids=ids)
         ans = K.decode(ds.tok[i].tolist())
         im_p = R.render_frame(seq, pred, W, H)
@@ -354,7 +360,7 @@ def draw(a):
             cv2.putText(im, lab, (6, 18), 0, 0.55, (255, 0, 0), 1)
         rows.append(np.hstack(cells))
         if out_seq is None:
-            out_seq = seq_xml(ds.meta[i]['hwr'])
+            out_seq = seq_xml(hwr)   # 시험용 묶음: 첫 장의 비율(다른 비율 장도 같은 파일에 들어가므로 앱에서 보면 늘어나 보일 수 있다)
         out_seq.append(pred)
     cv2.imwrite(a.sheet, cv2.cvtColor(np.vstack(rows), cv2.COLOR_RGB2BGR))
     tot_m, tot_a, tot_p = sum(x['match'] for x in scores), sum(x['ans'] for x in scores), sum(x['pred'] for x in scores)

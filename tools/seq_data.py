@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """재설계 학습 자료(2026-10-30, docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md): SFA 장 → (압축 영상 장, 정답 토큰열).
-그림은 앱처럼 렌더(굵기는 1920 기준 비율 그대로 — 정답 파일과 같은 굵기)한 뒤 H.264로 압축·복원한다.
+그림은 앱처럼 파일 비율 그대로 렌더(굵기는 1920 기준 비율 그대로 — 정답 파일과 같은 굵기)한 뒤 H.264로 압축·복원하고,
+모델 입력 크기로 늘이거나 줄인다(비율은 meta.hwr로 모델에 따로 준다).
 정답 = sfa_tokens.encode 토큰열 + 토큰마다 칸 번호(fields). 파일마다 npz 하나: img (n,H,W,3), tok/fld (이어 붙임), off (n+1).
 사용: python seq_data.py 출력폴더 [--maxlen 2048] [--max-frames 200] [--every 1] [--holdout]
 """
@@ -12,6 +13,7 @@ import zipfile
 import xml.etree.ElementTree as ET
 from multiprocessing import Pool
 
+import cv2
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -34,7 +36,11 @@ def one(job):
     if len(frs) > a['max_frames']:
         s = int(rng.integers(0, len(frs) - a['max_frames'] + 1))
         frs = frs[s:s + a['max_frames']]
+    # 비율(사용자 10-30): 앱은 파일 비율 그대로 영상을 내보낸다(오버드라이브 0.45 → 1920×864 확인). 그래서 파일 비율로 렌더·압축한 뒤
+    # 모델 입력 크기(W×W·9/16)로 늘이거나 줄여 저장한다. SFA 좌표는 가로·세로 각각 0–100이라 이렇게 하면 그림 위치 ↔ 좌표가 비율과 무관하게 맞는다.
+    hwr = float(root.get('HeightWidthRatio') or 0.5625) or 0.5625
     W, H = a['W'], a['W'] * 9 // 16
+    Hr = max(2, int(round(W * hwr / 2)) * 2)
     R.PARAMS['pad'] = 0.0
     R.PARAMS['thick_mul'] = W / 1920
     imgs, toks, flds, pos = [], [], [], []
@@ -46,7 +52,7 @@ def one(job):
             f = K.fields(t)
         except ValueError:
             continue
-        imgs.append(R.render_frame(root, fr, W, H))
+        imgs.append(R.render_frame(root, fr, W, Hr))
         toks.append(t)
         flds.append(f)
         pos.append(int(fr.get('Position')))
@@ -56,6 +62,8 @@ def one(job):
     dec = V.encode_decode(imgs, crf)
     if len(dec) != len(imgs):
         return rel, f'err:frames {len(dec)}/{len(imgs)}'
+    if Hr != H:
+        dec = np.stack([cv2.resize(f, (W, H), interpolation=cv2.INTER_AREA if Hr > H else cv2.INTER_LINEAR) for f in dec])
     off = np.cumsum([0] + [len(t) for t in toks])
     name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__c{crf}.npz'
     tmp = os.path.join(out_dir, name + '.tmp')
@@ -63,7 +71,7 @@ def one(job):
         np.savez_compressed(fh, img=dec, tok=np.concatenate(toks).astype(np.int16), fld=np.concatenate(flds).astype(np.int8),
                             off=off.astype(np.int64), pos=np.array(pos),
                             meta=json.dumps(dict(file=rel, crf=crf, W=W, H=H, vocab=K.VOCAB, xstep=K.XSTEP,
-                                                 hwr=float(root.get('HeightWidthRatio') or 0.5625) or 0.5625)))
+                                                 hwr=hwr, render_h=Hr)))
     os.replace(tmp, os.path.join(out_dir, name))
     return rel, f'ok {len(imgs)}'
 
