@@ -6,6 +6,9 @@
   wait     : 끝날 때까지 기다림(10분 간격, 최대 13시간)
   pull     : 결과(out/ckpt.pt·best.pt·log.jsonl·train_console.txt) 받기
   save-ckpt: 받은 ckpt.pt·best.pt·log.jsonl을 비공개 자료 aisfa-seq-ckpt로 올림(다음 push가 이어서 학습)
+  to-drive 폴더 학습이름  : 받은 결과를 Drive seq/학습이름 으로 → PC(pc_seq_*.bat, 같은 학습 이름)가 이어서(사용자 10-30)
+  from-drive 학습이름 폴더: PC가 Drive에 올린 학습 상태를 받음 → save-ckpt 폴더 로 Kaggle이 이어서
+  학습 상태 한 파일(ckpt.pt)에 모델·최적화기·진행이 다 있어 GPU가 바뀌어도 이어진다(fp16↔bf16 배율 상태는 seq_train이 처리)
 사용: python kaggle_seq_remote.py push [--minutes 690] [--plan-minutes 0] | wait | pull 폴더 | save-ckpt 폴더
 """
 import argparse
@@ -113,6 +116,25 @@ def save_ckpt(a):
     print('이어하기 자료 올림:', f'{u}/{CKPT}', flush=True)
 
 
+DRIVE = 'gdrive:AI-sfa/02_분석자료/seq'
+
+
+def to_drive(a):
+    src = os.path.join(a.dir, 'out') if os.path.exists(os.path.join(a.dir, 'out', 'ckpt.pt')) else a.dir
+    inc = ' '.join(f'--include "{f}"' for f in ('ckpt.pt', 'best.pt', 'log.jsonl'))
+    r = subprocess.run(f'rclone copy "{src}" "{DRIVE}/{a.run}" {inc}', shell=True)
+    print('Drive에 올림:' if r.returncode == 0 else 'Drive 올리기 실패:', f'{DRIVE}/{a.run}', flush=True)
+
+
+def from_drive(a):
+    dst = os.path.join(a.dir, 'out')
+    os.makedirs(dst, exist_ok=True)
+    inc = ' '.join(f'--include "{f}"' for f in ('ckpt.pt', 'best.pt', 'log.jsonl'))
+    r = subprocess.run(f'rclone copy "{DRIVE}/{a.run}" "{dst}" {inc}', shell=True)
+    ok = r.returncode == 0 and os.path.exists(os.path.join(dst, 'ckpt.pt'))
+    print('Drive에서 받음:' if ok else 'Drive 받기 실패:', dst, flush=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest='cmd', required=True)
@@ -130,8 +152,14 @@ def main():
     for nm in ('pull', 'save-ckpt'):
         q = sub.add_parser(nm)
         q.add_argument('dir')
+    q = sub.add_parser('to-drive')
+    q.add_argument('dir')
+    q.add_argument('run')
+    q = sub.add_parser('from-drive')
+    q.add_argument('run')
+    q.add_argument('dir')
     a = ap.parse_args()
-    dict(push=push, status=status, wait=wait, pull=pull, **{'save-ckpt': save_ckpt})[a.cmd](a)
+    dict(push=push, status=status, wait=wait, pull=pull, **{'save-ckpt': save_ckpt, 'to-drive': to_drive, 'from-drive': from_drive})[a.cmd](a)
 
 
 if __name__ == '__main__':

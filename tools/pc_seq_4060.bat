@@ -8,8 +8,11 @@ rem You can close this window any time; the next run continues from the last sav
 rem Drive folder seq/s1_4060 (separate from the 5060 run so both PCs can train at the same time).
 set HOURS=8
 set PLAN=24
+set YIELD=--yield
 if not "%1"=="" set HOURS=%1
 if not "%2"=="" set PLAN=%2
+rem pc_seq_4060.bat 8 24 noyield  = no yield mode (training only, full GPU memory, normal priority)
+if "%3"=="noyield" set YIELD=
 rem W drive (user 10-29: C has 3GB free, W 200GB). Everything incl. pip/temp/torch caches goes to W.
 if "%AISFA_DRIVE%"=="" set AISFA_DRIVE=W:
 set ROOT=%AISFA_DRIVE%\aisfa
@@ -69,7 +72,7 @@ set RC=%ROOT%\rclone.exe
 %ROOT%\rclone.exe listremotes | findstr /c:"gdrive:" >nul || %ROOT%\rclone.exe config create gdrive drive scope=drive.file >nul
 
 echo [6/6] data -> train %HOURS% hours (Drive backup every 15 min; safe to leave the seat)
-%PY% -u %V%\repo\tools\pc_seq_run.py --root %V% --hours %HOURS% --plan-hours %PLAN% --rclone "%RC%" --run s1_4060 --yield || (echo. & echo FAILED - read the lines above and send a photo of this window & pause & exit /b 1)
+%PY% -u %V%\repo\tools\pc_seq_run.py --root %V% --hours %HOURS% --plan-hours %PLAN% --rclone "%RC%" --run s1_4060 %YIELD% || (echo. & echo FAILED - read the lines above and send a photo of this window & pause & exit /b 1)
 echo.
 echo DONE. Results: Drive folder seq/s1_4060 and %ROOT%\seq_s1_4060.zip
 pause

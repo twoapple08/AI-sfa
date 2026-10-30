@@ -343,14 +343,19 @@ def train(a):
     dt = torch.bfloat16 if amp and torch.cuda.get_device_capability(0)[0] >= 8 else torch.float16
     scaler = torch.amp.GradScaler('cuda', enabled=amp and dt == torch.float16)
     if saved:   # 이어하기: 배율·난수 상태도(GPT 검토 10-30)
-        if saved.get('scaler'):
+        # 다른 GPU에서 이어하기(10-30: Kaggle T4 fp16 ↔ 4060 bf16): bf16 쪽 배율 상태는 비어 있어 fp16에서 불러오면 오류 → 비었으면 새 배율로.
+        # 난수 상태도 기기가 달라 맞지 않으면 건너뛴다(학습에는 영향 없음)
+        if saved.get('scaler') and scaler.is_enabled():
             scaler.load_state_dict(saved['scaler'])
         rs = saved.get('rng')
         if rs:
-            random.setstate(rs['py'])
-            torch.set_rng_state(rs['torch'])
-            if dev == 'cuda' and rs.get('cuda') is not None:
-                torch.cuda.set_rng_state(rs['cuda'])
+            try:
+                random.setstate(rs['py'])
+                torch.set_rng_state(rs['torch'])
+                if dev == 'cuda' and rs.get('cuda') is not None:
+                    torch.cuda.set_rng_state(rs['cuda'])
+            except Exception as e:
+                print('난수 상태 복원 건너뜀(다른 기기):', type(e).__name__, flush=True)
     base_lr = st.setdefault('base_lr', a.lr)   # 처음 정한 학습률(이어하기에서 명령줄 값으로 바뀌지 않게)
     if not len(tr):
         raise SystemExit('학습 자료 0장 — 자료 폴더 확인')
