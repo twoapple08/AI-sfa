@@ -341,13 +341,14 @@ def draw(a):
         im_p = R.render_frame(seq, pred, W, H)
         im_a = R.render_frame(seq, ans, W, H)
         src = cv2.resize(ds.img[i], (W, H))
-        sc = OS.score(pred, ans)
+        sc = OS.score(pred, ans)                    # 구조 채점(이동·같은 비율 확대로 맞춘 뒤 오브젝트 비교, 주 지표)
+        sc0 = OS.score(pred, ans, align=False)      # 제자리 채점(보조)
         scores.append(sc)
         f = lambda v: '-' if v is None else f'{v * 100:.0f}%'  # noqa: E731
         print(f'{ds.meta[i]["file"]} 장 {ds.meta[i]["pos"]}: 토큰 {len(toks)}/{len(ds.tok[i])} 끝냄 {done} | '
               f'오브젝트 AI {sc["pred"]} 원본 {sc["ans"]} 맞음 {sc["match"]} (원본 중 {f(sc["recall"])}, AI 중 {f(sc["precision"])}) '
               f'점 오차 {"-" if sc["pt_err"] is None else round(sc["pt_err"], 2)} 색 {f(sc["color"])} 굵기 {f(sc["thick"])} '
-              f'연결 F1 {f(sc["link_f1"])} 순서 {f(sc["order"])} ({time.time() - t0:.0f}초)', flush=True)
+              f'연결 F1 {f(sc["link_f1"])} 순서 {f(sc["order"])} 배율 {sc["scale"]:.2f} | 제자리 맞음 {sc0["match"]} ({time.time() - t0:.0f}초)', flush=True)
         cells = [src.copy(), im_p, im_a]
         for im, lab in zip(cells, ('input video', 'AI made SFA', 'answer SFA')):
             cv2.putText(im, lab, (6, 18), 0, 0.55, (255, 0, 0), 1)

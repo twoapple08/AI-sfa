@@ -4,6 +4,8 @@ AI가 만든 장과 원본 장의 오브젝트를 하나씩 짝지어(헝가리�
   짝 비용 = 점 사이 평균 거리(SFA 단위, 0–100 = 화면 폭/높이). 직선·곡선은 점 순서를 뒤집은 것도 본다. 종류가 다르면 +TYPE_PEN.
   맞음 = 같은 종류 + 평균 점 거리 ≤ tol.
 숫자: 맞은 오브젝트(재현율 = 원본 중 맞힌 비율, 정밀도 = AI 것 중 맞은 비율), 평균 점 오차, 색·굵기 일치, 연결 F1, 가림 순서 일치.
+구조 채점(align=True, 기본, 사용자 10-30 영상: 작게 그려도 선끼리 관계가 맞으면 O): AI 그림 전체를 이동 + 같은 비율 확대로
+원본에 맞춘 뒤 비교한다(회전은 안 함 — 기울어진 선은 틀림). 맞춘 배율·이동도 돌려준다. align=False는 제자리 비교.
 """
 import math
 
@@ -46,15 +48,18 @@ def _pdist(a, b):
     return float(min(d0, d1)), bool(d1 < d0)
 
 
-def score(pred_fr, ans_fr, tol=1.0):
-    P, lp = objs(pred_fr)
-    A, la = objs(ans_fr)
-    r = dict(pred=len(P), ans=len(A), match=0, recall=0.0, precision=0.0, pt_err=None, color=None, thick=None,
-             link_f1=None, order=None)
-    if not P or not A:
-        r['recall'] = 0.0 if A else 1.0
-        r['precision'] = 0.0 if P else 1.0
-        return r
+def _anchor(O):
+    pts = []
+    for o in O:
+        pts += o['xy'] if o['t'] != '2' else [tuple(np.mean(o['xy'], 0))]
+    return np.array(pts, float).reshape(-1, 2)
+
+
+def _apply(O, s, t):
+    return [dict(o, xy=[(x * s + t[0], y * s + t[1]) for x, y in o['xy']]) for o in O]
+
+
+def _cost(P, A):
     C = np.zeros((len(P), len(A)))
     flip = np.zeros((len(P), len(A)), bool)
     for i, p in enumerate(P):
@@ -62,6 +67,68 @@ def score(pred_fr, ans_fr, tol=1.0):
             d, f = _pdist(p, a)
             C[i, j] = d + (0 if p['t'] == a['t'] else TYPE_PEN)
             flip[i, j] = f
+    return C, flip
+
+
+def _fit(P, A, pairs, flip):
+    """짝지은 점들로 배율 s·이동 t 최소제곱(p' = s p + t)."""
+    X, Y = [], []
+    for i, j in pairs:
+        xp, xa = P[i]['xy'], A[j]['xy']
+        if len(xp) != len(xa):
+            continue
+        if flip[i, j]:
+            xp = xp[::-1]
+        X += xp
+        Y += xa
+    if len(X) < 2:
+        return None
+    X, Y = np.array(X), np.array(Y)
+    mx, my = X.mean(0), Y.mean(0)
+    vx = ((X - mx) ** 2).sum()
+    if vx < 1e-9:
+        return None
+    s = float(((X - mx) * (Y - my)).sum() / vx)
+    if s <= 0:
+        return None
+    return s, my - s * mx
+
+
+def score(pred_fr, ans_fr, tol=1.0, align=True):
+    P, lp = objs(pred_fr)
+    A, la = objs(ans_fr)
+    scale, shift = 1.0, (0.0, 0.0)
+    if align and P and A:
+        # 처음: 무게중심·크기(점 흩어짐) 맞추기 → 짝짓기 → 짝으로 배율·이동 다시 맞추기(2번)
+        ap, aa = _anchor(P), _anchor(A)
+        sp, sa = np.sqrt(((ap - ap.mean(0)) ** 2).sum(1).mean()), np.sqrt(((aa - aa.mean(0)) ** 2).sum(1).mean())
+        sc = sa / sp if sp > 1e-6 and sa > 1e-6 else 1.0
+        cand = [(1.0, np.zeros(2)), (sc, aa.mean(0) - sc * ap.mean(0))]
+        best = None
+        for s0, t0 in cand:
+            s_, t_ = s0, t0
+            for _ in range(3):
+                C, fl = _cost(_apply(P, s_, t_), A)
+                ri, ci = linear_sum_assignment(C)
+                good = [(i, j) for i, j in zip(ri, ci) if P[i]['t'] == A[j]['t'] and C[i, j] < 10 * tol]
+                f = _fit(P, A, good, fl)
+                if f is None:
+                    break
+                s_, t_ = f
+            C, fl = _cost(_apply(P, s_, t_), A)
+            ri, ci = linear_sum_assignment(C)
+            n_ok = sum(1 for i, j in zip(ri, ci) if P[i]['t'] == A[j]['t'] and C[i, j] <= tol)
+            if best is None or n_ok > best[0]:
+                best = (n_ok, s_, t_)
+        _, scale, shift = best
+        P = _apply(P, scale, shift)
+    r = dict(pred=len(P), ans=len(A), match=0, recall=0.0, precision=0.0, pt_err=None, color=None, thick=None,
+             link_f1=None, order=None, scale=float(scale), shift=tuple(float(v) for v in shift))
+    if not P or not A:
+        r['recall'] = 0.0 if A else 1.0
+        r['precision'] = 0.0 if P else 1.0
+        return r
+    C, flip = _cost(P, A)
     ri, ci = linear_sum_assignment(C)
     ok = [(i, j) for i, j in zip(ri, ci) if P[i]['t'] == A[j]['t'] and C[i, j] <= tol]
     r['match'] = len(ok)
