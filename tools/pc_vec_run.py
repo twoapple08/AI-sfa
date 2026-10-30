@@ -218,7 +218,7 @@ def main():
     if a.rclone:
         up = threading.Thread(target=uploader, args=(out, a.rclone, stop), daemon=True)
         up.start()
-    cmd = f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours {left:.2f} --workers {min(6, max(2, cpus - 2))}'
+    cmd = f'cd /d "{tools}" && "{py}" -u vec_train.py --data "{data}" --out "{out}" --hours {left:.2f} --workers {2 if a.yield_ else min(6, max(2, cpus - 2))}'  # 양보 모드는 2(4060 PC: C 여유 3GB라 가상 메모리가 모자라 작업자가 죽은 것으로 추정)
     if a.yield_:
         cmd += ' --yield'
     if resume:

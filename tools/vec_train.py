@@ -383,8 +383,9 @@ def main():
         if progress() >= BOUNDS[si] and not a.smoke:
             continue  # 이미 지난 단계(이어서 할 때)
         print(f"단계 {si + 1} 해상도 {res}: 학습 파일 {len(tr)} (앞 단계 {len(prev)}), 검증 {len(va)}, 진행 {progress() * 100:.1f}% → {BOUNDS[si] * 100:.0f}%", flush=True)
-        dl_new = torch.utils.data.DataLoader(DS(tr), batch_size=a.batch, num_workers=a.workers, persistent_workers=a.workers > 0)
-        dl_old = torch.utils.data.DataLoader(DS(prev), batch_size=a.batch, num_workers=max(1, a.workers // 2)) if prev else None
+        mk_new = lambda: torch.utils.data.DataLoader(DS(tr), batch_size=a.batch, num_workers=a.workers, persistent_workers=a.workers > 0)
+        mk_old = lambda: torch.utils.data.DataLoader(DS(prev), batch_size=a.batch, num_workers=max(1, a.workers // 2)) if prev else None
+        dl_new, dl_old = mk_new(), mk_old()
         it_new, it_old = iter(dl_new), iter(dl_old) if dl_old else None
         ep = 0
         steps0 = st['step']
@@ -394,18 +395,26 @@ def main():
                 yl.tick()
                 if progress() >= BOUNDS[si] and not a.smoke or out_of_time():
                     break
-                if it_old is not None and random.random() < 0.3:
-                    try:
-                        x, y = next(it_old)
-                    except StopIteration:
-                        it_old = iter(dl_old)
-                        x, y = next(it_old)
-                else:
-                    try:
-                        x, y = next(it_new)
-                    except StopIteration:
-                        it_new = iter(dl_new)
-                        x, y = next(it_new)
+                try:
+                    if it_old is not None and random.random() < 0.3:
+                        try:
+                            x, y = next(it_old)
+                        except StopIteration:
+                            it_old = iter(dl_old)
+                            x, y = next(it_old)
+                    else:
+                        try:
+                            x, y = next(it_new)
+                        except StopIteration:
+                            it_new = iter(dl_new)
+                            x, y = next(it_new)
+                except RuntimeError as e:  # 자료 읽기 작업자가 죽음(4060 2차 10-30 16:21: 'DataLoader worker exited unexpectedly'로 학습 종료) → 다시 만들고 계속
+                    print(time.strftime('%H:%M'), '자료 읽기 작업자 오류 → 다시 시작:', str(e)[:120], flush=True)
+                    del it_new, it_old, dl_new, dl_old
+                    time.sleep(5)
+                    dl_new, dl_old = mk_new(), mk_old()
+                    it_new, it_old = iter(dl_new), iter(dl_old) if dl_old else None
+                    continue
                 for g in opt.param_groups:  # 학습률: 계획 전체 진행에 걸쳐 코사인(이어서 해도 이어짐)
                     warm = min(1.0, (st['step'] - step_start + 1) / WARM) if WARM else 1.0  # 새 최적화기(처음·--init)는 첫 500걸음 예열: Adam 첫 걸음들이 배운 가중치를 크게 흔들지 않게
                     g['lr'] = warm * st['lr'] * (0.05 + 0.95 * 0.5 * (1 + np.cos(np.pi * min(progress(), 1.0))))
