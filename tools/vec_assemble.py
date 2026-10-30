@@ -28,7 +28,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import vec_train as T  # noqa: E402
 from cube_vector_sfa import corners_open  # noqa: E402
 from effect_vectorize import trace  # noqa: E402
-from video_to_sfa import chain_paths, fit_circle, fit_rel, smooth_open  # noqa: E402
+from cube_vector_sfa import fit_quad  # noqa: E402
+from video_to_sfa import chain_paths, find_circles, fit_circle, fit_rel, smooth_open  # noqa: E402
 
 W = 640
 TS_PX = 8 * 1.14 * W / 1920  # ThicknessScale 1 = 640 폭에서 약 3.04px
@@ -164,10 +165,124 @@ def line_items(p, img=None, up=2, corner=35.0, min_len=4.0):
     return out
 
 
+def peaks(h, thr=0.3, r=3):
+    """점 지도 → 극댓값 좌표들 (x, y, 값)."""
+    mx = cv2.dilate(h, np.ones((2 * r + 1, 2 * r + 1), np.uint8))
+    ys, xs = np.where((h >= mx) & (h > thr))
+    return [(float(x), float(y), float(h[y, x])) for y, x in zip(ys, xs)]
+
+
+def point_line_items(p, img, up=2, straight=0.04):
+    """2판(사용자 10-30 '점 찍고 선 넣기'): ① 고리 → 원 먼저 ② 모델이 예측한 끝점·관절 자리에 점 ③ 점과 점 사이 = 오브젝트 하나(직선, 휘면 곡선 하나)
+    ④ 같은 점에 닿은 끝끼리만 연결(관절 예측이 있는 점) ⑤ 원의 아래 끝이 선 끝과 만나면 그 둘도 연결(목)."""
+    from skimage.morphology import skeletonize
+    c = sig(p[0])
+    a = sig(p[5:21])
+    big = cv2.resize(c, None, fx=up, fy=up, interpolation=cv2.INTER_LINEAR)
+    m = (big > 0.5).astype(np.uint8)
+    if not m.any():
+        return []
+    bigimg = cv2.resize(img, None, fx=up, fy=up, interpolation=cv2.INTER_LINEAR)
+    A = [cv2.resize(a[i], None, fx=up, fy=up, interpolation=cv2.INTER_LINEAR) for i in range(16)]
+    dt = cv2.distanceTransform(m, cv2.DIST_L2, 3)
+    mw = 2 * float(np.median(dt[m > 0]))
+    circles, m2 = find_circles(bigimg[..., ::-1].copy(), m, up)
+    endh = cv2.resize(sig(p[1]), None, fx=up, fy=up, interpolation=cv2.INTER_LINEAR)
+    jh = cv2.resize(sig(p[21]), None, fx=up, fy=up, interpolation=cv2.INTER_LINEAR)
+    pts = peaks(np.maximum(endh, jh).astype(np.float32), 0.3, int(max(2, mw)))
+    PT = np.array([(x, y) for x, y, _ in pts]) if pts else np.zeros((0, 2))
+    isj = [jh[int(y), int(x)] > 0.3 for x, y, _ in pts]
+
+    def attrs(q):
+        q = np.clip(np.round(q).astype(int), 0, [m.shape[1] - 1, m.shape[0] - 1])
+        med = [float(np.median(A[i][q[:, 1], q[:, 0]])) for i in range(16)]
+        rgba = [int(round(v * 255)) for v in med[1:5]]
+        rgba[:3] = [int(v) for v in np.median(bigimg[q[:, 1], q[:, 0]].astype(float), axis=0)]
+        rgba[3] = 255 if rgba[3] >= 128 else rgba[3]
+        w = unlg(med[0], 256)
+        return dict(ts=max(w / TS_PX, 0.05), rgba=rgba, order=med[15],
+                    glow=(unlg(med[5], 300), unlg(med[6], 300), argb(*[int(round(v * 255)) for v in med[8:11]]), int(round(med[7] * 255))))
+    out = []
+    for segs, _col in circles:
+        (_, (t, b), _) = segs[0]
+        cx, r = t[0] * up, (b[1] - t[1]) * up / 2
+        ring = np.array([(cx + r * np.cos(th), t[1] * up + r + r * np.sin(th)) for th in np.linspace(0, 2 * np.pi, 48)])
+        out.append(dict(kind='obj', tid=2, pts=[t, b], ends=[None, None], **attrs(ring)))
+    sk = skeletonize(m2 > 0)
+    paths = [pth for pth in trace(sk) if len(pth) >= 2]
+    cols = [(0, 0, 0)] * len(paths)
+    chains = chain_paths(paths, cols, node_r=0.7 * mw, spur=1.2 * mw) if paths else []
+    snap = 1.2 * mw
+    for P, _ in chains:
+        L = float(np.linalg.norm(np.diff(P, axis=0), axis=1).sum())
+        if L < 2 * mw:
+            continue
+        # 이 획 위(가까이)에 있는 예측 점 → 그 자리에서 끊는다
+        cut = {0: None, len(P) - 1: None}
+        if len(PT):
+            d = np.linalg.norm(P[:, None, :] - PT[None], axis=2)
+            for k in range(len(PT)):
+                i = int(d[:, k].argmin())
+                if d[i, k] <= snap:
+                    if 0 < i < len(P) - 1 and min(np.linalg.norm(P[i] - P[0]), np.linalg.norm(P[i] - P[-1])) < 2 * mw:
+                        i = 0 if np.linalg.norm(P[i] - P[0]) < np.linalg.norm(P[i] - P[-1]) else len(P) - 1
+                    cut[i] = k
+        # 예측 점이 없는 급한 꺾임도 끊는다(직선 둘이 한 곡선으로 뭉개지지 않게)
+        for i in corners_open(P / up, 1.5, 50.0)[1:-1]:
+            cut.setdefault(int(i), None)
+        idx = sorted(cut)
+        for i0, i1 in zip(idx[:-1], idx[1:]):
+            S = P[i0:i1 + 1].astype(float)
+            if len(S) < 2 or np.linalg.norm(S[-1] - S[0]) < 0.8 * mw:
+                continue
+            e0 = PT[cut[i0]] if cut[i0] is not None else S[0]
+            e1 = PT[cut[i1]] if cut[i1] is not None else S[-1]
+            S[0], S[-1] = e0, e1
+            cl = max(float(np.linalg.norm(S[-1] - S[0])), 1e-9)
+            if len(S) >= 3:
+                ctrl, err = fit_quad(S)
+                tension = float(np.linalg.norm(ctrl - (S[0] + S[-1]) / 2)) / cl
+            else:
+                tension = 0.0
+            ends = [('p', cut[i0]) if cut[i0] is not None else None, ('p', cut[i1]) if cut[i1] is not None else None]
+            if tension < straight:
+                out.append(dict(kind='obj', tid=1, pts=[S[0] / up, S[-1] / up], ends=ends, **attrs(S)))
+            else:
+                out.append(dict(kind='obj', tid=3, pts=[S[0] / up, ctrl / up, S[-1] / up], ends=ends, **attrs(S)))
+    # 원 아래 끝(목)과 가장 가까운 선 끝을 잇기
+    lines = [o for o in out if o['tid'] != 2]
+    for o in out:
+        if o['tid'] != 2:
+            continue
+        b = np.asarray(o['pts'][1])
+        best = None
+        for l in lines:
+            for e in (0, -1):
+                dd = float(np.linalg.norm(np.asarray(l['pts'][e]) - b))
+                if dd < 1.5 * mw / up and (best is None or dd < best[0]):
+                    best = (dd, l, e)
+        if best:
+            _, l, e = best
+            key = ('c', id(o))
+            o['ends'][1] = key
+            l['pts'][e] = b
+            l['ends'][0 if e == 0 else 1] = key
+    # 연결할 점: 관절 예측 점, 또는 끝 둘 이상이 모인 점
+    cnt = {}
+    for o in out:
+        for e in o['ends']:
+            if e is not None:
+                cnt[e] = cnt.get(e, 0) + 1
+    for o in out:
+        o['ends'] = [e if e is not None and (e[0] == 'c' or (cnt[e] >= 2 and isj[e[1]]) or cnt[e] >= 3) else None for e in o['ends']]
+    return out
+
+
 def frame_xml(items, bg, ids, W_, H_, fid, pos):
     fr = ET.Element('Frame', dict(BackgroundColor=str(argb(*bg)), ID=str(fid), Position=str(pos)))
     ET.SubElement(fr, 'LayerDef', dict(ID='0', Name='Layer 1', Visible='true', Locked='false'))
     frs = []
+    nodes, line_aps = {}, []
     for it in sorted(items, key=lambda t: t['order']):
         if it['kind'] == 'fill':
             poly = it['poly']
@@ -188,6 +303,15 @@ def frame_xml(items, bg, ids, W_, H_, fid, pos):
             continue
         col = argb(*it['rgba'][:3], it['rgba'][3])
         g = it['glow'] if it['glow'][3] > 20 and it['glow'][1] > 1 else None
+        if it['kind'] == 'obj':
+            o = ao_el(ids, it['tid'], col, it['ts'], g)
+            aps = [add_ap(ids, o, j, xy, 9, W_, H_) for j, xy in enumerate(it['pts'])]
+            for e, apx in ((it['ends'][0], aps[0]), (it['ends'][-1], aps[-1])):
+                if e is not None:
+                    nodes.setdefault(e, []).append(apx)
+            line_aps.append(aps)
+            fr.append(o)
+            continue
         prev_end = None
         for si, (tid, pts) in enumerate(it['segs']):
             o = ao_el(ids, tid, col, it['ts'], g)
@@ -202,6 +326,29 @@ def frame_xml(items, bg, ids, W_, H_, fid, pos):
                 connect(prev_end, aps[0])
             prev_end = aps[-1] if tid != 2 else None
             fr.append(o)
+    # 같은 점에 모인 끝끼리 연결 + 파란점 규칙(이어진 묶음마다 Flags 3 하나, 꼭짓점마다 표시 하나)
+    par = {}
+
+    def find(x):
+        while par.setdefault(x, x) != x:
+            x = par[x]
+        return x
+    for aps in line_aps:
+        for apx in aps[1:]:
+            par[find(apx.get('ID'))] = find(aps[0].get('ID'))
+    for grp in nodes.values():
+        for apx in grp[1:]:
+            connect(grp[0], apx)
+            apx.set('Flags', '8')
+            par[find(apx.get('ID'))] = find(grp[0].get('ID'))
+    seen = set()
+    for aps in line_aps:
+        r0 = find(aps[0].get('ID'))
+        if r0 in seen:
+            continue
+        seen.add(r0)
+        first = aps[0] if aps[0].get('Flags') == '9' else next((x for x in aps if x.get('Flags') == '9'), aps[0])
+        first.set('Flags', '3')
     for r in frs:
         fr.append(r)
     return fr
@@ -213,6 +360,7 @@ def main():
     ap.add_argument('video')
     ap.add_argument('out')
     ap.add_argument('--frames', default='', help='예: 0-23 또는 5,7 (비우면 전부)')
+    ap.add_argument('--mode', default='points', help='points(2판: 점 찍고 선 넣기) / pixel(1판: 뼈대 따라가기)')
     ap.add_argument('--check', default='', help='다시 렌더해 원본과 비교한 시트(jpg)')
     a = ap.parse_args()
     ck = torch.load(a.model, map_location='cpu', weights_only=False)
@@ -231,10 +379,10 @@ def main():
     for pos, i in enumerate(idx):
         p = maps(net, frs[max(i - 1, 0)], frs[i], frs[min(i + 1, len(frs) - 1)])
         bg = [int(round(v * 255)) for v in np.median(sig(p[25:28]).reshape(3, -1), 1)]
-        items = fill_items(p, H, frs[i]) + line_items(p, frs[i])
+        items = fill_items(p, H, frs[i]) + (point_line_items(p, frs[i]) if a.mode == 'points' else line_items(p, frs[i]))
         seq.append(frame_xml(items, bg, ids, W, H, 100 + pos, pos))
         nf = sum(1 for t in items if t['kind'] == 'fill')
-        nl = sum(len(t['segs']) for t in items if t['kind'] != 'fill')
+        nl = sum(1 if t['kind'] == 'obj' else len(t['segs']) for t in items if t['kind'] != 'fill')
         stats.append((i, nf, nl))
         print(f'장 {i}: 면 {nf}, 선 오브젝트 {nl}, 배경 {tuple(bg)}', flush=True)
     xml = ET.tostring(seq, encoding='unicode')
