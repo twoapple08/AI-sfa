@@ -322,9 +322,14 @@ def main():
     if a.yield_:
         low_priority()
         if dev == 'cuda':
-            torch.cuda.set_per_process_memory_fraction(0.65)  # 8GB 중 약 4.4GB만 — 나머지는 게임·그림 프로그램 몫. 모자라면 OOM 장치가 조각 수를 줄인다
+            torch.cuda.set_per_process_memory_fraction(0.75)  # 0.65면 조각 16개가 안 들어가 8개로 — 6GB면 16개(5060 실측 6.3GB 사용)에 가깝다  # 8GB 중 약 4.4GB만 — 나머지는 게임·그림 프로그램 몫. 모자라면 OOM 장치가 조각 수를 줄인다
         print('양보 모드: 무거운 게임', ', '.join(yl.heavy), '/ 천천히', ', '.join(yl.light), flush=True)
     net = Net(pretrained=not a.smoke or dev == 'cuda').to(dev)
+    # BatchNorm 이동 평균을 천천히(기본 0.1 → 0.02): 4060 2차(조각 8개)에서 검증이 6.6 → 30.8 → 7.7처럼 크게 출렁임 —
+    # 작은 배치의 배치 통계가 그대로 평가용 통계를 흔든 것. 5060(조각 16개)은 안정
+    for m in net.modules():
+        if isinstance(m, nn.BatchNorm2d):
+            m.momentum = 0.02
     # bf16(5060 등 지원 GPU): 수 범위가 fp32와 같아 넘침이 없다. 1차 학습은 fp16에서 디코더 값이 65,504를 넘어 검증 NaN·마지막 단계 출렁임(2026-10-29)
     # 진짜 bf16 하드웨어(계산 능력 8.0 이상, RTX 30xx 이후)만. 최근 PyTorch의 is_bf16_supported()는 흉내 내기까지 True라 1050 Ti(6.1)에서 느린 bf16이 될 수 있다
     bf16 = dev == 'cuda' and torch.cuda.get_device_capability(0)[0] >= 8
