@@ -46,8 +46,10 @@ def main():
             tot['fills_out'] += len(d.findall('FR'))
             k += 1
             if k % a.render_every == 0:
-                im0 = R.render_frame(root, fr, a.W, H).astype(np.int16)
-                im1 = R.render_frame(root, d, a.W, H).astype(np.int16)
+                # 파일 비율로 렌더(앱은 파일 비율로 내보낸다 — 16:9로 그리면 위아래 남는 곳에 화면 밖 부분이 보여 '보이는 오브젝트를 뺐다'로 잘못 잰다, 10-30)
+                hr = max(2, int(round(a.W * (float(root.get('HeightWidthRatio') or 0.5625) or 0.5625))))
+                im0 = R.render_frame(root, fr, a.W, hr).astype(np.int16)
+                im1 = R.render_frame(root, d, a.W, hr).astype(np.int16)
                 dif = float((np.abs(im0 - im1).max(-1) > 24).mean() * 100)
                 diffs.append(dif)
                 worst.append((dif, rel, fr.get('Position'), len(toks), im0, im1))
@@ -64,7 +66,7 @@ def main():
         print('  최악', round(w[0], 3), w[1], '장', w[2], '토큰', w[3])
     if a.sheet:
         import cv2
-        rows = [np.hstack([w[4], w[5], np.abs(w[4] - w[5]).clip(0, 255) * 4]).clip(0, 255).astype(np.uint8) for w in worst]
+        rows = [cv2.resize(np.hstack([w[4], w[5], np.abs(w[4] - w[5]).clip(0, 255) * 4]).clip(0, 255).astype(np.uint8), (a.W * 3, H)) for w in worst]
         cv2.imwrite(a.sheet, cv2.cvtColor(np.vstack(rows), cv2.COLOR_RGB2BGR))
         print('시트', a.sheet)
 

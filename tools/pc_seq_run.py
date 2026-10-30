@@ -34,7 +34,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--root', default=r'C:\aisfa\seq')
     ap.add_argument('--hours', type=float, default=3.0, help='이번 실행 시간(자료 만들기 포함)')
-    ap.add_argument('--plan-hours', type=float, default=0, help='전체 학습 계획(여러 번 나눠 돌릴 때, 처음 시작할 때만). 0이면 --hours')
+    ap.add_argument('--plan-hours', type=float, default=0, help='전체 학습 계획(여러 번 나눠 돌릴 때). 0이면 이번 실행 시간(이어할 땐 그만큼 늘림)')
     ap.add_argument('--rclone', default='')
     ap.add_argument('--run', default='s1')
     ap.add_argument('--yield', dest='yield_', action='store_true')
@@ -85,7 +85,7 @@ def main():
         if os.path.exists(os.path.join(out, 'ckpt.pt')):
             print('Drive의 이전 저장본에서 이어서', flush=True)
     t0 = time.time()
-    P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{data}" --maxlen 2048 --max-frames 300 --workers {cpus}{lp}')
+    P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{data}" --maxlen 2048 --max-frames 300 --aug 1 --workers {cpus}{lp}')
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{val}" --maxlen 2048 --max-frames 40 --holdout --workers {cpus}{lp}')
     print(f'자료 {(time.time() - t0) / 60:.1f}분', flush=True)
     left = a.hours * 60 - (time.time() - t_start) / 60 - 12   # 자료 읽기(몇 분)·마무리 올리기 몫
@@ -97,7 +97,7 @@ def main():
     if a.rclone:
         up = threading.Thread(target=uploader, args=(out, a.rclone, drive, stop), daemon=True)
         up.start()
-    plan = (a.plan_hours or a.hours) * 60
+    plan = a.plan_hours * 60   # 0이면 seq_train이 처음엔 이번 실행 시간, 이어할 땐 이번 실행만큼 늘림
     cmd = (f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --minutes {left:.0f} --plan-minutes {plan:.0f}'
            f' --tok-budget {a.tok_budget}' + (' --yield' if a.yield_ else '') + extra)
     try:

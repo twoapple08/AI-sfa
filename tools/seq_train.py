@@ -28,8 +28,11 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sfa_objscore as OS  # noqa: E402
 import sfa_tokens as K  # noqa: E402
 
-SOFT = torch.tensor([K.FID[f] in (K.FID['coord'], K.FID['t'], K.FID['thick'], K.FID['glow'], K.FID['color'], K.FID['bg'])
-                     for f in K.FIELDS])
+# 이웃 칸 부드러운 정답을 쓰는 칸과 그 칸의 합법 범위(GPT 검토 10-30: 색 255의 이웃 256·257에 정답 확률이 새던 것).
+# 글로우 칸은 반경·두께·알파·색이 섞여 범위가 달라 정확한 칸만 쓴다.
+_SOFT_HI = {'coord': K.NUM - 1, 't': K.NUM - 1, 'thick': K.NUM - 1, 'color': 255, 'bg': 255}
+SOFT = torch.tensor([f in _SOFT_HI for f in K.FIELDS])
+SOFT_HI = torch.tensor([_SOFT_HI.get(f, K.NUM - 1) for f in K.FIELDS])
 TOK_EOS = K.TOK['EOS']
 SOFT_W = (0.1, 0.25, 0.3, 0.25, 0.1)   # 이웃 칸 -2..+2 (정확한 칸과 반반 섞는다)
 
@@ -139,19 +142,27 @@ class Net(nn.Module):
 
 
 def loss_fn(logits, tgt, fld):
-    """다음 토큰 채점. 수 칸(좌표·색·굵기·글로우·T)은 정확한 칸 50% + 이웃 칸 분포 50%."""
+    """다음 토큰 채점. 수 칸(좌표·T·굵기·색)은 정확한 칸 50% + 이웃 ±2칸 분포 50%(그 칸의 합법 범위 안에서만, 무게 다시 맞춤).
+    돌려줌: 평균 손실, 맞힘 비율, 토큰 수(검증을 토큰 수로 가중 합산하려고)."""
     logp = F.log_softmax(logits.float(), -1)
     mask = tgt != K.TOK['PAD']
     exact = -logp.gather(-1, tgt[..., None])[..., 0]
     soft_on = SOFT.to(tgt.device)[fld] & (tgt >= K.OFF)
+    hi = SOFT_HI.to(tgt.device)[fld]
+    v = tgt - K.OFF
     soft = torch.zeros_like(exact)
+    wsum = torch.zeros_like(exact)
     for k, w in zip(range(-2, 3), SOFT_W):
+        ok = ((v + k) >= 0) & ((v + k) <= hi)
         j = (tgt + k).clamp(K.OFF, K.VOCAB - 1)
-        soft = soft - w * logp.gather(-1, j[..., None])[..., 0]
+        soft = soft - w * ok * logp.gather(-1, j[..., None])[..., 0]
+        wsum = wsum + w * ok
+    soft = soft / wsum.clamp_min(1e-6)
     per = torch.where(soft_on, 0.5 * exact + 0.5 * soft, exact)
     m = mask.float()
-    acc = ((logits.argmax(-1) == tgt) & mask).float().sum() / m.sum()
-    return (per * m).sum() / m.sum(), acc
+    n = m.sum()
+    acc = ((logits.argmax(-1) == tgt) & mask).float().sum() / n
+    return (per * m).sum() / n, acc, n
 
 
 def allowed_mask(al, dev):
@@ -285,6 +296,13 @@ def train(a):
     if saved:
         cfg = saved['cfg']   # 이어하기: 처음 정한 모델 크기·입력 크기·계획 그대로(명령줄 값보다 우선)
         st.update(saved['state'])
+        if a.plan_minutes > st['plan_min']:   # 계획을 더 길게 다시 정함
+            st['plan_min'] = a.plan_minutes
+        elif not a.plan_minutes and st['done_min'] + a.minutes > st['plan_min']:
+            # 계획을 안 정했으면 이번 실행 시간만큼 늘린다(5060을 여러 번 나눠 돌릴 때 '이미 100%'로 끝나지 않게).
+            # 학습률은 늘어난 계획 기준으로 다시 올라갔다 내려간다(재시작형 코사인)
+            st['plan_min'] = st['done_min'] + a.minutes
+            print(f"계획을 {st['plan_min']:.0f}분으로 늘림(이번 실행 {a.minutes:.0f}분)", flush=True)
     t0 = time.time()
     tr = Data(a.data, cfg['maxlen'], cfg['in_w'])
     va = Data(a.val, cfg['maxlen'], cfg['in_w'])
@@ -300,52 +318,104 @@ def train(a):
     amp = dev == 'cuda'
     dt = torch.bfloat16 if amp and torch.cuda.get_device_capability(0)[0] >= 8 else torch.float16
     scaler = torch.amp.GradScaler('cuda', enabled=amp and dt == torch.float16)
+    if saved:   # 이어하기: 배율·난수 상태도(GPT 검토 10-30)
+        if saved.get('scaler'):
+            scaler.load_state_dict(saved['scaler'])
+        rs = saved.get('rng')
+        if rs:
+            random.setstate(rs['py'])
+            torch.set_rng_state(rs['torch'])
+            if dev == 'cuda' and rs.get('cuda') is not None:
+                torch.cuda.set_rng_state(rs['cuda'])
+    base_lr = st.setdefault('base_lr', a.lr)   # 처음 정한 학습률(이어하기에서 명령줄 값으로 바뀌지 않게)
+    if not len(tr):
+        raise SystemExit('학습 자료 0장 — 자료 폴더 확인')
     log = os.path.join(a.out, 'log.jsonl')
     t_sess = time.time()
-    p_sess = 0.0
+    p_sess = yl.paused
     done0 = st['done_min']
+    # 검증 대상 고정: 시험 자료에서 고르게 val_n장, 묶음은 처음 토큰 한도로(학습 한도가 줄어도 같은 대상, GPT 검토 10-30)
+    v_idx = sorted(set(np.linspace(0, len(va) - 1, min(a.val_n, len(va))).astype(int).tolist())) if len(va) else []
+    v_batches = make_batches_fixed(va, a.max_batch, a.tok_budget, v_idx)
+    g_idx = v_idx[::max(1, len(v_idx) // a.gen_n)][:a.gen_n]   # 생성 채점용 고정 장
 
     def active_min():
         return (time.time() - t_sess - (yl.paused - p_sess)) / 60
 
     def save_ckpt():
         st['done_min'] = done0 + active_min()
-        VT.save(dict(model=net.state_dict(), opt=opt.state_dict(), cfg=cfg, state=dict(st)), ck)
+        rng = dict(py=random.getstate(), torch=torch.get_rng_state(), cuda=torch.cuda.get_rng_state() if dev == 'cuda' else None)
+        VT.save(dict(model=net.state_dict(), opt=opt.state_dict(), scaler=scaler.state_dict(), rng=rng, cfg=cfg, state=dict(st)), ck)
+
+    def val_batch(b):
+        """한 묶음의 (손실 합, 맞힘 합, 토큰 수). 메모리 부족이면 반으로 나눠 다시."""
+        try:
+            im, tk, fd, hr = (x.to(dev) for x in va.batch(b))
+            with torch.autocast(dev, dtype=dt, enabled=amp):
+                lg = net(im, tk[:, :-1], fd[:, :-1], hr)
+            l_, c_, n_ = loss_fn(lg, tk[:, 1:], fd[:, 1:])
+            return (l_.item() * n_.item(), c_.item() * n_.item(), n_.item()) if torch.isfinite(l_) else (0.0, 0.0, 0.0)
+        except torch.OutOfMemoryError:
+            im = tk = fd = hr = lg = None
+            if dev == 'cuda':
+                torch.cuda.empty_cache()
+            if len(b) == 1:
+                return 0.0, 0.0, 0.0
+            x, y = val_batch(b[:len(b) // 2]), val_batch(b[len(b) // 2:])
+            return x[0] + y[0], x[1] + y[1], x[2] + y[2]
 
     def validate():
+        """토큰 수로 가중한 시험 손실·맞힘(GPT 검토 10-30: 묶음 단순 평균이던 것)."""
         net.eval()
-        vl = vc = n = 0.0
+        tl = tc = tn = 0.0
         with torch.no_grad():
-            for b in make_batches_fixed(va, a.max_batch, st['budget'], a.val_n):
-                im, tk, fd, hr = (x.to(dev) for x in va.batch(b))
-                with torch.autocast(dev, dtype=dt, enabled=amp):
-                    lg = net(im, tk[:, :-1], fd[:, :-1], hr)
-                l_, c_ = loss_fn(lg, tk[:, 1:], fd[:, 1:])
-                if torch.isfinite(l_):
-                    vl += l_.item()
-                    vc += c_.item()
-                    n += 1
+            for b in v_batches:
+                l_, c_, n_ = val_batch(b)
+                tl, tc, tn = tl + l_, tc + c_, tn + n_
         net.train()
-        return vl / max(n, 1), vc / max(n, 1), n
+        return (tl / tn if tn else float('nan')), (tc / tn if tn else 0.0), int(tn)
+
+    def gen_eval():
+        """고정 장을 실제로 그려 보고 오브젝트 채점(GPT 검토 10-30: 다음 토큰 맞힘과 실제 생성은 다르다)."""
+        net.eval()
+        sums = dict(ans=0, pred=0, match=0, link_tp=0, link_pred=0, link_ans=0, fill_tp=0, fill_pred=0, fill_ans=0, perfect=0, done=0, frames=0)
+        t0_ = time.time()
+        for i in g_idx:
+            img = torch.from_numpy(np.ascontiguousarray(va.image(i))).permute(2, 0, 1).float().to(dev) / 255
+            with torch.autocast(dev, dtype=dt, enabled=amp):
+                toks, done = generate(net, img, va.hwr[i], cfg['maxlen'])
+            sc = OS.score(K.decode(toks), K.decode(va.tok[i].tolist()), hwr=va.hwr[i])
+            for k_ in ('ans', 'pred', 'match', 'link_tp', 'link_pred', 'link_ans', 'fill_tp', 'fill_pred', 'fill_ans'):
+                sums[k_] += sc[k_]
+            sums['perfect'] += sc['perfect']
+            sums['done'] += done
+            sums['frames'] += 1
+        net.train()
+        return dict(gen_recall=sums['match'] / max(sums['ans'], 1), gen_precision=sums['match'] / max(sums['pred'], 1),
+                    gen_link_f1=OS.f1(sums['link_tp'], sums['link_pred'], sums['link_ans']),
+                    gen_fill_f1=OS.f1(sums['fill_tp'], sums['fill_pred'], sums['fill_ans']),
+                    gen_perfect=sums['perfect'], gen_done=sums['done'], gen_frames=sums['frames'], gen_sec=round(time.time() - t0_))
 
     batches = []
     run, racc = [], []
-    last_val = time.time()
-    last_save = time.time()
+    last_val = last_save = last_gen = time.time()
     oom = skipped = 0
     while active_min() < a.minutes and done0 + active_min() < st['plan_min']:
         yl.tick()
         if not batches:
             batches = make_batches(tr, a.max_batch, st['budget'])
+            if not batches:
+                raise SystemExit(f"토큰 한도 {st['budget']} 안에 드는 학습 장이 없음")
         b = batches.pop()
-        img, tok, fld, hwr = (x.to(dev) for x in tr.batch(b))
         prog = (done0 + active_min()) / st['plan_min']
         for g in opt.param_groups:
-            g['lr'] = lr_at(st['step'], prog, a.lr)
-        try:
+            g['lr'] = lr_at(st['step'], prog, base_lr)
+        img = tok = fld = hwr = lg = loss = acc = None
+        try:   # GPU로 옮기기부터 한 걸음 전체를 보호(GPT 검토 10-30)
+            img, tok, fld, hwr = (x.to(dev) for x in tr.batch(b))
             with torch.autocast(dev, dtype=dt, enabled=amp):
                 lg = net(img, tok[:, :-1], fld[:, :-1], hwr)
-            loss, acc = loss_fn(lg, tok[:, 1:], fld[:, 1:])
+            loss, acc, _ = loss_fn(lg, tok[:, 1:], fld[:, 1:])
             if not torch.isfinite(loss):
                 skipped += 1
                 opt.zero_grad(set_to_none=True)
@@ -357,9 +427,11 @@ def train(a):
             scaler.step(opt)
             scaler.update()
         except torch.OutOfMemoryError:
-            # 메모리 부족: 이 묶음을 버리고 토큰 한도를 줄인다(양보 모드에서 게임이 메모리를 잡은 경우면 1분 쉰다)
-            del img, tok, fld, hwr
+            # 메모리 부족: 그래프를 붙든 텐서를 모두 놓고 이 묶음을 버린다(양보 모드에서 게임이 메모리를 잡은 경우면 1분 쉬고, 쉰 시간은 학습 시간에서 뺀다)
+            img = tok = fld = hwr = lg = loss = acc = None
             opt.zero_grad(set_to_none=True)
+            if scaler.is_enabled():
+                scaler.update()   # unscale_ 뒤에 넘친 경우의 단계 상태를 정리
             if dev == 'cuda':
                 torch.cuda.empty_cache()
             oom += 1
@@ -373,6 +445,7 @@ def train(a):
             batches = []
             if a.yield_:
                 time.sleep(60)
+                yl.paused += 60
             continue
         st['step'] += 1
         run.append(loss.item())
@@ -385,8 +458,11 @@ def train(a):
         if time.time() - last_val > a.val_minutes * 60:
             last_val = time.time()
             vl, vc, n = validate()
-            rec = dict(step=st['step'], val=vl, val_acc=vc, val_batches=n, minutes=done0 + active_min(), prog=prog,
+            rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, minutes=done0 + active_min(), prog=prog,
                        oom=oom, skipped=skipped, budget=st['budget'], grad_ckpt=net.grad_ckpt, paused_min=yl.paused / 60)
+            if a.gen_minutes and time.time() - last_gen > a.gen_minutes * 60:
+                last_gen = time.time()
+                rec.update(gen_eval())
             print('검증', rec, flush=True)
             with open(log, 'a', encoding='utf-8') as fh:
                 fh.write(json.dumps(rec) + '\n')
@@ -399,7 +475,12 @@ def train(a):
             save_ckpt()
             last_save = time.time()
     vl, vc, n = validate()
-    print('마지막 검증', dict(val=vl, val_acc=vc), flush=True)
+    rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, final=True)
+    if a.gen_minutes:
+        rec.update(gen_eval())
+    print('마지막 검증', rec, flush=True)
+    with open(log, 'a', encoding='utf-8') as fh:
+        fh.write(json.dumps(rec) + '\n')
     if n and vl < st['best']:
         st['best'] = vl
         VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
@@ -407,14 +488,12 @@ def train(a):
     print(f"끝 {st['step']}걸음 · 진행 {st['done_min']:.0f}/{st['plan_min']:.0f}분 · best {st['best']:.4f} · 메모리 부족 {oom} · 건너뜀 {skipped}", flush=True)
 
 
-def make_batches_fixed(ds, max_n, budget, limit):
-    """검증용: 앞에서부터 limit장, 같은 묶음 규칙(무작위 없음)."""
-    idx = sorted(range(min(len(ds), limit)), key=lambda k: len(ds.tok[k]))
+def make_batches_fixed(ds, max_n, budget, idx):
+    """검증용: 고정 장 목록, 같은 묶음 규칙(무작위 없음). 한도보다 긴 장도 혼자 한 묶음으로 넣는다(검증 대상이 바뀌지 않게)."""
+    idx = sorted(idx, key=lambda k: len(ds.tok[k]))
     out, cur, L = [], [], 0
     for k in idx:
         l = len(ds.tok[k])
-        if l > budget:
-            continue
         if cur and (len(cur) >= max_n or max(L, l) * (len(cur) + 1) > budget):
             out.append(cur)
             cur, L = [], 0
@@ -463,14 +542,14 @@ def draw(a):
         im_p = R.render_frame(seq, pred, W, H)
         im_a = R.render_frame(seq, ans, W, H)
         src = cv2.resize(ds.image(i), (W, H))
-        sc = OS.score(pred, ans)                    # 제자리 오브젝트 채점(주 지표)
-        sc0 = OS.score(pred, ans, align=True)       # 구조 채점(이동·같은 비율로 맞춘 뒤, 보조)
+        sc = OS.score(pred, ans, hwr=hwr)                    # 제자리 오브젝트 채점(주 지표)
+        sc0 = OS.score(pred, ans, align=True, hwr=hwr)       # 구조 채점(이동·같은 비율로 맞춘 뒤, 보조)
         scores.append(sc)
         f = lambda v: '-' if v is None else f'{v * 100:.0f}%'  # noqa: E731
         print(f'{ds.meta[i]["file"]} 장 {ds.meta[i]["pos"]}: 토큰 {len(toks)}/{len(ds.tok[i])} 끝냄 {done} | '
               f'오브젝트 AI {sc["pred"]} 원본 {sc["ans"]} 맞음 {sc["match"]} (원본 중 {f(sc["recall"])}, AI 중 {f(sc["precision"])}) '
               f'점 오차 {"-" if sc["pt_err"] is None else round(sc["pt_err"], 2)} 색 {f(sc["color"])} 굵기 {f(sc["thick"])} '
-              f'연결 F1 {f(sc["link_f1"])} 순서 {f(sc["order"])} | 구조 맞음 {sc0["match"]} 배율 {sc0["scale"]:.2f} ({time.time() - t0:.0f}초)', flush=True)
+              f'연결 F1 {f(sc["link_f1"])} 면 F1 {f(sc["fill_f1"])} 순서 {f(sc["order"])} 배경 {sc["bg"]} 만점 {sc["perfect"]} | 구조 맞음 {sc0["match"]} 배율 {sc0["scale"]:.2f} ({time.time() - t0:.0f}초)', flush=True)
         cells = [src.copy(), im_p, im_a]
         for im, lab in zip(cells, ('input video', 'AI made SFA', 'answer SFA')):
             cv2.putText(im, lab, (6, 18), 0, 0.55, (255, 0, 0), 1)
@@ -479,10 +558,11 @@ def draw(a):
             out_seq = seq_xml(hwr)   # 시험용 묶음: 첫 장의 비율(다른 비율 장도 같은 파일에 들어가므로 앱에서 보면 늘어나 보일 수 있다)
         out_seq.append(pred)
     cv2.imwrite(a.sheet, cv2.cvtColor(np.vstack(rows), cv2.COLOR_RGB2BGR))
-    tot_m, tot_a, tot_p = sum(x['match'] for x in scores), sum(x['ans'] for x in scores), sum(x['pred'] for x in scores)
-    lf = [x['link_f1'] for x in scores if x['link_f1'] is not None]
-    print(f'합계: 원본 오브젝트 {tot_a} 중 맞힘 {tot_m} ({tot_m / max(tot_a, 1) * 100:.1f}%), AI 오브젝트 {tot_p} 중 맞음 {tot_m / max(tot_p, 1) * 100:.1f}%, '
-          f'연결 F1 평균 {np.mean(lf) * 100 if lf else 0:.1f}%')
+    S_ = lambda k: sum(x[k] for x in scores)  # noqa: E731
+    tot_m, tot_a, tot_p = S_('match'), S_('ans'), S_('pred')
+    print(f'합계({len(scores)}장): 원본 오브젝트 {tot_a} 중 맞힘 {tot_m} ({tot_m / max(tot_a, 1) * 100:.1f}%), AI 오브젝트 {tot_p} 중 맞음 {tot_m / max(tot_p, 1) * 100:.1f}%, '
+          f'연결 F1 {OS.f1(S_("link_tp"), S_("link_pred"), S_("link_ans")) * 100:.1f}%, 면 F1 {OS.f1(S_("fill_tp"), S_("fill_pred"), S_("fill_ans")) * 100:.1f}%, '
+          f'만점 장 {S_("perfect")}')
     print('시트', a.sheet)
     if a.sfa:
         out_seq.set('FrameCount', str(len(pick)))
@@ -515,6 +595,8 @@ def main():
     t.add_argument('--val-minutes', type=float, default=20)
     t.add_argument('--save-minutes', type=float, default=10)
     t.add_argument('--val-n', type=int, default=400)
+    t.add_argument('--gen-n', type=int, default=20, help='생성 채점에 쓰는 고정 시험 장 수')
+    t.add_argument('--gen-minutes', type=float, default=60, help='생성 채점 간격(분). 0이면 안 함')
     t.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(게임 실행 중이면 멈추거나 천천히)')
     t.add_argument('--grad-ckpt', action='store_true', help='처음부터 체크포인팅(메모리 절약, 느림). 꺼 두면 메모리 부족 때 자동으로 켠다')
     d = sub.add_parser('draw')

@@ -30,7 +30,7 @@ XMIN, XSTEP = -50.0, 0.025         # 좌표 -50..154.8 (0.05는 렌더 차 1%, 2
 TMIN, TSTEP = -1.0, 0.001          # FS T -1..3.095
 GSTEP = 0.1                        # 글로우 반경·두께 0..409.5
 TH0, THR = 0.01, 1.005             # 굵기 로그 칸(상대 오차 0.25%), 0번 = 0
-FAR = (-30.0, 130.0)               # 경계 상자가 이 밖이면 화면에 안 보이는 오브젝트로 본다(가장자리 여백·글로우 포함)
+FAR_SAFE = 5.0                     # 화면 밖 판정 여유(%) — 선 굵기·글로우 번짐 위에 더하는 안전 몫
 
 
 BIGOFF = 2 ** 38                   # BIG 수의 0점(음수 좌표용). BIG 뒤 세 자리
@@ -92,6 +92,25 @@ def style_of(a):
 
 
 CLIP = (-1000.0, 1100.0)           # 직선은 이 상자로 정확히 자른다(보이는 모양 그대로, 좌표 -20억 같은 값 처리)
+
+
+def far_away(a, xy, hwr):
+    """화면(0–100)에 아무 화소도 닿지 않는 오브젝트인지 — 보수적으로(GPT 검토 10-30: 원 크기·굵기·글로우를 반영).
+    원은 화면 화소 기준 반지름(가로 % 단위 r, 세로 % 단위 r/비율), 선은 굵기 반 + 글로우 폭 반 + 흐림 4σ를 여유로 더한다(1920 기준 화소 → %)."""
+    T = float(a.get('ThicknessScale') or 1)
+    gr, gw, ga = float(a.get('GlowRadius') or 0), float(a.get('GlowThickness') or 0), float(a.get('GlowAlpha') or 0)
+    m_px = 8.0 * 1.14 * abs(T) / 2 + 1
+    if ga > 0 and gw > 0:
+        m_px = max(m_px, 8.0 * abs(T) * gw / 10 / 2 + 4 * gr + 1)
+    mx = m_px / 1900 * 100 + FAR_SAFE
+    my = mx / hwr
+    if a.get('TypeId') == '2' and len(xy) >= 2:
+        cx, cy = (xy[0][0] + xy[1][0]) / 2, (xy[0][1] + xy[1][1]) / 2
+        rx = math.hypot(xy[1][0] - xy[0][0], (xy[1][1] - xy[0][1]) * hwr) / 2
+        bb = (cx - rx, cy - rx / hwr, cx + rx, cy + rx / hwr)
+    else:   # 직선·곡선: 점(곡선은 조절점 포함)의 상자가 모양을 감싼다
+        bb = (min(x for x, _ in xy), min(y for _, y in xy), max(x for x, _ in xy), max(y for _, y in xy))
+    return bb[2] + mx < 0 or bb[0] - mx > 100 or bb[3] + my < 0 or bb[1] - my > 100
 
 
 def clip_line(xy):
@@ -157,6 +176,7 @@ def encode(seq, fr):
     st = dict(drop_invis=0, drop_far=0, clamp=0, objs=0, links=0, fills=0, link_fwd=0)
     fill_objs = {s.get('ObjId') for r in fr.findall('FR') if _alpha(r.get('Color')) > 0 for s in r.findall('FS')}
     keep = []
+    hwr = float(seq.get('HeightWidthRatio') or 0.5625) or 0.5625
     for li, a in order_objects(seq, fr):
         used = a.get('ID') in fill_objs
         vis = _alpha(a.get('Color')) > 0 or style_of(a)[2] is not None
@@ -170,13 +190,7 @@ def encode(seq, fr):
             # 점이 모자란 오브젝트: 앱의 점 삭제 기능으로 생길 수 있다(사용자 10-30). 빼지 않고 그대로 적는다
             # (실측: tlqkf.sfa 154–156장 곡선 1점 하나뿐. 앱에서 어떻게 보이는지 미확인 — 렌더러는 안 그림)
             st['short'] = st.get('short', 0) + 1
-        if a.get('TypeId') == '2' and len(xy) >= 2:
-            cx, cy = (xy[0][0] + xy[1][0]) / 2, (xy[0][1] + xy[1][1]) / 2
-            r = math.hypot(xy[1][0] - xy[0][0], xy[1][1] - xy[0][1]) / 2
-            bb = (cx - r, cy - r, cx + r, cy + r)
-        else:
-            bb = (min(x for x, _ in xy), min(y for _, y in xy), max(x for x, _ in xy), max(y for _, y in xy))
-        if not used and (bb[2] < FAR[0] or bb[0] > FAR[1] or bb[3] < FAR[0] or bb[1] > FAR[1]):
+        if not used and far_away(a, xy, hwr):
             st['drop_far'] += 1
             continue
         keep.append((li, a))
@@ -199,7 +213,8 @@ def encode(seq, fr):
             prev_style = sty
         oidx[a.get('ID')] = len(oidx)
         xy = [(float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP')]
-        cl = clip_line(xy) if a.get('TypeId') == '1' and len(xy) == 2 else None
+        # 면이 쓰는 직선은 자르지 않는다(잘라도 FS의 T는 그대로라 면 구간이 바뀐다, GPT 검토 10-30) → BIG 좌표로 보존
+        cl = clip_line(xy) if a.get('TypeId') == '1' and len(xy) == 2 and a.get('ID') not in fill_objs else None
         for pi, p in enumerate(a.findall('AP')[:NPTS[TYPES.get(a.get('TypeId'), 'LINE')]]):
             for v in (cl[pi] if cl else (float(p.get('X')), float(p.get('Y')))):
                 v = v if v == v else 50.0
@@ -218,8 +233,9 @@ def encode(seq, fr):
         st['objs'] += 1
     ptn = {}
     for _, a in keep:
+        aps = a.findall('AP')[:NPTS[TYPES.get(a.get('TypeId'), 'LINE')]]
         for j, p in enumerate(a.findall('AP')):
-            ptn[p.get('ID')] = j
+            ptn[p.get('ID')] = min(j, len(aps) - 1)
     # 면 칠 순서는 중요하지 않다(사용자 10-30) → 주인 오브젝트(첫 FS의 오브젝트) 순으로 정렬해 고정(안정 정렬: 같은 주인끼리는 원래 순서,
     # 렌더러는 면을 주인 오브젝트와 함께 칠하므로 그림은 그대로)
     def _owner(r):
@@ -231,23 +247,31 @@ def encode(seq, fr):
         if _alpha(r.get('Color')) == 0:
             continue
         segs = [s for s in r.findall('FS') if s.get('ObjId') in oidx]
-        if not segs:
+        # 윤곽 묶음(렌더러와 같은 규칙: Contour 0 = 바깥, 1 이상 = 구멍, 번호 순). 바깥이 없으면 렌더러가 안 그리므로 뺀다.
+        # 같은 번호는 한 묶음으로 모은다(0,1,0이 0,1,2로 바뀌던 것, GPT 검토 10-30). 해독은 0,1,2…로 다시 번호를 매긴다.
+        groups = {}
+        for s_ in segs:
+            groups.setdefault(int(s_.get('Contour') or 0), []).append(s_)
+        if 0 not in groups:
             continue
         toks += [TOK['FILL']] + argb4(r.get('Color'))
-        cur = 0
-        for s in segs:
-            c = int(s.get('Contour') or 0)
-            if c != cur:
+        for gi, c in enumerate(sorted(groups)):
+            if gi:
                 toks.append(TOK['CONTOUR'])
-                cur = c
-            if s.get('Kind') == '1' or s.get('StartT') is None:
-                toks += [TOK['WHOLE']] + num(len(oidx) - oidx[s.get('ObjId')])  # 상대(1 = 마지막 오브젝트)
-            else:
-                toks += [TOK['SEG']] + num(len(oidx) - oidx[s.get('ObjId')]) + [n(ptn.get(s.get('StartPtId'), 0)), n(ptn.get(s.get('EndPtId'), 0)),
-                         n(round((float(s.get('StartT')) - TMIN) / TSTEP)), n(round((float(s.get('EndT')) - TMIN) / TSTEP))]
+            for s in groups[c]:
+                toks += seg_tokens(s, oidx, ptn)
         st['fills'] += 1
     toks.append(TOK['EOS'])
     return toks, st
+
+
+def seg_tokens(s, oidx, ptn):
+    """면 조각 하나(FS) → 토큰. 오브젝트는 상대 거리(1 = 마지막 오브젝트)."""
+    rel = num(len(oidx) - oidx[s.get('ObjId')])
+    if s.get('Kind') == '1' or s.get('StartT') is None:
+        return [TOK['WHOLE']] + rel
+    return ([TOK['SEG']] + rel + [n(ptn.get(s.get('StartPtId'), 0)), n(ptn.get(s.get('EndPtId'), 0)),
+            n(round((float(s.get('StartT')) - TMIN) / TSTEP)), n(round((float(s.get('EndT')) - TMIN) / TSTEP))])
 
 
 class Ids:
@@ -407,9 +431,10 @@ FID = {f: i for i, f in enumerate(FIELDS)}
 NPTS = {'LINE': 2, 'CIRC': 2, 'CURVE': 3}
 
 
-def grammar():
+def grammar(strict=False):
     """생성기. yield (허용 특수 토큰 집합, 수 하한, 수 상한(포함, 수 불가면 -1), 칸 이름), send(고른 토큰).
-    수 칸에서 BIG을 허용하면 특수 집합에 BIG이 들어 있다."""
+    수 칸에서 BIG을 허용하면 특수 집합에 BIG이 들어 있다. 참조(LINK·면 오브젝트)는 상한이 NUM 이상일 때만 BIG을 허용하고,
+    strict=True(정답 검사)면 BIG으로 적은 값도 범위를 확인한다(GPT 검토 10-30: LINK BIG(-1)이 통과하던 것)."""
     T = TOK
     st = {'pend': None}
 
@@ -419,14 +444,18 @@ def grammar():
             return t
         return (yield (frozenset(T[x] for x in specs), lo, hi, field))
 
-    def num(lo, hi, field, big=False):
-        t = yield from ask(('BIG',) if big else (), lo, hi, field)
+    def num(lo, hi, field, big=False, ref=False):
+        big = big and (not ref or hi >= NUM)
+        t = yield from ask(('BIG',) if big else (), lo, min(hi, NUM - 1), field)
         if t == T['BIG']:
             v = 0
             for _ in range(3):
                 d = yield from ask((), 0, NUM - 1, 'big')
                 v = v * NUM + (d - OFF)
-            return v - BIGOFF
+            v -= BIGOFF
+            if strict and ref and not lo <= v <= hi:
+                raise ValueError(f'참조 {v} 범위 밖({lo}..{hi})')
+            return v
         return t - OFF
 
     yield from ask(('BOS',))
@@ -434,6 +463,7 @@ def grammar():
     for _ in range(4):
         yield from num(0, 255, 'bg')
     npts = nobj = 0
+    obj_npts = []   # 오브젝트마다 실제 점 수(면 조각의 점 번호 제한)
     style = False
     t = yield from ask(('LAYER', 'EOS'))   # 빈 장 허용
     while True:
@@ -458,10 +488,11 @@ def grammar():
                         yield from num(0, 255, 'color')
                     u = yield from ask(('SEG', 'WHOLE'))
                     continue
-                yield from num(1, nobj, 'obj', big=True)
+                o = yield from num(1, nobj, 'obj', big=True, ref=True)
+                k = obj_npts[nobj - o] if 1 <= o <= nobj else 1
                 if u == T['SEG']:
-                    yield from num(0, 2, 'ptidx')
-                    yield from num(0, 2, 'ptidx')
+                    yield from num(0, max(k - 1, 0), 'ptidx')
+                    yield from num(0, max(k - 1, 0), 'ptidx')
                     yield from num(0, NUM - 1, 't')
                     yield from num(0, NUM - 1, 't')
                 u = yield from ask(('SEG', 'WHOLE', 'CONTOUR', 'FILL', 'EOS'))
@@ -482,11 +513,13 @@ def grammar():
             else:
                 st['pend'] = g
         n_ = NPTS[kind]
+        obj_npts.append(0)
         for k in range(n_):
             yield from num(0, NUM - 1, 'coord', big=True)
             yield from num(0, NUM - 1, 'coord', big=True)
             yield from ask(('PT',))
             npts += 1
+            obj_npts[-1] += 1
             last = k == n_ - 1
             link = ('LINK',) if npts > 1 else ()
             while True:
@@ -496,7 +529,7 @@ def grammar():
                 else:   # LINK, 다음 점 x, 또는 점이 모자란 채 끝(점 삭제 기능)
                     a = yield from ask(link + ('BIG',) + ends, 0, NUM - 1, 'coord')
                 if a == T['LINK']:
-                    yield from num(1, npts - 1, 'link', big=True)
+                    yield from num(1, npts - 1, 'link', big=True, ref=True)
                     continue
                 if not last and (a >= OFF or a == T['BIG']):
                     st['pend'] = a
@@ -514,7 +547,7 @@ def allowed_ok(al, t):
 
 def fields(toks):
     """토큰열을 문법으로 읽어 토큰마다 칸 번호(FID)를 돌려준다. 문법에 어긋나면 ValueError."""
-    g = grammar()
+    g = grammar(strict=True)
     al = next(g)
     out = []
     for i, t in enumerate(toks):
