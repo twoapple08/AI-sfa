@@ -29,6 +29,7 @@ import sfa_tokens as K  # noqa: E402
 
 SOFT = torch.tensor([K.FID[f] in (K.FID['coord'], K.FID['t'], K.FID['thick'], K.FID['glow'], K.FID['color'], K.FID['bg'])
                      for f in K.FIELDS])
+TOK_EOS = K.TOK['EOS']
 SOFT_W = (0.1, 0.25, 0.3, 0.25, 0.1)   # 이웃 칸 -2..+2 (정확한 칸과 반반 섞는다)
 
 
@@ -135,21 +136,68 @@ def allowed_mask(al, dev):
     return m
 
 
+class Cache:
+    """디코더 증분 계산(KV 캐시). nn.TransformerDecoderLayer(norm_first, batch_first)와 같은 가중치·식을 한 토큰씩."""
+
+    def __init__(self, net, mem):
+        self.net = net
+        self.kv = []
+        self.mkv = []
+        for ly in net.dec.layers:
+            W, b = ly.multihead_attn.in_proj_weight, ly.multihead_attn.in_proj_bias
+            d = W.shape[1]
+            self.mkv.append((F.linear(mem, W[d:2 * d], b[d:2 * d]), F.linear(mem, W[2 * d:], b[2 * d:])))
+            self.kv.append(None)
+        self.t = 0
+
+    @staticmethod
+    def _attn(mha, q_in, k, v):
+        W, b = mha.in_proj_weight, mha.in_proj_bias
+        d = W.shape[1]
+        h = mha.num_heads
+        q = F.linear(q_in, W[:d], b[:d])
+        B, T, _ = q.shape
+        sp = lambda x: x.view(B, x.shape[1], h, d // h).transpose(1, 2)  # noqa: E731
+        o = F.scaled_dot_product_attention(sp(q), sp(k), sp(v))
+        return mha.out_proj(o.transpose(1, 2).reshape(B, T, d))
+
+    def step(self, tok, fld):
+        net = self.net
+        x = net.emb.weight[tok][None, None] + net.fld_emb.weight[fld][None, None] + net.pos.weight[self.t][None, None]
+        self.t += 1
+        for li, ly in enumerate(net.dec.layers):
+            W, b = ly.self_attn.in_proj_weight, ly.self_attn.in_proj_bias
+            d = W.shape[1]
+            y = ly.norm1(x)
+            k, v = F.linear(y, W[d:2 * d], b[d:2 * d]), F.linear(y, W[2 * d:], b[2 * d:])
+            if self.kv[li] is not None:
+                k, v = torch.cat([self.kv[li][0], k], 1), torch.cat([self.kv[li][1], v], 1)
+            self.kv[li] = (k, v)
+            x = x + self._attn(ly.self_attn, y, k, v)
+            x = x + self._attn(ly.multihead_attn, ly.norm2(x), *self.mkv[li])
+            x = x + ly.linear2(ly.activation(ly.linear1(ly.norm3(x))))
+        return net.head(net.norm(x))[0, 0]
+
+
 @torch.no_grad()
 def generate(net, img, maxlen=None, temp=0.0):
-    """문법 강제 생성(한 장). 캐시 없이 매 걸음 다시 계산(단순판)."""
+    """문법 강제 생성(한 장, KV 캐시)."""
     dev = img.device
     maxlen = maxlen or net.maxlen
     mem = net.memory(img[None])
+    cache = Cache(net, mem)
     g = K.grammar()
     al = next(g)
     toks, flds = [], []
     while len(toks) < maxlen:
         if toks:
-            lg = net.step(mem, torch.tensor([toks], device=dev), torch.tensor([flds], device=dev))[0, -1]
+            lg = cache.step(toks[-1], flds[-1])
         else:
             lg = torch.zeros(K.VOCAB, device=dev)
         lg = lg + allowed_mask(al, dev)
+        if len(toks) >= maxlen - 64 and TOK_EOS in al[0]:   # 길이 한도 가까우면 끝낼 수 있는 자리에서 끝낸다
+            lg = torch.full_like(lg, float('-inf'))
+            lg[TOK_EOS] = 0
         t = int(torch.multinomial(F.softmax(lg / temp, -1), 1)) if temp > 0 else int(lg.argmax())
         toks.append(t)
         flds.append(K.FID[al[3]] if t >= K.OFF else K.FID['spec'])

@@ -278,6 +278,7 @@ def decode(toks, fid=1, pos=0, ids=None):
             return v
         i += 1
         return toks[i - 1] - OFF
+    toks = list(toks) + [TOK['EOS']] * 8   # 잘린 문장(생성 길이 한도)도 앞부분은 살린다
     while i < len(toks):
         t = toks[i]
         i += 1
@@ -320,7 +321,10 @@ def decode(toks, fid=1, pos=0, ids=None):
             objs.append(o)
             j = 0
             while i < len(toks) and is_num(toks[i]):
-                x, y = rnum(), rnum()
+                x = rnum()
+                if not is_num(toks[i]):   # 잘린 점(y 없음)은 버린다
+                    break
+                y = rnum()
                 i += 1  # PT
                 ap = ET.SubElement(o, 'AP', dict(ID=ids(), Flags='9', Index=str(j), X=repr(round(XMIN + x * XSTEP, 4)), Y=repr(round(XMIN + y * XSTEP, 4))))
                 j += 1
