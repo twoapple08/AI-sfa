@@ -4,7 +4,7 @@ AI가 만든 장과 원본 장의 오브젝트를 하나씩 짝지어(헝가리�
   짝 비용 = 점 사이 평균 거리(SFA 단위, 0–100 = 화면 폭/높이). 직선·곡선은 점 순서를 뒤집은 것도 본다. 종류가 다르면 +TYPE_PEN.
   맞음 = 같은 종류 + 평균 점 거리 ≤ tol.
 숫자: 맞은 오브젝트(재현율 = 원본 중 맞힌 비율, 정밀도 = AI 것 중 맞은 비율), 평균 점 오차, 색·굵기 일치, 연결 F1, 가림 순서 일치.
-구조 채점(align=True, 기본, 사용자 10-30 영상: 작게 그려도 선끼리 관계가 맞으면 O): AI 그림 전체를 이동 + 같은 비율 확대로
+구조 채점(align=True, 보조 — 10-30 영상을 '크기 무관'으로 잘못 읽어 만든 것. 사용자 뜻은 '일반 그림 도구 말고 스파로 그려라'. 기본은 제자리 비교): AI 그림 전체를 이동 + 같은 비율 확대로
 원본에 맞춘 뒤 비교한다(회전은 안 함 — 기울어진 선은 틀림). 맞춘 배율·이동도 돌려준다. align=False는 제자리 비교.
 """
 import math
@@ -94,7 +94,7 @@ def _fit(P, A, pairs, flip):
     return s, my - s * mx
 
 
-def score(pred_fr, ans_fr, tol=1.0, align=True):
+def score(pred_fr, ans_fr, tol=1.0, align=False):
     P, lp = objs(pred_fr)
     A, la = objs(ans_fr)
     scale, shift = 1.0, (0.0, 0.0)
