@@ -47,9 +47,9 @@ def kg(*args, check=True):
     return out
 
 
-def ckpt_exists(u):
-    out = kg('datasets', 'list', '--mine', '-s', CKPT, '--csv', check=False)
-    return f'{u}/{CKPT}' in out
+def ckpt_exists(u, name=CKPT):
+    out = kg('datasets', 'list', '--mine', '-s', name, '--csv', check=False)
+    return any(l.split(',')[0] == f'{u}/{name}' for l in out.splitlines())
 
 
 def push(a):
@@ -65,9 +65,9 @@ def push(a):
                 is_private=True, enable_gpu=not a.cpu, enable_internet=True, dataset_sources=[], competition_sources=[], kernel_sources=[])
     if a.accel and not a.cpu:
         meta['machine_shape'] = a.accel
-    if not a.fresh and not a.smoke and ckpt_exists(u):
-        meta['dataset_sources'] = [f'{u}/{CKPT}']
-        print('이어하기 자료를 입력으로:', f'{u}/{CKPT}', flush=True)
+    if not a.fresh and not (a.smoke and a.ckpt == CKPT) and ckpt_exists(u, a.ckpt):   # 시험은 본 학습 자료를 붙이지 않는다
+        meta['dataset_sources'] = [f'{u}/{a.ckpt}']
+        print('이어하기 자료를 입력으로:', f'{u}/{a.ckpt}', flush=True)
     json.dump(meta, open(os.path.join(d, 'kernel-metadata.json'), 'w'), ensure_ascii=False, indent=1)
     print(kg('kernels', 'push', '-p', d))
     shutil.rmtree(d)
@@ -112,13 +112,13 @@ def save_ckpt(a):
     for f in ('ckpt.pt', 'best.pt', 'log.jsonl'):
         if os.path.exists(os.path.join(src, f)):
             shutil.copy(os.path.join(src, f), d)
-    json.dump(dict(title=CKPT, id=f'{u}/{CKPT}', licenses=[dict(name='CC0-1.0')]), open(os.path.join(d, 'dataset-metadata.json'), 'w'))
-    if ckpt_exists(u):
+    json.dump(dict(title=a.ckpt, id=f'{u}/{a.ckpt}', licenses=[dict(name='CC0-1.0')]), open(os.path.join(d, 'dataset-metadata.json'), 'w'))
+    if ckpt_exists(u, a.ckpt):
         print(kg('datasets', 'version', '-p', d, '-m', time.strftime('%Y-%m-%d %H:%M'), '-q'))
     else:
         print(kg('datasets', 'create', '-p', d, '-q'))   # 기본 비공개
     shutil.rmtree(d)
-    print('이어하기 자료 올림:', f'{u}/{CKPT}', flush=True)
+    print('이어하기 자료 올림:', f'{u}/{a.ckpt}', flush=True)
 
 
 DRIVE = 'gdrive:AI-sfa/02_분석자료/seq'
@@ -153,6 +153,7 @@ def main():
     p.add_argument('--fresh', action='store_true', help='이어하기 자료를 붙이지 않고 처음부터')
     p.add_argument('--smoke', action='store_true', help='흐름 확인(작은 자료·모델 몇 분, 별도 커널 aisfa-seq-train-smoke)')
     p.add_argument('--cpu', action='store_true', help='GPU 끄고(주간 GPU 시간을 쓰지 않음)')
+    p.add_argument('--ckpt', default=CKPT, help='이어하기 자료 이름')
     st_ = sub.add_parser('status')
     st_.add_argument('--smoke', action='store_true')
     w = sub.add_parser('wait')
@@ -162,6 +163,7 @@ def main():
         q = sub.add_parser(nm)
         q.add_argument('dir')
         q.add_argument('--smoke', action='store_true')
+        q.add_argument('--ckpt', default=CKPT, help='이어하기 자료 이름(시험은 다른 이름으로 — 본 학습이 시험 모델을 이어받지 않게)')
     q = sub.add_parser('to-drive')
     q.add_argument('dir')
     q.add_argument('run')
