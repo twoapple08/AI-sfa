@@ -55,26 +55,31 @@ def ckpt_exists(u):
 def push(a):
     u = user()
     src = open(os.path.join(HERE, 'kaggle_seq_worker.py'), encoding='utf-8').read()
-    cfg = dict(branch=a.branch, session_minutes=a.minutes, plan_minutes=a.plan_minutes, tok_budget=a.tok_budget, extra=a.extra)
+    cfg = dict(branch=a.branch, session_minutes=a.minutes, plan_minutes=a.plan_minutes, tok_budget=a.tok_budget, extra=a.extra, smoke=a.smoke)
     src, n = re.subn(r"^CONFIG = \{.*\}$", 'CONFIG = ' + repr(cfg), src, count=1, flags=re.M)
     assert n == 1, 'CONFIG 줄을 못 찾음'
     d = tempfile.mkdtemp(prefix='kseq_')
     open(os.path.join(d, 'kernel.py'), 'w', encoding='utf-8').write(src)
-    meta = dict(id=f'{u}/{KERNEL}', title=KERNEL, code_file='kernel.py', language='python', kernel_type='script',
-                is_private=True, enable_gpu=True, enable_internet=True, dataset_sources=[], competition_sources=[], kernel_sources=[])
-    if a.accel:
+    kname = KERNEL + ('-smoke' if a.smoke else '')
+    meta = dict(id=f'{u}/{kname}', title=kname, code_file='kernel.py', language='python', kernel_type='script',
+                is_private=True, enable_gpu=not a.cpu, enable_internet=True, dataset_sources=[], competition_sources=[], kernel_sources=[])
+    if a.accel and not a.cpu:
         meta['machine_shape'] = a.accel
-    if not a.fresh and ckpt_exists(u):
+    if not a.fresh and not a.smoke and ckpt_exists(u):
         meta['dataset_sources'] = [f'{u}/{CKPT}']
         print('이어하기 자료를 입력으로:', f'{u}/{CKPT}', flush=True)
     json.dump(meta, open(os.path.join(d, 'kernel-metadata.json'), 'w'), ensure_ascii=False, indent=1)
     print(kg('kernels', 'push', '-p', d))
     shutil.rmtree(d)
-    print('올림:', f'https://www.kaggle.com/code/{u}/{KERNEL}', '설정', cfg, flush=True)
+    print('올림:', f'https://www.kaggle.com/code/{u}/{kname}', '설정', cfg, flush=True)
 
 
-def status(_=None):
-    out = kg('kernels', 'status', f'{user()}/{KERNEL}')
+def kname_of(a):
+    return KERNEL + ('-smoke' if getattr(a, 'smoke', False) else '')
+
+
+def status(a=None):
+    out = kg('kernels', 'status', f'{user()}/{kname_of(a)}')
     print(out, flush=True)
     return out
 
@@ -82,7 +87,7 @@ def status(_=None):
 def wait(a):
     t0 = time.time()
     while time.time() - t0 < a.hours * 3600:
-        out = status().lower()
+        out = status(a).lower()
         if any(k in out for k in ('complete', 'error', 'cancel')):
             return
         time.sleep(600)
@@ -91,7 +96,7 @@ def wait(a):
 
 def pull(a):
     os.makedirs(a.dir, exist_ok=True)
-    print(kg('kernels', 'output', f'{user()}/{KERNEL}', '-p', a.dir))
+    print(kg('kernels', 'output', f'{user()}/{kname_of(a)}', '-p', a.dir))
     for f in ('out/run.json', 'out/log.jsonl'):
         p = os.path.join(a.dir, f)
         if os.path.exists(p):
@@ -146,12 +151,17 @@ def main():
     p.add_argument('--extra', default='', help='seq_train 옵션 덧붙이기')
     p.add_argument('--accel', default='NvidiaTeslaT4', help='machine_shape(빈 값이면 기본 GPU)')
     p.add_argument('--fresh', action='store_true', help='이어하기 자료를 붙이지 않고 처음부터')
-    sub.add_parser('status')
+    p.add_argument('--smoke', action='store_true', help='흐름 확인(작은 자료·모델 몇 분, 별도 커널 aisfa-seq-train-smoke)')
+    p.add_argument('--cpu', action='store_true', help='GPU 끄고(주간 GPU 시간을 쓰지 않음)')
+    st_ = sub.add_parser('status')
+    st_.add_argument('--smoke', action='store_true')
     w = sub.add_parser('wait')
     w.add_argument('--hours', type=float, default=13)
+    w.add_argument('--smoke', action='store_true')
     for nm in ('pull', 'save-ckpt'):
         q = sub.add_parser(nm)
         q.add_argument('dir')
+        q.add_argument('--smoke', action='store_true')
     q = sub.add_parser('to-drive')
     q.add_argument('dir')
     q.add_argument('run')
