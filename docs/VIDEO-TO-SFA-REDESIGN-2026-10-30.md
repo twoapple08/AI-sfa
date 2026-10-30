@@ -22,7 +22,7 @@
 ```
 BOS BG a r g b
 LAYER
-LINE  COLOR a r g b THICK t [GLOW 반경 두께 알파 r g b]  x y PT  x y PT LINK k
+LINE  COLOR a r g b THICK t [GLOW 반경 두께 알파 r g b]  x y PT  x y PT LINK d
 CURVE SAME  x y PT  x y PT  x y PT
 CIRC  SAME  x y PT  x y PT           (원 = 지름 양끝 두 점)
 LAYER …
@@ -31,7 +31,7 @@ FILL a r g b  WHOLE o                                 (오브젝트 전체 채�
 EOS
 ```
 - **오브젝트 전체 모양**을 적는다. 가려진 부분도 같은 오브젝트로 이어진다.
-- **연결**: `LINK k` = 앞에서 나온 k번째 점과 AC 연결. 위치 추정이 아니라 번호를 가리키므로 위치가 다른 연결(실측 5%)도 정확하다.
+- **연결**: `LINK d` = d개 앞의 점과 AC 연결(상대 거리, 스틱맨은 대개 1·2 — 10-30 변경). 위치 추정이 아니라 점을 가리키므로 위치가 다른 연결(실측 5%)도 정확하다.
 - **스타일**: 앞 오브젝트와 같으면 `SAME` 한 토큰이다. 색 ARGB, 굵기(로그 칸, 오차 0.25%), 글로우(반경·두께 0.1 단위, 알파, 색)를 적는다.
 - **수**: 수 토큰 8,192개를 공유한다.
   - 좌표는 0.025 단위다(−50~154.8). 0.05 단위는 렌더 차이가 1%라서 줄였다.

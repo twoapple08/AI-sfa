@@ -5,9 +5,9 @@
 보이는 픽셀이 아니라 오브젝트 전체 모양을 적으므로 가려진 부분도 이어진 한 오브젝트로 남는다.
   BG c c c c                                배경색(ARGB 4수)
   LAYER                                     새 레이어(숨긴 레이어는 뺀다)
-  LINE|CIRC|CURVE [스타일] PT x y [LINK k]…   오브젝트. 스타일 = SAME(앞 오브젝트와 같음) 또는 COLOR a r g b THICK t [GLOW r w a c c c c]
-                                            LINK k = 앞에서 나온 k번째 점과 연결(AC). 연결은 위치가 달라도 된다(실측 5%)
-  FILL a r g b {CONTOUR | SEG o s e t0 t1 | WHOLE o}…   면(FR). o = 오브젝트 번호, s·e = 그 오브젝트의 점 번호
+  LINE|CIRC|CURVE [스타일] x y PT [LINK d]…   오브젝트. 스타일 = SAME(앞 오브젝트와 같음) 또는 COLOR a r g b THICK t [GLOW r w a c c c c]
+                                            LINK d = d개 앞의 점과 연결(AC, 상대 거리 — 스틱맨은 대개 1·2). 위치가 달라도 된다(실측 5%)
+  FILL a r g b {CONTOUR | SEG o s e t0 t1 | WHOLE o}…   면(FR). o = 끝에서 몇 번째 오브젝트(1 = 마지막), s·e = 그 오브젝트의 점 번호
   EOS
 수 토큰은 0..NUM-1 하나로 공유한다(좌표 0.025 단위, 굵기 로그 칸, T 0.001 단위, 글로우 0.1 단위).
 범위를 넘는 수(화면 밖으로 뻗은 선 끝·곡선 조절점, 4096개 넘는 오브젝트·점 번호)는 BIG + 세 자리로 정확히 적는다.
@@ -166,6 +166,10 @@ def encode(seq, fr):
         xy = [(float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP')]
         if not xy:
             continue
+        if len(xy) < {'1': 2, '2': 2, '3': 3}.get(a.get('TypeId'), 2):
+            # 점이 모자란 오브젝트: 앱의 점 삭제 기능으로 생길 수 있다(사용자 10-30). 빼지 않고 그대로 적는다
+            # (실측: tlqkf.sfa 154–156장 곡선 1점 하나뿐. 앱에서 어떻게 보이는지 미확인 — 렌더러는 안 그림)
+            st['short'] = st.get('short', 0) + 1
         if a.get('TypeId') == '2' and len(xy) >= 2:
             cx, cy = (xy[0][0] + xy[1][0]) / 2, (xy[0][1] + xy[1][1]) / 2
             r = math.hypot(xy[1][0] - xy[0][0], xy[1][1] - xy[0][1]) / 2
@@ -196,7 +200,7 @@ def encode(seq, fr):
         oidx[a.get('ID')] = len(oidx)
         xy = [(float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP')]
         cl = clip_line(xy) if a.get('TypeId') == '1' and len(xy) == 2 else None
-        for pi, p in enumerate(a.findall('AP')):
+        for pi, p in enumerate(a.findall('AP')[:NPTS[TYPES.get(a.get('TypeId'), 'LINE')]]):
             for v in (cl[pi] if cl else (float(p.get('X')), float(p.get('Y')))):
                 v = v if v == v else 50.0
                 k = round((v - XMIN) / XSTEP)
@@ -208,7 +212,7 @@ def encode(seq, fr):
                 if j is None:
                     st['link_fwd'] += 1      # 아직 안 나온 점 → 그 점 쪽에서 거꾸로 적힌다(AC는 양방향)
                     continue
-                toks += [TOK['LINK']] + num(j)
+                toks += [TOK['LINK']] + num(len(pidx) - j)  # 상대 거리(1 = 바로 앞 점)
                 st['links'] += 1
             pidx[p.get('ID')] = len(pidx)
         st['objs'] += 1
@@ -230,9 +234,9 @@ def encode(seq, fr):
                 toks.append(TOK['CONTOUR'])
                 cur = c
             if s.get('Kind') == '1' or s.get('StartT') is None:
-                toks += [TOK['WHOLE']] + num(oidx[s.get('ObjId')])
+                toks += [TOK['WHOLE']] + num(len(oidx) - oidx[s.get('ObjId')])  # 상대(1 = 마지막 오브젝트)
             else:
-                toks += [TOK['SEG']] + num(oidx[s.get('ObjId')]) + [n(ptn.get(s.get('StartPtId'), 0)), n(ptn.get(s.get('EndPtId'), 0)),
+                toks += [TOK['SEG']] + num(len(oidx) - oidx[s.get('ObjId')]) + [n(ptn.get(s.get('StartPtId'), 0)), n(ptn.get(s.get('EndPtId'), 0)),
                          n(round((float(s.get('StartT')) - TMIN) / TSTEP)), n(round((float(s.get('EndT')) - TMIN) / TSTEP))]
         st['fills'] += 1
     toks.append(TOK['EOS'])
@@ -322,7 +326,7 @@ def decode(toks, fid=1, pos=0, ids=None):
                 j += 1
                 while i < len(toks) and toks[i] == TOK['LINK']:
                     i += 1
-                    k = rnum()
+                    k = len(pts) - rnum()
                     if 0 <= k < len(pts):
                         ET.SubElement(ap, 'AC', dict(ConnPtId=pts[k].get('ID')))
                         ET.SubElement(pts[k], 'AC', dict(ConnPtId=ap.get('ID')))
@@ -337,8 +341,8 @@ def decode(toks, fid=1, pos=0, ids=None):
                 if u == TOK['CONTOUR']:
                     cur += 1
                     continue
-                oi = rnum()
-                if oi >= len(objs):
+                oi = len(objs) - rnum()
+                if not 0 <= oi < len(objs):
                     i += 4 if u == TOK['SEG'] else 0
                     continue
                 o = objs[oi]
@@ -383,3 +387,133 @@ def decode(toks, fid=1, pos=0, ids=None):
 
 def names(toks):
     return [SPECIAL[t] if t < OFF else str(t - OFF) for t in toks]
+
+
+
+# ── 문법(2026-10-30): 생성 때 다음에 올 수 있는 토큰만 허용 + 학습 때 토큰마다 칸 종류 표시 ──
+FIELDS = ['spec', 'bg', 'color', 'thick', 'glow', 'coord', 'link', 'obj', 'ptidx', 't', 'big']
+FID = {f: i for i, f in enumerate(FIELDS)}
+NPTS = {'LINE': 2, 'CIRC': 2, 'CURVE': 3}
+
+
+def grammar():
+    """생성기. yield (허용 특수 토큰 집합, 수 하한, 수 상한(포함, 수 불가면 -1), 칸 이름), send(고른 토큰).
+    수 칸에서 BIG을 허용하면 특수 집합에 BIG이 들어 있다."""
+    T = TOK
+    st = {'pend': None}
+
+    def ask(specs, lo=0, hi=-1, field='spec'):
+        if st['pend'] is not None:
+            t, st['pend'] = st['pend'], None
+            return t
+        return (yield (frozenset(T[x] for x in specs), lo, hi, field))
+
+    def num(lo, hi, field, big=False):
+        t = yield from ask(('BIG',) if big else (), lo, hi, field)
+        if t == T['BIG']:
+            v = 0
+            for _ in range(3):
+                d = yield from ask((), 0, NUM - 1, 'big')
+                v = v * NUM + (d - OFF)
+            return v - BIGOFF
+        return t - OFF
+
+    yield from ask(('BOS',))
+    yield from ask(('BG',))
+    for _ in range(4):
+        yield from num(0, 255, 'bg')
+    npts = nobj = 0
+    style = False
+    t = yield from ask(('LAYER', 'EOS'))   # 빈 장 허용
+    while True:
+        if t == T['EOS']:
+            return
+        if t == T['LAYER']:
+            style = False
+            t = yield from ask(('LAYER', 'LINE', 'CIRC', 'CURVE', 'EOS') + (('FILL',) if nobj else ()))
+            continue
+        if t == T['FILL']:
+            for _ in range(4):
+                yield from num(0, 255, 'color')
+            u = yield from ask(('SEG', 'WHOLE'))
+            while True:
+                if u == T['EOS']:
+                    return
+                if u == T['CONTOUR']:
+                    u = yield from ask(('SEG', 'WHOLE'))
+                    continue
+                if u == T['FILL']:
+                    for _ in range(4):
+                        yield from num(0, 255, 'color')
+                    u = yield from ask(('SEG', 'WHOLE'))
+                    continue
+                yield from num(1, nobj, 'obj', big=True)
+                if u == T['SEG']:
+                    yield from num(0, 2, 'ptidx')
+                    yield from num(0, 2, 'ptidx')
+                    yield from num(0, NUM - 1, 't')
+                    yield from num(0, NUM - 1, 't')
+                u = yield from ask(('SEG', 'WHOLE', 'CONTOUR', 'FILL', 'EOS'))
+        kind = SPECIAL[t]
+        s = yield from ask(('SAME', 'COLOR') if style else ('COLOR',))
+        if s == T['COLOR']:
+            for _ in range(4):
+                yield from num(0, 255, 'color')
+            yield from ask(('THICK',))
+            yield from num(0, NUM - 1, 'thick')
+            style = True
+            g = yield from ask(('GLOW', 'BIG'), 0, NUM - 1, 'coord')   # GLOW 또는 첫 x 좌표
+            if g == T['GLOW']:
+                for _ in range(3):
+                    yield from num(0, NUM - 1, 'glow')
+                for _ in range(3):
+                    yield from num(0, 255, 'glow')
+            else:
+                st['pend'] = g
+        n_ = NPTS[kind]
+        for k in range(n_):
+            yield from num(0, NUM - 1, 'coord', big=True)
+            yield from num(0, NUM - 1, 'coord', big=True)
+            yield from ask(('PT',))
+            npts += 1
+            last = k == n_ - 1
+            link = ('LINK',) if npts > 1 else ()
+            while True:
+                ends = ('LAYER', 'LINE', 'CIRC', 'CURVE', 'FILL', 'EOS')
+                if last:
+                    a = yield from ask(link + ends)
+                else:   # LINK, 다음 점 x, 또는 점이 모자란 채 끝(점 삭제 기능)
+                    a = yield from ask(link + ('BIG',) + ends, 0, NUM - 1, 'coord')
+                if a == T['LINK']:
+                    yield from num(1, npts - 1, 'link', big=True)
+                    continue
+                if not last and (a >= OFF or a == T['BIG']):
+                    st['pend'] = a
+                break
+            if a < OFF and a != T['BIG']:
+                break
+        nobj += 1
+        t = a
+
+
+def allowed_ok(al, t):
+    specs, lo, hi, _ = al
+    return t in specs or (t >= OFF and lo <= t - OFF <= hi)
+
+
+def fields(toks):
+    """토큰열을 문법으로 읽어 토큰마다 칸 번호(FID)를 돌려준다. 문법에 어긋나면 ValueError."""
+    g = grammar()
+    al = next(g)
+    out = []
+    for i, t in enumerate(toks):
+        if not allowed_ok(al, t):
+            raise ValueError(f'{i}번째 토큰 {names([t])} 불가(허용 {names(sorted(al[0]))} 수 {al[1]}..{al[2]})')
+        out.append(FID[al[3]] if t >= OFF else FID['spec'])
+        try:
+            al = g.send(t)
+        except StopIteration:
+            if i != len(toks) - 1:
+                raise ValueError('EOS 뒤에 토큰')
+            return out
+    raise ValueError('EOS 없이 끝남')
