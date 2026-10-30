@@ -51,6 +51,12 @@ def one(job):
     except Exception as e:
         return rel, 'err:' + type(e).__name__
     aug = augment(root, rng) if aug_k else None
+    if a.get('fixed'):   # 위치 시험용 고정 변환(GPT 3차: 학습 파일의 학습에 없던 이동 쌍)
+        dx, dy, sc = a['fixed']
+        for p in root.iter('AP'):
+            p.set('X', repr((float(p.get('X')) - 50) * sc + 50 + dx))
+            p.set('Y', repr((float(p.get('Y')) - 50) * sc + 50 + dy))
+        aug = dict(fixed=[dx, dy, sc])
     frs = root.findall('Frame')
     if len(frs) > a['max_frames']:
         s = int(rng.integers(0, len(frs) - a['max_frames'] + 1))
@@ -106,6 +112,7 @@ def main():
     ap.add_argument('--workers', type=int, default=max(1, (os.cpu_count() or 2) - 1))
     ap.add_argument('--low-priority', action='store_true', help='양보 모드: 낮은 CPU 우선순위')
     ap.add_argument('--aug', type=int, default=0, help='파일마다 늘린 사본 수(좌우 반전·확대·이동, 학습 자료만)')
+    ap.add_argument('--fixed', default='', help='위치 시험 자료: 고정 변환 "dx,dy,배율"(학습 파일에, 늘리기 없이)')
     a = ap.parse_args()
     os.makedirs(a.out_dir, exist_ok=True)
     if a.low_priority:
@@ -127,9 +134,9 @@ def main():
             os.remove(os.path.join(a.out_dir, f))
     files = V.file_list(only='holdout') if a.holdout else V.file_list()
     files = files[::a.every]
-    cfg = dict(maxlen=a.maxlen, max_frames=a.max_frames, W=a.W)
+    cfg = dict(maxlen=a.maxlen, max_frames=a.max_frames, W=a.W, fixed=[float(v) for v in a.fixed.split(',')] if a.fixed else None)
     jobs = [(rel, a.out_dir, 1000 + i, cfg) for i, rel in enumerate(files)]
-    if not a.holdout:
+    if not a.holdout and not a.fixed:
         jobs += [(rel, a.out_dir, 500000 + 1000 * k + i, cfg, k) for k in range(1, a.aug + 1) for i, rel in enumerate(files)]
     n = n_files = 0
     fails = []
@@ -151,7 +158,7 @@ def main():
 
 def config(a):
     return dict(version=SEQ_DATA_VERSION, maxlen=a.maxlen, max_frames=a.max_frames, W=a.W, every=a.every, holdout=a.holdout, vocab=K.VOCAB,
-                aug=0 if a.holdout else a.aug)
+                aug=0 if a.holdout or a.fixed else a.aug, fixed=a.fixed)
 
 
 def done_ok(out_dir, want):

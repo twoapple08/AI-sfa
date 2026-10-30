@@ -116,6 +116,26 @@ class ObjScoreTest(unittest.TestCase):
         f2.find('AO').set('ThicknessScale', '10')
         self.assertTrue(OS.score(f2, f1)['perfect'])
 
+    def test_gpt3_counterexamples(self):
+        """GPT 3차(10-30): 뒤집힌 원의 WHOLE / 면 색이 다른 겹친 원의 순서 / 한 점 한 칸 차이는 perfect 아님."""
+        A = frame([('2', [(10, 10), (20, 10)], BLACK, 0, [])], fills=[(RED, [0])])
+        P = frame([('2', [(20, 10), (10, 10)], BLACK, 0, [])], fills=[(RED, [0])])
+        r = OS.score(P, A)
+        self.assertEqual(r['fill_f1'], 1.0)
+        self.assertTrue(r['perfect'])
+        BLUE = -16776961
+        circ = [('2', [(10, 10), (30, 10)], BLACK, 0, []), ('2', [(20, 10), (40, 10)], BLACK, 1, [])]
+        A = frame(circ, fills=[(RED, [0]), (BLUE, [1])])
+        P = frame([(t, xy, c, 1 - o, l) for t, xy, c, o, l in circ], fills=[(RED, [0]), (BLUE, [1])])
+        r = OS.score(P, A)
+        self.assertEqual(r['order'], 0.0)
+        self.assertFalse(r['perfect'])
+        base = [('1', [(10, 10), (20, 10)], BLACK, 0, [])]
+        one = [('1', [(10.025, 10), (20, 10)], BLACK, 0, [])]
+        r = OS.score(frame(one), frame(base))
+        self.assertFalse(r['perfect'])
+        self.assertTrue(r['near_perfect'])
+
 
 if __name__ == '__main__':
     unittest.main()

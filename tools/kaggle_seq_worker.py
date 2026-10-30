@@ -43,17 +43,19 @@ def main():
     data, val = '/kaggle/tmp/sd', '/kaggle/tmp/sv'
     t1 = time.time()
     if c.get('smoke'):   # 흐름 확인용(GPU 없이 몇 분): 아주 작은 자료·모델
-        sh(f'cd {tools} && python -u seq_data.py {data} --maxlen 1024 --max-frames 6 --every 40 --aug 1 --workers {cpus}')
-        sh(f'cd {tools} && python -u seq_data.py {val} --maxlen 1024 --max-frames 4 --holdout --workers {cpus}')
+        sh(f'cd {tools} && python -u seq_data.py {data} --maxlen 2048 --max-frames 6 --every 40 --aug 1 --workers {cpus}')
+        sh(f'cd {tools} && python -u seq_data.py {val} --maxlen 2048 --max-frames 4 --holdout --workers {cpus}')
     else:
         sh(f'cd {tools} && python -u seq_data.py {data} --maxlen 2048 --max-frames 300 --aug 1 --workers {cpus}')
         sh(f'cd {tools} && python -u seq_data.py {val} --maxlen 2048 --max-frames 40 --holdout --workers {cpus}')
+    shv = '/kaggle/tmp/ss'   # 위치 시험: 학습 파일 10개 중 1개에 학습에 없던 고정 이동(GPT 3차)
+    sh(f'cd {tools} && python -u seq_data.py {shv} --maxlen 2048 --max-frames {4 if c.get("smoke") else 8} --every {40 if c.get("smoke") else 10} --fixed 6,4,1.05 --workers {cpus}')
     print(f'자료 {(time.time() - t1) / 60:.1f}분', flush=True)
     left = c['session_minutes'] - (time.time() - T0) / 60 - (2 if c.get('smoke') else 20)   # 자료 읽기·마지막 검증·저장 몫
     if left < (1 if c.get('smoke') else 10):
         raise SystemExit('남은 시간이 없음')
     cmd = (f'cd {tools} && python -u seq_train.py train {data} {val} {out} --minutes {left:.0f} --plan-minutes {c["plan_minutes"]:.0f}'
-           f' --tok-budget {c["tok_budget"]} {c["extra"]}')
+           f' --tok-budget {c["tok_budget"]} --shift-val {shv} {c["extra"]}')
     print('$', cmd, flush=True)
     con = open(f'{out}/train_console.txt', 'a', encoding='utf-8')
     pr = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace')

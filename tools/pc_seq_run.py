@@ -87,6 +87,8 @@ def main():
     t0 = time.time()
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{data}" --maxlen 2048 --max-frames 300 --aug 1 --workers {cpus}{lp}')
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{val}" --maxlen 2048 --max-frames 40 --holdout --workers {cpus}{lp}')
+    shv = os.path.join(a.root, 'ss')   # 위치 시험: 학습 파일 10개 중 1개에 학습에 없던 고정 이동(GPT 3차)
+    P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{shv}" --maxlen 2048 --max-frames 8 --every 10 --fixed 6,4,1.05 --workers {cpus}{lp}')
     print(f'자료 {(time.time() - t0) / 60:.1f}분', flush=True)
     left = a.hours * 60 - (time.time() - t_start) / 60 - 12   # 자료 읽기(몇 분)·마무리 올리기 몫
     if left < 5:
@@ -99,7 +101,7 @@ def main():
         up.start()
     plan = a.plan_hours * 60   # 0이면 seq_train이 처음엔 이번 실행 시간, 이어할 땐 이번 실행만큼 늘림
     cmd = (f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --minutes {left:.0f} --plan-minutes {plan:.0f}'
-           f' --tok-budget {a.tok_budget}' + (' --yield' if a.yield_ else '') + extra)
+           f' --tok-budget {a.tok_budget} --shift-val "{shv}"' + (' --yield' if a.yield_ else '') + extra)
     try:
         P.run_logged(cmd, out)
     finally:

@@ -14,7 +14,8 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 
 TYPE_PEN = 50.0
-EXACT_PT = 0.02   # 만점(같은 영상) 점 허용: 좌표 칸 0.025의 반 안팎(토큰 왕복 오차)
+EXACT_PT = 0.02   # near_perfect 점 평균 허용
+HALF_BIN = 0.0126  # perfect: 점마다 좌표 차 ≤ 반 칸(0.025/2) — 같은 칸
 EXACT_TH = 0.003  # 만점 굵기 허용(로그 칸 0.25%의 반 안팎)
 NEED = {'1': 2, '2': 2, '3': 3}
 
@@ -62,8 +63,8 @@ def fills(fr, O, pid, mp=None):
             if k is None:
                 continue
             whole = s_.get('Kind') == '1' or s_.get('StartT') is None
-            sp = pid.get(s_.get('StartPtId'), (k, 0))[1]
-            ep = pid.get(s_.get('EndPtId'), (k, 0))[1]
+            sp = 0 if whole else pid.get(s_.get('StartPtId'), (k, 0))[1]
+            ep = 0 if whole else pid.get(s_.get('EndPtId'), (k, 0))[1]
             t0 = 0.0 if whole else round(float(s_.get('StartT')), 3)
             t1 = 1.0 if whole else round(float(s_.get('EndT')), 3)
             seg = ('W' if whole else 'S', k, sp, ep, t0, t1)
@@ -190,6 +191,8 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
         if i not in m:
             return None
         j = m[i]
+        if kind == 'W':   # 전체 채우기는 점·T와 무관 — 오브젝트만 대응(GPT 3차: 뒤집힌 원의 WHOLE이 틀림이던 것)
+            return ('W', j, 0, 0, 0.0, 1.0)
         if not flip[i, j]:
             return (kind, j, sp, ep, t0, t1)
         if P[i]['t'] == '2':
@@ -224,23 +227,38 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
                 return c[0] - rr, c[1] - rr, c[0] + rr, c[1] + rr
             return xy[:, 0].min(), xy[:, 1].min(), xy[:, 0].max(), xy[:, 1].max()
         bx = {j: box(A[j]) for j in m.values()}
+        # 겉모습 = 선 색 + 글로우 + 그 오브젝트와 함께 칠해지는 면(주인 = 면의 첫 조각 오브젝트)의 색들.
+        # 겉모습이 같으면 순서를 바꿔도 영상이 같다(GPT 3차: 선 색만 보면 면 색이 다른 겹친 원의 순서를 놓쳤다)
+        own = {}
+        for col, groups in fa:
+            if groups:
+                own.setdefault(groups[0][0][1], []).append(col)
+        look = {j: (A[j]['col'], A[j]['glow'], tuple(sorted(own.get(j, [])))) for j in m.values()}
         same = tot = 0
         items = sorted(m.items())
         for x in range(len(items)):
             for y in range(x + 1, len(items)):
                 (i1, j1), (i2, j2) = items[x], items[y]
                 b1, b2 = bx[j1], bx[j2]
-                if A[j1]['col'] == A[j2]['col'] or b1[2] + 0.5 < b2[0] or b2[2] + 0.5 < b1[0] or b1[3] + 0.5 < b2[1] or b2[3] + 0.5 < b1[1]:
+                pad = 0.5 + (A[j1]['th'] + A[j2]['th']) * 8 * 1.14 / 2 / 1900 * 100   # 선 굵기 반 + 여유
+                if look[j1] == look[j2] or b1[2] + pad < b2[0] or b2[2] + pad < b1[0] or b1[3] + pad < b2[1] or b2[3] + pad < b1[1]:
                     continue
                 tot += 1
                 same += (i1 < i2) == (j1 < j2)
         r['order'] = same / tot if tot else None
     # 만점 = 같은 영상: 모든 오브젝트가 짝지어지고, 점은 칸 단위로 같고(EXACT_PT), 굵기·색·글로우·연결·면·배경·순서가 같다.
     # '맞음'(허용 오차 tol)과 분리(GPT 2차: 0.5% 이동·굵기 4% 차이도 만점이던 것)
-    exact = all(C[i, j] <= EXACT_PT and abs(math.log(max(P[i]['th'], 1e-3) / max(A[j]['th'], 1e-3))) <= EXACT_TH
-                and P[i]['col'] == A[j]['col'] and P[i]['glow'] == A[j]['glow'] for i, j in ok)
-    r['perfect'] = (r['match'] == len(A) == len(P) and exact and r['bg'] and r['link_f1'] == 1.0 and r['fill_f1'] == 1.0
-                    and r['order'] in (None, 1.0))
+    # perfect = 모든 점이 같은 좌표 칸(점마다 최대 차이 ≤ 반 칸) — 영상 동일. near_perfect = 평균 차이 ≤ EXACT_PT(GPT 3차: 평균으로는 한 점이 한 칸 틀려도 통과)
+    def pt_max(i, j):
+        Pp, Aa = np.array(P[i]['xy']), np.array(A[j]['xy'])
+        if P[i]['t'] == '2':
+            return min(np.abs(Pp - Aa).max(), np.abs(Pp - Aa[::-1]).max())
+        return np.abs((Pp[::-1] if flip[i, j] else Pp) - Aa).max()
+    same_style = all(abs(math.log(max(P[i]['th'], 1e-3) / max(A[j]['th'], 1e-3))) <= EXACT_TH
+                     and P[i]['col'] == A[j]['col'] and P[i]['glow'] == A[j]['glow'] for i, j in ok)
+    rest = r['match'] == len(A) == len(P) and same_style and r['bg'] and r['link_f1'] == 1.0 and r['fill_f1'] == 1.0 and r['order'] in (None, 1.0)
+    r['perfect'] = rest and all(pt_max(i, j) <= HALF_BIN for i, j in ok)
+    r['near_perfect'] = rest and all(C[i, j] <= EXACT_PT for i, j in ok)
     return r
 
 

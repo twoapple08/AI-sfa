@@ -329,6 +329,9 @@ def train(a):
     t0 = time.time()
     tr = Data(a.data, cfg['maxlen'], cfg['in_w'])
     va = Data(a.val, cfg['maxlen'], cfg['in_w'])
+    sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w']) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
+    if saved and a.sine and not cfg.get('sine'):
+        print('주의: 이어하기는 저장된 설정을 따른다 — --sine을 줘도 이 학습은 sin 없이 계속(비교하려면 새 출력 폴더에서 처음부터)', flush=True)
     print(f'자료 학습 {len(tr)}장 {tr.ntok}토큰 · 시험 {len(va)}장 ({time.time() - t0:.0f}초)', flush=True)
     net = Net(cfg['d'], cfg['layers'], cfg['heads'], cfg['maxlen'], cfg['backbone'], pretrained=not saved, stride=cfg.get('stride', 16),
               sine=cfg.get('sine', False)).to(dev)
@@ -367,6 +370,7 @@ def train(a):
     v_idx = sorted(set(np.linspace(0, len(va) - 1, min(a.val_n, len(va))).astype(int).tolist())) if len(va) else []
     v_batches = make_batches_fixed(va, a.max_batch, a.tok_budget, v_idx)
     g_idx = v_idx[::max(1, len(v_idx) // a.gen_n)][:a.gen_n]   # 생성 채점용 고정 장
+    s_idx = (sorted(set(np.linspace(0, len(sv) - 1, min(a.gen_n, len(sv))).astype(int).tolist())) if sv is not None and len(sv) else [])
 
     def active_min():
         return (time.time() - t_sess - (yl.paused - p_sess)) / 60
@@ -412,30 +416,43 @@ def train(a):
         return (tl / tn if tn else float('nan')), (tc / tn if tn else 0.0), int(tn), bad
 
     def gen_eval():
-        """고정 장을 실제로 그려 보고 오브젝트 채점(GPT 검토 10-30: 다음 토큰 맞힘과 실제 생성은 다르다)."""
+        """두 고정 집합을 실제로 그려 보고 오브젝트 채점: 시험 파일(새 파일 일반화) + 학습 파일의 학습에 없던 이동(위치 읽기, GPT 3차)."""
+        out = gen_set(va, g_idx, 'gen')
+        if s_idx:
+            out.update(gen_set(sv, s_idx, 'shift'))
+        return out
+
+    def gen_set(ds_, idx_, pre):
         net.eval()
-        sums = dict(ans=0, pred=0, match=0, link_tp=0, link_pred=0, link_ans=0, fill_tp=0, fill_pred=0, fill_ans=0, perfect=0, done=0, frames=0, oom=0)
+        sums = dict(ans=0, pred=0, match=0, link_tp=0, link_pred=0, link_ans=0, fill_tp=0, fill_pred=0, fill_ans=0, perfect=0, done=0, frames=0, oom=0, errs=[])
         t0_ = time.time()
         try:
-            for i in g_idx:
-                gen_one(i, sums)
+            for i in idx_:
+                gen_one(ds_, i, sums)
         finally:
             net.train()
             if dev == 'cuda':
                 torch.cuda.empty_cache()
-        return dict(gen_recall=sums['match'] / max(sums['ans'], 1), gen_precision=sums['match'] / max(sums['pred'], 1),
-                    gen_link_f1=OS.f1(sums['link_tp'], sums['link_pred'], sums['link_ans']),
-                    gen_fill_f1=OS.f1(sums['fill_tp'], sums['fill_pred'], sums['fill_ans']),
-                    gen_perfect=sums['perfect'], gen_done=sums['done'], gen_frames=sums['frames'], gen_oom=sums['oom'],
-                    gen_sec=round(time.time() - t0_))
+        return {f'{pre}_recall': sums['match'] / max(sums['ans'], 1), f'{pre}_precision': sums['match'] / max(sums['pred'], 1),
+                f'{pre}_link_f1': OS.f1(sums['link_tp'], sums['link_pred'], sums['link_ans']),
+                f'{pre}_fill_f1': OS.f1(sums['fill_tp'], sums['fill_pred'], sums['fill_ans']),
+                f'{pre}_coord_err': float(np.median(sums['errs'])) if sums['errs'] else None,
+                f'{pre}_perfect': sums['perfect'], f'{pre}_done': sums['done'], f'{pre}_frames': sums['frames'], f'{pre}_oom': sums['oom'],
+                f'{pre}_sec': round(time.time() - t0_)}
 
-    def gen_one(i, sums):
+    def gen_one(ds_, i, sums):
         """한 장 생성 채점. 메모리 부족이면 그 장만 건너뛰고 센다(학습은 계속)."""
         try:
-            img = torch.from_numpy(np.ascontiguousarray(va.image(i))).permute(2, 0, 1).float().to(dev) / 255
-            with torch.autocast(dev, dtype=dt, enabled=amp):
-                toks, done = generate(net, img, va.hwr[i], cfg['maxlen'])
-            sc = OS.score(K.decode(toks), K.decode(va.tok[i].tolist()), hwr=va.hwr[i])
+            img = torch.from_numpy(np.ascontiguousarray(ds_.image(i))).permute(2, 0, 1).float().to(dev) / 255
+            with torch.no_grad(), torch.autocast(dev, dtype=dt, enabled=amp):
+                toks, done = generate(net, img, ds_.hwr[i], cfg['maxlen'])
+                # 근접 정도(GPT 3차: 생성 맞힘 0이어도 가까워지는지): 교사 강제 좌표 오차(%) 중앙값
+                tk = torch.from_numpy(ds_.tok[i])[None].to(dev)
+                fd = torch.from_numpy(ds_.fld[i])[None].to(dev)
+                lg = net(img[None], tk[:, :-1], fd[:, :-1], torch.tensor([ds_.hwr[i]], device=dev))
+            mk = fd[:, 1:] == K.FID['coord']
+            sums['errs'] += ((lg[..., K.OFF:].argmax(-1) + K.OFF - tk[:, 1:]).abs()[mk].float() * K.XSTEP).tolist()
+            sc = OS.score(K.decode(toks), K.decode(ds_.tok[i].tolist()), hwr=ds_.hwr[i])
             for k_ in ('ans', 'pred', 'match', 'link_tp', 'link_pred', 'link_ans', 'fill_tp', 'fill_pred', 'fill_ans'):
                 sums[k_] += sc[k_]
             sums['perfect'] += sc['perfect']
@@ -646,6 +663,7 @@ def main():
     t.add_argument('--save-minutes', type=float, default=10)
     t.add_argument('--val-n', type=int, default=400)
     t.add_argument('--gen-n', type=int, default=20, help='생성 채점에 쓰는 고정 시험 장 수')
+    t.add_argument('--shift-val', default='', help='위치 시험 자료 폴더(seq_data --fixed) — 생성 채점에 같이')
     t.add_argument('--gen-minutes', type=float, default=60, help='생성 채점 간격(분). 0이면 안 함')
     t.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(게임 실행 중이면 멈추거나 천천히)')
     t.add_argument('--sine', action='store_true', help='고정 sin 위치 신호(그림 칸 위치 + 수 토큰 값)')
