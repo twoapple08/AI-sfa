@@ -6,9 +6,10 @@
 **영상 → SFA 재설계(10-30 사용자 "설계를 다시해") — PC 본 학습 준비 완료 단계**: 픽셀 지도 정답(보이는 선만 → 가림·묶음·연결·레이어 손실)을 버리고, **SFA 오브젝트를 그리는 순서대로 적은 토큰열을 정답**으로 이미지 인코더 + 트랜스포머 디코더가 SFA를 직접 쓴다. 설계: docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md. 주 목적은 스틱맨 동작(10-28).
 
 ## 바로 할 일
+0. **Kaggle 원격 학습(사용자 컴퓨터 없이, 10-30 준비)**: 사용자가 환경 비밀값 `KAGGLE_USERNAME`·`KAGGLE_KEY` 등록 → **새 세션**에서 `python tools/kaggle_seq_remote.py push`(T4, 한 번 690분, 비공개 커널 aisfa-seq-train) → `wait` → `pull 폴더` → `save-ckpt 폴더`(비공개 자료 aisfa-seq-ckpt, 다음 push가 이어서). 작업자 `tools/kaggle_seq_worker.py`. 인증 없을 때 멈춤만 서버 확인, 실제 Kaggle 실행·`machine_shape` 값·600MB 자료 올리기는 미확인. T4는 fp16.
 1. **PC 본 학습(사용자)**: 먼저 `tools/pc_seq_1050ti_quick.bat`(몇 분, 속도·GPU 메모리 측정) → `tools/pc_seq_5060.bat`(Drive `seq/s1`, 기본 3.2시간) 또는 `tools/pc_seq_4060.bat`(Drive `seq/s1_4060`, W 드라이브, 양보 모드, 8시간씩 전체 계획 24시간). 끝나면 사용자가 rclone 접근 해제.
 2. 끝나면 Claude: Drive에서 best.pt·log 받기 → `python tools/seq_train.py draw best.pt 시험자료 시트.jpg --n 8 --sfa 결과.sfa` → 그림 + 오브젝트 채점(`tools/sfa_objscore.py`, 제자리 기준) 보고.
-3. GPT 검토(사용자 중계): docs/GPT-PROMPT-VEC-REDESIGN-2026-10-30.md(첨부 3개) — 아직 안 보냄.
+3. GPT 토론: 1차 지적 13개 반영(커밋 6310c10), 2차 요청서 docs/GPT-PROMPT-VEC-REDESIGN2-2026-10-30.md(반영·반론·원인 가르기) 사용자에게 보냄 — 답 대기. 원인 가르기[서버]: 모델은 영상을 본다(생성 맞힘 정상 31% vs 섞음 0%).
 4. 나중에: 세로 영상 90° 돌리기(세로 파일 늘면), 장 사이 추적(KEEP, 2단계), 정답 없는 영상 오브젝트 대입 채점(3단계), 레이어 전체 투명도(파일 받으면).
 
 ## 재설계 요점(10-30, 상세 docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md)
