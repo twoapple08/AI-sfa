@@ -25,6 +25,7 @@ import torch.nn.functional as F
 import torchvision
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sfa_objscore as OS  # noqa: E402
 import sfa_tokens as K  # noqa: E402
 
 SOFT = torch.tensor([K.FID[f] in (K.FID['coord'], K.FID['t'], K.FID['thick'], K.FID['glow'], K.FID['color'], K.FID['bg'])
@@ -327,6 +328,7 @@ def draw(a):
     W, H = 640, 360
     R.PARAMS['thick_mul'] = W / 1920
     rows = []
+    scores = []
     out_seq = None
     ids = K.Ids()
     for k, i in enumerate(pick):
@@ -339,11 +341,13 @@ def draw(a):
         im_p = R.render_frame(seq, pred, W, H)
         im_a = R.render_frame(seq, ans, W, H)
         src = cv2.resize(ds.img[i], (W, H))
-        dif = float((np.abs(im_p.astype(int) - src.astype(int)).max(-1) > 40).mean() * 100)
-        n_p, n_a = len(pred.findall('AO')), len(ans.findall('AO'))
-        l_p = sum(len(p.findall('AC')) for p in pred.iter('AP')) // 2
-        l_a = sum(len(p.findall('AC')) for p in ans.iter('AP')) // 2
-        print(f'{ds.meta[i]["file"]} 장 {ds.meta[i]["pos"]}: 토큰 {len(toks)}/{len(ds.tok[i])} 끝냄 {done} | 오브젝트 {n_p}/{n_a} 연결 {l_p}/{l_a} | 입력과 다른 픽셀 {dif:.1f}% ({time.time() - t0:.0f}초)', flush=True)
+        sc = OS.score(pred, ans)
+        scores.append(sc)
+        f = lambda v: '-' if v is None else f'{v * 100:.0f}%'  # noqa: E731
+        print(f'{ds.meta[i]["file"]} 장 {ds.meta[i]["pos"]}: 토큰 {len(toks)}/{len(ds.tok[i])} 끝냄 {done} | '
+              f'오브젝트 AI {sc["pred"]} 원본 {sc["ans"]} 맞음 {sc["match"]} (원본 중 {f(sc["recall"])}, AI 중 {f(sc["precision"])}) '
+              f'점 오차 {"-" if sc["pt_err"] is None else round(sc["pt_err"], 2)} 색 {f(sc["color"])} 굵기 {f(sc["thick"])} '
+              f'연결 F1 {f(sc["link_f1"])} 순서 {f(sc["order"])} ({time.time() - t0:.0f}초)', flush=True)
         cells = [src.copy(), im_p, im_a]
         for im, lab in zip(cells, ('input video', 'AI made SFA', 'answer SFA')):
             cv2.putText(im, lab, (6, 18), 0, 0.55, (255, 0, 0), 1)
@@ -352,6 +356,10 @@ def draw(a):
             out_seq = seq_xml(ds.meta[i]['hwr'])
         out_seq.append(pred)
     cv2.imwrite(a.sheet, cv2.cvtColor(np.vstack(rows), cv2.COLOR_RGB2BGR))
+    tot_m, tot_a, tot_p = sum(x['match'] for x in scores), sum(x['ans'] for x in scores), sum(x['pred'] for x in scores)
+    lf = [x['link_f1'] for x in scores if x['link_f1'] is not None]
+    print(f'합계: 원본 오브젝트 {tot_a} 중 맞힘 {tot_m} ({tot_m / max(tot_a, 1) * 100:.1f}%), AI 오브젝트 {tot_p} 중 맞음 {tot_m / max(tot_p, 1) * 100:.1f}%, '
+          f'연결 F1 평균 {np.mean(lf) * 100 if lf else 0:.1f}%')
     print('시트', a.sheet)
     if a.sfa:
         out_seq.set('FrameCount', str(len(pick)))
