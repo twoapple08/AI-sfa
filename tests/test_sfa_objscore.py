@@ -86,6 +86,36 @@ class ObjScoreTest(unittest.TestCase):
         P = frame([('2', [(50, 40), (50, 60)], BLACK, 0, [])])
         self.assertEqual(OS.score(P, A, hwr=0.45)['match'], 0)
 
+    def test_gpt2_counterexamples(self):
+        """GPT 2차(10-30): 큰 좌표 짝짓기 / 면 조각 / 0.5% 이동·굵기 4%는 만점 아님."""
+        R = 2000000
+        P = frame([('2', [(-R, 0), (R, 0)], BLACK, 0, []), ('1', [(0, -R), (0, R)], BLACK, 1, [])])
+        A = frame([('2', [(0, -R), (0, R)], BLACK, 0, []), ('1', [(-R, 0), (R, 0)], BLACK, 1, [])])
+        # GPT 반례: 가로 지름 원과 세로 지름 원은 같은 원(중심·반지름 같음) → 맞는 짝 1개(옛 코드는 0개)
+        self.assertEqual(OS.score(P, A, hwr=1.0)['match'], 1)
+        # 면: 원 전체 채우기 ↔ 같은 원의 일부(T 0..0.25) 채우기는 다르다
+        circ = [('2', [(10, 10), (20, 10)], BLACK, 0, [])]
+        Aw = frame(circ, fills=[(RED, [0])])
+        Ps = frame(circ)
+        r_ = ET.SubElement(Ps, 'FR', dict(Color=str(RED)))
+        ET.SubElement(r_, 'FS', dict(Kind='0', ObjId='1000', StartPtId='0', EndPtId='1', StartT='0', EndT='0.25'))
+        r = OS.score(Ps, Aw)
+        self.assertEqual(r['fill_f1'], 0.0)
+        self.assertFalse(r['perfect'])
+        # 0.5% 이동: 허용 오차 안이라 '맞음'이지만 만점은 아니다
+        base = [('1', [(10, 10), (20, 10)], BLACK, 0, [])]
+        moved = [('1', [(10.5, 10), (20.5, 10)], BLACK, 0, [])]
+        r = OS.score(frame(moved), frame(base))
+        self.assertEqual(r['match'], 1)
+        self.assertFalse(r['perfect'])
+        # 굵기 10 → 10.4: 만점 아님
+        f1, f2 = frame(base), frame(base)
+        f1.find('AO').set('ThicknessScale', '10')
+        f2.find('AO').set('ThicknessScale', '10.4')
+        self.assertFalse(OS.score(f2, f1)['perfect'])
+        f2.find('AO').set('ThicknessScale', '10')
+        self.assertTrue(OS.score(f2, f1)['perfect'])
+
 
 if __name__ == '__main__':
     unittest.main()

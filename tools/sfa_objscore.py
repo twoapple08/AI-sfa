@@ -14,7 +14,8 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 
 TYPE_PEN = 50.0
-INVALID = 1e6   # 맞을 수 없는 짝(종류 다름·허용 오차 밖) — 헝가리안이 '맞는 짝 수'를 먼저 최대로 하게(GPT 검토 10-30)
+EXACT_PT = 0.02   # 만점(같은 영상) 점 허용: 좌표 칸 0.025의 반 안팎(토큰 왕복 오차)
+EXACT_TH = 0.003  # 만점 굵기 허용(로그 칸 0.25%의 반 안팎)
 NEED = {'1': 2, '2': 2, '3': 3}
 
 
@@ -42,17 +43,40 @@ def objs(fr, hwr=0.5625):
                 q = pid.get(ac.get('ConnPtId'))
                 if q:
                     links.add(tuple(sorted([(k, j), q])))
-    return out, links
+    return out, links, pid
 
 
-def fills(fr, O):
-    """면마다 (색, 테두리로 쓴 오브젝트 번호들) — 면 칠 순서는 보지 않는다(사용자 10-30)."""
+def fills(fr, O, pid, mp=None):
+    """면마다 (색, 윤곽들). 윤곽 = (조각 종류, 오브젝트, 시작점, 끝점, T0, T1)의 순서 있는 묶음 — 바깥(0) 먼저, 구멍은 번호 순.
+    면 칠 순서(면끼리 순서)는 보지 않는다(사용자 10-30). mp(오브젝트, 점, T) → 원본 쪽 값으로 옮김(AI 쪽), 못 옮기면 None(GPT 2차: 색·오브젝트 집합만 보던 것)."""
     idx = {o['id']: k for k, o in enumerate(O)}
     out = []
     for r in fr.findall('FR'):
-        if (int(float(r.get('Color'))) & 0xFFFFFFFF) >> 24 == 0:
+        col = int(float(r.get('Color'))) & 0xFFFFFFFF
+        if col >> 24 == 0:
             continue
-        out.append((int(float(r.get('Color'))) & 0xFFFFFFFF, tuple(sorted({idx[s.get('ObjId')] for s in r.findall('FS') if s.get('ObjId') in idx}))))
+        groups = {}
+        ok = True
+        for s_ in r.findall('FS'):
+            k = idx.get(s_.get('ObjId'))
+            if k is None:
+                continue
+            whole = s_.get('Kind') == '1' or s_.get('StartT') is None
+            sp = pid.get(s_.get('StartPtId'), (k, 0))[1]
+            ep = pid.get(s_.get('EndPtId'), (k, 0))[1]
+            t0 = 0.0 if whole else round(float(s_.get('StartT')), 3)
+            t1 = 1.0 if whole else round(float(s_.get('EndT')), 3)
+            seg = ('W' if whole else 'S', k, sp, ep, t0, t1)
+            if mp is not None:
+                seg = mp(seg)
+                if seg is None:
+                    ok = False
+                    break
+            groups.setdefault(int(s_.get('Contour') or 0), []).append(seg)
+        if ok and 0 in groups:
+            out.append((col, tuple(tuple(groups[c]) for c in sorted(groups))))
+        elif not ok:
+            out.append((col, None))
     return out
 
 
@@ -118,17 +142,19 @@ def _fit(P, A, pairs, flip):
 
 
 def match(P, A, tol):
-    """맞는 짝 수를 먼저 최대로, 그다음 거리 합을 최소로(GPT 검토 10-30 반례: 최소 거리합이 맞는 짝 수를 줄이던 것)."""
+    """맞는 짝 수를 먼저 최대로, 그다음 거리 합을 최소로. 맞을 수 없는 짝은 거리와 무관한 같은 큰 값
+    M > 짝 수 × tol(GPT 2차: INVALID + 거리는 아주 큰 좌표에서 맞는 짝을 놓쳤다)."""
     C, flip = _cost(P, A)
     ok_m = np.array([[P[i]['t'] == A[j]['t'] for j in range(len(A))] for i in range(len(P))]) & (C <= tol)
-    ri, ci = linear_sum_assignment(np.where(ok_m, C, INVALID + C))
+    M = (min(len(P), len(A)) + 1) * max(tol, 1e-9) * 10
+    ri, ci = linear_sum_assignment(np.where(ok_m, C, M))
     return [(i, j) for i, j in zip(ri, ci) if ok_m[i, j]], C, flip
 
 
 def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
     """한 장 채점. 돌려주는 합산용 수(tp·n_*)로 여러 장 전체 F1을 낸다(짝 0개인 장도 빠지지 않게)."""
-    P, lp = objs(pred_fr, hwr)
-    A, la = objs(ans_fr, hwr)
+    P, lp, ppid = objs(pred_fr, hwr)
+    A, la, apid = objs(ans_fr, hwr)
     scale, shift = 1.0, (0.0, 0.0)
     if align and P and A:
         # 처음: 무게중심·크기(점 흩어짐) 맞추기 → 짝짓기 → 짝으로 배율·이동 다시 맞추기
@@ -158,9 +184,20 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
         return (j, (len(P[i]['xy']) - 1 - k) if flip[i, j] else k)
     lp2 = {tuple(sorted([mp(*x), mp(*y)])) for x, y in lp if x[0] in m and y[0] in m}
     tp_l = len(lp2 & la)
-    # 면: (색, 테두리 오브젝트 → 원본 번호로 옮김) 같은 것끼리
-    fa = fills(ans_fr, A)
-    fp_ = [(c, tuple(sorted(m[i] for i in objs_ if i in m)) if all(i in m for i in objs_) else None) for c, objs_ in fills(pred_fr, P)]
+    # 면: 조각까지 원본 번호로 옮겨 같은 것끼리. 점 순서가 뒤집힌 직선·곡선은 시작·끝 점과 T(1−t)를 바꾼다. 뒤집힌 원은 못 옮김(보수적으로 틀림)
+    def seg_map(seg):
+        kind, i, sp, ep, t0, t1 = seg
+        if i not in m:
+            return None
+        j = m[i]
+        if not flip[i, j]:
+            return (kind, j, sp, ep, t0, t1)
+        if P[i]['t'] == '2':
+            return None
+        n_ = len(P[i]['xy']) - 1
+        return (kind, j, n_ - sp, n_ - ep, round(1 - t0, 3), round(1 - t1, 3)) if kind == 'S' else (kind, j, n_ - sp, n_ - ep, t0, t1)
+    fa = fills(ans_fr, A, apid)
+    fp_ = fills(pred_fr, P, ppid, seg_map)
     left = list(fa)
     tp_f = 0
     for x in fp_:
@@ -198,8 +235,12 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
                 tot += 1
                 same += (i1 < i2) == (j1 < j2)
         r['order'] = same / tot if tot else None
-    r['perfect'] = (r['match'] == len(A) == len(P) and r['bg'] and r['link_f1'] == 1.0 and r['fill_f1'] == 1.0
-                    and (not ok or (r['color'] == 1.0 and r['thick'] == 1.0 and r['glow'] == 1.0)) and r['order'] in (None, 1.0))
+    # 만점 = 같은 영상: 모든 오브젝트가 짝지어지고, 점은 칸 단위로 같고(EXACT_PT), 굵기·색·글로우·연결·면·배경·순서가 같다.
+    # '맞음'(허용 오차 tol)과 분리(GPT 2차: 0.5% 이동·굵기 4% 차이도 만점이던 것)
+    exact = all(C[i, j] <= EXACT_PT and abs(math.log(max(P[i]['th'], 1e-3) / max(A[j]['th'], 1e-3))) <= EXACT_TH
+                and P[i]['col'] == A[j]['col'] and P[i]['glow'] == A[j]['glow'] for i, j in ok)
+    r['perfect'] = (r['match'] == len(A) == len(P) and exact and r['bg'] and r['link_f1'] == 1.0 and r['fill_f1'] == 1.0
+                    and r['order'] in (None, 1.0))
     return r
 
 

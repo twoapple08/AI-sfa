@@ -300,9 +300,9 @@ def train(a):
             st['plan_min'] = a.plan_minutes
         elif not a.plan_minutes and st['done_min'] + a.minutes > st['plan_min']:
             # 계획을 안 정했으면 이번 실행 시간만큼 늘린다(5060을 여러 번 나눠 돌릴 때 '이미 100%'로 끝나지 않게).
-            # 학습률은 늘어난 계획 기준으로 다시 올라갔다 내려간다(재시작형 코사인)
+            # 재시작이 아니라 계획 분모 연장: 진행률이 줄어든 만큼 코사인 중간 위치에서 이어진다(GPT 2차: 60분씩 늘리면 시작 학습률 0.53→0.29→0.19배)
             st['plan_min'] = st['done_min'] + a.minutes
-            print(f"계획을 {st['plan_min']:.0f}분으로 늘림(이번 실행 {a.minutes:.0f}분)", flush=True)
+            print(f"계획을 {st['plan_min']:.0f}분으로 늘림(이번 실행 {a.minutes:.0f}분, 학습률은 늘어난 계획의 코사인 위치에서)", flush=True)
     t0 = time.time()
     tr = Data(a.data, cfg['maxlen'], cfg['in_w'])
     va = Data(a.val, cfg['maxlen'], cfg['in_w'])
@@ -348,39 +348,61 @@ def train(a):
         VT.save(dict(model=net.state_dict(), opt=opt.state_dict(), scaler=scaler.state_dict(), rng=rng, cfg=cfg, state=dict(st)), ck)
 
     def val_batch(b):
-        """한 묶음의 (손실 합, 맞힘 합, 토큰 수). 메모리 부족이면 반으로 나눠 다시."""
+        """한 묶음의 (손실 합, 맞힘 합, 토큰 수, 못 잰 장 수). 메모리 부족이면 오류 처리를 벗어난 뒤 반으로 나눠 다시(GPT 2차)."""
+        oom_ = False
         try:
             im, tk, fd, hr = (x.to(dev) for x in va.batch(b))
             with torch.autocast(dev, dtype=dt, enabled=amp):
                 lg = net(im, tk[:, :-1], fd[:, :-1], hr)
             l_, c_, n_ = loss_fn(lg, tk[:, 1:], fd[:, 1:])
-            return (l_.item() * n_.item(), c_.item() * n_.item(), n_.item()) if torch.isfinite(l_) else (0.0, 0.0, 0.0)
+            if not torch.isfinite(l_):
+                return 0.0, 0.0, 0.0, len(b)
+            return l_.item() * n_.item(), c_.item() * n_.item(), n_.item(), 0
         except torch.OutOfMemoryError:
-            im = tk = fd = hr = lg = None
-            if dev == 'cuda':
-                torch.cuda.empty_cache()
-            if len(b) == 1:
-                return 0.0, 0.0, 0.0
-            x, y = val_batch(b[:len(b) // 2]), val_batch(b[len(b) // 2:])
-            return x[0] + y[0], x[1] + y[1], x[2] + y[2]
+            oom_ = True
+        im = tk = fd = hr = lg = None
+        if dev == 'cuda':
+            torch.cuda.empty_cache()
+        if len(b) == 1:
+            return 0.0, 0.0, 0.0, 1
+        x, y = val_batch(b[:len(b) // 2]), val_batch(b[len(b) // 2:])
+        return tuple(p + q for p, q in zip(x, y))
 
     def validate():
-        """토큰 수로 가중한 시험 손실·맞힘(GPT 검토 10-30: 묶음 단순 평균이던 것)."""
+        """토큰 수로 가중한 시험 손실·맞힘. 못 잰 장이 있으면 불완전(best 갱신 안 함)."""
         net.eval()
         tl = tc = tn = 0.0
-        with torch.no_grad():
-            for b in v_batches:
-                l_, c_, n_ = val_batch(b)
-                tl, tc, tn = tl + l_, tc + c_, tn + n_
-        net.train()
-        return (tl / tn if tn else float('nan')), (tc / tn if tn else 0.0), int(tn)
+        bad = 0
+        try:
+            with torch.no_grad():
+                for b in v_batches:
+                    l_, c_, n_, f_ = val_batch(b)
+                    tl, tc, tn, bad = tl + l_, tc + c_, tn + n_, bad + f_
+        finally:
+            net.train()
+        return (tl / tn if tn else float('nan')), (tc / tn if tn else 0.0), int(tn), bad
 
     def gen_eval():
         """고정 장을 실제로 그려 보고 오브젝트 채점(GPT 검토 10-30: 다음 토큰 맞힘과 실제 생성은 다르다)."""
         net.eval()
-        sums = dict(ans=0, pred=0, match=0, link_tp=0, link_pred=0, link_ans=0, fill_tp=0, fill_pred=0, fill_ans=0, perfect=0, done=0, frames=0)
+        sums = dict(ans=0, pred=0, match=0, link_tp=0, link_pred=0, link_ans=0, fill_tp=0, fill_pred=0, fill_ans=0, perfect=0, done=0, frames=0, oom=0)
         t0_ = time.time()
-        for i in g_idx:
+        try:
+            for i in g_idx:
+                gen_one(i, sums)
+        finally:
+            net.train()
+            if dev == 'cuda':
+                torch.cuda.empty_cache()
+        return dict(gen_recall=sums['match'] / max(sums['ans'], 1), gen_precision=sums['match'] / max(sums['pred'], 1),
+                    gen_link_f1=OS.f1(sums['link_tp'], sums['link_pred'], sums['link_ans']),
+                    gen_fill_f1=OS.f1(sums['fill_tp'], sums['fill_pred'], sums['fill_ans']),
+                    gen_perfect=sums['perfect'], gen_done=sums['done'], gen_frames=sums['frames'], gen_oom=sums['oom'],
+                    gen_sec=round(time.time() - t0_))
+
+    def gen_one(i, sums):
+        """한 장 생성 채점. 메모리 부족이면 그 장만 건너뛰고 센다(학습은 계속)."""
+        try:
             img = torch.from_numpy(np.ascontiguousarray(va.image(i))).permute(2, 0, 1).float().to(dev) / 255
             with torch.autocast(dev, dtype=dt, enabled=amp):
                 toks, done = generate(net, img, va.hwr[i], cfg['maxlen'])
@@ -390,11 +412,8 @@ def train(a):
             sums['perfect'] += sc['perfect']
             sums['done'] += done
             sums['frames'] += 1
-        net.train()
-        return dict(gen_recall=sums['match'] / max(sums['ans'], 1), gen_precision=sums['match'] / max(sums['pred'], 1),
-                    gen_link_f1=OS.f1(sums['link_tp'], sums['link_pred'], sums['link_ans']),
-                    gen_fill_f1=OS.f1(sums['fill_tp'], sums['fill_pred'], sums['fill_ans']),
-                    gen_perfect=sums['perfect'], gen_done=sums['done'], gen_frames=sums['frames'], gen_sec=round(time.time() - t0_))
+        except torch.OutOfMemoryError:
+            sums['oom'] += 1
 
     batches = []
     run, racc = [], []
@@ -411,6 +430,7 @@ def train(a):
         for g in opt.param_groups:
             g['lr'] = lr_at(st['step'], prog, base_lr)
         img = tok = fld = hwr = lg = loss = acc = None
+        unscaled = False
         try:   # GPU로 옮기기부터 한 걸음 전체를 보호(GPT 검토 10-30)
             img, tok, fld, hwr = (x.to(dev) for x in tr.batch(b))
             with torch.autocast(dev, dtype=dt, enabled=amp):
@@ -423,6 +443,7 @@ def train(a):
             opt.zero_grad(set_to_none=True)
             scaler.scale(loss).backward()
             scaler.unscale_(opt)
+            unscaled = True
             nn.utils.clip_grad_norm_(net.parameters(), 1.0)
             scaler.step(opt)
             scaler.update()
@@ -430,8 +451,8 @@ def train(a):
             # 메모리 부족: 그래프를 붙든 텐서를 모두 놓고 이 묶음을 버린다(양보 모드에서 게임이 메모리를 잡은 경우면 1분 쉬고, 쉰 시간은 학습 시간에서 뺀다)
             img = tok = fld = hwr = lg = loss = acc = None
             opt.zero_grad(set_to_none=True)
-            if scaler.is_enabled():
-                scaler.update()   # unscale_ 뒤에 넘친 경우의 단계 상태를 정리
+            if scaler.is_enabled() and unscaled:
+                scaler.update()   # unscale_ 뒤(step 중)에 넘친 경우만 — inf 검사가 기록돼 update가 안전. 그 전 단계면 아무것도 하지 않는다(GPT 2차: 무조건 update는 AssertionError)
             if dev == 'cuda':
                 torch.cuda.empty_cache()
             oom += 1
@@ -457,34 +478,34 @@ def train(a):
             run, racc = [], []
         if time.time() - last_val > a.val_minutes * 60:
             last_val = time.time()
-            vl, vc, n = validate()
-            rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, minutes=done0 + active_min(), prog=prog,
+            vl, vc, n, vbad = validate()
+            rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, minutes=done0 + active_min(), prog=prog,
                        oom=oom, skipped=skipped, budget=st['budget'], grad_ckpt=net.grad_ckpt, paused_min=yl.paused / 60)
+            if n and not vbad and vl < st['best']:   # 못 잰 장이 있으면 best 안 바꿈(GPT 2차)
+                st['best'] = vl
+                VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
+            save_ckpt()   # 생성 채점 전에 저장(GPT 2차: 생성 중 문제가 생겨도 학습 상태는 남게)
+            last_save = time.time()
             if a.gen_minutes and time.time() - last_gen > a.gen_minutes * 60:
                 last_gen = time.time()
                 rec.update(gen_eval())
             print('검증', rec, flush=True)
             with open(log, 'a', encoding='utf-8') as fh:
                 fh.write(json.dumps(rec) + '\n')
-            if n and vl < st['best']:
-                st['best'] = vl
-                VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
-            save_ckpt()
-            last_save = time.time()
         elif time.time() - last_save > a.save_minutes * 60:
             save_ckpt()
             last_save = time.time()
-    vl, vc, n = validate()
-    rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, final=True)
+    vl, vc, n, vbad = validate()
+    rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, final=True)
+    if n and not vbad and vl < st['best']:
+        st['best'] = vl
+        VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
+    save_ckpt()
     if a.gen_minutes:
         rec.update(gen_eval())
     print('마지막 검증', rec, flush=True)
     with open(log, 'a', encoding='utf-8') as fh:
         fh.write(json.dumps(rec) + '\n')
-    if n and vl < st['best']:
-        st['best'] = vl
-        VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
-    save_ckpt()
     print(f"끝 {st['step']}걸음 · 진행 {st['done_min']:.0f}/{st['plan_min']:.0f}분 · best {st['best']:.4f} · 메모리 부족 {oom} · 건너뜀 {skipped}", flush=True)
 
 

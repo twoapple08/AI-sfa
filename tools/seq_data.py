@@ -155,13 +155,13 @@ def config(a):
 
 
 def done_ok(out_dir, want):
-    """같은 설정 + 장이 1개 이상 + npz 수가 기록과 같을 때만 '다 만듦'(GPT 검토 10-30)."""
+    """같은 설정 + 장이 1개 이상 + npz 수가 기록과 같고 + 실패 작업이 없을 때만 '다 만듦'(GPT 검토 10-30·2차)."""
     try:
         d = json.load(open(os.path.join(out_dir, 'done.json'), encoding='utf-8'))
     except Exception:
         return False
     npz = sum(f.endswith('.npz') for f in os.listdir(out_dir))
-    return all(d.get(k) == v for k, v in want.items()) and d.get('frames', 0) > 0 and d.get('npz') == npz
+    return all(d.get(k) == v for k, v in want.items()) and d.get('frames', 0) > 0 and d.get('npz') == npz and not d.get('fails')   # 실패가 있으면 다시(GPT 2차)
 
 
 if __name__ == '__main__':
