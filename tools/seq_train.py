@@ -42,8 +42,9 @@ class Data:
         self.in_w, self.in_h = in_w, in_w * 9 // 16
         self.img, self.tok, self.fld, self.meta, self.hwr = [], [], [], [], []
         for p in sorted(glob.glob(os.path.join(folder, '*.npz'))):
-            d = np.load(p)
-            meta = json.loads(str(d['meta']))
+            z = np.load(p)
+            d = {k: z[k] for k in ('img', 'tok', 'fld', 'off', 'pos')}   # npz는 꺼낼 때마다 배열 전체를 다시 푼다 → 파일마다 한 번만(10-30: 장마다 풀어 1.5만 장 읽기가 30분 넘게 걸림)
+            meta = json.loads(str(z['meta']))
             off = d['off']
             for i in range(len(off) - 1):
                 if off[i + 1] - off[i] > maxlen:
