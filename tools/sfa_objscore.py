@@ -150,16 +150,25 @@ def score(pred_fr, ans_fr, tol=1.0, align=False):
         prec = tp / len(lp) if lp else (1.0 if not la else 0.0)
         rec = tp / len(la) if la else (1.0 if not lp else 0.0)
         r['link_f1'] = 2 * prec * rec / (prec + rec) if prec + rec else 0.0
-        # 가림 순서: 짝지은 오브젝트 쌍의 앞뒤(레이어 → 장 안 순서)가 같은 비율
+        # 가림 순서: 영상이 달라지는 쌍만 — 원본에서 경계 상자가 겹치고(여백 0.5) 색이 다른 짝지은 오브젝트 쌍의 앞뒤가 같은 비율
+        # (겹치지 않거나 같은 색이면 순서가 바뀌어도 영상이 같다, 사용자 10-30 '결과적으로 똑같으면 정답')
         if len(ok) >= 2:
-            rank_p = {i: k for k, i in enumerate(sorted(m))}
-            rank_a = {j: k for k, j in enumerate(sorted(m.values()))}
+            def box(o):
+                xy = np.array(o['xy'])
+                if o['t'] == '2' and len(xy) >= 2:
+                    c, rr = xy[:2].mean(0), np.linalg.norm(xy[1] - xy[0]) / 2
+                    return c[0] - rr, c[1] - rr, c[0] + rr, c[1] + rr
+                return xy[:, 0].min(), xy[:, 1].min(), xy[:, 0].max(), xy[:, 1].max()
+            bx = {j: box(A[j]) for j in m.values()}
             same = tot = 0
-            items = list(m.items())
+            items = sorted(m.items())
             for x in range(len(items)):
-                for y in range(x + 1, min(len(items), x + 40)):
+                for y in range(x + 1, len(items)):
                     (i1, j1), (i2, j2) = items[x], items[y]
+                    b1, b2 = bx[j1], bx[j2]
+                    if A[j1]['col'] == A[j2]['col'] or b1[2] + 0.5 < b2[0] or b2[2] + 0.5 < b1[0] or b1[3] + 0.5 < b2[1] or b2[3] + 0.5 < b1[1]:
+                        continue
                     tot += 1
-                    same += (rank_p[i1] < rank_p[i2]) == (rank_a[j1] < rank_a[j2])
+                    same += (i1 < i2) == (j1 < j2)
             r['order'] = same / tot if tot else None
     return r
