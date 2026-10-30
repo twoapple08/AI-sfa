@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """서버에서 Kaggle GPU 학습을 원격으로(2026-10-30, 사용자: 컴퓨터 없이 학습). kaggle CLI를 부른다.
-인증: 환경 변수 KAGGLE_USERNAME·KAGGLE_KEY(환경 설정의 비밀값, 출력하지 않는다).
+인증: 환경 변수 KAGGLE_USERNAME + KAGGLE_KEY(kaggle.json의 key) 또는 KAGGLE_API_TOKEN(새 방식 토큰). 환경 설정의 비밀값, 출력하지 않는다.
   push     : kaggle_seq_worker.py에 설정을 넣어 비공개 스크립트 커널로 올리고 실행(GPU·인터넷 켬, ckpt 자료가 있으면 입력으로)
   status   : 커널 상태
   wait     : 끝날 때까지 기다림(10분 간격, 최대 13시간)
@@ -24,9 +24,10 @@ CKPT = 'aisfa-seq-ckpt'
 
 
 def user():
+    """인증: KAGGLE_USERNAME + (KAGGLE_KEY 또는 새 방식 토큰 KAGGLE_API_TOKEN). 값은 출력하지 않는다."""
     u = os.environ.get('KAGGLE_USERNAME')
-    if not u or not os.environ.get('KAGGLE_KEY'):
-        raise SystemExit('KAGGLE_USERNAME·KAGGLE_KEY 비밀값이 없음 — 환경 설정에 넣고 새 세션에서 실행')
+    if not u or not (os.environ.get('KAGGLE_KEY') or os.environ.get('KAGGLE_API_TOKEN')):
+        raise SystemExit('KAGGLE_USERNAME과 KAGGLE_KEY(또는 KAGGLE_API_TOKEN) 비밀값이 없음 — 환경 설정에 넣고 새 세션에서 실행')
     return u
 
 
