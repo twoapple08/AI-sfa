@@ -69,8 +69,11 @@ def push(a):
         meta['dataset_sources'] = [f'{u}/{a.ckpt}']
         print('이어하기 자료를 입력으로:', f'{u}/{a.ckpt}', flush=True)
     json.dump(meta, open(os.path.join(d, 'kernel-metadata.json'), 'w'), ensure_ascii=False, indent=1)
-    print(kg('kernels', 'push', '-p', d))
+    out = kg('kernels', 'push', '-p', d)
     shutil.rmtree(d)
+    print(out, flush=True)
+    if 'error' in out.lower() or 'successfully pushed' not in out.lower():   # CLI가 실패해도 반환 코드 0인 경우가 있다(10-30 주간 한도 거절)
+        raise SystemExit('올리기 실패 — 위 메시지 확인')
     print('올림:', f'https://www.kaggle.com/code/{u}/{kname}', '설정', cfg, flush=True)
 
 
