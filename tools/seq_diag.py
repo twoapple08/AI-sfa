@@ -62,7 +62,8 @@ def main():
         line = f'{name}: 손실 {tl / tn:.3f} · 좌표 칸 ±4 맞힘 {cc / max(cn, 1) * 100:.1f}%'
         if not a.no_gen:
             line += (f' · 생성: 원본 {sums["ans"]} 중 맞힘 {sums["match"]} ({sums["match"] / max(sums["ans"], 1) * 100:.1f}%), '
-                     f'AI {sums["pred"]}개, 연결 F1 {OS.f1(sums["link_tp"], sums["link_pred"], sums["link_ans"]) * 100:.1f}%')
+                     f'AI {sums["pred"]}개 중 맞음 {sums["match"] / max(sums["pred"], 1) * 100:.1f}%(정밀도), '
+                     f'연결 F1 {OS.f1(sums["link_tp"], sums["link_pred"], sums["link_ans"]) * 100:.1f}%')
         print(line, flush=True)
 
 
