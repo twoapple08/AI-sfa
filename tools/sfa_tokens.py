@@ -220,7 +220,14 @@ def encode(seq, fr):
     for _, a in keep:
         for j, p in enumerate(a.findall('AP')):
             ptn[p.get('ID')] = j
-    for r in fr.findall('FR'):
+    # 면 칠 순서는 중요하지 않다(사용자 10-30) → 주인 오브젝트(첫 FS의 오브젝트) 순으로 정렬해 고정(안정 정렬: 같은 주인끼리는 원래 순서,
+    # 렌더러는 면을 주인 오브젝트와 함께 칠하므로 그림은 그대로)
+    def _owner(r):
+        for s_ in r.findall('FS'):
+            if s_.get('ObjId') in oidx:
+                return oidx[s_.get('ObjId')]
+        return len(oidx)
+    for r in sorted(fr.findall('FR'), key=_owner):
         if _alpha(r.get('Color')) == 0:
             continue
         segs = [s for s in r.findall('FS') if s.get('ObjId') in oidx]

@@ -50,8 +50,9 @@ class SfaTokensTest(unittest.TestCase):
         self.assertEqual(aos[1].findall('AP')[0].get('Flags'), '8')
         frs = d.findall('FR')
         self.assertEqual(len(frs), 2)
-        self.assertEqual(frs[0].find('FS').get('Kind'), '1')
-        s = frs[1].find('FS')
+        # 면은 주인 오브젝트 순(곡선 20 → 원 30)으로 정렬된다(면 칠 순서는 중요하지 않음, 사용자 10-30)
+        self.assertEqual(frs[1].find('FS').get('Kind'), '1')
+        s = frs[0].find('FS')
         self.assertEqual(s.get('EndPtId'), aos[1].findall('AP')[2].get('ID'))
         self.assertAlmostEqual(float(s.get('StartT')), 0.25, delta=1e-6)
 
