@@ -3,7 +3,7 @@
 채점 = 원본 SFA 파일의 다음 토큰과 비교(교사 강제 교차 엔트로피). 좌표·색·굵기 같은 수 칸은 이웃 칸에도 점수를 조금 준다.
 생성 때는 문법(sfa_tokens.grammar)이 허용한 토큰만 고르므로 결과는 항상 앱이 여는 SFA다.
 사용:
-  학습: python seq_train.py train 자료폴더 시험자료폴더 출력폴더 [--minutes 60] [--in-w 640] [--d 384 --layers 6]
+  학습: python seq_train.py train 자료폴더 시험자료폴더 출력폴더 [--minutes 60 --plan-minutes 480] [--yield] (출력폴더에 ckpt.pt가 있으면 이어서)
   그리기: python seq_train.py draw ckpt.pt 자료폴더 시트.jpg [--n 6] [--sfa 출력.sfa]
 """
 import argparse
@@ -35,9 +35,10 @@ SOFT_W = (0.1, 0.25, 0.3, 0.25, 0.1)   # 이웃 칸 -2..+2 (정확한 칸과 반
 
 
 class Data:
-    """npz 전부를 메모리에(그림은 입력 크기로 줄여서)."""
+    """npz 전부를 메모리에. 그림은 입력 크기로 줄여 JPEG(품질 95)로 압축해 둔다(2만 장 × 640×360 원본이면 15GB → 약 1.5GB).
+    이미 H.264로 압축된 장이라 JPEG 95의 추가 손실은 작다. 묶음을 만들 때 푼다."""
 
-    def __init__(self, folder, maxlen, in_w):
+    def __init__(self, folder, maxlen, in_w, jpeg=True):
         self.in_w, self.in_h = in_w, in_w * 9 // 16
         self.img, self.tok, self.fld, self.meta, self.hwr = [], [], [], [], []
         for p in sorted(glob.glob(os.path.join(folder, '*.npz'))):
@@ -50,6 +51,8 @@ class Data:
                 im = d['img'][i]
                 if im.shape[1] != in_w:
                     im = cv2.resize(im, (self.in_w, self.in_h), interpolation=cv2.INTER_AREA)
+                if jpeg:
+                    im = cv2.imencode('.jpg', im[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 95])[1]
                 self.img.append(im)
                 self.tok.append(d['tok'][off[i]:off[i + 1]].astype(np.int64))
                 self.fld.append(d['fld'][off[i]:off[i + 1]].astype(np.int64))
@@ -60,6 +63,10 @@ class Data:
     def __len__(self):
         return len(self.img)
 
+    def image(self, i):
+        im = self.img[i]
+        return cv2.imdecode(im, cv2.IMREAD_COLOR)[..., ::-1] if im.ndim == 1 else im
+
     def batch(self, idx):
         L = max(len(self.tok[i]) for i in idx)
         tok = torch.full((len(idx), L), K.TOK['PAD'], dtype=torch.long)
@@ -67,13 +74,13 @@ class Data:
         for b, i in enumerate(idx):
             tok[b, :len(self.tok[i])] = torch.from_numpy(self.tok[i])
             fld[b, :len(self.fld[i])] = torch.from_numpy(self.fld[i])
-        img = torch.from_numpy(np.stack([self.img[i] for i in idx])).permute(0, 3, 1, 2).float() / 255
+        img = torch.from_numpy(np.ascontiguousarray(np.stack([self.image(i) for i in idx]))).permute(0, 3, 1, 2).float() / 255
         hwr = torch.tensor([self.hwr[i] for i in idx], dtype=torch.float32)
         return img, tok, fld, hwr
 
 
 class Net(nn.Module):
-    def __init__(self, d=384, layers=6, heads=6, maxlen=2048, backbone='resnet34', pretrained=True):
+    def __init__(self, d=384, layers=6, heads=6, maxlen=2048, backbone='resnet34', pretrained=True, stride=16):
         super().__init__()
         ctor = getattr(torchvision.models, backbone)
         try:
@@ -81,8 +88,12 @@ class Net(nn.Module):
         except Exception as e:  # 내려받기 실패 → 처음부터(기록만)
             print('사전학습 가중치 못 받음:', type(e).__name__, flush=True)
             bb = ctor(weights=None)
-        self.enc = nn.Sequential(bb.conv1, bb.bn1, bb.relu, bb.maxpool, bb.layer1, bb.layer2, bb.layer3)   # 1/16, 256채널
+        self.enc8 = nn.Sequential(bb.conv1, bb.bn1, bb.relu, bb.maxpool, bb.layer1, bb.layer2)   # 1/8, 128채널
+        self.enc16 = bb.layer3                                                                  # 1/16, 256채널
         self.proj = nn.Conv2d(256, d, 1)
+        self.stride = stride
+        if stride == 8:   # 1/8 칸(640폭 → 80×45)에 1/16 특징을 올려 더한다 — 선 위치를 더 촘촘히(테스트의 20×11칸은 너무 성겼다)
+            self.proj8 = nn.Conv2d(128, d, 1)
         self.ratio = nn.Linear(1, d)   # 화면 비율(높이/폭) — 입력은 늘여 넣으므로 원이 타원으로 보이는 정도를 알려 준다
         self.row = nn.Embedding(128, d)
         self.col = nn.Embedding(128, d)
@@ -94,11 +105,15 @@ class Net(nn.Module):
         self.norm = nn.LayerNorm(d)
         self.head = nn.Linear(d, K.VOCAB)
         self.maxlen = maxlen
+        self.grad_ckpt = False
         self.register_buffer('mean', torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
         self.register_buffer('std', torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
 
     def memory(self, img, hwr):
-        f = self.proj(self.enc((img - self.mean) / self.std))
+        f8 = self.enc8((img - self.mean) / self.std)
+        f = self.proj(self.enc16(f8))
+        if self.stride == 8:
+            f = self.proj8(f8) + F.interpolate(f, size=f8.shape[-2:], mode='bilinear', align_corners=False)
         B, C, H, W = f.shape
         pe = self.row.weight[:H, None, :] + self.col.weight[None, :W, :]
         r = self.ratio(torch.log(hwr.view(-1, 1) / 0.5625))[:, None, :]
@@ -108,7 +123,14 @@ class Net(nn.Module):
         T = tok.shape[1]
         x = self.emb(tok) + self.fld_emb(fld) + self.pos.weight[:T][None]
         causal = torch.triu(torch.full((T, T), float('-inf'), device=tok.device), 1)
-        h = self.dec(x, mem, tgt_mask=causal, tgt_key_padding_mask=(tok == K.TOK['PAD']), tgt_is_causal=True)
+        pad = tok == K.TOK['PAD']
+        if self.grad_ckpt and self.training:   # 메모리 부족 대책: 층마다 중간값을 버리고 역전파 때 다시 계산(약 30% 느림)
+            from torch.utils.checkpoint import checkpoint
+            h = x
+            for ly in self.dec.layers:
+                h = checkpoint(ly, h, mem, tgt_mask=causal, tgt_key_padding_mask=pad, tgt_is_causal=True, use_reentrant=False)
+        else:
+            h = self.dec(x, mem, tgt_mask=causal, tgt_key_padding_mask=pad, tgt_is_causal=True)
         return self.head(self.norm(h))
 
     def forward(self, img, tok, fld, hwr):
@@ -213,106 +235,199 @@ def generate(net, img, hwr, maxlen=None, temp=0.0):
     return toks, False
 
 
-def lr_at(step, total, base, warm=300):
-    if step < warm:
-        return base * (step + 1) / warm
-    return base * 0.5 * (1 + math.cos(math.pi * min(1.0, (step - warm) / max(1, total - warm))))
+def lr_at(step, prog, base, warm=500):
+    """예열(걸음) 뒤 진행률(쓴 시간 / 계획 시간) 기준 코사인 — 끊어서 돌려도 계획대로 이어진다."""
+    w = min(1.0, (step + 1) / warm)
+    return base * w * (0.05 + 0.95 * 0.5 * (1 + math.cos(math.pi * min(1.0, prog))))
+
+
+def make_batches(ds, max_n, budget):
+    """길이가 비슷한 장끼리 묶되 한 묶음의 토큰 합이 budget을 넘지 않게(긴 장이 몰려도 메모리 일정)."""
+    idx = list(range(len(ds)))
+    random.shuffle(idx)
+    out = []
+    for c0 in range(0, len(idx), max_n * 64):
+        chunk = sorted(idx[c0:c0 + max_n * 64], key=lambda k: len(ds.tok[k]))
+        cur, L = [], 0
+        for k in chunk:
+            l = len(ds.tok[k])
+            if l > budget:   # 토큰 한도보다 긴 장은 뺀다(메모리 부족으로 한도가 줄었을 때)
+                continue
+            if cur and (len(cur) >= max_n or max(L, l) * (len(cur) + 1) > budget):
+                out.append(cur)
+                cur, L = [], 0
+            cur.append(k)
+            L = max(L, l)
+        if cur:
+            out.append(cur)
+    random.shuffle(out)
+    return out
 
 
 def train(a):
+    import vec_train as VT   # 양보 모드·저장 재시도(Windows 파일 잠금)를 같이 쓴다
     torch.manual_seed(0)
     random.seed(0)
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
     if dev == 'cpu':
         torch.set_num_threads(os.cpu_count() or 4)
-    t0 = time.time()
-    tr = Data(a.data, a.maxlen, a.in_w)
-    va = Data(a.val, a.maxlen, a.in_w)
-    print(f'자료 학습 {len(tr)}장 {tr.ntok}토큰 · 시험 {len(va)}장 ({time.time() - t0:.0f}초)', flush=True)
+    if a.yield_:
+        VT.low_priority()
+        if dev == 'cuda':
+            torch.cuda.set_per_process_memory_fraction(0.75)
+    yl = VT.Yielder(a.yield_)
     os.makedirs(a.out, exist_ok=True)
-    net = Net(a.d, a.layers, a.heads, a.maxlen, a.backbone).to(dev)
-    print('변수', sum(p.numel() for p in net.parameters()) // 1000, '천', flush=True)
+    ck = os.path.join(a.out, 'ckpt.pt')
+    cfg = dict(d=a.d, layers=a.layers, heads=a.heads, maxlen=a.maxlen, backbone=a.backbone, in_w=a.in_w, stride=a.stride)
+    st = dict(step=0, best=1e9, done_min=0.0, plan_min=a.plan_minutes or a.minutes, budget=a.tok_budget, grad_ckpt=a.grad_ckpt)
+    saved = torch.load(ck, map_location='cpu', weights_only=False) if os.path.exists(ck) else None
+    if saved:
+        cfg = saved['cfg']   # 이어하기: 처음 정한 모델 크기·입력 크기·계획 그대로(명령줄 값보다 우선)
+        st.update(saved['state'])
+    t0 = time.time()
+    tr = Data(a.data, cfg['maxlen'], cfg['in_w'])
+    va = Data(a.val, cfg['maxlen'], cfg['in_w'])
+    print(f'자료 학습 {len(tr)}장 {tr.ntok}토큰 · 시험 {len(va)}장 ({time.time() - t0:.0f}초)', flush=True)
+    net = Net(cfg['d'], cfg['layers'], cfg['heads'], cfg['maxlen'], cfg['backbone'], pretrained=not saved, stride=cfg.get('stride', 16)).to(dev)
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=0.01)
+    net.grad_ckpt = bool(st.get('grad_ckpt'))
+    if saved:
+        net.load_state_dict(saved['model'])
+        opt.load_state_dict(saved['opt'])
+        print(f"이어하기: {st['step']}걸음, 진행 {st['done_min']:.0f}/{st['plan_min']:.0f}분, best {st['best']:.4f}", flush=True)
+    print('변수', sum(p.numel() for p in net.parameters()) // 1000, '천 · 설정', cfg, flush=True)
     amp = dev == 'cuda'
     dt = torch.bfloat16 if amp and torch.cuda.get_device_capability(0)[0] >= 8 else torch.float16
     scaler = torch.amp.GradScaler('cuda', enabled=amp and dt == torch.float16)
-    step, best = 0, 1e9
-    ck = os.path.join(a.out, 'ckpt.pt')
-    if os.path.exists(ck):
-        s = torch.load(ck, map_location=dev, weights_only=False)
-        net.load_state_dict(s['model'])
-        opt.load_state_dict(s['opt'])
-        step, best = s['step'], s['best']
-        print('이어하기', step, flush=True)
-    cfg = dict(d=a.d, layers=a.layers, heads=a.heads, maxlen=a.maxlen, backbone=a.backbone, in_w=a.in_w)
-    total = a.steps
     log = os.path.join(a.out, 'log.jsonl')
-    tstart = time.time()
-    last_val = time.time()
-    order = []
-    run, racc = [], []
-    while step < total and (time.time() - tstart) / 60 < a.minutes:
-        if not order:
-            # 길이가 비슷한 장끼리 묶어 덧댐을 줄인다
-            idx = list(range(len(tr)))
-            random.shuffle(idx)
-            chunks = [sorted(idx[i:i + a.batch * 50], key=lambda k: len(tr.tok[k])) for i in range(0, len(idx), a.batch * 50)]
-            order = [c[i:i + a.batch] for c in chunks for i in range(0, len(c), a.batch)]
-            random.shuffle(order)
-        img, tok, fld, hwr = (x.to(dev) for x in tr.batch(order.pop()))
-        for g in opt.param_groups:
-            g['lr'] = lr_at(step, total, a.lr)
-        with torch.autocast(dev, dtype=dt, enabled=amp):
-            lg = net(img, tok[:, :-1], fld[:, :-1], hwr)
-        loss, acc = loss_fn(lg, tok[:, 1:], fld[:, 1:])
-        if not torch.isfinite(loss):
-            opt.zero_grad(set_to_none=True)
-            step += 1
-            continue
-        opt.zero_grad(set_to_none=True)
-        scaler.scale(loss).backward()
-        scaler.unscale_(opt)
-        nn.utils.clip_grad_norm_(net.parameters(), 1.0)
-        scaler.step(opt)
-        scaler.update()
-        step += 1
-        run.append(loss.item())
-        racc.append(acc.item())
-        if step % a.log_every == 0:
-            print(f'{step}/{total} 손실 {np.mean(run):.3f} 맞힘 {np.mean(racc) * 100:.1f}% ({(time.time() - tstart) / 60:.1f}분)', flush=True)
-            run, racc = [], []
-        if time.time() - last_val > a.val_minutes * 60 or step >= total:
-            last_val = time.time()
-            net.eval()
-            vl, vc, n = 0.0, 0.0, 0
-            with torch.no_grad():
-                for i in range(0, min(len(va), a.val_n), a.batch):
-                    im, tk, fd, hr = (x.to(dev) for x in va.batch(list(range(i, min(i + a.batch, len(va), a.val_n)))))
-                    with torch.autocast(dev, dtype=dt, enabled=amp):
-                        lg = net(im, tk[:, :-1], fd[:, :-1], hr)
-                    l_, c_ = loss_fn(lg, tk[:, 1:], fd[:, 1:])
+    t_sess = time.time()
+    p_sess = 0.0
+    done0 = st['done_min']
+
+    def active_min():
+        return (time.time() - t_sess - (yl.paused - p_sess)) / 60
+
+    def save_ckpt():
+        st['done_min'] = done0 + active_min()
+        VT.save(dict(model=net.state_dict(), opt=opt.state_dict(), cfg=cfg, state=dict(st)), ck)
+
+    def validate():
+        net.eval()
+        vl = vc = n = 0.0
+        with torch.no_grad():
+            for b in make_batches_fixed(va, a.max_batch, st['budget'], a.val_n):
+                im, tk, fd, hr = (x.to(dev) for x in va.batch(b))
+                with torch.autocast(dev, dtype=dt, enabled=amp):
+                    lg = net(im, tk[:, :-1], fd[:, :-1], hr)
+                l_, c_ = loss_fn(lg, tk[:, 1:], fd[:, 1:])
+                if torch.isfinite(l_):
                     vl += l_.item()
                     vc += c_.item()
                     n += 1
-            net.train()
-            vl, vc = vl / max(n, 1), vc / max(n, 1)
-            rec = dict(step=step, val=vl, val_acc=vc, minutes=(time.time() - tstart) / 60)
+        net.train()
+        return vl / max(n, 1), vc / max(n, 1), n
+
+    batches = []
+    run, racc = [], []
+    last_val = time.time()
+    last_save = time.time()
+    oom = skipped = 0
+    while active_min() < a.minutes and done0 + active_min() < st['plan_min']:
+        yl.tick()
+        if not batches:
+            batches = make_batches(tr, a.max_batch, st['budget'])
+        b = batches.pop()
+        img, tok, fld, hwr = (x.to(dev) for x in tr.batch(b))
+        prog = (done0 + active_min()) / st['plan_min']
+        for g in opt.param_groups:
+            g['lr'] = lr_at(st['step'], prog, a.lr)
+        try:
+            with torch.autocast(dev, dtype=dt, enabled=amp):
+                lg = net(img, tok[:, :-1], fld[:, :-1], hwr)
+            loss, acc = loss_fn(lg, tok[:, 1:], fld[:, 1:])
+            if not torch.isfinite(loss):
+                skipped += 1
+                opt.zero_grad(set_to_none=True)
+                continue
+            opt.zero_grad(set_to_none=True)
+            scaler.scale(loss).backward()
+            scaler.unscale_(opt)
+            nn.utils.clip_grad_norm_(net.parameters(), 1.0)
+            scaler.step(opt)
+            scaler.update()
+        except torch.OutOfMemoryError:
+            # 메모리 부족: 이 묶음을 버리고 토큰 한도를 줄인다(양보 모드에서 게임이 메모리를 잡은 경우면 1분 쉰다)
+            del img, tok, fld, hwr
+            opt.zero_grad(set_to_none=True)
+            if dev == 'cuda':
+                torch.cuda.empty_cache()
+            oom += 1
+            if not net.grad_ckpt:   # 1단계: 체크포인팅 켜기(긴 장도 그대로 학습)
+                net.grad_ckpt = st['grad_ckpt'] = True
+                print(time.strftime('%H:%M'), '메모리 부족 → 체크포인팅 켬(느려지지만 메모리 크게 줄임)', flush=True)
+            else:                   # 2단계: 토큰 한도 줄이기(한도보다 긴 장은 학습에서 빠진다)
+                st['budget'] = max(1024, int(st['budget'] * 0.8))
+                drop = sum(len(t) > st['budget'] for t in tr.tok)
+                print(time.strftime('%H:%M'), f'메모리 부족 → 토큰 한도 {st["budget"]} (이보다 긴 장 {drop}/{len(tr)} 빠짐)', flush=True)
+            batches = []
+            if a.yield_:
+                time.sleep(60)
+            continue
+        st['step'] += 1
+        run.append(loss.item())
+        racc.append(acc.item())
+        if st['step'] % a.log_every == 0:
+            mem = f' GPU {torch.cuda.max_memory_allocated() / 2**30:.1f}GB' if dev == 'cuda' else ''
+            print(f"{st['step']} 손실 {np.mean(run):.3f} 맞힘 {np.mean(racc) * 100:.1f}% 진행 {prog * 100:.1f}% "
+                  f"학습률 {opt.param_groups[0]['lr']:.2e} ({active_min():.1f}분){mem}", flush=True)
+            run, racc = [], []
+        if time.time() - last_val > a.val_minutes * 60:
+            last_val = time.time()
+            vl, vc, n = validate()
+            rec = dict(step=st['step'], val=vl, val_acc=vc, val_batches=n, minutes=done0 + active_min(), prog=prog,
+                       oom=oom, skipped=skipped, budget=st['budget'], grad_ckpt=net.grad_ckpt, paused_min=yl.paused / 60)
             print('검증', rec, flush=True)
             with open(log, 'a', encoding='utf-8') as fh:
                 fh.write(json.dumps(rec) + '\n')
-            state = dict(model=net.state_dict(), opt=opt.state_dict(), step=step, best=min(best, vl), cfg=cfg)
-            torch.save(state, ck + '.tmp')
-            os.replace(ck + '.tmp', ck)
-            if vl < best:
-                best = vl
-                torch.save(dict(model=net.state_dict(), cfg=cfg, step=step, val=vl), os.path.join(a.out, 'best.pt'))
-    print('끝', step, '걸음 best', round(best, 4), flush=True)
+            if n and vl < st['best']:
+                st['best'] = vl
+                VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
+            save_ckpt()
+            last_save = time.time()
+        elif time.time() - last_save > a.save_minutes * 60:
+            save_ckpt()
+            last_save = time.time()
+    vl, vc, n = validate()
+    print('마지막 검증', dict(val=vl, val_acc=vc), flush=True)
+    if n and vl < st['best']:
+        st['best'] = vl
+        VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
+    save_ckpt()
+    print(f"끝 {st['step']}걸음 · 진행 {st['done_min']:.0f}/{st['plan_min']:.0f}분 · best {st['best']:.4f} · 메모리 부족 {oom} · 건너뜀 {skipped}", flush=True)
+
+
+def make_batches_fixed(ds, max_n, budget, limit):
+    """검증용: 앞에서부터 limit장, 같은 묶음 규칙(무작위 없음)."""
+    idx = sorted(range(min(len(ds), limit)), key=lambda k: len(ds.tok[k]))
+    out, cur, L = [], [], 0
+    for k in idx:
+        l = len(ds.tok[k])
+        if l > budget:
+            continue
+        if cur and (len(cur) >= max_n or max(L, l) * (len(cur) + 1) > budget):
+            out.append(cur)
+            cur, L = [], 0
+        cur.append(k)
+        L = max(L, l)
+    if cur:
+        out.append(cur)
+    return out
 
 
 def load(path, dev='cpu'):
     s = torch.load(path, map_location=dev, weights_only=False)
     c = s['cfg']
-    net = Net(c['d'], c['layers'], c['heads'], c['maxlen'], c['backbone'], pretrained=False)
+    net = Net(c['d'], c['layers'], c['heads'], c['maxlen'], c['backbone'], pretrained=False, stride=c.get('stride', 16))
     net.load_state_dict(s['model'])
     return net.eval().to(dev), c
 
@@ -337,7 +452,7 @@ def draw(a):
     ids = K.Ids()
     for k, i in enumerate(pick):
         t0 = time.time()
-        img = torch.from_numpy(ds.img[i]).permute(2, 0, 1).float().to(dev) / 255
+        img = torch.from_numpy(np.ascontiguousarray(ds.image(i))).permute(2, 0, 1).float().to(dev) / 255
         hwr = ds.hwr[i]
         toks, done = generate(net, img, hwr, c['maxlen'])
         seq = seq_xml(hwr)
@@ -346,7 +461,7 @@ def draw(a):
         ans = K.decode(ds.tok[i].tolist())
         im_p = R.render_frame(seq, pred, W, H)
         im_a = R.render_frame(seq, ans, W, H)
-        src = cv2.resize(ds.img[i], (W, H))
+        src = cv2.resize(ds.image(i), (W, H))
         sc = OS.score(pred, ans)                    # 제자리 오브젝트 채점(주 지표)
         sc0 = OS.score(pred, ans, align=True)       # 구조 채점(이동·같은 비율로 맞춘 뒤, 보조)
         scores.append(sc)
@@ -383,19 +498,24 @@ def main():
     t.add_argument('data')
     t.add_argument('val')
     t.add_argument('out')
-    t.add_argument('--minutes', type=float, default=60)
-    t.add_argument('--steps', type=int, default=20000)
-    t.add_argument('--batch', type=int, default=8)
+    t.add_argument('--minutes', type=float, default=60, help='이번 실행에서 학습할 시간(양보로 쉰 시간은 빼고 셈)')
+    t.add_argument('--plan-minutes', type=float, default=0, help='전체 학습 계획 시간(학습률 계획 기준, 처음 시작할 때만). 0이면 --minutes')
+    t.add_argument('--max-batch', type=int, default=16, help='한 묶음 최대 장 수')
+    t.add_argument('--tok-budget', type=int, default=12288, help='한 묶음 토큰 한도(가장 긴 장 길이 × 장 수). 메모리 부족이면 자동으로 줄인다')
     t.add_argument('--lr', type=float, default=3e-4)
     t.add_argument('--maxlen', type=int, default=2048)
     t.add_argument('--in-w', type=int, default=640)
-    t.add_argument('--d', type=int, default=384)
-    t.add_argument('--layers', type=int, default=6)
-    t.add_argument('--heads', type=int, default=6)
+    t.add_argument('--stride', type=int, default=8, choices=(8, 16))
+    t.add_argument('--d', type=int, default=512)
+    t.add_argument('--layers', type=int, default=8)
+    t.add_argument('--heads', type=int, default=8)
     t.add_argument('--backbone', default='resnet34')
-    t.add_argument('--log-every', type=int, default=20)
-    t.add_argument('--val-minutes', type=float, default=10)
-    t.add_argument('--val-n', type=int, default=256)
+    t.add_argument('--log-every', type=int, default=50)
+    t.add_argument('--val-minutes', type=float, default=20)
+    t.add_argument('--save-minutes', type=float, default=10)
+    t.add_argument('--val-n', type=int, default=400)
+    t.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(게임 실행 중이면 멈추거나 천천히)')
+    t.add_argument('--grad-ckpt', action='store_true', help='처음부터 체크포인팅(메모리 절약, 느림). 꺼 두면 메모리 부족 때 자동으로 켠다')
     d = sub.add_parser('draw')
     d.add_argument('ckpt')
     d.add_argument('data')

@@ -22,6 +22,7 @@ import sfa_tokens as K  # noqa: E402
 import vec_data as V  # noqa: E402
 
 ROOT = V.ROOT
+SEQ_DATA_VERSION = 1   # 정답 문장·렌더 방식이 바뀌면 올린다(다 만듦 표시가 옛 자료를 건너뛰지 않게)
 
 
 def one(job):
@@ -85,8 +86,22 @@ def main():
     ap.add_argument('--every', type=int, default=1, help='파일 몇 개마다 하나(시험용)')
     ap.add_argument('--holdout', action='store_true', help='시험용 파일만')
     ap.add_argument('--workers', type=int, default=max(1, (os.cpu_count() or 2) - 1))
+    ap.add_argument('--low-priority', action='store_true', help='양보 모드: 낮은 CPU 우선순위')
     a = ap.parse_args()
     os.makedirs(a.out_dir, exist_ok=True)
+    if a.low_priority:
+        try:
+            if os.name == 'nt':
+                import ctypes
+                ctypes.windll.kernel32.SetPriorityClass(ctypes.windll.kernel32.GetCurrentProcess(), 0x4000)
+            else:
+                os.nice(10)
+        except Exception as e:
+            print('우선순위 낮추기 실패(무시):', e, flush=True)
+    want = dict(config(a), files=len(V.file_list(only='holdout') if a.holdout else V.file_list()[::a.every]))
+    if done_ok(a.out_dir, want):
+        print('이미 같은 설정으로 다 만듦 — 건너뜀', a.out_dir, flush=True)
+        return
     files = V.file_list(only='holdout') if a.holdout else V.file_list()
     files = files[::a.every]
     cfg = dict(maxlen=a.maxlen, max_frames=a.max_frames, W=a.W)
@@ -98,6 +113,20 @@ def main():
             if not st.startswith('ok'):
                 print(rel, st, flush=True)
     print('파일', len(files), '장', n, flush=True)
+    with open(os.path.join(a.out_dir, 'done.json'), 'w', encoding='utf-8') as fh:
+        json.dump(dict(want, frames=int(n)), fh, ensure_ascii=False)
+
+
+def config(a):
+    return dict(version=SEQ_DATA_VERSION, maxlen=a.maxlen, max_frames=a.max_frames, W=a.W, every=a.every, holdout=a.holdout, vocab=K.VOCAB)
+
+
+def done_ok(out_dir, want):
+    try:
+        d = json.load(open(os.path.join(out_dir, 'done.json'), encoding='utf-8'))
+    except Exception:
+        return False
+    return all(d.get(k) == v for k, v in want.items())
 
 
 if __name__ == '__main__':
