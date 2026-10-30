@@ -84,7 +84,7 @@ class Data:
 
 
 class Net(nn.Module):
-    def __init__(self, d=384, layers=6, heads=6, maxlen=2048, backbone='resnet34', pretrained=True, stride=16):
+    def __init__(self, d=384, layers=6, heads=6, maxlen=2048, backbone='resnet34', pretrained=True, stride=16, sine=False):
         super().__init__()
         ctor = getattr(torchvision.models, backbone)
         try:
@@ -110,6 +110,11 @@ class Net(nn.Module):
         self.head = nn.Linear(d, K.VOCAB)
         self.maxlen = maxlen
         self.grad_ckpt = False
+        # 고정 sin 위치 신호(10-30 이동 시험 뒤): ① 그림 칸마다 화면 위치(가로·세로 0–1) ② 수 토큰마다 값(0–8191) —
+        # 수 토큰은 원래 서로 무관한 단어라 '1000칸과 1001칸이 가깝다'를 자료에서 배워야 했다
+        self.sine = sine
+        if sine:
+            self.register_buffer('val_pe', sine_table(np.arange(K.NUM) / K.NUM, d))
         self.register_buffer('mean', torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
         self.register_buffer('std', torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
 
@@ -120,12 +125,19 @@ class Net(nn.Module):
             f = self.proj8(f8) + F.interpolate(f, size=f8.shape[-2:], mode='bilinear', align_corners=False)
         B, C, H, W = f.shape
         pe = self.row.weight[:H, None, :] + self.col.weight[None, :W, :]
+        if self.sine:
+            ys = sine_table((np.arange(H) + 0.5) / H, C // 2).to(f.device)
+            xs = sine_table((np.arange(W) + 0.5) / W, C - C // 2).to(f.device)
+            pe = pe + torch.cat([ys[:, None, :].expand(H, W, -1), xs[None, :, :].expand(H, W, -1)], -1)
         r = self.ratio(torch.log(hwr.view(-1, 1) / 0.5625))[:, None, :]
         return f.flatten(2).transpose(1, 2) + pe.reshape(H * W, C)[None] + r
 
     def step(self, mem, tok, fld):
         T = tok.shape[1]
         x = self.emb(tok) + self.fld_emb(fld) + self.pos.weight[:T][None]
+        if self.sine:
+            num = tok >= K.OFF
+            x = x + self.val_pe[(tok - K.OFF).clamp(0, K.NUM - 1)] * num[..., None]
         causal = torch.triu(torch.full((T, T), float('-inf'), device=tok.device), 1)
         pad = tok == K.TOK['PAD']
         if self.grad_ckpt and self.training:   # 메모리 부족 대책: 층마다 중간값을 버리고 역전파 때 다시 계산(약 30% 느림)
@@ -139,6 +151,15 @@ class Net(nn.Module):
 
     def forward(self, img, tok, fld, hwr):
         return self.step(self.memory(img, hwr), tok, fld)
+
+
+def sine_table(v, d):
+    """값 v(0–1) → d차원 sin/cos(주기 1 ~ 1/1000). 가까운 값은 가까운 벡터."""
+    v = torch.as_tensor(np.asarray(v, np.float32))[:, None]
+    k = torch.arange(d // 2, dtype=torch.float32)
+    freq = torch.exp(k / max(d // 2 - 1, 1) * math.log(1000.0)) * math.pi
+    out = torch.cat([torch.sin(v * freq), torch.cos(v * freq)], -1)
+    return out if out.shape[1] == d else torch.cat([out, torch.zeros(len(out), d - out.shape[1])], -1)
 
 
 def loss_fn(logits, tgt, fld):
@@ -203,6 +224,8 @@ class Cache:
     def step(self, tok, fld):
         net = self.net
         x = net.emb.weight[tok][None, None] + net.fld_emb.weight[fld][None, None] + net.pos.weight[self.t][None, None]
+        if net.sine and tok >= K.OFF:
+            x = x + net.val_pe[tok - K.OFF][None, None]
         self.t += 1
         for li, ly in enumerate(net.dec.layers):
             W, b = ly.self_attn.in_proj_weight, ly.self_attn.in_proj_bias
@@ -290,7 +313,7 @@ def train(a):
     yl = VT.Yielder(a.yield_)
     os.makedirs(a.out, exist_ok=True)
     ck = os.path.join(a.out, 'ckpt.pt')
-    cfg = dict(d=a.d, layers=a.layers, heads=a.heads, maxlen=a.maxlen, backbone=a.backbone, in_w=a.in_w, stride=a.stride)
+    cfg = dict(d=a.d, layers=a.layers, heads=a.heads, maxlen=a.maxlen, backbone=a.backbone, in_w=a.in_w, stride=a.stride, sine=a.sine)
     st = dict(step=0, best=1e9, done_min=0.0, plan_min=a.plan_minutes or a.minutes, budget=a.tok_budget, grad_ckpt=a.grad_ckpt)
     saved = torch.load(ck, map_location='cpu', weights_only=False) if os.path.exists(ck) else None
     if saved:
@@ -307,7 +330,8 @@ def train(a):
     tr = Data(a.data, cfg['maxlen'], cfg['in_w'])
     va = Data(a.val, cfg['maxlen'], cfg['in_w'])
     print(f'자료 학습 {len(tr)}장 {tr.ntok}토큰 · 시험 {len(va)}장 ({time.time() - t0:.0f}초)', flush=True)
-    net = Net(cfg['d'], cfg['layers'], cfg['heads'], cfg['maxlen'], cfg['backbone'], pretrained=not saved, stride=cfg.get('stride', 16)).to(dev)
+    net = Net(cfg['d'], cfg['layers'], cfg['heads'], cfg['maxlen'], cfg['backbone'], pretrained=not saved, stride=cfg.get('stride', 16),
+              sine=cfg.get('sine', False)).to(dev)
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=0.01)
     net.grad_ckpt = bool(st.get('grad_ckpt'))
     if saved:
@@ -528,7 +552,7 @@ def make_batches_fixed(ds, max_n, budget, idx):
 def load(path, dev='cpu'):
     s = torch.load(path, map_location=dev, weights_only=False)
     c = s['cfg']
-    net = Net(c['d'], c['layers'], c['heads'], c['maxlen'], c['backbone'], pretrained=False, stride=c.get('stride', 16))
+    net = Net(c['d'], c['layers'], c['heads'], c['maxlen'], c['backbone'], pretrained=False, stride=c.get('stride', 16), sine=c.get('sine', False))
     net.load_state_dict(s['model'])
     return net.eval().to(dev), c
 
@@ -619,6 +643,7 @@ def main():
     t.add_argument('--gen-n', type=int, default=20, help='생성 채점에 쓰는 고정 시험 장 수')
     t.add_argument('--gen-minutes', type=float, default=60, help='생성 채점 간격(분). 0이면 안 함')
     t.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(게임 실행 중이면 멈추거나 천천히)')
+    t.add_argument('--sine', action='store_true', help='고정 sin 위치 신호(그림 칸 위치 + 수 토큰 값)')
     t.add_argument('--grad-ckpt', action='store_true', help='처음부터 체크포인팅(메모리 절약, 느림). 꺼 두면 메모리 부족 때 자동으로 켠다')
     d = sub.add_parser('draw')
     d.add_argument('ckpt')

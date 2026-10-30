@@ -39,7 +39,8 @@ def main():
     conds = {'정상': lambda i: ds.image(i), '섞음': lambda i: ds.image(other(i)),
              '빈 화면': lambda i: np.full_like(ds.image(i), 255)}
     for name, img_of in conds.items():
-        tl = tn = cc = cn = 0.0
+        tl = tn = cc = cn = c1 = 0.0
+        errs = []
         sums = dict(ans=0, pred=0, match=0, link_tp=0, link_pred=0, link_ans=0)
         for i in idx:
             img = torch.from_numpy(np.ascontiguousarray(img_of(i))).permute(2, 0, 1).float()[None] / 255
@@ -52,14 +53,18 @@ def main():
             tl += l_.item() * n_.item()
             tn += n_.item()
             m = fld[:, 1:] == coord
-            cc += ((lg.argmax(-1) - tok[:, 1:]).abs()[m] <= 4).sum().item()   # 좌표 ±4칸(0.1%) 안
+            dd = (lg[..., K.OFF:].argmax(-1) + K.OFF - tok[:, 1:]).abs()[m]   # 좌표 자리에서는 수 토큰 중에서만 고른다(특수 토큰을 고르면 오차가 수천 칸으로 잡히던 것)
+            cc += (dd <= 4).sum().item()   # 좌표 ±4칸(0.1%) 안
+            c1 += (dd <= 40).sum().item()  # ±40칸(1%) 안
+            errs += (dd.float() * K.XSTEP).tolist()   # 좌표 오차(%)
             cn += m.sum().item()
             if not a.no_gen:
                 toks, _ = Q.generate(net, img[0], ds.hwr[i], c['maxlen'])
                 sc = OS.score(K.decode(toks), K.decode(ds.tok[i].tolist()), hwr=ds.hwr[i])
                 for k in sums:
                     sums[k] += sc[k]
-        line = f'{name}: 손실 {tl / tn:.3f} · 좌표 칸 ±4 맞힘 {cc / max(cn, 1) * 100:.1f}%'
+        line = (f'{name}: 손실 {tl / tn:.3f} · 좌표 ±0.1% 맞힘 {cc / max(cn, 1) * 100:.1f}% · ±1% {c1 / max(cn, 1) * 100:.1f}% · '
+                f'오차 중앙값 {float(np.median(errs)) if errs else 0:.2f}%')
         if not a.no_gen:
             line += (f' · 생성: 원본 {sums["ans"]} 중 맞힘 {sums["match"]} ({sums["match"] / max(sums["ans"], 1) * 100:.1f}%), '
                      f'AI {sums["pred"]}개 중 맞음 {sums["match"] / max(sums["pred"], 1) * 100:.1f}%(정밀도), '
