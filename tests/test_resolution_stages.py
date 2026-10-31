@@ -59,6 +59,31 @@ class TestVideoStore(unittest.TestCase):
         self.assertTrue(np.array_equal(V.encode_decode(frames, 23), dec))   # 예전 함수와 같은 결과
 
 
+class TestAugThickness(unittest.TestCase):
+    def test_thickness_scaled_with_answer(self):
+        # 늘린 사본: 모든 오브젝트 굵기에 같은 배율(0.5–2배) → 정답의 굵기 칸도 같이 바뀐다(사용자 10-31)
+        try:
+            import seq_data as D
+        except ImportError as e:
+            self.skipTest(str(e))
+        import xml.etree.ElementTree as ET
+        xml = ('<Sequence><Frame Position="1"><AO ID="1" TypeId="1" Color="-16777216" ThicknessScale="1.0">'
+               '<AP X="10" Y="10"/><AP X="20" Y="20"/></AO><AO ID="2" TypeId="1" Color="-16777216" ThicknessScale="3.0">'
+               '<AP X="30" Y="30"/><AP X="40" Y="40"/></AO></Frame></Sequence>')
+        seen = []
+        for seed in range(20):
+            root = ET.fromstring(xml)
+            info = D.augment(root, np.random.default_rng(seed))
+            t1, t2 = (float(o.get('ThicknessScale')) for o in root.iter('AO'))
+            self.assertAlmostEqual(t1, info['thick'])
+            self.assertAlmostEqual(t2, 3.0 * info['thick'])
+            self.assertTrue(D.THICK_RANGE[0] <= info['thick'] <= D.THICK_RANGE[1])
+            self.assertEqual(D.K.style_of(next(root.iter('AO')))[1], D.K.q_th(t1))
+            seen.append(info['thick'])
+        self.assertLess(min(seen), 0.8)
+        self.assertGreater(max(seen), 1.3)
+
+
 class TestWorkerStages(unittest.TestCase):
     def test_data_args(self):
         for smoke in (False, True):

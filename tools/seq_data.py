@@ -24,13 +24,15 @@ import sfa_tokens as K  # noqa: E402
 import vec_data as V  # noqa: E402
 
 ROOT = V.ROOT
-SEQ_DATA_VERSION = 2   # 정답 문장·렌더 방식이 바뀌면 올린다(다 만듦 표시가 옛 자료를 건너뛰지 않게). 2: GPT 검토 10-30 정답 변환 수정·늘리기
+SEQ_DATA_VERSION = 3   # 정답 문장·렌더 방식이 바뀌면 올린다(다 만듦 표시가 옛 자료를 건너뛰지 않게). 2: GPT 검토 10-30 정답 변환 수정·늘리기. 3: 늘리기에 굵기 배율(10-31)
+THICK_RANGE = (0.5, 2.0)   # 늘린 사본의 파일 전체 굵기 배율(로그 고르게). 사용자 10-31: "굵기 조절도 다양한 기능을 고루 쓸 줄 알아야" — 이전 방식 0.75–1.5보다 넓게
 
 
 def augment(root, rng):
     """늘리기(GPT 검토 10-30 권고): 파일 전체 좌표를 같은 변환으로 — 좌우 반전(반반), 가운데 기준 0.8–1.2배, ±8% 이동.
     SFA를 먼저 바꾸고 렌더하므로 그림과 정답이 정확히 같이 변한다. % 좌표에 같은 배율이라 화면 화소로도 가로세로 같은 배율(원은 원).
-    굵기·글로우는 그대로(파일의 값). 화면 밖으로 나간 것은 정답 변환이 화면 밖 판정으로 뺀다."""
+    굵기(10-31): 모든 오브젝트 ThicknessScale에 같은 배율(THICK_RANGE) — 정답의 굵기 칸도 같이 바뀐다. 글로우 폭은 앱에서 굵기를 따르므로 함께 변한다.
+    화면 밖으로 나간 것은 정답 변환이 화면 밖 판정으로 뺀다."""
     flip = rng.random() < 0.5
     sc = float(rng.uniform(0.8, 1.2))
     tx, ty = (float(v) for v in rng.uniform(-8, 8, 2))
@@ -40,7 +42,10 @@ def augment(root, rng):
             x = 100 - x
         p.set('X', repr((x - 50) * sc + 50 + tx))
         p.set('Y', repr((y - 50) * sc + 50 + ty))
-    return dict(flip=flip, scale=sc, tx=tx, ty=ty)
+    th = float(np.exp(rng.uniform(*np.log(THICK_RANGE))))
+    for o in root.iter('AO'):
+        o.set('ThicknessScale', repr(float(o.get('ThicknessScale') or 1) * th))
+    return dict(flip=flip, scale=sc, tx=tx, ty=ty, thick=th)
 
 
 def one(job):
