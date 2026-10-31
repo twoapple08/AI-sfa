@@ -29,6 +29,7 @@ import torchvision
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sfa_objscore as OS  # noqa: E402
 import sfa_tokens as K  # noqa: E402
+import seq_judge as J  # noqa: E402
 
 # 이웃 칸 부드러운 정답을 쓰는 칸과 그 칸의 합법 범위(GPT 검토 10-30: 색 255의 이웃 256·257에 정답 확률이 새던 것).
 # 글로우 칸은 반경·두께·알파·색이 섞여 범위가 달라 정확한 칸만 쓴다.
@@ -449,6 +450,11 @@ def train(a):
     tr = Data(a.data, cfg['maxlen'], cfg['in_w'])
     va = Data(a.val, cfg['maxlen'], cfg['in_w'])
     sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w']) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
+    js = J.JudgeSet(a.judge, cfg['in_w']) if a.judge else None   # 판정 장치(11-01): 평가 목록 고정 장 × 이동 4방향
+    memo = {}
+    if js is not None:
+        memo = {nd: J.memo_baseline(js, range(nd)) for nd in (2, 4)}   # 이 평가 목록·방향으로 다시 계산한 외움 기준선
+        print(f"판정 자료 {len(js)}장 · 독립 단위 {len({e['group'] for e in js.ents})} · 외움 기준선 공식 2방향 {memo[2]:.2f} / 4방향 {memo[4]:.2f}점", flush=True)
     if saved and a.sine and not cfg.get('sine'):
         print('주의: 이어하기는 저장된 설정을 따른다 — --sine을 줘도 이 학습은 sin 없이 계속(비교하려면 새 출력 폴더에서 처음부터)', flush=True)
     stg = cfg.get('stages')
@@ -571,12 +577,79 @@ def train(a):
             net.train()
         return (tl / tn if tn else float('nan')), (tc / tn if tn else 0.0), int(tn), bad, hn
 
-    def gen_eval():
-        """두 고정 집합을 실제로 그려 보고 오브젝트 채점: 시험 파일(새 파일 일반화) + 학습 파일의 학습에 없던 이동(위치 읽기, GPT 3차)."""
+    def gen_eval(final=False):
+        """두 고정 집합을 실제로 그려 보고 오브젝트 채점: 시험 파일(새 파일 일반화) + 학습 파일의 학습에 없던 이동(위치 읽기, GPT 3차).
+        판정 자료가 있으면 입력 교환 생성 대조(판정 기준 §2)도. 마지막(공식 시점)은 4방향."""
         out = gen_set(va, g_idx, 'gen')
         if s_idx:
             out.update(gen_set(sv, s_idx, 'shift'))
+        if js is not None:
+            out.update(judge_eval(a.judge_dirs_final if final else a.judge_dirs))
         return out
+
+    def gen_img(im, hwr):
+        """그림 한 장 생성 → (토큰, 끝냄, 초) 또는 None(메모리 부족)."""
+        t1 = time.time()
+        try:
+            x = torch.from_numpy(np.ascontiguousarray(im)).permute(2, 0, 1).float().to(dev) / 255
+            with torch.no_grad(), torch.autocast(dev, dtype=dt, enabled=amp):
+                toks, done = generate(net, x, hwr, cfg['maxlen'])
+            if dev == 'cuda':
+                torch.cuda.synchronize()
+            return toks, done, time.time() - t1
+        except torch.OutOfMemoryError:
+            if dev == 'cuda':
+                torch.cuda.empty_cache()
+            return None
+
+    def judge_eval(nd):
+        net.eval()
+        t1 = time.time()
+        try:
+            res, gens = J.evaluate(js, lambda i, d: gen_img(js.image(i, d), js.ents[i]['hwr']), dirs=range(nd), memo=memo[nd])
+            rec_ = J.flat(res)
+            rec_['judge_dirs'] = nd
+            # 현재 단계 해상도 대 기본 입력(고정 앞 몇 장, 공식 방향 0): 같은 장을 두 해상도로 생성해 위치·형상 부분 점수 비교
+            w = widths[st['stage']]
+            if w in js.stage:
+                sv_, bv_ = [], []
+                for i in range(len(js.stage[w])):
+                    r = gen_img(js.stage[w][i], js.ents[i]['hwr'])
+                    if r is not None and gens.get((i, 0)) is not None:
+                        sv_.append(J.S(r[0], js.tok[i][0], js.ents[i]['hwr'])[0])
+                        bv_.append(J.S(gens[i, 0], js.tok[i][0], js.ents[i]['hwr'])[0])
+                rec_.update(judge_stage_w=w, judge_stage_n=len(sv_), judge_stage_S=J._mean(sv_), judge_base_S=J._mean(bv_))
+            rec_['judge_sec'] = round(time.time() - t1)
+            print(J.summary_line(res), f"({rec_['judge_sec']}초, {nd}방향)", flush=True)
+            judge_sheet(gens)
+        finally:
+            net.train()
+            if dev == 'cuda':
+                torch.cuda.empty_cache()
+        return rec_
+
+    def judge_sheet(gens):
+        """고정 그림 시트: 평가 목록 앞 sheet_n장의 공식 방향 0 — 입력 영상 | AI SFA | 정답 SFA(골라 보여 주지 않음)."""
+        try:
+            import sfa_render as R
+            Wd = 480
+            R.PARAMS['pad'] = 0.0
+            R.PARAMS['thick_mul'] = Wd / 1920
+            rows_ = []
+            for i in range(min(a.sheet_n, len(js))):
+                hwr = js.ents[i]['hwr']
+                Hd = max(2, int(round(Wd * hwr)))
+                seq = seq_xml(hwr)
+                p_ = gens.get((i, 0))
+                im_p = R.render_frame(seq, K.decode(p_), Wd, Hd) if p_ is not None else np.zeros((Hd, Wd, 3), np.uint8)
+                im_a = R.render_frame(seq, K.decode([int(t) for t in js.tok[i][0]]), Wd, Hd)
+                src = cv2.resize(js.image(i, 0), (Wd, Hd))
+                row = np.hstack([src, im_p[..., :3], im_a[..., :3]])
+                rows_.append(cv2.resize(row, (3 * Wd, int(round(Wd * 9 / 16)))))
+            if rows_:
+                cv2.imwrite(os.path.join(a.out, f"judge_sheet_{st['step']:07d}.png"), np.vstack(rows_)[..., ::-1])
+        except Exception as e:   # 시트 실패가 학습을 멈추지 않게(기록만)
+            print('판정 그림 시트 실패:', type(e).__name__, e, flush=True)
 
     def gen_set(ds_, idx_, pre):
         net.eval()
@@ -689,6 +762,8 @@ def train(a):
                 yl.paused += 60
             continue
         st['step'] += 1
+        ss_ = st.setdefault('stage_steps', {})
+        ss_[str(widths[i])] = ss_.get(str(widths[i]), 0) + 1   # 단계(자료 해상도)별 업데이트 수
         run.append(loss.item())
         racc.append(acc.item())
         rhn = rhn + fh
@@ -701,7 +776,8 @@ def train(a):
         if time.time() - last_val > a.val_minutes * 60:
             last_val = time.time()
             vl, vc, n, vbad, vhn = validate()
-            rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, minutes=done0 + active_min(), prog=prog,
+            rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, val_sec=round(time.time() - last_val), stage_steps=dict(st.get('stage_steps', {})),
+                       minutes=done0 + active_min(), prog=prog,
                        oom=oom, skipped=skipped, budget=st['budget'], grad_ckpt=net.grad_ckpt, paused_min=yl.paused / 60,
                        stage_w=widths[k], px=st['px'], **field_report(vhn, 'val_')[0])
             if n and not vbad and vl < st['best']:   # 못 잰 장이 있으면 best 안 바꿈(GPT 2차)
@@ -720,13 +796,14 @@ def train(a):
             save_ckpt()
             last_save = time.time()
     vl, vc, n, vbad, vhn = validate()
-    rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, final=True, **field_report(vhn, 'val_')[0])
+    rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, final=True, minutes=done0 + active_min(),
+               stage_steps=dict(st.get('stage_steps', {})), **field_report(vhn, 'val_')[0])
     if n and not vbad and vl < st['best']:
         st['best'] = vl
         VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
     save_ckpt()
     if a.gen_minutes:
-        rec.update(gen_eval())
+        rec.update(gen_eval(final=True))
     print('마지막 검증', rec, flush=True)
     print('마지막 검증 분야(100점 만점):', field_report(vhn)[1], flush=True)
     with open(log, 'a', encoding='utf-8') as fh:
@@ -845,6 +922,10 @@ def main():
     t.add_argument('--gen-n', type=int, default=20, help='생성 채점에 쓰는 고정 시험 장 수')
     t.add_argument('--shift-val', default='', help='위치 시험 자료 폴더(seq_data --fixed) — 생성 채점에 같이')
     t.add_argument('--gen-minutes', type=float, default=60, help='생성 채점 간격(분). 0이면 안 함')
+    t.add_argument('--judge', default='', help='판정 자료 폴더(seq_judge build — 입력 교환 생성 대조·건전성·A/B/외움, 판정 기준 §2)')
+    t.add_argument('--judge-dirs', type=int, default=2, choices=(2, 4), help='중간 판정의 이동 방향 수(2 = 공식 쌍만)')
+    t.add_argument('--judge-dirs-final', type=int, default=4, choices=(2, 4), help='마지막(공식 시점) 판정의 방향 수(4 = 축별 진단 16칸 표 포함)')
+    t.add_argument('--sheet-n', type=int, default=6, help='판정 때마다 저장하는 고정 그림 시트 장 수(평가 목록 앞에서부터, 골라 보여 주지 않음)')
     t.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(게임 실행 중이면 멈추거나 천천히)')
     t.add_argument('--sine', action='store_true', help='고정 sin 위치 신호(그림 칸 위치 + 수 토큰 값)')
     t.add_argument('--stages', default='', help='해상도 단계 자료 폴더(쉼표, 높은 해상도부터: 1920,1280,854폭 seq_data --video). 마지막 단계는 data(기본 입력)')

@@ -5,7 +5,7 @@
 새 대화 시작 문구: docs/HANDOFF-PROMPT.md
 
 ## 현재 우선순위
-**영상 → SFA 변환 AI(재설계판) 1판.** 지금은 판정 장치를 구현해야 하고, 그다음 PC 시험 학습을 한다.
+**영상 → SFA 변환 AI(재설계판) 1판.** 판정 장치 구현을 마쳤다(11-01). 다음은 PC 시험 학습이다.
 - 모델이 영상 한 장을 보고 SFA 오브젝트 문장(토큰열)을 빈 상태에서 직접 쓴다. 그 파일을 원본 파일과 오브젝트 단위로 채점한다.
 - 주 목적은 스틱맨 동작(사용자 10-28).
 - 설계: docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md(§6.2 해상도 단계). 일반인용 해설: docs/EXPLAINER-VIDEO-TO-SFA-2026-10-31.md
@@ -20,29 +20,25 @@
 - 토론은 논증거리가 없어질 때까지 한다(사용자 10-31). GPT는 GitHub·Drive에 직접 접근 가능하다.
 
 ## 바로 할 일
-1. **판정 장치 구현**(판정 기준 §2·§3, 반나절 추정, 서버에서)
-   1. 평가 manifest
-      - 위치 시험 파일마다 두 방향 모두 잘림 없고, 비어 있지 않고, 길이 한도 안인 장 1개를 사전 고정 난수로 고른다.
-      - 반대 방향 2개 이동 자료를 만든다(예: (+6,+4)·(−6,−4), ×1.05).
-      - 두 정답은 (파일, Frame.Position)으로 연결한다. 작품 묶음 단위로 실제 N과 제외 사유를 기록한다.
-   2. 입력 교환 생성 대조: 양방향 Δ, 파일당 한 표, 동점은 비승리, 승/동점/패·효과 크기를 기록한다. 공식 시점(최초 끝·연장 끝)마다 각 α=0.025로 부호 검정한다.
-   3. 생성 건전성 기록: EOS 완료·빈 출력·길이 한도·오브젝트 수 비율·OOM 장.
-   4. 정밀도·F1(합산 `2Σmatch/(Σpred+Σans)`), A(옮긴 정답)·B(원래 자리)·외움 기준선을 평가 목록마다 자동 계산한다.
-   5. PC 실행에 `--gen-minutes 20`을 넣는다. 단계별 업데이트 수·평가 시간·실제 생성 시간, 현재 단계 해상도 고정 장 평가, 고정 그림 시트를 기록한다.
-   - 채점기 원 수정(판정 기준 §4: 원 부분 면 T 구간을 (시작 위상 mod 1, 부호 있는 길이)로, WHOLE은 독립 닫힌 윤곽만, 반례 시험 10개)은 만점 판정 완화 전에 한다. 초기 학습은 막지 않는다.
-2. **자료 다시 만들기(필요할 때만)**: 판정 장치 때문에 위치 시험 자료(ss) 형식이 바뀌면 Kaggle CPU `push-data`로 다시 만든다.
-   - 학습 자료(sd·sd854·sd1280·sd1920)는 판 3 그대로 쓸 수 있다. 자료 코드를 바꾸면 작업자가 `--prebuilt` 학습을 멈추고 다시 만들라고 한다.
-3. **사용자 PC 시험 학습**
+0. **판정 장치 구현 완료(11-01)** — docs/JUDGE-IMPLEMENTATION-2026-11-01.md
+   - 평가 목록 `data/judge_manifest.json`: 학습 파일 5개 중 1개 → 46장, 독립 단위 N=46, 필요 31승. 외움 기준선 공식 2방향 12.07점.
+   - `tools/seq_judge.py`(목록·자료·계산), `seq_train.py --judge`(중간 2방향·마지막 4방향, 그림 시트, 단계별 업데이트 수).
+   - PC 본 학습은 `--judge … --gen-minutes 20`, Kaggle은 학습 커널에서 판정 자료를 만든다(미리 만든 자료 판 3 그대로).
+   - 미구현: 첫 점·이어지는 점 구분, 채점기 원 수정(§4), 묶음 변형 판정(§5), 앱 열기 확인. 동점 범위 0.5점은 Claude 제안값(첫 판정 전 확인 요청).
+1. **사용자 PC 시험 학습**
    - 빠른 시험 bat부터 돌린다. 첫 4분이 1080 단계라 가장 무거운 단계의 속도·GPU 메모리를 잰다.
    - 그다음 2시간 학습: `pc_seq_4060.bat 2 0` 또는 `pc_seq_5060.bat 2`. 계획 0이면 2시간 안에 네 해상도 단계를 다 거친다.
+   - 판정 시간 `judge_sec`(GPU 긴 출력 생성 속도 미측정)이 너무 길면 `--gen-minutes`를 조정한다(AISFA_SEQ_TRAIN_ARGS로 덧붙이기).
    - 판정은 판정 기준 §2대로 한다. 진행 / 1회 연장 / 원인 조사, '실패'와 '판정 자료 부족'은 구분한다.
-4. **진행이면 Kaggle 본 학습**(사용자 지시 뒤): `python tools/kaggle_seq_remote.py push --prebuilt`. PC 학습 상태는 `from-drive` → `save-ckpt`로 이어받는다.
+2. **진행이면 Kaggle 본 학습**(사용자 지시 뒤): `python tools/kaggle_seq_remote.py push --prebuilt`. PC 학습 상태는 `from-drive` → `save-ckpt`로 이어받는다.
    - 회차당 새 파일 엄격 F1 상승이 2%p 미만이면 원인 조사 신호로 본다. 최대 예산에 도달하면 종료한다.
+3. **서버에서 이어서 할 수 있는 일**(학습을 막지 않음): 채점기 원 수정 + 반례 시험 10개(§4), 첫 점·이어지는 점 구분, 묶음 변형 판정(§5).
 
 **사용자 결정 대기**
 1. 본 학습 최대 예산
 2. 숫자 허용 범위 눈 판정 시트(한 속성만 바꾼 렌더)를 볼지
-3. '연기 1'·'연기 4'가 같은 작품인지(정확 사본은 아님)
+3. '연기 1'·'연기 4'가 같은 작품인지(정확 사본은 아님, 둘 다 이번 평가 목록에서는 '이동으로 잘림'으로 빠짐)
+4. 판정 동점 범위 |Δ| ≤ 0.5점(Claude 제안값)으로 확정할지 — 첫 판정 전에
 
 ## 1판에 들어간 것(10-31)
 - **해상도 단계 1080 → 720 → 480 → 360**(사용자 10-29 지시, 재설계 때 빠졌다 복원)
@@ -66,7 +62,7 @@
 - **외움 기준선**[서버, GPT 재현]: 원본을 원래 자리에 그대로 그린 '완벽하게 외운 AI'의 위치 시험 부분 점수는 전체 134장에서 17.65점, 학습기 기본 20장에서 15.88점이다(엄격 2.4%·1.1%). 그래서 절대 점수 합격선은 폐기했다.
 - **페인트 저장 방식**[사용자 앱 녹화 11-01]: 면은 오브젝트별 T 구간 + 자동 연결선으로 저장된다. 관절 연결은 칠하기 조건이 아니다(docs/FORMAT.md 끝).
 - **이전 확인**: 정답지 왕복 100%(22,371장), 렌더러 ≈ 앱 0.3%, Kaggle T4 30분 시험(2,403걸음, 54장 흐름용 — 실력 판단 불가), Drive ↔ Kaggle ↔ PC 이어하기.
-- **단위 시험 78개 통과**(10-31, `python -m unittest discover -s tests`).
+- **단위 시험 88개 통과**(11-01, `python -m unittest discover -s tests`, 판정 장치 10개 추가).
 
 ## 도구 요약
 - `tools/kaggle_seq_remote.py`
@@ -75,7 +71,8 @@
   - `status|wait|pull [--data] [--smoke]`, `save-ckpt`, `to-drive`, `from-drive`
 - `tools/seq_train.py`
   - `train … [--stages 1920,1280,854 자료] [--init-encoder] [--px-budget] [--gen-minutes]`
-  - `draw`, `vec-encoder`
+  - `draw`, `vec-encoder`, `train … --judge 폴더 [--judge-dirs 2] [--judge-dirs-final 4] [--sheet-n 6]`
+- `tools/seq_judge.py manifest|build 폴더|baseline 폴더`(판정 장치, 11-01)
 - `tools/seq_data.py … [--W] [--video] [--synth] [--fixed dx,dy,배율] [--check]`
 - PC: `pc_seq_1050ti_quick.bat`, `pc_seq_5060.bat [시간] [계획]`, `pc_seq_4060.bat [시간] [계획] [noyield]`. Drive `AI-sfa/02_분석자료/seq/`.
 - 측정: `tools/measure_toklen.py`·`analyze_toklen.py`(docs/TOKEN-LENGTH-2026-10-31.md).
@@ -87,7 +84,7 @@
 
 ## 막힌 것 / 환경
 - 서버 GPU 없음(CPU 4개, RAM 15GB). 사용자 GPU: 1050 Ti 상시, 5060 가끔, 4060 PC(RAM 32GB).
-- 저장소 `/home/user/AI-sfa`, 주 브랜치 `ccr-bccf15a6-d6ee46`.
+- 저장소 `/home/user/AI-sfa`, 주 브랜치 `ccr-bccf15a6-d6ee46`(11-01 세션은 `claude/new-session-gknz4t`에서 작업하고 같은 HEAD를 주 브랜치에도 푸시).
 - 새 컨테이너 준비
   - `pip install opencv-python-headless numpy skia-python scipy scikit-image kaggle` + CPU torch(`--index-url https://download.pytorch.org/whl/cpu`)
   - `apt-get install libegl1 libgl1`

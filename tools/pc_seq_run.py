@@ -4,6 +4,7 @@ pc_seq_*.bat이 설치를 마친 뒤 부른다. Drive: gdrive:AI-sfa/02_분석�
 Drive 연결·절전 막기·화면 기록·올리기는 pc_vec_run.py의 것을 그대로 쓴다.
 """
 import argparse
+import glob
 import os
 import shutil
 import subprocess
@@ -17,6 +18,7 @@ import pc_vec_run as P  # noqa: E402
 DRIVE_BASE = 'gdrive:AI-sfa/02_분석자료/seq'
 HIRES = (1920, 1280, 854)   # 해상도 단계 자료 폭(kaggle_seq_worker.HIRES와 같게)
 KEEP = ['ckpt.pt', 'best.pt', 'log.jsonl', 'train_console.txt', 'seq_train.py', 'sfa_tokens.py']
+SHEETS = 'judge_sheet_*.png'   # 판정 고정 그림 시트(11-01)
 
 
 def upload(rclone, out, drive, names):
@@ -27,7 +29,7 @@ def upload(rclone, out, drive, names):
 def uploader(out, rclone, drive, stop, every=900):
     while not stop.wait(every):
         if os.path.exists(os.path.join(out, 'ckpt.pt')):
-            ok = upload(rclone, out, drive, ['ckpt.pt', 'best.pt', 'log.jsonl', 'train_console.txt'])
+            ok = upload(rclone, out, drive, ['ckpt.pt', 'best.pt', 'log.jsonl', 'train_console.txt', SHEETS])
             print(time.strftime('%H:%M'), 'Drive 중간 저장', '정상' if ok else '실패', flush=True)
 
 
@@ -99,6 +101,8 @@ def main():
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{val}" --maxlen 2048 --max-frames 40 --holdout --workers {cpus}{lp}')
     shv = os.path.join(a.root, 'ss')   # 위치 시험: 학습 파일 10개 중 1개에 학습에 없던 고정 이동(GPT 3차)
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{shv}" --maxlen 2048 --max-frames 8 --every 10 --fixed 6,4,1.05 --workers {cpus}{lp}')
+    sj = os.path.join(a.root, 'sj')   # 판정 자료(11-01, 판정 기준 §2): 평가 목록 고정 장 × 이동 4방향 + 단계 해상도 비교용 몇 장
+    P.sh(f'cd /d "{tools}" && "{py}" -u seq_judge.py build "{sj}"')
     st = ''
     if not a.no_stages:   # 해상도 단계(사용자 10-29·10-31): 1080 → 720 → 480 → 360. 영상(mp4)으로 저장해 작다(합계 약 0.5GB)
         hi = [os.path.join(a.root, f'sd{r}') for r in HIRES]
@@ -125,7 +129,7 @@ def main():
         enc = f' --init-encoder "{ef}"'
     plan = a.plan_hours * 60   # 0이면 seq_train이 처음엔 이번 실행 시간, 이어할 땐 이번 실행만큼 늘림
     cmd = (f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --minutes {left:.0f} --plan-minutes {plan:.0f}'
-           f' --tok-budget {a.tok_budget} --shift-val "{shv}"' + st + enc + (' --yield' if a.yield_ else '') + extra)
+           f' --tok-budget {a.tok_budget} --shift-val "{shv}" --judge "{sj}" --gen-minutes 20' + st + enc + (' --yield' if a.yield_ else '') + extra)
     try:
         P.run_logged(cmd, out)
     finally:
@@ -135,12 +139,12 @@ def main():
         for f in ('seq_train.py', 'sfa_tokens.py'):
             shutil.copy(os.path.join(tools, f), out)
         if a.rclone:
-            ok = upload(a.rclone, out, drive, KEEP)
+            ok = upload(a.rclone, out, drive, KEEP + [SHEETS])
             print('Drive에 올림:' if ok else 'Drive 올리기 실패(zip 사용):', drive, flush=True)
         import zipfile
         zdir = os.environ.get('AISFA_ZIP_DIR') or os.path.join(os.path.expanduser('~'), 'Desktop')
         with zipfile.ZipFile(os.path.join(zdir, f'seq_{a.run}.zip'), 'w') as z:
-            for k in KEEP:
+            for k in KEEP + sorted(os.path.basename(x) for x in glob.glob(os.path.join(out, SHEETS))):
                 if os.path.exists(os.path.join(out, k)):
                     z.write(os.path.join(out, k), k)
         print(f'seq_{a.run}.zip 도 만듦:', zdir, '끝.', flush=True)

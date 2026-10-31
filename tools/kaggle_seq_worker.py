@@ -127,6 +127,8 @@ def main():
         for name, args in data_args(c, cpus).items():
             sh(f'cd {tools} && python -u seq_data.py {dirs[name]} {args}')
     data, val, shv = dirs['sd'], dirs['sv'], dirs['ss']
+    sj = '/kaggle/tmp/sj'   # 판정 자료(11-01): 작아서(장 46 × 4방향, 1분 안팎) 학습 커널에서 바로 만든다 — 미리 만든 자료(판 3)는 그대로
+    sh(f'cd {tools} && python -u seq_judge.py build {sj}')
     stages = ','.join(dirs[f'sd{r}'] for r in HIRES) if c.get('stages', True) else ''
     print(f'자료 {(time.time() - t1) / 60:.1f}분', flush=True)
     enc = ''
@@ -139,7 +141,7 @@ def main():
     if left < (1 if c.get('smoke') else 10):
         raise SystemExit('남은 시간이 없음')
     cmd = (f'cd {tools} && python -u seq_train.py train {data} {val} {out} --minutes {left:.0f} --plan-minutes {c["plan_minutes"]:.0f}'
-           f' --tok-budget {c["tok_budget"]} --shift-val {shv}' + (f' --stages {stages}' if stages else '') + enc + f' {c["extra"]}')
+           f' --tok-budget {c["tok_budget"]} --shift-val {shv} --judge {sj}' + (f' --stages {stages}' if stages else '') + enc + f' {c["extra"]}')
     print('$', cmd, flush=True)
     con = open(f'{out}/train_console.txt', 'a', encoding='utf-8')
     pr = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace')
