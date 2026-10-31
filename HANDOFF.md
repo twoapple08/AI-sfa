@@ -63,7 +63,9 @@
 ## Kaggle·실행 도구 요약
 - `tools/kaggle_seq_remote.py`
   - `push [--smoke] [--cpu] [--minutes 690] [--ckpt 이름] [--extra "seq_train 옵션"]`
-  - `status` / `wait` / `pull 폴더` / `save-ckpt 폴더 [--ckpt 이름]` / `to-drive 폴더 학습이름` / `from-drive 학습이름 폴더`
+  - `push-data [--smoke]`: 자료만 만드는 CPU 커널 `aisfa-seq-data(-smoke)`(GPU 시간 0). 출력 sd·sv·ss + `data_info.json`(커밋·자료 코드 해시·장 수·분)
+  - `push --prebuilt`: 그 출력을 입력으로 붙여 자료 만들기 없이 학습. 작업자가 `seq_data --check`로 판·설정·파일 수를, 해시로 자료 코드(seq_data·sfa_render·sfa_tokens·vec_data)를 확인하고 다르면 GPU 학습 전에 멈춘다(`--prebuilt-any-code`로만 무시). `--prebuilt` 없이 GPU push하면 경고
+  - `status` / `wait` / `pull 폴더` / `save-ckpt 폴더 [--ckpt 이름]` / `to-drive 폴더 학습이름` / `from-drive 학습이름 폴더` (자료 커널은 status·wait·pull에 `--data`)
   - 비공개 커널 `aisfa-seq-train`(본), `aisfa-seq-train-smoke`(시험)
   - 이어하기 자료 `aisfa-seq-ckpt`(본, 아직 없음), `aisfa-seq-ckpt-smoke`(시험)
 - 인증: 환경 비밀값 `KAGGLE_USERNAME`·`KAGGLE_API_TOKEN`(등록됨, 출력 금지). kaggle CLI 2.2.5는 필요하면 `pip install kaggle`로 설치.
