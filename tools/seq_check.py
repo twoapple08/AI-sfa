@@ -27,11 +27,18 @@ def tolerant_diff(a, b, tol=TOL, sigma=SIGMA):
 
 
 def mismatch(seq, fr, w=W):
+    """(어긋난 화소 수, 정답 토큰 수). 전역 렌더 설정(R.PARAMS)은 바꿨다가 반드시 되돌린다(GPT 재확인 11-01: 되돌리지 않아
+    뒤이은 1080 학습 영상의 선 굵기가 36→12화소로 바뀌었는데 검사값은 0이었다)."""
     hwr = float(seq.get('HeightWidthRatio') or 0.5625) or 0.5625
     h = max(2, int(round(w * hwr)))
-    R.PARAMS['pad'] = 0.0
-    R.PARAMS['thick_mul'] = w / 1920
-    t, _ = K.encode(seq, fr)
-    a = R.render_frame(seq, fr, w, h)[..., :3]
-    b = R.render_frame(seq, K.decode(t), w, h)[..., :3]
-    return tolerant_diff(a, b), len(t)
+    saved = dict(R.PARAMS)
+    try:
+        R.PARAMS['pad'] = 0.0
+        R.PARAMS['thick_mul'] = w / 1920
+        t, _ = K.encode(seq, fr)
+        a = R.render_frame(seq, fr, w, h)[..., :3]
+        b = R.render_frame(seq, K.decode(t), w, h)[..., :3]
+        return tolerant_diff(a, b), len(t)
+    finally:
+        R.PARAMS.clear()
+        R.PARAMS.update(saved)

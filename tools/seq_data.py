@@ -24,7 +24,7 @@ import sfa_tokens as K  # noqa: E402
 import vec_data as V  # noqa: E402
 
 ROOT = V.ROOT
-SEQ_DATA_VERSION = 4   # 정답 문장·렌더 방식이 바뀌면 올린다(다 만듦 표시가 옛 자료를 건너뛰지 않게). 2: GPT 검토 10-30 정답 변환 수정·늘리기. 3: 늘리기에 굵기 배율(10-31). 4: 굵기를 정답 칸 값으로·조합 문제 모드(11-01)
+SEQ_DATA_VERSION = 5   # 정답 문장·렌더 방식이 바뀌면 올린다(다 만듦 표시가 옛 자료를 건너뛰지 않게). 2: GPT 검토 10-30 정답 변환 수정·늘리기. 3: 늘리기에 굵기 배율(10-31). 4: 굵기를 정답 칸 값으로·조합 문제 모드(11-01). 5: 정합성 검사가 렌더 설정을 바꿔 고해상도 선이 얇아지던 판 무효(GPT 재확인 11-01)
 THICK_RANGE = (0.5, 2.0)   # 늘린 사본의 파일 전체 굵기 배율(로그 고르게). 사용자 10-31: "굵기 조절도 다양한 기능을 고루 쓸 줄 알아야" — 이전 방식 0.75–1.5보다 넓게
 
 
@@ -166,6 +166,8 @@ def save_frames(out_dir, name, items, hwr, a, crf, extra):
             info[-1]['check'] = SC.mismatch(seq, fr)[0]
     if not keep:
         return 0
+    R.PARAMS['pad'] = 0.0   # 학습 영상 렌더 직전에 다시 맞춘다(검사 등 다른 경로가 전역 설정을 바꿔도 이 폭의 굵기로)
+    R.PARAMS['thick_mul'] = W / 1920
     if a.get('video'):
         vid = V.encode_video((R.render_frame(sq, fr, W, Hr) for sq, fr in keep), crf, size=(W, Hr))
         if V.count_frames(vid) != len(keep):

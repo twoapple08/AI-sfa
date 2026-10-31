@@ -22,7 +22,7 @@ T0 = time.time()
 SPLITS = ('sd', 'sv', 'ss', 'sc')   # 학습(조합 문제), 시험 파일, 위치 시험, 실제·조합 고정 검증(11-01 GPT 1라운드 D)
 HIRES = (1920, 1280, 854)     # 해상도 단계(사용자 10-29·10-31): 1080 → 720 → 480 → 기본 360(sd). 영상(mp4)으로 저장
 COMPOSE_N = 40000             # 해상도 단계마다 조합 문제 장 수(11-01)
-CODE = ('seq_data.py', 'sfa_render.py', 'sfa_tokens.py', 'vec_data.py', 'sfa_compose.py', 'sfa_paint_synth.py')   # 자료 내용을 정하는 코드(바뀌었는데 판을 안 올린 경우를 잡는다)
+CODE = ('seq_data.py', 'sfa_render.py', 'sfa_tokens.py', 'vec_data.py', 'sfa_compose.py', 'sfa_paint_synth.py', 'seq_check.py')   # 자료 내용을 정하는 코드(바뀌었는데 판을 안 올린 경우를 잡는다)
 
 
 def sh(cmd):

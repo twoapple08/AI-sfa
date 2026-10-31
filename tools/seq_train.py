@@ -487,7 +487,9 @@ def train(a):
     va = Data(a.val, cfg['maxlen'], cfg['in_w'])
     sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w']) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
     js = J.JudgeSet(a.judge, cfg['in_w']) if a.judge else None   # 판정 장치(11-01): 평가 목록 고정 장 × 이동 4방향
+    js_reduced = False
     if js is not None and a.judge_n:
+        js_reduced = a.judge_n < len(js)
         js.keep(a.judge_n)
         print(f'주의: 판정 장을 앞 {len(js)}장으로 줄임(흐름 시험용 — 공식 판정 아님)', flush=True)
     memo = {}
@@ -697,22 +699,29 @@ def train(a):
         try:
             # 공식 판정(판정 기준 §2, GPT 1라운드 A·⑤): 계획 끝에 도달한 마지막 판정만. 길이 상한 없이(모델 최대 길이, 모든 방향 같음).
             # 추세 판정: 길이 상한은 장마다 네 방향 정답 중 가장 긴 것 기준 — 입력 방향에 따라 상한이 달라지지 않게
-            official = bool(final and st['done_min'] >= st['plan_min'] - 1e-6)
+            official = official_judgment(final, st['done_min'], st['plan_min'], js_reduced, w, cfg['in_w'])
+            if official:   # 사전 지정 기회는 최초 끝·연장 끝 두 번 — 몇 번째 공식 판정인지 남긴다(셋째부터는 기준 밖)
+                st['official_n'] = st.get('official_n', 0) + 1
             reasons.clear()
             cap_of = (lambda i: None) if official else (lambda i: max(len(t) for t in js.tok[i]))
             res, gens = J.evaluate(js, lambda i, d: gen_img(js.image(i, d, w), js.ents[i]['hwr'], cap_of(i)), dirs=range(nd),
                                    memo=memo[2], memo4=memo[4])
             rec_ = J.flat(res)
-            rec_.update(judge_dirs=nd, judge_w=w, judge_official=official, judge_end=dict(reasons))
+            rec_.update(judge_dirs=nd, judge_w=w, judge_official=official, judge_official_n=st.get('official_n', 0) if official else None,
+                        judge_reduced=js_reduced, judge_end=dict(reasons))
             print(f'[{w}폭 {"공식" if official else "추세"}]', J.summary_line(res, official), f"({round(time.time() - t1)}초, {nd}방향, 끝냄 {dict(reasons)})", flush=True)
             judge_sheet(gens, w)
             if final and w != cfg['in_w']:
                 t2 = time.time()
                 reasons.clear()
-                r2, _ = J.evaluate(js, lambda i, d: gen_img(js.image(i, d), js.ents[i]['hwr'], cap_of(i)), dirs=range(2), memo=memo[2])
+                off360 = official_judgment(final, st['done_min'], st['plan_min'], js_reduced, cfg['in_w'], cfg['in_w'])
+                cap360 = (lambda i: None) if off360 else (lambda i: max(len(t) for t in js.tok[i]))
+                if off360:
+                    st['official_n'] = st.get('official_n', 0) + 1
+                r2, _ = J.evaluate(js, lambda i, d: gen_img(js.image(i, d), js.ents[i]['hwr'], cap360(i)), dirs=range(2), memo=memo[2])
                 rec_.update(J.flat(r2, 'judge360_'))
-                rec_['judge360_end'] = dict(reasons)
-                print(f"[{cfg['in_w']}폭 추세]", J.summary_line(r2, False), f"({round(time.time() - t2)}초, 2방향)", flush=True)
+                rec_.update(judge360_end=dict(reasons), judge360_official=off360, judge360_official_n=st.get('official_n', 0) if off360 else None)
+                print(f"[{cfg['in_w']}폭 {'공식' if off360 else '추세'}]", J.summary_line(r2, off360), f"({round(time.time() - t2)}초, 2방향)", flush=True)
             rec_['judge_sec'] = round(time.time() - t1)
         finally:
             net.train()
@@ -941,6 +950,12 @@ def train(a):
     with open(log, 'a', encoding='utf-8') as fh:
         fh.write(json.dumps(rec) + '\n')
     print(f"끝 {st['step']}걸음 · 진행 {st['done_min']:.0f}/{st['plan_min']:.0f}분 · best {st['best']:.4f} · 메모리 부족 {oom} · 건너뜀 {skipped}", flush=True)
+
+
+def official_judgment(final, done_min, plan_min, reduced, w, in_w):
+    """공식 판정인가(판정 기준 §2, GPT 1라운드 A·재확인 11-01): 마지막 판정 + 계획 끝 도달 + 고정 평가 목록 전체(--judge-n으로
+    줄이지 않음) + 기본 입력 해상도(360 = in_w 폭). 고해상도 단계 판정·축소 목록 흐름 시험은 계획이 끝나도 추세."""
+    return bool(final and done_min >= plan_min - 1e-6 and not reduced and w == in_w)
 
 
 def kind_of(ds, k):
