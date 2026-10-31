@@ -226,7 +226,8 @@ def health(rows, frac=BAD_FRAC):
 # ---------- 자료 ----------
 
 def load_manifest(path=MANIFEST):
-    m = json.load(open(path, encoding='utf-8'))
+    with open(path, encoding='utf-8') as fh:
+        m = json.load(fh)
     if m.get('version') != JUDGE_VERSION or [list(d) for d in m['dirs']] != [list(d) for d in DIRS]:
         raise SystemExit(f'평가 목록 판·방향이 코드와 다름: {path}')
     return m

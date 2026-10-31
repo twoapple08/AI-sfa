@@ -223,6 +223,19 @@ def loss_fn(logits, tgt, fld):
 GROUPS = (('struct', '구조', ('spec',)), ('coord', '좌표', ('coord', 'big')), ('color', '색', ('color', 'bg')), ('thick', '굵기', ('thick',)),
           ('glow', '글로우', ('glow',)), ('link', '연결', ('link',)), ('fill', '면', ('obj', 'ptidx', 't')))
 GROUP_OF = torch.tensor([next(g for g, (_, _, fs) in enumerate(GROUPS) if f in fs) for f in K.FIELDS])
+# 좌표를 오브젝트의 첫 점 / 이어지는 점으로 나눈 진단(판정 기준 §2-3, 11-01). 분야 표 뒤에 두 줄 더
+EXTRA = (('coord_first', '첫 점'), ('coord_rest', '이어지는 점'))
+NROW = len(GROUPS) + len(EXTRA)
+TYPE_IDS = torch.tensor(sorted(K.TOK[v] for v in K.TYPES.values()))
+COORD_FIDS = torch.tensor([K.FID['coord'], K.FID['big']])
+
+
+def point_index(tok):
+    """토큰마다 '이 오브젝트에서 몇 번째 점인가'(종류 토큰 뒤 PT 수). 좌표 칸에서만 의미가 있다."""
+    pt = torch.cumsum((tok == K.TOK['PT']).long(), -1)
+    typ = torch.isin(tok, TYPE_IDS.to(tok.device))
+    start = torch.cummax(torch.where(typ, pt, torch.zeros_like(pt)), -1).values
+    return pt - start
 
 
 def field_hits(logits, tgt, fld):
@@ -232,13 +245,18 @@ def field_hits(logits, tgt, fld):
     hit = (logits.argmax(-1) == tgt)[mask].float()
     n = torch.bincount(g, minlength=len(GROUPS)).float()
     h = torch.bincount(g, weights=hit, minlength=len(GROUPS))
+    co = torch.isin(fld, COORD_FIDS.to(fld.device))[mask]
+    first = (point_index(tgt) == 0)[mask]
+    ex = [(hit[co & first].sum(), (co & first).sum()), (hit[co & ~first].sum(), (co & ~first).sum())]
+    h = torch.cat([h, torch.stack([x[0].float() for x in ex])])
+    n = torch.cat([n, torch.stack([x[1].float() for x in ex])])
     return torch.stack([h, n], 1).cpu().numpy()
 
 
 def field_report(hn, prefix=''):
     """(분야 수, 2) → 기록용 {접두+이름: 0–100점}, 화면용 글. 좌표는 '몇 개마다 지적'(= 1 / 틀림 비율)도."""
     rec, txt = {}, []
-    for (key, name, _), (h, n) in zip(GROUPS, hn):
+    for (key, name, *_), (h, n) in zip(list(GROUPS) + list(EXTRA), hn):
         if n <= 0:
             continue
         sc = 100.0 * h / n
@@ -553,7 +571,7 @@ def train(a):
                 lg = net(im, tk[:, :-1], fd[:, :-1], hr)
             l_, c_, n_ = loss_fn(lg, tk[:, 1:], fd[:, 1:])
             if not torch.isfinite(l_):
-                return 0.0, 0.0, 0.0, len(b), np.zeros((len(GROUPS), 2))
+                return 0.0, 0.0, 0.0, len(b), np.zeros((NROW, 2))
             return l_.item() * n_.item(), c_.item() * n_.item(), n_.item(), 0, field_hits(lg, tk[:, 1:], fd[:, 1:])
         except torch.OutOfMemoryError:
             oom_ = True
@@ -561,7 +579,7 @@ def train(a):
         if dev == 'cuda':
             torch.cuda.empty_cache()
         if len(b) == 1:
-            return 0.0, 0.0, 0.0, 1, np.zeros((len(GROUPS), 2))
+            return 0.0, 0.0, 0.0, 1, np.zeros((NROW, 2))
         x, y = val_batch(b[:len(b) // 2]), val_batch(b[len(b) // 2:])
         return tuple(p + q for p, q in zip(x, y))
 
@@ -570,7 +588,7 @@ def train(a):
         net.eval()
         tl = tc = tn = 0.0
         bad = 0
-        hn = np.zeros((len(GROUPS), 2))
+        hn = np.zeros((NROW, 2))
         try:
             with torch.no_grad():
                 for b in v_batches:
@@ -697,7 +715,7 @@ def train(a):
 
     bq = {}   # 단계 번호 → 남은 묶음
     run, racc = [], []
-    rhn = np.zeros((len(GROUPS), 2))
+    rhn = np.zeros((NROW, 2))
     last_val = last_save = last_gen = time.time()
     oom = skipped = 0
     while active_min() < a.minutes and done0 + active_min() < st['plan_min']:
@@ -775,7 +793,7 @@ def train(a):
             print(f"{st['step']} 손실 {np.mean(run):.3f} 맞힘 {np.mean(racc) * 100:.1f}% 진행 {prog * 100:.1f}% {widths[k]}폭 "
                   f"학습률 {opt.param_groups[0]['lr']:.2e} ({active_min():.1f}분){mem} | 분야 {field_report(rhn)[1]}", flush=True)
             run, racc = [], []
-            rhn = np.zeros((len(GROUPS), 2))
+            rhn = np.zeros((NROW, 2))
         if time.time() - last_val > a.val_minutes * 60:
             last_val = time.time()
             vl, vc, n, vbad, vhn = validate()
