@@ -547,7 +547,8 @@ def train(a):
 
     def gen_set(ds_, idx_, pre):
         net.eval()
-        sums = dict(ans=0, pred=0, match=0, link_tp=0, link_pred=0, link_ans=0, fill_tp=0, fill_pred=0, fill_ans=0, perfect=0, done=0, frames=0, oom=0, errs=[])
+        sums = dict(ans=0, pred=0, match=0, link_tp=0, link_pred=0, link_ans=0, fill_tp=0, fill_pred=0, fill_ans=0, perfect=0, done=0, frames=0, oom=0, errs=[],
+                    partial_sum=0.0, partial_n=0)
         t0_ = time.time()
         try:
             for i in idx_:
@@ -557,6 +558,7 @@ def train(a):
             if dev == 'cuda':
                 torch.cuda.empty_cache()
         return {f'{pre}_recall': sums['match'] / max(sums['ans'], 1), f'{pre}_precision': sums['match'] / max(sums['pred'], 1),
+                f'{pre}_partial': sums['partial_sum'] / max(sums['partial_n'], 1),   # 부분 점수(가까울수록, 사용자 10-31)
                 f'{pre}_link_f1': OS.f1(sums['link_tp'], sums['link_pred'], sums['link_ans']),
                 f'{pre}_fill_f1': OS.f1(sums['fill_tp'], sums['fill_pred'], sums['fill_ans']),
                 f'{pre}_coord_err': float(np.median(sums['errs'])) if sums['errs'] else None,
@@ -576,7 +578,7 @@ def train(a):
             mk = fd[:, 1:] == K.FID['coord']
             sums['errs'] += ((lg[..., K.OFF:].argmax(-1) + K.OFF - tk[:, 1:]).abs()[mk].float() * K.XSTEP).tolist()
             sc = OS.score(K.decode(toks), K.decode(ds_.tok[i].tolist()), hwr=ds_.hwr[i])
-            for k_ in ('ans', 'pred', 'match', 'link_tp', 'link_pred', 'link_ans', 'fill_tp', 'fill_pred', 'fill_ans'):
+            for k_ in ('ans', 'pred', 'match', 'link_tp', 'link_pred', 'link_ans', 'fill_tp', 'fill_pred', 'fill_ans', 'partial_sum', 'partial_n'):
                 sums[k_] += sc[k_]
             sums['perfect'] += sc['perfect']
             sums['done'] += done

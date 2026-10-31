@@ -60,6 +60,23 @@ class ObjScoreTest(unittest.TestCase):
         self.assertEqual(r['match'], 2)
         self.assertEqual(r['link_f1'], 1.0)
 
+    def test_partial_score(self):
+        # 사용자 10-31: 엄격 채점(1% 안만 맞음)에 더해 가까울수록 부분 점수 — 0% 1점, 1% 0.8점, 5% 이상 0점, 빠뜨림·더 그림은 감점
+        A = frame([('1', [(10, 10), (20, 10)], BLACK, 0, []), ('1', [(10, 30), (20, 30)], BLACK, 1, [])])
+        self.assertAlmostEqual(OS.score(A, A)['partial'], 1.0)
+        near = frame([('1', [(12, 10), (22, 10)], BLACK, 0, []), ('1', [(10, 30), (20, 30)], BLACK, 1, [])])   # 하나가 2% 어긋남
+        r = OS.score(near, A)
+        self.assertEqual(r['match'], 1)                    # 엄격 채점에선 하나만 맞음
+        self.assertAlmostEqual(r['partial'], (0.6 + 1.0) / 2)
+        far = frame([('1', [(60, 60), (70, 60)], BLACK, 0, [])])
+        self.assertAlmostEqual(OS.score(far, A)['partial'], 0.0)
+        one = frame([('1', [(10, 10), (20, 10)], BLACK, 0, [])])   # 하나 빠뜨림
+        self.assertAlmostEqual(OS.score(one, A)['partial'], 0.5)
+        extra = frame([('1', [(10, 10), (20, 10)], BLACK, 0, []), ('1', [(10, 30), (20, 30)], BLACK, 1, []), ('1', [(50, 50), (60, 50)], BLACK, 2, [])])
+        self.assertAlmostEqual(OS.score(extra, A)['partial'], 2 / 3)   # 엉뚱하게 더 그림
+        circ = frame([('2', [(10, 10), (20, 10)], BLACK, 0, []), ('1', [(10, 30), (20, 30)], BLACK, 1, [])])
+        self.assertAlmostEqual(OS.score(circ, A)['partial'], 0.5)      # 종류가 다르면 0점
+
     def test_links_not_in_perfect(self):
         # 사용자 10-31: 관절 연결은 만점에서 뺀다(24,24 — 한 장 그림에 영향 없음). 연결 F1은 따로 기록
         A = frame([('1', [(0, 0), (10, 0)], BLACK, 0, [(1, 10)]), ('1', [(10, 0), (10, 10)], BLACK, 1, [(0, 1)])])

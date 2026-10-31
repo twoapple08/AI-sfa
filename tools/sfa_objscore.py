@@ -14,6 +14,7 @@ import numpy as np
 from scipy.optimize import linear_sum_assignment
 
 TYPE_PEN = 50.0
+PARTIAL_ZERO = 5.0   # 부분 점수(사용자 10-31 "채점이 엄격하면 부분점수"): 평균 점 거리 0% → 1점, 1% → 0.8점, 5% 이상 → 0점(화면 가로 %)
 EXACT_PT = 0.02   # near_perfect 점 평균 허용
 HALF_BIN = 0.0126  # perfect: 점마다 좌표 차 ≤ 반 칸(0.025/2) — 같은 칸
 EXACT_TH = 0.003  # 만점 굵기 허용(로그 칸 0.25%의 반 안팎)
@@ -179,6 +180,14 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
         P = _apply(P, scale, shift)
     ok, C, flip = match(P, A, tol) if P and A else ([], None, None)
     m = dict(ok)
+    # 부분 점수: 거리 제한 없이 가장 가까운 같은 종류끼리 짝지어 가까울수록 점수. 빠뜨림·더 그림은 분모(큰 쪽 수)로 감점
+    p_sum = 0.0
+    if P and A:
+        same_t = np.array([[P[i]['t'] == A[j]['t'] for j in range(len(A))] for i in range(len(P))])
+        cred = np.where(same_t, np.clip(1 - C / PARTIAL_ZERO, 0, 1), 0.0)
+        ri, ci = linear_sum_assignment(-cred)
+        p_sum = float(cred[ri, ci].sum())
+    p_n = max(len(P), len(A))
     # 연결: 짝지은 점으로 옮긴 AI 연결 vs 원본 연결. 짝 없는 오브젝트에 걸린 연결은 틀림(AI) / 놓침(원본)
     def mp(i, k):
         j = m[i]
@@ -212,7 +221,8 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
              precision=len(ok) / len(P) if P else float(not A), pt_err=None, color=None, thick=None, glow=None,
              link_tp=tp_l, link_pred=len(lp), link_ans=len(la), link_f1=f1(tp_l, len(lp), len(la)),
              fill_tp=tp_f, fill_pred=len(fp_), fill_ans=len(fa), fill_f1=f1(tp_f, len(fp_), len(fa)),
-             bg=bg_same, order=None, scale=float(scale), shift=tuple(float(v) for v in shift))
+             bg=bg_same, order=None, scale=float(scale), shift=tuple(float(v) for v in shift),
+             partial_sum=p_sum, partial_n=p_n, partial=p_sum / p_n if p_n else 1.0)
     if ok:
         r['pt_err'] = float(np.mean([C[i, j] for i, j in ok]))
         r['color'] = float(np.mean([P[i]['col'] == A[j]['col'] for i, j in ok]))
