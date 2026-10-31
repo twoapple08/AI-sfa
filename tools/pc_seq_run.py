@@ -97,7 +97,7 @@ def main():
         if os.path.exists(os.path.join(out, 'ckpt.pt')):
             print('Drive의 이전 저장본에서 이어서', flush=True)
     t0 = time.time()
-    P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{data}" --maxlen 2048 --max-frames 300 --aug 1 --synth 0.3 --workers {cpus}{lp}')
+    P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{data}" --maxlen 2048 --compose 40000 --workers {cpus}{lp}')   # 조합 문제(11-01)
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{val}" --maxlen 2048 --max-frames 40 --holdout --workers {cpus}{lp}')
     shv = os.path.join(a.root, 'ss')   # 위치 시험: 학습 파일 10개 중 1개에 학습에 없던 고정 이동(GPT 3차)
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{shv}" --maxlen 2048 --max-frames 8 --every 10 --fixed 6,4,1.05 --workers {cpus}{lp}')
@@ -107,7 +107,7 @@ def main():
     if not a.no_stages:   # 해상도 단계(사용자 10-29·10-31): 1080 → 720 → 480 → 360. 영상(mp4)으로 저장해 작다(합계 약 0.5GB)
         hi = [os.path.join(a.root, f'sd{r}') for r in HIRES]
         for r, d in zip(HIRES, hi):
-            P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{d}" --W {r} --video --maxlen 2048 --max-frames 300 --aug 1 --synth 0.3 --workers {cpus}{lp}')
+            P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{d}" --W {r} --video --maxlen 2048 --compose 40000 --workers {cpus}{lp}')
         st = ' --stages "' + ','.join(hi) + '"'
     print(f'자료 {(time.time() - t0) / 60:.1f}분', flush=True)
     left = a.hours * 60 - (time.time() - t_start) / 60 - 12   # 자료 읽기(몇 분)·마무리 올리기 몫

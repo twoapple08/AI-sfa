@@ -24,7 +24,7 @@ import sfa_tokens as K  # noqa: E402
 import vec_data as V  # noqa: E402
 
 ROOT = V.ROOT
-SEQ_DATA_VERSION = 3   # 정답 문장·렌더 방식이 바뀌면 올린다(다 만듦 표시가 옛 자료를 건너뛰지 않게). 2: GPT 검토 10-30 정답 변환 수정·늘리기. 3: 늘리기에 굵기 배율(10-31)
+SEQ_DATA_VERSION = 4   # 정답 문장·렌더 방식이 바뀌면 올린다(다 만듦 표시가 옛 자료를 건너뛰지 않게). 2: GPT 검토 10-30 정답 변환 수정·늘리기. 3: 늘리기에 굵기 배율(10-31). 4: 굵기를 정답 칸 값으로·조합 문제 모드(11-01)
 THICK_RANGE = (0.5, 2.0)   # 늘린 사본의 파일 전체 굵기 배율(로그 고르게). 사용자 10-31: "굵기 조절도 다양한 기능을 고루 쓸 줄 알아야" — 이전 방식 0.75–1.5보다 넓게
 
 
@@ -44,7 +44,8 @@ def augment(root, rng):
         p.set('Y', repr((y - 50) * sc + 50 + ty))
     th = float(np.exp(rng.uniform(*np.log(THICK_RANGE))))
     for o in root.iter('AO'):
-        o.set('ThicknessScale', repr(float(o.get('ThicknessScale') or 1) * th))
+        v = float(o.get('ThicknessScale') or 1) * th
+        o.set('ThicknessScale', repr(K.dq_th(K.q_th(v)) if v > 0 else v))   # 정답 굵기 칸 값으로(그림과 정답이 같은 굵기, 11-01)
     return dict(flip=flip, scale=sc, tx=tx, ty=ty, thick=th)
 
 
@@ -124,6 +125,104 @@ def one(job):
     return rel, f'ok {len(keep)}'
 
 
+_POOL = None
+TYPE_TOKS = {K.TOK[v] for v in K.TYPES.values()}
+
+
+def _init_pool(seed, fpf):
+    """작업 프로세스마다 한 번: 학습 파일에서 묶음 모으기(같은 씨앗 → 같은 묶음 목록)."""
+    global _POOL
+    import random
+    import sfa_compose as C
+    rng = random.Random(seed)
+    files = V.file_list()
+    pool, bgp, hwrs = C.build_pool(files, ROOT, rng, fpf)
+    _POOL = (pool, bgp, hwrs, files)
+
+
+def save_frames(out_dir, name, items, hwr, a, crf, extra):
+    """(seq, fr) 목록 → npz(기존 자료와 같은 형식). 정답 길이 한도·문법 검사를 통과한 장만."""
+    W = a['W']
+    Hr = max(2, int(round(W * hwr / 2)) * 2)
+    H = W * 9 // 16
+    R.PARAMS['pad'] = 0.0
+    R.PARAMS['thick_mul'] = W / 1920
+    keep, toks, flds = [], [], []
+    for seq, fr in items:
+        t, _ = K.encode(seq, fr)
+        if len(t) > a['maxlen'] or not any(x in TYPE_TOKS for x in t):   # 길이 한도 넘음·빈 장은 뺀다
+            continue
+        try:
+            f = K.fields(t)
+        except ValueError:
+            continue
+        keep.append((seq, fr))
+        toks.append(t)
+        flds.append(f)
+    if not keep:
+        return 0
+    if a.get('video'):
+        vid = V.encode_video((R.render_frame(sq, fr, W, Hr) for sq, fr in keep), crf, size=(W, Hr))
+        if V.count_frames(vid) != len(keep):
+            raise RuntimeError('frames')
+        pix = dict(vid=np.frombuffer(vid, np.uint8))
+    else:
+        dec = V.encode_decode([R.render_frame(sq, fr, W, Hr) for sq, fr in keep], crf)
+        if len(dec) != len(keep):
+            raise RuntimeError('frames')
+        if Hr != H:
+            dec = np.stack([cv2.resize(f, (W, H), interpolation=cv2.INTER_AREA if Hr > H else cv2.INTER_LINEAR) for f in dec])
+        pix = dict(img=dec)
+    off = np.cumsum([0] + [len(t) for t in toks])
+    tmp = os.path.join(out_dir, name + '.tmp')
+    with open(tmp, 'wb') as fh:
+        np.savez_compressed(fh, **pix, tok=np.concatenate(toks).astype(np.int16), fld=np.concatenate(flds).astype(np.int8),
+                            off=off.astype(np.int64), pos=np.arange(len(keep)),
+                            meta=json.dumps(dict(file=name, crf=crf, W=W, H=H, vocab=K.VOCAB, xstep=K.XSTEP, hwr=hwr, render_h=Hr, aug=None,
+                                                 synth=False, **extra)))
+    os.replace(tmp, os.path.join(out_dir, name))
+    return len(keep)
+
+
+def compose_job(job):
+    """조합 문제 묶음 하나(사용자 11-01): kind='comp'면 여러 파일 묶음을 무작위로 놓은 장들, 'real'이면 한 파일의 장들을 장마다 다른 변환으로."""
+    import random
+    import sfa_compose as C
+    kind, k, seed, n, out_dir, a = job
+    pool, bgp, hwrs, files = _POOL
+    rng = random.Random(seed)
+    crf = rng.randint(23, 35)
+    try:
+        if kind == 'comp':
+            hwr = rng.choice(hwrs)
+            items = []
+            for _ in range(n):
+                for _try in range(5):   # 길이 한도를 넘으면 더 작은 목표로 다시
+                    nt = C.n_target(rng, 1, 250 // (2 ** _try) + 1)
+                    seq, fr = C.compose(pool, rng, nt, hwr, bgp)
+                    if len(K.encode(seq, fr)[0]) <= a['maxlen']:
+                        break
+                items.append((seq, fr))
+            name = f'comp_{k:05d}__c{crf}.npz'
+        else:
+            rel = files[k % len(files)]
+            z = zipfile.ZipFile(os.path.join(ROOT, rel))
+            root = ET.fromstring(z.read(z.namelist()[0]))
+            hwr = float(root.get('HeightWidthRatio') or 0.5625) or 0.5625
+            frs = root.findall('Frame')
+            items = [C.real_frame(root, fr, rng, hwr) for fr in rng.sample(frs, min(n, len(frs)))]
+            name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__real{k:05d}__c{crf}.npz'
+        n_syn = 0
+        for seq, _fr in items:   # 페인트 합성(사용자 10-29: 흰 바탕이 너무 많아서) — 흰 바탕 장의 30%에 배경·띠·땅·그림자·빛을 SFA로 더함
+            if SY.is_white(seq) and rng.random() < 0.3:
+                SY.synth(seq, rng)
+                n_syn += 1
+        got = save_frames(out_dir, name, items, hwr, a, crf, dict(compose=kind, synth_frames=n_syn))
+        return name, f'ok {got}' if got else 'none'
+    except Exception as e:
+        return f'{kind}{k}', 'err:' + type(e).__name__ + ':' + str(e)[:80]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('out_dir')
@@ -138,6 +237,8 @@ def main():
     ap.add_argument('--fixed', default='', help='위치 시험 자료: 고정 변환 "dx,dy,배율"(학습 파일에, 늘리기 없이)')
     ap.add_argument('--synth', type=float, default=0.0, help='학습 파일 중 이 비율을 골라 흰 바탕인 것만 페인트 합성판을 원본과 별도로 더 만든다(사용자 10-29: 0.3, 원본은 그대로 모두)')
     ap.add_argument('--video', action='store_true', help='그림을 풀지 않고 H.264 mp4로 저장(고해상도 단계 자료, --W 1920·1280·854)')
+    ap.add_argument('--compose', type=int, default=0, help='조합 문제 모드(11-01): 만들 장 수(약 30%%는 실제 장을 장마다 다른 변환으로, 나머지는 여러 파일 묶음 조합). 해상도마다 다른 문제')
+    ap.add_argument('--seed', type=int, default=0, help='조합 문제 씨앗(0이면 --W로 정함 — 해상도 단계마다 다른 문제)')
     ap.add_argument('--check', action='store_true', help='만들지 않고 같은 설정으로 다 만들었는지만 확인(읽기 전용 폴더 가능, 맞으면 0·아니면 3으로 끝남)')
     a = ap.parse_args()
     if a.check:
@@ -163,6 +264,8 @@ def main():
     for f in os.listdir(a.out_dir):
         if f.endswith(('.npz', '.tmp')) or f == 'done.json':
             os.remove(os.path.join(a.out_dir, f))
+    if a.compose:
+        return main_compose(a, want)
     files = V.file_list(only='holdout') if a.holdout else V.file_list()
     files = files[::a.every]
     cfg = dict(maxlen=a.maxlen, max_frames=a.max_frames, W=a.W, video=a.video, fixed=[float(v) for v in a.fixed.split(',')] if a.fixed else None)
@@ -191,6 +294,34 @@ def main():
         json.dump(dict(want, frames=int(n), npz=n_files, fails=fails), fh, ensure_ascii=False)
 
 
+def main_compose(a, want):
+    import math
+    seed = a.seed or 1000003 * a.W
+    files = V.file_list()
+    n_real = int(round(a.compose * 0.3))
+    per_file = max(1, math.ceil(n_real / len(files)))
+    chunk = 100
+    cfg = dict(maxlen=a.maxlen, W=a.W, video=a.video)
+    jobs = [('real', i, seed + 7 * i + 1, per_file, a.out_dir, cfg) for i in range(len(files))]
+    n_comp = a.compose - per_file * len(files)
+    jobs += [('comp', i, seed + 7 * i + 3, min(chunk, n_comp - i * chunk), a.out_dir, cfg) for i in range(max(0, math.ceil(n_comp / chunk)))]
+    n = n_files = 0
+    fails = []
+    with Pool(a.workers, initializer=_init_pool, initargs=(seed, 6)) as p:
+        for name, st in p.imap_unordered(compose_job, jobs):
+            if st.startswith('ok'):
+                n += int(st.split()[1])
+                n_files += 1
+            elif st != 'none':
+                fails.append(f'{name} {st}')
+                print(name, st, flush=True)
+    print('조합 작업', len(jobs), 'npz', n_files, '장', n, '실패', len(fails), flush=True)
+    if n == 0:
+        raise SystemExit('만든 장이 0 — 완료 표시를 쓰지 않음')
+    with open(os.path.join(a.out_dir, 'done.json'), 'w', encoding='utf-8') as fh:
+        json.dump(dict(want, frames=int(n), npz=n_files, fails=fails, seed=seed), fh, ensure_ascii=False)
+
+
 def config(a):
     c = dict(version=SEQ_DATA_VERSION, maxlen=a.maxlen, max_frames=a.max_frames, W=a.W, every=a.every, holdout=a.holdout, vocab=K.VOCAB,
              aug=0 if a.holdout or a.fixed else a.aug, fixed=a.fixed)
@@ -198,6 +329,9 @@ def config(a):
         c['video'] = True
     if getattr(a, 'synth', 0) > 0 and not (a.holdout or a.fixed):
         c['synth'] = a.synth
+    if getattr(a, 'compose', 0):   # 조합 문제 모드: 장 수·씨앗이 설정(늘리기·합성은 쓰지 않음)
+        c.update(compose=a.compose, seed=a.seed or 1000003 * a.W, aug=0)
+        c.pop('synth', None)
     return c
 
 

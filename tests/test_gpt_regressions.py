@@ -109,7 +109,7 @@ class GptRegressions(unittest.TestCase):
             raise torch.OutOfMemoryError('controlled')
         net = Net()
         scope = {'torch': torch, 'np': np, 'time': time, 'net': net, 'dev': 'cpu', 'amp': False, 'dt': torch.float16,
-                 'cfg': {'maxlen': 2048}, 'generate': gen, 'OS': S, 'K': K}
+                 'cfg': {'maxlen': 2048}, 'generate': gen, 'OS': S, 'K': K, 'gen_cap': lambda n: 2048}   # 11-01 길이 상한(여기서는 상한 없음)
         extract('gen_one', scope)
         fn = extract('gen_set', scope)
         r = fn(DS(), [0], 'gen')

@@ -96,8 +96,11 @@ class TestAugThickness(unittest.TestCase):
             root = ET.fromstring(xml)
             info = D.augment(root, np.random.default_rng(seed))
             t1, t2 = (float(o.get('ThicknessScale')) for o in root.iter('AO'))
-            self.assertAlmostEqual(t1, info['thick'])
-            self.assertAlmostEqual(t2, 3.0 * info['thick'])
+            # 11-01: 굵기를 정답 굵기 칸 값으로 맞춘다(칸 0.5% → 상대 차이 ≤ 0.25%) — 그림과 정답이 같은 굵기
+            self.assertLess(abs(t1 / info['thick'] - 1), 0.003)
+            self.assertLess(abs(t2 / (3.0 * info['thick']) - 1), 0.003)
+            import sfa_tokens as K
+            self.assertAlmostEqual(t1, K.dq_th(K.q_th(t1)))
             self.assertTrue(D.THICK_RANGE[0] <= info['thick'] <= D.THICK_RANGE[1])
             self.assertEqual(D.K.style_of(next(root.iter('AO')))[1], D.K.q_th(t1))
             seen.append(info['thick'])
@@ -113,7 +116,7 @@ class TestWorkerStages(unittest.TestCase):
             for r in KW.HIRES:   # 고해상도 자료 = 기본 학습 자료와 같은 고르기 + 폭·영상 저장만 다름
                 self.assertEqual(a[f'sd{r}'], a['sd'] + f' --W {r} --video')
             self.assertNotIn('--video', a['sd'])
-            self.assertIn('--synth 0.3', a['sd'])   # 페인트 합성(사용자 10-29) — 학습 자료에만
+            self.assertIn('--compose', a['sd'])   # 조합 문제(11-01). 페인트 합성(사용자 10-29)은 조합 모드 안에서 흰 바탕 장의 30%에 — 학습 자료에만
             self.assertNotIn('--synth', a['sv'] + a['ss'])
             b = KW.data_args(dict(smoke=smoke, stages=False), 4)
             self.assertEqual(set(b), {'sd', 'sv', 'ss'})

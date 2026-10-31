@@ -359,9 +359,10 @@ def lr_at(step, prog, base, warm=500):
     return base * w * (0.05 + 0.95 * 0.5 * (1 + math.cos(math.pi * min(1.0, prog))))
 
 
-def make_batches(ds, max_n, budget):
-    """길이가 비슷한 장끼리 묶되 한 묶음의 토큰 합이 budget을 넘지 않게(긴 장이 몰려도 메모리 일정)."""
-    idx = list(range(len(ds)))
+def make_batches(ds, max_n, budget, cap=None):
+    """길이가 비슷한 장끼리 묶되 한 묶음의 토큰 합이 budget을 넘지 않게(긴 장이 몰려도 메모리 일정).
+    cap: 쉬운 것부터(11-01) — 정답 길이가 이 이하인 장만."""
+    idx = [k for k in range(len(ds)) if cap is None or len(ds.tok[k]) <= cap]
     random.shuffle(idx)
     out = []
     for c0 in range(0, len(idx), max_n * 64):
@@ -419,6 +420,21 @@ def npz_width(folder):
     return int(json.loads(str(np.load(p[0])['meta']))['W'])
 
 
+CUR_Q0, CUR_RAMP, CUR_STEPS = 0.2, 0.8, 20   # 쉬운 것부터: 단계 시작에 짧은 20%, 단계의 80% 지점에 전체, 5% 칸으로 늘림
+
+
+def cur_quantile(sp):
+    """단계 안 진행(0–1) → 허용할 정답 길이 분위(사용자 11-01: 단계마다 적은 단어부터 최대치까지)."""
+    q = CUR_Q0 + (1 - CUR_Q0) * min(1.0, max(0.0, sp) / CUR_RAMP)
+    return math.ceil(q * CUR_STEPS - 1e-9) / CUR_STEPS
+
+
+def stage_progress(prog, frac, k):
+    """전체 진행률 → 단계 k 안의 진행(0–1)."""
+    start = sum(frac[:k])
+    return min(1.0, max(0.0, (prog - start) / frac[k])) if frac[k] > 0 else 1.0
+
+
 def stage_of(prog, frac):
     """진행률 → 단계 번호(시간 비율 frac 누적 경계)."""
     acc = 0.0
@@ -465,7 +481,6 @@ def train(a):
             st['plan_min'] = st['done_min'] + a.minutes
             print(f"계획을 {st['plan_min']:.0f}분으로 늘림(이번 실행 {a.minutes:.0f}분, 학습률은 늘어난 계획의 코사인 위치에서)", flush=True)
     t0 = time.time()
-    tr = Data(a.data, cfg['maxlen'], cfg['in_w'])
     va = Data(a.val, cfg['maxlen'], cfg['in_w'])
     sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w']) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
     js = J.JudgeSet(a.judge, cfg['in_w']) if a.judge else None   # 판정 장치(11-01): 평가 목록 고정 장 × 이동 4방향
@@ -491,19 +506,22 @@ def train(a):
     st.setdefault('px', a.px_budget)
     st.setdefault('stage', 0)
     widths = (stg['w'] if stg else []) + [cfg['in_w']]
-    sets = {len(widths) - 1: tr}   # 단계 번호 → 자료(마지막 = 기본 입력 자료). 고해상도는 필요할 때 읽고 지난 단계는 내린다
+    sets = {}   # 단계 번호 → 자료(마지막 = 기본 입력 자료). 모두 필요할 때 읽고 지난 단계는 내린다
+    # (11-01 Kaggle CPU 실측: 기본 자료 읽기 8분·1080 15분 — 1080 단계 회차에 기본 자료를 미리 읽지 않는다)
 
     def stage_set(i):
         if i not in sets:
             t1 = time.time()
-            sets[i] = Data(stage_dirs[i], cfg['maxlen'], widths[i])
-            print(f'단계 자료 {widths[i]}폭 {len(sets[i])}장 ({time.time() - t1:.0f}초)', flush=True)
+            sets[i] = Data(stage_dirs[i] if i < len(stage_dirs) else a.data, cfg['maxlen'], widths[i])
+            print(f'단계 자료 {widths[i]}폭 {len(sets[i])}장 {sets[i].ntok}토큰 ({time.time() - t1:.0f}초)', flush=True)
+            if not len(sets[i]):
+                raise SystemExit(f'학습 자료 0장({widths[i]}폭) — 자료 폴더 확인')
         return sets[i]
 
     def max_n(i):
         w = widths[i]
         return min(a.max_batch, max(1, int(st['px'] * 1e6 // (w * (w * 9 // 16)))))
-    print(f'자료 학습 {len(tr)}장 {tr.ntok}토큰 · 시험 {len(va)}장 ({time.time() - t0:.0f}초)', flush=True)
+    print(f'시험 자료 {len(va)}장 ({time.time() - t0:.0f}초) · 학습 자료는 단계마다 필요할 때 읽음', flush=True)
     net = Net(cfg['d'], cfg['layers'], cfg['heads'], cfg['maxlen'], cfg['backbone'], pretrained=not saved, stride=cfg.get('stride', 16),
               sine=cfg.get('sine', False), grid=cfg.get('grid')).to(dev)
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=0.01)
@@ -542,8 +560,6 @@ def train(a):
             except Exception as e:
                 print('난수 상태 복원 건너뜀(다른 기기):', type(e).__name__, flush=True)
     base_lr = st.setdefault('base_lr', a.lr)   # 처음 정한 학습률(이어하기에서 명령줄 값으로 바뀌지 않게)
-    if not len(tr):
-        raise SystemExit('학습 자료 0장 — 자료 폴더 확인')
     log = os.path.join(a.out, 'log.jsonl')
     t_sess = time.time()
     p_sess = yl.paused
@@ -608,13 +624,17 @@ def train(a):
             out.update(judge_eval(a.judge_dirs_final if final else a.judge_dirs, final))
         return out
 
-    def gen_img(im, hwr):
-        """그림 한 장 생성 → (토큰, 끝냄, 초) 또는 None(메모리 부족)."""
+    def gen_img(im, hwr, n_ans=None):
+        """그림 한 장 생성 → (토큰, 끝냄, 초) 또는 None(메모리 부족). n_ans가 있으면 길이 상한 적용(gen_cap)."""
         t1 = time.time()
         try:
             x = torch.from_numpy(np.ascontiguousarray(im)).permute(2, 0, 1).float().to(dev) / 255
+            cap = gen_cap(n_ans)
             with torch.no_grad(), torch.autocast(dev, dtype=dt, enabled=amp):
-                toks, done = generate(net, x, hwr, cfg['maxlen'])
+                toks, done = generate(net, x, hwr, cap)
+            if cap < cfg['maxlen'] and len(toks) >= cap - 64:   # 상한에서 끊김(강제로 끝낸 것 포함) = 미완료
+                done = False
+                capped[0] += 1
             if dev == 'cuda':
                 torch.cuda.synchronize()
             return toks, done, time.time() - t1
@@ -622,6 +642,15 @@ def train(a):
             if dev == 'cuda':
                 torch.cuda.empty_cache()
             return None
+
+    capped = [0]
+
+    def gen_cap(n_ans):
+        """생성 길이 상한(11-01, Kaggle CPU 실측: 학습 초반 엉터리 출력이 2,048단어까지 가 한 장 54초). 정답 길이 × 배수 + 128을 넘으면
+        끊고 미완료로 센다 — 건전성에서 어차피 실패라 판정은 같고 시간만 준다. 0이면 상한 없음(모델 최대 길이)."""
+        if not a.gen_len_mult or n_ans is None:
+            return cfg['maxlen']
+        return min(cfg['maxlen'], int(a.gen_len_mult * n_ans + 128))
 
     def judge_eval(nd, final=False):
         """판정(판정 기준 §2). 그때 배우는 해상도 단계 폭의 그림으로 묻는다(11-01: 1080 단계에 360 영상을 넣으면 위치를 못 읽는 것과
@@ -631,14 +660,15 @@ def train(a):
         w = widths[st['stage']]
         w = w if w in js.stage else cfg['in_w']
         try:
-            res, gens = J.evaluate(js, lambda i, d: gen_img(js.image(i, d, w), js.ents[i]['hwr']), dirs=range(nd), memo=memo[nd])
+            c0 = capped[0]
+            res, gens = J.evaluate(js, lambda i, d: gen_img(js.image(i, d, w), js.ents[i]['hwr'], len(js.tok[i][d])), dirs=range(nd), memo=memo[nd])
             rec_ = J.flat(res)
-            rec_.update(judge_dirs=nd, judge_w=w)
+            rec_.update(judge_dirs=nd, judge_w=w, judge_capped=capped[0] - c0)
             print(f'[{w}폭]', J.summary_line(res), f"({round(time.time() - t1)}초, {nd}방향)", flush=True)
             judge_sheet(gens, w)
             if final and w != cfg['in_w']:
                 t2 = time.time()
-                r2, _ = J.evaluate(js, lambda i, d: gen_img(js.image(i, d), js.ents[i]['hwr']), dirs=range(2), memo=memo[2])
+                r2, _ = J.evaluate(js, lambda i, d: gen_img(js.image(i, d), js.ents[i]['hwr'], len(js.tok[i][d])), dirs=range(2), memo=memo[2])
                 rec_.update(J.flat(r2, 'judge360_'))
                 print(f"[{cfg['in_w']}폭]", J.summary_line(r2), f"({round(time.time() - t2)}초, 2방향)", flush=True)
             rec_['judge_sec'] = round(time.time() - t1)
@@ -696,7 +726,10 @@ def train(a):
         try:
             img = torch.from_numpy(np.ascontiguousarray(ds_.image(i))).permute(2, 0, 1).float().to(dev) / 255
             with torch.no_grad(), torch.autocast(dev, dtype=dt, enabled=amp):
-                toks, done = generate(net, img, ds_.hwr[i], cfg['maxlen'])
+                cap = gen_cap(len(ds_.tok[i]))
+                toks, done = generate(net, img, ds_.hwr[i], cap)
+                if cap < cfg['maxlen'] and len(toks) >= cap - 64:
+                    done = False
                 # 근접 정도(GPT 3차: 생성 맞힘 0이어도 가까워지는지): 교사 강제 좌표 오차(%) 중앙값
                 tk = torch.from_numpy(ds_.tok[i])[None].to(dev)
                 fd = torch.from_numpy(ds_.fld[i])[None].to(dev)
@@ -713,6 +746,13 @@ def train(a):
             sums['oom'] += 1
 
     bq = {}   # 단계 번호 → 남은 묶음
+    bq_lv = {}   # 단계 번호 → 그 묶음을 만든 쉬운 것부터 분위
+    lens = {}
+
+    def ds_len(i):
+        if i not in lens:
+            lens[i] = np.array([len(t) for t in stage_set(i).tok])
+        return lens[i]
     run, racc = [], []
     rhn = np.zeros((NROW, 2))
     last_val = last_save = last_gen = time.time()
@@ -731,8 +771,17 @@ def train(a):
                 bq.pop(j, None)   # 지난 단계 자료는 메모리에서 내린다
         i = k - 1 if k > 0 and stg and random.random() < stg['mix'] else k   # 새 해상도 70% + 앞 단계 30%
         ds = stage_set(i)
+        lv = 1.0
+        if not a.no_curriculum and i == k:   # 쉬운 것부터(11-01): 지금 단계 자료는 정답 길이 분위를 단계 진행에 따라 늘린다. 앞 단계 섞기는 전체
+            lv = cur_quantile(stage_progress(prog, stg['frac'] if stg else [1.0], k))
+        if bq_lv.get(i) != lv:
+            bq.pop(i, None)
+            bq_lv[i] = lv
+            if lv < 1.0:
+                print(time.strftime('%H:%M'), f"쉬운 것부터: {widths[i]}폭 정답 길이 하위 {lv * 100:.0f}%", flush=True)
         if not bq.get(i):
-            bq[i] = make_batches(ds, max_n(i), st['budget'])
+            cap = None if lv >= 1.0 else float(np.quantile(ds_len(i), lv))
+            bq[i] = make_batches(ds, max_n(i), st['budget'], cap)
             if not bq[i]:
                 raise SystemExit(f"토큰 한도 {st['budget']} 안에 드는 학습 장이 없음({widths[i]}폭)")
         b = bq[i].pop()
@@ -774,8 +823,8 @@ def train(a):
                 print(time.strftime('%H:%M'), f"메모리 부족 → 화소 예산 {st['px']:.1f}M ({widths[i]}폭 한 묶음 {max_n(i)}장)", flush=True)
             else:                   # 2단계: 토큰 한도 줄이기(한도보다 긴 장은 학습에서 빠진다)
                 st['budget'] = max(1024, int(st['budget'] * 0.8))
-                drop = sum(len(t) > st['budget'] for t in tr.tok)
-                print(time.strftime('%H:%M'), f'메모리 부족 → 토큰 한도 {st["budget"]} (이보다 긴 장 {drop}/{len(tr)} 빠짐)', flush=True)
+                drop = sum(len(t) > st['budget'] for t in ds.tok)
+                print(time.strftime('%H:%M'), f'메모리 부족 → 토큰 한도 {st["budget"]} (이보다 긴 장 {drop}/{len(ds)} 빠짐, {widths[i]}폭)', flush=True)
             bq = {}
             if a.yield_:
                 time.sleep(60)
@@ -945,6 +994,8 @@ def main():
     t.add_argument('--judge', default='', help='판정 자료 폴더(seq_judge build — 입력 교환 생성 대조·건전성·A/B/외움, 판정 기준 §2)')
     t.add_argument('--judge-dirs', type=int, default=2, choices=(2, 4), help='중간 판정의 이동 방향 수(2 = 공식 쌍만)')
     t.add_argument('--judge-dirs-final', type=int, default=4, choices=(2, 4), help='마지막(공식 시점) 판정의 방향 수(4 = 축별 진단 16칸 표 포함)')
+    t.add_argument('--gen-len-mult', type=float, default=2.0, help='생성 채점 길이 상한 = 정답 길이 × 이 배수 + 128(넘으면 끊고 미완료). 0이면 모델 최대 길이')
+    t.add_argument('--no-curriculum', action='store_true', help='쉬운 것부터(단계마다 짧은 정답부터 최대치까지, 11-01) 끄기')
     t.add_argument('--judge-n', type=int, default=0, help='판정 장 수를 평가 목록 앞 n장으로 줄임(CPU 흐름 시험용, 0 = 전부 — 공식 판정은 전부)')
     t.add_argument('--sheet-n', type=int, default=6, help='판정 때마다 저장하는 고정 그림 시트 장 수(평가 목록 앞에서부터, 골라 보여 주지 않음)')
     t.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(게임 실행 중이면 멈추거나 천천히)')

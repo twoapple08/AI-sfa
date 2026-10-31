@@ -41,9 +41,9 @@ class TestPrebuilt(unittest.TestCase):
             self.assertEqual(set(a), set(KW.SPLITS) | {f'sd{r}' for r in KW.HIRES})   # 해상도 단계 자료 포함(기본)
             for k in a:
                 self.assertEqual(a[k].replace('--workers 4', ''), b[k].replace('--workers 2', ''))
-        full = KW.data_args(dict(smoke=False), 4)   # 이전 작업자와 같은 본 자료 설정
-        self.assertIn('--max-frames 300', full['sd'])
-        self.assertIn('--aug 1', full['sd'])
+        full = KW.data_args(dict(smoke=False), 4)   # 본 자료 설정(11-01: 조합 문제 모드, 해상도마다 4만 장)
+        self.assertIn(f'--compose {KW.COMPOSE_N}', full['sd'])
+        self.assertNotIn('--aug', full['sd'])
         self.assertNotIn('--every', full['sd'])
         self.assertIn('--holdout', full['sv'])
         self.assertIn('--fixed 6,4,1.05', full['ss'])

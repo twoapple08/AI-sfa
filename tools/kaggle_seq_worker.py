@@ -21,7 +21,8 @@ CONFIG = {'branch': 'ccr-bccf15a6-d6ee46', 'session_minutes': 690, 'plan_minutes
 T0 = time.time()
 SPLITS = ('sd', 'sv', 'ss')   # 학습(+늘리기), 시험 파일, 위치 시험
 HIRES = (1920, 1280, 854)     # 해상도 단계(사용자 10-29·10-31): 1080 → 720 → 480 → 기본 360(sd). 영상(mp4)으로 저장
-CODE = ('seq_data.py', 'sfa_render.py', 'sfa_tokens.py', 'vec_data.py')   # 자료 내용을 정하는 코드(바뀌었는데 판을 안 올린 경우를 잡는다)
+COMPOSE_N = 40000             # 해상도 단계마다 조합 문제 장 수(11-01)
+CODE = ('seq_data.py', 'sfa_render.py', 'sfa_tokens.py', 'vec_data.py', 'sfa_compose.py')   # 자료 내용을 정하는 코드(바뀌었는데 판을 안 올린 경우를 잡는다)
 
 
 def sh(cmd):
@@ -33,7 +34,9 @@ def data_args(c, cpus):
     """자료마다 seq_data 옵션. 자료 커널과 학습 커널이 같은 함수를 써서 설정이 어긋나지 않게 한다."""
     smoke = c.get('smoke')
     w = f'--workers {cpus}'
-    sd = f'--maxlen 2048 --max-frames {6 if smoke else 300}{" --every 40" if smoke else ""} --aug 1 --synth 0.3 {w}'   # 페인트 합성: 흰 바탕이 너무 많아 학습에 넣음(사용자 10-29)
+    # 조합 문제(사용자 11-01): 해상도마다 서로 다른 문제 — 실제 장 30%(장마다 다른 변환) + 여러 파일 묶음을 무작위 자리·크기로 놓은 장.
+    # 페인트 합성(사용자 10-29)은 조합 모드 안에서 흰 바탕 장의 30%에
+    sd = f'--maxlen 2048 --compose {1500 if smoke else COMPOSE_N} {w}'
     hi = {f'sd{r}': f'{sd} --W {r} --video' for r in HIRES} if c.get('stages', True) else {}
     return dict(
         **hi,
