@@ -112,14 +112,15 @@ class TestWorkerStages(unittest.TestCase):
     def test_data_args(self):
         for smoke in (False, True):
             a = KW.data_args(dict(smoke=smoke), 4)
-            self.assertEqual(set(a), {'sd1920', 'sd1280', 'sd854', 'sd', 'sv', 'ss'})
+            self.assertEqual(set(a), {'sd1920', 'sd1280', 'sd854', 'sd', 'sv', 'ss', 'sc'})   # sc: 실제·조합 고정 검증(11-01)
             for r in KW.HIRES:   # 고해상도 자료 = 기본 학습 자료와 같은 고르기 + 폭·영상 저장만 다름
                 self.assertEqual(a[f'sd{r}'], a['sd'] + f' --W {r} --video')
             self.assertNotIn('--video', a['sd'])
             self.assertIn('--compose', a['sd'])   # 조합 문제(11-01). 페인트 합성(사용자 10-29)은 조합 모드 안에서 흰 바탕 장의 30%에 — 학습 자료에만
             self.assertNotIn('--synth', a['sv'] + a['ss'])
+            self.assertIn('--seed 7777', a['sc'])   # 학습과 다른 씨앗
             b = KW.data_args(dict(smoke=smoke, stages=False), 4)
-            self.assertEqual(set(b), {'sd', 'sv', 'ss'})
+            self.assertEqual(set(b), {'sd', 'sv', 'ss', 'sc'})
             self.assertEqual(b['sd'], a['sd'])
 
 

@@ -101,6 +101,8 @@ def main():
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{val}" --maxlen 2048 --max-frames 40 --holdout --workers {cpus}{lp}')
     shv = os.path.join(a.root, 'ss')   # 위치 시험: 학습 파일 10개 중 1개에 학습에 없던 고정 이동(GPT 3차)
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{shv}" --maxlen 2048 --max-frames 8 --every 10 --fixed 6,4,1.05 --workers {cpus}{lp}')
+    vkd = os.path.join(a.root, 'sc')   # 실제·조합 고정 검증(11-01 GPT 1라운드 D)
+    P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{vkd}" --maxlen 2048 --compose 1200 --seed 7777 --workers {cpus}{lp}')
     sj = os.path.join(a.root, 'sj')   # 판정 자료(11-01, 판정 기준 §2): 평가 목록 고정 장 × 이동 4방향 + 단계 해상도 비교용 몇 장
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_judge.py build "{sj}"')
     st = ''
@@ -129,7 +131,7 @@ def main():
         enc = f' --init-encoder "{ef}"'
     plan = a.plan_hours * 60   # 0이면 seq_train이 처음엔 이번 실행 시간, 이어할 땐 이번 실행만큼 늘림
     cmd = (f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --minutes {left:.0f} --plan-minutes {plan:.0f}'
-           f' --tok-budget {a.tok_budget} --shift-val "{shv}" --judge "{sj}" --gen-minutes 20' + st + enc + (' --yield' if a.yield_ else '') + extra)
+           f' --tok-budget {a.tok_budget} --shift-val "{shv}" --judge "{sj}" --val-kind "{vkd}" --gen-minutes 20' + st + enc + (' --yield' if a.yield_ else '') + extra)
     try:
         P.run_logged(cmd, out)
     finally:

@@ -351,9 +351,11 @@ def memo_baseline(js, dirs=None):
     return statistics.fmean(v) if v else None
 
 
-def evaluate(js, gen, dirs=None, tie=TIE, alpha=ALPHA, memo=None):
+def evaluate(js, gen, dirs=None, tie=TIE, alpha=ALPHA, memo=None, memo4=None):
     """gen(i, d) → (토큰, 끝냄, 초) 또는 None(메모리 부족 = 평가 실패).
-    같은 체크포인트·생성 옵션으로 입력마다 한 번만 생성하고 16칸 표에 재사용한다."""
+    같은 체크포인트·생성 옵션으로 입력마다 한 번만 생성하고 16칸 표에 재사용한다.
+    공식 지표(승수·A·B·F1·건전성)는 항상 공식 두 방향만으로, 네 방향이면 진단 지표를 따로 'diag'에(GPT 1라운드 ⑥: 섞이던 것).
+    memo = 공식 두 방향 외움 기준선, memo4 = 네 방향."""
     nd = len(js.meta['dirs'])
     dirs = list(dirs if dirs is not None else range(nd))
     rows, out = [], {}
@@ -364,16 +366,12 @@ def evaluate(js, gen, dirs=None, tie=TIE, alpha=ALPHA, memo=None):
             ans_n = n_objs(js.tok[i][d])
             if r is None:
                 gens[i, d] = None
-                rows.append(dict(ans_n=ans_n, pred_n=0, done=False, oom=True, sec=None, len=None))
+                rows.append(dict(i=i, d=d, ans_n=ans_n, pred_n=0, done=False, oom=True, sec=None, len=None))
             else:
                 t, done, sec = r
                 gens[i, d] = [int(x) for x in t]
-                rows.append(dict(ans_n=ans_n, pred_n=n_objs(t), done=bool(done), oom=False, sec=sec, len=len(t)))
-    # 16칸 표: tab[i][g][p] = S(P_p, G_g)
-    strict = dict(match=0, pred=0, ans=0)
-    f1s = []
-    tab = {}
-    a_v, b_v = [], []
+                rows.append(dict(i=i, d=d, ans_n=ans_n, pred_n=n_objs(t), done=bool(done), oom=False, sec=sec, len=len(t)))
+    tab, scs = {}, {}   # tab[i, g, p] = S(P_p, G_g)
     for i in range(len(js)):
         hwr = js.ents[i]['hwr']
         for g in dirs:
@@ -381,33 +379,54 @@ def evaluate(js, gen, dirs=None, tie=TIE, alpha=ALPHA, memo=None):
                 if gens[i, p] is None:
                     tab[i, g, p] = None
                     continue
-                s, sc = S(gens[i, p], js.tok[i][g], hwr)
-                tab[i, g, p] = s
-                if g == p:
-                    a_v.append(s)
-                    for k in strict:
-                        strict[k] += sc[k]
-                    f1s.append(OS.f1(sc['match'], sc['pred'], sc['ans']))
-        for p in dirs:
-            if gens[i, p] is not None:
-                b_v.append(S(gens[i, p], js.tok0[i], hwr)[0])
+                tab[i, g, p], scs[i, g, p] = S(gens[i, p], js.tok[i][g], hwr)
+
+    def metrics(ds, base):
+        """방향 집합 ds에 대한 A·B·엄격 F1·건전성. 측정 완료 수(n)를 함께."""
+        strict = dict(match=0, pred=0, ans=0)
+        f1s, a_v, b_v = [], [], []
+        for i in range(len(js)):
+            for d in ds:
+                if tab.get((i, d, d)) is None:
+                    continue
+                a_v.append(tab[i, d, d])
+                sc = scs[i, d, d]
+                for k in strict:
+                    strict[k] += sc[k]
+                f1s.append(OS.f1(sc['match'], sc['pred'], sc['ans']))
+                b_v.append(S(gens[i, d], js.tok0[i], js.ents[i]['hwr'])[0])
+        m = dict(A=_mean(a_v), B=_mean(b_v), n_measured=len(a_v), n_planned=len(js) * len(ds), memo=base)
+        m['A_minus_B'] = m['A'] - m['B'] if m['A'] is not None and m['B'] is not None else None
+        m['A_minus_memo'] = m['A'] - base if m['A'] is not None and base is not None else None
+        m['recall'] = strict['match'] / max(strict['ans'], 1)
+        m['precision'] = strict['match'] / max(strict['pred'], 1)
+        m['f1'] = 2 * strict['match'] / max(strict['pred'] + strict['ans'], 1)   # 합산(주 점수)
+        m['f1_file_mean'] = _mean(f1s)
+        rs = [r for r in rows if r['d'] in ds]
+        m['health'] = health(rs)
+        m['gen_time'] = gen_times(rs)
+        return m
 
     def bid(i, x, y):   # 양방향 Δ(입력 x·y 교환, 정답 Gx·Gy 고정)
         v = (tab.get((i, x, x)), tab.get((i, x, y)), tab.get((i, y, y)), tab.get((i, y, x)))
         return None if None in v else ((v[0] - v[1]) + (v[2] - v[3])) / 2
-    # 공식: 파일(묶음)당 한 표 — 묶음 안 파일 Δ 평균, 한 파일이라도 평가 실패면 그 묶음은 실패
-    units = {}
-    for i, e in enumerate(js.ents):
-        units.setdefault(e['group'], []).append(bid(i, *OFFICIAL))
-    ud = [None if None in v else statistics.fmean(v) for v in units.values()]
-    out['judge'] = sign_test(ud, tie, alpha) if all(d in dirs for d in OFFICIAL) else None
-    # 합산 차이(효과 크기): 맞는 입력 점수 평균 − 바꾼 입력 점수 평균(공식 쌍)
-    cor = [tab[i, g, g] for i in range(len(js)) for g in OFFICIAL if tab.get((i, g, g)) is not None]
-    wro = [tab[i, g, p] for i in range(len(js)) for g, p in (OFFICIAL, OFFICIAL[::-1]) if tab.get((i, g, p)) is not None]
-    if out['judge']:
-        out['judge']['pooled_diff'] = statistics.fmean(cor) - statistics.fmean(wro) if cor and wro else None
+    have_off = all(d in dirs for d in OFFICIAL)
+    if have_off:
+        out.update(metrics(OFFICIAL, memo))
+        # 공식: 파일(묶음)당 한 표 — 묶음 안 파일 Δ 평균, 한 파일이라도 평가 실패면 그 묶음은 실패
+        units = {}
+        for i, e in enumerate(js.ents):
+            units.setdefault(e['group'], []).append(bid(i, *OFFICIAL))
+        ud = [None if None in v else statistics.fmean(v) for v in units.values()]
+        out['judge'] = sign_test(ud, tie, alpha)
+        cor = [tab[i, g, g] for i in range(len(js)) for g in OFFICIAL if tab.get((i, g, g)) is not None]
+        wro = [tab[i, g, p] for i in range(len(js)) for g, p in (OFFICIAL, OFFICIAL[::-1]) if tab.get((i, g, p)) is not None]
+        out['judge']['pooled_diff'] = statistics.fmean(cor) - statistics.fmean(wro) if cor and wro else None   # 합산 차이(효과 크기)
         out['judge']['per_unit'] = [None if d is None else round(d, 3) for d in ud]
-    # 축별 진단(4방향일 때만, 4방향 모두 잘림 없는 장만): x만 다른 쌍 (0,3)(2,1), y만 다른 쌍 (0,2)(3,1)
+    else:
+        out.update(metrics(dirs, memo))
+        out['judge'] = None
+    # 축별 진단(4방향일 때만, 4방향 모두 잘림 없는 장만): x만 다른 쌍 (0,3)(2,1), y만 다른 쌍 (0,2)(3,1). 별도 합격 기회 아님
     if len(dirs) == nd == 4:
         keep = [i for i, e in enumerate(js.ents) if e['all4']]
         axis = {}
@@ -419,19 +438,9 @@ def evaluate(js, gen, dirs=None, tie=TIE, alpha=ALPHA, memo=None):
             ok = [v for v in per if v is not None]
             axis[name] = dict(n=len(per), win=sum(vote(v, tie) == 'win' for v in per), tie=sum(vote(v, tie) == 'tie' for v in per),
                               loss=sum(vote(v, tie) == 'loss' for v in per), median=statistics.median(ok) if ok else None)
-        out['axis'] = axis
-        out['table16'] = [[_mean([tab.get((i, g, p)) for i in keep]) for p in range(4)] for g in range(4)]   # 행 = 정답 방향, 열 = 입력 방향
-    out['A'] = _mean(a_v)
-    out['B'] = _mean(b_v)
-    out['A_minus_B'] = out['A'] - out['B'] if out['A'] is not None and out['B'] is not None else None
-    out['memo'] = memo
-    out['A_minus_memo'] = out['A'] - memo if out['A'] is not None and memo is not None else None
-    out['recall'] = strict['match'] / max(strict['ans'], 1)
-    out['precision'] = strict['match'] / max(strict['pred'], 1)
-    out['f1'] = 2 * strict['match'] / max(strict['pred'] + strict['ans'], 1)   # 합산(주 점수)
-    out['f1_file_mean'] = _mean(f1s)
-    out['health'] = health(rows)
-    out['gen_time'] = gen_times(rows)
+        out['diag'] = metrics(range(4), memo4)
+        out['diag']['axis'] = axis
+        out['diag']['table16'] = [[_mean([tab.get((i, g, p)) for i in keep]) for p in range(4)] for g in range(4)]   # 행 = 정답 방향, 열 = 입력 방향
     out['n_entries'] = len(js)
     out['dirs'] = dirs
     return out, gens
@@ -455,25 +464,32 @@ def _mean(v):
 
 
 def flat(out, pre='judge_'):
-    """학습 기록(log.jsonl)에 넣을 평평한 값."""
+    """학습 기록(log.jsonl)에 넣을 평평한 값. pre = 공식 두 방향, pre+'4_' = 네 방향 진단."""
     j = out.get('judge') or {}
-    h = out['health']
-    r = {f'{pre}{k}': out[k] for k in ('A', 'B', 'A_minus_B', 'memo', 'A_minus_memo', 'recall', 'precision', 'f1', 'f1_file_mean', 'n_entries')}
+    keys = ('A', 'B', 'A_minus_B', 'memo', 'A_minus_memo', 'recall', 'precision', 'f1', 'f1_file_mean', 'n_measured', 'n_planned')
+    r = {f'{pre}{k}': out.get(k) for k in keys}
+    r[f'{pre}n_entries'] = out['n_entries']
     r.update({f'{pre}{k}': j.get(k) for k in ('N', 'win', 'tie', 'loss', 'fail', 'need', 'p', 'passed', 'delta_median', 'delta_mean', 'pooled_diff', 'per_unit')})
-    r.update({f'{pre}health_{k}': v for k, v in h.items()})
+    r.update({f'{pre}health_{k}': v for k, v in out['health'].items()})
     r[f'{pre}gen_time'] = out['gen_time']
-    if 'axis' in out:
-        r[f'{pre}axis'] = out['axis']
-        r[f'{pre}table16'] = out['table16']
+    if 'diag' in out:
+        dg = out['diag']
+        p4 = pre.rstrip('_') + '4_'
+        r.update({f'{p4}{k}': dg.get(k) for k in keys})
+        r.update({f'{p4}health_{k}': v for k, v in dg['health'].items()})
+        r[f'{p4}axis'] = dg['axis']
+        r[f'{p4}table16'] = dg['table16']
     return r
 
 
-def summary_line(out):
+def summary_line(out, official=None):
+    """한 줄 요약(공식 두 방향). official=False면 '추세'로 — 통과 표시는 공식 판정에만(GPT 1라운드 A)."""
     j, h = out.get('judge') or {}, out['health']
     f = lambda v, n=1: '-' if v is None else f'{v:.{n}f}'  # noqa: E731
+    verdict = ('통과' if j.get('passed') else '미통과') if official else ('추세: 기준선 넘음' if j.get('passed') else '추세: 기준선 아래')
     return (f"판정: N {j.get('N')} 승 {j.get('win')}/동 {j.get('tie')}/패 {j.get('loss')}/실패 {j.get('fail')} (필요 {j.get('need')}승, p {f(j.get('p'), 4)}, "
-            f"{'통과' if j.get('passed') else '미통과'}) Δ중앙 {f(j.get('delta_median'), 2)} 합산차 {f(j.get('pooled_diff'), 2)} | "
-            f"A {f(out['A'])} B {f(out['B'])} 외움 {f(out['memo'])} | F1 {f(out['f1'] * 100)}% | "
+            f"{verdict}) Δ중앙 {f(j.get('delta_median'), 2)} 합산차 {f(j.get('pooled_diff'), 2)} | "
+            f"A {f(out['A'])} B {f(out['B'])} 외움 {f(out['memo'])} (측정 {out['n_measured']}/{out['n_planned']}) | F1 {f(out['f1'] * 100)}% | "
             f"건전성 {'통과' if h['passed'] else '미통과'}(빈·미완 {h['bad']}+OOM {h['oom']}/{h['n']}, 한도 {h['limit']}, 수 비율 중앙 {f(h['obj_ratio_median'], 2)}·범위 밖 {h['obj_ratio_out']})")
 
 

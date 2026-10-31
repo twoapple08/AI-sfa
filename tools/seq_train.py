@@ -325,8 +325,9 @@ class Cache:
 
 
 @torch.no_grad()
-def generate(net, img, hwr, maxlen=None, temp=0.0):
-    """문법 강제 생성(한 장, KV 캐시)."""
+def generate(net, img, hwr, maxlen=None, temp=0.0, reason=False):
+    """문법 강제 생성(한 장, KV 캐시). 돌려주는 끝냄은 '스스로 끝냄'만 참(GPT 1라운드 ⑤: 한도 64단어 전 강제 끝냄도 참이던 것).
+    reason=True면 (토큰, 끝냄, 사유) — 사유 'eos'(스스로)·'forced'(한도 가까이 강제)·'limit'(한도에서 끊김)."""
     dev = img.device
     maxlen = maxlen or net.maxlen
     mem = net.memory(img[None], torch.tensor([hwr], dtype=torch.float32, device=dev))
@@ -334,6 +335,7 @@ def generate(net, img, hwr, maxlen=None, temp=0.0):
     g = K.grammar()
     al = next(g)
     toks, flds = [], []
+    forced = False
     while len(toks) < maxlen:
         if toks:
             lg = cache.step(toks[-1], flds[-1])
@@ -341,6 +343,7 @@ def generate(net, img, hwr, maxlen=None, temp=0.0):
             lg = torch.zeros(K.VOCAB, device=dev)
         lg = lg + allowed_mask(al, dev)
         if len(toks) >= maxlen - 64 and TOK_EOS in al[0]:   # 길이 한도 가까우면 끝낼 수 있는 자리에서 끝낸다
+            forced = int(lg.argmax()) != TOK_EOS   # 모델이 원래도 끝내려 했으면 강제가 아니다
             lg = torch.full_like(lg, float('-inf'))
             lg[TOK_EOS] = 0
         t = int(torch.multinomial(F.softmax(lg / temp, -1), 1)) if temp > 0 else int(lg.argmax())
@@ -349,8 +352,8 @@ def generate(net, img, hwr, maxlen=None, temp=0.0):
         try:
             al = g.send(t)
         except StopIteration:
-            return toks, True
-    return toks, False
+            return (toks, not forced, 'forced' if forced else 'eos') if reason else (toks, not forced)
+    return (toks, False, 'limit') if reason else (toks, False)
 
 
 def lr_at(step, prog, base, warm=500):
@@ -507,6 +510,7 @@ def train(a):
     st.setdefault('stage', 0)
     widths = (stg['w'] if stg else []) + [cfg['in_w']]
     sets = {}   # 단계 번호 → 자료(마지막 = 기본 입력 자료). 모두 필요할 때 읽고 지난 단계는 내린다
+    tm_load = [0.0]
     # (11-01 Kaggle CPU 실측: 기본 자료 읽기 8분·1080 15분 — 1080 단계 회차에 기본 자료를 미리 읽지 않는다)
 
     def stage_set(i):
@@ -514,6 +518,7 @@ def train(a):
             t1 = time.time()
             sets[i] = Data(stage_dirs[i] if i < len(stage_dirs) else a.data, cfg['maxlen'], widths[i])
             print(f'단계 자료 {widths[i]}폭 {len(sets[i])}장 {sets[i].ntok}토큰 ({time.time() - t1:.0f}초)', flush=True)
+            tm_load[0] += time.time() - t1
             if not len(sets[i]):
                 raise SystemExit(f'학습 자료 0장({widths[i]}폭) — 자료 폴더 확인')
         return sets[i]
@@ -567,6 +572,17 @@ def train(a):
     # 검증 대상 고정: 시험 자료에서 고르게 val_n장, 묶음은 처음 토큰 한도로(학습 한도가 줄어도 같은 대상, GPT 검토 10-30)
     v_idx = sorted(set(np.linspace(0, len(va) - 1, min(a.val_n, len(va))).astype(int).tolist())) if len(va) else []
     v_batches = make_batches_fixed(va, a.max_batch, a.tok_budget, v_idx)
+    vk, vk_batches = None, {}
+    if a.val_kind:   # 실제·조합 고정 검증 자료(같은 해상도 640, 정답 길이 셋으로 나눔)
+        vk = Data(a.val_kind, cfg['maxlen'], cfg['in_w'])
+        kinds = ['real' if kind_of(vk, k).startswith('real') else 'comp' for k in range(len(vk))]
+        L = np.array([len(t) for t in vk.tok])
+        q1, q2 = np.quantile(L, [1 / 3, 2 / 3]) if len(L) else (0, 0)
+        for k in range(len(vk)):
+            band = 'short' if L[k] <= q1 else ('mid' if L[k] <= q2 else 'long')
+            vk_batches.setdefault(f'{kinds[k]}_{band}', []).append(k)
+        vk_batches = {key: make_batches_fixed(vk, a.max_batch, a.tok_budget, idx) for key, idx in sorted(vk_batches.items())}
+        print('종류별 검증 자료', {key: sum(len(b) for b in bs) for key, bs in vk_batches.items()}, flush=True)
     g_idx = v_idx[::max(1, len(v_idx) // a.gen_n)][:a.gen_n]   # 생성 채점용 고정 장
     s_idx = (sorted(set(np.linspace(0, len(sv) - 1, min(a.gen_n, len(sv))).astype(int).tolist())) if sv is not None and len(sv) else [])
 
@@ -578,11 +594,12 @@ def train(a):
         rng = dict(py=random.getstate(), torch=torch.get_rng_state(), cuda=torch.cuda.get_rng_state() if dev == 'cuda' else None)
         VT.save(dict(model=net.state_dict(), opt=opt.state_dict(), scaler=scaler.state_dict(), rng=rng, cfg=cfg, state=dict(st)), ck)
 
-    def val_batch(b):
-        """한 묶음의 (손실 합, 맞힘 합, 토큰 수, 못 잰 장 수). 메모리 부족이면 오류 처리를 벗어난 뒤 반으로 나눠 다시(GPT 2차)."""
+    def val_batch(b, ds_=None):
+        """한 묶음의 (손실 합, 맞힘 합, 토큰 수, 못 잰 장 수). 메모리 부족이면 오류 처리를 벗어난 뒤 반으로 나눠 다시(GPT 2차).
+        ds_ = 다른 고정 검증 자료(--val-kind), 없으면 시험 자료."""
         oom_ = False
         try:
-            im, tk, fd, hr = (x.to(dev) for x in va.batch(b))
+            im, tk, fd, hr = (x.to(dev) for x in (ds_ if ds_ is not None else va).batch(b))
             with torch.autocast(dev, dtype=dt, enabled=amp):
                 lg = net(im, tk[:, :-1], fd[:, :-1], hr)
             l_, c_, n_ = loss_fn(lg, tk[:, 1:], fd[:, 1:])
@@ -596,7 +613,7 @@ def train(a):
             torch.cuda.empty_cache()
         if len(b) == 1:
             return 0.0, 0.0, 0.0, 1, np.zeros((NROW, 2))
-        x, y = val_batch(b[:len(b) // 2]), val_batch(b[len(b) // 2:])
+        x, y = val_batch(b[:len(b) // 2], ds_), val_batch(b[len(b) // 2:], ds_)
         return tuple(p + q for p, q in zip(x, y))
 
     def validate():
@@ -614,6 +631,24 @@ def train(a):
             net.train()
         return (tl / tn if tn else float('nan')), (tc / tn if tn else 0.0), int(tn), bad, hn
 
+    def validate_kind():
+        """실제 장 대 조합 장(GPT 1라운드 D): 고정 검증 자료를 종류 × 정답 길이 셋(짧은·중간·긴)으로 나눠 교사 강제 손실·맞힘."""
+        out = {}
+        net.eval()
+        try:
+            with torch.no_grad():
+                for key, bs in vk_batches.items():
+                    tl = tc = tn = 0.0
+                    for b in bs:
+                        l_, c_, n_, f_, _ = val_batch(b, vk)
+                        tl, tc, tn = tl + l_, tc + c_, tn + n_
+                    out[f'valk_{key}_loss'] = tl / tn if tn else None
+                    out[f'valk_{key}_acc'] = tc / tn if tn else None
+                    out[f'valk_{key}_n'] = sum(len(b) for b in bs)
+        finally:
+            net.train()
+        return out
+
     def gen_eval(final=False):
         """두 고정 집합을 실제로 그려 보고 오브젝트 채점: 시험 파일(새 파일 일반화) + 학습 파일의 학습에 없던 이동(위치 읽기, GPT 3차).
         판정 자료가 있으면 입력 교환 생성 대조(판정 기준 §2)도. 마지막(공식 시점)은 4방향."""
@@ -625,16 +660,15 @@ def train(a):
         return out
 
     def gen_img(im, hwr, n_ans=None):
-        """그림 한 장 생성 → (토큰, 끝냄, 초) 또는 None(메모리 부족). n_ans가 있으면 길이 상한 적용(gen_cap)."""
+        """그림 한 장 생성 → (토큰, 끝냄, 초) 또는 None(메모리 부족). n_ans가 있으면 길이 상한 적용(gen_cap).
+        종료 사유는 reasons에 센다(스스로·강제·한도, 상한이 모델 최대보다 짧았는지)."""
         t1 = time.time()
         try:
             x = torch.from_numpy(np.ascontiguousarray(im)).permute(2, 0, 1).float().to(dev) / 255
             cap = gen_cap(n_ans)
             with torch.no_grad(), torch.autocast(dev, dtype=dt, enabled=amp):
-                toks, done = generate(net, x, hwr, cap)
-            if cap < cfg['maxlen'] and len(toks) >= cap - 64:   # 상한에서 끊김(강제로 끝낸 것 포함) = 미완료
-                done = False
-                capped[0] += 1
+                toks, done, why = generate(net, x, hwr, cap, reason=True)
+            reasons[why + ('_cap' if why != 'eos' and cap < cfg['maxlen'] else '')] += 1
             if dev == 'cuda':
                 torch.cuda.synchronize()
             return toks, done, time.time() - t1
@@ -643,7 +677,8 @@ def train(a):
                 torch.cuda.empty_cache()
             return None
 
-    capped = [0]
+    from collections import Counter
+    reasons = Counter()
 
     def gen_cap(n_ans):
         """생성 길이 상한(11-01, Kaggle CPU 실측: 학습 초반 엉터리 출력이 2,048단어까지 가 한 장 54초). 정답 길이 × 배수 + 128을 넘으면
@@ -660,17 +695,24 @@ def train(a):
         w = widths[st['stage']]
         w = w if w in js.stage else cfg['in_w']
         try:
-            c0 = capped[0]
-            res, gens = J.evaluate(js, lambda i, d: gen_img(js.image(i, d, w), js.ents[i]['hwr'], len(js.tok[i][d])), dirs=range(nd), memo=memo[nd])
+            # 공식 판정(판정 기준 §2, GPT 1라운드 A·⑤): 계획 끝에 도달한 마지막 판정만. 길이 상한 없이(모델 최대 길이, 모든 방향 같음).
+            # 추세 판정: 길이 상한은 장마다 네 방향 정답 중 가장 긴 것 기준 — 입력 방향에 따라 상한이 달라지지 않게
+            official = bool(final and st['done_min'] >= st['plan_min'] - 1e-6)
+            reasons.clear()
+            cap_of = (lambda i: None) if official else (lambda i: max(len(t) for t in js.tok[i]))
+            res, gens = J.evaluate(js, lambda i, d: gen_img(js.image(i, d, w), js.ents[i]['hwr'], cap_of(i)), dirs=range(nd),
+                                   memo=memo[2], memo4=memo[4])
             rec_ = J.flat(res)
-            rec_.update(judge_dirs=nd, judge_w=w, judge_capped=capped[0] - c0)
-            print(f'[{w}폭]', J.summary_line(res), f"({round(time.time() - t1)}초, {nd}방향)", flush=True)
+            rec_.update(judge_dirs=nd, judge_w=w, judge_official=official, judge_end=dict(reasons))
+            print(f'[{w}폭 {"공식" if official else "추세"}]', J.summary_line(res, official), f"({round(time.time() - t1)}초, {nd}방향, 끝냄 {dict(reasons)})", flush=True)
             judge_sheet(gens, w)
             if final and w != cfg['in_w']:
                 t2 = time.time()
-                r2, _ = J.evaluate(js, lambda i, d: gen_img(js.image(i, d), js.ents[i]['hwr'], len(js.tok[i][d])), dirs=range(2), memo=memo[2])
+                reasons.clear()
+                r2, _ = J.evaluate(js, lambda i, d: gen_img(js.image(i, d), js.ents[i]['hwr'], cap_of(i)), dirs=range(2), memo=memo[2])
                 rec_.update(J.flat(r2, 'judge360_'))
-                print(f"[{cfg['in_w']}폭]", J.summary_line(r2), f"({round(time.time() - t2)}초, 2방향)", flush=True)
+                rec_['judge360_end'] = dict(reasons)
+                print(f"[{cfg['in_w']}폭 추세]", J.summary_line(r2, False), f"({round(time.time() - t2)}초, 2방향)", flush=True)
             rec_['judge_sec'] = round(time.time() - t1)
         finally:
             net.train()
@@ -726,10 +768,7 @@ def train(a):
         try:
             img = torch.from_numpy(np.ascontiguousarray(ds_.image(i))).permute(2, 0, 1).float().to(dev) / 255
             with torch.no_grad(), torch.autocast(dev, dtype=dt, enabled=amp):
-                cap = gen_cap(len(ds_.tok[i]))
-                toks, done = generate(net, img, ds_.hwr[i], cap)
-                if cap < cfg['maxlen'] and len(toks) >= cap - 64:
-                    done = False
+                toks, done = generate(net, img, ds_.hwr[i], gen_cap(len(ds_.tok[i])))
                 # 근접 정도(GPT 3차: 생성 맞힘 0이어도 가까워지는지): 교사 강제 좌표 오차(%) 중앙값
                 tk = torch.from_numpy(ds_.tok[i])[None].to(dev)
                 fd = torch.from_numpy(ds_.fld[i])[None].to(dev)
@@ -745,6 +784,8 @@ def train(a):
         except torch.OutOfMemoryError:
             sums['oom'] += 1
 
+    tm = dict(load=0.0, train=0.0, val=0.0, gen=0.0)   # 시간 내역(초, GPT 1라운드 G): 자료 읽기·학습 계산·검증·생성 채점
+    t_run = time.time()
     bq = {}   # 단계 번호 → 남은 묶음
     bq_lv = {}   # 단계 번호 → 그 묶음을 만든 쉬운 것부터 분위
     lens = {}
@@ -789,6 +830,7 @@ def train(a):
             g['lr'] = lr_at(st['step'], prog, base_lr)
         img = tok = fld = hwr = lg = loss = acc = None
         unscaled = False
+        t_step = time.time()
         try:   # GPU로 옮기기부터 한 걸음 전체를 보호(GPT 검토 10-30)
             img, tok, fld, hwr = (x.to(dev) for x in ds.batch(b))
             with torch.autocast(dev, dtype=dt, enabled=amp):
@@ -831,8 +873,18 @@ def train(a):
                 yl.paused += 60
             continue
         st['step'] += 1
+        tm['train'] += time.time() - t_step
         ss_ = st.setdefault('stage_steps', {})
         ss_[str(widths[i])] = ss_.get(str(widths[i]), 0) + 1   # 단계(자료 해상도)별 업데이트 수
+        ex = st.setdefault('expo', {})   # 실제 노출(GPT 1라운드 D·E): 해상도|쉬운 것부터 분위|장 종류 → [장, 단어, 업데이트]
+        for kk in set(kind_of(ds, x) for x in b):
+            key = f'{widths[i]}|{lv:.2f}|{kk}'
+            e_ = ex.setdefault(key, [0, 0, 0])
+            e_[2] += 1
+        for x in b:
+            e_ = ex[f'{widths[i]}|{lv:.2f}|{kind_of(ds, x)}']
+            e_[0] += 1
+            e_[1] += len(ds.tok[x])
         run.append(loss.item())
         racc.append(acc.item())
         rhn = rhn + fh
@@ -845,6 +897,8 @@ def train(a):
         if time.time() - last_val > a.val_minutes * 60:
             last_val = time.time()
             vl, vc, n, vbad, vhn = validate()
+            vkr = validate_kind() if vk is not None else {}
+            tm['val'] += time.time() - last_val
             rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, val_sec=round(time.time() - last_val), stage_steps=dict(st.get('stage_steps', {})),
                        minutes=done0 + active_min(), prog=prog,
                        oom=oom, skipped=skipped, budget=st['budget'], grad_ckpt=net.grad_ckpt, paused_min=yl.paused / 60,
@@ -854,9 +908,12 @@ def train(a):
                 VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
             save_ckpt()   # 생성 채점 전에 저장(GPT 2차: 생성 중 문제가 생겨도 학습 상태는 남게)
             last_save = time.time()
+            rec.update(vkr)
             if a.gen_minutes and time.time() - last_gen > a.gen_minutes * 60:
                 last_gen = time.time()
                 rec.update(gen_eval())
+                tm['gen'] += time.time() - last_gen
+            rec.update(time_sec=dict(tm, load=tm_load[0], wall=time.time() - t_run), expo=dict(st.get('expo', {})))
             print('검증', rec, flush=True)
             print('검증 분야(100점 만점):', field_report(vhn)[1], flush=True)
             with open(log, 'a', encoding='utf-8') as fh:
@@ -871,13 +928,28 @@ def train(a):
         st['best'] = vl
         VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
     save_ckpt()
+    if vk is not None:
+        rec.update(validate_kind())
     if a.gen_minutes:
+        t_g = time.time()
         rec.update(gen_eval(final=True))
+        tm['gen'] += time.time() - t_g
+    rec.update(time_sec=dict(tm, load=tm_load[0], wall=time.time() - t_run), expo=dict(st.get('expo', {})),
+               plan_reached=bool(st['done_min'] >= st['plan_min'] - 1e-6))
     print('마지막 검증', rec, flush=True)
     print('마지막 검증 분야(100점 만점):', field_report(vhn)[1], flush=True)
     with open(log, 'a', encoding='utf-8') as fh:
         fh.write(json.dumps(rec) + '\n')
     print(f"끝 {st['step']}걸음 · 진행 {st['done_min']:.0f}/{st['plan_min']:.0f}분 · best {st['best']:.4f} · 메모리 부족 {oom} · 건너뜀 {skipped}", flush=True)
+
+
+def kind_of(ds, k):
+    """장 종류: 조합 문제 자료의 장마다 출처(items) — 'comp'·'real'·'real_crop', 예전 자료는 'orig'."""
+    m = ds.meta[k]
+    it = m.get('items')
+    if it and m.get('pos') is not None and m['pos'] < len(it):
+        return it[m['pos']].get('kind', m.get('compose') or 'orig')
+    return m.get('compose') or 'orig'
 
 
 def make_batches_fixed(ds, max_n, budget, idx):
@@ -995,6 +1067,7 @@ def main():
     t.add_argument('--judge-dirs', type=int, default=2, choices=(2, 4), help='중간 판정의 이동 방향 수(2 = 공식 쌍만)')
     t.add_argument('--judge-dirs-final', type=int, default=4, choices=(2, 4), help='마지막(공식 시점) 판정의 방향 수(4 = 축별 진단 16칸 표 포함)')
     t.add_argument('--gen-len-mult', type=float, default=2.0, help='생성 채점 길이 상한 = 정답 길이 × 이 배수 + 128(넘으면 끊고 미완료). 0이면 모델 최대 길이')
+    t.add_argument('--val-kind', default='', help='실제·조합 고정 검증 자료(seq_data --compose, 다른 씨앗) — 종류 × 길이 셋별 교사 강제 손실(GPT 1라운드 D)')
     t.add_argument('--no-curriculum', action='store_true', help='쉬운 것부터(단계마다 짧은 정답부터 최대치까지, 11-01) 끄기')
     t.add_argument('--judge-n', type=int, default=0, help='판정 장 수를 평가 목록 앞 n장으로 줄임(CPU 흐름 시험용, 0 = 전부 — 공식 판정은 전부)')
     t.add_argument('--sheet-n', type=int, default=6, help='판정 때마다 저장하는 고정 그림 시트 장 수(평가 목록 앞에서부터, 골라 보여 주지 않음)')

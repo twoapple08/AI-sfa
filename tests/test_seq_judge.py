@@ -101,17 +101,31 @@ class TestEvaluate(unittest.TestCase):
         self.assertAlmostEqual(o['A'], 100.0)
         self.assertAlmostEqual(o['f1'], 1.0)
         self.assertTrue(o['health']['passed'])
-        self.assertEqual(len(o['table16']), 4)
-        m, _ = J.evaluate(js, self.gen(lambda i, d: js.tok0[i]), memo=J.memo_baseline(js))
+        self.assertEqual(len(o['diag']['table16']), 4)
+        self.assertEqual(o['n_measured'], 2 * len(js))        # 공식 지표는 두 방향만(GPT 1라운드 ⑥)
+        self.assertEqual(o['diag']['n_measured'], 4 * len(js))
+        m, _ = J.evaluate(js, self.gen(lambda i, d: js.tok0[i]), memo=J.memo_baseline(js, J.OFFICIAL), memo4=J.memo_baseline(js))
         self.assertEqual((m['judge']['win'], m['judge']['tie']), (0, 3))
         self.assertAlmostEqual(m['B'], 100.0)
-        self.assertAlmostEqual(m['A'], J.memo_baseline(js))   # 외움 AI의 A = 외움 기준선
+        self.assertAlmostEqual(m['A'], J.memo_baseline(js, J.OFFICIAL))   # 외움 AI의 A = 외움 기준선(공식 두 방향)
+        self.assertAlmostEqual(m['diag']['A'], J.memo_baseline(js))
 
     def test_swapped_inputs_lose(self):
         js = self.js
         o, _ = J.evaluate(js, self.gen(lambda i, d: js.tok[i][1 - d] if d < 2 else js.tok[i][d]), dirs=range(2))
         self.assertEqual(o['judge']['loss'], 3)
-        self.assertNotIn('axis', o)   # 2방향이면 축별 진단 없음
+        self.assertNotIn('diag', o)   # 2방향이면 진단 없음
+
+    def test_input_ignoring_generator_makes_no_delta(self):
+        """입력을 무시하고 같은 토큰을 내는 생성기(방향마다 같은 길이로 끊어도)는 모든 단위 동점 — 가짜 Δ 없음(GPT 1라운드 ⑤)."""
+        js = self.js
+        o, _ = J.evaluate(js, self.gen(lambda i, d: js.tok[i][0][:max(len(t) for t in js.tok[i])]), dirs=range(2))
+        self.assertEqual((o['judge']['win'], o['judge']['loss']), (0, 0))
+        f = J.flat(o)
+        self.assertIn('judge_n_measured', f)
+        line = J.summary_line(o, official=False)
+        self.assertIn('추세', line)
+        self.assertNotIn('통과)', line)
 
     def test_group_votes_once_and_oom_fails(self):
         js = real_entries(3, groups=[0, 0, 1])

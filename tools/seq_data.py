@@ -147,7 +147,7 @@ def save_frames(out_dir, name, items, hwr, a, crf, extra):
     H = W * 9 // 16
     R.PARAMS['pad'] = 0.0
     R.PARAMS['thick_mul'] = W / 1920
-    keep, toks, flds = [], [], []
+    keep, toks, flds, info = [], [], [], []
     for seq, fr in items:
         t, _ = K.encode(seq, fr)
         if len(t) > a['maxlen'] or not any(x in TYPE_TOKS for x in t):   # 길이 한도 넘음·빈 장은 뺀다
@@ -159,6 +159,7 @@ def save_frames(out_dir, name, items, hwr, a, crf, extra):
         keep.append((seq, fr))
         toks.append(t)
         flds.append(f)
+        info.append(json.loads(seq.get('src') or '{}'))
     if not keep:
         return 0
     if a.get('video'):
@@ -179,9 +180,17 @@ def save_frames(out_dir, name, items, hwr, a, crf, extra):
         np.savez_compressed(fh, **pix, tok=np.concatenate(toks).astype(np.int16), fld=np.concatenate(flds).astype(np.int8),
                             off=off.astype(np.int64), pos=np.arange(len(keep)),
                             meta=json.dumps(dict(file=name, crf=crf, W=W, H=H, vocab=K.VOCAB, xstep=K.XSTEP, hwr=hwr, render_h=Hr, aug=None,
-                                                 synth=False, **extra)))
+                                                 synth=False, items=info, **extra)))   # items[pos] = 장마다 출처·변환(⑦)
     os.replace(tmp, os.path.join(out_dir, name))
     return len(keep)
+
+
+def pick_frames(n_frames, n, rng, cap=3):
+    """장 번호 n개 고르기: 서로 다른 장을 먼저, 모자라면 같은 장을 더(장마다 최대 cap번 — GPT 1라운드 ⑦에서 파일 단위로만 막던 것)."""
+    idx = list(range(n_frames))
+    pick = rng.sample(idx, min(n, n_frames))
+    more = [k for k in idx for _ in range(cap - 1)]
+    return pick + rng.sample(more, min(n - len(pick), len(more)))
 
 
 def compose_job(job):
@@ -211,15 +220,18 @@ def compose_job(job):
             hwr = float(root.get('HeightWidthRatio') or 0.5625) or 0.5625
             frs = root.findall('Frame')
             items = []
-            pick = rng.sample(frs, min(n, len(frs)))
-            pick += [rng.choice(frs) for _ in range(min(n, 3 * len(frs)) - len(pick))]   # 장이 적은 파일: 같은 장을 최대 3번, 매번 다른 변환(실제 장 비율 유지)
-            for fr in pick:
-                seq, f2 = C.real_frame(root, fr, rng, hwr)
-                if len(K.encode(seq, f2)[0]) > a['maxlen']:   # 큰 실제 장: 버리지 않고 일부 구역(가까운 묶음, 원래 배치·순서)을 잘라 같은 변환(사용자 11-01)
-                    crop = C.real_crop(fr, rng, hwr, a['maxlen'] - 64)
+            pick = pick_frames(len(frs), n, rng)
+            bg = root.get('BackgroundColor', C.WHITE)
+            for k_ in pick:
+                fr = frs[k_]
+                src = dict(kind='real', src=rel, pos=fr.get('Position'))
+                seq, f2 = C.real_frame(root, fr, rng, hwr, src)
+                if len(K.encode(seq, f2)[0]) > a['maxlen']:   # 큰 실제 장: 버리지 않고 일부 구역(가까운 묶음, 원래 배치·순서·배경)을 잘라 같은 변환(사용자 11-01)
+                    crop = C.real_crop(fr, rng, hwr, a['maxlen'] - 64, bg)
                     if crop is None:
                         continue
-                    seq, f2 = C.real_frame(crop[0], crop[1], rng, hwr)
+                    seq, f2 = C.real_frame(crop[0], crop[1], rng, hwr, dict(src, kind='real_crop', kept=len(crop[1].findall('AO')),
+                                                                             of=len(fr.findall('AO'))))
                 items.append((seq, f2))
             name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__real{k:05d}__c{crf}.npz'
         n_syn = 0
@@ -275,6 +287,8 @@ def main():
         if f.endswith(('.npz', '.tmp')) or f == 'done.json':
             os.remove(os.path.join(a.out_dir, f))
     if a.compose:
+        if a.holdout or a.fixed:   # 조합 모드는 학습 파일만 쓴다(GPT 1라운드 ⑦: --holdout을 줘도 학습 파일을 쓰던 것)
+            raise SystemExit('--compose는 --holdout·--fixed와 함께 쓸 수 없음(학습 파일 전용)')
         return main_compose(a, want)
     files = V.file_list(only='holdout') if a.holdout else V.file_list()
     files = files[::a.every]

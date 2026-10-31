@@ -10,6 +10,7 @@
 정답은 바뀐 SFA를 sfa_tokens.encode로 다시 적으므로 그림과 정답이 같이 바뀐다.
 """
 import copy
+import json
 import math
 import os
 import sys
@@ -33,7 +34,8 @@ def load(rel, root_dir):
 
 def units_of(fr, hwr, max_objs=MAX_UNIT_OBJS):
     """한 장 → 묶음 목록. 묶음 = dict(aos=[AO], frs=[FR], n=오브젝트 수, hwr=원래 비율). 원본 요소를 복사해 둔다."""
-    vis_layers = {d.get('ID') for d in fr.findall('LayerDef') if d.get('Visible') != 'false'} or None
+    defs = fr.findall('LayerDef')   # GPT 1라운드 ②: '정의 없음'과 '모두 숨김'을 구분(예전 `or None`은 모두 숨긴 장을 되살렸다)
+    vis_layers = {d.get('ID') for d in defs if d.get('Visible') != 'false'} if defs else None
     aos = [a for a in fr.findall('AO') if vis_layers is None or a.get('LayerId', '0') in vis_layers]
     by_id = {a.get('ID'): a for a in aos}
     owner = {p.get('ID'): a.get('ID') for a in aos for p in a.findall('AP')}
@@ -101,6 +103,79 @@ def bbox_px(u):
     return min(xs), min(ys), max(xs), max(ys)
 
 
+T_LO, T_HI = K.TMIN, 3.09   # 정답 문장이 담는 면 T 범위
+
+
+def _mirror_t(t0, t1):
+    """좌우 반전된 원에서 같은 경로의 T: 렌더러 θ(t)=θ0+2πt(시계 방향, circ_off=0)를 거울에 비추면 t → −t.
+    두 끝점에 같은 정수 k를 더해도 같은 경로이므로 k − t로 범위 안에 둔다. 못 넣으면 None."""
+    k = math.ceil(max(t0, t1) - 1e-9)
+    a, b = k - t0, k - t1
+    return (a, b) if T_LO <= min(a, b) and max(a, b) <= T_HI else None
+
+
+def _circle_fs(r, circ):
+    """FR 하나의 원 조각들: (FS, WHOLE인가, 같은 윤곽 조각 수)."""
+    cnt = {}
+    for f in r.findall('FS'):
+        cnt[f.get('Contour', '0')] = cnt.get(f.get('Contour', '0'), 0) + 1
+    out = []
+    for f in r.findall('FS'):
+        if f.get('ObjId') in circ:
+            out.append((f, f.get('Kind') == '1' or f.get('StartT') is None, cnt[f.get('Contour', '0')]))
+    return out
+
+
+def mirror_ok(frs, circ):
+    for r in frs:
+        for f, whole, n in _circle_fs(r, circ):
+            if not whole and _mirror_t(float(f.get('StartT')), float(f.get('EndT'))) is None:
+                return False
+    return True
+
+
+def mirror_fs(r, circ):
+    """좌우 반전에 맞춰 원 면 조각 T를 바꾼다. 독립 WHOLE 원(윤곽에 조각 하나)은 그대로(방향 무관),
+    복합 윤곽 안 WHOLE 원은 0→1 대신 1→0 구간으로(이어 붙이는 방향 유지). 직선·곡선은 점을 옮기면 같은 T로 거울상."""
+    for f, whole, n in _circle_fs(r, circ):
+        if whole:
+            if n > 1:
+                f.set('Kind', '0')
+                f.set('StartT', '1.0')
+                f.set('EndT', '0.0')
+            continue
+        a, b = _mirror_t(float(f.get('StartT')), float(f.get('EndT')))
+        f.set('StartT', repr(a))
+        f.set('EndT', repr(b))
+
+
+def strip_hidden(fr):
+    """숨긴 레이어의 오브젝트·레이어 정의를 지우고, 없는 오브젝트를 참조하는 면과 없는 점으로의 연결을 지운다
+    (GPT 1라운드 ①: 렌더러는 면 첫 참조가 숨김이면 면을 숨기고, 정답 변환은 남은 참조로 면을 다시 적어 그림과 정답이 달라졌다)."""
+    hid = {d.get('ID') for d in fr.findall('LayerDef') if d.get('Visible') == 'false'}
+    for d in list(fr.findall('LayerDef')):
+        if d.get('ID') in hid:
+            fr.remove(d)
+    for a in list(fr.findall('AO')):
+        if a.get('LayerId', '0') in hid:
+            fr.remove(a)
+    keep_frame_refs(fr)
+    return fr
+
+
+def keep_frame_refs(fr):
+    ids = {a.get('ID') for a in fr.findall('AO')}
+    pts = {p.get('ID') for a in fr.findall('AO') for p in a.findall('AP')}
+    for r in list(fr.findall('FR')):
+        if any(f.get('ObjId') not in ids for f in r.findall('FS')) or not r.findall('FS'):
+            fr.remove(r)
+    for a in fr.findall('AO'):
+        for p in a.findall('AP'):
+            for ac in list(p.findall('AC')):
+                if ac.get('ConnPtId') not in pts:
+                    p.remove(ac)
+
+
 def snap_th(v):
     """굵기를 정답 문장의 굵기 칸 값으로(그림과 정답이 정확히 같은 굵기 — 0.01 미만은 칸 최솟값으로 잘리던 것)."""
     return K.dq_th(K.q_th(v)) if v > 0 else v
@@ -123,7 +198,7 @@ def place(u, fr, hwr, rng, ids, z, keep=False):
     W, Hh = 100.0, 100.0 * hwr
     w, h = max(x1 - x0, 1e-3), max(y1 - y0, 1e-3)
     fit = min(W / w, Hh / h) * 0.98
-    if keep:   # 배경·실제 장 일부: 원래 크기·자리(화면 화소 비율 그대로). keep='exact'면 반전도 없음
+    if keep:   # 배경: 원래 크기·자리(화면 화소 비율 그대로). keep='exact'면 반전도 없음
         s, flip, tx, ty, th = 1.0, keep != 'exact' and rng.random() < 0.5, x0, y0, 1.0
     else:
         s = math.exp(rng.uniform(math.log(0.35), math.log(1.6)))   # 원래 크기 기준
@@ -132,6 +207,9 @@ def place(u, fr, hwr, rng, ids, z, keep=False):
         tx = rng.uniform(0, W - w * s)
         ty = rng.uniform(0, Hh - h * s)
         th = s ** 0.5 * math.exp(rng.uniform(math.log(0.7), math.log(1.4)))   # 굵기: 크기를 조금 따르고 무작위
+    circ = {a.get('ID') for a in u['aos'] if a.get('TypeId') == '2'}
+    if flip and not mirror_ok(u['frs'], circ):
+        flip = False   # 원 면 T를 범위 안으로 옮길 수 없으면 반전하지 않는다
     hs = u['hwr']
     old_layers = []
     for a in u['aos']:
@@ -172,13 +250,14 @@ def place(u, fr, hwr, rng, ids, z, keep=False):
         fr.append(b)
     for r in u['frs']:
         r2 = copy.deepcopy(r)
+        if flip:
+            mirror_fs(r2, circ)   # 원 면 T도 좌우 반전에 맞춘다(GPT 1라운드 ④)
         for fs in r2.findall('FS'):
             fs.set('ObjId', aomap[fs.get('ObjId')])
             for k in ('StartPtId', 'EndPtId'):
                 if fs.get(k) in apmap:
                     fs.set(k, apmap[fs.get(k)])
         fr.append(r2)
-    # 좌우 반전은 원 위상(T)을 바꾸지만 면 T는 그대로 둔다 — 그림·정답 모두 바뀐 SFA에서 다시 나오므로 서로 맞다
     return s, flip
 
 
@@ -207,6 +286,8 @@ def compose(pool, rng, n_target, hwr, bg_pool=None):
         n += u['n']
     for u in units:
         place(u, fr, hwr, rng, ids, layers)
+    seq.set('src', json.dumps(dict(kind='comp', n_target=n_target, units=[[u.get('src'), u.get('pos'), u['n']] for u in units]),
+                              ensure_ascii=False))   # 출처(⑦)
     for k, d in enumerate(layers):   # 레이어 정의는 장 앞쪽에(묶음 놓은 순서 = 앞뒤 순서)
         fr.insert(k, d)
     return seq, fr
@@ -228,31 +309,41 @@ def build_pool(files, root_dir, rng, frames_per_file=6):
             for u in units_of(fr, hwr):
                 u['bg'] = bg
                 u['src'] = rel
+                u['pos'] = fr.get('Position')
                 pool.append(u)
     bgp = [u for u in pool if is_bg(u)]
     pool = [u for u in pool if not is_bg(u)]
     return pool, bgp, hwrs
 
 
-def real_frame(root, fr, rng, hwr):
+def real_frame(root, fr, rng, hwr, src=None):
     """실제 한 장 전체를 장마다 따로 무작위 변환(좌우 반전·0.7–1.25배·±12% 이동·굵기 0.5–2배). 화면 밖은 정답 변환이 뺀다.
-    파일 하나의 장들이 모두 다른 자리·크기로 나와 외울 자리가 없다(seq_data.augment는 파일 전체에 같은 변환 하나)."""
+    파일 하나의 장들이 모두 다른 자리·크기로 나와 외울 자리가 없다(seq_data.augment는 파일 전체에 같은 변환 하나).
+    숨긴 레이어는 지운다(①). 반전하면 원 면 T도 맞춘다(④). 출처·변환은 Sequence의 src 속성(JSON)에 남긴다(⑦)."""
     seq = ET.Element('Sequence', dict(Name='real', HeightWidthRatio=repr(hwr), FrameCount='1',
                                       BackgroundColor=root.get('BackgroundColor', WHITE)))
-    f2 = copy.deepcopy(fr)
+    f2 = strip_hidden(copy.deepcopy(fr))
     f2.set('Position', '0')
     seq.append(f2)
     flip = rng.random() < 0.5
     sc = rng.uniform(0.7, 1.25)
     tx, ty = rng.uniform(-12, 12), rng.uniform(-12, 12)
     th = math.exp(rng.uniform(math.log(0.5), math.log(2.0)))
+    circ = {a.get('ID') for a in f2.findall('AO') if a.get('TypeId') == '2'}
+    if flip and not mirror_ok(f2.findall('FR'), circ):
+        flip = False
     for p in f2.iter('AP'):
         x, y = float(p.get('X')), float(p.get('Y'))
         x = 100 - x if flip else x
         p.set('X', repr((x - 50) * sc + 50 + tx))
         p.set('Y', repr((y - 50) * sc + 50 + ty))
+    if flip:
+        for r in f2.findall('FR'):
+            mirror_fs(r, circ)
     for o in f2.iter('AO'):
         o.set('ThicknessScale', repr(snap_th(float(o.get('ThicknessScale') or 1) * th)))
+    info = dict(src or {}, flip=flip, scale=round(sc, 4), tx=round(tx, 3), ty=round(ty, 3), thick=round(th, 4))
+    seq.set('src', json.dumps(info, ensure_ascii=False))
     return seq, f2
 
 
@@ -261,10 +352,40 @@ def n_target(rng, lo=1, hi=250):
     return int(round(math.exp(rng.uniform(math.log(lo), math.log(hi)))))
 
 
-def real_crop(fr, rng, hwr, maxlen):
-    """2,048단어를 넘는 실제 장(사용자 11-01: 넘는 원본도 일부를 떼어 오면 된다): 무작위 지점에서 가까운 묶음부터 원래 자리·원래 앞뒤 순서로
-    정답 길이 한도까지 담은 장. 실제 애니의 겹침·배치를 살린다. 반환 (Sequence, Frame) 또는 None."""
-    us = units_of(fr, hwr, max_objs=None)   # 큰 묶음도(혼자 넘치면 object_crop이 그 안에서 자른다)
+def subset(fr, keep_ids, bg, hwr):
+    """원본 장 복사본에서 keep_ids 밖 오브젝트를 지운 장(GPT 1라운드 ③: 원래 레이어·그리기 순서·배경을 그대로 보존)."""
+    seq = ET.Element('Sequence', dict(Name='crop', HeightWidthRatio=repr(hwr), FrameCount='1', BackgroundColor=bg))
+    f2 = strip_hidden(copy.deepcopy(fr))
+    for a in list(f2.findall('AO')):
+        if a.get('ID') not in keep_ids:
+            f2.remove(a)
+    keep_frame_refs(f2)
+    f2.set('Position', '0')
+    seq.append(f2)
+    return seq, f2
+
+
+def _fit(order_ids, fr, bg, hwr, maxlen):
+    """앞에서부터 몇 개를 담아야 정답 길이 한도 안에서 가장 많은가(이분 탐색). order_ids = [오브젝트 ID 묶음, ...]."""
+    def build(k):
+        return subset(fr, {i for g in order_ids[:k] for i in g}, bg, hwr)
+    if len(K.encode(*build(1))[0]) > maxlen:
+        return None
+    lo, hi = 1, len(order_ids)
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if len(K.encode(*build(mid))[0]) <= maxlen:
+            lo = mid
+        else:
+            hi = mid - 1
+    return build(lo)
+
+
+def real_crop(fr, rng, hwr, maxlen, bg=WHITE):
+    """2,048단어를 넘는 실제 장(사용자 11-01: 넘는 원본도 일부를 떼어 오면 된다): 무작위 지점에서 가까운 묶음부터 담고,
+    원본 장에서 나머지를 지워 원래 자리·레이어·그리기 순서·배경을 그대로 둔다. 가장 가까운 묶음 하나도 넘치면 그 안에서 오브젝트 단위로.
+    반환 (Sequence, Frame) 또는 None."""
+    us = units_of(fr, hwr, max_objs=None)
     if not us:
         return None
     ax, ay = rng.uniform(0, 100), rng.uniform(0, 100 * hwr)
@@ -273,57 +394,11 @@ def real_crop(fr, rng, hwr, maxlen):
         x0, y0, x1, y1 = bbox_px(u)
         return math.hypot((x0 + x1) / 2 - ax, (y0 + y1) / 2 - ay)
     us.sort(key=dist)
-
-    def build(k):
-        seq = ET.Element('Sequence', dict(Name='crop', HeightWidthRatio=repr(hwr), FrameCount='1', BackgroundColor=WHITE))
-        f2 = ET.SubElement(seq, 'Frame', dict(ID='1', Position='0', BackgroundColor=fr.get('BackgroundColor', WHITE)))
-        ids, layers = Ids(), []
-        for u in sorted(us[:k], key=lambda u: u['z']):
-            place(u, f2, hwr, rng, ids, layers, keep='exact')
-        for j, d in enumerate(layers):
-            f2.insert(j, d)
-        return seq, f2
-    lo, hi = 1, len(us)   # 한도 안에 드는 가장 많은 묶음 수(이분 탐색)
-    if len(K.encode(*build(1))[0]) > maxlen:
-        return object_crop(fr, us[0], rng, hwr, maxlen)   # 가장 가까운 묶음 하나도 넘치면 그 묶음 안에서 오브젝트 단위로
-    while lo < hi:
-        mid = (lo + hi + 1) // 2
-        if len(K.encode(*build(mid))[0]) <= maxlen:
-            lo = mid
-        else:
-            hi = mid - 1
-    return build(lo)
-
-
-def object_crop(fr, u, rng, hwr, maxlen):
-    """묶음 하나가 혼자 한도를 넘을 때: 그 묶음에서 무작위 지점에 가까운 오브젝트부터 원래 순서로 담는다.
-    빠진 오브젝트에 걸린 연결은 place가 지우고, 빠진 오브젝트를 참조하는 면은 뺀다."""
-    pts = [(a, [(float(p.get('X')), float(p.get('Y')) * hwr) for p in a.findall('AP')]) for a in u['aos']]
-    ax, ay = rng.choice([xy[0] for _, xy in pts if xy])
-
-    def d(item):
-        xy = item[1]
-        return min(math.hypot(x - ax, y - ay) for x, y in xy) if xy else 1e9
-    order = [a for a, _ in sorted(pts, key=d)]
-
-    def build(k):
-        keep = order[:k]
-        ids = {a.get('ID') for a in keep}
-        sub = dict(u, aos=keep, frs=[r for r in u['frs'] if all(f.get('ObjId') in ids for f in r.findall('FS'))])
-        seq = ET.Element('Sequence', dict(Name='crop', HeightWidthRatio=repr(hwr), FrameCount='1', BackgroundColor=WHITE))
-        f2 = ET.SubElement(seq, 'Frame', dict(ID='1', Position='0', BackgroundColor=fr.get('BackgroundColor', WHITE)))
-        layers = []
-        place(sub, f2, hwr, rng, Ids(), layers, keep='exact')
-        for j, dd in enumerate(layers):
-            f2.insert(j, dd)
-        return seq, f2
-    lo, hi = 1, len(order)
-    if len(K.encode(*build(1))[0]) > maxlen:
-        return None
-    while lo < hi:
-        mid = (lo + hi + 1) // 2
-        if len(K.encode(*build(mid))[0]) <= maxlen:
-            lo = mid
-        else:
-            hi = mid - 1
-    return build(lo)
+    got = _fit([{a.get('ID') for a in u['aos']} for u in us], fr, bg, hwr, maxlen)
+    if got is not None:
+        return got
+    u = us[0]   # 묶음 하나가 혼자 넘침: 그 묶음 안에서 가까운 오브젝트부터(빠진 오브젝트의 연결·면은 지운다)
+    pts = [(a.get('ID'), [(float(p.get('X')), float(p.get('Y')) * hwr) for p in a.findall('AP')]) for a in u['aos']]
+    bx, by = rng.choice([xy[0] for _, xy in pts if xy])
+    pts.sort(key=lambda it: min(math.hypot(x - bx, y - by) for x, y in it[1]) if it[1] else 1e9)
+    return _fit([{i} for i, _ in pts], fr, bg, hwr, maxlen)

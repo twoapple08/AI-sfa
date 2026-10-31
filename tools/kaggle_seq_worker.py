@@ -19,10 +19,10 @@ CONFIG = {'branch': 'ccr-bccf15a6-d6ee46', 'session_minutes': 690, 'plan_minutes
           'init_encoder': True}
 
 T0 = time.time()
-SPLITS = ('sd', 'sv', 'ss')   # 학습(+늘리기), 시험 파일, 위치 시험
+SPLITS = ('sd', 'sv', 'ss', 'sc')   # 학습(조합 문제), 시험 파일, 위치 시험, 실제·조합 고정 검증(11-01 GPT 1라운드 D)
 HIRES = (1920, 1280, 854)     # 해상도 단계(사용자 10-29·10-31): 1080 → 720 → 480 → 기본 360(sd). 영상(mp4)으로 저장
 COMPOSE_N = 40000             # 해상도 단계마다 조합 문제 장 수(11-01)
-CODE = ('seq_data.py', 'sfa_render.py', 'sfa_tokens.py', 'vec_data.py', 'sfa_compose.py')   # 자료 내용을 정하는 코드(바뀌었는데 판을 안 올린 경우를 잡는다)
+CODE = ('seq_data.py', 'sfa_render.py', 'sfa_tokens.py', 'vec_data.py', 'sfa_compose.py', 'sfa_paint_synth.py')   # 자료 내용을 정하는 코드(바뀌었는데 판을 안 올린 경우를 잡는다)
 
 
 def sh(cmd):
@@ -42,7 +42,8 @@ def data_args(c, cpus):
         **hi,
         sd=sd,
         sv=f'--maxlen 2048 --max-frames {4 if smoke else 40} --holdout {w}',
-        ss=f'--maxlen 2048 --max-frames {4 if smoke else 8} --every {40 if smoke else 10} --fixed 6,4,1.05 {w}')   # 위치 시험: 학습 파일 10개 중 1개에 학습에 없던 고정 이동(GPT 3차)
+        ss=f'--maxlen 2048 --max-frames {4 if smoke else 8} --every {40 if smoke else 10} --fixed 6,4,1.05 {w}',
+        sc=f'--maxlen 2048 --compose {300 if smoke else 1200} --seed 7777 {w}')   # 학습과 다른 씨앗의 실제·조합 장(640) — 종류별 검증   # 위치 시험: 학습 파일 10개 중 1개에 학습에 없던 고정 이동(GPT 3차)
 
 
 def code_hash(tools):
@@ -129,7 +130,7 @@ def main():
         dirs = {name: f'/kaggle/tmp/{name}' for name in data_args(c, cpus)}
         for name, args in data_args(c, cpus).items():
             sh(f'cd {tools} && python -u seq_data.py {dirs[name]} {args}')
-    data, val, shv = dirs['sd'], dirs['sv'], dirs['ss']
+    data, val, shv, vkd = dirs['sd'], dirs['sv'], dirs['ss'], dirs['sc']
     sj = '/kaggle/tmp/sj'   # 판정 자료(11-01): 작아서(장 46 × 4방향, 1분 안팎) 학습 커널에서 바로 만든다 — 미리 만든 자료(판 3)는 그대로
     sh(f'cd {tools} && python -u seq_judge.py build {sj}')
     stages = ','.join(dirs[f'sd{r}'] for r in HIRES) if c.get('stages', True) else ''
@@ -144,7 +145,7 @@ def main():
     if left < (1 if c.get('smoke') else 10):
         raise SystemExit('남은 시간이 없음')
     cmd = (f'cd {tools} && python -u seq_train.py train {data} {val} {out} --minutes {left:.0f} --plan-minutes {c["plan_minutes"]:.0f}'
-           f' --tok-budget {c["tok_budget"]} --shift-val {shv} --judge {sj}' + (f' --stages {stages}' if stages else '') + enc + f' {c["extra"]}')
+           f' --tok-budget {c["tok_budget"]} --shift-val {shv} --judge {sj} --val-kind {vkd}' + (f' --stages {stages}' if stages else '') + enc + f' {c["extra"]}')
     print('$', cmd, flush=True)
     con = open(f'{out}/train_console.txt', 'a', encoding='utf-8')
     pr = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace')
