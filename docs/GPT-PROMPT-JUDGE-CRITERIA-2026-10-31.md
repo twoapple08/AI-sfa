@@ -1,6 +1,6 @@
 # GPT 토론 요청 — 학습 판정 기준 검토 (2026-10-31, Claude 작성)
 
-사용자가 중계합니다. 아래 전체를 GPT에 붙여 넣으세요. 붙일 파일은 없습니다(코드는 공개 저장소 링크로 직접 볼 수 있음).
+사용자가 중계합니다. 아래 전체를 GPT에 붙여 넣으세요. 붙일 파일은 없습니다(GPT는 GitHub·Drive에 직접 접근 가능 — 1.1절).
 
 ---
 
@@ -17,6 +17,15 @@ Stick Fighter(안드로이드 막대인간 애니메이션 앱)의 `.sfa` 파일
   - 채점기 https://github.com/twoapple08/AI-sfa/blob/ccr-bccf15a6-d6ee46/tools/sfa_objscore.py
   - 학습기 https://github.com/twoapple08/AI-sfa/blob/ccr-bccf15a6-d6ee46/tools/seq_train.py
   - 정답지(토큰) https://github.com/twoapple08/AI-sfa/blob/ccr-bccf15a6-d6ee46/tools/sfa_tokens.py
+
+## 1.1 직접 읽고 검증할 자료(GitHub·Drive 접근 가능)
+Claude의 말을 그대로 믿지 말고, 아래를 직접 읽어 맞는지 확인해라. 틀린 주장이 있으면 줄·값을 들어 지적해라.
+- GitHub `twoapple08/AI-sfa`, 브랜치 `ccr-bccf15a6-d6ee46`
+  - `HANDOFF.md`(현재 상태), `docs/PROJECT-HISTORY-2026-10-31.md`(10-14→10-31 역사·재설계 때 빠진 항목), `docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md`(설계, §6.2 해상도 단계·§7 평가·만점의 뜻), `docs/TOKEN-LENGTH-2026-10-31.md`(단어 수·종류 측정)
+  - 채점 `tools/sfa_objscore.py`(`score`, `PARTIAL_ZERO`, `perfect`), 학습 `tools/seq_train.py`(`GROUPS`·`field_hits`·`gen_set`·`gen_one`·`stage_of`), 자료 `tools/seq_data.py`(`augment`·`--fixed` 위치 시험·`--synth`), 시험 `tests/test_sfa_objscore.py`·`tests/test_resolution_stages.py`
+- Google Drive `AI-sfa/02_분석자료/`
+  - `seq/vec_encoder.pt`(이어 쓰는 인코더), `vec/pc2/log.jsonl`(이전 픽셀 지도 2차 모델 학습 기록)
+- 특히 확인할 것: (a) 위치 시험 변환 `(x−50)×1.05+50+6`, `(y−50)×1.05+50+4`에서 외운 자세가 정답과 실제로 몇 % 떨어지는지(화면 위치마다 다름 — 가운데 근처는 덜 떨어질 수 있음), (b) 부분 점수의 거리 단위(가로 % 기준, 세로는 화면 비율을 곱함)가 문서 설명과 코드가 같은지, (c) 분야 나눔(`GROUPS`)이 정답지 칸(`sfa_tokens.FIELDS`)과 맞는지.
 
 ## 2. 사용자가 정한 채점 원칙(바꾸지 않음)
 - 채점은 AI 파일을 원본 파일과 비교한다. 파일이 같으면 영상도 같다. 만점이면 인코딩 영상도 육안상 같다.
