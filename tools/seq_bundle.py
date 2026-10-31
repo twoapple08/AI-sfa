@@ -110,7 +110,7 @@ def share(A, B, stats, ref=None, memo=None):
 
 
 def pair_score(fa, fb, frames, stats, ref=None, memo=None):
-    """두 방향 공유 비율 중 큰 쪽(한쪽이 발췌본이어도 잡게 — 묶음을 넉넉히 합치는 쪽이 부호 검정에 보수적)."""
+    """두 방향 공유 비율 중 큰 쪽(한쪽이 발췌본이어도 잡게 — 합치는 근거는 내용 중복 — '합치면 보수적'은 틀린 설명이라 철회(GPT 1라운드 F))."""
     ref_ = [frames[f] for f in ref if f not in (fa, fb)] if ref is not None else None
     return max(share(frames[fa], frames[fb], stats, ref_, memo), share(frames[fb], frames[fa], stats, ref_, memo))
 
@@ -122,7 +122,7 @@ def name_key(f):
 
 
 def apply(bundles_path, manifest_path=J.MANIFEST):
-    """높은 확률 후보 쌍을 평가 목록의 같은 묶음(한 표)으로 합친다. 정확 사본 묶음은 그대로. 합치는 쪽이 부호 검정에 보수적."""
+    """높은 확률 후보 쌍을 평가 목록의 같은 묶음(한 표)으로 합친다. 정확 사본 묶음은 그대로. 근거는 내용 중복(합치면 통과가 쉬워질 수도 있다, GPT 1라운드 F)."""
     with open(bundles_path, encoding='utf-8') as fh:
         b = json.load(fh)
     with open(manifest_path, encoding='utf-8') as fh:
