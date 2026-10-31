@@ -1,13 +1,40 @@
-https://github.com/twoapple08/AI-sfa 작업을 이어서 진행해 줘.
-최신 HANDOFF.md, AGENTS.md, docs/AOT-MODIFY-COLOR-GLOW-APPLY-TRACE-2026-10-27.md를 읽고 재개해(DISPATCH-TARGETS는 필요 시). 기능표/FEATURE-CONTRACT-INDEX와 필요한 보고서만 추가로 읽는다.
+# 인수인계 프롬프트 (2026-11-01 — 영상 → SFA 변환 AI, 판정 장치 구현 직전)
 
-사용자 지시: 혼자 가능한 일을 전부 자율 진행. 작은 보고서/커밋마다 멈추거나 같은 허용을 다시 묻지마. 02:06정정: 작업종류의 일률금지가 아니라 ‘이미 완료했고 필요없는 작업을 오판해 반복하지말라’는 뜻이다. 환경소실·새미해결질문 등 실제필요가 있는 작업은 범위를 좁혀 진행. 02:02서버도구복구 설치·다운로드·AOT재추출 상시허용은 다음인수인계에도 유지. 현재폰재설치/페어링/기존00–05영상재분석이 필요한 근거는 없으므로 반복하지마.
+https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. 시작할 때 fetch·merge하고, 시스템이 다른 브랜치를 배정하면 같은 HEAD를 그 브랜치에도 푸시한다. **모든 답을 한국어로만 쓴다.**
 
-10-27컨테이너: /workspace/scratch없음, 환경제공 /root/sfa-cache/extracted(cache.zip)가 manifest803 hash일치→이것을 private root로 재사용(재추출안함). 과거경로: /workspace/scratch/5a16c98ed7ee/private-recovery/{blutter_out,evidence,venv,blutter/bin,depsroot,dispatch_out}. AOT671/asm666/86508012bytes/선언12752,입력hash3일치,추출종료0. 없어지면 기존비공개 AI-sfa-analysis-cache-2026-10-16.zip 먼저복구. 과거‘캐시없음/도구설치검토거절’을현행차단으로재사용하지마. 캐시가있는데다시전체빌드/덤프하지마.
+**읽기 순서:** AGENTS.md → HANDOFF.md(현재 우선순위·바로 할 일·사용자 결정 대기) → **docs/JUDGE-CRITERIA-FINAL-2026-10-31.md(확정 판정 기준)** → 필요할 때 docs/PROJECT-HISTORY-2026-10-31.md(전체 역사), docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md(설계), docs/EXPLAINER-VIDEO-TO-SFA-2026-10-31.md(해설).
 
-새완료: UNUSED-AO-FAST-HASH(73명령): 후보C에서실제비root점A·가상기반R을제외해삭제. FastHash=Position/FR색·segment수/AO ID·색·DrawOrder/점round(xy*10000)·Flags;자체hashcache없음/전체상태동등성아님. TIMELINE-FRAME-COMMANDS(146):실제layoutcallback→insert/paste전후/clipboard/배경/ID·연결·그룹·fill map/DB순서·preview/마지막삭제새frame. DISPATCH-TARGETS: 실제표origin4096,len57043/cid90·91·92 +85e4 first. 상세변형fallback첫AO첫점·Adopt첫layer/merge·copy목록first 정상계열확인. cid92+bc49 removeLast,+9780last,+8cb1iterator.6mapping+16명령. 이전미확정반복금지/다른cid일반화금지/실제앱시험아님.
+## 목표 한 줄
+스틱파이터 영상을 넣으면 앱에서 바로 열리는 .sfa를 만드는 AI. 모델이 영상 한 장을 보고 SFA 오브젝트 문장(토큰열)을 직접 쓴다. 픽셀 그림을 거치지 않는다.
 
-ROOT-COPY-DB-BRANCHES(49명령)도추가완료:source기반의원점ID/AOrank연속prefix p가2(N−p)≤N이면기존root를p개재사용,아니면새root/조건부source rebase시도/targetbase. ID예약은AUTOINCREMENT schema따라sqlite_sequence상향 또는가상base꼬리정리. 같은sequence ID유지/다른sequence새AOID·DB복사상위단계확인. 이정상경로재분석반복금지.
-MODIFY-COLOR-GLOW-APPLY(234명령)완료: 색상/글로우탭 첫AO초기화(글로우두께≤0→20)·setter/pending·hex6=불투명/8=ARGB·HSV↔ARGB·ApplyOnlyColor대상전체Color·ApplyOnlyGlow 4필드일괄·최근색7/프리셋16. 라벨 강도=GlowRadius/범위=GlowThickness. 재분석금지. 다음은기능표의아직직접연결하지않은구체UIcallback(HANDOFF후보:PopupFrameOptions·PopupCustomOptions·EditCustomFigure·SelectFigure/FigureDefinition·Viewer/VideoSettings·CreateProject·BackgroundPicker 중 하나)을 식별해coverage보충. 원시DB수명/실패·codec비정상/overflow/동시DB·전체UI·실제pixel미완. 일반앞뒤/별도lockUI미식별은같은PP/이름검색반복하지말고새구체caller만. 정적미수행을실물전용으로바꾸거나전체독립작업완료로주장하지마.
+## 최종 목표(사용자 2026-10-21, AGENTS.md가 참조)
+- 기기 안에서 도는 앱(APK·EXE)에 창작 AI를 넣는다. 태그, 자연어, 스토리보드 프롬프트를 받아 .sfa 애니메이션을 만든다.
+- 실행 위치는 10-26 임시 결정 B를 따른다: 휴대폰은 접근 화면, 생성은 서버 GPU. '기기 안에서만'은 폐기가 아니라 보류다.
+- 영상 → SFA 변환 AI는 그 생성 결과(또는 기존 영상)를 SFA로 옮기는 핵심 부품이다.
+- 상세 원문: docs/history/HANDOFF-PROMPT-2026-10-21-archive.md
 
-원본00–05실제표본존재/기존계측Gadget·Flutter로드성공이나license4지속편집차단. PC현재없음/학교Wi-Fi제약,서버x86_64/adb·emulator없음. license우회안함. PREVIDEO3278146/File-2원본·최적화보호/FPS=(트위닝,재생)/굽힘없음/화면밖좌표보존/학습AI통합보류. 원본APK/SFA/영상/역컴파일·assembly/키/전체로그공개금지. 작성보고서·집계·인계main상시승인/최신head·tree·expected_sha보호/다른작업보존. 문서만변경시기존unit/probe반복금지. 전체분석완료/완성AI주장금지.
+## 지금 위치(11-01)
+- 1판 학습 준비 완료: 정답지·학습기·채점기, 해상도 단계(1080→360), 페인트 합성, 굵기 배율, 인코더 이어 쓰기, Kaggle CPU 미리 만든 자료(판 3), 전체 기능 CPU 흐름 시험 통과, 단위 시험 78개.
+- 판정 기준은 GPT와 4라운드 토론으로 확정했다(같은 장면 반대 방향 이동 영상 교환 대조, 파일 단위 부호 검정 등).
+- **바로 할 일: 판정 장치 구현**(HANDOFF '바로 할 일' 1) → PC 2시간 시험 학습 → 판정 → Kaggle 본 학습.
+- **사용자 지시 없이 Kaggle GPU 실행 금지.**
+- 사용자 결정 대기: 본 학습 최대 예산, 숫자 허용 범위 눈 판정 시트, '연기 1·4' 같은 작품 여부.
+
+## 사용자와 일하는 방식
+- 먼저 답하고, 계획(무엇·왜·얼마나)을 말한 뒤 작업한다. "아직 하지 말라"면 계획만 말한다.
+- 결과는 그림(입력 | AI SFA | 원본)과 숫자로 보여 주고, 틀리면 틀렸다고 말한다.
+- 사용자 원칙
+  - 스파로 그린다.
+  - 파일을 원본 파일로 채점한다. 만점이면 영상도 같다.
+  - 영상이 안 바뀌는 차이(ID·면 칠 순서·파란점·점 방향·관절 연결(10-31)·겹치지 않거나 같은 겉모습끼리 순서)는 정답으로 친다.
+  - 기본 점수 없음. 판정 기준은 확정본을 따른다.
+- 토론은 논증거리가 없어질 때까지(10-31). 주장의 근거는 먼저 재 보고 쓴다(10-31: '외우면 0점' 주장이 실측 17.7점으로 틀렸음).
+  - 둥근 곳은 곡선, 비율은 파일 그대로.
+  - 24,24 트위닝 없음.
+- GPT 토론
+  - 사용자가 중계한다. 근거로 동의하거나 반대하고, 측정으로 가를 수 있으면 잰다.
+  - 합의가 안 되면 쟁점과 양쪽 근거를 정리해 사용자 판정을 받는다.
+  - GPT 추가 검사 자료를 받으면 README부터 끝까지 읽는다.
+- 같은 서버에서 학습이나 채점을 동시에 두 개 돌리지 않는다(10-30에 두 번 결과 무효).
+- 백그라운드 대기 명령에 다른 작업을 이어 붙이지 않는다. `pkill -f`로 자기 셸까지 종료시키지 않는다.
+- 3D 금지. 원본 영상·추출 프레임·가중치는 저장소에 넣지 않는다. 토큰·키 출력 금지.

@@ -1,0 +1,338 @@
+번호,부모번호,단계,요소,관계,난이도,태그,CLIP
+1,,0,무기,,,,
+2,1,1,총,,2,gun handgun rifle assault_rifle machine_gun submachine_gun shotgun sniper_rifle revolver,
+3,2,2,탄창,부품,1,magazine_(weapon),
+4,2,2,스코프,부품,1,scope,
+5,2,2,총검,부품,1,bayonet,
+6,2,2,레이저 조준선,부품,2,,laser_sight
+7,2,2,총알,탄,1,bullet ammunition,
+8,2,2,탄띠,탄,1,ammunition_belt,
+9,2,2,탄피,부산물,2,shell_casing,
+10,2,2,총구 화염,이펙트,3,muzzle_flash,
+11,2,2,탄도 궤적,이펙트,3,,bullet_trail tracer_fire
+12,2,2,탄착 불꽃·먼지,이펙트,3,,bullet_impact
+13,1,1,대포·포탑,,2,cannon turret,
+14,13,2,포신,부품,1,,gun_barrel
+15,13,2,포탄·대포알,탄,1,,cannonball artillery_shell
+16,13,2,포구 화염,이펙트,3,muzzle_flash,
+17,13,2,포연,부산물,3,,cannon_smoke
+18,13,2,착탄 폭발,이펙트,3,,shell_explosion
+19,1,1,미사일·로켓,,2,missile rocket_launcher rocket,
+20,19,2,미사일 궤적 연기,이펙트,3,smoke_trail contrail,
+21,19,2,추진 불꽃,이펙트,3,,rocket_exhaust
+22,19,2,다연장 발사,종류,3,,missile_swarm
+23,1,1,폭탄·수류탄,,1,bomb grenade,
+24,23,2,안전핀,부품,1,,grenade_pin
+25,23,2,폭탄 파편,부산물,3,,shrapnel
+26,1,1,검,,2,sword katana holding_sword,
+27,26,2,칼날,부품,1,,blade
+28,26,2,손잡이·코등이,부품,1,,sword_hilt tsuba
+29,26,2,칼집,부품,1,sheath,
+30,26,2,검광·궤적,이펙트,3,slashing,sword_slash_trail
+31,26,2,날 부딪힘 불꽃,이펙트,3,sparks,clashing_swords
+32,26,2,베인 자국,부산물,3,,cut_mark slash_mark
+33,26,2,날아가는 참격,이펙트,3,,energy_slash
+34,1,1,단검·칼,,1,dagger knife,
+35,34,2,던진 칼,종류,2,throwing_knife kunai,
+36,1,1,창·봉,,2,spear polearm naginata,
+37,1,1,도끼·둔기,,2,axe hammer mace,
+38,1,1,낫,,2,scythe,
+39,1,1,활,,2,bow_(weapon),
+40,39,2,화살,탄,1,arrow_(projectile),
+41,39,2,화살 궤적,이펙트,3,,arrow_trail
+42,1,1,방패,,1,shield,
+43,42,2,방패 충돌 불꽃,이펙트,3,,shield_impact_sparks
+44,1,1,사슬·채찍,,2,chain whip,
+45,1,1,발톱·손톱,,2,claws long_fingernails,
+46,1,1,촉수,,3,tentacles,
+47,1,1,광선검·에너지 칼,,3,energy_sword lightsaber,
+48,1,1,지팡이·마법봉,,2,wand,staff_(weapon)
+49,1,1,수리검·부메랑,,2,shuriken,boomerang
+50,49,2,회전 궤적,이펙트,3,,spinning_trail
+51,1,1,갈고리·와이어,,2,wire,grappling_hook
+52,51,2,와이어 궤적,이펙트,3,,wire_trail
+53,1,1,에너지 포,,3,arm_cannon,beam_cannon
+54,1,1,맨손 타격,,3,punching kicking,
+55,54,2,타격 섬광,이펙트,3,,impact_flash
+56,54,2,타격 충격파,이펙트,3,,impact_shockwave
+57,,0,원소 이펙트,,,,
+58,57,1,불,,3,fire burning,
+59,58,2,푸른 불,종류,3,blue_fire,
+60,58,2,불꽃 혀,부품,3,,flame_tongues
+61,58,2,불씨·불티,부산물,3,embers sparks,
+62,58,2,재,부산물,2,,ash
+63,58,2,아지랑이,부산물,3,,heat_haze
+64,58,2,불덩이,종류,3,,fireball
+65,58,2,화염 방사,종류,3,,flamethrower
+66,57,1,폭발,,3,explosion explosive,
+67,66,2,폭발 섬광,이펙트,3,,explosion_flash
+68,66,2,버섯구름·폭연,부산물,3,,mushroom_cloud
+69,66,2,충격파 고리,이펙트,3,,shockwave_ring
+70,66,2,폭발 파편,부산물,3,debris,
+71,66,2,연쇄 폭발,종류,3,,chain_explosions
+72,57,1,연기,,3,smoke,
+73,72,2,검은 연기,종류,3,,black_smoke
+74,72,2,흰 연기·증기,종류,3,steam,white_smoke
+75,72,2,연막,종류,3,,smoke_screen
+76,57,1,번개·전기,,3,lightning electricity,
+77,76,2,낙뢰,종류,3,,lightning_bolt_strike
+78,76,2,몸의 전류,종류,3,,electric_aura
+79,76,2,방전 불꽃,부산물,3,,electric_sparks
+80,57,1,물,,3,water,
+81,80,2,물보라,부산물,3,splashing,
+82,80,2,물방울,부산물,3,water_drop,
+83,80,2,파도,종류,3,waves,
+84,80,2,물기둥,종류,3,,water_pillar
+85,80,2,거품,부산물,2,bubble,
+86,80,2,소용돌이,종류,3,,whirlpool
+87,57,1,얼음,,3,ice,
+88,87,2,고드름,부품,2,,icicle
+89,87,2,얼음 조각,부산물,3,crystal,ice_shards
+90,87,2,서리,부산물,2,,frost
+91,87,2,냉기,이펙트,3,,cold_mist
+92,57,1,바람,,3,wind,
+93,92,2,회오리,종류,3,,tornado
+94,92,2,흩날림(잎·꽃잎),부산물,3,falling_leaves petals,
+95,92,2,풍압선,이펙트,3,,wind_lines
+96,57,1,흙·바위,,3,rock floating_rock,
+97,96,2,솟는 바위,종류,3,,rock_spikes
+98,96,2,모래,종류,3,sand,
+99,96,2,모래폭풍,종류,3,,sandstorm
+100,96,2,진흙,종류,3,,mud
+101,57,1,빛,,3,light glowing,
+102,101,2,섬광,종류,3,,flash
+103,101,2,빛줄기,종류,3,light_rays,
+104,101,2,렌즈 플레어,종류,2,lens_flare,
+105,101,2,빛 입자,부산물,3,light_particles,
+106,57,1,에너지,,3,energy,
+107,106,2,광선·레이저,종류,3,energy_beam laser,
+108,106,2,에너지 구,종류,3,energy_ball,
+109,106,2,오라,종류,3,aura,
+110,106,2,기 모으기 빛,종류,3,,charging_energy
+111,106,2,방어막·배리어,종류,3,,barrier force_field
+112,57,1,마법,,3,magic,
+113,112,2,마법진,종류,3,magic_circle,
+114,112,2,문양·룬,부품,2,runes,glowing_symbols
+115,112,2,소환,종류,3,,summoning
+116,57,1,체액,,3,blood,
+117,116,2,피 튐,부산물,3,blood_splatter,
+118,116,2,핏자국,부산물,2,blood_stain,
+119,116,2,괴물 체액,종류,3,,slime monster_blood
+120,57,1,독·산성,,3,,poison acid
+121,120,2,독안개,종류,3,,poison_gas
+122,57,1,어둠·그림자,,3,darkness shadow,
+123,122,2,그림자 촉수,종류,3,,shadow_tendrils
+124,122,2,검은 안개,종류,3,dark_aura,
+125,57,1,공간·중력,,3,,space_distortion
+126,125,2,차원문·포털,종류,3,,portal
+127,125,2,공간 균열,종류,3,,dimensional_rift
+128,125,2,블랙홀·중력 구,종류,3,,black_hole
+129,57,1,음파,,3,,sound_waves
+130,57,1,식물,,3,plant vines,
+131,130,2,덩굴 공격,종류,3,,thorny_vines
+132,57,1,금속·모래 조종,,3,,metal_manipulation
+133,57,1,날씨,,3,,weather
+134,133,2,비,종류,3,rain,
+135,133,2,눈,종류,3,snow snowing,
+136,133,2,안개,종류,3,fog,
+137,133,2,우박,종류,3,,hail
+138,,0,충격·파괴,,,,
+139,138,1,충격파,,3,,shockwave
+140,139,2,지면 충격파,종류,3,,ground_shockwave
+141,139,2,공기 왜곡,이펙트,3,,air_distortion
+142,138,1,파편,,3,debris rubble,
+143,142,2,돌·콘크리트 조각,종류,3,rubble brick,
+144,142,2,나무 조각,종류,3,,wood_splinters
+145,142,2,금속 조각,종류,3,,metal_scrap
+146,142,2,유리 조각,종류,3,glass_shards shards broken_glass,
+147,138,1,먼지,,3,dust dust_cloud,
+148,147,2,흙먼지 기둥,종류,3,,dust_plume
+149,138,1,균열,,3,,cracks
+150,149,2,지면 균열,종류,3,,cracked_ground
+151,149,2,벽 균열,종류,3,cracked_wall,
+152,149,2,크레이터,종류,2,,crater
+153,138,1,붕괴,,3,destruction,collapse
+154,138,1,그을음·탄 자국,,2,,scorch_marks burn_marks
+155,138,1,녹아내림,,3,melting,
+156,155,2,건물 붕괴,종류,3,,collapsing_building
+157,155,2,다리 붕괴,종류,3,,collapsing_bridge
+158,,0,연출,,,,
+159,158,1,스미어,,3,motion_blur,smear_frame
+160,158,1,속도선,,2,speed_lines motion_lines,
+161,160,2,집중선,종류,2,emphasis_lines,focus_lines
+162,158,1,잔상,,3,afterimage,
+163,162,2,분신,종류,3,clone,
+164,158,1,임팩트 프레임,,3,,impact_frame
+165,164,2,흑백,종류,2,monochrome greyscale,
+166,164,2,단색,종류,2,limited_palette,
+167,164,2,명암 반전,종류,2,,negative_image
+168,164,2,선화만,종류,3,lineart,
+169,158,1,카메라,,3,,camera_movement
+170,169,2,회전·궤도,종류,3,,rotating_camera
+171,169,2,흔들림,종류,2,,camera_shake
+172,169,2,줌·돌진,종류,3,,zoom
+173,169,2,배경동화,종류,3,,background_animation
+174,158,1,구도,,2,,composition
+175,174,2,어안,종류,2,fisheye,
+176,174,2,기울인 구도,종류,1,dutch_angle,
+177,174,2,올려다보기,종류,2,from_below,
+178,174,2,내려다보기,종류,2,from_above,
+179,174,2,원근 강조,종류,3,perspective foreshortening,
+180,158,1,빛·색 연출,,2,,lighting
+181,180,2,실루엣,종류,1,silhouette,
+182,180,2,역광,종류,2,backlighting,
+183,180,2,색수차,종류,1,chromatic_aberration,
+184,180,2,화면 분할,종류,1,split_screen,
+185,158,1,시간 연출,,2,,time_effect
+186,185,2,슬로모션·정지,종류,2,,slow_motion freeze_frame
+187,158,1,화면 처리,,2,,post_processing
+188,187,2,피사계 심도(흐림),종류,2,depth_of_field blurry_background,
+189,187,2,빛 번짐(블룸),종류,2,bloom,
+190,187,2,필름 입자,종류,1,film_grain,
+191,187,2,컷인,종류,2,,cut-in
+192,187,2,화면 전환(와이프),종류,2,,screen_wipe
+193,158,1,2차 움직임,,3,,secondary_motion
+194,193,2,천·망토 휘날림,종류,3,cape floating_clothes,
+195,193,2,머리카락 휘날림,종류,3,floating_hair,
+196,,0,지형·자연,,,,
+197,196,1,산,,2,mountain mountainous_horizon,
+198,197,2,절벽,부품,2,cliff,
+199,197,2,바위,부품,2,rock,
+200,197,2,동굴,부품,2,cave,
+201,197,2,협곡,종류,2,,canyon
+202,196,1,물가,,3,river ocean lake,
+203,202,2,강,종류,3,river,
+204,202,2,바다,종류,3,ocean,
+205,202,2,호수,종류,2,lake,
+206,202,2,폭포,종류,3,waterfall,
+207,202,2,해변·모래사장,종류,1,beach shore,
+208,202,2,섬,종류,1,island,
+209,202,2,수중,종류,3,underwater,
+210,196,1,숲,,2,forest,
+211,210,2,나무,부품,2,tree,
+212,210,2,나뭇잎,부품,2,leaf,
+213,210,2,풀,부품,2,grass,
+214,210,2,대나무,종류,2,bamboo,
+215,196,1,들판,,1,field,
+216,196,1,늪·습지,,2,,swamp
+217,196,1,정글,,2,jungle,
+218,196,1,빙하·빙산,,2,,glacier iceberg
+219,196,1,사막,,1,desert,
+220,219,2,모래 언덕,부품,2,,dune
+221,196,1,설원,,2,snow,
+222,221,2,눈 덮인 산,종류,2,,snowy_mountain
+223,196,1,화산,,3,volcano,
+224,223,2,용암,부품,3,lava,
+225,223,2,화산재,부산물,3,,volcanic_ash
+226,196,1,하늘,,1,sky,
+227,226,2,구름,부품,3,cloud cloudy_sky,
+228,226,2,노을·해,부품,1,sunset sun,
+229,226,2,밤하늘·별,부품,1,night_sky starry_sky,
+230,226,2,무지개,부품,1,rainbow,
+231,226,2,오로라,부품,3,aurora,
+232,196,1,우주,,1,space,
+233,232,2,행성·달,부품,1,planet moon,
+234,232,2,운석,부품,3,,meteor
+235,232,2,성운,부품,2,nebula,
+236,,0,인공 배경,,,,
+237,236,1,도시,,2,city cityscape,
+238,237,2,고층 빌딩,부품,1,skyscraper,
+239,237,2,도로·거리,부품,1,road street,
+240,237,2,간판·네온,부품,1,sign neon_lights,
+241,237,2,전봇대·전선,부품,1,power_lines utility_pole,
+242,237,2,신호등,부품,1,traffic_light,
+243,237,2,가로등,부품,1,lamppost,
+244,236,1,건물,,1,building,
+245,244,2,유리창,부품,1,window,
+246,244,2,벽,부품,1,,wall
+247,244,2,지붕,부품,1,rooftop,
+248,244,2,계단,부품,2,stairs,
+249,244,2,철근,부산물,2,,rebar
+250,236,1,실내,,1,indoors,
+251,250,2,복도,종류,1,hallway,
+252,250,2,기둥,부품,1,pillar,
+253,250,2,가구,부품,2,,furniture
+254,236,1,폐허,,2,ruins,
+255,254,2,무너진 잔해 더미,부품,3,rubble,
+256,236,1,다리,,2,bridge,
+257,236,1,철로,,1,railroad_tracks,
+258,236,1,성·탑,,2,castle tower,
+259,236,1,공장·기계,,2,machinery,
+260,259,2,톱니,부품,1,gears,
+261,259,2,파이프,부품,1,,pipe
+262,259,2,전선·케이블,부품,2,cable wire,
+263,236,1,항구,,2,pier,harbor
+264,263,2,크레인,부품,2,crane_(machine),
+265,236,1,학교·교실,,1,school classroom,
+266,236,1,신사·절,,2,shrine torii temple,
+267,236,1,주택가,,1,house,residential_area
+268,236,1,지하·지하철,,2,,subway underground
+269,236,1,경기장·투기장,,2,stadium,arena
+270,236,1,기지·요새,,2,,military_base fortress
+271,270,2,성벽,부품,2,,castle_wall
+272,236,1,연구소·실험실,,2,,laboratory
+273,236,1,우주정거장,,2,,space_station
+274,,0,탈것,,,,
+275,274,1,자동차,,2,car,
+276,275,2,바퀴,부품,1,wheel,
+277,275,2,타이어 자국,부산물,2,,tire_marks
+278,275,2,배기 연기,부산물,3,,exhaust
+279,275,2,전조등 빛,이펙트,2,,headlights
+280,274,1,오토바이,,2,motorcycle,
+281,274,1,트럭,,2,truck,
+282,274,1,기차,,2,train,
+283,282,2,객차,부품,2,,train_car
+284,274,1,배,,2,ship boat watercraft,
+285,284,2,돛,부품,1,,sail
+286,284,2,항적 물보라,부산물,3,,wake_(water)
+287,274,1,군함,,2,warship,
+288,287,2,함포,부품,2,,naval_gun
+289,274,1,비행기,,2,airplane aircraft,
+290,289,2,프로펠러,부품,2,propeller,
+291,289,2,비행운,부산물,3,contrail,
+292,274,1,헬기,,2,helicopter,
+293,292,2,로터,부품,2,,rotor
+294,274,1,우주선,,2,spacecraft,
+295,294,2,추진 불꽃,이펙트,3,,thruster_flame
+296,274,1,전차,,2,tank,
+297,296,2,무한궤도,부품,2,,tank_treads
+298,274,1,버스,,2,bus,
+299,274,1,자전거,,2,bicycle,
+300,274,1,잠수함,,2,,submarine
+301,274,1,비행선,,2,airship,
+302,274,1,말·탈것 동물,,3,horse horseback_riding,
+303,,0,상대·생물,,,,
+304,303,1,로봇·메카,,2,mecha robot,
+305,304,2,장갑판,부품,2,,armor_plates
+306,304,2,관절,부품,2,,mechanical_joints
+307,304,2,추진기 불꽃,이펙트,3,thrusters,
+308,304,2,미사일 포드,부품,2,missile_pod,
+309,304,2,장갑 파편,부산물,3,,mecha_debris
+310,304,2,눈·센서 빛,이펙트,2,glowing_eyes,
+311,303,1,괴물,,3,monster,
+312,311,2,이빨·입,부품,2,teeth sharp_teeth,
+313,311,2,촉수,부품,3,tentacles,
+314,311,2,체액,부산물,3,,slime
+315,303,1,거대 생물,,3,giant,kaiju
+316,303,1,용,,3,dragon,
+317,316,2,날개,부품,3,dragon_wings,
+318,316,2,비늘,부품,2,scales,
+319,316,2,브레스,이펙트,3,,breath_weapon
+320,303,1,짐승,,2,animal wolf,
+321,320,2,털 휘날림,이펙트,3,,fur
+322,303,1,새,,2,bird,
+323,322,2,깃털,부산물,2,feathers,
+324,303,1,곤충·벌레,,2,bug,insect
+325,303,1,해골·언데드,,2,skeleton skull zombie,
+326,303,1,군중·군대,,2,crowd army soldier,
+327,303,1,유령·정령,,3,ghost spirit,
+328,303,1,슬라임,,3,slime_(creature),
+329,303,1,식물 괴물,,3,,plant_monster
+330,,0,장비·의상,,,,
+331,330,1,갑옷,,2,armor,
+332,331,2,갑옷 파편,부산물,3,broken_armor,
+333,330,1,투구·헬멧,,2,helmet,
+334,330,1,가면,,1,mask,
+335,330,1,망토,,2,cape cloak,
+336,330,1,고글,,1,goggles,
+337,330,1,날개 장비·추진팩,,2,jetpack mechanical_wings,

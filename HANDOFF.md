@@ -1,60 +1,101 @@
-# AI-sfa 현행 인수인계 — 2026-10-27
+# AI-sfa 현행 인수인계 — 2026-11-01
 
-## 목표·사용자 지시
+이전 판(10-31 낮의 상세 기록): docs/history/HANDOFF-2026-10-31-day.md
+전체 역사(10-14 → 10-31): docs/PROJECT-HISTORY-2026-10-31.md
+새 대화 시작 문구: docs/HANDOFF-PROMPT.md
 
-- 한국어. Stick Fighter51.0.0의 모든 창작/편집 기능을 전문가 수준으로 분석하고 실제 검증하는 목표 유지. 학습·AI 연결·사쿠가 수집은 보류. 최소 생성기/근사 렌더로 목표 축소 금지.
-- 사용자는 혼자 가능한 일을 전부 자율 진행하라고 반복했다. 작은 문서/커밋마다 다음 안내로 멈추거나 같은 허용을 다시 묻지 않는다. 완료/미수행/실제 차단을 구분하고 완벽한 전체 이해나 모든 독립 작업 완료를 거짓 주장하지 않는다.
-- **02:06 KST 정정:** “이미 분석완료했고 할필요없는 작업을 너의 오판으로 또하지 말라는 뜻”. 설치/페어링/영상 분석 등 작업 종류를 일률적으로 금지한 것이 아니다. 기존 완료 근거를 우선 재사용하고, 환경 소실·새 미해결 질문 등 실제 필요가 있는 재작업만 이유/범위를 확인해 진행한다. 과거 문서의 포괄적인 ‘반복 금지’ 표현보다 이 정정이 우선한다.
-- **02:02 KST 상시 허용:** 서버 분석 도구 복구에 필요한 설치·다운로드·AOT 재추출은 명시적 예외로 허용하며 다음 대화/인수인계에도 유지한다. 현재 유효한 cache/백업이 있으면 불필요한 전체 추출은 하지 않는다. 과거 자동 검토 거절은 이 허용 이전 이력이고 이후 설치/추출은 실제 성공했다.
-- 휴대폰 재설치·페어링·기존00–05 영상/SFA 재분석이 현재 필요한 근거는 없으므로 반복/요청하지 않는다. 과거 실제 UI/출력 표본은 있으므로 ‘실물 시험 전혀 없음’으로 쓰지 않는다.
+## 현재 우선순위
+**영상 → SFA 변환 AI(재설계판) 1판.** 지금은 판정 장치를 구현해야 하고, 그다음 PC 시험 학습을 한다.
+- 모델이 영상 한 장을 보고 SFA 오브젝트 문장(토큰열)을 빈 상태에서 직접 쓴다. 그 파일을 원본 파일과 오브젝트 단위로 채점한다.
+- 주 목적은 스틱맨 동작(사용자 10-28).
+- 설계: docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md(§6.2 해상도 단계). 일반인용 해설: docs/EXPLAINER-VIDEO-TO-SFA-2026-10-31.md
+- **판정 기준(확정): docs/JUDGE-CRITERIA-FINAL-2026-10-31.md** — GPT와 4라운드 토론 끝에 '논증거리 없음'. 경과: docs/JUDGE-CRITERIA-DEBATE-2026-10-31.md
 
-## 보호·공개 권한
+## 꼭 지킬 사용자 결정
+- **사용자 지시 없이 Kaggle GPU 실행 금지.** GPU 시간은 남은 확인 뒤에 풀로 쓴다(주간 30시간 중 약 0.5시간 사용, 10-31 09:02 KST 초기화). Kaggle CPU 자료 만들기·CPU 흐름 시험은 승인 범위.
+- 채점 원칙
+  - AI 파일 대 원본 파일, 만점이면 영상도 육안상 같다.
+  - 영상이 안 바뀌는 차이는 정답: ID·면 칠 순서·파란점·점 방향·**관절 연결(10-31)**·겹치지 않는 것끼리 순서.
+  - 기본 점수 없음.
+- 토론은 논증거리가 없어질 때까지 한다(사용자 10-31). GPT는 GitHub·Drive에 직접 접근 가능하다.
 
-- 직접 작성 보고서·집계/audit·작업지침은 main 반영 상시 승인. 최신 remote SHA/tree·expected_sha 보호, 다른 작업 보존/reset 금지. 자동 검토의 새 거절은 우회하지 않는다.
-- APK/SFA/영상 원본·역컴파일 소스/assembly·키·전체 로그 공개 금지. 비공개 분석 cache 백업과 공개 집계를 구분한다.
-- PREVIDEO 예측3278146 고정. File-2 최초100%조건 미충족: 최적화/재압축/삭제/병합/원본 수정 금지. 음수/화면 밖 좌표 임의 삭제/재중앙화 금지. FPS=(트위닝,재생). ‘굽힘’ 기능 없음.
+## 바로 할 일
+1. **판정 장치 구현**(판정 기준 §2·§3, 반나절 추정, 서버에서)
+   1. 평가 manifest
+      - 위치 시험 파일마다 두 방향 모두 잘림 없고, 비어 있지 않고, 길이 한도 안인 장 1개를 사전 고정 난수로 고른다.
+      - 반대 방향 2개 이동 자료를 만든다(예: (+6,+4)·(−6,−4), ×1.05).
+      - 두 정답은 (파일, Frame.Position)으로 연결한다. 작품 묶음 단위로 실제 N과 제외 사유를 기록한다.
+   2. 입력 교환 생성 대조: 양방향 Δ, 파일당 한 표, 동점은 비승리, 승/동점/패·효과 크기를 기록한다. 공식 시점(최초 끝·연장 끝)마다 각 α=0.025로 부호 검정한다.
+   3. 생성 건전성 기록: EOS 완료·빈 출력·길이 한도·오브젝트 수 비율·OOM 장.
+   4. 정밀도·F1(합산 `2Σmatch/(Σpred+Σans)`), A(옮긴 정답)·B(원래 자리)·외움 기준선을 평가 목록마다 자동 계산한다.
+   5. PC 실행에 `--gen-minutes 20`을 넣는다. 단계별 업데이트 수·평가 시간·실제 생성 시간, 현재 단계 해상도 고정 장 평가, 고정 그림 시트를 기록한다.
+   - 채점기 원 수정(판정 기준 §4: 원 부분 면 T 구간을 (시작 위상 mod 1, 부호 있는 길이)로, WHOLE은 독립 닫힌 윤곽만, 반례 시험 10개)은 만점 판정 완화 전에 한다. 초기 학습은 막지 않는다.
+2. **자료 다시 만들기(필요할 때만)**: 판정 장치 때문에 위치 시험 자료(ss) 형식이 바뀌면 Kaggle CPU `push-data`로 다시 만든다.
+   - 학습 자료(sd·sd854·sd1280·sd1920)는 판 3 그대로 쓸 수 있다. 자료 코드를 바꾸면 작업자가 `--prebuilt` 학습을 멈추고 다시 만들라고 한다.
+3. **사용자 PC 시험 학습**
+   - 빠른 시험 bat부터 돌린다. 첫 4분이 1080 단계라 가장 무거운 단계의 속도·GPU 메모리를 잰다.
+   - 그다음 2시간 학습: `pc_seq_4060.bat 2 0` 또는 `pc_seq_5060.bat 2`. 계획 0이면 2시간 안에 네 해상도 단계를 다 거친다.
+   - 판정은 판정 기준 §2대로 한다. 진행 / 1회 연장 / 원인 조사, '실패'와 '판정 자료 부족'은 구분한다.
+4. **진행이면 Kaggle 본 학습**(사용자 지시 뒤): `python tools/kaggle_seq_remote.py push --prebuilt`. PC 학습 상태는 `from-drive` → `save-ckpt`로 이어받는다.
+   - 회차당 새 파일 엄격 F1 상승이 2%p 미만이면 원인 조사 신호로 본다. 최대 예산에 도달하면 종료한다.
 
-## 현행 환경 — 복구 완료
+**사용자 결정 대기**
+1. 본 학습 최대 예산
+2. 숫자 허용 범위 눈 판정 시트(한 속성만 바꾼 렌더)를 볼지
+3. '연기 1'·'연기 4'가 같은 작품인지(정확 사본은 아님)
 
-사용자 PC는 현재 없고 폰 학교 Wi-Fi는 제약이 있다. 서버 cache는 한때 소실됐지만 **현재는 도구/AOT 복구 및 비공개 백업 완료**다. 과거의 ‘cache 없음/설치 검토 거절’을 현행 차단으로 재사용하지 않는다.
+## 1판에 들어간 것(10-31)
+- **해상도 단계 1080 → 720 → 480 → 360**(사용자 10-29 지시, 재설계 때 빠졌다 복원)
+  - 시간 20/25/25/30%, 앞 단계 30% 섞기, 되돌아가지 않음.
+  - 그림 특징은 45×80칸으로 모으고, 한 묶음 그림 수는 화소 예산(`--px-budget` 8M)으로 정한다.
+  - 고해상도 자료는 mp4로 저장한다(`seq_data --video`).
+  - 목적: 화질 나쁜 애니 자료(360까지)도 깔끔하게 옮기는 실력.
+- **페인트 합성**(사용자 10-29: 흰 바탕이 너무 많아서): 학습 파일 30%에서 흰 바탕만 합성판을 추가한다(`--synth 0.3`). 합성한 면도 정답에 들어간다.
+- **굵기 배율**(사용자 10-31): 늘린 사본마다 ThicknessScale × 0.5–2, 정답도 같이 바뀐다. 자료 판 3.
+- **인코더 이어 쓰기**: 이전 픽셀 지도 2차 모델 `vec/pc2/best.pt`를 변환했다(같은 그림 출력 차 0.12%) → `--init-encoder`. Kaggle 비공개 자료 `aisfa-vec-encoder`, Drive `seq/vec_encoder.pt`. 새로 시작할 때만 쓴다.
+- **채점기**
+  - 관절 연결을 만점에서 뺐다.
+  - 위치·형상 부분 점수(`*_partial`)를 추가했다.
+  - 분야별 연습 점수(구조·좌표·색·굵기·글로우·연결·면, 좌표는 '몇 개마다 지적')를 추가했다. 진단용이고 교사 강제 값이다.
+- 끄기: `--no-stages`, `--no-init-encoder`. 계획만 있는 것: 색·배경색 늘리기.
 
-- **2026-10-27 컨테이너:** `/workspace/scratch` 경로는 없다. 대신 환경이 제공한 `/root/sfa-cache/cache.zip`이 `/root/sfa-cache/extracted`로 풀려 있었고 `CACHE-MANIFEST.json` 803개 파일 sha256이 모두 일치했다. 이것을 현행 private root로 썼다. repo는 `/home/user/ai-sfa`. 재추출/재설치는 하지 않았다.
-- 디코더: `PYTHONPATH=<root>/python LD_LIBRARY_PATH=<root>/python/capstone/lib python3 -I`. 검사 스크립트는 `<root>/checks/*.py`(root=스크립트 상위 폴더). 새 `checks/validate_modify_color_glow.py`는 이 컨테이너의 풀린 폴더에만 있고 제공 cache.zip에는 없다. 결과는 공개 audit JSON에 보존했으므로 재검증이 필요할 때만 다시 만든다.
-- 과거 경로(참고): repo `/workspace/scratch/5a16c98ed7ee/AI-sfa-publish`, private root `/workspace/scratch/5a16c98ed7ee/private-recovery`. 경로가 다르면 위 manifest 대조부터 한다.
-- `blutter_out/asm/sfa`, `blutter_out/{pp.txt,objs.txt,ida_script}`; `evidence/{libapp.so,libflutter.so,glow.frag}`; `venv/bin/python`; `blutter/bin`; `depsroot` 재사용. shader는 binary, 전체 cat 금지.
-- `dispatch_out/dispatch-targets.csv`는 **복구된 실제 VM dispatch 표**. origin4096/length57043. 특정 수신 cid+selector로 조회한다. selector 단독으로 공통 메서드명 단정 금지.
-- AOT 복구: 원본 hash3 일치/추출종료0/671파일·666asm·86,508,012bytes·선언12,752 대조. [복구 결과](docs/ANALYSIS-RECOVERY-RESULT-2026-10-16.md). 과거 분석 실행 주소는 기준 snapshot 상대주소이며 ASLR 절대주소가 아니다.
-- 비공개 `AI-sfa-analysis-cache-2026-10-16.zip` 저장. 현재 경로가 사라지면 이 이름의 기존 백업부터 찾아 복구한다. AOT/입력/도구·디코더/dispatch표/manifest 포함. 원본 공개 금지는 유지한다. 현재 최신 백업 크기·hash는 복구 audit를 따른다.
-- 기존 계측 앱 Gadget/Flutter/libapp 로드 성공 이력은 있으나 Play license응답4로 지속 편집 차단. 정확한 서버 의미 미확인/우회 없음. 서버는 x86_64이며 현재 adb/Android emulator 실행 환경이 없다. 따라서 새 실제 렌더·pixel 검증은 미완이다.
+## 확인된 것(검증 범위)
+- **판 3 전체 자료**[Kaggle CPU, 커밋 91f39d4, 64분, GPU 0]: 학습 4해상도 각 35,115장·738파일(360 1,720MB / 480 93MB / 720 139MB / 1080 212MB), 시험 sv 965장, 위치 시험 ss 134장. 커널 `aisfa-seq-data` 출력.
+- **전체 기능 CPU 흐름 시험**[Kaggle CPU, rc 0, 17분]: 미리 만든 자료 `--check` 6개 → 인코더 174항목 → 네 단계 전환(진행 21·45·71%) → 검증·생성 채점·저장.
+  - CPU 시험은 `--tok-budget 1024 --max-batch 2`로 한다. CPU 강제 종료의 원인은 해상도가 아니라 CPU 교차 어텐션 메모리다(1장·922단어에 3.7GB). GPU T4는 최대 4.8GB였다.
+- **외움 기준선**[서버, GPT 재현]: 원본을 원래 자리에 그대로 그린 '완벽하게 외운 AI'의 위치 시험 부분 점수는 전체 134장에서 17.65점, 학습기 기본 20장에서 15.88점이다(엄격 2.4%·1.1%). 그래서 절대 점수 합격선은 폐기했다.
+- **페인트 저장 방식**[사용자 앱 녹화 11-01]: 면은 오브젝트별 T 구간 + 자동 연결선으로 저장된다. 관절 연결은 칠하기 조건이 아니다(docs/FORMAT.md 끝).
+- **이전 확인**: 정답지 왕복 100%(22,371장), 렌더러 ≈ 앱 0.3%, Kaggle T4 30분 시험(2,403걸음, 54장 흐름용 — 실력 판단 불가), Drive ↔ Kaggle ↔ PC 이어하기.
+- **단위 시험 78개 통과**(10-31, `python -m unittest discover -s tests`).
 
-## 읽기 순서와 최신 성과
+## 도구 요약
+- `tools/kaggle_seq_remote.py`
+  - `push [--prebuilt] [--smoke] [--cpu] [--minutes] [--tok-budget] [--extra] [--no-stages] [--no-init-encoder]`
+  - `push-data [--smoke] [--no-stages]`, `push-encoder 파일`
+  - `status|wait|pull [--data] [--smoke]`, `save-ckpt`, `to-drive`, `from-drive`
+- `tools/seq_train.py`
+  - `train … [--stages 1920,1280,854 자료] [--init-encoder] [--px-budget] [--gen-minutes]`
+  - `draw`, `vec-encoder`
+- `tools/seq_data.py … [--W] [--video] [--synth] [--fixed dx,dy,배율] [--check]`
+- PC: `pc_seq_1050ti_quick.bat`, `pc_seq_5060.bat [시간] [계획]`, `pc_seq_4060.bat [시간] [계획] [noyield]`. Drive `AI-sfa/02_분석자료/seq/`.
+- 측정: `tools/measure_toklen.py`·`analyze_toklen.py`(docs/TOKEN-LENGTH-2026-10-31.md).
 
-AGENTS → 이 문서 → [MODIFY-COLOR-GLOW-APPLY](docs/AOT-MODIFY-COLOR-GLOW-APPLY-TRACE-2026-10-27.md) → 필요 시 [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md). 필요한 보고서만 읽는다. [기능표](docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md)/[근거 색인](docs/FEATURE-CONTRACT-INDEX-2026-10-16.json)은 전체 기능 목록 완성을 뜻하지 않는다. 종전 상세 handoff는 [역사](docs/history/HANDOFF-2026-10-16-before-restored-analysis.md)에 보존했다.
+## SFA·앱 규칙(파일 만들 때)
+- 앱은 DrawOrder를 읽지 않는다. AO ID 하나 = 파일 전체 공통 오브젝트, 레이어도 ID마다 하나.
+- 면을 아래·위에 깔려면 레이어로 분리한다. 파란점 규칙은 docs/FORMAT.md를 따른다.
+- 렌더러 ≈ 앱. 앱은 파일 비율로 영상을 내보낸다. 좌표는 화면 %. 사용자는 24,24로 만든다.
 
-| 새 보고서 | 닫은 정상 정적 범위 |
-|---|---|
-| [UNUSED-AO-FAST-HASH](docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md) | unused 후보 C에서 다른 비root frame 실제 점 A와 가상 기반 잔존 R을 제외해 삭제. 화면 layer 가시성 아님. FastHash는 Position/FR색+segment수/AO ID·색·DrawOrder/점round(xy×10000)·Flags를 순서대로fold. 자체 hash cache 없음/전체 상태 동등성 아님. 73명령 대조. |
-| [TIMELINE-FRAME-COMMANDS](docs/AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md) | 실제 sequence-action layout callback→insert/paste 전후위치·clipboard deep snapshot/별도배경·같은/다른sequence 복사·ID/연결/group/fill map·정렬/DB/preview. 마지막frame 삭제 시 새frame0 생성.146명령. |
-| [MODIFY-COLOR-GLOW-APPLY](docs/AOT-MODIFY-COLOR-GLOW-APPLY-TRACE-2026-10-27.md) | 상세 패널 색상/글로우 탭: 첫 AO로 초기화(글로우 두께≤0→20)·원래색 보관, 휠/알파/hex/견본/되돌리기 setter와 pending, hex 6자리=불투명/8자리=ARGB·FormatException(cid0xfe9)만 무시, HSV↔ARGB 식, ApplyOnlyColor=대상 전체 Color 덮어쓰기, ApplyOnlyGlow=반경·색·알파·두께 4필드 일괄 기록, 최근색7/프리셋16. UI 라벨 강도=GlowRadius·범위=GlowThickness.234명령. |
-| [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md) | 실제 table로 cid90/91/92의+85e4는first 확인. 상세변형fallback=첫AO의첫점,Adopt layer fallback=목록첫layer,merge/copy목록getter도first(정상목록계열). cid92+bc49 removeLast/+9780 last/+8cb1 iterator.6mapping+16명령 확인. |
+## 막힌 것 / 환경
+- 서버 GPU 없음(CPU 4개, RAM 15GB). 사용자 GPU: 1050 Ti 상시, 5060 가끔, 4060 PC(RAM 32GB).
+- 저장소 `/home/user/AI-sfa`, 주 브랜치 `ccr-bccf15a6-d6ee46`.
+- 새 컨테이너 준비
+  - `pip install opencv-python-headless numpy skia-python scipy scikit-image kaggle` + CPU torch(`--index-url https://download.pytorch.org/whl/cpu`)
+  - `apt-get install libegl1 libgl1`
+  - rclone v1.75.2 zip → /usr/local/bin(`RCLONE_CONFIG_GDRIVE_*`로 바로 연결)
+  - Kaggle 비밀값 등록됨(출력 금지).
 
-상세 변형 fallback/Adopt getter가 미확정이라는 이전 항목은 위 목록 계열에서 해소됐으므로 같은 탐색을 반복하지 않는다. 다른 수신 클래스까지 일반화하지 않는다. 모든 audit는 제한된 명령/metadata 대조이지 전체 의미·앱 동작·pixel 증명이 아니며 표본 중복 합산 금지.
-
-## 기존 근거 재사용
-
-그룹 glow→객체별 backend→shader 수학→timeline/FPS→raw/PNG/Java encoder는 GROUP-SHADER-TIMELINE/EXPORT-DISPATCH. DRAW-GLOW/FILL-PATH/FILL-TWEEN/OBJECT-TWEEN-PAIR로 채우기·순서·보간 연결. 원근/선택/custom·MODIFY-PANEL/CONNECTED-TARGET/ALLGROUP/MOVEMENT·SAVED-VALUES/SHARED-RESTORE는 편집/저장. GROUP-REPAIR/FILL-PRUNE-HISTORY/ROOT-REBASE-IDLE/DB-REWRITE/COMPACTION-PHASES/LAYER-MEMORY/LAYER-MERGE-DELETE-ADD/EDITOR-MENU-DELETE-CALLER도 재사용한다. 기존00–05 영상/시험·같은 정상 경로 재분석으로 진행량을 부풀리지 않는다.
-
-## 실제 미완과 다음의 좁은 작업
-
-추가로 [ROOT-COPY-DB-BRANCHES](docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)(49명령)를 확인했다. source base의 원점 ID/AO rank 연속prefix p가 2(N−p)≤N이면 그 root를 p개만재사용,아니면새root생성→조건부source rebase시도→targetbase삽입. ID예약은 AUTOINCREMENT schema에따라sqlite_sequence상향 vs가상base꼬리정리. 같은sequence AO ID유지/다른sequence새ID/DB점·상세복사 상위단계확인. 정상분기를다시미수행으로세지않는다.
-
-1. frame copy의 상위·ID/연결/group/fill·rootprefix/예약schema·AO DB복사 정상 경로는 확인했다. 원시 DB helper 전체 수명/실패 원자성·비정상 입력을 이 결과만으로 완료 처리하지 않는다. 해당 질문에 실제 필요한 새 branch가 있을 때만 추가한다. 다음 기능 단계는 기존 기능표에 아직 직접 연결하지 않은 실제 UI callback을 구체적으로 식별해 coverage를 보충하는 것이다. 완료한 정상copy/root 경로와 색상/글로우 apply 경로를 다시 따라가지 않는다. 2026-10-27 class명 대조에서 문서에 아직 연결되지 않은 창작 UI 후보는 `PopupFrameOptionsLayout`(slider/color 설정)·`PopupCustomOptionsLayout`·`EditCustomFigureActivity/Layout`(점/snap toggle)·`SelectFigureDialog`/`FigureDefinition`·`ViewerSettingsDialog`·`VideoSettingsDialogLayout`·`DialogCreateProjectLayout`(비율/slider)·`BackgroundPickerDialog`다. 이 중 하나를 골라 실제 callback→저장 필드만 좁게 연결한다. class명 미언급은 미분석의 근거일 뿐 기능 부재/미수행 확정이 아니다(기존 보고서는 주소·함수명 위주).
-2. 일반 AO 앞뒤/별도 lock toggle UI는 여전히 미식별. 같은 이름/PP검색과 생성 DrawOrder 추적 반복 금지. 새 구체 caller가 있을 때만 확인. 전체 UI coverage는 미완.
-3. codec malformed/overflow, 전체 객체 수명·동시 DB 변경·오류 원자성 보장은 정상 정적 경로와 별도 미완이다. 정적 미수행을 실물에서만 가능한 항목으로 바꾸지 않는다.
-4. 실제 렌더/backend pixel·곡선/링/그룹 합성·기기codec/색/전체UI 결과는 아직 미완. 원본을 사용할 실행 환경에 실제 접근이 필요하다. 원본앱/사용자자료를 변경하거나 license 우회로 해결하지 않는다.
-
-## 효율·검증
-
-주소창 기본0x200/약128명령, 긴 SQL/PP는 먼저 개수·길이 확인. rawtree/도우미/fullmetadata 출력 금지. float32/64·Smi·분기 실제 명령 우선, 공유 Flutter getterannotation에 속지 않는다. 새metadata를 얻으면 같은 정상경로 재덤프 대신 새근거만 대조한다.
-
-2026-10-27 변경도 보고서·집계·지침뿐이다. cache manifest 803 hash와 새 선택명령234+stub tag 검사, JSON/링크 검사만 수행했다. 기존 unit/probe 재실행 없음. 코드 변경시에만 필요한 검사 `python -m unittest discover -s tests -v`. 주간 잔여량 조회 불가. 인수인계가 필요하면 최신 프롬프트를 제공하며 자율진행·서버복구 허용·반복방지 정정 유지.
+## 보호
+- 원본 영상·추출 프레임·나카무라 자료·가중치·앱 녹화는 저장소에 넣지 않는다.
+- GPT 측정 파일 중 정답 장 XML이 든 것(judge-pairs.json)도 비공개다.
+- 사용자 수집 `.sfa`는 `data/user_sfa/`(공개).
+- 토큰·키 출력 금지. 3D 금지. 사용자에게는 한국어로만.

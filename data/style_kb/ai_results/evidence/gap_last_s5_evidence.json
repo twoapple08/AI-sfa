@@ -1,0 +1,3529 @@
+{
+  "method": "원본 전 프레임을 시간순 콘택트시트로 검토. 기본 프레임 너비 256px. 필요한 부분은 원본 해상도로 추가 확인. 시간은 시각 추정 경계이며 정밀 자동 분할값이 아님. 도구를 통한 실시간 영상 재생은 사용하지 않음.",
+  "videos": {
+    "123722": {
+      "group": "H03",
+      "id": "123722",
+      "path": "work/videos/H03/123722.mp4",
+      "sha256": "55cbe0a096b24249b12f56fc7b9b907b1bb28a3321a93d108f8c3739d6e5bfd4",
+      "duration": 42.917875,
+      "fps": "24000/1001",
+      "frames": "1029",
+      "width": 852,
+      "height": 480,
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        42.917875
+      ],
+      "reviewed_frames": [
+        0,
+        1028
+      ],
+      "items": [
+        {
+          "category": "무기",
+          "name": "에너지 포",
+          "prominence": "주",
+          "intervals": [
+            [
+              3.54,
+              3.96
+            ],
+            [
+              8.38,
+              8.93
+            ]
+          ],
+          "note": "기계 팔의 대형 포 발사",
+          "union_seconds": 0.97,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "무기",
+          "name": "총구 화염",
+          "prominence": "주",
+          "intervals": [
+            [
+              3.54,
+              3.96
+            ],
+            [
+              8.38,
+              8.93
+            ]
+          ],
+          "note": "발사구 앞 황색 화염",
+          "union_seconds": 0.97,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "무기",
+          "name": "발톱·손톱",
+          "prominence": "주",
+          "intervals": [
+            [
+              15.02,
+              17.73
+            ],
+            [
+              21.4,
+              28.45
+            ],
+            [
+              34.99,
+              38.41
+            ]
+          ],
+          "note": "거대 짐승의 대형 발톱",
+          "union_seconds": 13.18,
+          "rounded_seconds": 13
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "prominence": "주",
+          "intervals": [
+            [
+              3.54,
+              3.71
+            ],
+            [
+              4.08,
+              4.13
+            ],
+            [
+              5.46,
+              5.76
+            ],
+            [
+              6.75,
+              6.88
+            ],
+            [
+              7.13,
+              7.17
+            ],
+            [
+              7.76,
+              8.13
+            ],
+            [
+              8.38,
+              8.55
+            ],
+            [
+              9.68,
+              11.43
+            ]
+          ],
+          "note": "피격과 발사 섬광",
+          "union_seconds": 2.98,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "빛줄기",
+          "prominence": "주",
+          "intervals": [
+            [
+              3.54,
+              3.75
+            ],
+            [
+              6.75,
+              6.8
+            ],
+            [
+              7.13,
+              7.17
+            ],
+            [
+              7.72,
+              7.8
+            ],
+            [
+              8.38,
+              8.93
+            ],
+            [
+              10.47,
+              11.55
+            ],
+            [
+              30.15,
+              30.49
+            ],
+            [
+              42.79,
+              42.917
+            ]
+          ],
+          "note": "황색 빔과 손전등 광선",
+          "union_seconds": 2.477,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "검은 연기",
+          "prominence": "주",
+          "intervals": [
+            [
+              5.8,
+              6.3
+            ],
+            [
+              7.84,
+              8.18
+            ],
+            [
+              10.01,
+              10.47
+            ]
+          ],
+          "note": "폭발 뒤 검은 폭연",
+          "union_seconds": 1.3,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "흰 연기·증기",
+          "prominence": "주",
+          "intervals": [
+            [
+              12.68,
+              17.73
+            ]
+          ],
+          "note": "원경에서 퍼진 뒤 지면을 덮는 회백색 연기",
+          "union_seconds": 5.05,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "핏자국",
+          "prominence": "주",
+          "intervals": [
+            [
+              21.4,
+              28.45
+            ],
+            [
+              30.49,
+              34.99
+            ]
+          ],
+          "note": "짐승 얼굴의 붉은 혈흔",
+          "union_seconds": 11.55,
+          "rounded_seconds": 12
+        },
+        {
+          "category": "연출",
+          "name": "단색",
+          "prominence": "주",
+          "intervals": [
+            [
+              4.08,
+              4.13
+            ],
+            [
+              5.46,
+              5.63
+            ],
+            [
+              6.8,
+              6.84
+            ],
+            [
+              7.13,
+              7.22
+            ],
+            [
+              7.8,
+              7.84
+            ]
+          ],
+          "note": "흑백 및 실루엣 임팩트",
+          "union_seconds": 0.39,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "빛 번짐(블룸)",
+          "prominence": "주",
+          "intervals": [
+            [
+              3.54,
+              3.71
+            ],
+            [
+              5.63,
+              5.76
+            ],
+            [
+              8.97,
+              10.47
+            ],
+            [
+              10.47,
+              11.55
+            ],
+            [
+              30.15,
+              31.53
+            ],
+            [
+              34.99,
+              38.41
+            ]
+          ],
+          "note": "강한 광원 주위 번짐",
+          "union_seconds": 7.68,
+          "rounded_seconds": 8
+        },
+        {
+          "category": "연출",
+          "name": "역광",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              3.0
+            ],
+            [
+              8.97,
+              10.47
+            ]
+          ],
+          "note": "밝은 하늘 및 폭발광 앞 실루엣",
+          "union_seconds": 4.5,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              3.0
+            ],
+            [
+              8.97,
+              10.47
+            ],
+            [
+              21.4,
+              28.45
+            ],
+            [
+              34.99,
+              38.41
+            ],
+            [
+              41.99,
+              42.917
+            ]
+          ],
+          "note": "전경 거대 물체와 후경 인물 크기 차이",
+          "union_seconds": 15.897,
+          "rounded_seconds": 16
+        },
+        {
+          "category": "지형·자연",
+          "name": "노을·해",
+          "prominence": "배",
+          "intervals": [
+            [
+              0,
+              3.0
+            ],
+            [
+              10.47,
+              13.97
+            ]
+          ],
+          "note": "황색·주황색 저녁 하늘",
+          "union_seconds": 6.5,
+          "rounded_seconds": 7
+        },
+        {
+          "category": "인공 배경",
+          "name": "도로·거리",
+          "prominence": "배",
+          "intervals": [
+            [
+              3.0,
+              3.96
+            ],
+            [
+              4.13,
+              6.3
+            ],
+            [
+              8.18,
+              8.97
+            ],
+            [
+              13.97,
+              30.49
+            ],
+            [
+              34.99,
+              38.41
+            ],
+            [
+              41.99,
+              42.917
+            ]
+          ],
+          "note": "시가지 차선과 도로",
+          "union_seconds": 24.787,
+          "rounded_seconds": 25
+        },
+        {
+          "category": "인공 배경",
+          "name": "고층 빌딩",
+          "prominence": "배",
+          "intervals": [
+            [
+              3.0,
+              6.3
+            ],
+            [
+              8.18,
+              8.97
+            ],
+            [
+              10.47,
+              13.97
+            ],
+            [
+              17.73,
+              28.45
+            ],
+            [
+              34.99,
+              38.41
+            ],
+            [
+              41.99,
+              42.917
+            ]
+          ],
+          "note": "시가지 다층 건물",
+          "union_seconds": 22.657,
+          "rounded_seconds": 23
+        },
+        {
+          "category": "인공 배경",
+          "name": "가로등",
+          "prominence": "배",
+          "intervals": [
+            [
+              4.13,
+              5.3
+            ],
+            [
+              8.18,
+              8.97
+            ]
+          ],
+          "note": "도로변 가로등",
+          "union_seconds": 1.96,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "인공 배경",
+          "name": "간판·네온",
+          "prominence": "배",
+          "intervals": [
+            [
+              10.47,
+              13.97
+            ]
+          ],
+          "note": "원경의 점포 간판",
+          "union_seconds": 3.5,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "인공 배경",
+          "name": "지붕",
+          "prominence": "배",
+          "intervals": [
+            [
+              10.47,
+              13.97
+            ]
+          ],
+          "note": "내려다본 도심 지붕",
+          "union_seconds": 3.5,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "상대·생물",
+          "name": "거대 생물",
+          "prominence": "주",
+          "intervals": [
+            [
+              15.02,
+              28.45
+            ],
+            [
+              30.49,
+              38.41
+            ]
+          ],
+          "note": "기계 인물보다 훨씬 큰 짐승",
+          "union_seconds": 21.35,
+          "rounded_seconds": 21
+        },
+        {
+          "category": "상대·생물",
+          "name": "짐승",
+          "prominence": "주",
+          "intervals": [
+            [
+              15.02,
+              28.45
+            ],
+            [
+              30.49,
+              38.41
+            ]
+          ],
+          "note": "털 난 거대 포유류형 상대",
+          "union_seconds": 21.35,
+          "rounded_seconds": 21
+        }
+      ],
+      "notes": "애매:명암 반전;애매:선화만",
+      "uncertain": [
+        {
+          "element": "명암 반전",
+          "intervals": [
+            [
+              6.75,
+              7.22
+            ]
+          ],
+          "reason": "흑백 실루엣 변화는 확실하나 동일 화면의 명암 역전 여부 불확실"
+        },
+        {
+          "element": "선화만",
+          "intervals": [
+            [
+              4.08,
+              4.13
+            ],
+            [
+              5.46,
+              5.63
+            ]
+          ],
+          "reason": "먹칠된 흑백 임팩트로 순수 선화인지 불확실"
+        }
+      ],
+      "coverage": {
+        "decoded_frames": 1029,
+        "retained_frames": 1029,
+        "reviewed_contact_sheet_pages": 13,
+        "reviewed_page_numbers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "omission_rule": "256px 축소 후 직전 프레임과 바이트가 동일한 프레임만 시트에서 생략. 시간 간격 표본 추출 없음."
+      }
+    },
+    "226853": {
+      "group": "H03",
+      "id": "226853",
+      "path": "work/videos/H03/226853.mp4",
+      "sha256": "85ef382953dd1e107e918075d1f543c810a33cc40a183dccb30808b7af736f32",
+      "duration": 22.77275,
+      "fps": "24000/1001",
+      "frames": "546",
+      "width": 640,
+      "height": 480,
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        22.77275
+      ],
+      "reviewed_frames": [
+        0,
+        545
+      ],
+      "items": [
+        {
+          "category": "원소 이펙트",
+          "name": "물보라",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              19.65
+            ]
+          ],
+          "note": "수상 이동의 항적 및 서핑 물보라",
+          "union_seconds": 19.65,
+          "rounded_seconds": 20
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "물방울",
+          "prominence": "주",
+          "intervals": [
+            [
+              4.0,
+              5.5
+            ],
+            [
+              5.75,
+              9.01
+            ],
+            [
+              9.59,
+              10.65
+            ],
+            [
+              14.93,
+              22.772
+            ]
+          ],
+          "note": "스프레이 및 점프 후 떨어지는 물방울",
+          "union_seconds": 13.662,
+          "rounded_seconds": 14
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "파도",
+          "prominence": "주",
+          "intervals": [
+            [
+              5.5,
+              20.4
+            ]
+          ],
+          "note": "큰 파도와 서핑",
+          "union_seconds": 14.9,
+          "rounded_seconds": 15
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "거품",
+          "prominence": "주",
+          "intervals": [
+            [
+              8.43,
+              9.01
+            ],
+            [
+              11.85,
+              16.31
+            ]
+          ],
+          "note": "수면 아래 및 파도 끝의 거품",
+          "union_seconds": 5.04,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              4.0
+            ],
+            [
+              14.6,
+              19.4
+            ]
+          ],
+          "note": "기울어진 모니터 프레임 및 파도 사면",
+          "union_seconds": 8.8,
+          "rounded_seconds": 9
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "prominence": "주",
+          "intervals": [
+            [
+              5.5,
+              7.26
+            ],
+            [
+              14.6,
+              16.31
+            ]
+          ],
+          "note": "수상기 접근과 거대 파도 대비",
+          "union_seconds": 3.47,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "지형·자연",
+          "name": "바다",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              20.4
+            ]
+          ],
+          "note": "수평선과 큰 파도가 있는 해수면",
+          "union_seconds": 20.4,
+          "rounded_seconds": 20
+        },
+        {
+          "category": "지형·자연",
+          "name": "구름",
+          "prominence": "배",
+          "intervals": [
+            [
+              5.5,
+              7.01
+            ],
+            [
+              7.76,
+              8.43
+            ],
+            [
+              11.85,
+              16.31
+            ],
+            [
+              16.35,
+              17.56
+            ],
+            [
+              19.4,
+              22.772
+            ]
+          ],
+          "note": "푸른 하늘의 구름",
+          "union_seconds": 11.222,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "지형·자연",
+          "name": "수중",
+          "prominence": "주",
+          "intervals": [
+            [
+              8.43,
+              9.01
+            ]
+          ],
+          "note": "수면 아래에서 선체를 올려다보는 컷",
+          "union_seconds": 0.58,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "탈것",
+          "name": "배",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              1.04
+            ],
+            [
+              3.09,
+              7.26
+            ]
+          ],
+          "note": "수상 오토바이/소형 동력 수상정",
+          "union_seconds": 5.21,
+          "rounded_seconds": 5
+        }
+      ],
+      "notes": "",
+      "uncertain": [],
+      "coverage": {
+        "decoded_frames": 546,
+        "retained_frames": 546,
+        "reviewed_contact_sheet_pages": 7,
+        "reviewed_page_numbers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "omission_rule": "256px 축소 후 직전 프레임과 바이트가 동일한 프레임만 시트에서 생략. 시간 간격 표본 추출 없음."
+      }
+    },
+    "76453": {
+      "group": "H04",
+      "id": "76453",
+      "path": "work/videos/H04/76453.mp4",
+      "sha256": "b5fab6bd2e04a5b1de0c6c7a33d1b951d3cd773974ff31988c3a2d99ec51054e",
+      "duration": 34.5345,
+      "fps": "24000/1001",
+      "frames": "828",
+      "width": 682,
+      "height": 480,
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        34.5345
+      ],
+      "reviewed_frames": [
+        0,
+        827
+      ],
+      "items": [
+        {
+          "category": "무기",
+          "name": "지팡이·마법봉",
+          "prominence": "주",
+          "intervals": [
+            [
+              9.68,
+              13.18
+            ],
+            [
+              22.98,
+              24.02
+            ]
+          ],
+          "note": "별 모양 장식의 마법 지팡이",
+          "union_seconds": 4.54,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 파편",
+          "prominence": "주",
+          "intervals": [
+            [
+              8.13,
+              13.18
+            ],
+            [
+              16.02,
+              17.69
+            ],
+            [
+              19.44,
+              20.94
+            ],
+            [
+              26.99,
+              29.91
+            ]
+          ],
+          "note": "충돌 후 비산하는 각진 잔해",
+          "union_seconds": 11.14,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "prominence": "주",
+          "intervals": [
+            [
+              10.14,
+              10.22
+            ],
+            [
+              12.14,
+              12.26
+            ],
+            [
+              18.48,
+              18.81
+            ],
+            [
+              20.06,
+              22.4
+            ]
+          ],
+          "note": "흰 플래시 및 황색 폭발",
+          "union_seconds": 2.87,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "충격·파괴",
+          "name": "붕괴",
+          "prominence": "주",
+          "intervals": [
+            [
+              8.13,
+              13.18
+            ],
+            [
+              16.02,
+              20.06
+            ]
+          ],
+          "note": "기계형 상대가 파편으로 분해됨",
+          "union_seconds": 9.09,
+          "rounded_seconds": 9
+        },
+        {
+          "category": "연출",
+          "name": "머리카락 휘날림",
+          "prominence": "주",
+          "intervals": [
+            [
+              0.88,
+              4.76
+            ],
+            [
+              5.05,
+              9.18
+            ],
+            [
+              9.68,
+              13.18
+            ],
+            [
+              15.52,
+              18.48
+            ],
+            [
+              20.98,
+              26.73
+            ],
+            [
+              26.99,
+              34.24
+            ]
+          ],
+          "note": "동작과 바람에 따라 길게 휘는 머리카락",
+          "union_seconds": 27.47,
+          "rounded_seconds": 27
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              0.88
+            ],
+            [
+              2.5,
+              3.34
+            ],
+            [
+              7.3,
+              8.13
+            ],
+            [
+              26.99,
+              29.91
+            ]
+          ],
+          "note": "전경 팔다리와 이동 원근",
+          "union_seconds": 5.47,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "지형·자연",
+          "name": "구름",
+          "prominence": "배",
+          "intervals": [
+            [
+              0.88,
+              4.76
+            ]
+          ],
+          "note": "원화 배경 하늘의 구름",
+          "union_seconds": 3.88,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "지형·자연",
+          "name": "용암",
+          "prominence": "배",
+          "intervals": [
+            [
+              22.4,
+              26.73
+            ],
+            [
+              28.82,
+              29.32
+            ]
+          ],
+          "note": "지면에 흐르는 황색·주황색 용융물",
+          "union_seconds": 4.83,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "인공 배경",
+          "name": "무너진 잔해 더미",
+          "prominence": "배",
+          "intervals": [
+            [
+              13.18,
+              18.48
+            ],
+            [
+              26.99,
+              29.91
+            ]
+          ],
+          "note": "바닥에 널린 파괴 잔해",
+          "union_seconds": 8.22,
+          "rounded_seconds": 8
+        }
+      ],
+      "notes": "원화;애매:광선검·에너지 칼;애매:날 부딪힘 불꽃;애매:건물 붕괴",
+      "uncertain": [
+        {
+          "element": "광선검·에너지 칼",
+          "intervals": [
+            [
+              0,
+              4.76
+            ],
+            [
+              13.85,
+              18.48
+            ]
+          ],
+          "reason": "황색 무기는 일반 칼의 원화 색지정일 수 있어 에너지 칼로 확정하지 않음"
+        },
+        {
+          "element": "날 부딪힘 불꽃",
+          "intervals": [
+            [
+              9.18,
+              10.81
+            ],
+            [
+              11.52,
+              12.14
+            ]
+          ],
+          "reason": "적색 효과선은 충돌·전기 계열 색지정과 구분 어려움"
+        },
+        {
+          "element": "건물 붕괴",
+          "intervals": [
+            [
+              8.13,
+              13.18
+            ]
+          ],
+          "reason": "비산물은 확실하나 건물 자체 붕괴인지 불확실"
+        }
+      ],
+      "coverage": {
+        "decoded_frames": 828,
+        "retained_frames": 828,
+        "reviewed_contact_sheet_pages": 11,
+        "reviewed_page_numbers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ],
+        "omission_rule": "256px 축소 후 직전 프레임과 바이트가 동일한 프레임만 시트에서 생략. 시간 간격 표본 추출 없음."
+      }
+    },
+    "111284": {
+      "group": "H04",
+      "id": "111284",
+      "path": "work/videos/H04/111284.mp4",
+      "sha256": "1ebe934ed378d41f730e2765a4600a2e52bdc5beed45dae691d7eebc1a4bf900",
+      "duration": 92.509083,
+      "fps": "24000/1001",
+      "frames": "2218",
+      "width": 852,
+      "height": 480,
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        92.509083
+      ],
+      "reviewed_frames": [
+        0,
+        2217
+      ],
+      "items": [
+        {
+          "category": "무기",
+          "name": "총구 화염",
+          "prominence": "주",
+          "intervals": [
+            [
+              4.42,
+              6.38
+            ]
+          ],
+          "note": "분홍색 발사구 섬광이 빠르게 반복됨",
+          "union_seconds": 1.96,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "무기",
+          "name": "총알",
+          "prominence": "배",
+          "intervals": [
+            [
+              6.38,
+              7.84
+            ]
+          ],
+          "note": "권총에서 발사되어 날아가는 분홍빛 탄",
+          "union_seconds": 1.46,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "무기",
+          "name": "사슬·채찍",
+          "prominence": "주",
+          "intervals": [
+            [
+              28.03,
+              33.03
+            ],
+            [
+              38.33,
+              39.5
+            ],
+            [
+              63.6,
+              68.57
+            ]
+          ],
+          "note": "거대 생물 봉인용 굵은 사슬",
+          "union_seconds": 11.14,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "무기",
+          "name": "단검·칼",
+          "prominence": "주",
+          "intervals": [
+            [
+              7.84,
+              8.84
+            ]
+          ],
+          "note": "청발 인물이 손에 든 짧은 날붙이",
+          "union_seconds": 1.0,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "어둠·그림자",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              4.42
+            ]
+          ],
+          "note": "붉은 테두리를 가진 검은 기운이 뻗어 나옴",
+          "union_seconds": 4.42,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "prominence": "주",
+          "intervals": [
+            [
+              4.42,
+              7.84
+            ],
+            [
+              9.84,
+              11.98
+            ]
+          ],
+          "note": "연속 발사와 피격의 분홍·백색 섬광",
+          "union_seconds": 5.56,
+          "rounded_seconds": 6
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "흰 연기·증기",
+          "prominence": "주",
+          "intervals": [
+            [
+              10.97,
+              12.8
+            ],
+            [
+              12.8,
+              14.85
+            ],
+            [
+              16.77,
+              21.44
+            ],
+            [
+              48.63,
+              50.34
+            ],
+            [
+              51.26,
+              55.72
+            ]
+          ],
+          "note": "피격 연기와 총구의 흰 연기 및 생물 주변 연기",
+          "union_seconds": 14.72,
+          "rounded_seconds": 15
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "문양·룬",
+          "prominence": "배",
+          "intervals": [
+            [
+              19.19,
+              22.36
+            ],
+            [
+              28.03,
+              33.03
+            ],
+            [
+              38.33,
+              40.29
+            ],
+            [
+              52.89,
+              58.35
+            ],
+            [
+              63.6,
+              68.57
+            ],
+            [
+              76.95,
+              79.91
+            ]
+          ],
+          "note": "사슬과 기둥에 부착된 황색 부적 문양",
+          "union_seconds": 23.52,
+          "rounded_seconds": 24
+        },
+        {
+          "category": "연출",
+          "name": "빛 번짐(블룸)",
+          "prominence": "주",
+          "intervals": [
+            [
+              4.42,
+              7.84
+            ],
+            [
+              7.84,
+              8.84
+            ],
+            [
+              8.84,
+              9.84
+            ],
+            [
+              9.84,
+              11.98
+            ]
+          ],
+          "note": "분홍빛 발사·피격광 번짐",
+          "union_seconds": 7.56,
+          "rounded_seconds": 8
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "prominence": "주",
+          "intervals": [
+            [
+              4.42,
+              6.38
+            ],
+            [
+              7.84,
+              8.84
+            ],
+            [
+              63.6,
+              66.4
+            ]
+          ],
+          "note": "총격 장면 및 사슬을 올려다보는 경사진 화면",
+          "union_seconds": 5.76,
+          "rounded_seconds": 6
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "prominence": "주",
+          "intervals": [
+            [
+              4.42,
+              6.38
+            ],
+            [
+              12.8,
+              15.68
+            ],
+            [
+              28.03,
+              33.03
+            ],
+            [
+              63.6,
+              68.57
+            ],
+            [
+              72.11,
+              75.53
+            ]
+          ],
+          "note": "전경 총과 사슬 및 손가락 클로즈업",
+          "union_seconds": 18.23,
+          "rounded_seconds": 18
+        },
+        {
+          "category": "인공 배경",
+          "name": "기둥",
+          "prominence": "배",
+          "intervals": [
+            [
+              2.5,
+              4.42
+            ],
+            [
+              6.38,
+              7.84
+            ],
+            [
+              8.84,
+              9.84
+            ],
+            [
+              19.19,
+              22.36
+            ],
+            [
+              35.95,
+              43.0
+            ],
+            [
+              51.01,
+              58.35
+            ],
+            [
+              63.6,
+              68.57
+            ],
+            [
+              76.95,
+              79.91
+            ],
+            [
+              83.42,
+              86.5
+            ]
+          ],
+          "note": "붉은 실내 기둥",
+          "union_seconds": 32.95,
+          "rounded_seconds": 33
+        },
+        {
+          "category": "상대·생물",
+          "name": "거대 생물",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              4.42
+            ],
+            [
+              6.38,
+              7.84
+            ],
+            [
+              9.84,
+              12.8
+            ],
+            [
+              16.77,
+              22.36
+            ],
+            [
+              24.57,
+              33.03
+            ],
+            [
+              33.03,
+              35.95
+            ],
+            [
+              38.33,
+              51.01
+            ],
+            [
+              52.89,
+              60.39
+            ],
+            [
+              62.65,
+              76.95
+            ],
+            [
+              76.95,
+              81.37
+            ]
+          ],
+          "note": "인간보다 훨씬 큰 다안의 주머니형 생물과 그 몸에서 뻗는 형체",
+          "union_seconds": 64.71,
+          "rounded_seconds": 65
+        }
+      ],
+      "notes": "애매:촉수;애매:신사·절;길이초는실측반올림93",
+      "uncertain": [
+        {
+          "element": "촉수",
+          "intervals": [
+            [
+              0,
+              4.42
+            ]
+          ],
+          "reason": "검은 선은 물리적 촉수보다 기운에 가까워 어둠·그림자로만 기록"
+        },
+        {
+          "element": "신사·절",
+          "intervals": [
+            [
+              0,
+              92.509
+            ]
+          ],
+          "reason": "봉인 부적과 기둥은 보이나 건물 용도 확정 불가"
+        }
+      ],
+      "coverage": {
+        "decoded_frames": 2218,
+        "retained_frames": 2218,
+        "reviewed_contact_sheet_pages": 28,
+        "reviewed_page_numbers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "omission_rule": "256px 축소 후 직전 프레임과 바이트가 동일한 프레임만 시트에서 생략. 시간 간격 표본 추출 없음."
+      }
+    },
+    "218752": {
+      "group": "H04",
+      "id": "218752",
+      "path": "work/videos/H04/218752.mp4",
+      "sha256": "ccc97abe60fbc9c096d28516267680b537c142a217e0338f2b2cdeef7ec9b108",
+      "duration": 23.0,
+      "fps": "24/1",
+      "frames": "552",
+      "width": 854,
+      "height": 478,
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        23.0
+      ],
+      "reviewed_frames": [
+        0,
+        551
+      ],
+      "items": [
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 파편",
+          "prominence": "주",
+          "intervals": [
+            [
+              1.79,
+              2.21
+            ],
+            [
+              2.38,
+              2.59
+            ],
+            [
+              3.25,
+              4.08
+            ],
+            [
+              5.92,
+              6.5
+            ],
+            [
+              6.75,
+              7.5
+            ],
+            [
+              8.92,
+              9.5
+            ],
+            [
+              9.71,
+              10.17
+            ],
+            [
+              11.75,
+              12.04
+            ],
+            [
+              18.46,
+              19.25
+            ]
+          ],
+          "note": "벽면과 각진 구조물이 깨지며 비산하는 파편",
+          "union_seconds": 4.91,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "충격·파괴",
+          "name": "붕괴",
+          "prominence": "주",
+          "intervals": [
+            [
+              1.79,
+              2.21
+            ],
+            [
+              2.38,
+              2.59
+            ],
+            [
+              3.25,
+              4.08
+            ],
+            [
+              5.92,
+              6.5
+            ],
+            [
+              6.75,
+              7.5
+            ],
+            [
+              8.92,
+              9.5
+            ],
+            [
+              9.71,
+              10.17
+            ],
+            [
+              11.75,
+              12.04
+            ],
+            [
+              18.46,
+              19.25
+            ]
+          ],
+          "note": "추격 중 구조물 파괴 및 구형 블록군 붕괴",
+          "union_seconds": 4.91,
+          "rounded_seconds": 5
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "prominence": "주",
+          "intervals": [
+            [
+              2.59,
+              4.08
+            ],
+            [
+              4.5,
+              7.84
+            ],
+            [
+              7.84,
+              9.5
+            ],
+            [
+              14.79,
+              19.25
+            ],
+            [
+              19.25,
+              22.21
+            ]
+          ],
+          "note": "과장된 이동 투시와 전경 블록",
+          "union_seconds": 13.91,
+          "rounded_seconds": 14
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "prominence": "주",
+          "intervals": [
+            [
+              2.59,
+              4.08
+            ],
+            [
+              5.92,
+              7.84
+            ],
+            [
+              16.71,
+              19.25
+            ]
+          ],
+          "note": "공간을 회전하며 통과하는 경사 구도",
+          "union_seconds": 5.95,
+          "rounded_seconds": 6
+        },
+        {
+          "category": "연출",
+          "name": "머리카락 휘날림",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              2.59
+            ],
+            [
+              3.38,
+              4.08
+            ],
+            [
+              6.33,
+              6.59
+            ],
+            [
+              10.46,
+              10.88
+            ],
+            [
+              18.46,
+              19.25
+            ]
+          ],
+          "note": "달리는 인물 머리카락의 흐름",
+          "union_seconds": 4.76,
+          "rounded_seconds": 5
+        }
+      ],
+      "notes": "원화;애매:방어막·배리어;애매:공간·중력;애매:벽 균열",
+      "uncertain": [
+        {
+          "element": "방어막·배리어",
+          "intervals": [
+            [
+              7.84,
+              8.92
+            ]
+          ],
+          "reason": "구형 블록 군집은 확실하나 방어 기능을 확인할 수 없음"
+        },
+        {
+          "element": "공간·중력",
+          "intervals": [
+            [
+              7.84,
+              9.5
+            ]
+          ],
+          "reason": "기하학적 공간 변화가 물리 파괴인지 초능력인지 선화만으로 구분 불가"
+        },
+        {
+          "element": "벽 균열",
+          "intervals": [
+            [
+              3.25,
+              3.75
+            ],
+            [
+              5.92,
+              6.33
+            ]
+          ],
+          "reason": "파괴 직전 표면의 선을 균열로 확정하기 어려움"
+        }
+      ],
+      "coverage": {
+        "decoded_frames": 552,
+        "retained_frames": 550,
+        "reviewed_contact_sheet_pages": 7,
+        "reviewed_page_numbers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "omission_rule": "256px 축소 후 직전 프레임과 바이트가 동일한 프레임만 시트에서 생략. 시간 간격 표본 추출 없음."
+      }
+    },
+    "227508": {
+      "group": "H04",
+      "id": "227508",
+      "path": "work/videos/H04/227508.mp4",
+      "sha256": "12e082f3a641fc0e9684e5f9b161cc2a790e89831af637ddb403912789cdd41f",
+      "duration": 83.041292,
+      "fps": "24000/1001",
+      "frames": "1991",
+      "width": 852,
+      "height": 480,
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        83.041292
+      ],
+      "reviewed_frames": [
+        0,
+        1990
+      ],
+      "items": [
+        {
+          "category": "무기",
+          "name": "에너지 포",
+          "prominence": "주",
+          "intervals": [
+            [
+              10.76,
+              21.02
+            ]
+          ],
+          "note": "휴대 무기의 황색 에너지 방출",
+          "union_seconds": 10.26,
+          "rounded_seconds": 10
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "에너지 구",
+          "prominence": "주",
+          "intervals": [
+            [
+              12.04,
+              12.68
+            ],
+            [
+              12.97,
+              14.39
+            ],
+            [
+              14.72,
+              14.97
+            ]
+          ],
+          "note": "발사구 앞에 구형으로 부풀어 오르는 빛",
+          "union_seconds": 2.31,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "기 모으기 빛",
+          "prominence": "주",
+          "intervals": [
+            [
+              10.76,
+              11.33
+            ]
+          ],
+          "note": "발사 전 강하게 집중되는 광점",
+          "union_seconds": 0.57,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "빛줄기",
+          "prominence": "주",
+          "intervals": [
+            [
+              10.76,
+              12.04
+            ],
+            [
+              14.97,
+              21.02
+            ]
+          ],
+          "note": "바위 사이로 뻗는 굴절된 황색 에너지",
+          "union_seconds": 7.33,
+          "rounded_seconds": 7
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "prominence": "주",
+          "intervals": [
+            [
+              10.68,
+              10.76
+            ],
+            [
+              11.09,
+              11.38
+            ],
+            [
+              46.55,
+              47.0
+            ],
+            [
+              56.43,
+              57.14
+            ]
+          ],
+          "note": "발사와 격돌 순간의 섬광",
+          "union_seconds": 1.53,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 파편",
+          "prominence": "주",
+          "intervals": [
+            [
+              38.37,
+              41.62
+            ],
+            [
+              56.56,
+              58.43
+            ],
+            [
+              59.94,
+              61.35
+            ],
+            [
+              76.37,
+              76.91
+            ],
+            [
+              77.7,
+              78.12
+            ]
+          ],
+          "note": "전투와 지반 붕괴로 튀는 암석",
+          "union_seconds": 7.49,
+          "rounded_seconds": 7
+        },
+        {
+          "category": "충격·파괴",
+          "name": "지면 균열",
+          "prominence": "주",
+          "intervals": [
+            [
+              27.82,
+              28.61
+            ],
+            [
+              34.53,
+              43.29
+            ],
+            [
+              49.8,
+              54.18
+            ],
+            [
+              57.14,
+              58.43
+            ],
+            [
+              58.43,
+              67.19
+            ],
+            [
+              75.08,
+              76.91
+            ],
+            [
+              77.7,
+              83.041
+            ]
+          ],
+          "note": "갈라진 지면과 커지는 틈",
+          "union_seconds": 31.151,
+          "rounded_seconds": 31
+        },
+        {
+          "category": "충격·파괴",
+          "name": "붕괴",
+          "prominence": "주",
+          "intervals": [
+            [
+              37.58,
+              41.62
+            ],
+            [
+              56.56,
+              58.43
+            ],
+            [
+              59.94,
+              65.15
+            ],
+            [
+              76.37,
+              76.91
+            ]
+          ],
+          "note": "협곡 바닥과 암벽의 대규모 파괴",
+          "union_seconds": 11.66,
+          "rounded_seconds": 12
+        },
+        {
+          "category": "연출",
+          "name": "빛 번짐(블룸)",
+          "prominence": "주",
+          "intervals": [
+            [
+              10.76,
+              21.02
+            ],
+            [
+              46.55,
+              47.0
+            ],
+            [
+              56.56,
+              57.14
+            ],
+            [
+              75.37,
+              76.91
+            ]
+          ],
+          "note": "에너지와 충돌광 주변 번짐",
+          "union_seconds": 12.83,
+          "rounded_seconds": 13
+        },
+        {
+          "category": "연출",
+          "name": "단색",
+          "prominence": "주",
+          "intervals": [
+            [
+              10.68,
+              10.76
+            ],
+            [
+              46.67,
+              46.71
+            ],
+            [
+              56.43,
+              56.56
+            ],
+            [
+              57.02,
+              57.1
+            ]
+          ],
+          "note": "흑백 임팩트 및 전체 백색 전환",
+          "union_seconds": 0.33,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "prominence": "주",
+          "intervals": [
+            [
+              6.97,
+              9.97
+            ],
+            [
+              18.64,
+              21.52
+            ],
+            [
+              27.53,
+              31.28
+            ],
+            [
+              34.53,
+              41.62
+            ],
+            [
+              54.18,
+              56.43
+            ],
+            [
+              58.43,
+              65.15
+            ],
+            [
+              68.57,
+              76.91
+            ]
+          ],
+          "note": "거대 상대와 지형 대비 및 낙하·추적 투시",
+          "union_seconds": 34.03,
+          "rounded_seconds": 34
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "prominence": "주",
+          "intervals": [
+            [
+              6.97,
+              9.97
+            ],
+            [
+              14.97,
+              21.52
+            ],
+            [
+              56.56,
+              58.43
+            ],
+            [
+              64.44,
+              67.19
+            ],
+            [
+              75.37,
+              77.7
+            ]
+          ],
+          "note": "협곡을 비스듬히 잡은 구도와 추락 회전",
+          "union_seconds": 16.5,
+          "rounded_seconds": 16
+        },
+        {
+          "category": "지형·자연",
+          "name": "절벽",
+          "prominence": "배",
+          "intervals": [
+            [
+              0,
+              10.68
+            ],
+            [
+              10.76,
+              11.09
+            ],
+            [
+              11.33,
+              12.04
+            ],
+            [
+              12.68,
+              12.97
+            ],
+            [
+              14.39,
+              14.72
+            ],
+            [
+              14.97,
+              43.29
+            ],
+            [
+              46.21,
+              49.8
+            ],
+            [
+              54.18,
+              55.06
+            ],
+            [
+              56.1,
+              67.19
+            ],
+            [
+              70.57,
+              72.57
+            ],
+            [
+              74.36,
+              83.041
+            ]
+          ],
+          "note": "협곡의 높고 가파른 암벽",
+          "union_seconds": 66.901,
+          "rounded_seconds": 67
+        },
+        {
+          "category": "지형·자연",
+          "name": "우주",
+          "prominence": "배",
+          "intervals": [
+            [
+              6.97,
+              9.97
+            ],
+            [
+              14.97,
+              21.52
+            ],
+            [
+              28.61,
+              31.28
+            ],
+            [
+              46.21,
+              49.8
+            ],
+            [
+              55.06,
+              56.1
+            ],
+            [
+              64.44,
+              64.61
+            ],
+            [
+              72.2,
+              74.36
+            ],
+            [
+              77.7,
+              83.041
+            ]
+          ],
+          "note": "별과 은하가 보이는 공간",
+          "union_seconds": 24.521,
+          "rounded_seconds": 25
+        },
+        {
+          "category": "지형·자연",
+          "name": "행성·달",
+          "prominence": "배",
+          "intervals": [
+            [
+              73.99,
+              74.36
+            ]
+          ],
+          "note": "고리가 있는 행성",
+          "union_seconds": 0.37,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "상대·생물",
+          "name": "거대 생물",
+          "prominence": "주",
+          "intervals": [
+            [
+              28.61,
+              31.28
+            ],
+            [
+              34.53,
+              37.58
+            ],
+            [
+              46.21,
+              49.8
+            ],
+            [
+              54.18,
+              56.43
+            ],
+            [
+              56.56,
+              58.43
+            ],
+            [
+              59.94,
+              61.35
+            ],
+            [
+              76.62,
+              76.91
+            ],
+            [
+              77.7,
+              78.62
+            ]
+          ],
+          "note": "다수의 다리와 긴 분절 몸통을 가진 거대 생물",
+          "union_seconds": 16.05,
+          "rounded_seconds": 16
+        },
+        {
+          "category": "상대·생물",
+          "name": "곤충·벌레",
+          "prominence": "주",
+          "intervals": [
+            [
+              30.03,
+              31.28
+            ],
+            [
+              34.53,
+              37.58
+            ],
+            [
+              46.21,
+              49.8
+            ],
+            [
+              54.18,
+              56.43
+            ],
+            [
+              56.56,
+              58.43
+            ],
+            [
+              59.94,
+              61.35
+            ],
+            [
+              77.7,
+              78.62
+            ]
+          ],
+          "note": "지네형 다족 생물",
+          "union_seconds": 14.34,
+          "rounded_seconds": 14
+        },
+        {
+          "category": "장비·의상",
+          "name": "날개 장비·추진팩",
+          "prominence": "주",
+          "intervals": [
+            [
+              6.97,
+              9.97
+            ],
+            [
+              21.52,
+              27.53
+            ],
+            [
+              64.86,
+              69.24
+            ]
+          ],
+          "note": "우주복 등 뒤의 이중 노즐 팩",
+          "union_seconds": 13.39,
+          "rounded_seconds": 13
+        }
+      ],
+      "notes": "애매:용;애매:흰 연기·증기;애매:공간·중력;애매:슬라임;애매:녹아내림",
+      "uncertain": [
+        {
+          "element": "용",
+          "intervals": [
+            [
+              30.03,
+              31.28
+            ],
+            [
+              46.21,
+              49.8
+            ],
+            [
+              54.18,
+              58.43
+            ]
+          ],
+          "reason": "용과 비슷한 머리이나 다족 곤충형 몸이라 용으로 중복 확정하지 않음"
+        },
+        {
+          "element": "흰 연기·증기",
+          "intervals": [
+            [
+              30.15,
+              31.28
+            ],
+            [
+              34.53,
+              39.83
+            ],
+            [
+              58.43,
+              61.35
+            ],
+            [
+              79.29,
+              83.041
+            ]
+          ],
+          "reason": "밝은 분진은 보이나 연기·증기와 구별 필요"
+        },
+        {
+          "element": "공간·중력",
+          "intervals": [
+            [
+              67.19,
+              75.28
+            ]
+          ],
+          "reason": "우주와 지형이 비현실적으로 전환되나 특정 공간·중력 이펙트인지 불확실"
+        },
+        {
+          "element": "슬라임",
+          "intervals": [
+            [
+              78.62,
+              83.041
+            ]
+          ],
+          "reason": "초록 지형이 점성 물체처럼 변형되나 생물로 확정 불가"
+        },
+        {
+          "element": "녹아내림",
+          "intervals": [
+            [
+              78.62,
+              83.041
+            ]
+          ],
+          "reason": "융해보다 탄성 변형에 가까워 확정하지 않음"
+        }
+      ],
+      "coverage": {
+        "decoded_frames": 1991,
+        "retained_frames": 1946,
+        "reviewed_contact_sheet_pages": 25,
+        "reviewed_page_numbers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24
+        ],
+        "omission_rule": "256px 축소 후 직전 프레임과 바이트가 동일한 프레임만 시트에서 생략. 시간 간격 표본 추출 없음."
+      }
+    },
+    "233386": {
+      "group": "H04",
+      "id": "233386",
+      "path": "work/videos/H04/233386.mp4",
+      "sha256": "f47a0744e2d7d93e7cb14b28eef1dca323403d00e8f6677a35935dcc25676f86",
+      "duration": 48.757042,
+      "fps": "24000/1001",
+      "frames": "1169",
+      "width": 854,
+      "height": 480,
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        48.757042
+      ],
+      "reviewed_frames": [
+        0,
+        1168
+      ],
+      "items": [
+        {
+          "category": "무기",
+          "name": "총구 화염",
+          "prominence": "배",
+          "intervals": [
+            [
+              23.98,
+              24.03
+            ]
+          ],
+          "note": "공중의 인물 쪽에서 짧게 번쩍이는 총구 발광",
+          "union_seconds": 0.05,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "기 모으기 빛",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              22.86
+            ],
+            [
+              24.31,
+              28.28
+            ]
+          ],
+          "note": "발과 전신에 축적·확대되는 붉은 에너지",
+          "union_seconds": 26.83,
+          "rounded_seconds": 27
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "충격파 고리",
+          "prominence": "주",
+          "intervals": [
+            [
+              28.28,
+              29.11
+            ],
+            [
+              30.49,
+              31.78
+            ],
+            [
+              35.61,
+              37.33
+            ]
+          ],
+          "note": "급가속과 함께 퍼지는 적색 원형 파동",
+          "union_seconds": 3.84,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "빛줄기",
+          "prominence": "주",
+          "intervals": [
+            [
+              29.11,
+              30.28
+            ],
+            [
+              30.36,
+              32.66
+            ],
+            [
+              33.03,
+              35.12
+            ],
+            [
+              35.45,
+              37.33
+            ],
+            [
+              37.33,
+              40.04
+            ]
+          ],
+          "note": "가속 이동의 청록색 발광 궤적",
+          "union_seconds": 10.15,
+          "rounded_seconds": 10
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "prominence": "주",
+          "intervals": [
+            [
+              30.28,
+              30.36
+            ],
+            [
+              30.86,
+              31.03
+            ],
+            [
+              31.45,
+              31.53
+            ],
+            [
+              32.99,
+              33.03
+            ]
+          ],
+          "note": "가속 시작과 충돌의 짧은 섬광",
+          "union_seconds": 0.37,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "핏자국",
+          "prominence": "주",
+          "intervals": [
+            [
+              40.99,
+              45.17
+            ]
+          ],
+          "note": "늘어난 팔의 총신 부근에서 흩어지는 붉은 피",
+          "union_seconds": 4.18,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "비",
+          "prominence": "배",
+          "intervals": [
+            [
+              0,
+              3.25
+            ],
+            [
+              22.86,
+              24.31
+            ],
+            [
+              28.28,
+              32.87
+            ]
+          ],
+          "note": "야간 도심에 비스듬히 내리는 빗줄기",
+          "union_seconds": 9.29,
+          "rounded_seconds": 9
+        },
+        {
+          "category": "연출",
+          "name": "빛 번짐(블룸)",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              22.86
+            ],
+            [
+              24.31,
+              28.28
+            ],
+            [
+              28.28,
+              32.66
+            ],
+            [
+              33.03,
+              35.12
+            ],
+            [
+              35.45,
+              40.04
+            ]
+          ],
+          "note": "붉은 기운과 청록 궤적 주변 광번짐",
+          "union_seconds": 37.89,
+          "rounded_seconds": 38
+        },
+        {
+          "category": "연출",
+          "name": "단색",
+          "prominence": "주",
+          "intervals": [
+            [
+              30.28,
+              30.36
+            ],
+            [
+              30.86,
+              30.99
+            ],
+            [
+              31.49,
+              31.53
+            ],
+            [
+              32.99,
+              33.03
+            ]
+          ],
+          "note": "흑백·청색 실루엣 임팩트",
+          "union_seconds": 0.29,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "명암 반전",
+          "prominence": "주",
+          "intervals": [
+            [
+              30.86,
+              30.99
+            ]
+          ],
+          "note": "같은 인물 실루엣이 검정과 흰색으로 뒤집힘",
+          "union_seconds": 0.13,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              0.5
+            ],
+            [
+              28.28,
+              30.28
+            ],
+            [
+              30.49,
+              31.78
+            ],
+            [
+              31.78,
+              32.87
+            ],
+            [
+              33.03,
+              35.12
+            ],
+            [
+              37.33,
+              40.04
+            ]
+          ],
+          "note": "팔·다리 전경과 빠른 접근 원근",
+          "union_seconds": 9.68,
+          "rounded_seconds": 10
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              0.5
+            ],
+            [
+              28.28,
+              30.28
+            ],
+            [
+              30.49,
+              32.87
+            ],
+            [
+              37.33,
+              40.04
+            ]
+          ],
+          "note": "도심 빌딩과 인물을 비스듬히 잡은 화면",
+          "union_seconds": 7.59,
+          "rounded_seconds": 8
+        },
+        {
+          "category": "연출",
+          "name": "화면 분할",
+          "prominence": "주",
+          "intervals": [
+            [
+              41.54,
+              45.17
+            ]
+          ],
+          "note": "팔의 총신과 주인공 얼굴을 대각선으로 분할",
+          "union_seconds": 3.63,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "연출",
+          "name": "머리카락 휘날림",
+          "prominence": "주",
+          "intervals": [
+            [
+              29.11,
+              30.28
+            ],
+            [
+              37.33,
+              41.54
+            ],
+            [
+              45.17,
+              48.757
+            ]
+          ],
+          "note": "가속과 바람으로 휘는 머리카락",
+          "union_seconds": 8.967,
+          "rounded_seconds": 9
+        },
+        {
+          "category": "연출",
+          "name": "역광",
+          "prominence": "주",
+          "intervals": [
+            [
+              37.33,
+              40.04
+            ]
+          ],
+          "note": "밝은 청록색 빌딩·빛을 등진 인물",
+          "union_seconds": 2.71,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "지형·자연",
+          "name": "구름",
+          "prominence": "배",
+          "intervals": [
+            [
+              0.25,
+              2.25
+            ]
+          ],
+          "note": "야간의 어두운 하늘 구름",
+          "union_seconds": 2.0,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "인공 배경",
+          "name": "고층 빌딩",
+          "prominence": "배",
+          "intervals": [
+            [
+              0,
+              3.25
+            ],
+            [
+              22.86,
+              24.31
+            ],
+            [
+              28.28,
+              30.28
+            ],
+            [
+              30.49,
+              32.87
+            ],
+            [
+              35.12,
+              40.04
+            ]
+          ],
+          "note": "비 내리는 도심의 고층 건물",
+          "union_seconds": 14.0,
+          "rounded_seconds": 14
+        },
+        {
+          "category": "인공 배경",
+          "name": "가로등",
+          "prominence": "배",
+          "intervals": [
+            [
+              30.49,
+              31.78
+            ]
+          ],
+          "note": "도심 격돌 컷 오른쪽의 가로등",
+          "union_seconds": 1.29,
+          "rounded_seconds": 1
+        }
+      ],
+      "notes": "애매:분신;애매:갈고리·와이어;애매:균열",
+      "uncertain": [
+        {
+          "element": "분신",
+          "intervals": [
+            [
+              2.25,
+              3.25
+            ]
+          ],
+          "reason": "전신을 감싸는 붉은 형체가 실제 분신인지 기운의 형상인지 불확실"
+        },
+        {
+          "element": "갈고리·와이어",
+          "intervals": [
+            [
+              29.11,
+              30.28
+            ]
+          ],
+          "reason": "청록색 선이 물리 와이어인지 능력 궤적인지 불확실"
+        },
+        {
+          "element": "균열",
+          "intervals": [
+            [
+              40.99,
+              41.54
+            ]
+          ],
+          "reason": "팔 총신의 파손과 출혈은 보이나 균열 노출 구간을 명확히 분리하기 어려움"
+        }
+      ],
+      "coverage": {
+        "decoded_frames": 1169,
+        "retained_frames": 1169,
+        "reviewed_contact_sheet_pages": 15,
+        "reviewed_page_numbers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "omission_rule": "256px 축소 후 직전 프레임과 바이트가 동일한 프레임만 시트에서 생략. 시간 간격 표본 추출 없음."
+      }
+    },
+    "281184": {
+      "group": "H04",
+      "id": "281184",
+      "path": "work/videos/H04/281184.mp4",
+      "sha256": "b1a1ad19af344bf7b1927c59ba8fd58aace345006d4bcd81d9f2de62add2cb19",
+      "duration": 57.098708,
+      "fps": "24000/1001",
+      "frames": "1369",
+      "width": 854,
+      "height": 480,
+      "status": "complete",
+      "reviewed_range": [
+        0,
+        57.098708
+      ],
+      "reviewed_frames": [
+        0,
+        1368
+      ],
+      "items": [
+        {
+          "category": "원소 이펙트",
+          "name": "에너지 구",
+          "prominence": "주",
+          "intervals": [
+            [
+              1.63,
+              1.71
+            ],
+            [
+              5.88,
+              8.64
+            ],
+            [
+              11.09,
+              11.39
+            ],
+            [
+              40.12,
+              40.37
+            ]
+          ],
+          "note": "공중의 청색 발광 구체와 원형 광탄",
+          "union_seconds": 3.39,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "기 모으기 빛",
+          "prominence": "주",
+          "intervals": [
+            [
+              20.14,
+              24.27
+            ]
+          ],
+          "note": "주먹과 팔에 청색에서 황색으로 집중되는 빛",
+          "union_seconds": 4.13,
+          "rounded_seconds": 4
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "빛줄기",
+          "prominence": "주",
+          "intervals": [
+            [
+              1.33,
+              1.5
+            ],
+            [
+              24.53,
+              31.7
+            ],
+            [
+              31.7,
+              37.91
+            ],
+            [
+              40.58,
+              44.55
+            ],
+            [
+              45.71,
+              48.26
+            ],
+            [
+              48.26,
+              49.55
+            ],
+            [
+              49.68,
+              50.22
+            ],
+            [
+              52.84,
+              54.8
+            ],
+            [
+              56.85,
+              57.098
+            ]
+          ],
+          "note": "고속 연타와 가속 이동을 나타내는 발광 궤적",
+          "union_seconds": 24.108,
+          "rounded_seconds": 24
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 섬광",
+          "prominence": "주",
+          "intervals": [
+            [
+              1.29,
+              1.33
+            ],
+            [
+              1.5,
+              1.63
+            ],
+            [
+              2.42,
+              2.5
+            ],
+            [
+              3.13,
+              3.55
+            ],
+            [
+              13.47,
+              13.97
+            ],
+            [
+              24.36,
+              24.53
+            ],
+            [
+              40.04,
+              40.12
+            ],
+            [
+              40.37,
+              40.58
+            ],
+            [
+              46.09,
+              46.17
+            ],
+            [
+              46.42,
+              46.5
+            ],
+            [
+              46.71,
+              46.75
+            ],
+            [
+              47.92,
+              48.09
+            ],
+            [
+              49.55,
+              49.68
+            ],
+            [
+              50.05,
+              50.18
+            ],
+            [
+              51.05,
+              51.18
+            ],
+            [
+              52.22,
+              52.84
+            ],
+            [
+              54.93,
+              55.05
+            ]
+          ],
+          "note": "타격·가속·장벽 충돌의 순간 섬광",
+          "union_seconds": 3.13,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "핏자국",
+          "prominence": "주",
+          "intervals": [
+            [
+              11.47,
+              12.51
+            ],
+            [
+              15.64,
+              19.06
+            ],
+            [
+              19.6,
+              24.36
+            ],
+            [
+              24.36,
+              27.2
+            ],
+            [
+              49.68,
+              52.84
+            ],
+            [
+              56.18,
+              57.098
+            ]
+          ],
+          "note": "푸른 인물의 출혈과 주인공 팔의 혈흔",
+          "union_seconds": 16.138,
+          "rounded_seconds": 16
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "회오리",
+          "prominence": "주",
+          "intervals": [
+            [
+              34.62,
+              37.91
+            ]
+          ],
+          "note": "다색 선이 원통형으로 말려 회전하는 효과",
+          "union_seconds": 3.29,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "방어막·배리어",
+          "prominence": "주",
+          "intervals": [
+            [
+              52.05,
+              55.18
+            ]
+          ],
+          "note": "겹친 다색 투명 장벽에 공격이 닿고 금이 가며 깨짐",
+          "union_seconds": 3.13,
+          "rounded_seconds": 3
+        },
+        {
+          "category": "원소 이펙트",
+          "name": "폭발 파편",
+          "prominence": "주",
+          "intervals": [
+            [
+              37.91,
+              40.04
+            ],
+            [
+              54.97,
+              55.18
+            ]
+          ],
+          "note": "발광 입방체 비산과 장벽 파편",
+          "union_seconds": 2.34,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "충격·파괴",
+          "name": "균열",
+          "prominence": "주",
+          "intervals": [
+            [
+              54.8,
+              54.97
+            ]
+          ],
+          "note": "장벽 표면에 뻗는 백색 균열",
+          "union_seconds": 0.17,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "충격·파괴",
+          "name": "지면 균열",
+          "prominence": "배",
+          "intervals": [
+            [
+              19.06,
+              21.73
+            ],
+            [
+              28.61,
+              34.62
+            ],
+            [
+              38.29,
+              38.64
+            ],
+            [
+              42.71,
+              44.55
+            ]
+          ],
+          "note": "바닥 석판의 큰 균열과 파손",
+          "union_seconds": 10.87,
+          "rounded_seconds": 11
+        },
+        {
+          "category": "연출",
+          "name": "잔상",
+          "prominence": "주",
+          "intervals": [
+            [
+              17.6,
+              19.06
+            ],
+            [
+              29.19,
+              31.7
+            ],
+            [
+              46.17,
+              48.05
+            ]
+          ],
+          "note": "여러 겹으로 남는 연타 주먹과 이동 인물 형상",
+          "union_seconds": 5.85,
+          "rounded_seconds": 6
+        },
+        {
+          "category": "연출",
+          "name": "단색",
+          "prominence": "주",
+          "intervals": [
+            [
+              1.04,
+              1.13
+            ],
+            [
+              1.5,
+              1.63
+            ],
+            [
+              3.13,
+              3.55
+            ],
+            [
+              13.47,
+              13.97
+            ],
+            [
+              40.42,
+              40.58
+            ],
+            [
+              46.09,
+              46.17
+            ],
+            [
+              46.42,
+              46.5
+            ],
+            [
+              46.71,
+              46.75
+            ]
+          ],
+          "note": "흑백·청백색 실루엣 임팩트",
+          "union_seconds": 1.5,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "명암 반전",
+          "prominence": "주",
+          "intervals": [
+            [
+              13.6,
+              13.97
+            ]
+          ],
+          "note": "연속 타격 장면의 인물과 배경 명암 역전",
+          "union_seconds": 0.37,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "연출",
+          "name": "원근 강조",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              0.38
+            ],
+            [
+              1.13,
+              3.13
+            ],
+            [
+              5.76,
+              8.64
+            ],
+            [
+              15.64,
+              19.06
+            ],
+            [
+              24.36,
+              28.61
+            ],
+            [
+              34.62,
+              40.04
+            ],
+            [
+              40.58,
+              44.55
+            ],
+            [
+              48.26,
+              49.55
+            ],
+            [
+              54.97,
+              56.18
+            ]
+          ],
+          "note": "전경 주먹과 가속 궤적 및 극단적 접근 투시",
+          "union_seconds": 24.82,
+          "rounded_seconds": 25
+        },
+        {
+          "category": "연출",
+          "name": "기울인 구도",
+          "prominence": "주",
+          "intervals": [
+            [
+              5.76,
+              8.64
+            ],
+            [
+              19.06,
+              19.6
+            ],
+            [
+              31.7,
+              37.91
+            ],
+            [
+              38.29,
+              40.04
+            ],
+            [
+              41.58,
+              43.09
+            ],
+            [
+              48.26,
+              49.55
+            ],
+            [
+              52.84,
+              55.18
+            ]
+          ],
+          "note": "구조물과 전투 공간이 비스듬히 기울어진 화면",
+          "union_seconds": 16.52,
+          "rounded_seconds": 17
+        },
+        {
+          "category": "연출",
+          "name": "빛 번짐(블룸)",
+          "prominence": "주",
+          "intervals": [
+            [
+              0,
+              3.55
+            ],
+            [
+              3.55,
+              5.21
+            ],
+            [
+              5.88,
+              8.64
+            ],
+            [
+              11.09,
+              11.39
+            ],
+            [
+              20.14,
+              31.7
+            ],
+            [
+              31.7,
+              44.55
+            ],
+            [
+              45.71,
+              50.22
+            ],
+            [
+              51.05,
+              51.18
+            ],
+            [
+              52.05,
+              55.18
+            ],
+            [
+              56.85,
+              57.098
+            ]
+          ],
+          "note": "구체·연타·충돌·장벽의 강한 광번짐",
+          "union_seconds": 40.698,
+          "rounded_seconds": 41
+        },
+        {
+          "category": "연출",
+          "name": "머리카락 휘날림",
+          "prominence": "주",
+          "intervals": [
+            [
+              3.55,
+              5.21
+            ],
+            [
+              19.6,
+              24.36
+            ],
+            [
+              24.36,
+              28.61
+            ],
+            [
+              46.17,
+              48.05
+            ],
+            [
+              49.68,
+              52.84
+            ],
+            [
+              56.18,
+              57.098
+            ]
+          ],
+          "note": "가속과 공격 중 뒤로 흐르는 머리카락",
+          "union_seconds": 16.628,
+          "rounded_seconds": 17
+        },
+        {
+          "category": "인공 배경",
+          "name": "무너진 잔해 더미",
+          "prominence": "배",
+          "intervals": [
+            [
+              5.76,
+              7.51
+            ]
+          ],
+          "note": "기울고 부서진 건물과 파편 배경",
+          "union_seconds": 1.75,
+          "rounded_seconds": 2
+        },
+        {
+          "category": "인공 배경",
+          "name": "고층 빌딩",
+          "prominence": "배",
+          "intervals": [
+            [
+              5.76,
+              6.67
+            ]
+          ],
+          "note": "부서진 고층 건물 외형",
+          "union_seconds": 0.91,
+          "rounded_seconds": 1
+        },
+        {
+          "category": "인공 배경",
+          "name": "기둥",
+          "prominence": "배",
+          "intervals": [
+            [
+              7.51,
+              9.34
+            ],
+            [
+              38.62,
+              40.04
+            ],
+            [
+              41.58,
+              45.8
+            ]
+          ],
+          "note": "실내 벽면을 나누는 황색 기둥",
+          "union_seconds": 7.47,
+          "rounded_seconds": 7
+        }
+      ],
+      "notes": "애매:촉수;애매:선화만;애매:경기장·투기장;애매:얼음 조각",
+      "uncertain": [
+        {
+          "element": "촉수",
+          "intervals": [
+            [
+              19.28,
+              19.6
+            ],
+            [
+              31.7,
+              37.91
+            ]
+          ],
+          "reason": "어두운 다발형 형체는 보이나 생물 촉수와 능력으로 만든 선형 방어 구조를 구분하기 어려움"
+        },
+        {
+          "element": "선화만",
+          "intervals": [
+            [
+              1.5,
+              1.63
+            ],
+            [
+              13.47,
+              13.97
+            ]
+          ],
+          "reason": "흑백 먹칠·명암 역전이 섞여 순수 선화만 남는 연출로 확정하지 않음"
+        },
+        {
+          "element": "경기장·투기장",
+          "intervals": [
+            [
+              7.51,
+              57.098
+            ]
+          ],
+          "reason": "원형 전투 공간이지만 시설 용도를 영상만으로 확정하기 어려움"
+        },
+        {
+          "element": "얼음 조각",
+          "intervals": [
+            [
+              37.91,
+              40.04
+            ]
+          ],
+          "reason": "청록색 발광 입방체는 확인되나 얼음 재질 근거가 없어 얼음으로 기록하지 않음"
+        }
+      ],
+      "coverage": {
+        "decoded_frames": 1369,
+        "retained_frames": 1343,
+        "reviewed_contact_sheet_pages": 17,
+        "reviewed_page_numbers": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "omission_rule": "256px 축소 후 직전 프레임과 바이트가 동일한 프레임만 시트에서 생략. 시간 간격 표본 추출 없음."
+      }
+    }
+  },
+  "validation": {
+    "result": "passed",
+    "complete": 8,
+    "partial": 0,
+    "inaccessible": 0,
+    "unreviewed": 0,
+    "groups": {
+      "H03": 2,
+      "H04": 6
+    },
+    "checks": [
+      "대상 ID와 묶음 일치 및 누락·중복 없음",
+      "13열 및 머리줄 일치",
+      "허용 분류명과 요소명",
+      "시간 구간 범위",
+      "주·배 표기",
+      "겹친 구간 합집합 및 반올림 결과 대조",
+      "원본 SHA-256 재확인"
+    ],
+    "decoded_frames": 9702,
+    "retained_frames": 9629,
+    "contact_sheet_pages": 123,
+    "limitation": "구조 검증 통과는 시각 판정의 무오류를 보증하지 않음. 구간 경계는 시각 추정값."
+  }
+}

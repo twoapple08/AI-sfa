@@ -1,0 +1,966 @@
+{
+ "yutaka_nakamura": [
+  {
+   "artist": "katsuhiko_nishijima",
+   "sim": 0.8286,
+   "n": 66,
+   "median_score": 35.0,
+   "top_tags": [
+    "impact_frames",
+    "screencap",
+    "missiles",
+    "beams",
+    "flying",
+    "rotation"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "shun_enokido",
+   "sim": 0.7365,
+   "n": 100,
+   "median_score": 214.5,
+   "top_tags": [
+    "impact_frames",
+    "beams",
+    "sparks",
+    "wind",
+    "explosions",
+    "hair"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "yooto",
+   "sim": 0.7323,
+   "n": 100,
+   "median_score": 145.0,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "lightning",
+    "sparks",
+    "3d_background",
+    "cgi"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "nobuaki_nagano",
+   "sim": 0.7303,
+   "n": 89,
+   "median_score": 72,
+   "top_tags": [
+    "impact_frames",
+    "explosions",
+    "lightning",
+    "beams",
+    "debris",
+    "wind"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "kouji_sugiura",
+   "sim": 0.7202,
+   "n": 100,
+   "median_score": 90.0,
+   "top_tags": [
+    "impact_frames",
+    "ice",
+    "lightning",
+    "wind",
+    "beams",
+    "explosions"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "hiroki_morimune",
+   "sim": 0.7163,
+   "n": 34,
+   "median_score": 70.5,
+   "top_tags": [
+    "beams",
+    "impact_frames",
+    "sparks",
+    "wind",
+    "ice",
+    "fighting"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "yoshihiro_kanno",
+   "sim": 0.7163,
+   "n": 100,
+   "median_score": 85.5,
+   "top_tags": [
+    "impact_frames",
+    "sparks",
+    "wind",
+    "beams",
+    "3d_background",
+    "flying"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.07
+  },
+  {
+   "artist": "pebble",
+   "sim": 0.7128,
+   "n": 51,
+   "median_score": 78,
+   "top_tags": [
+    "impact_frames",
+    "morphing",
+    "lightning",
+    "3d_background",
+    "wind",
+    "explosions"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.47
+  },
+  {
+   "artist": "yukina_kosaka",
+   "sim": 0.7117,
+   "n": 61,
+   "median_score": 325,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "lightning",
+    "beams",
+    "sparks",
+    "thumbs_up"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "michinori_chiba",
+   "sim": 0.7115,
+   "n": 48,
+   "median_score": 35.0,
+   "top_tags": [
+    "screencap",
+    "thumbs_up",
+    "morphing",
+    "impact_frames",
+    "fighting",
+    "debris"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "kofi_fiagome",
+   "sim": 0.7108,
+   "n": 34,
+   "median_score": 56.5,
+   "top_tags": [
+    "impact_frames",
+    "ice",
+    "morphing",
+    "lightning",
+    "fire",
+    "falling"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "jonghyun_jungboix",
+   "sim": 0.7095,
+   "n": 40,
+   "median_score": 73.0,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "lightning",
+    "flying",
+    "background_animation",
+    "beams"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "yuugen_rb",
+   "sim": 0.705,
+   "n": 63,
+   "median_score": 137,
+   "top_tags": [
+    "impact_frames",
+    "3d_background",
+    "wind",
+    "lightning",
+    "cgi",
+    "fighting"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "hiroshi_yoneda",
+   "sim": 0.7049,
+   "n": 100,
+   "median_score": 29.0,
+   "top_tags": [
+    "ice",
+    "lightning",
+    "impact_frames",
+    "beams",
+    "wind",
+    "explosions"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "tilfinning",
+   "sim": 0.7031,
+   "n": 58,
+   "median_score": 207.5,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "lightning",
+    "background_animation",
+    "sparks",
+    "beams"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.1
+  },
+  {
+   "artist": "vincent_chansard",
+   "sim": 0.7027,
+   "n": 100,
+   "median_score": 356.5,
+   "top_tags": [
+    "impact_frames",
+    "rotation",
+    "wind",
+    "beams",
+    "lightning",
+    "background_animation"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.03
+  },
+  {
+   "artist": "q_kawa",
+   "sim": 0.7003,
+   "n": 94,
+   "median_score": 257.5,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "cgi",
+    "sparks",
+    "debris",
+    "background_animation"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.04
+  },
+  {
+   "artist": "nobuhiro_nagata",
+   "sim": 0.6981,
+   "n": 100,
+   "median_score": 59.5,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "lightning",
+    "beams",
+    "sparks",
+    "explosions"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "toru_iwazawa",
+   "sim": 0.6965,
+   "n": 100,
+   "median_score": 312.5,
+   "top_tags": [
+    "beams",
+    "sparks",
+    "wind",
+    "ice",
+    "impact_frames",
+    "hair"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "evakoi",
+   "sim": 0.6948,
+   "n": 80,
+   "median_score": 99.0,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "sparks",
+    "debris",
+    "lightning",
+    "3d_background"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "takafumi_torii",
+   "sim": 0.6946,
+   "n": 100,
+   "median_score": 85.5,
+   "top_tags": [
+    "sparks",
+    "impact_frames",
+    "fighting",
+    "wind",
+    "ice",
+    "3d_background"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "kosal_sok",
+   "sim": 0.6932,
+   "n": 89,
+   "median_score": 29,
+   "top_tags": [
+    "impact_frames",
+    "lightning",
+    "fire",
+    "beams",
+    "sparks",
+    "fighting"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "zucchinijuice",
+   "sim": 0.6921,
+   "n": 24,
+   "median_score": 85.0,
+   "top_tags": [
+    "impact_frames",
+    "3d_background",
+    "beams",
+    "lightning",
+    "sparks",
+    "ice"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.12
+  },
+  {
+   "artist": "spike",
+   "sim": 0.6917,
+   "n": 50,
+   "median_score": 105.0,
+   "top_tags": [
+    "impact_frames",
+    "sparks",
+    "3d_background",
+    "wind",
+    "lightning",
+    "fighting"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.06
+  },
+  {
+   "artist": "sota_shigetsugu",
+   "sim": 0.6914,
+   "n": 75,
+   "median_score": 583,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "3d_background",
+    "beams",
+    "background_animation",
+    "sparks"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "yuya_takahashi",
+   "sim": 0.6903,
+   "n": 100,
+   "median_score": 177.0,
+   "top_tags": [
+    "impact_frames",
+    "beams",
+    "wind",
+    "black_and_white",
+    "fighting",
+    "debris"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "haichuan_zhang",
+   "sim": 0.6894,
+   "n": 34,
+   "median_score": 39.0,
+   "top_tags": [
+    "ice",
+    "impact_frames",
+    "beams",
+    "sparks",
+    "flying",
+    "wind"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.62
+  },
+  {
+   "artist": "bo_hu",
+   "sim": 0.6891,
+   "n": 36,
+   "median_score": 38.5,
+   "top_tags": [
+    "impact_frames",
+    "ice",
+    "background_animation",
+    "lightning",
+    "wind",
+    "sparks"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.78
+  },
+  {
+   "artist": "kazuya_hisada",
+   "sim": 0.6885,
+   "n": 88,
+   "median_score": 168.5,
+   "top_tags": [
+    "impact_frames",
+    "beams",
+    "wind",
+    "explosions",
+    "fighting",
+    "flying"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "shoutarou_ban",
+   "sim": 0.6883,
+   "n": 58,
+   "median_score": 379.5,
+   "top_tags": [
+    "wind",
+    "impact_frames",
+    "sparks",
+    "lightning",
+    "debris",
+    "background_animation"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  }
+ ],
+ "nian41": [
+  {
+   "artist": "sota_shigetsugu",
+   "sim": 0.8861,
+   "n": 75,
+   "median_score": 583,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "3d_background",
+    "beams",
+    "background_animation",
+    "sparks"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "chuan_mu",
+   "sim": 0.8787,
+   "n": 40,
+   "median_score": 105.0,
+   "top_tags": [
+    "wind",
+    "beams",
+    "impact_frames",
+    "henkei",
+    "lightning",
+    "cgi"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.45
+  },
+  {
+   "artist": "nobuhiro_nagata",
+   "sim": 0.8783,
+   "n": 100,
+   "median_score": 59.5,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "lightning",
+    "beams",
+    "sparks",
+    "explosions"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "aaron_rodriguez",
+   "sim": 0.873,
+   "n": 30,
+   "median_score": 135.0,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "beams",
+    "lightning",
+    "debris",
+    "fighting"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "aline_garcia",
+   "sim": 0.8718,
+   "n": 44,
+   "median_score": 26.5,
+   "top_tags": [
+    "3d_background",
+    "impact_frames",
+    "henkei",
+    "wind",
+    "cgi",
+    "lightning"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.34
+  },
+  {
+   "artist": "tomasz_pilarski",
+   "sim": 0.8697,
+   "n": 48,
+   "median_score": 22.5,
+   "top_tags": [
+    "impact_frames",
+    "3d_background",
+    "falling",
+    "wind",
+    "cgi",
+    "lightning"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.21
+  },
+  {
+   "artist": "toranosuke_hori",
+   "sim": 0.8685,
+   "n": 58,
+   "median_score": 207.5,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "lightning",
+    "debris",
+    "background_animation",
+    "beams"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "yuugen_rb",
+   "sim": 0.8673,
+   "n": 63,
+   "median_score": 137,
+   "top_tags": [
+    "impact_frames",
+    "3d_background",
+    "wind",
+    "lightning",
+    "cgi",
+    "fighting"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "shun_enokido",
+   "sim": 0.8665,
+   "n": 100,
+   "median_score": 214.5,
+   "top_tags": [
+    "impact_frames",
+    "beams",
+    "sparks",
+    "wind",
+    "explosions",
+    "hair"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "q_kawa",
+   "sim": 0.8611,
+   "n": 94,
+   "median_score": 257.5,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "cgi",
+    "sparks",
+    "debris",
+    "background_animation"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.04
+  },
+  {
+   "artist": "anikari",
+   "sim": 0.8608,
+   "n": 27,
+   "median_score": 425,
+   "top_tags": [
+    "wind",
+    "impact_frames",
+    "beams",
+    "3d_background",
+    "rotation",
+    "explosions"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "jonghyun_jungboix",
+   "sim": 0.8592,
+   "n": 40,
+   "median_score": 73.0,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "lightning",
+    "flying",
+    "background_animation",
+    "beams"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "liem_nguyen",
+   "sim": 0.8575,
+   "n": 34,
+   "median_score": 58.5,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "3d_background",
+    "falling",
+    "sparks",
+    "flying"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.32
+  },
+  {
+   "artist": "spike",
+   "sim": 0.8571,
+   "n": 50,
+   "median_score": 105.0,
+   "top_tags": [
+    "impact_frames",
+    "sparks",
+    "3d_background",
+    "wind",
+    "lightning",
+    "fighting"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.06
+  },
+  {
+   "artist": "nasiijau",
+   "sim": 0.8568,
+   "n": 29,
+   "median_score": 66,
+   "top_tags": [
+    "impact_frames",
+    "explosions",
+    "sparks",
+    "hair",
+    "wind",
+    "lightning"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.14
+  },
+  {
+   "artist": "hiroyuki_takashima",
+   "sim": 0.8547,
+   "n": 100,
+   "median_score": 125.5,
+   "top_tags": [
+    "sparks",
+    "wind",
+    "impact_frames",
+    "hair",
+    "fighting",
+    "explosions"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "xinxiong_ceng",
+   "sim": 0.852,
+   "n": 63,
+   "median_score": 141,
+   "top_tags": [
+    "3d_background",
+    "impact_frames",
+    "wind",
+    "cgi",
+    "sparks",
+    "debris"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.48
+  },
+  {
+   "artist": "jay1jay1jay1",
+   "sim": 0.8515,
+   "n": 54,
+   "median_score": 209.0,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "lightning",
+    "debris",
+    "sparks",
+    "explosions"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.33
+  },
+  {
+   "artist": "yukina_kosaka",
+   "sim": 0.8513,
+   "n": 61,
+   "median_score": 325,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "lightning",
+    "beams",
+    "sparks",
+    "thumbs_up"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "jhyg_castillejos",
+   "sim": 0.8497,
+   "n": 32,
+   "median_score": 69.0,
+   "top_tags": [
+    "wind",
+    "3d_background",
+    "crying",
+    "impact_frames",
+    "cgi",
+    "beams"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.09
+  },
+  {
+   "artist": "shoutarou_ban",
+   "sim": 0.8491,
+   "n": 58,
+   "median_score": 379.5,
+   "top_tags": [
+    "wind",
+    "impact_frames",
+    "sparks",
+    "lightning",
+    "debris",
+    "background_animation"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "ken_imaizumi",
+   "sim": 0.8488,
+   "n": 45,
+   "median_score": 130,
+   "top_tags": [
+    "wind",
+    "impact_frames",
+    "sparks",
+    "fighting",
+    "explosions",
+    "3d_background"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "ryuuki_hashimoto",
+   "sim": 0.8488,
+   "n": 92,
+   "median_score": 65.5,
+   "top_tags": [
+    "wind",
+    "impact_frames",
+    "fighting",
+    "hair",
+    "sparks",
+    "debris"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "hirotaka_tokuda",
+   "sim": 0.8461,
+   "n": 84,
+   "median_score": 51.0,
+   "top_tags": [
+    "sparks",
+    "beams",
+    "impact_frames",
+    "3d_background",
+    "explosions",
+    "cgi"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "hiroto_nagata",
+   "sim": 0.8456,
+   "n": 56,
+   "median_score": 327.0,
+   "top_tags": [
+    "impact_frames",
+    "hair",
+    "sparks",
+    "wind",
+    "lightning",
+    "debris"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "michael_sung",
+   "sim": 0.8423,
+   "n": 47,
+   "median_score": 103,
+   "top_tags": [
+    "impact_frames",
+    "3d_background",
+    "wind",
+    "beams",
+    "cgi",
+    "lightning"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.0
+  },
+  {
+   "artist": "yoshihiro_kanno",
+   "sim": 0.8423,
+   "n": 100,
+   "median_score": 85.5,
+   "top_tags": [
+    "impact_frames",
+    "sparks",
+    "wind",
+    "beams",
+    "3d_background",
+    "flying"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.07
+  },
+  {
+   "artist": "yong-ce_tu",
+   "sim": 0.8419,
+   "n": 100,
+   "median_score": 281.5,
+   "top_tags": [
+    "impact_frames",
+    "wind",
+    "black_and_white",
+    "lightning",
+    "beams",
+    "cgi"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.03
+  },
+  {
+   "artist": "vercreek",
+   "sim": 0.8417,
+   "n": 100,
+   "median_score": 255.0,
+   "top_tags": [
+    "wind",
+    "sparks",
+    "background_animation",
+    "hair",
+    "3d_background",
+    "impact_frames"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.02
+  },
+  {
+   "artist": "mitchell_gonzales",
+   "sim": 0.8398,
+   "n": 72,
+   "median_score": 160.0,
+   "top_tags": [
+    "wind",
+    "impact_frames",
+    "sparks",
+    "lightning",
+    "beams",
+    "fighting"
+   ],
+   "yutapon_cubes": 0,
+   "eastern": 0.07
+  }
+ ]
+}

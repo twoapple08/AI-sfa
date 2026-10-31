@@ -1,0 +1,89 @@
+번호,분류,상위,요소,관계,난이도,영어이름(CLIP)
+6,무기,총,레이저 조준선,부품,2,laser_sight
+11,무기,총,탄도 궤적,이펙트,3,bullet_trail tracer_fire
+12,무기,총,탄착 불꽃·먼지,이펙트,3,bullet_impact
+14,무기,대포·포탑,포신,부품,1,gun_barrel
+15,무기,대포·포탑,포탄·대포알,탄,1,cannonball artillery_shell
+17,무기,대포·포탑,포연,부산물,3,cannon_smoke
+18,무기,대포·포탑,착탄 폭발,이펙트,3,shell_explosion
+21,무기,미사일·로켓,추진 불꽃,이펙트,3,rocket_exhaust
+22,무기,미사일·로켓,다연장 발사,종류,3,missile_swarm
+24,무기,폭탄·수류탄,안전핀,부품,1,grenade_pin
+25,무기,폭탄·수류탄,폭탄 파편,부산물,3,shrapnel
+27,무기,검,칼날,부품,1,blade
+28,무기,검,손잡이·코등이,부품,1,sword_hilt tsuba
+32,무기,검,베인 자국,부산물,3,cut_mark slash_mark
+33,무기,검,날아가는 참격,이펙트,3,energy_slash
+41,무기,활,화살 궤적,이펙트,3,arrow_trail
+43,무기,방패,방패 충돌 불꽃,이펙트,3,shield_impact_sparks
+50,무기,수리검·부메랑,회전 궤적,이펙트,3,spinning_trail
+52,무기,갈고리·와이어,와이어 궤적,이펙트,3,wire_trail
+55,무기,맨손 타격,타격 섬광,이펙트,3,impact_flash
+56,무기,맨손 타격,타격 충격파,이펙트,3,impact_shockwave
+60,원소 이펙트,불,불꽃 혀,부품,3,flame_tongues
+62,원소 이펙트,불,재,부산물,2,ash
+63,원소 이펙트,불,아지랑이,부산물,3,heat_haze
+65,원소 이펙트,불,화염 방사,종류,3,flamethrower
+68,원소 이펙트,폭발,버섯구름·폭연,부산물,3,mushroom_cloud
+75,원소 이펙트,연기,연막,종류,3,smoke_screen
+77,원소 이펙트,번개·전기,낙뢰,종류,3,lightning_bolt_strike
+78,원소 이펙트,번개·전기,몸의 전류,종류,3,electric_aura
+79,원소 이펙트,번개·전기,방전 불꽃,부산물,3,electric_sparks
+86,원소 이펙트,물,소용돌이,종류,3,whirlpool
+88,원소 이펙트,얼음,고드름,부품,2,icicle
+90,원소 이펙트,얼음,서리,부산물,2,frost
+95,원소 이펙트,바람,풍압선,이펙트,3,wind_lines
+97,원소 이펙트,흙·바위,솟는 바위,종류,3,rock_spikes
+99,원소 이펙트,흙·바위,모래폭풍,종류,3,sandstorm
+100,원소 이펙트,흙·바위,진흙,종류,3,mud
+115,원소 이펙트,마법,소환,종류,3,summoning
+119,원소 이펙트,체액,괴물 체액,종류,3,slime monster_blood
+120,원소 이펙트,,독·산성,,3,poison acid
+121,원소 이펙트,독·산성,독안개,종류,3,poison_gas
+123,원소 이펙트,어둠·그림자,그림자 촉수,종류,3,shadow_tendrils
+126,원소 이펙트,공간·중력,차원문·포털,종류,3,portal
+127,원소 이펙트,공간·중력,공간 균열,종류,3,dimensional_rift
+128,원소 이펙트,공간·중력,블랙홀·중력 구,종류,3,black_hole
+129,원소 이펙트,,음파,,3,sound_waves
+131,원소 이펙트,식물,덩굴 공격,종류,3,thorny_vines
+132,원소 이펙트,,금속·모래 조종,,3,metal_manipulation
+137,원소 이펙트,날씨,우박,종류,3,hail
+140,충격·파괴,충격파,지면 충격파,종류,3,ground_shockwave
+141,충격·파괴,충격파,공기 왜곡,이펙트,3,air_distortion
+144,충격·파괴,파편,나무 조각,종류,3,wood_splinters
+145,충격·파괴,파편,금속 조각,종류,3,metal_scrap
+148,충격·파괴,먼지,흙먼지 기둥,종류,3,dust_plume
+152,충격·파괴,균열,크레이터,종류,2,crater
+154,충격·파괴,,그을음·탄 자국,,2,scorch_marks burn_marks
+157,충격·파괴,녹아내림,다리 붕괴,종류,3,collapsing_bridge
+171,연출,카메라,흔들림,종류,2,camera_shake
+191,연출,화면 처리,컷인,종류,2,cut-in
+201,지형·자연,산,협곡,종류,2,canyon
+216,지형·자연,,늪·습지,,2,swamp
+220,지형·자연,사막,모래 언덕,부품,2,dune
+222,지형·자연,설원,눈 덮인 산,종류,2,snowy_mountain
+225,지형·자연,화산,화산재,부산물,3,volcanic_ash
+234,지형·자연,우주,운석,부품,3,meteor
+246,인공 배경,건물,벽,부품,1,wall
+249,인공 배경,건물,철근,부산물,2,rebar
+253,인공 배경,실내,가구,부품,2,furniture
+261,인공 배경,공장·기계,파이프,부품,1,pipe
+268,인공 배경,,지하·지하철,,2,subway underground
+270,인공 배경,,기지·요새,,2,military_base fortress
+271,인공 배경,기지·요새,성벽,부품,2,castle_wall
+272,인공 배경,,연구소·실험실,,2,laboratory
+273,인공 배경,,우주정거장,,2,space_station
+278,탈것,자동차,배기 연기,부산물,3,exhaust
+279,탈것,자동차,전조등 빛,이펙트,2,headlights
+283,탈것,기차,객차,부품,2,train_car
+285,탈것,배,돛,부품,1,sail
+286,탈것,배,항적 물보라,부산물,3,wake_(water)
+288,탈것,군함,함포,부품,2,naval_gun
+293,탈것,헬기,로터,부품,2,rotor
+295,탈것,우주선,추진 불꽃,이펙트,3,thruster_flame
+297,탈것,전차,무한궤도,부품,2,tank_treads
+300,탈것,,잠수함,,2,submarine
+314,상대·생물,괴물,체액,부산물,3,slime
+319,상대·생물,용,브레스,이펙트,3,breath_weapon
+321,상대·생물,짐승,털 휘날림,이펙트,3,fur
+329,상대·생물,,식물 괴물,,3,plant_monster

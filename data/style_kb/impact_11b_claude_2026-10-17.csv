@@ -1,0 +1,194 @@
+post_id,tag,action,frames,basis,grade,status
+306085,impact_frames,,1733-1740,"폭발 컷 사이 파편 낙하 컷 교차 삽입, 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+306885,impact_frames,,907,"거의 검은 화면에 어두운 스미어 실루엣, 카메라 가림 추정",추론(연속 프레임 시각 판독),uncertain
+210213,impact_frames,,152-164,"황백 방사 광선 섬광 확장, 일반 글로우 효과",추론(연속 프레임 시각 판독),uncertain
+210213,impact_frames,,311-323,"적·백 번개 온/오프 교대(317 포함), 일반 효과",추론(연속 프레임 시각 판독),uncertain
+210213,impact_frames,,332-344,"번개 덮개(338 포함) 후 적색 방사 블러 전환, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+210343,impact_frames,,74-80,"노랑 불티 궤적 일반 효과, 전면 평면 아님",추론(연속 프레임 시각 판독),uncertain
+181174,impact_frames,,27-29,"검은 주먹 스미어 화면 가림. 원본 확대: 평면 셀+펜 해칭, 흑연 결 없음",추론(원본 확대),uncertain
+181174,impact_frames,,67-68,"흰 속도선 스미어가 화면 가림, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+181174,impact_frames_digital,add,110,"연청·흰 단색 전면 + 흰 X자 베기선, 매끈한 평면",추론(연속 프레임 시각 판독),candidate
+181174,impact_frames_digital,add,114,110과 같은 연청·흰 전면 + X자 선 반복,추론(연속 프레임 시각 판독),candidate
+181174,impact_frames,,120,"보라 하늘 + 작은 섬광 조각, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+181174,impact_frames,,132-134,근접 기체가 화면 가림,추론(연속 프레임 시각 판독),uncertain
+181174,impact_frames,,148-151,"근접 기체 + 선 해칭, 화면 가림",추론(연속 프레임 시각 판독),uncertain
+181174,impact_frames,,155-157,"156 원본 확대: 평면 진회색 + 사선 펜 해칭, 흑연 결 없음, 가림 스미어",추론(원본 확대),uncertain
+181174,impact_frames_digital,add,162,"흰 전면 섬광 + 가장자리 번개(자동 구간 밖, 시트에서 확인)",추론(연속 프레임 시각 판독),candidate
+181174,impact_frames,,194-205,"십자 섬광 소멸 + 컷 전환, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+294834,impact_frames,,449,"흰 발광 구가 화면 덮음, 일반 글로우",추론(연속 프레임 시각 판독),uncertain
+294834,impact_frames_digital,add,628,흰 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate
+294834,impact_frames_digital,add,637,흰 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate
+294834,impact_frames,,646-651,흰색 페이드아웃 전환,추론(연속 프레임 시각 판독),uncertain
+11222,impact_frames_digital,add,53,"흰 단색 전면 1프레임, 청색 빔 발사 직전",추론(연속 프레임 시각 판독),candidate
+11226,impact_frames,,약 178(시트 35번째 칸),"흰 섬광에 가까운 1장, 연속 프레임 시트 없음·번호 추정",추론(연속 프레임 시각 판독),uncertain
+119371,impact_frames,,120-125,"폭발 발광으로 백색 과노출, 형태 선 잔존, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+119371,impact_frames_digital,add,144-147,144 흰 단색 전면 + 145·147 흰 덮개 교대 깜박임,추론(연속 프레임 시각 판독),candidate
+119371,impact_frames_digital,add,221-222,반투명 흰 덮개 전면 2프레임,추론(연속 프레임 시각 판독),candidate
+119371,impact_frames_digital,add,341,흰 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate
+119371,impact_frames_digital,add,364,흰 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate
+119371,impact_frames_digital,add,490-491,흰 전면(490 주황 잔상 희미),추론(연속 프레임 시각 판독),candidate
+119371,impact_frames_digital,add,495-497,흰 단색 전면 3프레임,추론(연속 프레임 시각 판독),candidate
+119371,impact_frames,,498-511,"흰·황금 톱니 섬광 띠, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+119371,impact_frames_digital,add,512,검정 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate
+119371,impact_frames,,513-515,"흰 과노출 + 청색 선 다발, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+119371,impact_frames,,527-539,근접 날개 스미어가 화면 가림(셀+선),추론(연속 프레임 시각 판독),uncertain
+313715,impact_frames_digital,add,122,연분홍 단색 전면 1프레임(셀 시대 단색 플래시),추론(연속 프레임 시각 판독),candidate
+313715,impact_frames_digital,add,165,크림 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate
+313715,impact_frames_digital,add,201,연보라 단색 전면 1프레임,추론(연속 프레임 시각 판독),candidate
+307580,impact_frames_digital,add,385,흰 반투명 전면 1프레임(아래 선 희미),추론(연속 프레임 시각 판독),candidate
+307580,impact_frames,,386-390,"투사체 판이 화면 가로지르는 근접 투시, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+174260,impact_frames,,608-610,"붉은 빔·흰 폭발 진행 중, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+174260,impact_frames_digital,add,611-617,"흰 평면 전면 + 검은 평면 파편 실루엣, 매끈한 가장자리",추론(연속 프레임 시각 판독),candidate
+82913,explosions,add,시트 2행 3–5열,노랑 가시 섬광 후 검은 연기 폭발,추론(연속 프레임 시각 판독),candidate
+82913,smoke,add,시트 2행 4–5열,검은 연기 퍼프 덩어리,추론(연속 프레임 시각 판독),candidate
+181174,lightning,add,158-163,청록·흰 번개 가지가 기체 주위로 뻗음,추론(연속 프레임 시각 판독),candidate
+11222,beams,add,54-57; 시트 1–6행,청색 빔(흰 core) + 노랑 빔 줄기 반복,추론(연속 프레임 시각 판독),candidate
+119371,explosions,add,342-345; 128-131,"주황 폭발 덩어리, 공중 소폭발",추론(연속 프레임 시각 판독),candidate
+119371,lightning,add,215-220; 513-526,청색 전기 선 망,추론(연속 프레임 시각 판독),candidate
+313715,debris,add,121-128; 197-207,어두운 작은 파편 칩 흩어짐,추론(연속 프레임 시각 판독),candidate
+80,sparks,add,시트 5행 6–7열,칼 충돌 지점 청색 별 불티,추론(연속 프레임 시각 판독),candidate
+306268,impact_frames,,33,"컷 전환 직후 어두운 우주 화면, 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+306268,impact_frames,,743-748,"적색 레이저 다발 일반 효과, 전면 단색 아님",추론(연속 프레임 시각 판독),uncertain
+69069,impact_frames_digital,add,37-40,"37·40 흰 전면, 38–39 매끈한 흰 방사 섬광 그라데이션, 결 없음",추론(연속 프레임 시각 판독),candidate
+69069,impact_frames,,75,"컷 전환(나무 덩굴 건물), 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+294835,impact_frames,,64-73,"하트 프레임 안 황색 glow 깜박임, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+294835,impact_frames_digital,add,138-140,"138 흰 전면 1장, 140 반투명 흰 겹침",추론(연속 프레임 시각 판독),candidate
+294835,impact_frames_digital,add,173,회색 반투명 전면 1장 깜박임,추론(연속 프레임 시각 판독),candidate
+294835,impact_frames,,178-184,"빛 기둥 확장 화이트아웃(182–184 흰 전면), 폭발광 일반 효과일 수 있음",추론(연속 프레임 시각 판독),uncertain
+266757,impact_frames,,0-2,"0 검정은 클립 시작, 1–2 청색 검광 glow 시작",추론(연속 프레임 시각 판독),uncertain
+266757,impact_frames,,27-31,"검은 바탕 청백 검광 glow, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+11224,impact_frames_digital,add,88-89,"흰 전면 + 청 가장자리, 매끈",추론(연속 프레임 시각 판독),candidate
+11224,impact_frames_digital,add,367-369,"367–368 흰 방사 섬광 전면, 369 검은 전면 1장",추론(연속 프레임 시각 판독),candidate
+11224,impact_frames,,370-378,"연기 위 흰 빛 돔, 폭발광 일반 효과",추론(연속 프레임 시각 판독),uncertain
+11224,impact_frames_digital,add,449,검은 전면 1장(연기 컷과 파편 컷 사이),추론(연속 프레임 시각 판독),candidate
+24634,impact_frames,,223-225,"레이아웃 위 연필 원화 자료 화면, 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+24634,impact_frames,,228-239,"연필 원화 자료 + 카메라 회전, 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+24634,impact_frames,,662-663,페이드아웃,추론(연속 프레임 시각 판독),uncertain
+71272,impact_frames_digital,add,64-81,"64·65·76·81 흰 전면, 68 검은 전면 교대 삽입",추론(연속 프레임 시각 판독),candidate
+71272,impact_frames_digital,add,116-127,"116–117 흑백 반전 평면, 118·121·127 반투명 흰 섬광",추론(연속 프레임 시각 판독),candidate
+71272,impact_frames_digital,add,325-333,325·327·328·330·332·333 흰 전면 교대 깜박임,추론(연속 프레임 시각 판독),candidate
+307588,impact_frames,,952-965,"어두운 실내 장면, 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+307588,impact_frames,,1051-1059,어두운 배경 근접 컷,추론(연속 프레임 시각 판독),uncertain
+307588,impact_frames,,1120,주황 불티 일반 효과,추론(연속 프레임 시각 판독),uncertain
+307588,impact_frames,,1254-1256,"안경 프레임 가림 POV, 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+307588,impact_frames,,1349-1355,"검은 바탕 흰 칼 섬광 + 렌즈 플레어, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+307588,impact_frames_digital,add,1356,흰 전면 1장,추론(연속 프레임 시각 판독),candidate
+307082,impact_frames,,0-2,컷 시작 흰 페이드인 전환,추론(연속 프레임 시각 판독),uncertain
+306268,lightning,add,27-39,청색 번개 빔 지그재그 가지,추론(연속 프레임 시각 판독),candidate
+306268,smoke,add,시트 r2c2-r2c4,우주 흰 연기 구름 덩어리,추론(contact sheet 시각 판독),candidate
+306268,explosions,add,시트 r5c5,흰 섬광 원형 폭발,추론(contact sheet 시각 판독),candidate
+210214,wind,add,시트 r7c3-r8c4,반투명 바람 띠 + 회오리 기둥,추론(contact sheet 시각 판독),candidate
+167784,fire,add,시트 r2c4-r2c5,주황 화염 분사,추론(contact sheet 시각 판독),candidate
+294835,fire,add,시트 r3c4-r4c8,노랑 화염 덩어리 화면 가득,추론(contact sheet 시각 판독),candidate
+11224,explosions,add,361-368,노랑·흰 방사 섬광 폭발,추론(연속 프레임 시각 판독),candidate
+11224,smoke,add,443-448,갈색·베이지 둥근 연기 덩어리 대량,추론(연속 프레임 시각 판독),candidate
+71272,yutapon_cubes,add,69-82,녹색 밝은/어두운 2톤 각진 결정 파편 회전 비산,추론(연속 프레임 시각 판독),candidate
+174308,debris,add,시트 r3c6-r3c8,차량 충돌 눈·흙 파편 비산,추론(contact sheet 시각 판독),candidate
+308183,lightning,add,시트 r2c1-r2c4,얼굴 위 노랑 전격 선,추론(contact sheet 시각 판독),candidate
+114258,impact_frames_digital,add,90-96,"검정 바탕 크림 단색 지그재그 실루엣, 매끈한 가장자리·결 없음",추론(원본 확대),candidate
+114258,impact_frames_digital,add,98-109,"시안 단색 전면 + 보라 줄기 streak, 면 농도 균일",추론(원본 확대),candidate
+114258,impact_frames,,178-186,"빔 화이트아웃: 흰 전면에 반짝이 입자 질감, 연필 결로 보이지 않으나 광원 효과라 미분류",추론(연속 프레임 시각 판독),uncertain
+114258,impact_frames,,197,"흰 섬광 1장 + 반짝이 질감·검은 덩어리, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+306593,impact_frames_digital,add,1-17,"회색·검정 평면(1·7·11) + 흑백 반전 포스터화(2·3·8·9·16·17) 교대, 결 없음",추론(원본 확대),candidate
+306593,impact_frames,,66;70;79,"총구 섬광으로 화면 대부분 흰 포화(부분), 일반 효과",추론(원본 확대),uncertain
+306973,impact_frames,,36-43,"얼굴 클로즈업, 임팩트 프레임 아님",추론(연속 프레임 시각 판독),uncertain
+306973,impact_frames,,222-236,다리가 화면을 가린 어두운 컷(223–224 드라이브러시 스미어),추론(연속 프레임 시각 판독),uncertain
+306973,impact_frames_digital,add,272,검정 전면 1프레임(271 방사 집중선 직후),추론(연속 프레임 시각 판독),candidate
+165675,impact_frames_digital,add,1100-1102,"1100 흰 전면, 1101–1102 검정 바탕 적색 단색 실루엣",추론(연속 프레임 시각 판독),candidate
+228636,impact_frames_digital,add,263-278,검정(263·266·272·278)·흰(264·269·275) 전면 교대 깜박임,추론(연속 프레임 시각 판독),candidate
+228636,impact_frames_digital,add,291-299,291 검정 전면 → 292–299 흰 전면 + 방사 잔광,추론(연속 프레임 시각 판독),candidate
+11217,impact_frames,,58-59,"암석 파편이 섞인 물보라, 임팩트 프레임 아님(일반 효과)",추론(연속 프레임 시각 판독),uncertain
+11223,impact_frames,,24-29,날개 초근접 카메라 가림,추론(연속 프레임 시각 판독),uncertain
+11223,impact_frames,,35-36,날개 초근접 카메라 가림,추론(연속 프레임 시각 판독),uncertain
+11223,impact_frames,,60-61,날개 스미어 근접,추론(연속 프레임 시각 판독),uncertain
+11223,impact_frames,,64-65,회색 2톤 평면이나 날개 스미어로 보임,추론(연속 프레임 시각 판독),uncertain
+119367,impact_frames,,94-99,어두운 얼굴 클로즈업·카메라 가림,추론(연속 프레임 시각 판독),uncertain
+179120,impact_frames,,427-428,"총구 섬광(노랑 평면 화염/베이지 가시 잔광 교대), 일반 효과",추론(연속 프레임 시각 판독),uncertain
+179120,impact_frames,,529-533,"총구 섬광 + 526·530 반투명 흰 포화, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+70207,impact_frames,,825-831,어두운 잔해 배경 정상 컷,추론(연속 프레임 시각 판독),uncertain
+70207,impact_frames_digital,add,832,흰(연분홍) 전면 1프레임,추론(연속 프레임 시각 판독),candidate
+70207,impact_frames,,833-836,잔해 정상 컷,추론(연속 프레임 시각 판독),uncertain
+70207,impact_frames,,1160-1168,어두운 근접 컷,추론(연속 프레임 시각 판독),uncertain
+307581,impact_frames_digital,add,44,흰(연분홍) 전면 1프레임,추론(연속 프레임 시각 판독),candidate
+307581,impact_frames_digital,add,1401,흰 전면 1프레임,추론(연속 프레임 시각 판독),candidate
+307581,impact_frames_digital,add,1411-1414,회색·흰 평면 전면,추론(연속 프레임 시각 판독),candidate
+307581,impact_frames,,1415-1425,흰 전면에서 장면으로 디졸브 전환,추론(연속 프레임 시각 판독),uncertain
+307703,impact_frames_digital,add,791-795,연청 평면(791–792)·검정(793·795)·흰(794) 전면 교대,추론(연속 프레임 시각 판독),candidate
+307703,impact_frames,,1132;1135,반투명 흰 섬광 겹침(장면 보임),추론(연속 프레임 시각 판독),uncertain
+306593,impact_frames,add,1-17,태그 없음; 회색·검정 평면·흑백 반전 프레임 교대,추론(원본 확대),candidate
+306973,impact_frames,add,271-272,태그 없음; 방사 집중선 후 검정 전면,추론(연속 프레임 시각 판독),candidate
+228636,impact_frames,add,263-299,태그 없음; 검/흰 전면 교대 + 화이트아웃,추론(연속 프레임 시각 판독),candidate
+307703,impact_frames,add,791-795,태그 없음; 연청·검·흰 전면 교대,추론(연속 프레임 시각 판독),candidate
+307581,impact_frames,add,44;1401;1411-1414,태그 없음; 흰·회색 전면 섬광,추론(연속 프레임 시각 판독),candidate
+70207,yutapon_cubes,add,833-842,"회색 밝은 면·어두운 면 2톤 각진 잔해, 크기 다양하게 비산",추론(연속 프레임 시각 판독),candidate
+70207,explosions,add,시트 1–2칸(≈21–43 추정),주황·노랑 평면 덩어리 폭발,추론(연속 프레임 시각 판독),candidate
+11217,debris,add,56-65,회색 각진 암석 파편 비산,추론(연속 프레임 시각 판독),candidate
+239750,explosions,add,시트 12–13칸(≈101–110 추정),흰·노랑 평면 화구 섬광 전면,추론(연속 프레임 시각 판독),candidate
+82,liquid,add,시트 3–4행 하단(완성 화면),회색·흰 평면 물보라,추론(연속 프레임 시각 판독),candidate
+306508,impact_frames,,688-697,"일반 효과: 기체 분사 연기 꼬리, 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+306599,impact_frames,,0-5,단순 어두운 장면(문 손잡이),추론(연속 프레임 시각 판독),uncertain
+306599,impact_frames,,337-344,"총구 클로즈업+배경 블러, 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+306599,impact_frames,,641-642,일반 근접 컷,추론(연속 프레임 시각 판독),uncertain
+306599,impact_frames,,754-761,일반 근접 컷,추론(연속 프레임 시각 판독),uncertain
+306599,impact_frames_digital,add,823,"전면 흰 노출 1장(반투명 흰 덮개), 매끈 면",추론(연속 프레임 시각 판독),candidate
+306599,impact_frames_digital,add,833,"전면 흰 노출 1장, 결 없음",추론(연속 프레임 시각 판독),candidate
+306599,impact_frames_digital,add,843,"전면 흰 노출 1장, 결 없음",추론(연속 프레임 시각 판독),candidate
+185908,impact_frames,,376-378,카메라 가림(전경 어두운 도형),추론(연속 프레임 시각 판독),uncertain
+185908,impact_frames,,526-528,"초점 흐린 전경 손, 어두운 장면",추론(연속 프레임 시각 판독),uncertain
+82912,impact_frames_digital,add,275-277,검정 평면 바탕+단색 실루엣·녹색 글로우,추론(연속 프레임 시각 판독),candidate
+82912,impact_frames_digital,add,282-283,전면 흰 포화,추론(연속 프레임 시각 판독),candidate
+82912,impact_frames_digital,add,285-286,전면 흰 포화,추론(연속 프레임 시각 판독),candidate
+82912,impact_frames_digital,add,900-901,검정 프레임 2장,추론(연속 프레임 시각 판독),candidate
+210215,impact_frames,,306-310,어두운 장면 일반 컷,추론(연속 프레임 시각 판독),uncertain
+307321,impact_frames_digital,add,94-99,"전면 청백 포화, 매끈 면",추론(연속 프레임 시각 판독),candidate
+307321,impact_frames,,188-194,"반투명 연기 디졸브(190·193), 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+307321,impact_frames,,665,"검정 사각 블록·패널 효과, 판단 불가",추론(연속 프레임 시각 판독),uncertain
+307321,impact_frames_digital,add,917,검정 프레임 1장,추론(연속 프레임 시각 판독),candidate
+307321,impact_frames_digital,add,1338-1341,"흑백 평면 반전 그래픽+검정 1장, 매끈 가장자리",추론(연속 프레임 시각 판독),candidate
+269863,impact_frames_digital,add,84-85,전면 흰 노출 2장,추론(연속 프레임 시각 판독),candidate
+269863,impact_frames,,86-91,"역광 흰 글로우 전환, 임팩트 아님",추론(연속 프레임 시각 판독),uncertain
+269863,impact_frames,,410,어두운 페이드아웃,추론(연속 프레임 시각 판독),uncertain
+11220,impact_frames_digital,add,249-250,검정 프레임 2장,추론(연속 프레임 시각 판독),candidate
+11220,impact_frames_digital,add,280-284,검정 바탕 회색 발광 2장+전면 흰 3장,추론(연속 프레임 시각 판독),candidate
+206441,impact_frames,,144-153,일반 효과: 분홍 번개(검정 바탕),추론(연속 프레임 시각 판독),uncertain
+206441,impact_frames,,276-279,어두운 바탕 팔 컷,추론(연속 프레임 시각 판독),uncertain
+307589,impact_frames,,555-556,일반 인물 컷,추론(연속 프레임 시각 판독),uncertain
+307589,impact_frames_digital,add,1145-1147,흰 1장+검정 2장,추론(연속 프레임 시각 판독),candidate
+308943,impact_frames_digital,add,5-7,전면 흰·노랑 섬광 포화(0-4는 일반 컷),추론(연속 프레임 시각 판독),candidate
+308943,impact_frames_digital,add,53-55,반투명 흰 섬광 덮개,추론(연속 프레임 시각 판독),candidate
+308943,impact_frames_digital,add,339,전면 흰 노출 1장,추론(연속 프레임 시각 판독),candidate
+308943,impact_frames_digital,add,342,흰 반전 노출 1장,추론(연속 프레임 시각 판독),candidate
+308943,impact_frames,,343-349,일반 근접 컷,추론(연속 프레임 시각 판독),uncertain
+308943,impact_frames_digital,add,350-365,밝은 섬광/어두운 실루엣 프레임 교대 깜박임(357·360·363 포함),추론(연속 프레임 시각 판독),candidate
+308943,impact_frames,,372-379,하늘 배경 칼 정지 컷,추론(연속 프레임 시각 판독),uncertain
+308943,impact_frames,,518-528,일반 기체 컷,추론(연속 프레임 시각 판독),uncertain
+308943,impact_frames,,545,"불티 유무 교대, 일반 효과",추론(연속 프레임 시각 판독),uncertain
+308943,impact_frames_digital,add,583-585,흰·검·흰 프레임,추론(연속 프레임 시각 판독),candidate
+308943,impact_frames,,1730-1732,장면 전환 검정 페이드,추론(연속 프레임 시각 판독),uncertain
+48004,impact_frames_digital,add,193-194,전면 흰 2장,추론(연속 프레임 시각 판독),candidate
+48004,impact_frames_digital,add,261,전면 흰 1장,추론(연속 프레임 시각 판독),candidate
+48004,impact_frames_digital,add,273-274,전면 흰 2장,추론(연속 프레임 시각 판독),candidate
+48004,impact_frames_digital,add,388,회백 단색 평면 1장(종이 결 노이즈),추론(연속 프레임 시각 판독),candidate
+48004,impact_frames_digital,add,437-443,검정 프레임+적색 단색 발광 곡선,추론(연속 프레임 시각 판독),candidate
+48004,impact_frames_digital,add,615-617,흑백 평면 실루엣 반전 2장+흰 1장,추론(연속 프레임 시각 판독),candidate
+48004,impact_frames_digital,add,622-625,흑백 평면 실루엣 반전 3장+검정 1장,추론(연속 프레임 시각 판독),candidate
+48004,impact_frames_digital,add,910-913,노랑·청 평면 충격 그래픽 2장+흰 2장,추론(연속 프레임 시각 판독),candidate
+48004,impact_frames_digital,add,1026,검정 1장,추론(연속 프레임 시각 판독),candidate
+48004,impact_frames_digital,add,1062,흰 1장,추론(연속 프레임 시각 판독),candidate
+409,impact_frames_pencil,add,정지 이미지,일러스트: 연필 방사 해칭+중심 흰 섬광+교차 섬광선(영상 아님),추론(정지 이미지 시각 판독),candidate
+306508,beams,add,,노랑 레이저 직선 다발(시트 4–5행),추론(contact sheet 시각 판독),candidate
+306599,impact_frames,add,,823·833·843 전면 흰 노출 프레임,추론(contact sheet 시각 판독),candidate
+185908,fireworks,add,,불꽃놀이 방사 점 폭발(시트 3·7·8행),추론(contact sheet 시각 판독),candidate
+82912,smoke,add,,검은 연기 덩어리(시트 1·4행),추론(contact sheet 시각 판독),candidate
+82912,beams,add,,분홍 기 빔(시트 8행·902–907),추론(contact sheet 시각 판독),candidate
+167785,sparks,add,,노랑 충돌 섬광·불티(시트 3·5·7행),추론(contact sheet 시각 판독),candidate
+11220,impact_frames,add,,"249–250 검정, 282–284 흰 프레임",추론(contact sheet 시각 판독),candidate
+11220,explosions,add,,폭발 화구(시트 7행),추론(contact sheet 시각 판독),candidate
+11225,effects,add,,노랑 발광 덩어리(시트 1–3행),추론(contact sheet 시각 판독),candidate
+307321,fire,add,,"적·주황 화염 덩어리(시트 5–6행, 911–923)",추론(contact sheet 시각 판독),candidate
+307589,impact_frames,add,,1145–1147 흰·검 프레임,추론(contact sheet 시각 판독),candidate
+308943,impact_frames,add,,"583–585 흰·검·흰 프레임, 5–7 섬광 포화",추론(contact sheet 시각 판독),candidate
+174237,beams,add,,황록 포 사격 빔(시트 1·6행),추론(contact sheet 시각 판독),candidate
+174315,fire,add,,다층 화염 폭발(시트 1–4행),추론(contact sheet 시각 판독),candidate
+48004,effects,add,,"적색 발광 궤적·흑백 반전 그래픽(437–449, 615–625)",추론(contact sheet 시각 판독),candidate
+48004,fire,add,,배경 화염 무늬(382–436),추론(contact sheet 시각 판독),candidate

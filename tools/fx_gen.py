@@ -1,0 +1,580 @@
+#!/usr/bin/env python3
+"""이펙트 생성기 시제품(캐릭터 없음): 종류·시드·길이로 이펙트만 있는 SFA를 만든다(사용자 2026-10-22: 이펙트·연출 먼저, 결과물은 이펙트만).
+
+사용: python tools/fx_gen.py <effects.txt> <palette.txt> <출력.sfa> [--kind impact|impact_frame|explosion|smoke|debris|shockwave|flash]
+      [--frames 48] [--seed 1] [--bg 0,0,0] [--stats 수치.json] [--check 확인.jpg]
+- 모양: 이펙트 사전(tools/effect_library.py, 나카무라 임팩트 장면에서 딴 포물선 조각 윤곽 — 쐐기·덩어리). 원·직선 대용 없음.
+- 그리기: AGENTS.md 원칙 — 같은 형태를 크기·알파·색을 바꿔 여러 겹(바깥 넓고 옅게 → 안쪽 좁고 진하게). 모든 경계는 2차 베지어(TypeId 3) + FR 채우기.
+- 움직임 기본값(--stats로 덮어쓴다. 이펙트 분리 결과를 tools/fx_timing.py로 잰 값으로 바꿀 예정):
+  파편: 정점 속도 0.014 화면높이/프레임, 속도 반감 3프레임(data/p4/nakamura_debris_rhythm_2026-10-21.json 폭발 파편 중앙값),
+  섬광 길이: 임팩트 장면을 쓰면 그 장면의 실제 장수(매 프레임 새 그림, 한 장을 늘려 붙들지 않음). 단색 섬광은
+  나카무라 단색 길이 분포(data/p3/impact_lengths_2026-10-22.json, 중앙 1)에서 시드로 뽑는다(최대 8).
+  임팩트 장면은 51개 전부 사용(사용자 2026-10-22: 실루엣은 사람도 대상 — 이펙트만 SFA라도 임팩트 프레임 안 인물 실루엣 허용).
+  섬광 그림: 나카무라 임팩트 장면 플립북(사전 Q, 흑백 실루엣·먹선)을 시드로 골라 한 장씩(없으면 단색).
+  그림 유지: 2s 바탕·빠른 순간 1s(docs/P1-STRIKE-TIMING-2026-10-22.md).
+  폭발 면적은 빠르게 커져 수명 약 30%에서 정점(가정, 측정 전), 연기는 오르며 넓어지고 천천히 옅어짐(가정).
+- 이름 구분(2026-10-22 정의 점검): 임팩트 프레임 = 흐름을 끊고 다른 그림 방식(흑백·한 색·실루엣·연필 해칭)으로 끼우는 짧은 장면.
+  폭발·연기·충격파·파편은 임팩트가 아니라 이펙트다.
+  --kind impact_frame = 임팩트 프레임만. --kind impact = 임팩트 프레임 → 이펙트(충격파·폭발·파편 → 연기)가 이어지는 묶음,
+  임팩트 프레임 뒤 24프레임 화면 흔들림(--shake).
+- --impact-books(tools/fx_impact_book.py)가 있으면 임팩트 프레임을 원래 그림 방식 그대로(밑색 + 반투명 명암 + 해칭 선 획) 그린다.
+  없으면 Q 흑백 2단계 장면(연필 결·색 포인트가 뭉개짐).
+- --shapes(tools/fx_shapes.py 층 형태 사전)가 있으면 파편(rock)·연기(smoke)에 실제 형태를 층째로 쓴다.
+이펙트 사전은 다른 작가 그림 유래라 저장소 밖(Drive). 이 도구와 수치만 저장소에 둔다.
+"""
+import argparse
+import json
+import math
+import os
+import random
+import sys
+import zipfile
+
+import numpy as np
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from effect_clip_sfa import Writer, argb, thick  # noqa: E402
+from effect_vectorize import fit  # noqa: E402
+
+REFIT_TOL = 1.5  # 화면 px. 층 형태를 작게 놓을 때 원래 해상도의 잔조각을 화면 크기에 맞춰 다시 맞춘다(62MB → 수 MB)
+
+
+def refit(segs_px):
+    """2차 베지어 사슬(화면 px)을 곡선 위 점으로 바꿔 REFIT_TOL 오차로 다시 맞춘다(닫힌 윤곽)."""
+    P = []
+    for x0, y0, cx, cy, x1, y1 in segs_px:
+        t = np.linspace(0, 1, 4)[:-1, None]
+        P.append((1 - t) ** 2 * [x0, y0] + 2 * t * (1 - t) * [cx, cy] + t ** 2 * [x1, y1])
+    P = np.vstack(P)
+    if len(P) < 4:
+        return segs_px
+    per = np.linalg.norm(np.diff(np.vstack([P, P[:1]]), axis=0), axis=1).sum()
+    if per < 3:
+        return []
+    P = np.vstack([P, P[:1]])
+    out = []
+    fit([tuple(p) for p in P], REFIT_TOL, out)
+    return [[*a, *c, *b] for a, c, b in out] if out else segs_px
+
+W, H = 960, 540
+DEFAULT = {
+    "debris_v0": 0.014, "debris_half": 3.0, "debris_gravity": 0.0012, "debris_count": 40,
+    "explosion_peak": 0.3, "explosion_size": 0.33, "smoke_rise": 0.004, "smoke_grow": 0.012,
+    "shock_speed": 0.045, "shock_scale": 0.55, "flash_frames": 2, "hold": 2,
+}
+
+
+def load_lib(path):
+    wedges, blobs = [], []
+    lines = open(path, encoding="utf-8").read().splitlines()
+    i = 0
+    while i < len(lines):
+        f = lines[i].split()
+        if f and f[0] == "K":
+            n = int(f[3])
+            cs = [(int(lines[i + k].split()[1]), np.array(lines[i + k].split()[2:], float).reshape(-1, 6)) for k in range(1, n + 1)]
+            (wedges if f[1] == "wedge" else blobs).append(cs)
+            i += 1 + n
+        else:
+            i += 1
+    return wedges, blobs
+
+
+def load_scenes(path):
+    """임팩트 장면 플립북(Q): [(흰 먹 여부, 폭 w(높이 1 기준), [그룹 윤곽 목록])] 프레임 목록."""
+    lines = open(path, encoding="utf-8").read().splitlines()
+    scenes, i = [], 0
+    while i < len(lines):
+        f = lines[i].split()
+        if f and f[0] == "Q":
+            nf, i = int(f[2]), i + 1
+            frames = []
+            for _ in range(nf):
+                h = lines[i].split()
+                i += 1
+                groups = []
+                for _ in range(int(h[3])):
+                    nc = int(lines[i].split()[1])
+                    i += 1
+                    groups.append([(int(lines[i + k].split()[1]), np.array(lines[i + k].split()[2:], float).reshape(-1, 6))
+                                   for k in range(nc)])
+                    i += nc
+                frames.append((h[1] == "1", float(h[2]), groups))
+            scenes.append((f[1], frames))
+        else:
+            i += 1
+    return scenes
+
+
+def load_layered_with_src(path):
+    """tools/fx_shapes.py 층 형태 사전 → [(번호(1부터), 종류, 출처, 층 [(BGR, 알파, [(구멍, segs[n,6])...])])]."""
+    out, L, i, num = [], open(path, encoding="utf-8").read().splitlines(), 0, 0
+    while i < len(L):
+        f = L[i].split()
+        if f and f[0] == "L":
+            kind, src, nl, i = f[1], f[2], int(f[3]), i + 1
+            num += 1
+            layers = []
+            for _ in range(nl):
+                y = L[i].split()
+                i += 1
+                cs = []
+                for _ in range(int(y[5])):
+                    c = L[i].split()
+                    i += 1
+                    cs.append((int(c[1]), np.array(c[2:], float).reshape(-1, 6)))
+                layers.append(((int(y[1]), int(y[2]), int(y[3])), float(y[4]), cs))
+            out.append((num, kind, src, layers))
+        else:
+            i += 1
+    return out
+
+
+def load_layered(path, approved=None):
+    """{종류: [층 ...]}. approved(판정 csv: 번호,판정)가 있으면 '맞음'만(검출 이름표가 틀린 형태 — 예: 손톱을 폭발로 — 를 뺀다)."""
+    ok = None
+    if approved:
+        import csv
+        # '맞음'인 번호, 그리고 '아님'이지만 다른 종류 이펙트로는 맞다고 다른종류 칸을 채운 번호(GPT 지시문 규칙).
+        # 다른종류 칸이 있으면 그 종류로 쓴다(예: 임팩트에서 딴 연기 → smoke, 베기 줄기 → streak). 'other'는 쓰지 않는다
+        ok = {}
+        for r in csv.DictReader(open(approved, encoding="utf-8-sig")):
+            v, k = r.get("판정", "").strip(), (r.get("다른종류") or "").strip()
+            if (v == "맞음" or (v == "아님" and k)) and k != "other":
+                ok[int(r["번호"])] = k
+    out = {}
+    for num, kind, _, layers in load_layered_with_src(path):
+        if ok is None or num in ok:
+            out.setdefault((ok or {}).get(num) or kind, []).append(layers)
+    return out
+
+
+def load_flipbooks(path):
+    """tools/fx_flipbook.py 출력 → {종류: [[프레임별 층 [(BGR, 알파, [(구멍, segs)])]] ...]}."""
+    out, L, i = {}, open(path, encoding="utf-8").read().splitlines(), 0
+    while i < len(L):
+        f = L[i].split()
+        if f and f[0] == "B":
+            kind, nf, i = f[1], int(f[3]), i + 1
+            frames = []
+            for _ in range(nf):
+                nl, i = int(L[i].split()[1]), i + 1
+                layers = []
+                for _ in range(nl):
+                    y = L[i].split()
+                    i += 1
+                    cs = []
+                    for _ in range(int(y[5])):
+                        c = L[i].split()
+                        i += 1
+                        cs.append((int(c[1]), np.array(c[2:], float).reshape(-1, 6)))
+                    layers.append(((int(y[1]), int(y[2]), int(y[3])), float(y[4]), cs))
+                frames.append(layers)
+            out.setdefault(kind, []).append(frames)
+        else:
+            i += 1
+    return out
+
+
+def load_impact_books(path):
+    """tools/fx_impact_book.py 출력 → [(이름, 폭 w, [(층 [(BGR, 알파, [(구멍, 부모, segs)], 글로우)], 획 [(BGR, 굵기, seg, 글로우σ)])], 바탕 BGR|None)].
+    글로우(--glow 형식): 층은 (σ, 띠 폭), 획은 σ — 화면 높이 비율. 없으면 None."""
+    out, L, i = [], open(path, encoding="utf-8").read().splitlines(), 0
+    while i < len(L):
+        f = L[i].split()
+        i += 1
+        if not f or f[0] != "B":
+            continue
+        frames = []
+        for _ in range(int(f[3])):
+            h = L[i].split()
+            i += 1
+            layers, strokes = [], []
+            for _ in range(int(h[1])):
+                y = L[i].split()
+                i += 1
+                cs = []
+                for _ in range(int(y[5])):
+                    c = L[i].split()
+                    i += 1
+                    cs.append((int(c[1]), int(c[2]), np.array(c[3:], float).reshape(-1, 6)))
+                gl = (float(y[7]), float(y[8])) if len(y) > 6 and y[6] == "G" else None
+                layers.append(((int(y[1]), int(y[2]), int(y[3])), float(y[4]), cs, gl))
+            for _ in range(int(h[2])):
+                c = L[i].split()
+                i += 1
+                strokes.append(((int(c[1]), int(c[2]), int(c[3])), float(c[4]), [float(v) for v in c[5:11]],
+                                float(c[12]) if len(c) > 12 and c[11] == "G" else None))
+            frames.append((layers, strokes))
+        bg = tuple(int(v) for v in f[6:9]) if len(f) > 8 and f[5] == "BG" else None
+        out.append((f[2], float(f[4]), frames, bg))
+    return out
+
+
+def glow_args(bgr, sig_px, band_px, ts):
+    """스틱파이터 글로우 속성. 서버 렌더(960×540)에서 잰 값: 번짐 σ(px) ≈ GlowRadius, 띠 폭 = 8·ThicknessScale·GlowThickness/10.
+    실제 앱의 화면 크기별 환산은 미확인(docs/AOT-DRAW-GLOW-TRACE: R = GlowRadius×S/DPR)."""
+    return (max(0.5, sig_px), max(1.0, band_px * 10 / (8 * max(ts, 0.02))), argb(bgr), 255.0)
+
+
+def shift(shapes, dx, dy):
+    """화면 흔들림: 윤곽 전체(또는 선 획 하나)를 px만큼 옮긴다."""
+    if isinstance(shapes, dict) and "fill" in shapes:
+        return dict(shapes, fill=shift(shapes["fill"], dx, dy))
+    if isinstance(shapes, dict):
+        return dict(shapes, seg=[v + (dx if k % 2 == 0 else dy) for k, v in enumerate(shapes["seg"])])
+    return [dict(sh, segs=[[v + (dx if k % 2 == 0 else dy) for k, v in enumerate(sg)] for sg in sh["segs"]]) for sh in shapes]
+
+
+def load_pal(path):
+    out = []
+    for ln in open(path, encoding="utf-8"):
+        f = ln.split()
+        if f and f[0] == "P":
+            out.append((int(f[3]), int(f[2]), int(f[1])))  # BGR
+    return out
+
+
+def nearest(pal, rgb):
+    r, g, b = rgb
+    if not pal:
+        return (b, g, r)
+    return min(pal, key=lambda c: (c[2] - r) ** 2 + (c[1] - g) ** 2 + (c[0] - b) ** 2)
+
+
+def place(shape, cx, cy, s, ang):
+    """형태(중심 원점, 면적 제곱근 1)를 화면 px로: 크기 s(화면 높이 비율), 회전 ang. → effect_clip_sfa.Writer.fill용 윤곽 목록."""
+    c, n = math.cos(ang), math.sin(ang)
+    out = []
+    for cid, (hole, segs) in enumerate(shape):
+        P = segs.reshape(-1, 2) * s * H
+        R = np.stack([P[:, 0] * c - P[:, 1] * n + cx * H, P[:, 0] * n + P[:, 1] * c + cy * H], 1).reshape(-1, 6)
+        out.append({"hole": bool(hole), "segs": R.tolist(), "cid": cid, "parent": 0 if hole else -1})
+    return out
+
+
+def axis(shape):
+    P = shape[0][1].reshape(-1, 2)
+    P = P - P.mean(0)
+    xx, yy, xy = (P[:, 0] ** 2).sum(), (P[:, 1] ** 2).sum(), (P[:, 0] * P[:, 1]).sum()
+    return 0.5 * math.atan2(2 * xy, xx - yy)
+
+
+class Gen:
+    def __init__(self, wedges, blobs, pal, seed, frames, st, cx=None, cy=0.5, scenes=(), layered=None, flipbooks=None, books=()):
+        self.flipbooks = flipbooks or {}
+        self.books = list(books)  # 임팩트 프레임 플립북 v2(전체 층 분해 + 선 획). 있으면 Q 장면보다 우선
+        self.dark_bg = True
+        self.wedges, self.blobs, self.pal = wedges, blobs, pal
+        self.layered = layered or {}
+        self.scenes = list(scenes)
+        self.rng = random.Random(seed)
+        self.seed = seed
+        self.N = frames
+        self.st = st
+        self.cx = W / H / 2 if cx is None else cx
+        self.cy = cy
+        self.col = {k: nearest(pal, v) for k, v in {"red": (194, 49, 46), "orange": (234, 131, 26), "yellow": (246, 222, 37),
+                                                     "cream": (246, 234, 123), "smoke": (90, 84, 80), "dust": (196, 131, 92)}.items()}
+        self.col["white"] = (255, 255, 255)
+        self.col["smoke"] = (78, 82, 86)  # 학습 팔레트에 무채색이 없어 가장 가까운 색이 파랑이 됐다 → 연기는 회색 고정(측정 전)
+
+    def held(self, t, fast=False):
+        """그림 유지: 빠른 순간은 1s, 나머지는 hold(기본 2s) — 같은 그림을 그 프레임 수만큼 보여 준다."""
+        h = 1 if fast else int(self.st["hold"])
+        return (t // h) * h
+
+    # 각 함수는 프레임 t에서 [(윤곽 목록, BGR, 알파)] 를 아래 → 위 순서로 돌려준다
+    def explosion(self, t, t0=0, life=None):
+        life = life or int(self.N * 0.75)
+        u = (self.held(t - t0) if t >= t0 else -1) / life
+        if u < 0 or u > 1:
+            return []
+        pk = self.st["explosion_peak"]
+        grow = 1 - (1 - min(u / pk, 1)) ** 3  # 빠르게 커짐(ease-out)
+        fade = 1.0 if u < pk else max(0.0, 1 - (u - pk) / (1 - pk))
+        rng = random.Random(self.seed * 1000 + 7)  # 시드마다 다른 모양(같은 시드면 같은 결과)
+        lumps = [(rng.uniform(-0.6, 0.6), rng.uniform(-0.5, 0.4), rng.uniform(0.5, 1.0), rng.uniform(0, 6.28), rng.randrange(len(self.blobs)))
+                 for _ in range(7)]
+        out = []
+        size = self.st["explosion_size"] * grow
+        real = self.layered.get("explosion")
+        if real:  # 실제 나카무라 폭발 형태(층째로) 몇 개를 겹쳐 커지게, 정점 뒤 옅어지게
+            for j, (dx, dy, r, ang, bi) in enumerate(lumps[:4]):
+                out += self.place_layered(real[(j * 3 + self.seed) % len(real)], self.cx + dx * size * 0.6,
+                                          self.cy + dy * size * 0.6, size * r * 0.9, ang * 0.2, fade)
+            return out
+        for sc, ck, a in ((1.35, "red", 0.35), (1.0, "orange", 0.6), (0.62, "yellow", 0.85), (0.32, "white", 0.95)):
+            inner = sc < 0.7
+            k = (1 - 0.6 * (u - pk) / (1 - pk)) if (inner and u > pk) else 1.0  # 안쪽 밝은 겹은 정점 뒤 먼저 줄어든다
+            for dx, dy, r, ang, bi in lumps:
+                sh = place(self.blobs[bi], self.cx + dx * size, self.cy + dy * size, size * r * sc * k * 0.55, ang + u)
+                out.append((sh, self.col[ck], a * fade))
+        return out
+
+    def smoke(self, t, t0=0):
+        if t < t0:
+            return []
+        u = self.held(t - t0, False) / max(1, self.N - t0)
+        rng = random.Random(self.seed * 1000 + 11)  # 시드마다 다른 모양(같은 시드면 같은 결과)
+        out = []
+        for i in range(9):
+            dx, ph, bi = rng.uniform(-0.5, 0.5), rng.uniform(0, 6.28), rng.randrange(len(self.blobs))
+            age = u * self.N
+            s = 0.06 + self.st["smoke_grow"] * age * rng.uniform(0.7, 1.3)
+            x = self.cx + dx * (0.25 + 0.4 * u)
+            y = self.cy - self.st["smoke_rise"] * age * rng.uniform(0.6, 1.4) - 0.05
+            fade = max(0.0, 1 - u) ** 1.5
+            smokes = self.layered.get("smoke")
+            if smokes:  # 실제 연기 형태(층째로), 넓고 옅게 시작해 오르며 옅어진다
+                out += self.place_layered(smokes[(i * 5 + self.seed) % len(smokes)], x, y, s, ph + 0.3 * u, 0.7 * fade)
+                continue
+            for sc, a, dark in ((1.3, 0.25, 1.0), (0.85, 0.45, 0.7)):
+                c = tuple(int(v * dark) for v in self.col["smoke"])
+                out.append((place(self.blobs[bi], x, y, s * sc, ph + 0.3 * u), c, a * fade))
+        return out
+
+    def place_layered(self, item, cx, cy, s, ang, fade=1.0):
+        """층 형태(실제 이펙트에서 딴 밑색 + 반투명 명암 겹)를 통째로 놓는다. 화면 크기에 맞춰 윤곽을 다시 맞추고 1px 미만 조각은 버린다."""
+        out = []
+        for col, a, cs in item:
+            shapes = []
+            for sh in place(cs, cx, cy, s, ang):
+                sg = refit(sh["segs"])
+                if sg:
+                    shapes.append(dict(sh, segs=sg))
+            if shapes:
+                out.append((shapes, col, a * fade))
+        return out
+
+    def debris(self, t, t0=0):
+        if t < t0:
+            return []
+        tt = self.held(t - t0, fast=(t - t0) < 4)  # 처음 몇 장은 매 프레임(빠른 순간)
+        rng = random.Random(self.seed * 1000 + 13)  # 시드마다 다른 모양(같은 시드면 같은 결과)
+        out = []
+        v0, half, g = self.st["debris_v0"], self.st["debris_half"], self.st["debris_gravity"]
+        k = math.log(2) / half
+        for i in range(int(self.st["debris_count"])):
+            ang = rng.uniform(-math.pi, 0.15) if rng.random() < 0.8 else rng.uniform(0, math.pi)
+            sp = v0 * rng.uniform(0.5, 1.6) * 6
+            dist = sp * (1 - math.exp(-k * tt)) / k  # 속도가 반감기 half로 줄어든다
+            x = self.cx + math.cos(ang) * dist * W / H * 0.5
+            y = self.cy + math.sin(ang) * dist + 0.5 * g * tt * tt
+            if y > 1.1:
+                continue
+            s = rng.uniform(0.008, 0.03)
+            bi = rng.randrange(len(self.blobs))
+            spin = rng.uniform(-0.4, 0.4) * tt
+            rocks = self.layered.get("rock")
+            if rocks:  # 실제 돌 형태(층째로)
+                out += self.place_layered(rocks[(i * 7 + self.seed) % len(rocks)], x, y, s * 1.4, spin)
+            else:
+                out.append((place(self.blobs[bi], x, y, s, spin), (60, 64, 70), 1.0))
+                out.append((place(self.blobs[bi], x - s * 0.15, y - s * 0.15, s * 0.6, spin), self.col["dust"], 0.8))
+        return out
+
+    def shockwave(self, t, t0=0, life=10):
+        u = (t - t0) / life
+        if u < 0 or u > 1:
+            return []
+        books = self.flipbooks.get("shockwave")
+        if books:  # 실제 나카무라 충격파 프레임 순서(층째로). 원본은 화면을 덮는 크기라 줄여 가운데에 놓는다
+            fb = books[self.seed % len(books)]
+            k = min(int((t - t0) * len(fb) / life), len(fb) - 1)
+            layers = fb[self.held(k)]
+            if self.dark_bg:  # 밝은 바탕 위 검은 고리 → 어두운 바탕에서는 밝기를 뒤집어 흰 고리로(흑백 반전, 임팩트 장면과 같은 방식)
+                layers = [(tuple(255 - c for c in col) if sum(col) < 180 else col, a, cs) for col, a, cs in layers]
+            return self.place_layered(layers, self.cx, self.cy, self.st["shock_scale"], 0.0, 1.0 - 0.5 * u)
+        r = 0.05 + self.st["shock_speed"] * (t - t0) * (1.6 - 0.6 * u)
+        fade = 1 - u
+        out = []
+        segs = 18
+        for m in range(segs):
+            ang = m / segs * 2 * math.pi
+            wi = (m * 5) % len(self.wedges)
+            for sc, ck, a in ((0.09, "orange", 0.5), (0.05, "cream", 0.85)):
+                sh = place(self.wedges[wi], self.cx + math.cos(ang) * r, self.cy + math.sin(ang) * r * 0.55, sc * (1 - 0.4 * u),
+                           ang + math.pi / 2 - axis(self.wedges[wi]))
+                out.append((sh, self.col[ck], a * fade))
+        return out
+
+    def flash(self, t, t0=0):
+        n = int(self.st["flash_frames"])
+        if not (t0 <= t < t0 + n + 3):
+            return []
+        if t < t0 + n:
+            x1, y1 = W, H
+            box = [{"hole": False, "segs": [[0, 0, x1 / 2, 0, x1, 0], [x1, 0, x1, y1 / 2, x1, y1], [x1, y1, x1 / 2, y1, 0, y1],
+                                             [0, y1, 0, y1 / 2, 0, 0]], "cid": 0, "parent": -1}]
+            if self.books:  # 임팩트 프레임 v2: 원래 그림 방식 그대로(밑색 + 반투명 명암 + 해칭 선 획), 화면을 덮도록 키운다
+                name, w, frs, bgc = self.books[self.rng_scene]
+                layers, strokes = frs[min(t - t0, len(frs) - 1)]
+                sc = max(H, W / w)
+                ox, oy = W / 2 - w * sc / 2, H / 2 - sc / 2
+                pts = lambda sg: (np.asarray(sg).reshape(-1, 2) * sc + [ox, oy]).reshape(-1, 6).tolist()
+                # 바탕: 글로우 형식은 프레임 바탕색(frame_bg)을 쓰고 큰 바탕 면을 그리지 않는다. 이전 형식만 바탕 면
+                out = [] if bgc else [(box, layers[0][0] if layers else self.col["white"], 1.0)]
+                for col, a, cs, gl in layers:
+                    shp = [{"hole": bool(h), "segs": pts(sg), "cid": ci, "parent": p} for ci, (h, p, sg) in enumerate(cs)]
+                    out.append(({"fill": shp, "glow": (gl[0] * sc, gl[1] * sc)} if gl else shp, col, a))
+                for col, th, sg, gs in strokes:
+                    out.append(({"seg": pts(sg)[0], "th": th * sc, "glow": gs * sc if gs else None}, col, 1.0))
+                return out
+            if not self.scenes:  # 단색 섬광: 화면 전체(사각 윤곽을 곡선 4개로)
+                return [(box, self.col["white"], 1.0)]
+            # 나카무라 임팩트 프레임(흑백 실루엣·먹선 장면)을 한 장씩: 바탕 = 먹의 반대색, 장면이 화면을 덮도록 키운다
+            name, frs = self.scenes[self.rng_scene]
+            white_ink, w, groups = frs[min(t - t0, len(frs) - 1)]
+            ink, paper = ((255, 255, 255), (0, 0, 0)) if white_ink else ((0, 0, 0), (255, 255, 255))
+            sc = max(H, W / w)
+            ox, oy = W / 2 - w * sc / 2, H / 2 - sc / 2
+            out = [(box, paper, 1.0)]
+            for gi, g in enumerate(groups):
+                shapes = [{"hole": bool(h), "segs": (np.array(sg).reshape(-1, 2) * sc + [ox, oy]).reshape(-1, 6).tolist(),
+                           "cid": ci, "parent": 0 if h else -1} for ci, (h, sg) in enumerate(g)]
+                out.append((shapes, ink, 1.0))
+            return out
+        u = (t - t0 - n) / 3
+        out = []
+        rng = random.Random(self.seed * 1000 + 17)
+        streaks, bursts = self.layered.get("streak"), self.layered.get("flash")
+        if streaks:  # 실제 나카무라 임팩트에서 딴 베기·속도선 줄기를 방사형으로(긴 축을 바깥 방향에 맞춘다), 가운데에 섬광 덩어리
+            if bursts:
+                out += self.place_layered(bursts[self.seed % len(bursts)], self.cx, self.cy, 0.22 * (1 + u), 0.0, 1 - u)
+            for m in range(10):
+                ang = (m + rng.random() * 0.6) / 10 * 2 * math.pi
+                it = streaks[(m * 7 + self.seed) % len(streaks)]
+                ln = rng.uniform(0.12, 0.22) * (1 + 0.5 * u)
+                d = 0.08 + ln * 0.9
+                out += self.place_layered(it, self.cx + math.cos(ang) * d, self.cy + math.sin(ang) * d, ln,
+                                          ang - axis(it[0][2]), 1 - u)
+            return out  # 시드마다 다른 모양(같은 시드면 같은 결과)
+        for m in range(12):  # 섬광 뒤 방사형 가시(쐐기), 빠르게 옅어짐
+            ang = (m + rng.random() * 0.6) / 12 * 2 * math.pi
+            wi = (m * 7) % len(self.wedges)
+            ln = rng.uniform(0.05, 0.1) * (1 + 0.5 * u)
+            d = 0.06 + ln * 1.1
+            for sc, ck, a in ((1.3, "red", 0.35), (1.0, "orange", 0.6), (0.6, "cream", 0.9)):
+                out.append((place(self.wedges[wi], self.cx + math.cos(ang) * d, self.cy + math.sin(ang) * d, ln * sc,
+                                  ang - axis(self.wedges[wi])), self.col[ck], a * (1 - u)))
+        return out
+
+    def frame_bg(self, kind, t):
+        """임팩트 프레임(글로우 형식) 동안은 그 장면의 바탕색(검정/흰색)을 프레임 바탕으로 쓴다."""
+        n = int(self.st["flash_frames"])
+        if self.books and kind in ("impact", "impact_frame") and t < n and self.books[self.rng_scene][3]:
+            return self.books[self.rng_scene][3]
+        return None
+
+    def frame(self, kind, t):
+        if kind == "impact":
+            n = int(self.st["flash_frames"])
+            return (self.smoke(t, n + 6) + self.explosion(t, n, int(self.N * 0.6)) + self.debris(t, n) +
+                    self.shockwave(t, n) + self.flash(t, 0))
+        if kind == "impact_frame":
+            return self.flash(t, 0)
+        return getattr(self, kind)(t)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("fx")
+    ap.add_argument("pal")
+    ap.add_argument("out")
+    ap.add_argument("--kind", default="impact")
+    ap.add_argument("--frames", type=int, default=48)
+    ap.add_argument("--seed", type=int, default=1)
+    ap.add_argument("--bg", default="0,0,0")
+    ap.add_argument("--stats")
+    ap.add_argument("--shapes", help="층 형태 사전(tools/fx_shapes.py 출력). 있으면 파편·연기에 실제 형태를 쓴다")
+    ap.add_argument("--approved", help="형태 판정 csv(번호,판정). 있으면 '맞음' 형태만 쓴다(tools/fx_shape_sheets.py)")
+    ap.add_argument("--flipbooks", help="이펙트 플립북(tools/fx_flipbook.py 출력). 충격파 등에 실제 프레임 순서를 쓴다")
+    ap.add_argument("--shake", type=float, default=0.012, help="임팩트 뒤 화면 흔들림 세기(화면 높이 비율, 0=없음)")
+    ap.add_argument("--impact-books", help="임팩트 프레임 플립북 v2(tools/fx_impact_book.py 출력). 있으면 연필 해칭·색을 살려 그린다")
+    ap.add_argument("--check")
+    ap.add_argument("--scenes", default="",
+                    help="쓸 임팩트 장면 이름 목록 파일. 기본은 전부(사용자 2026-10-22: 임팩트 프레임의 실루엣은 사람도 대상 — "
+                         "이펙트만 SFA라도 임팩트 프레임 안 인물 실루엣 허용). 실루엣 없는 장면만: data/p3/impact_scenes_fxonly_2026-10-22.txt")
+    a = ap.parse_args()
+    st = dict(DEFAULT)
+    if a.stats:
+        st.update(json.load(open(a.stats)))
+    wedges, blobs = load_lib(a.fx)
+    scenes = load_scenes(a.fx)
+    ok = set()
+    if a.scenes and os.path.exists(a.scenes):
+        ok = {l.strip() for l in open(a.scenes, encoding="utf-8") if l.strip() and not l.startswith("#")}
+        scenes = [sc for sc in scenes if sc[0] in ok]
+    g = Gen(wedges, blobs, load_pal(a.pal), a.seed, a.frames, st, scenes=scenes,
+            layered=load_layered(a.shapes, a.approved) if a.shapes else None,
+            flipbooks=load_flipbooks(a.flipbooks) if a.flipbooks else None,
+            books=[b for b in load_impact_books(a.impact_books) if not ok or b[0] in ok] if a.impact_books else ())
+    pick = g.books or g.scenes
+    if pick:
+        g.rng_scene = random.Random(a.seed * 977).randrange(len(pick))
+        print("임팩트 장면", pick[g.rng_scene][0], "(v2 층 분해)" if g.books else "(Q 흑백)")
+    lens = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "p3", "impact_lengths_2026-10-22.json")
+    if not a.stats or "flash_frames" not in json.load(open(a.stats)):
+        if pick:  # 임팩트 장면을 쓰면 그 장면의 실제 장수만큼(매 프레임 새 그림 — 한 장을 늘려 붙들지 않는다)
+            st["flash_frames"] = len(pick[g.rng_scene][2] if g.books else pick[g.rng_scene][1])   # 책: (이름, 폭, 프레임, 바탕), 장면: (이름, 프레임)
+            print("섬광 길이(장면 장수)", st["flash_frames"])
+        elif os.path.exists(lens):  # 단색 섬광 길이: 나카무라 임팩트 실제 길이 분포에서 시드로 뽑는다(단색 중앙 1)
+            pool = json.load(open(lens))["mono"]
+            st["flash_frames"] = min(8, random.Random(a.seed * 53).choice(pool))
+            print("섬광 길이", st["flash_frames"])
+    bg = [int(v) for v in a.bg.split(",")]
+    g.dark_bg = sum(bg) < 384
+    wr = Writer()
+    body = []
+    for t in range(a.frames):
+        fbg = g.frame_bg(a.kind, t) or bg
+        out = [f'<Frame BackgroundColor="{argb(fbg) & 0xFFFFFFFF}" ID="{t + 1}" Position="{t}">',
+               '<LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false" />']
+        # 화면 흔들림(P2 카메라: 임팩트 뒤 약 1초 동안 평소의 약 2.3배): 섬광 뒤 24프레임 동안 줄어들며, 2프레임마다 새 위치
+        n = int(st["flash_frames"])
+        dx = dy = 0.0
+        if a.kind in ("impact", "impact_frame") and a.shake > 0 and n <= t < n + 24:
+            amp = a.shake * H * (1 - (t - n) / 24)
+            r = random.Random(a.seed * 31 + (t // 2))
+            dx, dy = r.uniform(-1, 1) * amp, r.uniform(-1, 1) * amp
+        for shapes, bgr, alpha in g.frame(a.kind, t):
+            if alpha > 0.01:
+                if dx or dy:
+                    shapes = shift(shapes, dx, dy)
+                if isinstance(shapes, dict) and "fill" in shapes:  # 단색 면 + 경계 글로우(테두리 선은 투명, 글로우만)
+                    gs, band = shapes["glow"]
+                    c = argb(bgr, min(1.0, alpha))
+                    wr.fill(out, shapes["fill"], W, c, c & 0xFFFFFF, 1.0, glow=glow_args(bgr, gs, band, 1.0))
+                elif isinstance(shapes, dict):  # 선 획(해칭 등): 곡선 하나, 굵기 = 원래 획 굵기
+                    ts = thick(shapes["th"], W)
+                    gl = glow_args(bgr, shapes["glow"], shapes["th"], ts) if shapes.get("glow") else None
+                    wr.curve_ao(out, shapes["seg"], W, argb(bgr, min(1.0, alpha)), ts, gl)
+                else:
+                    wr.fill(out, shapes, W, argb(bgr, min(1.0, alpha)), 0, 0.02)
+        out.append("</Frame>")
+        body.append("\n".join(out))
+    name = os.path.splitext(os.path.basename(a.out))[0]
+    xml = (f"<?xml version='1.0' encoding='utf-8'?>\n<Sequence Name=\"{name}\" HeightWidthRatio=\"0.5625\" RatioX=\"16\" RatioY=\"9\" "
+           f"FrameCount=\"{a.frames}\" BackgroundColor=\"{argb(bg)}\">\n" + "\n".join(body) + "\n</Sequence>\n")
+    with zipfile.ZipFile(a.out, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr(name + ".xml", xml)
+    print(a.kind, "프레임", a.frames, "AO", wr.oid - 1, "크기MB", round(os.path.getsize(a.out) / 1e6, 2))
+    if a.check:
+        import subprocess
+        import cv2
+        tmp = a.check + "_r"
+        idx = [0, 2, 4, 7, 11, 16, 23, 31, 40]
+        idx = [i for i in idx if i < a.frames]
+        subprocess.run([sys.executable, os.path.join(os.path.dirname(__file__), "sfa_render.py"), a.out, tmp,
+                        "--frames", ",".join(map(str, idx)), "--size", "480x270"], check=True, capture_output=True)
+        ims = [cv2.imread(os.path.join(tmp, f"f{i:04d}.png")) for i in idx]
+        for i, im in zip(idx, ims):
+            cv2.putText(im, str(i), (5, 18), 0, 0.6, (0, 0, 255), 2)
+        while len(ims) % 3:
+            ims.append(np.zeros_like(ims[0]))
+        cv2.imwrite(a.check, np.vstack([np.hstack(ims[i:i + 3]) for i in range(0, len(ims), 3)]), [cv2.IMWRITE_JPEG_QUALITY, 80])
+
+
+if __name__ == "__main__":
+    main()

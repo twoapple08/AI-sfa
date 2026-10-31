@@ -1,0 +1,29 @@
+{
+  "validation_status": "pass",
+  "target_count": 8,
+  "completed": 8,
+  "partial": 0,
+  "unreviewed": 0,
+  "unavailable": 0,
+  "csv_columns": 13,
+  "id_missing": [],
+  "id_duplicates": [],
+  "decoded_source_frame_count": 6851,
+  "total_duration_seconds": 285.743792,
+  "checks": [
+    "대상 묶음별 개수 H02=2 H03=1 H04=5",
+    "ID 누락 및 중복 없음",
+    "머리줄 및 행별 13열",
+    "허용 분류명과 주/배 표기",
+    "누적시간 정수 및 영상길이 이내",
+    "근거 구간 범위 및 SHA-256",
+    "분류 내 같은 요소 중복 없음"
+  ],
+  "limits": "구조 검사 통과가 시각 판정의 정확성을 보증하지 않음. 전체 프레임은 192x108 축소 접촉시트로 검토하고 선택 구간을 640x480 확대 검토. 경계 시각과 누적 시간은 근사값. 불확실한 판정은 특이사항 및 JSON ambiguous에 보존.",
+  "output_sha256": {
+    "gap_last_s4.csv": "88f16a16d9b15e1f35b076d035b7692c1c4c13747585cae0a962a2d2998c8289",
+    "gap_last_s4_evidence.json": "67bec91d5ee8546b1439ab4887c75213c6160d99f296d2928b759c0a4ccdde5d"
+  },
+  "confirmed_elements": 123,
+  "ambiguous_records": 31
+}
