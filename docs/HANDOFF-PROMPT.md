@@ -2,7 +2,7 @@
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. 시작할 때 fetch·merge하고, 시스템이 다른 브랜치를 배정하면 같은 HEAD를 그 브랜치에도 푸시한다. **모든 답을 한국어로만 쓴다.**
 
-**읽기 순서:** AGENTS.md → HANDOFF.md(현재 우선순위·바로 할 일·사용자 결정 대기) → **docs/JUDGE-CRITERIA-FINAL-2026-10-31.md(확정 판정 기준)** → docs/JUDGE-IMPLEMENTATION-2026-11-01.md(판정 장치) → 필요할 때 docs/PROJECT-HISTORY-2026-10-31.md(전체 역사), docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md(설계), docs/EXPLAINER-VIDEO-TO-SFA-2026-10-31.md(해설).
+**읽기 순서:** AGENTS.md → HANDOFF.md(현재 우선순위·바로 할 일·사용자 결정 대기) → **docs/JUDGE-CRITERIA-FINAL-2026-10-31.md(확정 판정 기준)** → docs/JUDGE-IMPLEMENTATION-2026-11-01.md(판정 장치) → docs/COMPOSE-CURRICULUM-2026-11-01.md(조합 문제 학습) → 필요할 때 docs/PROJECT-HISTORY-2026-10-31.md(전체 역사), docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md(설계), docs/EXPLAINER-VIDEO-TO-SFA-2026-10-31.md(해설).
 
 ## 목표 한 줄
 스틱파이터 영상을 넣으면 앱에서 바로 열리는 .sfa를 만드는 AI. 모델이 영상 한 장을 보고 SFA 오브젝트 문장(토큰열)을 직접 쓴다. 픽셀 그림을 거치지 않는다.
@@ -14,9 +14,9 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - 상세 원문: docs/history/HANDOFF-PROMPT-2026-10-21-archive.md
 
 ## 지금 위치(11-01)
-- 1판 학습 준비 완료: 정답지·학습기·채점기, 해상도 단계(1080→360), 페인트 합성, 굵기 배율, 인코더 이어 쓰기, Kaggle CPU 미리 만든 자료(판 3), 전체 기능 CPU 흐름 시험 통과, **판정 장치(11-01, 평가 목록 N=45·필요 30승, 배우는 해상도로 판정)**, 채점기 원 수정(§4), 단위 시험 101개.
+- 1판 학습 준비 완료: 정답지·학습기·채점기, 해상도 단계(1080→360), 페인트 합성, 굵기 배율, 인코더 이어 쓰기, Kaggle CPU 미리 만든 자료(판 3), 전체 기능 CPU 흐름 시험 통과, **판정 장치(11-01, 평가 목록 N=45·필요 30승, 배우는 해상도로 판정)**, 채점기 원 수정(§4), 단위 시험 108개.
 - 판정 기준은 GPT와 4라운드 토론으로 확정했다(같은 장면 반대 방향 이동 영상 교환 대조, 파일 단위 부호 검정 등).
-- **바로 할 일: Kaggle CPU 흐름 시험(판정 장치 포함) 결과 확인 → 사용자 지시 뒤 Kaggle GPU 첫 회차를 초기 관문으로**(사용자 11-01: PC 장시간 불가, Kaggle 30시간을 풀로).
+- **바로 할 일: 조합 문제 자료(Kaggle CPU, 판 4) 확인 → 짧은 CPU 흐름 시험 → 사용자 지시 뒤 GPU 3시간 회차(전체 10시간 계획)**. docs/COMPOSE-CURRICULUM-2026-11-01.md(사용자 11-01: 모든 문제를 다르게, 쉬운 것부터).
 - **사용자 지시 없이 Kaggle GPU 실행 금지.**
 - 사용자 결정 대기: Kaggle GPU 첫 회차 실행 지시(최대 예산 = 주간 30시간, 11-01), 숫자 허용 범위 눈 판정 시트, '연기 1·4' 같은 작품 여부.
 
