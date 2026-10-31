@@ -943,6 +943,7 @@ def train(a):
         t_g = time.time()
         rec.update(gen_eval(final=True))
         tm['gen'] += time.time() - t_g
+        save_ckpt()   # 마지막 판정이 올린 공식 횟수(official_n)를 저장본에 남긴다 — 연장 회차가 2로 이어지게(GPT 확인 11-01: 저장 뒤 올려 연장이 다시 1이던 것)
     rec.update(time_sec=dict(tm, load=tm_load[0], wall=time.time() - t_run), expo=dict(st.get('expo', {})),
                plan_reached=bool(st['done_min'] >= st['plan_min'] - 1e-6))
     print('마지막 검증', rec, flush=True)
@@ -952,10 +953,14 @@ def train(a):
     print(f"끝 {st['step']}걸음 · 진행 {st['done_min']:.0f}/{st['plan_min']:.0f}분 · best {st['best']:.4f} · 메모리 부족 {oom} · 건너뜀 {skipped}", flush=True)
 
 
+OFFICIAL_W = 640   # 공식 판정 폭 = 360(640×360) 고정(판정 기준 §2·사용자 11-01: 최종적으로 360에서도 잘하나)
+
+
 def official_judgment(final, done_min, plan_min, reduced, w, in_w):
-    """공식 판정인가(판정 기준 §2, GPT 1라운드 A·재확인 11-01): 마지막 판정 + 계획 끝 도달 + 고정 평가 목록 전체(--judge-n으로
-    줄이지 않음) + 기본 입력 해상도(360 = in_w 폭). 고해상도 단계 판정·축소 목록 흐름 시험은 계획이 끝나도 추세."""
-    return bool(final and done_min >= plan_min - 1e-6 and not reduced and w == in_w)
+    """공식 판정인가(판정 기준 §2, GPT 1라운드 A·재확인·확인 11-01): 마지막 판정 + 계획 끝 도달 + 고정 평가 목록 전체(--judge-n으로
+    줄이지 않음) + 360(640폭) — 판정 폭과 기본 입력 폭이 모두 640이어야 한다(기본 입력을 854 등으로 바꿔 시작한 학습은 공식 판정 없음).
+    고해상도 단계 판정·축소 목록 흐름 시험은 계획이 끝나도 추세."""
+    return bool(final and done_min >= plan_min - 1e-6 and not reduced and w == in_w == OFFICIAL_W)
 
 
 def kind_of(ds, k):

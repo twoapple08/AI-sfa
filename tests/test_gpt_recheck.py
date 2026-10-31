@@ -73,6 +73,85 @@ class OfficialJudgmentTest(unittest.TestCase):
         self.assertTrue(f(True, 600, 600, False, 640, 640))     # 공식
         self.assertFalse(f(True, 600, 600, True, 640, 640))     # --judge-n 축소 목록(수정 전: 공식)
         self.assertFalse(f(True, 600, 600, False, 1920, 640))   # 고해상도 판정(수정 전: 공식)
+        self.assertFalse(f(True, 600, 600, False, 854, 854))    # 기본 입력을 854로 시작해도 공식 아님 — 360(640폭) 고정(GPT 확인 11-01)
+        self.assertFalse(f(True, 600, 600, False, 640, 854))
+
+
+def _controller():
+    """실제 seq_train.train의 judge_eval과 마지막 저장·판정 순서(AST 그대로)를 모델·채점·저장 대신 가짜로 돌리는 장치
+    (GPT 확인 11-01 부록 B를 회귀 시험으로). 모델 학습·생성·torch 파일 저장 검증이 아니다."""
+    import ast
+    import contextlib
+    import copy
+    import io
+    import time
+    from collections import Counter
+    from types import SimpleNamespace
+    import seq_train as ST
+    tree = ast.parse((Path(ST.__file__)).read_text(encoding='utf-8'))
+    train = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'train')
+    judge = next(n for n in train.body if isinstance(n, ast.FunctionDef) and n.name == 'judge_eval')
+    loop_idx = max(i for i, n in enumerate(train.body) if isinstance(n, ast.While))
+
+    def is_save(n):
+        return isinstance(n, ast.Expr) and isinstance(n.value, ast.Call) and isinstance(n.value.func, ast.Name) and n.value.func.id == 'save_ckpt'
+
+    def has_gen(n):
+        return any(isinstance(x, ast.Call) and isinstance(x.func, ast.Name) and x.func.id == 'gen_eval' for x in ast.walk(n))
+    tail = [n for n in train.body[loop_idx + 1:] if is_save(n) or (isinstance(n, ast.If) and has_gen(n))]
+    tail_code = compile(ast.Module(body=tail, type_ignores=[]), '<train-tail>', 'exec')
+    judge_code = compile(ast.Module(body=[judge], type_ignores=[]), '<judge_eval>', 'exec')
+
+    def run(state, width=640, reduced=False):
+        st = copy.deepcopy(state)
+        saved, caps = {}, []
+        js = SimpleNamespace(stage={1920, 1280, 854}, tok=[[[0] * 25, [0] * 22, [0] * 25, [0] * 22]], ents=[dict(hwr=.5625)],
+                             image=lambda i, d, w=None: (w or 640, d))
+
+        def fake_eval(js_, gen, dirs, **kw):
+            for d in dirs:
+                gen(0, d)
+            return {}, {}
+
+        def gen_img(im, hwr, n_ans=None):
+            caps.append((im[0], 2048 if n_ans is None else min(2048, 2 * n_ans + 128)))
+            return [1, 2], True, 0.01
+        env = dict(net=SimpleNamespace(eval=lambda: None, train=lambda: None), time=time, widths=[width], st=st, js=js,
+                   cfg=dict(in_w=640), js_reduced=reduced, official_judgment=ST.official_judgment, reasons=Counter(), gen_img=gen_img,
+                   J=SimpleNamespace(evaluate=fake_eval, flat=lambda out, pre='judge_': {}, summary_line=lambda *x: ''),
+                   memo={2: 12.07, 4: 11.63}, judge_sheet=lambda *x: None, dev='cpu', a=SimpleNamespace(gen_minutes=1), rec={},
+                   tm={'gen': 0})
+        exec(judge_code, env)
+        env['save_ckpt'] = lambda: saved.update(copy.deepcopy(st))
+        env['gen_eval'] = lambda final=False: env['judge_eval'](4, final)
+        with contextlib.redirect_stdout(io.StringIO()):
+            exec(tail_code, env)
+        return dict(rec=env['rec'], live=st, saved=saved, caps=caps)
+    return run
+
+
+class OfficialCountTest(unittest.TestCase):
+    def test_first_save_resume_extension(self):
+        """최초 공식 1 → 저장 → 재개 → 연장 공식 2(수정 전: 저장본 0, 연장 다시 1)."""
+        run = _controller()
+        first = run(dict(stage=0, done_min=600, plan_min=600))
+        self.assertEqual(first['rec']['judge_official_n'], 1)
+        self.assertEqual(first['saved'].get('official_n'), 1)
+        second = run(dict(first['saved'], done_min=1200, plan_min=1200))
+        self.assertEqual(second['rec']['judge_official_n'], 2)
+        self.assertEqual(second['saved'].get('official_n'), 2)
+
+    def test_high_res_end_counts_once(self):
+        """고해상도에서 끝난 회차: 고해상도 판정은 추세, 뒤따르는 360만 공식 — 한 번만 센다. 상한은 추세 178·공식 2048."""
+        run = _controller()
+        high = run(dict(stage=0, done_min=600, plan_min=600), 1920)
+        self.assertFalse(high['rec']['judge_official'])
+        self.assertTrue(high['rec']['judge360_official'])
+        self.assertEqual((high['live']['official_n'], high['saved']['official_n'], high['rec']['judge360_official_n']), (1, 1, 1))
+        self.assertEqual([c for _, c in high['caps']], [178] * 4 + [2048] * 2)
+        small = run(dict(stage=0, done_min=600, plan_min=600), 1920, True)
+        self.assertFalse(small['rec']['judge_official'] or small['rec']['judge360_official'])
+        self.assertNotIn('official_n', small['saved'])
 
 
 if __name__ == '__main__':
