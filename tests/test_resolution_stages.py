@@ -67,6 +67,8 @@ class TestWorkerStages(unittest.TestCase):
             for r in KW.HIRES:   # 고해상도 자료 = 기본 학습 자료와 같은 고르기 + 폭·영상 저장만 다름
                 self.assertEqual(a[f'sd{r}'], a['sd'] + f' --W {r} --video')
             self.assertNotIn('--video', a['sd'])
+            self.assertIn('--synth 0.3', a['sd'])   # 페인트 합성(사용자 10-29) — 학습 자료에만
+            self.assertNotIn('--synth', a['sv'] + a['ss'])
             b = KW.data_args(dict(smoke=smoke, stages=False), 4)
             self.assertEqual(set(b), {'sd', 'sv', 'ss'})
             self.assertEqual(b['sd'], a['sd'])

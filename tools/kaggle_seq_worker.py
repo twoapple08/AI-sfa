@@ -32,7 +32,7 @@ def data_args(c, cpus):
     """자료마다 seq_data 옵션. 자료 커널과 학습 커널이 같은 함수를 써서 설정이 어긋나지 않게 한다."""
     smoke = c.get('smoke')
     w = f'--workers {cpus}'
-    sd = f'--maxlen 2048 --max-frames {6 if smoke else 300}{" --every 40" if smoke else ""} --aug 1 {w}'
+    sd = f'--maxlen 2048 --max-frames {6 if smoke else 300}{" --every 40" if smoke else ""} --aug 1 --synth 0.3 {w}'   # 페인트 합성: 흰 바탕이 너무 많아 학습에 넣음(사용자 10-29)
     hi = {f'sd{r}': f'{sd} --W {r} --video' for r in HIRES} if c.get('stages', True) else {}
     return dict(
         **hi,

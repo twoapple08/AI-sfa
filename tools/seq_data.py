@@ -18,6 +18,7 @@ import cv2
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sfa_paint_synth as SY  # noqa: E402
 import sfa_render as R  # noqa: E402
 import sfa_tokens as K  # noqa: E402
 import vec_data as V  # noqa: E402
@@ -45,12 +46,18 @@ def augment(root, rng):
 def one(job):
     rel, out_dir, seed, a, *rest = job
     aug_k = rest[0] if rest else 0
+    syn = len(rest) > 1 and rest[1]
     rng = np.random.default_rng(seed)
     try:
         z = zipfile.ZipFile(os.path.join(ROOT, rel))
         root = ET.fromstring(z.read(z.namelist()[0]))
     except Exception as e:
         return rel, 'err:' + type(e).__name__
+    if syn:   # 페인트 합성(사용자 10-29: 흰 바탕이 너무 많아 학습에 합성을 넣기로) — 흰 바탕 파일만, 원본과 따로 '추가'되는 판
+        if not SY.is_white(root):
+            return rel, 'skip'
+        import random
+        SY.synth(root, random.Random(seed))   # 배경·띠·땅·그림자·머리 채우기·빛을 SFA에 더함 → 그림과 정답 문장이 같이 바뀐다
     aug = augment(root, rng) if aug_k else None
     if a.get('fixed'):   # 위치 시험용 고정 변환(GPT 3차: 학습 파일의 학습에 없던 이동 쌍)
         dx, dy, sc = a['fixed']
@@ -100,14 +107,14 @@ def one(job):
         if Hr != H:
             dec = np.stack([cv2.resize(f, (W, H), interpolation=cv2.INTER_AREA if Hr > H else cv2.INTER_LINEAR) for f in dec])
     off = np.cumsum([0] + [len(t) for t in toks])
-    name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__c{crf}' + (f'_a{aug_k}' if aug_k else '') + '.npz'
+    name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__c{crf}' + (f'_a{aug_k}' if aug_k else '') + ('_syn' if syn else '') + '.npz'
     tmp = os.path.join(out_dir, name + '.tmp')
     with open(tmp, 'wb') as fh:
         pix = dict(vid=np.frombuffer(vid, np.uint8)) if dec is None else dict(img=dec)
         np.savez_compressed(fh, **pix, tok=np.concatenate(toks).astype(np.int16), fld=np.concatenate(flds).astype(np.int8),
                             off=off.astype(np.int64), pos=np.array(pos),
                             meta=json.dumps(dict(file=rel, crf=crf, W=W, H=H, vocab=K.VOCAB, xstep=K.XSTEP,
-                                                 hwr=hwr, render_h=Hr, aug=aug)))
+                                                 hwr=hwr, render_h=Hr, aug=aug, synth=bool(syn))))
     os.replace(tmp, os.path.join(out_dir, name))
     return rel, f'ok {len(keep)}'
 
@@ -124,6 +131,7 @@ def main():
     ap.add_argument('--low-priority', action='store_true', help='양보 모드: 낮은 CPU 우선순위')
     ap.add_argument('--aug', type=int, default=0, help='파일마다 늘린 사본 수(좌우 반전·확대·이동, 학습 자료만)')
     ap.add_argument('--fixed', default='', help='위치 시험 자료: 고정 변환 "dx,dy,배율"(학습 파일에, 늘리기 없이)')
+    ap.add_argument('--synth', type=float, default=0.0, help='학습 파일 중 이 비율을 골라 흰 바탕인 것만 페인트 합성판을 원본과 별도로 더 만든다(사용자 10-29: 0.3, 원본은 그대로 모두)')
     ap.add_argument('--video', action='store_true', help='그림을 풀지 않고 H.264 mp4로 저장(고해상도 단계 자료, --W 1920·1280·854)')
     ap.add_argument('--check', action='store_true', help='만들지 않고 같은 설정으로 다 만들었는지만 확인(읽기 전용 폴더 가능, 맞으면 0·아니면 3으로 끝남)')
     a = ap.parse_args()
@@ -156,6 +164,10 @@ def main():
     jobs = [(rel, a.out_dir, 1000 + i, cfg) for i, rel in enumerate(files)]
     if not a.holdout and not a.fixed:
         jobs += [(rel, a.out_dir, 500000 + 1000 * k + i, cfg, k) for k in range(1, a.aug + 1) for i, rel in enumerate(files)]
+        if a.synth > 0:   # 고르기는 고정 난수 → 해상도 단계 자료끼리 같은 파일·같은 합성
+            import random
+            pick = random.Random(77)
+            jobs += [(rel, a.out_dir, 900000 + i, cfg, 0, True) for i, rel in enumerate(files) if pick.random() < a.synth]
     n = n_files = 0
     fails = []
     with Pool(a.workers) as p:
@@ -164,7 +176,7 @@ def main():
             if st.startswith('ok'):
                 n += int(st.split()[1])
                 n_files += 1
-            elif st != 'none':
+            elif st not in ('none', 'skip'):   # skip = 합성 대상 아님(흰 바탕 아님)
                 fails.append(f'{rel} {st}')
                 print(rel, st, flush=True)
     print('작업', len(jobs), '파일', n_files, '장', n, '실패', len(fails), flush=True)
@@ -179,6 +191,8 @@ def config(a):
              aug=0 if a.holdout or a.fixed else a.aug, fixed=a.fixed)
     if getattr(a, 'video', False):   # 켰을 때만 넣는다(기존 그림 자료의 '다 만듦' 표시가 그대로 맞게)
         c['video'] = True
+    if getattr(a, 'synth', 0) > 0 and not (a.holdout or a.fixed):
+        c['synth'] = a.synth
     return c
 
 
