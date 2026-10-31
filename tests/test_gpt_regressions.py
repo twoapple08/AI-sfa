@@ -73,7 +73,7 @@ class GptRegressions(unittest.TestCase):
             return torch.ones(1)
         scope = {'torch': torch, 'va': VA(), 'net': net, 'dev': 'cpu', 'amp': False, 'dt': torch.float16,
                  'loss_fn': lambda *x: (torch.tensor(1.), torch.tensor(.5), torch.tensor(2.)),
-                 'np': np, 'GROUPS': range(7), 'field_hits': lambda *x: np.ones((7, 2))}   # 분야별 점수(10-31)
+                 'np': np, 'GROUPS': range(7), 'NROW': 7, 'field_hits': lambda *x: np.ones((7, 2))}   # 분야별 점수(10-31)
         fn = extract('val_batch', scope)
         r = fn([0, 1])
         self.assertEqual(r[:4], (4., 2., 4., 0))
@@ -83,7 +83,7 @@ class GptRegressions(unittest.TestCase):
         class VA2:
             def batch(self, b):
                 raise torch.OutOfMemoryError('controlled')
-        fn = extract('val_batch', {'torch': torch, 'va': VA2(), 'dev': 'cpu', 'np': np, 'GROUPS': range(7)})
+        fn = extract('val_batch', {'torch': torch, 'va': VA2(), 'dev': 'cpu', 'np': np, 'GROUPS': range(7), 'NROW': 7})
         self.assertEqual(fn([0])[:4], (0., 0., 0., 1))
 
     def test_generation_oom_contained(self):
