@@ -31,7 +31,7 @@ def load(rel, root_dir):
         return ET.fromstring(z.read(z.namelist()[0]))
 
 
-def units_of(fr, hwr):
+def units_of(fr, hwr, max_objs=MAX_UNIT_OBJS):
     """한 장 → 묶음 목록. 묶음 = dict(aos=[AO], frs=[FR], n=오브젝트 수, hwr=원래 비율). 원본 요소를 복사해 둔다."""
     vis_layers = {d.get('ID') for d in fr.findall('LayerDef') if d.get('Visible') != 'false'} or None
     aos = [a for a in fr.findall('AO') if vis_layers is None or a.get('LayerId', '0') in vis_layers]
@@ -67,14 +67,16 @@ def units_of(fr, hwr):
     groups = {}
     for a in aos:
         groups.setdefault(find(a.get('ID')), []).append(a)
+    rank = {a.get('ID'): k for k, (_, a) in enumerate(K.order_objects(None, fr))}   # 원래 그리는 순서(실제 장 일부 자르기에서 앞뒤 유지)
     out = []
     for g in groups.values():
         ids = {a.get('ID') for a in g}
         vis = any(K._alpha(a.get('Color')) > 0 or K.style_of(a)[2] is not None or a.get('ID') in filled for a in g)
-        if not vis or len(g) > MAX_UNIT_OBJS or any(not a.findall('AP') for a in g):
+        if not vis or (max_objs and len(g) > max_objs) or any(not a.findall('AP') for a in g):
             continue
         ufr = [r for r in frs if r.findall('FS')[0].get('ObjId') in ids]
-        out.append(dict(aos=[copy.deepcopy(a) for a in g], frs=[copy.deepcopy(r) for r in ufr], n=len(g), hwr=hwr))
+        out.append(dict(aos=[copy.deepcopy(a) for a in g], frs=[copy.deepcopy(r) for r in ufr], n=len(g), hwr=hwr,
+                        z=min(rank.get(i, 1 << 30) for i in ids)))
     return out
 
 
@@ -121,8 +123,8 @@ def place(u, fr, hwr, rng, ids, z, keep=False):
     W, Hh = 100.0, 100.0 * hwr
     w, h = max(x1 - x0, 1e-3), max(y1 - y0, 1e-3)
     fit = min(W / w, Hh / h) * 0.98
-    if keep:   # 배경: 원래 크기·자리(화면 화소 비율 그대로), 반전만 무작위
-        s, flip, tx, ty, th = 1.0, rng.random() < 0.5, x0, y0, 1.0
+    if keep:   # 배경·실제 장 일부: 원래 크기·자리(화면 화소 비율 그대로). keep='exact'면 반전도 없음
+        s, flip, tx, ty, th = 1.0, keep != 'exact' and rng.random() < 0.5, x0, y0, 1.0
     else:
         s = math.exp(rng.uniform(math.log(0.35), math.log(1.6)))   # 원래 크기 기준
         s = min(s, fit)
@@ -257,3 +259,71 @@ def real_frame(root, fr, rng, hwr):
 def n_target(rng, lo=1, hi=250):
     """목표 오브젝트 수: 로그 고르게(작은 문제부터 큰 문제까지 고루 — 학습기가 쉬운 것부터 순서를 정한다)."""
     return int(round(math.exp(rng.uniform(math.log(lo), math.log(hi)))))
+
+
+def real_crop(fr, rng, hwr, maxlen):
+    """2,048단어를 넘는 실제 장(사용자 11-01: 넘는 원본도 일부를 떼어 오면 된다): 무작위 지점에서 가까운 묶음부터 원래 자리·원래 앞뒤 순서로
+    정답 길이 한도까지 담은 장. 실제 애니의 겹침·배치를 살린다. 반환 (Sequence, Frame) 또는 None."""
+    us = units_of(fr, hwr, max_objs=None)   # 큰 묶음도(혼자 넘치면 object_crop이 그 안에서 자른다)
+    if not us:
+        return None
+    ax, ay = rng.uniform(0, 100), rng.uniform(0, 100 * hwr)
+
+    def dist(u):
+        x0, y0, x1, y1 = bbox_px(u)
+        return math.hypot((x0 + x1) / 2 - ax, (y0 + y1) / 2 - ay)
+    us.sort(key=dist)
+
+    def build(k):
+        seq = ET.Element('Sequence', dict(Name='crop', HeightWidthRatio=repr(hwr), FrameCount='1', BackgroundColor=WHITE))
+        f2 = ET.SubElement(seq, 'Frame', dict(ID='1', Position='0', BackgroundColor=fr.get('BackgroundColor', WHITE)))
+        ids, layers = Ids(), []
+        for u in sorted(us[:k], key=lambda u: u['z']):
+            place(u, f2, hwr, rng, ids, layers, keep='exact')
+        for j, d in enumerate(layers):
+            f2.insert(j, d)
+        return seq, f2
+    lo, hi = 1, len(us)   # 한도 안에 드는 가장 많은 묶음 수(이분 탐색)
+    if len(K.encode(*build(1))[0]) > maxlen:
+        return object_crop(fr, us[0], rng, hwr, maxlen)   # 가장 가까운 묶음 하나도 넘치면 그 묶음 안에서 오브젝트 단위로
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if len(K.encode(*build(mid))[0]) <= maxlen:
+            lo = mid
+        else:
+            hi = mid - 1
+    return build(lo)
+
+
+def object_crop(fr, u, rng, hwr, maxlen):
+    """묶음 하나가 혼자 한도를 넘을 때: 그 묶음에서 무작위 지점에 가까운 오브젝트부터 원래 순서로 담는다.
+    빠진 오브젝트에 걸린 연결은 place가 지우고, 빠진 오브젝트를 참조하는 면은 뺀다."""
+    pts = [(a, [(float(p.get('X')), float(p.get('Y')) * hwr) for p in a.findall('AP')]) for a in u['aos']]
+    ax, ay = rng.choice([xy[0] for _, xy in pts if xy])
+
+    def d(item):
+        xy = item[1]
+        return min(math.hypot(x - ax, y - ay) for x, y in xy) if xy else 1e9
+    order = [a for a, _ in sorted(pts, key=d)]
+
+    def build(k):
+        keep = order[:k]
+        ids = {a.get('ID') for a in keep}
+        sub = dict(u, aos=keep, frs=[r for r in u['frs'] if all(f.get('ObjId') in ids for f in r.findall('FS'))])
+        seq = ET.Element('Sequence', dict(Name='crop', HeightWidthRatio=repr(hwr), FrameCount='1', BackgroundColor=WHITE))
+        f2 = ET.SubElement(seq, 'Frame', dict(ID='1', Position='0', BackgroundColor=fr.get('BackgroundColor', WHITE)))
+        layers = []
+        place(sub, f2, hwr, rng, Ids(), layers, keep='exact')
+        for j, dd in enumerate(layers):
+            f2.insert(j, dd)
+        return seq, f2
+    lo, hi = 1, len(order)
+    if len(K.encode(*build(1))[0]) > maxlen:
+        return None
+    while lo < hi:
+        mid = (lo + hi + 1) // 2
+        if len(K.encode(*build(mid))[0]) <= maxlen:
+            lo = mid
+        else:
+            hi = mid - 1
+    return build(lo)

@@ -65,6 +65,22 @@ class ComposeTest(unittest.TestCase):
         self.assertEqual(fr.find('.//AP').get('X'), C.load(rel, V.ROOT).findall('Frame')[0].find('.//AP').get('X'))   # 원본은 그대로
 
 
+class RealCropTest(unittest.TestCase):
+    def test_long_real_frame_is_cropped_in_place(self):
+        """2,048을 넘는 실제 장(사용자 11-01): 버리지 않고 일부 구역을 원래 자리·모양 그대로 잘라 한도 안에."""
+        rel = '묶음1_Sfa__zip/hownty.sfa'
+        root = C.load(rel, V.ROOT)
+        hwr = float(root.get('HeightWidthRatio') or 0.5625) or 0.5625
+        fr = next(f for f in root.findall('Frame') if len(K.encode(root, f)[0]) > 2048)
+        seq, f2 = C.real_crop(fr, random.Random(0), hwr, 1984)
+        t = K.encode(seq, f2)[0]
+        self.assertLessEqual(len(t), 1984)
+        self.assertGreater(len(t), 1000)   # 한도 가까이 채운다
+        orig = {tuple((round(float(p.get('X')), 6), round(float(p.get('Y')), 6)) for p in a.findall('AP')) for a in fr.findall('AO')}
+        for a in f2.findall('AO'):
+            self.assertIn(tuple((round(float(p.get('X')), 6), round(float(p.get('Y')), 6)) for p in a.findall('AP')), orig)
+
+
 class CurriculumTest(unittest.TestCase):
     def test_quantile_schedule(self):
         self.assertAlmostEqual(ST.cur_quantile(0.0), 0.2)

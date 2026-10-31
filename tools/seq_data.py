@@ -210,7 +210,17 @@ def compose_job(job):
             root = ET.fromstring(z.read(z.namelist()[0]))
             hwr = float(root.get('HeightWidthRatio') or 0.5625) or 0.5625
             frs = root.findall('Frame')
-            items = [C.real_frame(root, fr, rng, hwr) for fr in rng.sample(frs, min(n, len(frs)))]
+            items = []
+            pick = rng.sample(frs, min(n, len(frs)))
+            pick += [rng.choice(frs) for _ in range(min(n, 3 * len(frs)) - len(pick))]   # 장이 적은 파일: 같은 장을 최대 3번, 매번 다른 변환(실제 장 비율 유지)
+            for fr in pick:
+                seq, f2 = C.real_frame(root, fr, rng, hwr)
+                if len(K.encode(seq, f2)[0]) > a['maxlen']:   # 큰 실제 장: 버리지 않고 일부 구역(가까운 묶음, 원래 배치·순서)을 잘라 같은 변환(사용자 11-01)
+                    crop = C.real_crop(fr, rng, hwr, a['maxlen'] - 64)
+                    if crop is None:
+                        continue
+                    seq, f2 = C.real_frame(crop[0], crop[1], rng, hwr)
+                items.append((seq, f2))
             name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__real{k:05d}__c{crf}.npz'
         n_syn = 0
         for seq, _fr in items:   # 페인트 합성(사용자 10-29: 흰 바탕이 너무 많아서) — 흰 바탕 장의 30%에 배경·띠·땅·그림자·빛을 SFA로 더함
