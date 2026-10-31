@@ -27,6 +27,8 @@ import vec_data as V  # noqa: E402
 SAME_FRAME = 0.8     # 맞춘 뒤 오브젝트 F1이 이 이상이면 '같은 그림 장'
 MAX_OBJ = 400        # 이보다 큰 장은 맞춘 비교를 건너뜀(시간), 수로 기록
 TOP = 3              # 장마다 요약 특징이 가장 가까운 후보 몇 장만 맞춘 비교
+QUERY = 16           # 파일마다 질문 장 수
+REF_FRAMES = 48      # 파일마다 참조 장 수(질문 장을 상대 파일의 이만큼과 비교)
 COMMON = 2           # 참조 표본 파일 중 이만큼 이상에 같은 그림 장이 있으면 '흔한 그림'(기본 스틱맨 등) — 공유로 세지 않음
 REF_FILES = 80       # 참조 표본: 평가 목록 밖 학습 파일 수(고정 난수)
 
@@ -57,12 +59,26 @@ def desc_dist(a, b):
     return t + c
 
 
+def _mirror(fr):
+    """좌우 반전한 장(X → 100 − X) — 반전 변형도 같은 그림으로 잡게(11-01 누락률 실측: 반전 20개 중 1개만 잡던 것)."""
+    import copy
+    m = copy.deepcopy(fr)
+    for p in m.iter('AP'):
+        p.set('X', repr(100 - float(p.get('X'))))
+    return m
+
+
 def frame_sim(a, b):
-    """이동·같은 비율 확대로 맞춘 뒤 엄격 오브젝트 F1(양쪽 비율이 다르면 a 비율로)."""
+    """이동·같은 비율 확대로 맞춘 뒤 엄격 오브젝트 F1(양쪽 비율이 다르면 a 비율로). b를 좌우 반전한 것도 맞춰 큰 쪽."""
     if max(a['n'], b['n']) > MAX_OBJ:
         return None
-    r = OS.score(b['fr'], a['fr'], align=True, hwr=a['hwr'])
-    return OS.f1(r['match'], r['pred'], r['ans'])
+    best = 0.0
+    for fr in (b['fr'], b.setdefault('mfr', _mirror(b['fr']))):
+        r = OS.score(fr, a['fr'], align=True, hwr=a['hwr'])
+        best = max(best, OS.f1(r['match'], r['pred'], r['ans']))
+        if best >= SAME_FRAME:
+            break
+    return best
 
 
 def best_match(a, B, stats):
@@ -95,11 +111,20 @@ def common_count(a, ref, stats, memo):
     return memo[k]
 
 
+def queries(A, k=QUERY):
+    """파일 장 목록(참조, 최대 REF_FRAMES장)에서 고르게 k장 — 이 장들을 상대 파일의 참조 장 전부와 비교한다
+    (11-01 누락률 실측: 양쪽 16장끼리만 비교하면 발췌본 20개 중 12개만 잡았다)."""
+    if len(A) <= k:
+        return A
+    return [A[i] for i in sorted(set(np.linspace(0, len(A) - 1, k).astype(int).tolist()))]
+
+
 def share(A, B, stats, ref=None, memo=None):
-    """A의 장 중 B에 같은 그림 장이 있는 비율(후보는 요약 특징으로 줄임). ref가 있으면 흔한 그림 장은 공유로 세지 않는다."""
+    """A의 질문 장 중 B(참조 장 전부)에 같은 그림 장이 있는 비율(후보는 요약 특징으로 줄임). ref가 있으면 흔한 그림 장은 세지 않는다."""
     if not A or not B:
         return 0.0
     hit = 0
+    A = queries(A)
     for a in A:
         if best_match(a, B, stats) >= SAME_FRAME:
             if ref is not None and common_count(a, ref, stats, memo) >= COMMON:
@@ -188,7 +213,7 @@ def main():
     frames = {}
     for f in sorted(need):
         try:
-            frames[f] = load_frames(f, a.frames)
+            frames[f] = load_frames(f, max(a.frames, REF_FRAMES))
         except Exception as e:
             print('읽기 실패', f, type(e).__name__, flush=True)
             frames[f] = []
@@ -210,7 +235,7 @@ def main():
     thr = max(0.5, rmax + 1e-9)
     cand = [r for r in res['eval'] if r[2] >= thr]
     weak = [r for r in res['eval'] if 0 < r[2] < thr]
-    out = dict(version=1, frames_per_file=a.frames, same_frame_f1=SAME_FRAME, top=TOP, max_obj=MAX_OBJ, threshold=thr,
+    out = dict(version=2, frames_per_file=f'질문 {QUERY}·참조 {REF_FRAMES}, 좌우 반전 포함', same_frame_f1=SAME_FRAME, top=TOP, max_obj=MAX_OBJ, threshold=thr,
                aligned=stats['aligned'], skipped_big=stats['skipped'], common_frames=stats['common'], ref_files=len(ref), common_at=COMMON, seconds=round(time.time() - t0),
                calib=dict(name_pairs=len(dist['name']), random_pairs=len(dist['random']),
                           name_q=[q(dist['name'], p) for p in (0.1, 0.25, 0.5, 0.75, 0.9)],
