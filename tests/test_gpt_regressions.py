@@ -72,16 +72,19 @@ class GptRegressions(unittest.TestCase):
             seen.append(refs[0]() is not None)
             return torch.ones(1)
         scope = {'torch': torch, 'va': VA(), 'net': net, 'dev': 'cpu', 'amp': False, 'dt': torch.float16,
-                 'loss_fn': lambda *x: (torch.tensor(1.), torch.tensor(.5), torch.tensor(2.))}
+                 'loss_fn': lambda *x: (torch.tensor(1.), torch.tensor(.5), torch.tensor(2.)),
+                 'np': np, 'GROUPS': range(7), 'field_hits': lambda *x: np.ones((7, 2))}   # 분야별 점수(10-31)
         fn = extract('val_batch', scope)
-        self.assertEqual(fn([0, 1]), (4., 2., 4., 0))
+        r = fn([0, 1])
+        self.assertEqual(r[:4], (4., 2., 4., 0))
+        self.assertTrue(np.array_equal(r[4], 2 * np.ones((7, 2))))   # 반으로 나눈 두 묶음의 분야 합
         self.assertEqual(seen, [False, False])
 
         class VA2:
             def batch(self, b):
                 raise torch.OutOfMemoryError('controlled')
-        fn = extract('val_batch', {'torch': torch, 'va': VA2(), 'dev': 'cpu'})
-        self.assertEqual(fn([0]), (0., 0., 0., 1))
+        fn = extract('val_batch', {'torch': torch, 'va': VA2(), 'dev': 'cpu', 'np': np, 'GROUPS': range(7)})
+        self.assertEqual(fn([0])[:4], (0., 0., 0., 1))
 
     def test_generation_oom_contained(self):
         # 2·3차: 생성 채점 중 메모리 부족이 학습을 멈추지 않고, 센 뒤 train 모드로 돌아온다(3차 이후 gen_set/gen_one 구조)

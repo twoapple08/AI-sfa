@@ -41,6 +41,27 @@ class TestStagesModel(unittest.TestCase):
         self.assertEqual([S.stage_of(p, frac) for p in (0, 0.19, 0.2, 0.44, 0.45, 0.69, 0.7, 0.99, 1.0, 1.5)], [0, 0, 1, 1, 2, 2, 3, 3, 3, 3])
 
 
+@unittest.skipIf(S is None, 'torch 없음')
+class TestFieldScores(unittest.TestCase):
+    def test_field_hits_report(self):
+        # 사용자 10-31: 분야마다 100점 만점 + 좌표는 '몇 개마다 지적'
+        K = S.K
+        fl = [K.FID[f] for f in ('spec', 'coord', 'coord', 'coord', 'coord', 'color')]
+        tgt = torch.tensor([[K.TOK['LINE'], K.OFF + 1, K.OFF + 2, K.OFF + 3, K.OFF + 4, K.OFF + 9, K.TOK['PAD']]])
+        fld = torch.tensor([fl + [0]])
+        pred = tgt.clone()
+        pred[0, 4] = K.OFF + 7   # 좌표 4개 중 1개 틀림
+        logits = torch.nn.functional.one_hot(pred, K.VOCAB).float()
+        hn = S.field_hits(logits, tgt, fld)
+        rec, txt = S.field_report(hn, 'v_')
+        self.assertEqual(rec['v_struct'], 100.0)
+        self.assertEqual(rec['v_coord'], 75.0)
+        self.assertEqual(rec['v_coord_every'], 4.0)
+        self.assertEqual(rec['v_color'], 100.0)
+        self.assertNotIn('v_glow', rec)   # 없는 분야는 안 적음
+        self.assertIn('좌표 75(4.0개마다 지적)', txt)
+
+
 @unittest.skipIf(shutil.which('ffmpeg') is None or shutil.which('ffprobe') is None, 'ffmpeg 없음')
 class TestVideoStore(unittest.TestCase):
     def test_encode_decode_count(self):

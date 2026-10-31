@@ -218,6 +218,38 @@ def loss_fn(logits, tgt, fld):
     return (per * m).sum() / n, acc, n
 
 
+# 분야별 점수(사용자 10-31: 분야마다 100점 만점) — 구조 단어는 문법상 거의 정해져 있어 전체 맞힘에 섞으면 좌표 실력이 가려진다
+GROUPS = (('struct', '구조', ('spec',)), ('coord', '좌표', ('coord', 'big')), ('color', '색', ('color', 'bg')), ('thick', '굵기', ('thick',)),
+          ('glow', '글로우', ('glow',)), ('link', '연결', ('link',)), ('fill', '면', ('obj', 'ptidx', 't')))
+GROUP_OF = torch.tensor([next(g for g, (_, _, fs) in enumerate(GROUPS) if f in fs) for f in K.FIELDS])
+
+
+def field_hits(logits, tgt, fld):
+    """분야마다 (맞힘 수, 단어 수) — (분야 수, 2) 배열."""
+    mask = tgt != K.TOK['PAD']
+    g = GROUP_OF.to(tgt.device)[fld][mask]
+    hit = (logits.argmax(-1) == tgt)[mask].float()
+    n = torch.bincount(g, minlength=len(GROUPS)).float()
+    h = torch.bincount(g, weights=hit, minlength=len(GROUPS))
+    return torch.stack([h, n], 1).cpu().numpy()
+
+
+def field_report(hn, prefix=''):
+    """(분야 수, 2) → 기록용 {접두+이름: 0–100점}, 화면용 글. 좌표는 '몇 개마다 지적'(= 1 / 틀림 비율)도."""
+    rec, txt = {}, []
+    for (key, name, _), (h, n) in zip(GROUPS, hn):
+        if n <= 0:
+            continue
+        sc = 100.0 * h / n
+        rec[f'{prefix}{key}'] = round(sc, 2)
+        txt.append(f'{name} {sc:.0f}')
+        if key == 'coord':
+            every = n / max(n - h, 1e-9)
+            rec[f'{prefix}coord_every'] = round(float(every), 2)
+            txt[-1] += f'({every:.1f}개마다 지적)'
+    return rec, ' '.join(txt)
+
+
 def allowed_mask(al, dev):
     specs, lo, hi, _ = al
     m = torch.full((K.VOCAB,), float('-inf'), device=dev)
@@ -512,15 +544,15 @@ def train(a):
                 lg = net(im, tk[:, :-1], fd[:, :-1], hr)
             l_, c_, n_ = loss_fn(lg, tk[:, 1:], fd[:, 1:])
             if not torch.isfinite(l_):
-                return 0.0, 0.0, 0.0, len(b)
-            return l_.item() * n_.item(), c_.item() * n_.item(), n_.item(), 0
+                return 0.0, 0.0, 0.0, len(b), np.zeros((len(GROUPS), 2))
+            return l_.item() * n_.item(), c_.item() * n_.item(), n_.item(), 0, field_hits(lg, tk[:, 1:], fd[:, 1:])
         except torch.OutOfMemoryError:
             oom_ = True
         im = tk = fd = hr = lg = None
         if dev == 'cuda':
             torch.cuda.empty_cache()
         if len(b) == 1:
-            return 0.0, 0.0, 0.0, 1
+            return 0.0, 0.0, 0.0, 1, np.zeros((len(GROUPS), 2))
         x, y = val_batch(b[:len(b) // 2]), val_batch(b[len(b) // 2:])
         return tuple(p + q for p, q in zip(x, y))
 
@@ -529,14 +561,15 @@ def train(a):
         net.eval()
         tl = tc = tn = 0.0
         bad = 0
+        hn = np.zeros((len(GROUPS), 2))
         try:
             with torch.no_grad():
                 for b in v_batches:
-                    l_, c_, n_, f_ = val_batch(b)
-                    tl, tc, tn, bad = tl + l_, tc + c_, tn + n_, bad + f_
+                    l_, c_, n_, f_, h_ = val_batch(b)
+                    tl, tc, tn, bad, hn = tl + l_, tc + c_, tn + n_, bad + f_, hn + h_
         finally:
             net.train()
-        return (tl / tn if tn else float('nan')), (tc / tn if tn else 0.0), int(tn), bad
+        return (tl / tn if tn else float('nan')), (tc / tn if tn else 0.0), int(tn), bad, hn
 
     def gen_eval():
         """두 고정 집합을 실제로 그려 보고 오브젝트 채점: 시험 파일(새 파일 일반화) + 학습 파일의 학습에 없던 이동(위치 읽기, GPT 3차)."""
@@ -588,6 +621,7 @@ def train(a):
 
     bq = {}   # 단계 번호 → 남은 묶음
     run, racc = [], []
+    rhn = np.zeros((len(GROUPS), 2))
     last_val = last_save = last_gen = time.time()
     oom = skipped = 0
     while active_min() < a.minutes and done0 + active_min() < st['plan_min']:
@@ -618,6 +652,7 @@ def train(a):
             with torch.autocast(dev, dtype=dt, enabled=amp):
                 lg = net(img, tok[:, :-1], fld[:, :-1], hwr)
             loss, acc, _ = loss_fn(lg, tok[:, 1:], fld[:, 1:])
+            fh = field_hits(lg.detach(), tok[:, 1:], fld[:, 1:])
             if not torch.isfinite(loss):
                 skipped += 1
                 opt.zero_grad(set_to_none=True)
@@ -656,17 +691,19 @@ def train(a):
         st['step'] += 1
         run.append(loss.item())
         racc.append(acc.item())
+        rhn = rhn + fh
         if st['step'] % a.log_every == 0:
             mem = f' GPU {torch.cuda.max_memory_allocated() / 2**30:.1f}GB' if dev == 'cuda' else ''
             print(f"{st['step']} 손실 {np.mean(run):.3f} 맞힘 {np.mean(racc) * 100:.1f}% 진행 {prog * 100:.1f}% {widths[k]}폭 "
-                  f"학습률 {opt.param_groups[0]['lr']:.2e} ({active_min():.1f}분){mem}", flush=True)
+                  f"학습률 {opt.param_groups[0]['lr']:.2e} ({active_min():.1f}분){mem} | 분야 {field_report(rhn)[1]}", flush=True)
             run, racc = [], []
+            rhn = np.zeros((len(GROUPS), 2))
         if time.time() - last_val > a.val_minutes * 60:
             last_val = time.time()
-            vl, vc, n, vbad = validate()
+            vl, vc, n, vbad, vhn = validate()
             rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, minutes=done0 + active_min(), prog=prog,
                        oom=oom, skipped=skipped, budget=st['budget'], grad_ckpt=net.grad_ckpt, paused_min=yl.paused / 60,
-                       stage_w=widths[k], px=st['px'])
+                       stage_w=widths[k], px=st['px'], **field_report(vhn, 'val_')[0])
             if n and not vbad and vl < st['best']:   # 못 잰 장이 있으면 best 안 바꿈(GPT 2차)
                 st['best'] = vl
                 VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
@@ -676,13 +713,14 @@ def train(a):
                 last_gen = time.time()
                 rec.update(gen_eval())
             print('검증', rec, flush=True)
+            print('검증 분야(100점 만점):', field_report(vhn)[1], flush=True)
             with open(log, 'a', encoding='utf-8') as fh:
                 fh.write(json.dumps(rec) + '\n')
         elif time.time() - last_save > a.save_minutes * 60:
             save_ckpt()
             last_save = time.time()
-    vl, vc, n, vbad = validate()
-    rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, final=True)
+    vl, vc, n, vbad, vhn = validate()
+    rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, final=True, **field_report(vhn, 'val_')[0])
     if n and not vbad and vl < st['best']:
         st['best'] = vl
         VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
@@ -690,6 +728,7 @@ def train(a):
     if a.gen_minutes:
         rec.update(gen_eval())
     print('마지막 검증', rec, flush=True)
+    print('마지막 검증 분야(100점 만점):', field_report(vhn)[1], flush=True)
     with open(log, 'a', encoding='utf-8') as fh:
         fh.write(json.dumps(rec) + '\n')
     print(f"끝 {st['step']}걸음 · 진행 {st['done_min']:.0f}/{st['plan_min']:.0f}분 · best {st['best']:.4f} · 메모리 부족 {oom} · 건너뜀 {skipped}", flush=True)
