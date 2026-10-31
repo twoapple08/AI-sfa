@@ -19,6 +19,42 @@ EXACT_PT = 0.02   # near_perfect 점 평균 허용
 HALF_BIN = 0.0126  # perfect: 점마다 좌표 차 ≤ 반 칸(0.025/2) — 같은 칸
 EXACT_TH = 0.003  # 만점 굵기 허용(로그 칸 0.25%의 반 안팎)
 NEED = {'1': 2, '2': 2, '3': 3}
+CIRC_DIR = 1      # sfa_render.PARAMS['circ_dir'] 기본값: T가 늘면 화면상 시계 방향(GPT 3차 §2)
+CIRC_TOL = 2e-3   # 원 면 구간 비교 허용(바퀴 단위, 위상은 원형 거리) — 판정 기준 §4 '근접한 수의 비교 허용 오차'
+MIN_R = 1e-3      # 이보다 작은 반지름(화면 가로 %)은 각도가 불안정 → 원 면 대응을 보수적으로 틀림 처리
+
+
+def circ_theta(xy):
+    """원 첫 점의 각도(화면 화소 비율 좌표 — objs의 xy는 이미 세로 비율 적용). 점 부족·반지름 0이면 None."""
+    if len(xy) < 2:
+        return None
+    (x0, y0), (x1, y1) = xy[:2]
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    if math.hypot(x0 - cx, y0 - cy) < MIN_R:
+        return None
+    return math.atan2(y0 - cy, x0 - cx)
+
+
+def circ_canon(t0, t1, delta=0.0):
+    """원 면 구간 → (시작 위상 mod 1, 부호 있는 길이). 끝점마다 mod 하지 않는다(0→1·0→2, 0.9→1.1·0.9→0.1 구분, GPT 3차)."""
+    ph = (t0 + delta) % 1.0
+    if ph > 1 - CIRC_TOL / 2:
+        ph = 0.0
+    return round(ph, 4), round(t1 - t0, 4)
+
+
+def seg_eq(x, y):
+    if x[0] == 'C' and y[0] == 'C':
+        d = abs(x[4] - y[4]) % 1.0
+        return x[1] == y[1] and min(d, 1 - d) <= CIRC_TOL and abs(x[5] - y[5]) <= CIRC_TOL
+    return x == y
+
+
+def fill_eq(a, b):
+    """면 둘이 같은가: 색 같고, 윤곽 수·조각 수·조각 순서가 같고, 조각마다 같음(원 조각은 허용 오차)."""
+    if a[0] != b[0] or a[1] is None or b[1] is None or len(a[1]) != len(b[1]):
+        return False
+    return all(len(ca) == len(cb) and all(seg_eq(x, y) for x, y in zip(ca, cb)) for ca, cb in zip(a[1], b[1]))
 
 
 def objs(fr, hwr=0.5625):
@@ -69,12 +105,38 @@ def fills(fr, O, pid, mp=None):
             t0 = 0.0 if whole else round(float(s_.get('StartT')), 3)
             t1 = 1.0 if whole else round(float(s_.get('EndT')), 3)
             seg = ('W' if whole else 'S', k, sp, ep, t0, t1)
-            if mp is not None:
-                seg = mp(seg)
-                if seg is None:
-                    ok = False
-                    break
             groups.setdefault(int(s_.get('Contour') or 0), []).append(seg)
+        # 원 조각(판정 기준 §4): 독립 닫힌 WHOLE 원(윤곽에 조각 하나)만 방향 무시('W'). 나머지 원 조각은 'C'(시작 위상, 부호 있는 길이) —
+        # 복합 윤곽 안 WHOLE 원은 0→1 구간으로 이어 붙여지므로 시작점이 자동 연결선에 영향(GPT 3차 반례: 면 F1 1.0인데 6,141화소 차이)
+        for c, segs in groups.items():
+            if len(segs) == 1 and segs[0][0] == 'W':
+                if mp is not None:
+                    groups[c] = [mp(segs[0])]
+                    if groups[c][0] is None:
+                        ok = False
+                        break
+                continue
+            new = []
+            for seg in segs:
+                if O[seg[1]]['t'] == '2':
+                    seg = ('C', seg[1], 0, 0, seg[4], seg[5])
+                    seg = mp(seg) if mp is not None else ('C', seg[1], 0, 0) + circ_canon(seg[4], seg[5])
+                    if seg is None:
+                        ok = False
+                        break
+                    new.append(seg)
+                    continue
+                if seg[0] == 'W':   # 복합 윤곽 안 직선·곡선 전체(0→1): 점 방향이 이어 붙이는 방향을 정한다 → 'w'로 구분해 뒤집힘을 따진다
+                    seg = ('w',) + seg[1:]
+                if mp is not None:
+                    seg = mp(seg)
+                    if seg is None:
+                        ok = False
+                        break
+                new.append(seg)
+            groups[c] = new
+            if not ok:
+                break
         if ok and 0 in groups:
             out.append((col, tuple(tuple(groups[c]) for c in sorted(groups))))
         elif not ok:
@@ -200,8 +262,15 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
         if i not in m:
             return None
         j = m[i]
-        if kind == 'W':   # 전체 채우기는 점·T와 무관 — 오브젝트만 대응(GPT 3차: 뒤집힌 원의 WHOLE이 틀림이던 것)
+        if kind == 'W':   # 독립 닫힌 윤곽의 전체 채우기만 여기 온다 — 점·T와 무관, 오브젝트만 대응
             return ('W', j, 0, 0, 0.0, 1.0)
+        if kind == 'w':   # 복합 윤곽 안 직선·곡선 전체: 뒤집힌 짝이면 이어 붙이는 방향이 달라 보수적으로 틀림
+            return None if flip[i, j] else ('w', j, 0, 0, 0.0, 1.0)
+        if kind == 'C':   # 원 조각(판정 기준 §4): δ=(θP0−θA0)/(2π·circ_dir)만큼 옮겨 (시작 위상 mod 1, 부호 있는 길이). 지름 교환 = +0.5바퀴, 방향 유지
+            tp_, ta_ = circ_theta(P[i]['xy']), circ_theta(A[j]['xy'])
+            if tp_ is None or ta_ is None:
+                return None   # 각도 불안정(점 부족·반지름 0): 보수적으로 틀림
+            return ('C', j, 0, 0) + circ_canon(t0, t1, (tp_ - ta_) / (2 * math.pi * CIRC_DIR))
         if not flip[i, j]:
             return (kind, j, sp, ep, t0, t1)
         if P[i]['t'] == '2':
@@ -213,8 +282,9 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
     left = list(fa)
     tp_f = 0
     for x in fp_:
-        if x[1] is not None and x in left:
-            left.remove(x)
+        k_ = next((q for q, y in enumerate(left) if fill_eq(x, y)), None)
+        if k_ is not None:
+            left.pop(k_)
             tp_f += 1
     bg_same = (int(float(pred_fr.get('BackgroundColor', '-1'))) & 0xFFFFFFFF) == (int(float(ans_fr.get('BackgroundColor', '-1'))) & 0xFFFFFFFF)
     r = dict(pred=len(P), ans=len(A), match=len(ok), recall=len(ok) / len(A) if A else float(not P),
@@ -263,8 +333,11 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
     # perfect = 모든 점이 같은 좌표 칸(점마다 최대 차이 ≤ 반 칸) — 영상 동일. near_perfect = 평균 차이 ≤ EXACT_PT(GPT 3차: 평균으로는 한 점이 한 칸 틀려도 통과)
     def pt_max(i, j):
         Pp, Aa = np.array(P[i]['xy']), np.array(A[j]['xy'])
-        if P[i]['t'] == '2':
-            return min(np.abs(Pp - Aa).max(), np.abs(Pp - Aa[::-1]).max())
+        if P[i]['t'] == '2':   # 원: 중심·반지름이 같은 칸이면 같은 원(지름 회전은 영상이 안 바뀜 — 면 구간은 δ로 따로 대응, 판정 기준 §4)
+            if len(Pp) < 2 or len(Aa) < 2:
+                return np.inf
+            return max(np.abs(Pp[:2].mean(0) - Aa[:2].mean(0)).max(),
+                       abs(np.linalg.norm(Pp[1] - Pp[0]) - np.linalg.norm(Aa[1] - Aa[0])) / 2)
         return np.abs((Pp[::-1] if flip[i, j] else Pp) - Aa).max()
     same_style = all(abs(math.log(max(P[i]['th'], 1e-3) / max(A[j]['th'], 1e-3))) <= EXACT_TH
                      and P[i]['col'] == A[j]['col'] and P[i]['glow'] == A[j]['glow'] for i, j in ok)

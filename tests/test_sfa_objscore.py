@@ -162,5 +162,123 @@ class ObjScoreTest(unittest.TestCase):
         self.assertTrue(r['near_perfect'])
 
 
+def add_fill(fr, col, segs):
+    """segs: (오브젝트 번호, T0, T1, 윤곽) — T0가 None이면 WHOLE(Kind 1)."""
+    r = ET.SubElement(fr, 'FR', dict(Color=str(col)))
+    for k, t0, t1, c in segs:
+        if t0 is None:
+            ET.SubElement(r, 'FS', dict(Kind='1', ObjId=str(1000 + k), Contour=str(c)))
+        else:
+            ET.SubElement(r, 'FS', dict(Kind='0', ObjId=str(1000 + k), StartPtId=str(k * 10), EndPtId=str(k * 10 + 1),
+                                        StartT=repr(t0), EndT=repr(t1), Contour=str(c)))
+    return fr
+
+
+def circ_at(cx, cy, r, deg, hwr):
+    """화면 화소 비율 기준 각도 deg의 지름 두 점(% 좌표)."""
+    import math
+    dx, dy = r * math.cos(math.radians(deg)), r * math.sin(math.radians(deg))
+    return [(cx + dx, (cy + dy) / hwr), (cx - dx, (cy - dy) / hwr)]
+
+
+class CircleFillTest(unittest.TestCase):
+    """판정 기준 §4 채점기 원 수정 — GPT 3차 §2 반례 시험 10개."""
+    H = [(10, 10), (20, 10)]    # 가로 지름: 첫 점 각도 π
+    V = [(15, 5), (15, 15)]     # 세로 지름: 첫 점 각도 −π/2 → δ = −0.75
+
+    def fill_f1(self, p_pts, p_fill, a_pts, a_fill, hwr=1.0, extra=()):
+        P = add_fill(frame([('2', p_pts, BLACK, 0, [])] + list(extra)), RED, p_fill)
+        A = add_fill(frame([('2', a_pts, BLACK, 0, [])] + list(extra)), RED, a_fill)
+        return OS.score(P, A, hwr=hwr)
+
+    def test_01_no_fill_rotated_diameter_equal(self):
+        r = OS.score(frame([('2', self.V, BLACK, 0, [])]), frame([('2', self.H, BLACK, 0, [])]), hwr=1.0)
+        self.assertEqual(r['match'], 1)
+        self.assertTrue(r['perfect'])
+
+    def test_02_same_t_after_rotation_not_equal(self):
+        r = self.fill_f1(self.V, [(0, 0.0, 0.25, 0)], self.H, [(0, 0.0, 0.25, 0)])
+        self.assertEqual(r['fill_f1'], 0.0)
+        self.assertFalse(r['perfect'])
+
+    def test_03_t_moved_by_delta_equal(self):
+        r = self.fill_f1(self.V, [(0, 0.75, 1.0, 0)], self.H, [(0, 0.0, 0.25, 0)])
+        self.assertEqual(r['fill_f1'], 1.0)
+        self.assertTrue(r['perfect'])
+
+    def test_04_diameter_swap_is_half_turn_not_reversal(self):
+        swap = self.H[::-1]
+        self.assertEqual(self.fill_f1(swap, [(0, 0.5, 0.75, 0)], self.H, [(0, 0.0, 0.25, 0)])['fill_f1'], 1.0)
+        self.assertEqual(self.fill_f1(swap, [(0, 0.0, 0.25, 0)], self.H, [(0, 0.0, 0.25, 0)])['fill_f1'], 0.0)
+        self.assertEqual(self.fill_f1(swap, [(0, 1.0, 0.75, 0)], self.H, [(0, 0.0, 0.25, 0)])['fill_f1'], 0.0)   # 직선용 1−T 변환은 틀림
+
+    def test_05_aspect_slanted_diameter(self):
+        for hwr in (0.45, 0.5625):
+            A = circ_at(50, 30, 10, 30, hwr)
+            P = circ_at(50, 30, 10, 100, hwr)
+            d = (100 - 30) / 360   # 화면 화소 각도 차
+            self.assertEqual(self.fill_f1(P, [(0, 0.1 - d, 0.35 - d, 0)], A, [(0, 0.1, 0.35, 0)], hwr=hwr)['fill_f1'], 1.0)
+            import math
+            raw = lambda xy: math.atan2(xy[0][1] - (xy[0][1] + xy[1][1]) / 2, xy[0][0] - (xy[0][0] + xy[1][0]) / 2)  # noqa: E731
+            d_raw = (raw(P) - raw(A)) / (2 * math.pi)   # 비율을 무시한 각도 차로 옮기면 다른 구간
+            self.assertEqual(self.fill_f1(P, [(0, 0.1 - d_raw, 0.35 - d_raw, 0)], A, [(0, 0.1, 0.35, 0)], hwr=hwr)['fill_f1'], 0.0)
+
+    def test_06_interval_direction_and_turns(self):
+        f = lambda p, a: self.fill_f1(self.H, [(0, *p, 0)], self.H, [(0, *a, 0)])['fill_f1']  # noqa: E731
+        self.assertEqual(f((0.9, 1.1), (0.9, 0.1)), 0.0)    # +0.2바퀴 ≠ −0.8바퀴
+        self.assertEqual(f((0.0, 1.0), (0.0, 2.0)), 0.0)    # 한 바퀴 ≠ 두 바퀴
+        self.assertEqual(f((0.0, 0.0), (0.0, 1.0)), 0.0)    # 길이 0 ≠ 한 바퀴
+        self.assertEqual(f((-0.1, 0.1), (0.9, 1.1)), 1.0)   # 두 끝점에 같은 정수를 빼면 같은 경로
+        self.assertEqual(f((0.9, 1.1), (0.9, 1.1)), 1.0)
+
+    def test_07_shared_circle_many_fills_with_hole(self):
+        line = ('1', [(5, 30), (25, 30)], BLACK, 1, [])
+        big = [(0, 0), (40, 0)]   # 원 0(큰 원), 직선 1, 작은 원 2(구멍)
+        small_a, small_p = [(15, 0), (25, 0)], [(20, -5), (20, 5)]
+
+        def mk(c0, c2, t_outer, t_other, t_hole):
+            fr = frame([('2', c0, BLACK, 0, []), line, ('2', c2, BLACK, 2, [])])
+            add_fill(fr, RED, [(0, *t_outer, 0), (1, 0.0, 1.0, 0), (2, *t_hole, 1)])
+            add_fill(fr, BLACK, [(0, *t_other, 0)])
+            return fr
+        A = mk(big, small_a, (0.0, 0.5), (0.5, 1.0), (0.0, 1.0))
+        rot = big[::-1]   # 큰 원 지름 교환(+0.5바퀴), 작은 원 90° 회전(δ = −0.75)
+        P = mk(rot, small_p, (0.5, 1.0), (1.0, 1.5), (0.75, 1.75))
+        self.assertEqual(OS.score(P, A, hwr=1.0)['fill_f1'], 1.0)
+        P = mk(rot, small_p, (0.5, 1.0), (0.5, 1.0), (0.75, 1.75))   # 둘째 면만 옛 T 그대로
+        self.assertEqual(OS.score(P, A, hwr=1.0)['fill_f1'], 0.5)
+
+    def test_08_piece_order_matters(self):
+        line = ('1', [(30, 10), (40, 10)], BLACK, 1, [])
+        A = add_fill(frame([('2', self.H, BLACK, 0, []), line]), RED, [(0, 0.0, 0.5, 0), (1, 0.0, 1.0, 0)])
+        P = add_fill(frame([('2', self.H, BLACK, 0, []), line]), RED, [(1, 0.0, 1.0, 0), (0, 0.0, 0.5, 0)])
+        self.assertEqual(OS.score(P, A, hwr=1.0)['fill_f1'], 0.0)
+
+    def test_09_lone_whole_vs_compound_whole(self):
+        self.assertEqual(self.fill_f1(self.V, [(0, None, None, 0)], self.H, [(0, None, None, 0)])['fill_f1'], 1.0)
+        self.assertEqual(self.fill_f1(self.H[::-1], [(0, None, None, 0)], self.H, [(0, None, None, 0)])['fill_f1'], 1.0)
+        # GPT 3차 반례: 같은 윤곽에 WHOLE 원 + 직선 둘 → 원 지름 방향만 바꾸면 자동 연결선이 바뀐다
+        lines = [('1', [(30, 10), (40, 20)], BLACK, 1, []), ('1', [(40, 20), (30, 30)], BLACK, 2, [])]
+        segs = [(0, None, None, 0), (1, 0.0, 1.0, 0), (2, 0.0, 1.0, 0)]
+        r = self.fill_f1(self.H[::-1], segs, self.H, segs, extra=lines)
+        self.assertEqual(r['fill_f1'], 0.0)
+        self.assertFalse(r['perfect'])
+        self.assertEqual(self.fill_f1(self.H, segs, self.H, segs, extra=lines)['fill_f1'], 1.0)
+        # 복합 윤곽 안 직선 전체(WHOLE)를 뒤집으면 보수적으로 틀림
+        lw = [(0, 0.0, 0.5, 0), (1, None, None, 0)]
+        P = add_fill(frame([('2', self.H, BLACK, 0, []), ('1', [(40, 20), (30, 10)], BLACK, 1, [])]), RED, lw)
+        A = add_fill(frame([('2', self.H, BLACK, 0, []), ('1', [(30, 10), (40, 20)], BLACK, 1, [])]), RED, lw)
+        self.assertEqual(OS.score(P, A, hwr=1.0)['fill_f1'], 0.0)
+
+    def test_10_unstable_angle_is_conservative(self):
+        z = [(15, 10), (15, 10)]   # 반지름 0
+        r = self.fill_f1(z, [(0, 0.0, 0.5, 0)], z, [(0, 0.0, 0.5, 0)])
+        self.assertEqual(r['fill_f1'], 0.0)
+        self.assertFalse(r['perfect'])
+        one = [(15, 10)]           # 점 하나: 짝이 없어 면도 못 옮김(오류 없이)
+        r = self.fill_f1(one, [(0, 0.0, 0.5, 0)], self.H, [(0, 0.0, 0.5, 0)])
+        self.assertEqual(r['fill_f1'], 0.0)
+
+
 if __name__ == '__main__':
     unittest.main()
