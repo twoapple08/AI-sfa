@@ -451,6 +451,9 @@ def train(a):
     va = Data(a.val, cfg['maxlen'], cfg['in_w'])
     sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w']) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
     js = J.JudgeSet(a.judge, cfg['in_w']) if a.judge else None   # 판정 장치(11-01): 평가 목록 고정 장 × 이동 4방향
+    if js is not None and a.judge_n:
+        js.keep(a.judge_n)
+        print(f'주의: 판정 장을 앞 {len(js)}장으로 줄임(흐름 시험용 — 공식 판정 아님)', flush=True)
     memo = {}
     if js is not None:
         memo = {nd: J.memo_baseline(js, range(nd)) for nd in (2, 4)}   # 이 평가 목록·방향으로 다시 계산한 외움 기준선
@@ -925,6 +928,7 @@ def main():
     t.add_argument('--judge', default='', help='판정 자료 폴더(seq_judge build — 입력 교환 생성 대조·건전성·A/B/외움, 판정 기준 §2)')
     t.add_argument('--judge-dirs', type=int, default=2, choices=(2, 4), help='중간 판정의 이동 방향 수(2 = 공식 쌍만)')
     t.add_argument('--judge-dirs-final', type=int, default=4, choices=(2, 4), help='마지막(공식 시점) 판정의 방향 수(4 = 축별 진단 16칸 표 포함)')
+    t.add_argument('--judge-n', type=int, default=0, help='판정 장 수를 평가 목록 앞 n장으로 줄임(CPU 흐름 시험용, 0 = 전부 — 공식 판정은 전부)')
     t.add_argument('--sheet-n', type=int, default=6, help='판정 때마다 저장하는 고정 그림 시트 장 수(평가 목록 앞에서부터, 골라 보여 주지 않음)')
     t.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(게임 실행 중이면 멈추거나 천천히)')
     t.add_argument('--sine', action='store_true', help='고정 sin 위치 신호(그림 칸 위치 + 수 토큰 값)')

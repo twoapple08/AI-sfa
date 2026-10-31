@@ -313,6 +313,13 @@ class JudgeSet:
     def __len__(self):
         return len(self.ents)
 
+    def keep(self, n):
+        """앞 n장만(흐름 시험용)."""
+        nd = len(self.meta['dirs'])
+        self.ents, self.tok, self.tok0 = self.ents[:n], self.tok[:n], self.tok0[:n]
+        self.img = self.img[:n * nd]
+        self.stage = {w: v[:n] for w, v in self.stage.items()}
+
     def image(self, i, d):
         return self.img[i * len(self.meta['dirs']) + d]
 
