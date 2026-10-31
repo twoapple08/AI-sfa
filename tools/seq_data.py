@@ -3,7 +3,7 @@
 그림은 앱처럼 파일 비율 그대로 렌더(굵기는 1920 기준 비율 그대로 — 정답 파일과 같은 굵기)한 뒤 H.264로 압축·복원하고,
 모델 입력 크기로 늘이거나 줄인다(비율은 meta.hwr로 모델에 따로 준다).
 정답 = sfa_tokens.encode 토큰열 + 토큰마다 칸 번호(fields). 파일마다 npz 하나: img (n,H,W,3), tok/fld (이어 붙임), off (n+1).
-사용: python seq_data.py 출력폴더 [--maxlen 2048] [--max-frames 200] [--every 1] [--holdout] [--aug 1]
+사용: python seq_data.py 출력폴더 [--maxlen 2048] [--max-frames 200] [--every 1] [--holdout] [--aug 1] [--check]
 """
 import argparse
 import json
@@ -113,7 +113,13 @@ def main():
     ap.add_argument('--low-priority', action='store_true', help='양보 모드: 낮은 CPU 우선순위')
     ap.add_argument('--aug', type=int, default=0, help='파일마다 늘린 사본 수(좌우 반전·확대·이동, 학습 자료만)')
     ap.add_argument('--fixed', default='', help='위치 시험 자료: 고정 변환 "dx,dy,배율"(학습 파일에, 늘리기 없이)')
+    ap.add_argument('--check', action='store_true', help='만들지 않고 같은 설정으로 다 만들었는지만 확인(읽기 전용 폴더 가능, 맞으면 0·아니면 3으로 끝남)')
     a = ap.parse_args()
+    if a.check:
+        want = dict(config(a), files=len(V.file_list(only='holdout') if a.holdout else V.file_list()[::a.every]))
+        ok = os.path.isdir(a.out_dir) and done_ok(a.out_dir, want)
+        print('미리 만든 자료 맞음' if ok else '미리 만든 자료 아님(판·설정·파일 수 다름 또는 미완)', a.out_dir, flush=True)
+        raise SystemExit(0 if ok else 3)
     os.makedirs(a.out_dir, exist_ok=True)
     if a.low_priority:
         try:
