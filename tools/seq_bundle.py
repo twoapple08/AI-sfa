@@ -47,8 +47,22 @@ def load_frames(rel, k):
             continue
         tc = Counter(o['t'] for o in O)
         out.append(dict(fr=fr, n=len(O), tc=np.array([tc.get('1', 0), tc.get('2', 0), tc.get('3', 0)], float),
-                        cols=Counter(o['col'] for o in O), hwr=hwr))
+                        cols=Counter(o['col'] for o in O), hwr=hwr, sig=shape_sig(O)))
     return out
+
+
+SIG_N = 32
+
+
+def shape_sig(O):
+    """이동·확대·반전에 변하지 않는 모양 요약: 오브젝트마다 점 퍼짐(대각선 길이)을 장 전체 퍼짐으로 나눈 값, 큰 순서 SIG_N개.
+    요약 특징(종류별 수·색)이 같은 장이 많을 때(같은 애니의 이웃 장) 후보 순서를 가른다(11-01 누락률 2판: 이동 17/20의 원인)."""
+    pts = np.array([xy for o in O for xy in o['xy']], float)
+    if len(pts) < 2:
+        return np.zeros(SIG_N)
+    spread = float(np.sqrt(((pts - pts.mean(0)) ** 2).sum(1).mean())) or 1.0
+    ext = sorted((float(np.ptp(np.array(o['xy']), 0).sum()) / spread if len(o['xy']) else 0.0 for o in O), reverse=True)[:SIG_N]
+    return np.array(ext + [0.0] * (SIG_N - len(ext)))
 
 
 def desc_dist(a, b):
@@ -82,7 +96,7 @@ def frame_sim(a, b):
 
 
 def best_match(a, B, stats):
-    cand = sorted(B, key=lambda b: desc_dist(a, b))[:TOP]
+    cand = sorted(B, key=lambda b: (round(desc_dist(a, b), 6), float(np.abs(a['sig'] - b['sig']).sum())))[:TOP]
     best = 0.0
     for b in cand:
         if desc_dist(a, b) > 0.6:   # 종류 수·색이 크게 다르면 같은 그림일 수 없음
