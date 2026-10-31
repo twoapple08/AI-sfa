@@ -3,6 +3,7 @@
 그림은 앱처럼 파일 비율 그대로 렌더(굵기는 1920 기준 비율 그대로 — 정답 파일과 같은 굵기)한 뒤 H.264로 압축·복원하고,
 모델 입력 크기로 늘이거나 줄인다(비율은 meta.hwr로 모델에 따로 준다).
 정답 = sfa_tokens.encode 토큰열 + 토큰마다 칸 번호(fields). 파일마다 npz 하나: img (n,H,W,3), tok/fld (이어 붙임), off (n+1).
+--video(10-31 해상도 단계 1080→720→480→360): img 대신 vid(H.264 mp4 바이트, 파일 비율 렌더 크기 W×render_h)를 저장한다.
 사용: python seq_data.py 출력폴더 [--maxlen 2048] [--max-frames 200] [--every 1] [--holdout] [--aug 1] [--check]
 """
 import argparse
@@ -68,7 +69,7 @@ def one(job):
     Hr = max(2, int(round(W * hwr / 2)) * 2)
     R.PARAMS['pad'] = 0.0
     R.PARAMS['thick_mul'] = W / 1920
-    imgs, toks, flds, pos = [], [], [], []
+    keep, toks, flds, pos = [], [], [], []
     for fr in frs:
         t, _ = K.encode(root, fr)
         if len(t) > a['maxlen']:
@@ -77,28 +78,38 @@ def one(job):
             f = K.fields(t)
         except ValueError:
             continue
-        imgs.append(R.render_frame(root, fr, W, Hr))
+        keep.append(fr)
         toks.append(t)
         flds.append(f)
         pos.append(int(fr.get('Position')))
-    if not imgs:
+    if not keep:
         return rel, 'none'
-    crf = int(rng.integers(23, 36))
-    dec = V.encode_decode(imgs, crf)
-    if len(dec) != len(imgs):
-        return rel, f'err:frames {len(dec)}/{len(imgs)}'
-    if Hr != H:
-        dec = np.stack([cv2.resize(f, (W, H), interpolation=cv2.INTER_AREA if Hr > H else cv2.INTER_LINEAR) for f in dec])
+    crf = int(rng.integers(23, 36))   # 그림 렌더는 난수를 쓰지 않으므로 이전(렌더 뒤에 뽑던 때)과 같은 값
+    if a.get('video'):   # 고해상도 단계 자료(10-31): 렌더한 장을 바로 압축기로 흘리고(1080 수백 장을 메모리에 모으지 않게) mp4 바이트 그대로 저장. 학습이 읽을 때 풀어 입력 크기로 맞춘다
+        vid = V.encode_video((R.render_frame(root, fr, W, Hr) for fr in keep), crf, size=(W, Hr))
+        nf = V.count_frames(vid)
+        if nf != len(keep):
+            return rel, f'err:frames {nf}/{len(keep)}'
+        dec = None
+    else:
+        imgs = [R.render_frame(root, fr, W, Hr) for fr in keep]
+        vid = None
+        dec = V.encode_decode(imgs, crf)
+        if len(dec) != len(imgs):
+            return rel, f'err:frames {len(dec)}/{len(imgs)}'
+        if Hr != H:
+            dec = np.stack([cv2.resize(f, (W, H), interpolation=cv2.INTER_AREA if Hr > H else cv2.INTER_LINEAR) for f in dec])
     off = np.cumsum([0] + [len(t) for t in toks])
     name = rel.replace('/', '__').replace(' ', '_')[:-4] + f'__c{crf}' + (f'_a{aug_k}' if aug_k else '') + '.npz'
     tmp = os.path.join(out_dir, name + '.tmp')
     with open(tmp, 'wb') as fh:
-        np.savez_compressed(fh, img=dec, tok=np.concatenate(toks).astype(np.int16), fld=np.concatenate(flds).astype(np.int8),
+        pix = dict(vid=np.frombuffer(vid, np.uint8)) if dec is None else dict(img=dec)
+        np.savez_compressed(fh, **pix, tok=np.concatenate(toks).astype(np.int16), fld=np.concatenate(flds).astype(np.int8),
                             off=off.astype(np.int64), pos=np.array(pos),
                             meta=json.dumps(dict(file=rel, crf=crf, W=W, H=H, vocab=K.VOCAB, xstep=K.XSTEP,
                                                  hwr=hwr, render_h=Hr, aug=aug)))
     os.replace(tmp, os.path.join(out_dir, name))
-    return rel, f'ok {len(imgs)}'
+    return rel, f'ok {len(keep)}'
 
 
 def main():
@@ -113,6 +124,7 @@ def main():
     ap.add_argument('--low-priority', action='store_true', help='양보 모드: 낮은 CPU 우선순위')
     ap.add_argument('--aug', type=int, default=0, help='파일마다 늘린 사본 수(좌우 반전·확대·이동, 학습 자료만)')
     ap.add_argument('--fixed', default='', help='위치 시험 자료: 고정 변환 "dx,dy,배율"(학습 파일에, 늘리기 없이)')
+    ap.add_argument('--video', action='store_true', help='그림을 풀지 않고 H.264 mp4로 저장(고해상도 단계 자료, --W 1920·1280·854)')
     ap.add_argument('--check', action='store_true', help='만들지 않고 같은 설정으로 다 만들었는지만 확인(읽기 전용 폴더 가능, 맞으면 0·아니면 3으로 끝남)')
     a = ap.parse_args()
     if a.check:
@@ -140,7 +152,7 @@ def main():
             os.remove(os.path.join(a.out_dir, f))
     files = V.file_list(only='holdout') if a.holdout else V.file_list()
     files = files[::a.every]
-    cfg = dict(maxlen=a.maxlen, max_frames=a.max_frames, W=a.W, fixed=[float(v) for v in a.fixed.split(',')] if a.fixed else None)
+    cfg = dict(maxlen=a.maxlen, max_frames=a.max_frames, W=a.W, video=a.video, fixed=[float(v) for v in a.fixed.split(',')] if a.fixed else None)
     jobs = [(rel, a.out_dir, 1000 + i, cfg) for i, rel in enumerate(files)]
     if not a.holdout and not a.fixed:
         jobs += [(rel, a.out_dir, 500000 + 1000 * k + i, cfg, k) for k in range(1, a.aug + 1) for i, rel in enumerate(files)]
@@ -163,8 +175,11 @@ def main():
 
 
 def config(a):
-    return dict(version=SEQ_DATA_VERSION, maxlen=a.maxlen, max_frames=a.max_frames, W=a.W, every=a.every, holdout=a.holdout, vocab=K.VOCAB,
-                aug=0 if a.holdout or a.fixed else a.aug, fixed=a.fixed)
+    c = dict(version=SEQ_DATA_VERSION, maxlen=a.maxlen, max_frames=a.max_frames, W=a.W, every=a.every, holdout=a.holdout, vocab=K.VOCAB,
+             aug=0 if a.holdout or a.fixed else a.aug, fixed=a.fixed)
+    if getattr(a, 'video', False):   # 켰을 때만 넣는다(기존 그림 자료의 '다 만듦' 표시가 그대로 맞게)
+        c['video'] = True
+    return c
 
 
 def done_ok(out_dir, want):

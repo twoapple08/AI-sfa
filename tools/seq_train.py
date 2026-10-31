@@ -4,6 +4,8 @@
 생성 때는 문법(sfa_tokens.grammar)이 허용한 토큰만 고르므로 결과는 항상 앱이 여는 SFA다.
 사용:
   학습: python seq_train.py train 자료폴더 시험자료폴더 출력폴더 [--minutes 60 --plan-minutes 480] [--yield] (출력폴더에 ckpt.pt가 있으면 이어서)
+        해상도 단계(10-31): --stages sd1920,sd1280,sd854 → 1080(20%) → 720(25%) → 480(25%) → 기본 360(30%), 단계마다 앞 단계 30% 섞음.
+        단계는 전체 계획(--plan-minutes) 기준이라 처음 시작할 때 전체 계획 시간을 주는 게 맞다. 시험·생성 채점은 항상 기본 입력(360)
   그리기: python seq_train.py draw ckpt.pt 자료폴더 시트.jpg [--n 6] [--sfa 출력.sfa]
 """
 import argparse
@@ -46,15 +48,20 @@ class Data:
         self.img, self.tok, self.fld, self.meta, self.hwr = [], [], [], [], []
         for p in sorted(glob.glob(os.path.join(folder, '*.npz'))):
             z = np.load(p)
-            d = {k: z[k] for k in ('img', 'tok', 'fld', 'off', 'pos')}   # npz는 꺼낼 때마다 배열 전체를 다시 푼다 → 파일마다 한 번만(10-30: 장마다 풀어 1.5만 장 읽기가 30분 넘게 걸림)
+            d = {k: z[k] for k in ('tok', 'fld', 'off', 'pos')}   # npz는 꺼낼 때마다 배열 전체를 다시 푼다 → 파일마다 한 번만(10-30: 장마다 풀어 1.5만 장 읽기가 30분 넘게 걸림)
             meta = json.loads(str(z['meta']))
+            if 'vid' in z.files:   # 고해상도 단계 자료(seq_data --video): mp4를 여기서 푼다
+                import vec_data as V
+                frames = V.decode_video(z['vid'], meta['W'], meta['render_h'])
+            else:
+                frames = z['img']
             off = d['off']
             for i in range(len(off) - 1):
                 if off[i + 1] - off[i] > maxlen:
                     continue
-                im = d['img'][i]
-                if im.shape[1] != in_w:
-                    im = cv2.resize(im, (self.in_w, self.in_h), interpolation=cv2.INTER_AREA)
+                im = frames[i]
+                if im.shape[:2] != (self.in_h, self.in_w):   # 파일 비율로 렌더된 영상 자료는 높이도 다르다
+                    im = cv2.resize(im, (self.in_w, self.in_h), interpolation=cv2.INTER_AREA if im.shape[1] > self.in_w else cv2.INTER_LINEAR)
                 if jpeg:
                     im = cv2.imencode('.jpg', im[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 95])[1]
                 self.img.append(im)
@@ -84,8 +91,11 @@ class Data:
 
 
 class Net(nn.Module):
-    def __init__(self, d=384, layers=6, heads=6, maxlen=2048, backbone='resnet34', pretrained=True, stride=16, sine=False):
+    def __init__(self, d=384, layers=6, heads=6, maxlen=2048, backbone='resnet34', pretrained=True, stride=16, sine=False, grid=None):
         super().__init__()
+        # 그림 칸 고정(10-31 해상도 단계): 1080·720·480 입력도 끝까지 그 해상도로 읽고 마지막 특징만 이 칸 수로 모은다 →
+        # 글자 쪽 메모리는 해상도와 무관, 같은 칸 = 같은 화면 위치(단계가 바뀌어도 위치 칸의 뜻이 같다). None이면 예전처럼 입력 크기 그대로
+        self.grid = tuple(grid) if grid else None
         ctor = getattr(torchvision.models, backbone)
         try:
             bb = ctor(weights='DEFAULT' if pretrained else None)
@@ -123,6 +133,8 @@ class Net(nn.Module):
         f = self.proj(self.enc16(f8))
         if self.stride == 8:
             f = self.proj8(f8) + F.interpolate(f, size=f8.shape[-2:], mode='bilinear', align_corners=False)
+        if self.grid and tuple(f.shape[-2:]) != self.grid:
+            f = F.adaptive_avg_pool2d(f, self.grid)
         B, C, H, W = f.shape
         pe = self.row.weight[:H, None, :] + self.col.weight[None, :W, :]
         if self.sine:
@@ -299,6 +311,31 @@ def make_batches(ds, max_n, budget):
     return out
 
 
+def feat_grid(in_w, stride):
+    """기본 입력(in_w × in_w·9/16)에서 ResNet 특징 칸 수 — conv1·maxpool·layer2(·layer3)가 각각 올림 반."""
+    h, w = in_w * 9 // 16, in_w
+    for _ in range(3 if stride == 8 else 4):
+        h, w = -(-h // 2), -(-w // 2)
+    return [h, w]
+
+
+def npz_width(folder):
+    p = sorted(glob.glob(os.path.join(folder, '*.npz')))
+    if not p:
+        raise SystemExit(f'자료 없음: {folder}')
+    return int(json.loads(str(np.load(p[0])['meta']))['W'])
+
+
+def stage_of(prog, frac):
+    """진행률 → 단계 번호(시간 비율 frac 누적 경계)."""
+    acc = 0.0
+    for i, f in enumerate(frac):
+        acc += f
+        if prog < acc:
+            return i
+    return len(frac) - 1
+
+
 def train(a):
     import vec_train as VT   # 양보 모드·저장 재시도(Windows 파일 잠금)를 같이 쓴다
     torch.manual_seed(0)
@@ -313,8 +350,16 @@ def train(a):
     yl = VT.Yielder(a.yield_)
     os.makedirs(a.out, exist_ok=True)
     ck = os.path.join(a.out, 'ckpt.pt')
-    cfg = dict(d=a.d, layers=a.layers, heads=a.heads, maxlen=a.maxlen, backbone=a.backbone, in_w=a.in_w, stride=a.stride, sine=a.sine)
-    st = dict(step=0, best=1e9, done_min=0.0, plan_min=a.plan_minutes or a.minutes, budget=a.tok_budget, grad_ckpt=a.grad_ckpt)
+    cfg = dict(d=a.d, layers=a.layers, heads=a.heads, maxlen=a.maxlen, backbone=a.backbone, in_w=a.in_w, stride=a.stride, sine=a.sine,
+               grid=feat_grid(a.in_w, a.stride))
+    stage_dirs = [x for x in a.stages.split(',') if x] if a.stages else []
+    if stage_dirs:   # 해상도 단계(사용자 10-29·10-31 복원): 깨끗한 1080부터 720·480을 거쳐 기본 입력(360)으로 — 화질 나쁜 애니 자료도 깔끔하게 옮기는 실력
+        frac = [float(v) for v in a.stage_frac.split(',')]
+        if len(frac) != len(stage_dirs) + 1 or abs(sum(frac) - 1) > 1e-6:
+            raise SystemExit(f'--stage-frac은 단계 {len(stage_dirs) + 1}개(고해상도 {len(stage_dirs)} + 기본)이고 합이 1이어야 함: {a.stage_frac}')
+        cfg['stages'] = dict(w=[npz_width(d) for d in stage_dirs], frac=frac, mix=a.stage_mix)
+    st = dict(step=0, best=1e9, done_min=0.0, plan_min=a.plan_minutes or a.minutes, budget=a.tok_budget, grad_ckpt=a.grad_ckpt,
+              px=a.px_budget, stage=0)
     saved = torch.load(ck, map_location='cpu', weights_only=False) if os.path.exists(ck) else None
     if saved:
         cfg = saved['cfg']   # 이어하기: 처음 정한 모델 크기·입력 크기·계획 그대로(명령줄 값보다 우선)
@@ -332,9 +377,34 @@ def train(a):
     sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w']) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
     if saved and a.sine and not cfg.get('sine'):
         print('주의: 이어하기는 저장된 설정을 따른다 — --sine을 줘도 이 학습은 sin 없이 계속(비교하려면 새 출력 폴더에서 처음부터)', flush=True)
+    stg = cfg.get('stages')
+    if stg:
+        if len(stage_dirs) != len(stg['w']):
+            raise SystemExit(f"이 학습은 해상도 단계 {stg['w']}로 시작했다 — 같은 순서의 --stages 자료 폴더 {len(stg['w'])}개가 필요")
+        got = [npz_width(d) for d in stage_dirs]
+        if got != stg['w']:
+            raise SystemExit(f"--stages 자료 폭 {got}이 학습 설정 {stg['w']}과 다름")
+    elif stage_dirs:
+        print('주의: 이어하기는 저장된 설정을 따른다 — 해상도 단계 없이 시작한 학습이라 --stages를 무시(단계 학습은 새 출력 폴더에서 처음부터)', flush=True)
+        stage_dirs = []
+    st.setdefault('px', a.px_budget)
+    st.setdefault('stage', 0)
+    widths = (stg['w'] if stg else []) + [cfg['in_w']]
+    sets = {len(widths) - 1: tr}   # 단계 번호 → 자료(마지막 = 기본 입력 자료). 고해상도는 필요할 때 읽고 지난 단계는 내린다
+
+    def stage_set(i):
+        if i not in sets:
+            t1 = time.time()
+            sets[i] = Data(stage_dirs[i], cfg['maxlen'], widths[i])
+            print(f'단계 자료 {widths[i]}폭 {len(sets[i])}장 ({time.time() - t1:.0f}초)', flush=True)
+        return sets[i]
+
+    def max_n(i):
+        w = widths[i]
+        return min(a.max_batch, max(1, int(st['px'] * 1e6 // (w * (w * 9 // 16)))))
     print(f'자료 학습 {len(tr)}장 {tr.ntok}토큰 · 시험 {len(va)}장 ({time.time() - t0:.0f}초)', flush=True)
     net = Net(cfg['d'], cfg['layers'], cfg['heads'], cfg['maxlen'], cfg['backbone'], pretrained=not saved, stride=cfg.get('stride', 16),
-              sine=cfg.get('sine', False)).to(dev)
+              sine=cfg.get('sine', False), grid=cfg.get('grid')).to(dev)
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=0.01)
     net.grad_ckpt = bool(st.get('grad_ckpt'))
     if saved:
@@ -461,24 +531,35 @@ def train(a):
         except torch.OutOfMemoryError:
             sums['oom'] += 1
 
-    batches = []
+    bq = {}   # 단계 번호 → 남은 묶음
     run, racc = [], []
     last_val = last_save = last_gen = time.time()
     oom = skipped = 0
     while active_min() < a.minutes and done0 + active_min() < st['plan_min']:
         yl.tick()
-        if not batches:
-            batches = make_batches(tr, a.max_batch, st['budget'])
-            if not batches:
-                raise SystemExit(f"토큰 한도 {st['budget']} 안에 드는 학습 장이 없음")
-        b = batches.pop()
         prog = (done0 + active_min()) / st['plan_min']
+        k = len(widths) - 1
+        if stg:
+            k = max(st['stage'], stage_of(prog, stg['frac']))   # 단계는 되돌아가지 않는다(이어하기로 계획이 늘어 진행률이 줄어도)
+            if k != st['stage']:
+                print(time.strftime('%H:%M'), f"해상도 단계 {widths[st['stage']]} → {widths[k]}폭 (진행 {prog * 100:.1f}%)", flush=True)
+                st['stage'] = k
+            for j in [j for j in sets if j not in (k, k - 1, len(widths) - 1)]:
+                sets.pop(j)
+                bq.pop(j, None)   # 지난 단계 자료는 메모리에서 내린다
+        i = k - 1 if k > 0 and stg and random.random() < stg['mix'] else k   # 새 해상도 70% + 앞 단계 30%
+        ds = stage_set(i)
+        if not bq.get(i):
+            bq[i] = make_batches(ds, max_n(i), st['budget'])
+            if not bq[i]:
+                raise SystemExit(f"토큰 한도 {st['budget']} 안에 드는 학습 장이 없음({widths[i]}폭)")
+        b = bq[i].pop()
         for g in opt.param_groups:
             g['lr'] = lr_at(st['step'], prog, base_lr)
         img = tok = fld = hwr = lg = loss = acc = None
         unscaled = False
         try:   # GPU로 옮기기부터 한 걸음 전체를 보호(GPT 검토 10-30)
-            img, tok, fld, hwr = (x.to(dev) for x in tr.batch(b))
+            img, tok, fld, hwr = (x.to(dev) for x in ds.batch(b))
             with torch.autocast(dev, dtype=dt, enabled=amp):
                 lg = net(img, tok[:, :-1], fld[:, :-1], hwr)
             loss, acc, _ = loss_fn(lg, tok[:, 1:], fld[:, 1:])
@@ -505,11 +586,14 @@ def train(a):
             if not net.grad_ckpt:   # 1단계: 체크포인팅 켜기(긴 장도 그대로 학습)
                 net.grad_ckpt = st['grad_ckpt'] = True
                 print(time.strftime('%H:%M'), '메모리 부족 → 체크포인팅 켬(느려지지만 메모리 크게 줄임)', flush=True)
+            elif widths[i] > cfg['in_w'] and max_n(i) > 1:   # 고해상도 단계: 한 묶음 그림 수(화소 예산)부터 줄인다
+                st['px'] = st['px'] * 0.75
+                print(time.strftime('%H:%M'), f"메모리 부족 → 화소 예산 {st['px']:.1f}M ({widths[i]}폭 한 묶음 {max_n(i)}장)", flush=True)
             else:                   # 2단계: 토큰 한도 줄이기(한도보다 긴 장은 학습에서 빠진다)
                 st['budget'] = max(1024, int(st['budget'] * 0.8))
                 drop = sum(len(t) > st['budget'] for t in tr.tok)
                 print(time.strftime('%H:%M'), f'메모리 부족 → 토큰 한도 {st["budget"]} (이보다 긴 장 {drop}/{len(tr)} 빠짐)', flush=True)
-            batches = []
+            bq = {}
             if a.yield_:
                 time.sleep(60)
                 yl.paused += 60
@@ -519,14 +603,15 @@ def train(a):
         racc.append(acc.item())
         if st['step'] % a.log_every == 0:
             mem = f' GPU {torch.cuda.max_memory_allocated() / 2**30:.1f}GB' if dev == 'cuda' else ''
-            print(f"{st['step']} 손실 {np.mean(run):.3f} 맞힘 {np.mean(racc) * 100:.1f}% 진행 {prog * 100:.1f}% "
+            print(f"{st['step']} 손실 {np.mean(run):.3f} 맞힘 {np.mean(racc) * 100:.1f}% 진행 {prog * 100:.1f}% {widths[k]}폭 "
                   f"학습률 {opt.param_groups[0]['lr']:.2e} ({active_min():.1f}분){mem}", flush=True)
             run, racc = [], []
         if time.time() - last_val > a.val_minutes * 60:
             last_val = time.time()
             vl, vc, n, vbad = validate()
             rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, minutes=done0 + active_min(), prog=prog,
-                       oom=oom, skipped=skipped, budget=st['budget'], grad_ckpt=net.grad_ckpt, paused_min=yl.paused / 60)
+                       oom=oom, skipped=skipped, budget=st['budget'], grad_ckpt=net.grad_ckpt, paused_min=yl.paused / 60,
+                       stage_w=widths[k], px=st['px'])
             if n and not vbad and vl < st['best']:   # 못 잰 장이 있으면 best 안 바꿈(GPT 2차)
                 st['best'] = vl
                 VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
@@ -574,7 +659,8 @@ def make_batches_fixed(ds, max_n, budget, idx):
 def load(path, dev='cpu'):
     s = torch.load(path, map_location=dev, weights_only=False)
     c = s['cfg']
-    net = Net(c['d'], c['layers'], c['heads'], c['maxlen'], c['backbone'], pretrained=False, stride=c.get('stride', 16), sine=c.get('sine', False))
+    net = Net(c['d'], c['layers'], c['heads'], c['maxlen'], c['backbone'], pretrained=False, stride=c.get('stride', 16), sine=c.get('sine', False),
+              grid=c.get('grid'))
     net.load_state_dict(s['model'])
     return net.eval().to(dev), c
 
@@ -667,6 +753,10 @@ def main():
     t.add_argument('--gen-minutes', type=float, default=60, help='생성 채점 간격(분). 0이면 안 함')
     t.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(게임 실행 중이면 멈추거나 천천히)')
     t.add_argument('--sine', action='store_true', help='고정 sin 위치 신호(그림 칸 위치 + 수 토큰 값)')
+    t.add_argument('--stages', default='', help='해상도 단계 자료 폴더(쉼표, 높은 해상도부터: 1920,1280,854폭 seq_data --video). 마지막 단계는 data(기본 입력)')
+    t.add_argument('--stage-frac', default='0.2,0.25,0.25,0.3', help='단계별 학습 시간 비율(고해상도들 + 기본, 합 1)')
+    t.add_argument('--stage-mix', type=float, default=0.3, help='각 단계에서 앞 단계 자료를 섞는 비율')
+    t.add_argument('--px-budget', type=float, default=8.0, help='한 묶음 그림 화소 한도(백만). 1080은 3장·720은 8장. 메모리 부족이면 자동으로 줄인다')
     t.add_argument('--grad-ckpt', action='store_true', help='처음부터 체크포인팅(메모리 절약, 느림). 꺼 두면 메모리 부족 때 자동으로 켠다')
     d = sub.add_parser('draw')
     d.add_argument('ckpt')

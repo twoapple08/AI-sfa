@@ -236,9 +236,10 @@ def targets(seq, fr, W, H, thick_mul):
     return dict(center=center, pts=heat, joint=jheat, ori=ori, fill=fill, cid=cid, attr=attr, kind=kind, aoid=aoid, bg=np.array(bg, np.uint8))
 
 
-def encode_decode(frames_rgb, crf, fps=24):
-    """그림들 → H.264 → 다시 풀기."""
-    H, W = frames_rgb[0].shape[:2]
+def encode_video(frames_rgb, crf, fps=24, size=None):
+    """그림들 → H.264 mp4 바이트(고해상도 자료는 풀지 않고 이대로 저장, 10-31 해상도 단계).
+    frames_rgb는 하나씩 만들어 주는 반복자여도 된다(size=(W, H) 필요) — 1080 그림 수백 장을 메모리에 모으지 않게."""
+    W, H = size or frames_rgb[0].shape[1::-1]
     with tempfile.TemporaryDirectory() as d:
         p = os.path.join(d, 'v.mp4')
         enc = subprocess.Popen(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{W}x{H}', '-r', str(fps),
@@ -247,10 +248,34 @@ def encode_decode(frames_rgb, crf, fps=24):
             enc.stdin.write(np.ascontiguousarray(f).tobytes())
         enc.stdin.close()
         enc.wait()
+        return open(p, 'rb').read()
+
+
+def decode_video(data, W, H):
+    """mp4 바이트 → 그림들 (n, H, W, 3)."""
+    with tempfile.TemporaryDirectory() as d:
+        p = os.path.join(d, 'v.mp4')
+        open(p, 'wb').write(bytes(data))
         out = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-threads', '2', '-i', p, '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-'], capture_output=True).stdout
     a = np.frombuffer(out, np.uint8)
     n = a.size // (W * H * 3)
     return a[:n * W * H * 3].reshape(n, H, W, 3)
+
+
+def count_frames(data):
+    """mp4 바이트의 장 수(그림을 메모리에 풀지 않고 센다)."""
+    with tempfile.TemporaryDirectory() as d:
+        p = os.path.join(d, 'v.mp4')
+        open(p, 'wb').write(bytes(data))
+        out = subprocess.run(['ffprobe', '-v', 'error', '-count_frames', '-select_streams', 'v:0', '-show_entries', 'stream=nb_read_frames',
+                              '-of', 'csv=p=0', p], capture_output=True, text=True).stdout.strip()
+    return int(out) if out.isdigit() else -1
+
+
+def encode_decode(frames_rgb, crf, fps=24):
+    """그림들 → H.264 → 다시 풀기."""
+    H, W = frames_rgb[0].shape[:2]
+    return decode_video(encode_video(frames_rgb, crf, fps), W, H)
 
 
 def one(job):
