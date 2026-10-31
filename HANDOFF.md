@@ -1,6 +1,6 @@
 # AI-sfa 현행 인수인계 — 2026-10-31
 
-이전: docs/history/HANDOFF-2026-10-29-night.md(픽셀 지도 방식 1·2차 학습 시기). 새 대화 시작 문구: docs/HANDOFF-PROMPT.md.
+전체 역사(10-14 → 10-31, 방향 전환·재설계 때 빠진 항목): docs/PROJECT-HISTORY-2026-10-31.md. 이전: docs/history/HANDOFF-2026-10-29-night.md(픽셀 지도 방식 1·2차 학습 시기). 새 대화 시작 문구: docs/HANDOFF-PROMPT.md.
 
 ## 현재 우선순위
 **영상 → SFA 변환 AI(재설계판) — GPU 본 학습 직전.**

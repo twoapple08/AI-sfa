@@ -2,7 +2,7 @@
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `ccr-bccf15a6-d6ee46`이다. 시작할 때 fetch·merge하고, 시스템이 다른 브랜치를 배정하면 같은 HEAD를 그 브랜치에도 푸시한다. **모든 답을 한국어로만 쓴다.**
 
-**읽기 순서:** AGENTS.md → HANDOFF.md(현재 우선순위·사용자 결정·바로 할 일) → 필요할 때 docs/EXPLAINER-VIDEO-TO-SFA-2026-10-31.md(전체 해설) → docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md(설계) → docs/GPT-REVIEW-IMPACT-2026-10-30.md(GPT 검토 전후).
+**읽기 순서:** AGENTS.md → HANDOFF.md → docs/PROJECT-HISTORY-2026-10-31.md(전체 역사·재설계 때 빠진 항목)(현재 우선순위·사용자 결정·바로 할 일) → 필요할 때 docs/EXPLAINER-VIDEO-TO-SFA-2026-10-31.md(전체 해설) → docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md(설계) → docs/GPT-REVIEW-IMPACT-2026-10-30.md(GPT 검토 전후).
 
 ## 목표 한 줄
 스틱파이터 영상을 넣으면 앱에서 바로 열리는 .sfa를 만드는 AI. 모델이 영상 한 장을 보고 SFA 오브젝트 문장(토큰열)을 직접 쓴다. 픽셀 그림을 거치지 않는다.
