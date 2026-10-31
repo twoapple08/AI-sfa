@@ -313,7 +313,12 @@ def main_compose(a, want):
     chunk = 100
     cfg = dict(maxlen=a.maxlen, W=a.W, video=a.video)
     jobs = [('real', i, seed + 7 * i + 1, per_file, a.out_dir, cfg) for i in range(len(files))]
-    n_comp = a.compose - per_file * len(files)
+    import sfa_compose as C
+    # 실제 장은 파일마다 min(파일당 몫, 장 수 × 3)장만 나온다(장 1–2개 파일이 많음, 11-01 실측 6,774/12,090) → 모자란 만큼 조합 장으로 채운다.
+    # 길이 한도로 빠지는 몫(약 3%)도 조합 장을 더 만들어 채운다
+    real_req = sum(min(per_file, 3 * len(C.load(f, ROOT).findall('Frame'))) for f in files)
+    n_comp = math.ceil((a.compose - real_req) * 1.03)
+    print(f'조합 문제: 실제 장 요청 {real_req} + 조합 장 {n_comp} (목표 {a.compose})', flush=True)
     jobs += [('comp', i, seed + 7 * i + 3, min(chunk, n_comp - i * chunk), a.out_dir, cfg) for i in range(max(0, math.ceil(n_comp / chunk)))]
     n = n_files = 0
     fails = []
