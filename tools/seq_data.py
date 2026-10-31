@@ -126,6 +126,7 @@ def one(job):
 
 
 _POOL = None
+CHECK_EVERY = 50   # 묶음(npz)마다 이 간격으로 정합성 검사(640폭 렌더 두 번)
 TYPE_TOKS = {K.TOK[v] for v in K.TYPES.values()}
 
 
@@ -160,6 +161,9 @@ def save_frames(out_dir, name, items, hwr, a, crf, extra):
         toks.append(t)
         flds.append(f)
         info.append(json.loads(seq.get('src') or '{}'))
+        if CHECK_EVERY and (len(keep) - 1) % CHECK_EVERY == 0:   # 그림·정답 정합성 표본(GPT 1라운드 ①·흐름 시험): 원래 렌더 대 정답 복원 렌더
+            import seq_check as SC
+            info[-1]['check'] = SC.mismatch(seq, fr)[0]
     if not keep:
         return 0
     if a.get('video'):
@@ -345,10 +349,31 @@ def main_compose(a, want):
                 fails.append(f'{name} {st}')
                 print(name, st, flush=True)
     print('조합 작업', len(jobs), 'npz', n_files, '장', n, '실패', len(fails), flush=True)
+    chk = summarize_checks(a.out_dir)
+    print('정합성 표본', chk, flush=True)
     if n == 0:
         raise SystemExit('만든 장이 0 — 완료 표시를 쓰지 않음')
     with open(os.path.join(a.out_dir, 'done.json'), 'w', encoding='utf-8') as fh:
-        json.dump(dict(want, frames=int(n), npz=n_files, fails=fails, seed=seed), fh, ensure_ascii=False)
+        json.dump(dict(want, frames=int(n), npz=n_files, fails=fails, seed=seed, check=chk), fh, ensure_ascii=False)
+
+
+def summarize_checks(out_dir):
+    """npz들의 정합성 표본 모으기: 종류별 검사 수·차이 있는 장 수·최대 차이 화소, 그리고 장 종류 구성."""
+    from collections import Counter
+    import glob
+    chk, kinds = {}, Counter()
+    for p in glob.glob(os.path.join(out_dir, '*.npz')):
+        m = json.loads(str(np.load(p)['meta']))
+        for it in m.get('items', []):
+            k = it.get('kind', '?')
+            kinds[k] += 1
+            if 'check' in it:
+                c = chk.setdefault(k, dict(n=0, diff=0, over100=0, max=0))
+                c['n'] += 1
+                c['diff'] += it['check'] > 0
+                c['over100'] += it['check'] > 100
+                c['max'] = max(c['max'], it['check'])
+    return dict(kinds=dict(kinds), check=chk)
 
 
 def config(a):
