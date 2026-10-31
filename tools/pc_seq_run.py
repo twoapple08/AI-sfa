@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pc_vec_run as P  # noqa: E402
 
 DRIVE_BASE = 'gdrive:AI-sfa/02_분석자료/seq'
+HIRES = (1920, 1280, 854)   # 해상도 단계 자료 폭(kaggle_seq_worker.HIRES와 같게)
 KEEP = ['ckpt.pt', 'best.pt', 'log.jsonl', 'train_console.txt', 'seq_train.py', 'sfa_tokens.py']
 
 
@@ -40,6 +41,7 @@ def main():
     ap.add_argument('--yield', dest='yield_', action='store_true')
     ap.add_argument('--quick', action='store_true', help='몇 분짜리 시험(1050 Ti): 작은 자료 + 실제 모델 크기로 4분 학습·1분 이어하기, 속도·메모리 측정')
     ap.add_argument('--tok-budget', type=int, default=12288)
+    ap.add_argument('--no-stages', action='store_true', help='해상도 단계(1080→720→480→360) 없이 360만')
     a = ap.parse_args()
     drive = f'{DRIVE_BASE}/{a.run}' + ('_quick' if a.quick else '')
     if a.rclone:
@@ -67,8 +69,15 @@ def main():
         t0 = time.time()
         P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{data}" --maxlen 2048 --max-frames 30 --every 12 --workers {cpus}{lp}')
         P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{val}" --maxlen 2048 --max-frames 10 --holdout --workers {cpus}{lp}')
+        st = ''
+        if not a.no_stages:   # 4분은 계획 60분의 첫 단계(1080, 20%) 안 → 가장 무거운 1080의 속도·메모리를 잰다
+            hi = [os.path.join(a.root, f'sd_quick{r}') for r in HIRES]
+            for r, d in zip(HIRES, hi):
+                P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{d}" --W {r} --video --maxlen 2048 --max-frames 30 --every 12 --workers {cpus}{lp}')
+            st = ' --stages "' + ','.join(hi) + '"'
         print(f'[1/3] 자료(파일 12개 중 1개) 정상 {(time.time() - t0) / 60:.1f}분', flush=True)
-        base = f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --log-every 20 --val-minutes 2 --val-n 64 --tok-budget {a.tok_budget}' + extra
+        base = (f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --log-every 20 --val-minutes 2 --val-n 64 --tok-budget {a.tok_budget}'
+                + st + extra)
         P.run_logged(base + ' --minutes 4 --plan-minutes 60' + (' --yield' if a.yield_ else ''), out)
         print('[2/3] 4분 학습 정상 — 위 줄의 걸음 수·GPU 메모리로 본 학습 속도를 계산', flush=True)
         P.run_logged(base + ' --minutes 1', out)
@@ -89,6 +98,12 @@ def main():
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{val}" --maxlen 2048 --max-frames 40 --holdout --workers {cpus}{lp}')
     shv = os.path.join(a.root, 'ss')   # 위치 시험: 학습 파일 10개 중 1개에 학습에 없던 고정 이동(GPT 3차)
     P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{shv}" --maxlen 2048 --max-frames 8 --every 10 --fixed 6,4,1.05 --workers {cpus}{lp}')
+    st = ''
+    if not a.no_stages:   # 해상도 단계(사용자 10-29·10-31): 1080 → 720 → 480 → 360. 영상(mp4)으로 저장해 작다(합계 약 0.5GB)
+        hi = [os.path.join(a.root, f'sd{r}') for r in HIRES]
+        for r, d in zip(HIRES, hi):
+            P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{d}" --W {r} --video --maxlen 2048 --max-frames 300 --aug 1 --workers {cpus}{lp}')
+        st = ' --stages "' + ','.join(hi) + '"'
     print(f'자료 {(time.time() - t0) / 60:.1f}분', flush=True)
     left = a.hours * 60 - (time.time() - t_start) / 60 - 12   # 자료 읽기(몇 분)·마무리 올리기 몫
     if left < 5:
@@ -101,7 +116,7 @@ def main():
         up.start()
     plan = a.plan_hours * 60   # 0이면 seq_train이 처음엔 이번 실행 시간, 이어할 땐 이번 실행만큼 늘림
     cmd = (f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --minutes {left:.0f} --plan-minutes {plan:.0f}'
-           f' --tok-budget {a.tok_budget} --shift-val "{shv}"' + (' --yield' if a.yield_ else '') + extra)
+           f' --tok-budget {a.tok_budget} --shift-val "{shv}"' + st + (' --yield' if a.yield_ else '') + extra)
     try:
         P.run_logged(cmd, out)
     finally:

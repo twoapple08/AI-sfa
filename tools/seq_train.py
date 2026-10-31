@@ -39,36 +39,56 @@ TOK_EOS = K.TOK['EOS']
 SOFT_W = (0.1, 0.25, 0.3, 0.25, 0.1)   # 이웃 칸 -2..+2 (정확한 칸과 반반 섞는다)
 
 
+def _load_npz(job):
+    """npz 하나 → [(그림, tok, fld, meta, hwr)]. 고해상도 영상 자료는 풀기가 느려(1080 약 3만 장 17분) 여러 프로세스로 부른다."""
+    p, maxlen, in_w, in_h, jpeg = job
+    z = np.load(p)
+    d = {k: z[k] for k in ('tok', 'fld', 'off', 'pos')}   # npz는 꺼낼 때마다 배열 전체를 다시 푼다 → 파일마다 한 번만(10-30: 장마다 풀어 1.5만 장 읽기가 30분 넘게 걸림)
+    meta = json.loads(str(z['meta']))
+    if 'vid' in z.files:   # 고해상도 단계 자료(seq_data --video): mp4를 여기서 푼다
+        import vec_data as V
+        frames = V.decode_video(z['vid'], meta['W'], meta['render_h'])
+    else:
+        frames = z['img']
+    off = d['off']
+    out = []
+    for i in range(len(off) - 1):
+        if off[i + 1] - off[i] > maxlen:
+            continue
+        im = frames[i]
+        if im.shape[:2] != (in_h, in_w):   # 파일 비율로 렌더된 영상 자료는 높이도 다르다
+            im = cv2.resize(im, (in_w, in_h), interpolation=cv2.INTER_AREA if im.shape[1] > in_w else cv2.INTER_LINEAR)
+        if jpeg:
+            im = cv2.imencode('.jpg', im[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 95])[1]
+        out.append((im, d['tok'][off[i]:off[i + 1]].astype(np.int64), d['fld'][off[i]:off[i + 1]].astype(np.int64),
+                    dict(meta, pos=int(d['pos'][i])), float(meta.get('hwr', 0.5625))))
+    return out
+
+
 class Data:
     """npz 전부를 메모리에. 그림은 입력 크기로 줄여 JPEG(품질 95)로 압축해 둔다(2만 장 × 640×360 원본이면 15GB → 약 1.5GB).
     이미 H.264로 압축된 장이라 JPEG 95의 추가 손실은 작다. 묶음을 만들 때 푼다."""
 
-    def __init__(self, folder, maxlen, in_w, jpeg=True):
+    def __init__(self, folder, maxlen, in_w, jpeg=True, workers=None):
         self.in_w, self.in_h = in_w, in_w * 9 // 16
         self.img, self.tok, self.fld, self.meta, self.hwr = [], [], [], [], []
-        for p in sorted(glob.glob(os.path.join(folder, '*.npz'))):
-            z = np.load(p)
-            d = {k: z[k] for k in ('tok', 'fld', 'off', 'pos')}   # npz는 꺼낼 때마다 배열 전체를 다시 푼다 → 파일마다 한 번만(10-30: 장마다 풀어 1.5만 장 읽기가 30분 넘게 걸림)
-            meta = json.loads(str(z['meta']))
-            if 'vid' in z.files:   # 고해상도 단계 자료(seq_data --video): mp4를 여기서 푼다
-                import vec_data as V
-                frames = V.decode_video(z['vid'], meta['W'], meta['render_h'])
-            else:
-                frames = z['img']
-            off = d['off']
-            for i in range(len(off) - 1):
-                if off[i + 1] - off[i] > maxlen:
-                    continue
-                im = frames[i]
-                if im.shape[:2] != (self.in_h, self.in_w):   # 파일 비율로 렌더된 영상 자료는 높이도 다르다
-                    im = cv2.resize(im, (self.in_w, self.in_h), interpolation=cv2.INTER_AREA if im.shape[1] > self.in_w else cv2.INTER_LINEAR)
-                if jpeg:
-                    im = cv2.imencode('.jpg', im[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 95])[1]
+        paths = sorted(glob.glob(os.path.join(folder, '*.npz')))
+        jobs = [(p, maxlen, self.in_w, self.in_h, jpeg) for p in paths]
+        video = bool(paths) and 'vid' in np.load(paths[0]).files
+        workers = workers or (os.cpu_count() or 1)
+        if video and workers > 1 and len(jobs) > 1:   # 순서 그대로(imap)라 결과는 한 프로세스로 읽은 것과 같다
+            from multiprocessing import Pool
+            with Pool(min(workers, len(jobs))) as pool:
+                parts = list(pool.imap(_load_npz, jobs, chunksize=4))
+        else:
+            parts = map(_load_npz, jobs)
+        for part in parts:
+            for im, tk, fd, mt, hr in part:
                 self.img.append(im)
-                self.tok.append(d['tok'][off[i]:off[i + 1]].astype(np.int64))
-                self.fld.append(d['fld'][off[i]:off[i + 1]].astype(np.int64))
-                self.meta.append(dict(meta, pos=int(d['pos'][i])))
-                self.hwr.append(float(meta.get('hwr', 0.5625)))
+                self.tok.append(tk)
+                self.fld.append(fd)
+                self.meta.append(mt)
+                self.hwr.append(hr)
         self.ntok = sum(len(t) for t in self.tok)
 
     def __len__(self):

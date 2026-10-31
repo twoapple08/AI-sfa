@@ -38,7 +38,7 @@ class TestPrebuilt(unittest.TestCase):
         for smoke in (False, True):
             a = KW.data_args(dict(smoke=smoke), 4)
             b = KW.data_args(dict(smoke=smoke, mode='train', prebuilt=True), 2)
-            self.assertEqual(set(a), set(KW.SPLITS))
+            self.assertEqual(set(a), set(KW.SPLITS) | {f'sd{r}' for r in KW.HIRES})   # 해상도 단계 자료 포함(기본)
             for k in a:
                 self.assertEqual(a[k].replace('--workers 4', ''), b[k].replace('--workers 2', ''))
         full = KW.data_args(dict(smoke=False), 4)   # 이전 작업자와 같은 본 자료 설정

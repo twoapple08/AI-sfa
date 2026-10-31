@@ -80,7 +80,7 @@ def push_kernel(d, kname, cfg):
 def push(a):
     u = user()
     cfg = dict(branch=a.branch, session_minutes=a.minutes, plan_minutes=a.plan_minutes, tok_budget=a.tok_budget, extra=a.extra, smoke=a.smoke,
-               mode='train', prebuilt=a.prebuilt, prebuilt_any_code=a.prebuilt_any_code)
+               mode='train', prebuilt=a.prebuilt, prebuilt_any_code=a.prebuilt_any_code, stages=not a.no_stages)
     src = worker_src(cfg)
     d = tempfile.mkdtemp(prefix='kseq_')
     open(os.path.join(d, 'kernel.py'), 'w', encoding='utf-8').write(src)
@@ -103,7 +103,7 @@ def push(a):
 def push_data(a):
     """자료만 만드는 CPU 커널(GPU 끔). 출력 sd·sv·ss + data_info.json을 push --prebuilt가 입력으로 붙인다."""
     u = user()
-    cfg = dict(branch=a.branch, smoke=a.smoke, mode='data')
+    cfg = dict(branch=a.branch, smoke=a.smoke, mode='data', stages=not a.no_stages)
     d = tempfile.mkdtemp(prefix='kdata_')
     open(os.path.join(d, 'kernel.py'), 'w', encoding='utf-8').write(worker_src(cfg))
     kname = DATA_KERNEL + ('-smoke' if a.smoke else '')
@@ -192,10 +192,12 @@ def main():
     p.add_argument('--cpu', action='store_true', help='GPU 끄고(주간 GPU 시간을 쓰지 않음)')
     p.add_argument('--ckpt', default=CKPT, help='이어하기 자료 이름')
     p.add_argument('--prebuilt', action='store_true', help='push-data 커널 출력을 입력으로 붙여 자료 만들기 없이 학습')
+    p.add_argument('--no-stages', action='store_true', help='해상도 단계(1080→720→480→360) 없이 360만(이어하기는 처음 설정을 따른다)')
     p.add_argument('--prebuilt-any-code', action='store_true', help='자료를 만든 뒤 자료 코드가 바뀌어도 그대로 씀(자료에 영향 없는 변경일 때만)')
     pd = sub.add_parser('push-data')
     pd.add_argument('--branch', default='ccr-bccf15a6-d6ee46')
     pd.add_argument('--smoke', action='store_true', help='작은 자료(별도 커널 aisfa-seq-data-smoke)')
+    pd.add_argument('--no-stages', action='store_true', help='1080·720·480 단계 자료 없이')
     st_ = sub.add_parser('status')
     st_.add_argument('--smoke', action='store_true')
     st_.add_argument('--data', action='store_true', help='자료 커널')

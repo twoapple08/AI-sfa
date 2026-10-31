@@ -2,7 +2,8 @@
 """Kaggle 작업자(2026-10-30, 재설계 영상 → 스파 문장 학습): 저장소 받기 → 자료(학습 + 늘리기 1벌, 시험) → 학습 → /kaggle/working/out.
 kaggle_seq_remote.py가 CONFIG를 채워 Kaggle 스크립트 커널로 올린다(사용자 컴퓨터 없이). 이어하기: 입력 자료(ckpt 자료)에 ckpt.pt가 있으면 그것부터.
 T4는 bf16이 없어 seq_train이 fp16 + GradScaler로 돈다. GPU는 1개만 쓴다.
-mode='data'(10-31): CPU 커널에서 자료만 만들어 /kaggle/working/{sd,sv,ss}에 남긴다(GPU 시간 0). 판·코드 표시는 data_info.json.
+mode='data'(10-31): CPU 커널에서 자료만 만들어 /kaggle/working/{sd1920,sd1280,sd854,sd,sv,ss}에 남긴다(GPU 시간 0). 판·코드 표시는 data_info.json.
+stages=True(기본, 10-31 복원): 해상도 단계 1080 → 720 → 480 → 360 학습(seq_train --stages).
 prebuilt=True: GPU 학습이 그 커널 출력(입력으로 붙음)을 그대로 쓴다. 자료 판·설정·코드가 다르면 GPU 시간을 쓰기 전에 멈춘다.
 """
 import glob
@@ -14,10 +15,11 @@ import subprocess
 import time
 
 CONFIG = {'branch': 'ccr-bccf15a6-d6ee46', 'session_minutes': 690, 'plan_minutes': 0, 'tok_budget': 12288, 'extra': '', 'smoke': False,
-          'mode': 'train', 'prebuilt': False, 'prebuilt_any_code': False}
+          'mode': 'train', 'prebuilt': False, 'prebuilt_any_code': False, 'stages': True}
 
 T0 = time.time()
 SPLITS = ('sd', 'sv', 'ss')   # 학습(+늘리기), 시험 파일, 위치 시험
+HIRES = (1920, 1280, 854)     # 해상도 단계(사용자 10-29·10-31): 1080 → 720 → 480 → 기본 360(sd). 영상(mp4)으로 저장
 CODE = ('seq_data.py', 'sfa_render.py', 'sfa_tokens.py', 'vec_data.py')   # 자료 내용을 정하는 코드(바뀌었는데 판을 안 올린 경우를 잡는다)
 
 
@@ -30,8 +32,11 @@ def data_args(c, cpus):
     """자료마다 seq_data 옵션. 자료 커널과 학습 커널이 같은 함수를 써서 설정이 어긋나지 않게 한다."""
     smoke = c.get('smoke')
     w = f'--workers {cpus}'
+    sd = f'--maxlen 2048 --max-frames {6 if smoke else 300}{" --every 40" if smoke else ""} --aug 1 {w}'
+    hi = {f'sd{r}': f'{sd} --W {r} --video' for r in HIRES} if c.get('stages', True) else {}
     return dict(
-        sd=f'--maxlen 2048 --max-frames {6 if smoke else 300}{" --every 40" if smoke else ""} --aug 1 {w}',
+        **hi,
+        sd=sd,
         sv=f'--maxlen 2048 --max-frames {4 if smoke else 40} --holdout {w}',
         ss=f'--maxlen 2048 --max-frames {4 if smoke else 8} --every {40 if smoke else 10} --fixed 6,4,1.05 {w}')   # 위치 시험: 학습 파일 10개 중 1개에 학습에 없던 고정 이동(GPT 3차)
 
@@ -117,16 +122,17 @@ def main():
     if c.get('prebuilt'):
         dirs = find_prebuilt(c, tools, cpus)
     else:
-        dirs = {name: f'/kaggle/tmp/{name}' for name in SPLITS}
+        dirs = {name: f'/kaggle/tmp/{name}' for name in data_args(c, cpus)}
         for name, args in data_args(c, cpus).items():
             sh(f'cd {tools} && python -u seq_data.py {dirs[name]} {args}')
     data, val, shv = dirs['sd'], dirs['sv'], dirs['ss']
+    stages = ','.join(dirs[f'sd{r}'] for r in HIRES) if c.get('stages', True) else ''
     print(f'자료 {(time.time() - t1) / 60:.1f}분', flush=True)
     left = c['session_minutes'] - (time.time() - T0) / 60 - (2 if c.get('smoke') else 20)   # 자료 읽기·마지막 검증·저장 몫
     if left < (1 if c.get('smoke') else 10):
         raise SystemExit('남은 시간이 없음')
     cmd = (f'cd {tools} && python -u seq_train.py train {data} {val} {out} --minutes {left:.0f} --plan-minutes {c["plan_minutes"]:.0f}'
-           f' --tok-budget {c["tok_budget"]} --shift-val {shv} {c["extra"]}')
+           f' --tok-budget {c["tok_budget"]} --shift-val {shv}' + (f' --stages {stages}' if stages else '') + f' {c["extra"]}')
     print('$', cmd, flush=True)
     con = open(f'{out}/train_console.txt', 'a', encoding='utf-8')
     pr = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace')
