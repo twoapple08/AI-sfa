@@ -60,6 +60,14 @@ class ObjScoreTest(unittest.TestCase):
         self.assertEqual(r['match'], 2)
         self.assertEqual(r['link_f1'], 1.0)
 
+    def test_links_not_in_perfect(self):
+        # 사용자 10-31: 관절 연결은 만점에서 뺀다(24,24 — 한 장 그림에 영향 없음). 연결 F1은 따로 기록
+        A = frame([('1', [(0, 0), (10, 0)], BLACK, 0, [(1, 10)]), ('1', [(10, 0), (10, 10)], BLACK, 1, [(0, 1)])])
+        P = frame([('1', [(0, 0), (10, 0)], BLACK, 0, []), ('1', [(10, 0), (10, 10)], BLACK, 1, [])])
+        r = OS.score(P, A)
+        self.assertEqual(r['link_f1'], 0.0)
+        self.assertTrue(r['perfect'])
+
     def test_one_point_circle_no_crash(self):
         A = frame([('2', [(10, 10)], BLACK, 0, [])])
         r = OS.score(A, A)

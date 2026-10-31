@@ -4,7 +4,7 @@ AI가 만든 장과 원본 장의 오브젝트를 하나씩 짝지어(헝가리�
   짝 비용 = 점 사이 평균 거리(화면 가로 % 단위 — 세로 좌표에 비율을 곱해 화소 비율로). 직선·곡선은 점 순서를 뒤집은 것도 본다. 종류가 다르면 +TYPE_PEN.
   맞음 = 같은 종류 + 평균 점 거리 ≤ tol.
 숫자: 맞은 오브젝트(재현율 = 원본 중 맞힌 비율, 정밀도 = AI 것 중 맞은 비율), 평균 점 오차, 색·굵기·글로우 일치, 연결 F1, 면 F1, 배경색, 가림 순서 일치,
-perfect(모두 일치 = 같은 영상). GPT 검토(10-30) 반영: 맞는 짝 수 먼저 최대화, 실제 그리는 순서, 원 점 방향·화면 비율, 짝 0개 장도 연결·면 셈.
+perfect(모두 일치 = 같은 영상; 관절 연결은 영상에 안 보여 제외 — 사용자 10-31, 연결 F1은 참고로 따로). GPT 검토(10-30) 반영: 맞는 짝 수 먼저 최대화, 실제 그리는 순서, 원 점 방향·화면 비율, 짝 0개 장도 연결·면 셈.
 구조 채점(align=True, 보조 — 10-30 영상을 '크기 무관'으로 잘못 읽어 만든 것. 사용자 뜻은 '일반 그림 도구 말고 스파로 그려라'. 기본은 제자리 비교): AI 그림 전체를 이동 + 같은 비율 확대로
 원본에 맞춘 뒤 비교한다(회전은 안 함 — 기울어진 선은 틀림). 맞춘 배율·이동도 돌려준다. align=False는 제자리 비교.
 """
@@ -246,7 +246,9 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
                 tot += 1
                 same += (i1 < i2) == (j1 < j2)
         r['order'] = same / tot if tot else None
-    # 만점 = 같은 영상: 모든 오브젝트가 짝지어지고, 점은 칸 단위로 같고(EXACT_PT), 굵기·색·글로우·연결·면·배경·순서가 같다.
+    # 만점 = 같은 영상: 모든 오브젝트가 짝지어지고, 점은 칸 단위로 같고(EXACT_PT), 굵기·색·글로우·면·배경·순서가 같다.
+    # 관절 연결(AC)은 만점에서 뺀다(사용자 10-31: 24,24 목표라 트위닝이 없고 한 장 그림에 영향 없음 — 파란점·점 방향과 같은 '영상이 안 바뀌는 차이').
+    # 연결 F1(link_f1)은 앱 편집·2단계(장 사이 추적)용 참고 점수로 계속 기록한다.
     # '맞음'(허용 오차 tol)과 분리(GPT 2차: 0.5% 이동·굵기 4% 차이도 만점이던 것)
     # perfect = 모든 점이 같은 좌표 칸(점마다 최대 차이 ≤ 반 칸) — 영상 동일. near_perfect = 평균 차이 ≤ EXACT_PT(GPT 3차: 평균으로는 한 점이 한 칸 틀려도 통과)
     def pt_max(i, j):
@@ -256,7 +258,7 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
         return np.abs((Pp[::-1] if flip[i, j] else Pp) - Aa).max()
     same_style = all(abs(math.log(max(P[i]['th'], 1e-3) / max(A[j]['th'], 1e-3))) <= EXACT_TH
                      and P[i]['col'] == A[j]['col'] and P[i]['glow'] == A[j]['glow'] for i, j in ok)
-    rest = r['match'] == len(A) == len(P) and same_style and r['bg'] and r['link_f1'] == 1.0 and r['fill_f1'] == 1.0 and r['order'] in (None, 1.0)
+    rest = r['match'] == len(A) == len(P) and same_style and r['bg'] and r['fill_f1'] == 1.0 and r['order'] in (None, 1.0)
     r['perfect'] = rest and all(pt_max(i, j) <= HALF_BIN for i, j in ok)
     r['near_perfect'] = rest and all(C[i, j] <= EXACT_PT for i, j in ok)
     return r
