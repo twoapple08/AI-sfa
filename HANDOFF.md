@@ -12,24 +12,33 @@
 
 ## 사용자 결정(10-31) — 꼭 지킬 것
 - **Kaggle GPU 시간은 아껴 둔다.** 남은 확인이 다 끝난 뒤에 풀로 돌린다. 주간 30시간 중 약 0.5시간 사용(10-31 09:02 KST 초기화). **사용자 지시 없이 Kaggle GPU 실행 금지.**
-- 마지막 지시: "아직 하지 말고 인수인계를 갱신하라." → 아래 '바로 할 일'은 사용자 승인 뒤에 한다.
+- 10-31 Kaggle은 CPU 커널만 사용(GPU 0). Kaggle 자료 만들기·CPU 흐름 시험은 사용자 승인 범위.
+
+## 10-31 추가(사용자 지시) — 1판 학습 자료·모델에 들어간 것
+- **해상도 단계 1080 → 720 → 480 → 360**(사용자 10-29 지시, 재설계 때 빠졌다가 복원): 시간 20/25/25/30%, 앞 단계 30% 섞기, 단계는 되돌아가지 않음. 그림 특징은 45×80칸으로 모음, 한 묶음 그림 수 = 화소 예산(`--px-budget` 8M). 고해상도 자료는 mp4 저장(`seq_data --video`). 상세: 설계 문서 §6.2
+  - 목적(사용자): 나중에 모은 애니 자료(화질이 360까지 떨어짐)도 깔끔하게 옮기는 실력
+  - 측정: 그림 처리 메모리 1장 fp32 360=173MB, 1080=1,681MB. **CPU 학습은 480 단계에서 메모리로 강제 종료(Kaggle CPU rc137, 서버 15GB도 동일)** → CPU 시험은 `--px-budget 3.7`. GPU는 메모리 부족 자동 복구(체크포인팅 → 화소 예산 → 토큰 한도)
+- **페인트 합성**(사용자 10-29: 흰 바탕이 너무 많아 학습에 넣기로, 재설계 때 빠졌던 것): 학습 파일 30%에서 흰 바탕만 합성판 추가(`--synth 0.3`), 합성한 면도 정답에
+- **굵기 배율**(사용자 10-31: 굵기도 고루 쓰게): 늘린 사본마다 ThicknessScale × 0.5–2, 정답도 같이. 자료 판 3
+- **인코더 이어 쓰기**(재설계 문서 '그대로 쓰는 것'이 빠졌던 것): 이전 픽셀 지도 2차 모델 `vec/pc2/best.pt` 인코더 변환(같은 그림 출력 차 0.12%) → `--init-encoder`. Kaggle 비공개 자료 `aisfa-vec-encoder`, Drive `seq/vec_encoder.pt`. 새로 시작할 때만
+- 모두 Kaggle(`push-data`/`push`)·PC(`pc_seq_*.bat`)에서 기본으로 켬. 끄기: `--no-stages`, `--no-init-encoder`
+- 역사·빠진 항목 대조: docs/PROJECT-HISTORY-2026-10-31.md. 남은 계획만 있는 것: 색 바꾸기·배경색 늘리기
 
 ## 바로 할 일(순서대로, 각각 사용자 승인 뒤)
-1. ~~Kaggle CPU로 전체 자료 미리 만들기~~ **완료(10-31, GPU 시간 0)**
-   - `push-data` 전체 자료 커널 `aisfa-seq-data`(커밋 c047fbe): 8.8분(CPU 4개), 실패 0
-     - sd 31,578장·659파일·1,482MB(작업 806 중 147개는 2,048 초과·장 없음으로 건너뜀) / sv 965장·38파일·56MB / ss 134장·31파일·6MB
-   - 흐름 시험: `push --smoke --cpu --prebuilt` → 입력 sd·sv·ss `--check` 모두 맞음, 자료 0.0분, 학습·생성 채점·저장 정상(rc 0)
-     - 주의: CPU에서 `--minutes 20`이 33분 걸림(마지막 검증·생성 채점 몫). GPU 본 학습은 기존 20분 여유로 30분 시험 통과했지만 첫 풀 실행 때 끝 시각 확인
-   - GPU 본 학습 시작(사용자 지시 뒤): `python tools/kaggle_seq_remote.py push --prebuilt` (자료 코드가 바뀌면 작업자가 멈춤 → `push-data` 다시)
+1. ~~Kaggle CPU로 전체 자료 미리 만들기~~ 완료. **판 3(단계·합성·굵기) 전체 자료를 10-31 다시 만드는 중** — 끝나면 data_info.json(장 수·크기·시간) 확인
+   - 판 2 기록: 360 자료 8.8분, sd 31,578장·1,482MB, 실패 0. 고해상도 추가 추정 약 22분·약 0.5GB
+   - 흐름 시험(판 2): 미리 만든 자료 6개 `--check` 맞음, 1080 → 720 → 480 단계 전환 확인(480에서 CPU 메모리로 종료). 판 3 + 인코더 CPU 시험은 10-31 진행 중
+   - GPU 본 학습 시작(사용자 지시 뒤): `python tools/kaggle_seq_remote.py push --prebuilt`
 2. **사용자 PC(4060 또는 5060)로 4~6시간 학습**
-   - 확인할 것: 긴 장(2,048토큰) 묶음의 메모리, **위치를 배우는지**(위치 시험 `shift_coord_err` 감소, `shift_recall` > 0)
-   - 실행: `pc_seq_4060.bat 6 0 [noyield]` 또는 `pc_seq_5060.bat 6`
-     - 4060 bat 기본 PLAN=24 → 6시간 판단용이면 PLAN 0 권장
+   - 먼저 `pc_seq_1050ti_quick.bat`류 빠른 시험: 첫 4분이 1080 단계라 가장 무거운 단계의 속도·GPU 메모리를 잰다
+   - 확인할 것: 단계별 메모리(특히 1080·480), **위치를 배우는지**(위치 시험 `shift_coord_err` 감소, `shift_recall` > 0)
+   - 실행: `pc_seq_4060.bat 6 0 [noyield]` 또는 `pc_seq_5060.bat 6` — 계획 0 = 이번 실행 시간이라 6시간 안에 네 단계를 다 거친다
+   - PC 자료 만들기 시간 늘어남(고해상도 3벌 + 합성): PC CPU로 추가 수십 분 추정(미측정)
    - 끝나면 Claude: `kaggle_seq_remote.py from-drive s1_4060 폴더` → `seq_train.py draw` 그림 + log의 gen_/shift_ 곡선 보고
 3. **판단**
-   - 위치를 따라가면: Kaggle 풀(11.5시간 × 2~3회, PC 학습 상태를 `save-ckpt`로 이어받기)
-   - 정체하면: sin 비교(`--sine`, **새 출력 폴더에서 처음부터** — 이어하기에선 안 켜짐)를 PC에서
-4. 나중에: 세로 영상 90° 돌리기, 장 사이 추적(KEEP, 2단계), 정답 없는 영상 오브젝트 대입 채점(3단계), 긴 장(>2,048) 지원(측정: docs/TOKEN-LENGTH-2026-10-31.md — 4,096이면 학습 97.4%·시험 87.9%, 반복 좌표 15.7%)·긴 BIG 참조 범위, 레이어 전체 투명도(파일 받으면).
+   - 위치를 따라가면: Kaggle 풀(11.5시간 × 2~3회, PC 학습 상태를 `save-ckpt`로 이어받기). 단계는 되돌아가지 않으므로 PC에서 360 단계까지 끝났으면 Kaggle은 360(+480 30%)으로 계속
+   - 정체하면: sin 비교(`--sine`, **새 출력 폴더에서 처음부터**)를 PC에서
+4. 나중에: 세로 영상 90° 돌리기, 장 사이 추적(KEEP, 2단계), 정답 없는 영상 오브젝트 대입 채점(3단계), 긴 장(>2,048) 지원(측정: docs/TOKEN-LENGTH-2026-10-31.md — 4,096이면 학습 97.4%·시험 87.9%, 반복 좌표 15.7%; 2,048로 학습한 뒤 위치 칸을 늘려 긴 장으로 추가 학습하는 방식 가능 — 1판 결과 뒤 결정), 색·배경색 늘리기, 레이어 전체 투명도(파일 받으면).
 
 ## 지금까지 확인된 것(검증 범위 표시)
 - **정답지**(`sfa_tokens.py`)[서버]
@@ -57,7 +66,7 @@
 - **GPT 토론 3라운드 완료**
   - 지적 25개 반영. GPT 추가 검사 42개는 당시 코드에서 재현 61/61, 지금 코드에서 결함 37개 고쳐짐 확인. 회귀 시험 9개 이식.
   - 3차 판정: 본 학습 전 필수 없음(평가 필수 3개는 반영함)
-- **단위 시험 66개 통과**(`python -m unittest discover -s tests`)
+- **단위 시험 75개 통과**(10-31, `python -m unittest discover -s tests`)
 
 ## Kaggle·실행 도구 요약
 - `tools/kaggle_seq_remote.py`
@@ -84,10 +93,10 @@
 - Kaggle GPU는 사용자 결정으로 보류 중(위).
 
 ## 환경
-- 저장소 `/home/user/AI-sfa`, 브랜치 `ccr-bccf15a6-d6ee46` + 세션 브랜치 `ccr-443af4c6-mmyxuc`에 같은 HEAD.
-- 이번 세션 scratch는 사라졌다. 남은 서버 임시 결과: `/tmp/aisfa_kg_gpu1`(Kaggle GPU 짧은 시험 결과 — 새 컨테이너면 없음).
-- 서버 rclone `gdrive:` 사용 가능. torch 2.15 CPU.
-- 학습 자료는 필요하면 서버에서 다시 만든다: `python tools/seq_data.py 폴더 --maxlen 2048 --max-frames 300 --aug 1`(4코어 약 10–20분 추정).
+- 저장소 `/home/user/AI-sfa`, 주 브랜치 `ccr-bccf15a6-d6ee46`(10-31 세션은 이 브랜치에만 푸시).
+- 10-31 GPU 30분 시험 모델은 Kaggle 자료 `aisfa-seq-ckpt-smoke`에 남아 있다(54장 흐름 시험용 — 실력 판단 불가). 서버 scratch는 새 컨테이너면 없다.
+- 새 컨테이너 준비(10-31 실측): `pip install opencv-python-headless numpy skia-python scipy scikit-image kaggle` + CPU torch(`--index-url https://download.pytorch.org/whl/cpu`), `apt-get install libegl1 libgl1`(skia), rclone은 downloads.rclone.org v1.75.2 zip → /usr/local/bin(환경 변수 `RCLONE_CONFIG_GDRIVE_*`로 바로 연결).
+- 학습 자료는 Kaggle `push-data`로 만든다(CPU, 판 2는 8.8분). 서버에서 직접: `python tools/seq_data.py 폴더 --maxlen 2048 --max-frames 300 --aug 1 --synth 0.3`(+ 고해상도는 `--W 1920|1280|854 --video`).
 
 ## 보호
 - 원본 영상·추출 프레임·나카무라 자료·가중치는 저장소에 넣지 않는다(Drive·Kaggle 비공개·scratch만).
