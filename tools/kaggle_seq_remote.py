@@ -4,6 +4,7 @@
   push     : kaggle_seq_worker.py에 설정을 넣어 비공개 스크립트 커널로 올리고 실행(GPU·인터넷 켬, ckpt 자료가 있으면 입력으로)
              --prebuilt: push-data가 만든 자료 커널 출력을 입력으로 붙여 자료 만들기 없이 바로 학습(GPU 시간 아끼기, 10-31)
   push-data: 자료만 만드는 CPU 커널 aisfa-seq-data(GPU 시간 0). 끝나면 status/wait/pull에 --data
+  push-encoder 파일: 이전 픽셀 지도 모델 인코더(seq_train vec-encoder)를 비공개 자료 aisfa-vec-encoder로 → push가 새 학습 때 이어 씀
   status   : 커널 상태
   wait     : 끝날 때까지 기다림(10분 간격, 최대 13시간)
   pull     : 결과(out/ckpt.pt·best.pt·log.jsonl·train_console.txt) 받기
@@ -26,6 +27,7 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 KERNEL = 'aisfa-seq-train'
 DATA_KERNEL = 'aisfa-seq-data'
+ENCODER = 'aisfa-vec-encoder'   # 이전 픽셀 지도 모델 인코더(seq_train vec-encoder 결과, 10-31 이어 쓰기)
 CKPT = 'aisfa-seq-ckpt'
 
 
@@ -80,7 +82,8 @@ def push_kernel(d, kname, cfg):
 def push(a):
     u = user()
     cfg = dict(branch=a.branch, session_minutes=a.minutes, plan_minutes=a.plan_minutes, tok_budget=a.tok_budget, extra=a.extra, smoke=a.smoke,
-               mode='train', prebuilt=a.prebuilt, prebuilt_any_code=a.prebuilt_any_code, stages=not a.no_stages)
+               mode='train', prebuilt=a.prebuilt, prebuilt_any_code=a.prebuilt_any_code, stages=not a.no_stages,
+               init_encoder=not a.no_init_encoder)
     src = worker_src(cfg)
     d = tempfile.mkdtemp(prefix='kseq_')
     open(os.path.join(d, 'kernel.py'), 'w', encoding='utf-8').write(src)
@@ -91,6 +94,10 @@ def push(a):
     if not a.fresh and not (a.smoke and a.ckpt == CKPT) and ckpt_exists(u, a.ckpt):   # 시험은 본 학습 자료를 붙이지 않는다
         meta['dataset_sources'] = [f'{u}/{a.ckpt}']
         print('이어하기 자료를 입력으로:', f'{u}/{a.ckpt}', flush=True)
+    if not a.no_init_encoder:   # 새로 시작할 때 인코더 이어 쓰기(이어하기면 작업자·seq_train이 무시)
+        if not ckpt_exists(u, ENCODER):
+            raise SystemExit(f'인코더 자료 {ENCODER} 없음 — push-encoder 먼저(또는 --no-init-encoder)')
+        meta['dataset_sources'] = meta['dataset_sources'] + [f'{u}/{ENCODER}']
     if a.prebuilt:   # 자료 커널 출력을 입력으로(작업자가 판·설정·코드를 확인하고, 다르면 학습 전에 멈춘다)
         meta['kernel_sources'] = [f'{u}/{DATA_KERNEL}' + ('-smoke' if a.smoke else '')]
         print('미리 만든 자료를 입력으로:', meta['kernel_sources'][0], flush=True)
@@ -98,6 +105,20 @@ def push(a):
         print('주의: --prebuilt 없이 GPU 실행 — 자료 만들기에 GPU 시간이 든다', flush=True)
     json.dump(meta, open(os.path.join(d, 'kernel-metadata.json'), 'w'), ensure_ascii=False, indent=1)
     push_kernel(d, kname, cfg)
+
+
+def push_encoder(a):
+    """인코더 파일을 비공개 자료로(있으면 새 판)."""
+    u = user()
+    d = tempfile.mkdtemp(prefix='kenc_')
+    shutil.copy(a.file, os.path.join(d, 'vec_encoder.pt'))
+    json.dump(dict(title=ENCODER, id=f'{u}/{ENCODER}', licenses=[dict(name='CC0-1.0')]), open(os.path.join(d, 'dataset-metadata.json'), 'w'))
+    if ckpt_exists(u, ENCODER):
+        print(kg('datasets', 'version', '-p', d, '-m', time.strftime('%Y-%m-%d %H:%M'), '-q'))
+    else:
+        print(kg('datasets', 'create', '-p', d, '-q'))   # 기본 비공개
+    shutil.rmtree(d)
+    print('인코더 자료 올림:', f'{u}/{ENCODER}', flush=True)
 
 
 def push_data(a):
@@ -192,8 +213,11 @@ def main():
     p.add_argument('--cpu', action='store_true', help='GPU 끄고(주간 GPU 시간을 쓰지 않음)')
     p.add_argument('--ckpt', default=CKPT, help='이어하기 자료 이름')
     p.add_argument('--prebuilt', action='store_true', help='push-data 커널 출력을 입력으로 붙여 자료 만들기 없이 학습')
+    p.add_argument('--no-init-encoder', action='store_true', help='이전 픽셀 지도 모델 인코더 없이 ImageNet에서 출발')
     p.add_argument('--no-stages', action='store_true', help='해상도 단계(1080→720→480→360) 없이 360만(이어하기는 처음 설정을 따른다)')
     p.add_argument('--prebuilt-any-code', action='store_true', help='자료를 만든 뒤 자료 코드가 바뀌어도 그대로 씀(자료에 영향 없는 변경일 때만)')
+    pe = sub.add_parser('push-encoder')
+    pe.add_argument('file', help='seq_train.py vec-encoder로 만든 파일')
     pd = sub.add_parser('push-data')
     pd.add_argument('--branch', default='ccr-bccf15a6-d6ee46')
     pd.add_argument('--smoke', action='store_true', help='작은 자료(별도 커널 aisfa-seq-data-smoke)')
@@ -219,7 +243,7 @@ def main():
     q.add_argument('run')
     q.add_argument('dir')
     a = ap.parse_args()
-    dict(push=push, status=status, **{'push-data': push_data}, wait=wait, pull=pull, **{'save-ckpt': save_ckpt, 'to-drive': to_drive, 'from-drive': from_drive})[a.cmd](a)
+    dict(push=push, status=status, **{'push-data': push_data, 'push-encoder': push_encoder}, wait=wait, pull=pull, **{'save-ckpt': save_ckpt, 'to-drive': to_drive, 'from-drive': from_drive})[a.cmd](a)
 
 
 if __name__ == '__main__':

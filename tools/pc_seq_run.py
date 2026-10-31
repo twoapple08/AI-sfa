@@ -41,6 +41,7 @@ def main():
     ap.add_argument('--yield', dest='yield_', action='store_true')
     ap.add_argument('--quick', action='store_true', help='몇 분짜리 시험(1050 Ti): 작은 자료 + 실제 모델 크기로 4분 학습·1분 이어하기, 속도·메모리 측정')
     ap.add_argument('--tok-budget', type=int, default=12288)
+    ap.add_argument('--no-init-encoder', action='store_true', help='이전 픽셀 지도 모델 인코더 없이 ImageNet에서 출발')
     ap.add_argument('--no-stages', action='store_true', help='해상도 단계(1080→720→480→360) 없이 360만')
     a = ap.parse_args()
     drive = f'{DRIVE_BASE}/{a.run}' + ('_quick' if a.quick else '')
@@ -114,9 +115,17 @@ def main():
     if a.rclone:
         up = threading.Thread(target=uploader, args=(out, a.rclone, drive, stop), daemon=True)
         up.start()
+    enc = ''
+    if not a.no_init_encoder and not os.path.exists(os.path.join(out, 'ckpt.pt')):   # 새로 시작할 때만 인코더 이어 쓰기(10-31)
+        ef = os.path.join(a.root, 'vec_encoder.pt')
+        if a.rclone and not os.path.exists(ef):
+            P.sh(f'"{a.rclone}" copyto "{DRIVE_BASE}/vec_encoder.pt" "{ef}"', check=False)
+        if not os.path.exists(ef):
+            raise SystemExit(f'인코더 파일 없음({DRIVE_BASE}/vec_encoder.pt) — 사진을 보내 주세요(또는 --no-init-encoder)')
+        enc = f' --init-encoder "{ef}"'
     plan = a.plan_hours * 60   # 0이면 seq_train이 처음엔 이번 실행 시간, 이어할 땐 이번 실행만큼 늘림
     cmd = (f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --minutes {left:.0f} --plan-minutes {plan:.0f}'
-           f' --tok-budget {a.tok_budget} --shift-val "{shv}"' + st + (' --yield' if a.yield_ else '') + extra)
+           f' --tok-budget {a.tok_budget} --shift-val "{shv}"' + st + enc + (' --yield' if a.yield_ else '') + extra)
     try:
         P.run_logged(cmd, out)
     finally:

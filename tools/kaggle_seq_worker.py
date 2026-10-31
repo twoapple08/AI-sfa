@@ -15,7 +15,8 @@ import subprocess
 import time
 
 CONFIG = {'branch': 'ccr-bccf15a6-d6ee46', 'session_minutes': 690, 'plan_minutes': 0, 'tok_budget': 12288, 'extra': '', 'smoke': False,
-          'mode': 'train', 'prebuilt': False, 'prebuilt_any_code': False, 'stages': True}
+          'mode': 'train', 'prebuilt': False, 'prebuilt_any_code': False, 'stages': True,
+          'init_encoder': True}
 
 T0 = time.time()
 SPLITS = ('sd', 'sv', 'ss')   # 학습(+늘리기), 시험 파일, 위치 시험
@@ -128,11 +129,17 @@ def main():
     data, val, shv = dirs['sd'], dirs['sv'], dirs['ss']
     stages = ','.join(dirs[f'sd{r}'] for r in HIRES) if c.get('stages', True) else ''
     print(f'자료 {(time.time() - t1) / 60:.1f}분', flush=True)
+    enc = ''
+    if c.get('init_encoder') and not os.path.exists(f'{out}/ckpt.pt'):   # 새로 시작할 때만(이어하기는 저장본 그대로)
+        found = sorted(glob.glob('/kaggle/input/**/vec_encoder.pt', recursive=True))
+        if not found:
+            raise SystemExit('인코더 파일(vec_encoder.pt)이 입력에 없음 — push-encoder 먼저 또는 --no-init-encoder')
+        enc = f' --init-encoder {found[0]}'
     left = c['session_minutes'] - (time.time() - T0) / 60 - (2 if c.get('smoke') else 20)   # 자료 읽기·마지막 검증·저장 몫
     if left < (1 if c.get('smoke') else 10):
         raise SystemExit('남은 시간이 없음')
     cmd = (f'cd {tools} && python -u seq_train.py train {data} {val} {out} --minutes {left:.0f} --plan-minutes {c["plan_minutes"]:.0f}'
-           f' --tok-budget {c["tok_budget"]} --shift-val {shv}' + (f' --stages {stages}' if stages else '') + f' {c["extra"]}')
+           f' --tok-budget {c["tok_budget"]} --shift-val {shv}' + (f' --stages {stages}' if stages else '') + enc + f' {c["extra"]}')
     print('$', cmd, flush=True)
     con = open(f'{out}/train_console.txt', 'a', encoding='utf-8')
     pr = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace')

@@ -331,6 +331,28 @@ def make_batches(ds, max_n, budget):
     return out
 
 
+VEC_MAP = (('bn1.', 'enc8.1.'), ('l1.', 'enc8.4.'), ('l2.', 'enc8.5.'), ('l3.', 'enc16.'))   # 이전 픽셀 지도 모델(vec_train) → 이 모델 인코더
+
+
+def vec_encoder(src, dst):
+    """이전 픽셀 지도 모델(vec_train, 10-29: SFA 그림에서 선·끝점·방향·면을 찾도록 학습)의 ResNet34 인코더를 이 모델 이름으로 바꿔 저장(10-31 사용자: 이어 쓰기).
+    첫 층: 이전은 앞·지금·뒤 3장 9채널, 입력 0–1 그대로 / 이 모델은 1장 3채널, ImageNet 평균·표준편차 정규화.
+    → 같은 그림 3장일 때와 같게 세 장 몫 가중치를 더하고, 정규화 차이는 가중치(×표준편차)와 BN 이동 평균(−평균 몫)으로 옮긴다(가장자리 0 채움 몫만 다름)."""
+    sd = torch.load(src, map_location='cpu', weights_only=False)
+    sd = sd.get('model', sd) if isinstance(sd, dict) and 'model' in sd else sd
+    mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+    std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+    w9 = sd['conv1.weight'].float()
+    k = w9.shape[1] // 3
+    wsum = sum(w9[:, 3 * i:3 * i + 3] for i in range(k))
+    out = {'enc8.0.weight': wsum * std}
+    for a_, b_ in VEC_MAP:
+        out.update({b_ + key[len(a_):]: v for key, v in sd.items() if key.startswith(a_)})
+    out['enc8.1.running_mean'] = sd['bn1.running_mean'].float() - (wsum * mean).sum((1, 2, 3))
+    torch.save(dict(model=out, src=os.path.basename(os.path.dirname(os.path.abspath(src))) + '/' + os.path.basename(src)), dst)
+    print('인코더', len(out), '항목 →', dst, flush=True)
+
+
 def feat_grid(in_w, stride):
     """기본 입력(in_w × in_w·9/16)에서 ResNet 특징 칸 수 — conv1·maxpool·layer2(·layer3)가 각각 올림 반."""
     h, w = in_w * 9 // 16, in_w
@@ -427,6 +449,17 @@ def train(a):
               sine=cfg.get('sine', False), grid=cfg.get('grid')).to(dev)
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=0.01)
     net.grad_ckpt = bool(st.get('grad_ckpt'))
+    if a.init_encoder and not saved:   # 이전 픽셀 지도 모델 인코더에서 출발(새로 시작할 때만, 이어하기는 저장본 그대로)
+        enc = torch.load(a.init_encoder, map_location='cpu', weights_only=False)
+        own = net.state_dict()
+        bad = [key for key, v in enc['model'].items() if key not in own or own[key].shape != v.shape]
+        if bad:
+            raise SystemExit(f'인코더 파일이 이 모델과 안 맞음: {bad[:5]}')
+        net.load_state_dict(enc['model'], strict=False)
+        cfg['init_encoder'] = enc.get('src', os.path.basename(a.init_encoder))
+        print('인코더 이어 쓰기:', cfg['init_encoder'], len(enc['model']), '항목', flush=True)
+    elif a.init_encoder:
+        print('주의: 이어하기라 --init-encoder 무시(저장본 그대로)', flush=True)
     if saved:
         net.load_state_dict(saved['model'])
         opt.load_state_dict(saved['opt'])
@@ -777,6 +810,7 @@ def main():
     t.add_argument('--stage-frac', default='0.2,0.25,0.25,0.3', help='단계별 학습 시간 비율(고해상도들 + 기본, 합 1)')
     t.add_argument('--stage-mix', type=float, default=0.3, help='각 단계에서 앞 단계 자료를 섞는 비율')
     t.add_argument('--px-budget', type=float, default=8.0, help='한 묶음 그림 화소 한도(백만). 1080은 3장·720은 8장. 메모리 부족이면 자동으로 줄인다')
+    t.add_argument('--init-encoder', default='', help='vec-encoder로 만든 인코더 파일에서 출발(새로 시작할 때만)')
     t.add_argument('--grad-ckpt', action='store_true', help='처음부터 체크포인팅(메모리 절약, 느림). 꺼 두면 메모리 부족 때 자동으로 켠다')
     d = sub.add_parser('draw')
     d.add_argument('ckpt')
@@ -785,8 +819,14 @@ def main():
     d.add_argument('--n', type=int, default=6)
     d.add_argument('--seed', type=int, default=0)
     d.add_argument('--sfa')
+    v = sub.add_parser('vec-encoder', help='이전 픽셀 지도 모델(vec_train best.pt) → 인코더 파일')
+    v.add_argument('src')
+    v.add_argument('dst')
     a = ap.parse_args()
-    train(a) if a.cmd == 'train' else draw(a)
+    if a.cmd == 'vec-encoder':
+        vec_encoder(a.src, a.dst)
+    else:
+        train(a) if a.cmd == 'train' else draw(a)
 
 
 if __name__ == '__main__':
