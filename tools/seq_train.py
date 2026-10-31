@@ -605,7 +605,7 @@ def train(a):
         if s_idx:
             out.update(gen_set(sv, s_idx, 'shift'))
         if js is not None:
-            out.update(judge_eval(a.judge_dirs_final if final else a.judge_dirs))
+            out.update(judge_eval(a.judge_dirs_final if final else a.judge_dirs, final))
         return out
 
     def gen_img(im, hwr):
@@ -623,33 +623,32 @@ def train(a):
                 torch.cuda.empty_cache()
             return None
 
-    def judge_eval(nd):
+    def judge_eval(nd, final=False):
+        """판정(판정 기준 §2). 그때 배우는 해상도 단계 폭의 그림으로 묻는다(11-01: 1080 단계에 360 영상을 넣으면 위치를 못 읽는 것과
+        처음 보는 화질을 구분할 수 없다). 마지막 판정이 고해상도 단계면 기본 입력(360) 공식 2방향도 따로(judge360_)."""
         net.eval()
         t1 = time.time()
+        w = widths[st['stage']]
+        w = w if w in js.stage else cfg['in_w']
         try:
-            res, gens = J.evaluate(js, lambda i, d: gen_img(js.image(i, d), js.ents[i]['hwr']), dirs=range(nd), memo=memo[nd])
+            res, gens = J.evaluate(js, lambda i, d: gen_img(js.image(i, d, w), js.ents[i]['hwr']), dirs=range(nd), memo=memo[nd])
             rec_ = J.flat(res)
-            rec_['judge_dirs'] = nd
-            # 현재 단계 해상도 대 기본 입력(고정 앞 몇 장, 공식 방향 0): 같은 장을 두 해상도로 생성해 위치·형상 부분 점수 비교
-            w = widths[st['stage']]
-            if w in js.stage:
-                sv_, bv_ = [], []
-                for i in range(len(js.stage[w])):
-                    r = gen_img(js.stage[w][i], js.ents[i]['hwr'])
-                    if r is not None and gens.get((i, 0)) is not None:
-                        sv_.append(J.S(r[0], js.tok[i][0], js.ents[i]['hwr'])[0])
-                        bv_.append(J.S(gens[i, 0], js.tok[i][0], js.ents[i]['hwr'])[0])
-                rec_.update(judge_stage_w=w, judge_stage_n=len(sv_), judge_stage_S=J._mean(sv_), judge_base_S=J._mean(bv_))
+            rec_.update(judge_dirs=nd, judge_w=w)
+            print(f'[{w}폭]', J.summary_line(res), f"({round(time.time() - t1)}초, {nd}방향)", flush=True)
+            judge_sheet(gens, w)
+            if final and w != cfg['in_w']:
+                t2 = time.time()
+                r2, _ = J.evaluate(js, lambda i, d: gen_img(js.image(i, d), js.ents[i]['hwr']), dirs=range(2), memo=memo[2])
+                rec_.update(J.flat(r2, 'judge360_'))
+                print(f"[{cfg['in_w']}폭]", J.summary_line(r2), f"({round(time.time() - t2)}초, 2방향)", flush=True)
             rec_['judge_sec'] = round(time.time() - t1)
-            print(J.summary_line(res), f"({rec_['judge_sec']}초, {nd}방향)", flush=True)
-            judge_sheet(gens)
         finally:
             net.train()
             if dev == 'cuda':
                 torch.cuda.empty_cache()
         return rec_
 
-    def judge_sheet(gens):
+    def judge_sheet(gens, w=None):
         """고정 그림 시트: 평가 목록 앞 sheet_n장의 공식 방향 0 — 입력 영상 | AI SFA | 정답 SFA(골라 보여 주지 않음)."""
         try:
             import sfa_render as R
@@ -664,7 +663,7 @@ def train(a):
                 p_ = gens.get((i, 0))
                 im_p = R.render_frame(seq, K.decode(p_), Wd, Hd) if p_ is not None else np.zeros((Hd, Wd, 3), np.uint8)
                 im_a = R.render_frame(seq, K.decode([int(t) for t in js.tok[i][0]]), Wd, Hd)
-                src = cv2.resize(js.image(i, 0), (Wd, Hd))
+                src = cv2.resize(js.image(i, 0, w), (Wd, Hd))
                 row = np.hstack([src, im_p[..., :3], im_a[..., :3]])
                 rows_.append(cv2.resize(row, (3 * Wd, int(round(Wd * 9 / 16)))))
             if rows_:

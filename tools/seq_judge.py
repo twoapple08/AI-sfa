@@ -8,7 +8,7 @@
 - 작품 묶음: 정확 사본(파일 바이트·전체 토큰·고른 장 토큰 해시)만 자동으로 묶는다. 나머지는 '미확정'으로 기록(§5).
 사용:
   python seq_judge.py manifest [--out data/judge_manifest.json]      평가 목록 만들기(모델 출력을 보기 전에)
-  python seq_judge.py build 출력폴더 [--W 640] [--stage-w 1920,1280,854]   목록대로 4방향 영상·정답 자료(judge.npz)
+  python seq_judge.py build 출력폴더 [--W 640] [--stage-w 1920,1280,854]   목록대로 4방향 영상·정답 자료(judge.npz, 단계 폭마다도)
   python seq_judge.py baseline 출력폴더                               외움 기준선(원래 자리 정답을 그대로 냈을 때)
 """
 import argparse
@@ -31,7 +31,8 @@ import sfa_tokens as K  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MANIFEST = os.path.join(HERE, '..', 'data', 'judge_manifest.json')
-JUDGE_VERSION = 1
+JUDGE_VERSION = 1        # 평가 목록 판
+DATA_VERSION = 2         # judge.npz 판. 2(11-01): 해상도 단계 폭마다 모든 장·4방향 그림(JPEG) — 그때 배우는 해상도로 판정
 # 이동 4방향(배율 모두 1.05, GPT 2차 §B). 0·1 = 공식 반대 방향 쌍, 2·3 = 축별 진단용(별도 합격 기회 아님)
 DIRS = ((6.0, 4.0, 1.05), (-6.0, -4.0, 1.05), (6.0, -4.0, 1.05), (-6.0, 4.0, 1.05))
 OFFICIAL = (0, 1)
@@ -233,10 +234,11 @@ def load_manifest(path=MANIFEST):
     return m
 
 
-def build_data(m, root_dir, out_dir, W=640, stage_ws=(), n_stage=6):
+def build_data(m, root_dir, out_dir, W=640, stage_ws=()):
     """목록의 장마다 4방향 그림(파일 비율 렌더 → H.264 한 장 압축·복원 → 입력 크기) + 방향별 정답 토큰 + 원래 자리 정답 토큰.
     압축 세기는 장마다 고정 난수, 네 방향 같은 값(입력 교환이 화질 차이에 좌우되지 않게).
-    stage_ws: 해상도 단계 폭마다 공식 방향 0 그림을 앞 n_stage장만 따로(현재 단계 해상도 대 기본 입력 비교용)."""
+    stage_ws: 해상도 단계 폭마다 같은 장·4방향 그림을 JPEG(품질 95)로 따로 — 학습이 그 해상도 단계일 때 그 해상도로 판정(11-01: 1080 단계에서
+    360 영상으로 물으면 위치를 못 읽는 것과 처음 보는 화질을 구분할 수 없다)."""
     import cv2
     import sfa_render as R
     import vec_data as V
@@ -270,16 +272,19 @@ def build_data(m, root_dir, out_dir, W=640, stage_ws=(), n_stage=6):
                 h = w * 9 // 16
                 return im if hr == h else cv2.resize(im, (w, h), interpolation=cv2.INTER_AREA if hr > h else cv2.INTER_LINEAR)
             imgs.append(shot(W))
-            if j == 0 and ei < n_stage:
-                for w in stage_ws:
-                    stage[w].append(shot(w))
+            for w in stage_ws:
+                stage[w].append(cv2.imencode('.jpg', shot(w)[..., ::-1], [cv2.IMWRITE_JPEG_QUALITY, 95])[1].ravel())
         print(f"{ei + 1}/{len(m['entries'])} {e['file']} 장 {e['pos']} crf {crf}", flush=True)
     cat = lambda xs: (np.concatenate(xs) if xs else np.zeros(0, np.int16), np.cumsum([0] + [len(x) for x in xs]))  # noqa: E731
     tk, off = cat(toks)
     tk0, off0 = cat(toks0)
-    meta = dict(version=JUDGE_VERSION, W=W, H=H, vocab=K.VOCAB, dirs=DIRS, manifest_sha=manifest_sha(m), stage_ws=list(stage_ws), n_stage=n_stage,
+    meta = dict(version=DATA_VERSION, W=W, H=H, vocab=K.VOCAB, dirs=DIRS, manifest_sha=manifest_sha(m), stage_ws=list(stage_ws),
                 entries=[dict(file=e['file'], pos=e['pos'], hwr=e['hwr'], group=e['group'], all4=e['all4']) for e in m['entries']])
-    extra = {f'stage{w}': np.stack(v) for w, v in stage.items() if v}
+    extra = {}
+    for w, v in stage.items():
+        if v:
+            extra[f'stage{w}_jpg'] = np.concatenate(v)
+            extra[f'stage{w}_off'] = np.cumsum([0] + [len(x) for x in v])
     tmp = os.path.join(out_dir, 'judge.npz.tmp')
     with open(tmp, 'wb') as fh:
         np.savez_compressed(fh, img=np.stack(imgs), tok=tk, off=off, tok0=tk0, off0=off0, meta=json.dumps(meta, ensure_ascii=False), **extra)
@@ -297,7 +302,7 @@ class JudgeSet:
         import cv2
         z = np.load(os.path.join(folder, 'judge.npz'))
         self.meta = json.loads(str(z['meta']))
-        if self.meta.get('version') != JUDGE_VERSION or self.meta['vocab'] != K.VOCAB:
+        if self.meta.get('version') != DATA_VERSION or self.meta['vocab'] != K.VOCAB:
             raise SystemExit(f'판정 자료 판·어휘가 코드와 다름: {folder}')
         img = z['img']
         if in_w and img.shape[2] != in_w:
@@ -309,7 +314,7 @@ class JudgeSet:
         self.tok = [[tok[off[i * nd + d]:off[i * nd + d + 1]].astype(np.int64) for d in range(nd)] for i in range(len(self.ents))]
         tok0, off0 = z['tok0'], z['off0']
         self.tok0 = [tok0[off0[i]:off0[i + 1]].astype(np.int64) for i in range(len(self.ents))]
-        self.stage = {int(k[5:]): z[k] for k in z.files if k.startswith('stage')}
+        self.stage = {int(k[5:-4]): (z[k], z[k[:-4] + '_off']) for k in z.files if k.startswith('stage') and k.endswith('_jpg')}
 
     def __len__(self):
         return len(self.ents)
@@ -319,10 +324,16 @@ class JudgeSet:
         nd = len(self.meta['dirs'])
         self.ents, self.tok, self.tok0 = self.ents[:n], self.tok[:n], self.tok0[:n]
         self.img = self.img[:n * nd]
-        self.stage = {w: v[:n] for w, v in self.stage.items()}
+        self.stage = {w: (jp, off[:n * nd + 1]) for w, (jp, off) in self.stage.items()}
 
-    def image(self, i, d):
-        return self.img[i * len(self.meta['dirs']) + d]
+    def image(self, i, d, w=None):
+        """장 i·방향 d 그림. w가 해상도 단계 폭이면 그 폭 그림(16:9 입력 크기), 아니면 기본 입력."""
+        k = i * len(self.meta['dirs']) + d
+        if w in self.stage:
+            import cv2
+            jp, off = self.stage[w]
+            return cv2.imdecode(jp[off[k]:off[k + 1]], cv2.IMREAD_COLOR)[..., ::-1]
+        return self.img[k]
 
 
 # ---------- 평가 ----------
@@ -476,7 +487,6 @@ def main():
     b.add_argument('--manifest', default=MANIFEST)
     b.add_argument('--W', type=int, default=640)
     b.add_argument('--stage-w', default='1920,1280,854')
-    b.add_argument('--n-stage', type=int, default=6)
     c = sub.add_parser('baseline')
     c.add_argument('out_dir')
     a = ap.parse_args()
@@ -497,12 +507,13 @@ def main():
         done = os.path.join(a.out_dir, 'judge.npz')
         if os.path.exists(done):
             try:
-                if JudgeSet(a.out_dir).meta['manifest_sha'] == manifest_sha(mf):
+                jm = JudgeSet(a.out_dir).meta
+                if jm['manifest_sha'] == manifest_sha(mf) and jm.get('stage_ws') == sw:
                     print('이미 같은 평가 목록으로 만듦 — 건너뜀', a.out_dir, flush=True)
                     return
             except SystemExit:
                 pass
-        build_data(mf, V.ROOT, a.out_dir, a.W, sw, a.n_stage)
+        build_data(mf, V.ROOT, a.out_dir, a.W, sw)
     else:
         js = JudgeSet(a.out_dir)
         print(f'외움 기준선(4방향 평균): {memo_baseline(js):.2f}점, 공식 2방향: {memo_baseline(js, OFFICIAL):.2f}점 ({len(js)}장)', flush=True)

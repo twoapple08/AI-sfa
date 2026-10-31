@@ -121,12 +121,53 @@ def name_key(f):
     return re.sub(r'[\s_-]*\d+$', '', b)
 
 
+def apply(bundles_path, manifest_path=J.MANIFEST):
+    """높은 확률 후보 쌍을 평가 목록의 같은 묶음(한 표)으로 합친다. 정확 사본 묶음은 그대로. 합치는 쪽이 부호 검정에 보수적."""
+    with open(bundles_path, encoding='utf-8') as fh:
+        b = json.load(fh)
+    with open(manifest_path, encoding='utf-8') as fh:
+        m = json.load(fh)
+    ents = m['entries']
+    gid = {e['file']: e['group'] for e in ents}
+    par = {g: g for g in set(gid.values())}
+
+    def find(g):
+        while par[g] != g:
+            g = par[g]
+        return g
+    for h in b['high']:
+        if h['a'] in gid and h['b'] in gid:
+            par[find(gid[h['a']])] = find(gid[h['b']])
+    roots = {}
+    for e in ents:
+        e['group'] = roots.setdefault(find(e['group']), len(roots))
+    groups = []
+    for g in range(len(roots)):
+        files = [e['file'] for e in ents if e['group'] == g]
+        if len(files) == 1:
+            st = '단독(변형 미발견, 미확정)'
+        elif any(h['a'] in files and h['b'] in files for h in b['high']):
+            st = '높은 확률 후보(§5 같은 그림 장 공유)'
+        else:
+            st = '정확 사본'
+        groups.append(dict(id=g, files=files, status=st))
+    m['groups'], m['n_units'] = groups, len(groups)
+    m['bundle_check'] = dict(tool='seq_bundle.py', threshold=b['threshold'], high=b['high'], weak=b['weak'], frames_per_file=b['frames_per_file'],
+                             note='약한 공유는 미확정으로 두고 합치지 않음. 회전·반전·다시 그린 변형은 못 찾을 수 있음')
+    with open(manifest_path, 'w', encoding='utf-8') as fh:
+        json.dump(m, fh, ensure_ascii=False, indent=1)
+    print(f"평가 목록 묶음 갱신: 독립 단위 {m['n_units']} (필요 {J.need_wins(m['n_units'])}승)", flush=True)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--frames', type=int, default=16)
+    ap.add_argument('--apply', default='', help='판정 결과 json의 높은 확률 후보를 평가 목록 묶음에 반영하고 끝냄')
     ap.add_argument('--random-pairs', type=int, default=150)
     ap.add_argument('--out', default=os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'judge_bundles.json'))
     a = ap.parse_args()
+    if a.apply:
+        return apply(a.apply)
     t0 = time.time()
     m = J.load_manifest()
     ev = [e['file'] for e in m['entries']]

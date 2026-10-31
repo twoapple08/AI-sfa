@@ -1,0 +1,1049 @@
+{
+ "version": 1,
+ "frames_per_file": 16,
+ "same_frame_f1": 0.8,
+ "top": 3,
+ "max_obj": 400,
+ "threshold": 0.5,
+ "aligned": 4950,
+ "skipped_big": 34,
+ "common_frames": 33,
+ "ref_files": 80,
+ "common_at": 2,
+ "seconds": 1042,
+ "calib": {
+  "name_pairs": 200,
+  "random_pairs": 150,
+  "name_q": [
+   0.0,
+   0.0,
+   0.0,
+   0.0,
+   0.125
+  ],
+  "random_q": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "random_max": 0.0,
+  "name_ge_thr": 5
+ },
+ "eval_pairs": 1035,
+ "high": [
+  {
+   "a": "묶음1_Sfa__zip/StickFigureNew.sfa",
+   "b": "묶음2_Drive/Dhdj_SPECTRUM-2.sfa",
+   "share": 1.0
+  }
+ ],
+ "weak": [
+  {
+   "a": "묶음2_Drive/푸르름이 죽는 곳.sfa",
+   "b": "묶음2_Drive/( ´ ▽ ` )ﾉ.sfa",
+   "share": 0.071
+  }
+ ],
+ "name_pairs": [
+  {
+   "a": "묶음1_Sfa__zip/2-1.sfa",
+   "b": "묶음1_Sfa__zip/2-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/2_SPECTRUM.sfa",
+   "b": "묶음2_Drive/2_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/Bjklv_SPECTRUM.sfa",
+   "b": "묶음6_추가/Bjklv_SPECTRUM.sfa",
+   "share": 1.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/Boom_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/Boom_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/City2_SPECTRUM.sfa",
+   "b": "묶음6_추가/City2_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/H_SPECTRUM.sfa",
+   "b": "묶음2_Drive/H_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/Hggggg_SPECTRUM.sfa",
+   "b": "묶음6_추가/Hggggg_SPECTRUM (1).sfa",
+   "share": 0.267
+  },
+  {
+   "a": "묶음1_Sfa__zip/Hhwvwg_SPECTRUM (1).sfa",
+   "b": "묶음6_추가/Hhwvwg_SPECTRUM-1.sfa",
+   "share": 1.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/Se_SPECTRUM (2).sfa",
+   "b": "묶음1_Sfa__zip/Se_SPECTRUM (3).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/Se_SPECTRUM (2).sfa",
+   "b": "묶음1_Sfa__zip/Se_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/Se_SPECTRUM (3).sfa",
+   "b": "묶음1_Sfa__zip/Se_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/Sksk_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/Sksk_SPECTRUM.sfa",
+   "share": 0.933
+  },
+  {
+   "a": "묶음1_Sfa__zip/Vanel_SPECTRUM (2).sfa",
+   "b": "묶음1_Sfa__zip/Vanel_SPECTRUM.sfa",
+   "share": 0.786
+  },
+  {
+   "a": "묶음1_Sfa__zip/Wkek_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/Wkek_SPECTRUM (2).sfa",
+   "share": 0.312
+  },
+  {
+   "a": "묶음1_Sfa__zip/Wkek_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/Wkek_SPECTRUM (3).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/Wkek_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/Wkek_SPECTRUM.sfa",
+   "share": 0.357
+  },
+  {
+   "a": "묶음1_Sfa__zip/Wkek_SPECTRUM (2).sfa",
+   "b": "묶음1_Sfa__zip/Wkek_SPECTRUM (3).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/Wkek_SPECTRUM (2).sfa",
+   "b": "묶음1_Sfa__zip/Wkek_SPECTRUM.sfa",
+   "share": 0.357
+  },
+  {
+   "a": "묶음1_Sfa__zip/Wkek_SPECTRUM (3).sfa",
+   "b": "묶음1_Sfa__zip/Wkek_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (3).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (4).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (5).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "b": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM (7).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "b": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "b": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "b": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "b": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/_SPECTRUM.sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "share": 0.125
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "share": 0.625
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.062
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.125
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "share": 0.125
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.062
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (126).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.062
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.062
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (130).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.188
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM (84).sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/_SPECTRUM-1.sfa",
+   "b": "묶음2_Drive/_SPECTRUM-2.sfa",
+   "share": 0.062
+  },
+  {
+   "a": "묶음1_Sfa__zip/바람.sfa",
+   "b": "묶음2_Drive/바람2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음1_Sfa__zip/스가구신버1.sfa",
+   "b": "묶음2_Drive/스가구신버2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/40_1.sfa",
+   "b": "묶음2_Drive/40_2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/40_1.sfa",
+   "b": "묶음2_Drive/40_3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/40_2.sfa",
+   "b": "묶음2_Drive/40_3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM (9).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-1.sfa",
+   "share": 0.062
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-3.sfa",
+   "share": 0.067
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (1).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM.sfa",
+   "share": 0.188
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM (9).sfa",
+   "share": 0.067
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-1.sfa",
+   "share": 0.067
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-2.sfa",
+   "share": 0.133
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-3.sfa",
+   "share": 0.133
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (2).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM.sfa",
+   "share": 0.125
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (9).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-1.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (9).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-2.sfa",
+   "share": 0.062
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (9).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-3.sfa",
+   "share": 0.067
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM (9).sfa",
+   "b": "묶음2_Drive/X_SPECTRUM.sfa",
+   "share": 0.062
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM-1.sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-2.sfa",
+   "share": 0.062
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM-1.sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-3.sfa",
+   "share": 0.067
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM-1.sfa",
+   "b": "묶음2_Drive/X_SPECTRUM.sfa",
+   "share": 0.25
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM-2.sfa",
+   "b": "묶음2_Drive/X_SPECTRUM-3.sfa",
+   "share": 0.133
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM-2.sfa",
+   "b": "묶음2_Drive/X_SPECTRUM.sfa",
+   "share": 0.375
+  },
+  {
+   "a": "묶음2_Drive/X_SPECTRUM-3.sfa",
+   "b": "묶음2_Drive/X_SPECTRUM.sfa",
+   "share": 0.133
+  },
+  {
+   "a": "묶음2_Drive/깨진 땅2.sfa",
+   "b": "묶음2_Drive/깨진 땅3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/구름1.sfa",
+   "b": "묶음2_Drive/구름2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/구름1.sfa",
+   "b": "묶음2_Drive/구름3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/구름2.sfa",
+   "b": "묶음2_Drive/구름3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/B_SPECTRUM.sfa",
+   "b": "묶음6_추가/B_SPECTRUM.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/모션작1.sfa",
+   "b": "묶음2_Drive/모션작2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/모션작1.sfa",
+   "b": "묶음2_Drive/모션작3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/모션작1.sfa",
+   "b": "묶음2_Drive/모션작4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/모션작2.sfa",
+   "b": "묶음2_Drive/모션작3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/모션작2.sfa",
+   "b": "묶음2_Drive/모션작4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/모션작3.sfa",
+   "b": "묶음2_Drive/모션작4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/폭발 1.sfa",
+   "b": "묶음2_Drive/폭발 2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/폭발 1.sfa",
+   "b": "묶음2_Drive/폭발 3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/폭발 1.sfa",
+   "b": "묶음2_Drive/폭발 4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/폭발 2.sfa",
+   "b": "묶음2_Drive/폭발 3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/폭발 2.sfa",
+   "b": "묶음2_Drive/폭발 4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/폭발 3.sfa",
+   "b": "묶음2_Drive/폭발 4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/1.sfa",
+   "b": "묶음2_Drive/2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/1.sfa",
+   "b": "묶음3_무기도구/29100.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/1.sfa",
+   "b": "묶음5_페인트/922.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/2.sfa",
+   "b": "묶음3_무기도구/29100.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/2.sfa",
+   "b": "묶음5_페인트/922.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음3_무기도구/29100.sfa",
+   "b": "묶음5_페인트/922.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/Background 1.sfa",
+   "b": "묶음2_Drive/Background 2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (11).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (14).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (11).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (4).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (11).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (5).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (11).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (6).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (11).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (7).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (14).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (4).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (14).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (5).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (14).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (6).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (14).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (7).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (4).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (5).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (4).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (6).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (4).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (7).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (5).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (6).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (5).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (7).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/K1ro_SPECTRUM (6).sfa",
+   "b": "묶음2_Drive/K1ro_SPECTRUM (7).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/연습2.sfa",
+   "b": "묶음5_페인트/연습.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/검-1.sfa",
+   "b": "묶음2_Drive/검.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/X-1.sfa",
+   "b": "묶음2_Drive/X.sfa",
+   "share": 0.062
+  },
+  {
+   "a": "묶음2_Drive/건물1.sfa",
+   "b": "묶음2_Drive/건물2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/충격파.sfa",
+   "b": "묶음3_무기도구/충격파2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/검정검.sfa",
+   "b": "묶음2_Drive/검정검2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/Dhdj_SPECTRUM-2.sfa",
+   "b": "묶음2_Drive/Dhdj_SPECTRUM.sfa",
+   "share": 0.438
+  },
+  {
+   "a": "묶음2_Drive/SPECTRUM_30.sfa",
+   "b": "묶음2_Drive/SPECTRUM_31.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/연기 1.sfa",
+   "b": "묶음2_Drive/연기 2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/연기 1.sfa",
+   "b": "묶음2_Drive/연기 3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/연기 1.sfa",
+   "b": "묶음2_Drive/연기 4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/연기 2.sfa",
+   "b": "묶음2_Drive/연기 3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/연기 2.sfa",
+   "b": "묶음2_Drive/연기 4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/연기 3.sfa",
+   "b": "묶음2_Drive/연기 4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "면변환/묶음2_Drive/1_SPECTRUM (7).sfa",
+   "b": "묶음2_Drive/1_SPECTRUM (2).sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음2_Drive/unknown-1.sfa",
+   "b": "묶음2_Drive/unknown.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음3_무기도구/이펙트3.sfa",
+   "b": "묶음3_무기도구/이펙트4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음3_무기도구/카키 이펙트.sfa",
+   "b": "묶음3_무기도구/카키 이펙트2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음3_무기도구/피격1.sfa",
+   "b": "묶음3_무기도구/피격2.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음3_무기도구/피격1.sfa",
+   "b": "묶음3_무기도구/피격3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음3_무기도구/피격1.sfa",
+   "b": "묶음3_무기도구/피격4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음3_무기도구/피격2.sfa",
+   "b": "묶음3_무기도구/피격3.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음3_무기도구/피격2.sfa",
+   "b": "묶음3_무기도구/피격4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음3_무기도구/피격3.sfa",
+   "b": "묶음3_무기도구/피격4.sfa",
+   "share": 0.0
+  },
+  {
+   "a": "묶음5_페인트/교슾소 막고라 vs 이민재 part.1.sfa",
+   "b": "묶음5_페인트/교슾소 막고라 vs 이민재 part.2.sfa",
+   "share": 0.0
+  }
+ ]
+}

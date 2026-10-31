@@ -37,7 +37,10 @@ def table(rows):
     for r in rows:
         rc, pr = r.get('gen_recall'), r.get('gen_precision')
         gf1 = 2 * rc * pr / (rc + pr) if rc is not None and pr and rc + pr else (0.0 if rc is not None else None)
-        win = f"{r.get('judge_win')}/{r.get('judge_N')}({r.get('judge_need')})" + (' 통과' if r.get('judge_passed') else '') if r.get('judge_N') else '-'
+        win = (f"{r.get('judge_win')}/{r.get('judge_N')}({r.get('judge_need')})" + (' 통과' if r.get('judge_passed') else '')
+               + (f" @{r['judge_w']}" if r.get('judge_w') else '')) if r.get('judge_N') else '-'
+        if r.get('judge360_N'):
+            win += f" · 360폭 {r.get('judge360_win')}/{r.get('judge360_N')}" + (' 통과' if r.get('judge360_passed') else '')
         hp = r.get('judge_health_passed')
         lines.append('| ' + ' | '.join([
             f(r.get('minutes'), 0), str(r.get('step', '-')), str(r.get('stage_w', '마지막' if r.get('final') else '-')), win,

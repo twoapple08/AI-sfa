@@ -137,6 +137,20 @@ class TestManifest(unittest.TestCase):
             t = K.encode(base, base.findall('Frame')[e['index']])[0]
             self.assertEqual(hashlib.sha1(np.array(t, np.int32).tobytes()).hexdigest()[:16], e['frame_hash'])
 
+    def test_stage_width_images(self):
+        """판정 자료(판 2): 단계 폭마다 같은 장·4방향 그림 — 그때 배우는 해상도로 판정(11-01)."""
+        import tempfile
+        m = J.load_manifest()
+        m['entries'] = m['entries'][:1]
+        with tempfile.TemporaryDirectory() as d:
+            J.build_data(m, V.ROOT, d, 640, (854,))
+            js = J.JudgeSet(d)
+            self.assertEqual(js.image(0, 3).shape, (360, 640, 3))
+            self.assertEqual(js.image(0, 3, 854).shape, (480, 854, 3))
+            self.assertEqual(js.image(0, 3, 1920).shape, (360, 640, 3))   # 없는 폭이면 기본 입력
+            js.keep(1)
+            self.assertEqual(js.image(0, 0, 854).shape, (480, 854, 3))
+
     def test_pick_is_reproducible(self):
         files = V.file_list()[::J.EVERY][:4]
         a = J.build_manifest(files, V.ROOT)

@@ -33,7 +33,7 @@
  "maxlen": 2048,
  "files": 81,
  "n_entries": 46,
- "n_units": 46,
+ "n_units": 45,
  "entries": [
   {
    "file": "묶음1_Sfa__zip/Connecting_line.sfa",
@@ -1335,7 +1335,7 @@
      "fields_ok": true
     }
    ],
-   "group": 30
+   "group": 5
   },
   {
    "file": "묶음2_Drive/黑鞘.sfa",
@@ -1377,7 +1377,7 @@
      "fields_ok": true
     }
    ],
-   "group": 31
+   "group": 30
   },
   {
    "file": "묶음2_Drive/unknown.sfa",
@@ -1419,7 +1419,7 @@
      "fields_ok": true
     }
    ],
-   "group": 32
+   "group": 31
   },
   {
    "file": "묶음2_Drive/City_SPECTRUMCity_SPECTRUM.bin.sfa",
@@ -1461,7 +1461,7 @@
      "fields_ok": true
     }
    ],
-   "group": 33
+   "group": 32
   },
   {
    "file": "묶음3_무기도구/combo.sfa",
@@ -1503,7 +1503,7 @@
      "fields_ok": true
     }
    ],
-   "group": 34
+   "group": 33
   },
   {
    "file": "묶음3_무기도구/검 이펙인데요_____.sfa",
@@ -1545,7 +1545,7 @@
      "fields_ok": true
     }
    ],
-   "group": 35
+   "group": 34
   },
   {
    "file": "묶음3_무기도구/rUsh_backup.sfa",
@@ -1587,7 +1587,7 @@
      "fields_ok": true
     }
    ],
-   "group": 36
+   "group": 35
   },
   {
    "file": "묶음3_무기도구/one-handed sword.sfa",
@@ -1629,7 +1629,7 @@
      "fields_ok": true
     }
    ],
-   "group": 37
+   "group": 36
   },
   {
    "file": "묶음3_무기도구/ax.sfa",
@@ -1671,7 +1671,7 @@
      "fields_ok": true
     }
    ],
-   "group": 38
+   "group": 37
   },
   {
    "file": "묶음3_무기도구/간단 낫.sfa",
@@ -1713,7 +1713,7 @@
      "fields_ok": true
     }
    ],
-   "group": 39
+   "group": 38
   },
   {
    "file": "묶음5_페인트/922.sfa",
@@ -1755,7 +1755,7 @@
      "fields_ok": true
     }
    ],
-   "group": 40
+   "group": 39
   },
   {
    "file": "묶음5_페인트/칼싸움.sfa",
@@ -1797,7 +1797,7 @@
      "fields_ok": true
     }
    ],
-   "group": 41
+   "group": 40
   },
   {
    "file": "묶음6_추가/Ekkee_Pivot (2).sfa",
@@ -1839,7 +1839,7 @@
      "fields_ok": true
     }
    ],
-   "group": 42
+   "group": 41
   },
   {
    "file": "묶음6_추가/Ididkr_Pivot (2).sfa",
@@ -1881,7 +1881,7 @@
      "fields_ok": true
     }
    ],
-   "group": 43
+   "group": 42
   },
   {
    "file": "묶음6_추가/Jsjw_SPECTRUM.sfa",
@@ -1923,7 +1923,7 @@
      "fields_ok": true
     }
    ],
-   "group": 44
+   "group": 43
   },
   {
    "file": "묶음5_페인트/포이즌 파트2.sfa",
@@ -1965,7 +1965,7 @@
      "fields_ok": true
     }
    ],
-   "group": 45
+   "group": 44
   }
  ],
  "excluded": [
@@ -2264,323 +2264,337 @@
    "files": [
     "묶음1_Sfa__zip/Connecting_line.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 1,
    "files": [
     "묶음1_Sfa__zip/Dudu_SPECTRUM.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 2,
    "files": [
     "묶음1_Sfa__zip/Hjll_SPECTRUM.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 3,
    "files": [
     "묶음1_Sfa__zip/Kllll_SPECTRUM.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 4,
    "files": [
     "묶음1_Sfa__zip/Rider_Coord_Fix_Part15_Pivot.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 5,
    "files": [
-    "묶음1_Sfa__zip/StickFigureNew.sfa"
+    "묶음1_Sfa__zip/StickFigureNew.sfa",
+    "묶음2_Drive/Dhdj_SPECTRUM-2.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "높은 확률 후보(§5 같은 그림 장 공유)"
   },
   {
    "id": 6,
    "files": [
     "묶음1_Sfa__zip/Vanel_SPECTRUM.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 7,
    "files": [
     "묶음1_Sfa__zip/Wkek_SPECTRUM (2).sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 8,
    "files": [
     "묶음1_Sfa__zip/_Pivot.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 9,
    "files": [
     "묶음1_Sfa__zip/_SPECTRUM (5).sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 10,
    "files": [
     "묶음1_Sfa__zip/나진짜너무슬프고속상하고.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 11,
    "files": [
     "묶음1_Sfa__zip/월남폭암.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 12,
    "files": [
     "묶음1_Sfa__zip/프라이팬.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 13,
    "files": [
     "묶음2_Drive/스가구신버2.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 14,
    "files": [
     "묶음2_Drive/(뉴스쿨 이펙 예시-1)-1.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 15,
    "files": [
     "묶음2_Drive/Stickman_SPECTRUM.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 16,
    "files": [
     "묶음2_Drive/만월(한자).sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 17,
    "files": [
     "묶음2_Drive/십자검.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 18,
    "files": [
     "묶음2_Drive/2.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 19,
    "files": [
     "묶음2_Drive/ftt.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 20,
    "files": [
     "묶음2_Drive/구름1.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 21,
    "files": [
     "묶음2_Drive/검기-1.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 22,
    "files": [
     "묶음2_Drive/검정검2.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 23,
    "files": [
     "묶음2_Drive/리파인 오크소드.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 24,
    "files": [
     "묶음2_Drive/화면강조이펙트.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 25,
    "files": [
     "묶음2_Drive/연기 2.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 26,
    "files": [
     "묶음2_Drive/SPECTRUM_30.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 27,
    "files": [
     "묶음2_Drive/푸르름이 죽는 곳.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 28,
    "files": [
     "묶음2_Drive/( ´ ▽ ` )ﾉ.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 29,
    "files": [
     "묶음2_Drive/1_SPECTRUM (2).sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 30,
    "files": [
-    "묶음2_Drive/Dhdj_SPECTRUM-2.sfa"
+    "묶음2_Drive/黑鞘.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 31,
    "files": [
-    "묶음2_Drive/黑鞘.sfa"
+    "묶음2_Drive/unknown.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 32,
    "files": [
-    "묶음2_Drive/unknown.sfa"
+    "묶음2_Drive/City_SPECTRUMCity_SPECTRUM.bin.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 33,
    "files": [
-    "묶음2_Drive/City_SPECTRUMCity_SPECTRUM.bin.sfa"
+    "묶음3_무기도구/combo.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 34,
    "files": [
-    "묶음3_무기도구/combo.sfa"
+    "묶음3_무기도구/검 이펙인데요_____.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 35,
    "files": [
-    "묶음3_무기도구/검 이펙인데요_____.sfa"
+    "묶음3_무기도구/rUsh_backup.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 36,
    "files": [
-    "묶음3_무기도구/rUsh_backup.sfa"
+    "묶음3_무기도구/one-handed sword.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 37,
    "files": [
-    "묶음3_무기도구/one-handed sword.sfa"
+    "묶음3_무기도구/ax.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 38,
    "files": [
-    "묶음3_무기도구/ax.sfa"
+    "묶음3_무기도구/간단 낫.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 39,
    "files": [
-    "묶음3_무기도구/간단 낫.sfa"
+    "묶음5_페인트/922.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 40,
    "files": [
-    "묶음5_페인트/922.sfa"
+    "묶음5_페인트/칼싸움.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 41,
    "files": [
-    "묶음5_페인트/칼싸움.sfa"
+    "묶음6_추가/Ekkee_Pivot (2).sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 42,
    "files": [
-    "묶음6_추가/Ekkee_Pivot (2).sfa"
+    "묶음6_추가/Ididkr_Pivot (2).sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 43,
    "files": [
-    "묶음6_추가/Ididkr_Pivot (2).sfa"
+    "묶음6_추가/Jsjw_SPECTRUM.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   },
   {
    "id": 44,
    "files": [
-    "묶음6_추가/Jsjw_SPECTRUM.sfa"
-   ],
-   "status": "단독(변형 여부 미확정)"
-  },
-  {
-   "id": 45,
-   "files": [
     "묶음5_페인트/포이즌 파트2.sfa"
    ],
-   "status": "단독(변형 여부 미확정)"
+   "status": "단독(변형 미발견, 미확정)"
   }
  ],
- "note": "묶음 판정은 정확 사본만 자동. 변형(같은 작품의 다른 판) 판정은 미구현 — §5"
+ "note": "묶음 판정은 정확 사본만 자동. 변형(같은 작품의 다른 판) 판정은 미구현 — §5",
+ "bundle_check": {
+  "tool": "seq_bundle.py",
+  "threshold": 0.5,
+  "high": [
+   {
+    "a": "묶음1_Sfa__zip/StickFigureNew.sfa",
+    "b": "묶음2_Drive/Dhdj_SPECTRUM-2.sfa",
+    "share": 1.0
+   }
+  ],
+  "weak": [
+   {
+    "a": "묶음2_Drive/푸르름이 죽는 곳.sfa",
+    "b": "묶음2_Drive/( ´ ▽ ` )ﾉ.sfa",
+    "share": 0.071
+   }
+  ],
+  "frames_per_file": 16,
+  "note": "약한 공유는 미확정으로 두고 합치지 않음. 회전·반전·다시 그린 변형은 못 찾을 수 있음"
+ }
 }
