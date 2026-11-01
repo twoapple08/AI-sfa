@@ -5,7 +5,7 @@
 새 대화 시작 문구: docs/HANDOFF-PROMPT.md
 
 ## 현재 우선순위
-**영상 → SFA 변환 AI(재설계판) 1판 — GPU 첫 회차 직전.** GPT 재확인(2e255ee) 새 반례 R-01–R-06을 재현·수정했다(554880c, 답변 docs/GPT-RESPONSE-RECHECK-CODE-REVIEW-2026-11-01.md). 남은 확인: 앱 시험 `glow_link_test5`(14장, 레이어·면·원/곡선·글로우 전용 이음) 사용자 확인 대기.
+**영상 → SFA 변환 AI(재설계판) 1판 — GPU 첫 회차 직전.** GPT 재확인(2e255ee) 새 반례 R-01–R-06을 재현·수정했다(554880c, 답변 docs/GPT-RESPONSE-RECHECK-CODE-REVIEW-2026-11-01.md). 앱 시험 `glow_link_test6`(14장, 레이어·면·원/곡선·글로우 전용 이음)이 렌더러 예상과 모두 같았다(11-02).
 - 모델이 영상 한 장을 보고 SFA 오브젝트 문장(토큰열)을 직접 쓰고, 원본 파일과 오브젝트 단위로 채점한다. 주 목적은 스틱맨 동작(사용자 10-28).
 - 설계: docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md, 해설: docs/EXPLAINER-VIDEO-TO-SFA-2026-10-31.md, 판정 기준(확정): docs/JUDGE-CRITERIA-FINAL-2026-10-31.md
 - 학습 방식: 조합 문제 + 쉬운 것부터 + 해상도 단계 1080→720→480→360(docs/COMPOSE-CURRICULUM-2026-11-01.md)
