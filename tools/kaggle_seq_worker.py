@@ -72,7 +72,8 @@ def make_data(c):
         sh(f'cd {tools} && python -u seq_data.py {work}/{name} {args}')
         d = json.load(open(f'{work}/{name}/done.json', encoding='utf-8'))
         info['splits'][name] = dict(minutes=round((time.time() - t1) / 60, 1), frames=d['frames'], npz=d['npz'], version=d['version'],
-                                    mb=round(sum(os.path.getsize(p) for p in glob.glob(f'{work}/{name}/*.npz')) / 2 ** 20))
+                                    mb=round(sum(os.path.getsize(p) for p in glob.glob(f'{work}/{name}/*.npz')) / 2 ** 20),
+                                    check=(d.get('check') or {}).get('check'))   # 정합성 표본 요약(11-01: 출력 파일 수천 개 목록을 받다 Kaggle 요청 제한 — data_info 하나로 보게)
         print(name, info['splits'][name], flush=True)
     info['minutes'] = round((time.time() - T0) / 60, 1)
     json.dump(info, open(f'{work}/data_info.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)

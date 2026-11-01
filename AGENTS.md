@@ -163,3 +163,5 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 - (10-28 사용자, 세 번 지적) 사용자에게 하는 답은 처음부터 끝까지 한국어로만 쓴다. 영어 문장으로 답하지 않는다. 파일 이름·명령·화면에 나오는 글자처럼 꼭 필요한 것만 원문 그대로 둔다.
 
 - 시험 결과를 `| tail` 뒤에 `&&`로 커밋·푸시에 이어 붙이지 않는다. tail은 항상 성공해 실패한 시험 뒤에도 커밋된다(11-01 실제 발생). 시험을 먼저 따로 돌려 OK를 확인한 뒤 커밋한다.
+- `pkill -f` 패턴에 스크래치 경로(`/tmp/claude-0…`)를 넣지 않는다. 내 셸 명령줄도 그 경로를 담아 자기 셸이 죽었다(11-01, exit 144). 멈출 작업은 TaskStop이나 PID로.
+- Kaggle 자료 커널 출력(파일 3,000개+)은 `pull`/기본 목록으로 받지 않는다. 기본 20개씩 목록이라 요청 제한에 걸린다. `kaggle_seq_remote.py data-check`(한 쪽 200개)를 쓴다.

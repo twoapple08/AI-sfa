@@ -15,6 +15,7 @@
 사용: python kaggle_seq_remote.py push-data | wait --data | push --prebuilt [--minutes 690] [--plan-minutes 0] | wait | pull 폴더 | save-ckpt 폴더
 """
 import argparse
+import glob
 import json
 import os
 import re
@@ -152,6 +153,26 @@ def wait(a):
     print('기다림 한도 넘음', flush=True)
 
 
+def data_check(a):
+    """자료 커널의 data_info.json·done.json만 받아 정합성 요약을 보인다(11-01: 출력 파일이 수천 개라 기본 20개씩 목록을 받다
+    요청 제한에 걸렸다 — 한 쪽 200개로 요청 수를 1/10로, 제한에 걸리면 2·4·8분 기다려 다시)."""
+    os.makedirs(a.dir, exist_ok=True)
+    for i, wait_s in enumerate((0, 120, 240, 480)):
+        time.sleep(wait_s)
+        out = kg('kernels', 'output', f'{user()}/{DATA_KERNEL}', '-p', a.dir, '--file-pattern', r'(^|/)(data_info|done)\.json$',
+                 '--page-size', '200', check=False)
+        if 'rate limit' not in out.lower():
+            break
+        print(f'요청 제한 — {(wait_s or 60) * 2 // 60}분 뒤 다시', flush=True)
+    for p in sorted(glob.glob(os.path.join(a.dir, '**', 'done.json'), recursive=True)):
+        d = json.load(open(p, encoding='utf-8'))
+        print(os.path.basename(os.path.dirname(p)), d.get('frames'), '판', d.get('version'), (d.get('check') or {}).get('check'), flush=True)
+    p = os.path.join(a.dir, 'data_info.json')
+    if os.path.exists(p):
+        i_ = json.load(open(p, encoding='utf-8'))
+        print('커밋', i_.get('commit', '')[:8], '분', i_.get('minutes'), flush=True)
+
+
 def pull(a):
     os.makedirs(a.dir, exist_ok=True)
     print(kg('kernels', 'output', f'{user()}/{kname_of(a)}', '-p', a.dir))
@@ -236,6 +257,8 @@ def main():
         if nm == 'pull':
             q.add_argument('--data', action='store_true', help='자료 커널 출력(약 1.5GB — 보통 받을 필요 없음, data_info.json만 보려면 status)')
         q.add_argument('--ckpt', default=CKPT, help='이어하기 자료 이름(시험은 다른 이름으로 — 본 학습이 시험 모델을 이어받지 않게)')
+    q = sub.add_parser('data-check', help='자료 커널의 정합성 요약만 받기(data_info.json·done.json)')
+    q.add_argument('dir')
     q = sub.add_parser('to-drive')
     q.add_argument('dir')
     q.add_argument('run')
@@ -243,7 +266,7 @@ def main():
     q.add_argument('run')
     q.add_argument('dir')
     a = ap.parse_args()
-    dict(push=push, status=status, **{'push-data': push_data, 'push-encoder': push_encoder}, wait=wait, pull=pull, **{'save-ckpt': save_ckpt, 'to-drive': to_drive, 'from-drive': from_drive})[a.cmd](a)
+    dict(push=push, status=status, **{'push-data': push_data, 'push-encoder': push_encoder}, wait=wait, pull=pull, **{'data-check': data_check}, **{'save-ckpt': save_ckpt, 'to-drive': to_drive, 'from-drive': from_drive})[a.cmd](a)
 
 
 if __name__ == '__main__':
