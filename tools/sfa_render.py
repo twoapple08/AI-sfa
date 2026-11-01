@@ -270,7 +270,7 @@ def render_frame(seq, fr, W=1920, H=1080):
     S = geo.S
     # 연결 그룹(그리기 단위): 규칙은 sfa_tokens.link_groups 하나(정답 문장 순서와 같게). PARAMS['groups']가 None이면 sfa_tokens.GROUP_MODE.
     import sfa_tokens as K
-    find = K.link_groups(aos, PARAMS['groups'])
+    find = K.link_groups(aos, PARAMS['groups'], fr.findall('FR'))
 
     def draw_glow(a, path):
         T = float(a.get('ThicknessScale') or 1)

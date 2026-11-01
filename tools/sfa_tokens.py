@@ -217,14 +217,17 @@ def glowing(a):
     return all(float(a.get(k) or 0) > 0 for k in ('GlowRadius', 'GlowThickness', 'GlowAlpha'))
 
 
-# 연결 묶음 규칙(그리기 순서 단위). True: 점 연결(AC)로 이어진 모든 오브젝트, 'glow': 글로우 있는 오브젝트끼리의 연결만, False: 묶음 없음.
-# 앱 확인(11-01, 사용자 화면): glow_link_test(글로우 없는 선 + 글로우 선)·glow_link_test2(둘 다 글로우) 모두 이은 장과 안 이은 장이
-# 앱에서 같았다 → 앱은 연결로 그리기 순서를 묶지 않는다(오브젝트마다 글로우 → 선, DrawOrder 순). True·'glow'는 틀림(시험용으로만 남김).
-GROUP_MODE = False
+# 연결 묶음 규칙(그리기 순서 단위). True: 점 연결(AC)로 이어진 모든 오브젝트, 'glow'·'fill'·'acfill'·False: 앱 확인용 대안.
+# 앱 확인(11-01, 사용자 화면): ① glow_link_test·test2(A끝 Flags 9 ↔ B시작 8로 이은 두 선)는 앱에서 이은 장 = 안 이은 장(묶음 없음).
+# ② 실제 파일(막고라 part.2 38장·연습 76장)의 판 테두리(A끝 8 ↔ B시작 9, 채운 면)와 관절 스틱맨(33 ↔ 5)은 앱에서 묶인 그림.
+# 실제 파일과 맞는 True를 유지하고, 점 표시 방식별 시험(glow_link_test3) 결과를 기다린다(docs/GPT-RESPONSE-CODE-REVIEW-2026-11-01.md I-10).
+GROUP_MODE = True
 
 
-def link_groups(aos, mode=None):
-    """AO 목록 → find(ID) 대표값 함수. 렌더러와 정답 문장이 같은 규칙을 쓴다."""
+def link_groups(aos, mode=None, frs=()):
+    """AO 목록 → find(ID) 대표값 함수. 렌더러와 정답 문장이 같은 규칙을 쓴다.
+    mode: True 점 연결(AC) 무리 전체, 'glow' 글로우 있는 것끼리의 연결만, 'fill' 같은 채우기(FR)의 테두리(FS ObjId)끼리,
+    'acfill' 점 연결 무리 중 채우기 테두리를 가진 무리만, False 묶음 없음."""
     mode = GROUP_MODE if mode is None else mode
     by = {a.get('ID'): a for a in aos}
     ap_owner = {p.get('ID'): a.get('ID') for a in aos for p in a.findall('AP')}
@@ -235,7 +238,12 @@ def link_groups(aos, mode=None):
             parent[x] = parent[parent[x]]
             x = parent[x]
         return x
-    if mode:
+
+    def union(x, y):
+        rx, ry = find(x), find(y)
+        if rx != ry:
+            parent[rx] = ry
+    if mode in (True, 'glow', 'acfill'):
         for a in aos:
             for p in a.findall('AP'):
                 for ac in p.findall('AC'):
@@ -244,9 +252,19 @@ def link_groups(aos, mode=None):
                         continue
                     if mode == 'glow' and not (glowing(a) and glowing(by[o])):
                         continue
-                    ra, rb = find(a.get('ID')), find(o)
-                    if ra != rb:
-                        parent[ra] = rb
+                    union(a.get('ID'), o)
+    if mode == 'acfill':
+        edge = {s.get('ObjId') for r in frs for s in r.findall('FS')}
+        root = {k: find(k) for k in by}
+        keep = {root[k] for k in by if k in edge}
+        for k in by:   # 채우기 테두리가 없는 무리는 낱개로
+            if root[k] not in keep:
+                parent[k] = k
+    if mode == 'fill':
+        for r in frs:
+            ids = [s.get('ObjId') for s in r.findall('FS') if s.get('ObjId') in parent]
+            for x in ids[1:]:
+                union(ids[0], x)
     return find
 
 
@@ -256,7 +274,7 @@ def order_objects(seq, fr):
     aos = fr.findall('AO')
     if not layers:
         layers = [{'ID': v} for v in dict.fromkeys(a.get('LayerId', '0') for a in aos)]
-    find = link_groups(aos)
+    find = link_groups(aos, frs=fr.findall('FR'))
     out = []
     for li, layer in enumerate(layers):
         if layer.get('Visible') == 'false':
