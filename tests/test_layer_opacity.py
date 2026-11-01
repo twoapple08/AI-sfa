@@ -43,7 +43,7 @@ class FinalTestSealed(unittest.TestCase):
         names = {os.path.basename(f['file']) for f in m['files']}
         listed = {os.path.basename(p) for p in V.file_list(exclude_holdout=False)}
         self.assertFalse(names & listed)
-        self.assertEqual(sum(f['frames'] for f in m['files']), 243)
+        self.assertEqual(sum(f["frames"] for f in m["files"] if f["set"] == "makgora"), 243)
 
 
 if __name__ == '__main__':

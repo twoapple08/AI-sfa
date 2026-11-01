@@ -1,82 +1,114 @@
 {
- "name": "C안 최종 시험 — 막고라(11컷, 243장)",
+ "name": "C안 최종 시험(봉인)",
  "sealed": "2026-11-02",
  "fps": "24/24",
- "video": {
-  "drive": "gdrive:AI-sfa/02_분석자료/final_test_c/fec69683-YouCut_20261101_201213784.mp4",
-  "frames": 245,
-  "size": "854x480",
-  "note": "앱에서 내보낸 영상(비공개). video_start = 이 파일 첫 장이 영상 몇 번째 장인지(0부터), 서버 렌더 대조 평균 차 ≤ 2"
- },
- "scope": "같은 작가(학습 자료에 옛 작품 있음)의 기술이 늘어난 새 작품 1편의 컷들 — 다른 작가 일반화의 증거가 아니다. 독립 단위는 작품 1개에 가깝다",
- "features": "레이어 투명도(LayerDef Opacity=30)를 7파일이 씀 — 수집 441파일에 없던 새 앱 기능. 정답 문장(토큰)에는 레이어 투명도가 없어 그 장은 만점이 불가능하다(따로 표시해 보고)",
  "rules": "학습·검증·설정 선택에 쓰지 않는다(vec_data.file_list·index.csv 밖). 최종 확인에 한 번만 쓴다.",
  "files": [
   {
    "file": "makgora/막고라 001.sfa",
    "frames": 15,
    "sha256": "cfee08220e0c4a95",
-   "video_start": 0
+   "video_start": 0,
+   "set": "makgora"
   },
   {
    "file": "makgora/막고라 002.sfa",
    "frames": 13,
    "sha256": "1ac65e111df76650",
-   "video_start": 15
+   "video_start": 15,
+   "set": "makgora"
   },
   {
    "file": "makgora/막고라 003.sfa",
    "frames": 12,
    "sha256": "53a7d35025aede43",
-   "video_start": 29
+   "video_start": 29,
+   "set": "makgora"
   },
   {
    "file": "makgora/막고라 004.sfa",
    "frames": 19,
    "sha256": "e4eb534690b935d8",
-   "video_start": 41
+   "video_start": 41,
+   "set": "makgora"
   },
   {
    "file": "makgora/막고라 005.sfa",
    "frames": 40,
    "sha256": "0d98b7b75c8624e7",
-   "video_start": 60
+   "video_start": 60,
+   "set": "makgora"
   },
   {
    "file": "makgora/막고라 006.sfa",
    "frames": 30,
    "sha256": "7f13c478bd6c199b",
-   "video_start": 100
+   "video_start": 100,
+   "set": "makgora"
   },
   {
    "file": "makgora/막고라 007.sfa",
    "frames": 8,
    "sha256": "a9e6799531992c4c",
-   "video_start": 130
+   "video_start": 130,
+   "set": "makgora"
   },
   {
    "file": "makgora/막고라 008.sfa",
    "frames": 24,
    "sha256": "d995b253d0df7917",
-   "video_start": 138
+   "video_start": 138,
+   "set": "makgora"
   },
   {
    "file": "makgora/막고라 009.sfa",
    "frames": 34,
    "sha256": "4836187fdd9903c4",
-   "video_start": 162
+   "video_start": 162,
+   "set": "makgora"
   },
   {
    "file": "makgora/막고라 010.sfa",
    "frames": 30,
    "sha256": "16ef151befaad23a",
-   "video_start": 196
+   "video_start": 196,
+   "set": "makgora"
   },
   {
    "file": "makgora/막고라 011.sfa",
    "frames": 18,
    "sha256": "8d86faa3114e7965",
-   "video_start": 226
+   "video_start": 226,
+   "set": "makgora"
+  },
+  {
+   "file": "chute/chute.sfa",
+   "frames": 40,
+   "sha256": "c65267f89505a477",
+   "set": "chute"
   }
- ]
+ ],
+ "sets": {
+  "makgora": {
+   "video": {
+    "drive": "gdrive:AI-sfa/02_분석자료/final_test_c/fec69683-YouCut_20261101_201213784.mp4",
+    "frames": 245,
+    "size": "854x480",
+    "note": "앱에서 내보낸 영상(비공개). video_start = 이 파일 첫 장이 영상 몇 번째 장인지(0부터), 서버 렌더 대조 평균 차 ≤ 2"
+   },
+   "scope": "같은 작가(학습 자료에 옛 작품 있음)의 기술이 늘어난 새 작품 1편의 컷들 — 다른 작가 일반화의 증거가 아니다. 독립 단위는 작품 1개에 가깝다",
+   "features": "레이어 투명도(LayerDef Opacity=30)를 7파일이 씀 — 수집 441파일에 없던 새 앱 기능. 정답 문장(토큰)에는 레이어 투명도가 없어 그 장은 만점이 불가능하다(따로 표시해 보고)"
+  },
+  "chute": {
+   "video": {
+    "drive": "gdrive:AI-sfa/02_분석자료/final_test_c/chute.mp4",
+    "frames": 100,
+    "size": "854x480",
+    "fps": 30,
+    "note": "앱 영상 30fps에 SFA 40장이 장마다 약 2.5번씩 나온다(재생 12장/초로 보임). 영상 장마다 가장 가까운 SFA 장과 평균 차 ≤ 1.55"
+   },
+   "scope": "스틱맨 동작 1컷(40장, 선 위주). 학습 자료와 같은 그림 없음(빈 장 1장만 같음)",
+   "features": "레이어 투명도 없음"
+  }
+ }
 }
