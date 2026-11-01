@@ -66,14 +66,33 @@ def _load_npz(job):
     return out
 
 
+HOLDOUT_EXCLUDE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'holdout_exclude.json')
+
+
+def npz_prefix(rel):
+    """seq_data가 파일 하나로 만든 npz 이름의 앞부분(seq_data.save 이름 규칙과 같음)."""
+    return rel.replace('/', '__').replace(' ', '_')[:-4] + '__'
+
+
+def holdout_exclude():
+    """새 작품 시험(sv)에서 뺄 파일: 학습 파일과 내용이 겹치는 시험 파일(11-01 묶음 판정 3판, 사용자 승인)."""
+    if not os.path.exists(HOLDOUT_EXCLUDE):
+        return []
+    with open(HOLDOUT_EXCLUDE, encoding='utf-8') as fh:
+        return [e['file'] for e in json.load(fh)['exclude']]
+
+
 class Data:
     """npz 전부를 메모리에. 그림은 입력 크기로 줄여 JPEG(품질 95)로 압축해 둔다(2만 장 × 640×360 원본이면 15GB → 약 1.5GB).
     이미 H.264로 압축된 장이라 JPEG 95의 추가 손실은 작다. 묶음을 만들 때 푼다."""
 
-    def __init__(self, folder, maxlen, in_w, jpeg=True, workers=None):
+    def __init__(self, folder, maxlen, in_w, jpeg=True, workers=None, exclude=()):
         self.in_w, self.in_h = in_w, in_w * 9 // 16
         self.img, self.tok, self.fld, self.meta, self.hwr = [], [], [], [], []
         paths = sorted(glob.glob(os.path.join(folder, '*.npz')))
+        pre = tuple(npz_prefix(r) for r in exclude)
+        self.excluded = [p for p in paths if os.path.basename(p).startswith(pre)] if pre else []
+        paths = [p for p in paths if p not in self.excluded]
         jobs = [(p, maxlen, self.in_w, self.in_h, jpeg) for p in paths]
         video = bool(paths) and 'vid' in np.load(paths[0]).files
         workers = workers or (os.cpu_count() or 1)
@@ -484,7 +503,9 @@ def train(a):
             st['plan_min'] = st['done_min'] + a.minutes
             print(f"계획을 {st['plan_min']:.0f}분으로 늘림(이번 실행 {a.minutes:.0f}분, 학습률은 늘어난 계획의 코사인 위치에서)", flush=True)
     t0 = time.time()
-    va = Data(a.val, cfg['maxlen'], cfg['in_w'])
+    va = Data(a.val, cfg['maxlen'], cfg['in_w'], exclude=holdout_exclude())
+    if va.excluded:
+        print(f'새 작품 시험에서 뺀 파일 묶음 {len(va.excluded)}개(학습 파일과 내용 겹침, data/holdout_exclude.json)', flush=True)
     sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w']) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
     js = J.JudgeSet(a.judge, cfg['in_w']) if a.judge else None   # 판정 장치(11-01): 평가 목록 고정 장 × 이동 4방향
     js_reduced = False

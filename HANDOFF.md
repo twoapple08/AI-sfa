@@ -32,7 +32,9 @@
    - GPT 검토 3회 반영(1라운드·재확인·404ca46 확인): 응답 docs/GPT-RESPONSE-{COMPOSE-ROUND1,RECHECK-COMPOSE-ROUND1,VERIFY-404ca46}-2026-11-01.md. 공식 판정은 계획 끝·전체 목록·360(640폭)에서만, 공식 횟수는 저장본에 남음.
    - 1-1. 판 5 자료(Kaggle CPU, 97분)는 정합성 표본에서 실제 장 18만 화소 어긋남이 나와 **무효**. 원인은 조절점이 수백만 %인 곡선의 렌더 불안정 → `sfa_tokens.clip_quad`로 고침(VERIFY 응답 §7). **자료 판 6을 Kaggle CPU로 다시 만든다**(11-01 올림, 커널 판 11, 분기 claude/new-session-gknz4t — kaggle_seq_remote 기본 분기도 이것으로 바꿈). 끝나면 `kaggle kernels output twoapple08/aisfa-seq-data -p <dir> --file-pattern 'data_info.json|done.json'`으로 정합성 표본만 받아 본다(실제 장 100화소 넘음 0 기대).
    - 판 6 자료 완료(커밋 5abfce7, 120분). 정합성 표본 sd·sd1280·sc: 100화소 넘음 0.
-   - 1-2. **CPU 흐름 시험 실행 중(11-01 03:3x UTC, 커널 aisfa-seq-train 판 2)**: `push --prebuilt --cpu --fresh --minutes 60 --tok-budget 1024 --extra "--max-batch 2 --judge-n 3 --gen-n 2 --gen-minutes 10 --val-minutes 8"`. 끝나면 pull → GPT 측정 항목 확인 → 끊고 재개 시험(save-ckpt 이름은 시험용으로 따로).
+   - 시험·학습 작품 중복(11-01): 시험 38 × 학습 403에서 확실한 겹침 1쌍(`47112(2_2)-1` ↔ `바람1-1`) → 시험 쪽을 새 작품 시험에서 뺌(`data/holdout_exclude.json`, 사용자 승인).
+   - 1-2. **CPU 흐름 시험 1회차 끝(rc 0, 110분, 1걸음)**: 1080 자료 읽기 14.5분·검증 41분(CPU). 진행 시간에 읽기·검증 시간이 들어가 단계·쉬운 것부터 시간을 잡아먹는 문제 → GPT 2라운드 쟁점. **2회차(이어하기, 시험용 저장본 aisfa-seq-ckpt-flowtest) 실행 중**.
+   - (1회차 실행 기록) **CPU 흐름 시험 실행 중(11-01 03:3x UTC, 커널 aisfa-seq-train 판 2)**: `push --prebuilt --cpu --fresh --minutes 60 --tok-budget 1024 --extra "--max-batch 2 --judge-n 3 --gen-n 2 --gen-minutes 10 --val-minutes 8"`. 끝나면 pull → GPT 측정 항목 확인 → 끊고 재개 시험(save-ckpt 이름은 시험용으로 따로).
    - (이전 계획) 자료가 되면 Kaggle CPU 흐름 시험을 짧게 한 번 더(새 자료·쉬운 것부터·배우는 해상도 판정). 이전 흐름 시험(판 3 자료)은 rc 0 통과. 그 결과로 GPT와 2라운드 토론.
    - 1-3. 그다음 **사용자 지시를 받고** GPU: 전체 계획 10시간을 3시간 회차로 나눠(사용자 11-01: 12시간을 한 번에 쓰지 않음, 이어 갈 수 있게). 첫 회차 `push --prebuilt --fresh --minutes 180 --plan-minutes 600 --extra "--gen-minutes 20"`(첫 판정을 20분에 — 새 판정 코드가 Kaggle GPU에서 깨지면 빨리 드러나게), 다음 회차 `pull` → `save-ckpt` → `push --prebuilt --minutes 180 --plan-minutes 600`. PC로 넘길 땐 `to-drive`.
    - 회차마다 `python tools/seq_trend.py log.jsonl`로 '외우는가, 보고 판단하며 크는가'(위치 읽기 승수·A−외움·새 작품 점수)를 보여 드리고 이어 갈지 정한다.
