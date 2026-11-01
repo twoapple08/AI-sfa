@@ -141,10 +141,13 @@ def main():
         if not found:
             raise SystemExit('인코더 파일(vec_encoder.pt)이 입력에 없음 — push-encoder 먼저 또는 --no-init-encoder')
         enc = f' --init-encoder {found[0]}'
-    left = c['session_minutes'] - (time.time() - T0) / 60 - (2 if c.get('smoke') else 20)   # 자료 읽기·마지막 검증·저장 몫
+    # 회차 마감(GPT 2라운드 3-2, 11-01): 작업자 시작부터 회차 분 − 출력 정리 몫(3분)의 절대 시각을 학습기에 넘긴다.
+    # 학습기는 자료 읽기·중간 평가를 포함해 이 시각에서 '예상 마지막 평가 몫'(실측 속도 × 상한 길이)을 남기고 학습을 멈춘다.
+    deadline = T0 + c['session_minutes'] * 60 - (1 if c.get('smoke') else 3) * 60
+    left = (deadline - time.time()) / 60
     if left < (1 if c.get('smoke') else 10):
         raise SystemExit('남은 시간이 없음')
-    cmd = (f'cd {tools} && python -u seq_train.py train {data} {val} {out} --minutes {left:.0f} --plan-minutes {c["plan_minutes"]:.0f}'
+    cmd = (f'cd {tools} && python -u seq_train.py train {data} {val} {out} --minutes {left:.0f} --deadline {deadline:.0f} --plan-minutes {c["plan_minutes"]:.0f}'
            f' --tok-budget {c["tok_budget"]} --shift-val {shv} --judge {sj} --val-kind {vkd}' + (f' --stages {stages}' if stages else '') + enc + f' {c["extra"]}')
     print('$', cmd, flush=True)
     con = open(f'{out}/train_console.txt', 'a', encoding='utf-8')

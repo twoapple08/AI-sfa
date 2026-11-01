@@ -134,22 +134,22 @@ class OfficialCountTest(unittest.TestCase):
     def test_first_save_resume_extension(self):
         """최초 공식 1 → 저장 → 재개 → 연장 공식 2(수정 전: 저장본 0, 연장 다시 1)."""
         run = _controller()
-        first = run(dict(stage=0, done_min=600, plan_min=600))
+        first = run(dict(stage=0, done_min=600, train_min=600, plan_min=600))
         self.assertEqual(first['rec']['judge_official_n'], 1)
         self.assertEqual(first['saved'].get('official_n'), 1)
-        second = run(dict(first['saved'], done_min=1200, plan_min=1200))
+        second = run(dict(first["saved"], done_min=1200, train_min=1200, plan_min=1200))
         self.assertEqual(second['rec']['judge_official_n'], 2)
         self.assertEqual(second['saved'].get('official_n'), 2)
 
     def test_high_res_end_counts_once(self):
         """고해상도에서 끝난 회차: 고해상도 판정은 추세, 뒤따르는 360만 공식 — 한 번만 센다. 상한은 추세 178·공식 2048."""
         run = _controller()
-        high = run(dict(stage=0, done_min=600, plan_min=600), 1920)
+        high = run(dict(stage=0, done_min=600, train_min=600, plan_min=600), 1920)
         self.assertFalse(high['rec']['judge_official'])
         self.assertTrue(high['rec']['judge360_official'])
         self.assertEqual((high['live']['official_n'], high['saved']['official_n'], high['rec']['judge360_official_n']), (1, 1, 1))
         self.assertEqual([c for _, c in high['caps']], [178] * 4 + [2048] * 2)
-        small = run(dict(stage=0, done_min=600, plan_min=600), 1920, True)
+        small = run(dict(stage=0, done_min=600, train_min=600, plan_min=600), 1920, True)
         self.assertFalse(small['rec']['judge_official'] or small['rec']['judge360_official'])
         self.assertNotIn('official_n', small['saved'])
 
