@@ -86,6 +86,104 @@
    "frames": 40,
    "sha256": "c65267f89505a477",
    "set": "chute"
+  },
+  {
+   "file": "batch3/Akai_Pivot.sfa",
+   "frames": 1,
+   "sha256": "949a27b16fa1b6b6",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/Flip (3).sfa",
+   "frames": 261,
+   "sha256": "d4ff987e20154710",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/angel.sfa",
+   "frames": 11,
+   "sha256": "75124a68dd8c21d2",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/bes.sfa",
+   "frames": 30,
+   "sha256": "5522b061ef116da5",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/bird.sfa",
+   "frames": 24,
+   "sha256": "561608ef81598662",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/no leg.sfa",
+   "frames": 199,
+   "sha256": "584440cd96f3f808",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/stained glass circle.sfa",
+   "frames": 7,
+   "sha256": "8682cbe8d4860ab9",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/stained glass.sfa",
+   "frames": 7,
+   "sha256": "88483ee3f4435227",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/unofufufufufu (7).sfa",
+   "frames": 41,
+   "sha256": "8f9cf409629fd196",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/걷기달리기.sfa",
+   "frames": 80,
+   "sha256": "0777ce551ae9b6ec",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/몰라.sfa",
+   "frames": 14,
+   "sha256": "592a28395a718067",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/묘.sfa",
+   "frames": 34,
+   "sha256": "a84783e0ef487144",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/뻘짓_ 12 36.sfa",
+   "frames": 28,
+   "sha256": "e06c967e51d4ac2a",
+   "set": "batch3",
+   "author": null
+  },
+  {
+   "file": "batch3/초원이 다리는 백만불짜리 다리 20fps.sfa",
+   "frames": 46,
+   "sha256": "839f53cbf4563dad",
+   "set": "batch3",
+   "author": null
   }
  ],
  "sets": {
@@ -109,6 +207,12 @@
    },
    "scope": "사용자가 처음 보는 작가(11-02)의 스틱맨 동작 1컷(40장, 선 위주) — 학습 자료(사용자 수집)에 이 작가 작품이 없을 가능성이 높다. 학습 자료와 같은 그림 없음(빈 장 1장만 같음)",
    "features": "레이어 투명도 없음"
+  },
+  "batch3": {
+   "video": null,
+   "scope": "사용자가 모은 여러 작가(사용자 추산 10–15명) 작품 14개(11-02). 작가별 묶음은 사용자 확인 대기 — 통계 단위는 작가·작품 묶음으로 센다",
+   "excluded": "바람 1·바람 2: 학습 자료 바람·바람1-1·바람2와 같은 연작(오브젝트 91개 같은 획 배치 변형) → 넣지 않음",
+   "check": "학습 441파일과 파일·정답(빈 장 제외) 같음 0, 그림 거의 같음은 색 직접 비교로 우연(최소 평균차 7.8 이상) 확인"
   }
  }
 }
