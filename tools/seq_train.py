@@ -75,11 +75,12 @@ def npz_prefix(rel):
 
 
 def holdout_exclude():
-    """새 작품 시험(sv)에서 뺄 파일: 학습 파일과 내용이 겹치는 시험 파일(11-01 묶음 판정 3판, 사용자 승인)."""
+    """새 작품 시험(sv)에서 뺄 것: {파일: 장 Position 목록 또는 None(파일 전체)}. 학습 파일과 같은 그림인 시험 장만
+    (11-01: 47112(2_2)-1의 94장 중 7·8장이 학습 파일 바람1-1(1장)과 같음 — 처음엔 파일 전체를 뺐다가 장 단위로 고침)."""
     if not os.path.exists(HOLDOUT_EXCLUDE):
-        return []
+        return {}
     with open(HOLDOUT_EXCLUDE, encoding='utf-8') as fh:
-        return [e['file'] for e in json.load(fh)['exclude']]
+        return {e['file']: (set(e['positions']) if e.get('positions') is not None else None) for e in json.load(fh)['exclude']}
 
 
 class Data:
@@ -90,8 +91,11 @@ class Data:
         self.in_w, self.in_h = in_w, in_w * 9 // 16
         self.img, self.tok, self.fld, self.meta, self.hwr = [], [], [], [], []
         paths = sorted(glob.glob(os.path.join(folder, '*.npz')))
-        pre = tuple(npz_prefix(r) for r in exclude)
-        self.excluded = [p for p in paths if os.path.basename(p).startswith(pre)] if pre else []
+        exclude = exclude if isinstance(exclude, dict) else {r: None for r in exclude}
+        whole = tuple(npz_prefix(r) for r, ps in exclude.items() if ps is None)
+        part = {npz_prefix(r): ps for r, ps in exclude.items() if ps is not None}
+        self.excluded = [p for p in paths if whole and os.path.basename(p).startswith(whole)]   # 파일 전체
+        self.excluded_frames = 0                                                                # 장 단위
         paths = [p for p in paths if p not in self.excluded]
         jobs = [(p, maxlen, self.in_w, self.in_h, jpeg) for p in paths]
         video = bool(paths) and 'vid' in np.load(paths[0]).files
@@ -102,8 +106,12 @@ class Data:
                 parts = list(pool.imap(_load_npz, jobs, chunksize=4))
         else:
             parts = map(_load_npz, jobs)
-        for part in parts:
-            for im, tk, fd, mt, hr in part:
+        for path, got in zip(paths, parts):
+            drop = next((ps for pre_, ps in part.items() if os.path.basename(path).startswith(pre_)), set())
+            for im, tk, fd, mt, hr in got:
+                if mt.get('pos') in drop:
+                    self.excluded_frames += 1
+                    continue
                 self.img.append(im)
                 self.tok.append(tk)
                 self.fld.append(fd)
@@ -504,8 +512,8 @@ def train(a):
             print(f"계획을 {st['plan_min']:.0f}분으로 늘림(이번 실행 {a.minutes:.0f}분, 학습률은 늘어난 계획의 코사인 위치에서)", flush=True)
     t0 = time.time()
     va = Data(a.val, cfg['maxlen'], cfg['in_w'], exclude=holdout_exclude())
-    if va.excluded:
-        print(f'새 작품 시험에서 뺀 파일 묶음 {len(va.excluded)}개(학습 파일과 내용 겹침, data/holdout_exclude.json)', flush=True)
+    if va.excluded or va.excluded_frames:
+        print(f'새 작품 시험에서 뺀 것: 파일 묶음 {len(va.excluded)}개·장 {va.excluded_frames}개(학습 파일과 같은 그림, data/holdout_exclude.json)', flush=True)
     sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w']) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
     js = J.JudgeSet(a.judge, cfg['in_w']) if a.judge else None   # 판정 장치(11-01): 평가 목록 고정 장 × 이동 4방향
     js_reduced = False
