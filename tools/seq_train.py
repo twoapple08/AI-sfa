@@ -973,6 +973,10 @@ def train(a):
     run, racc = [], []
     rhn = np.zeros((NROW, 2))
     last_val = last_save = last_gen = time.time()
+    # 중간 검증·생성 채점 간격은 학습 진행 분(train_min)으로 잰다(Kaggle CPU 점검 11-02: 1080 자료 읽기 16분이 '지난 시간'으로 잡혀
+    # 첫 걸음 직후 33분짜리 검증이 돌고 마감을 넘었다). 저장 간격만 벽시계.
+    val_at = gen_at = st['train_min']
+    last_v = None   # 마지막 중간 검증 결과(걸음, 결과) — 모델이 그대로면 마지막 검증에서 다시 재지 않는다
     oom = skipped = 0
     step_s = [0.0]   # 최근 한 걸음 벽시계(초) — 마감 전에 다음 걸음을 시작할지
     stop_why = 'plan'
@@ -1133,13 +1137,16 @@ def train(a):
             run, racc = [], []
             rhn = np.zeros((NROW, 2))
         mid_cost = a.reserve_margin * (v_tok + vk_tok) * rate['val'][0] / max(rate['val'][1], 1) if rate.get('val') else 0.0
-        if time.time() - last_val > a.val_minutes * 60 and time.time() + mid_cost + final_cost() > deadline:
+        val_due = st['train_min'] - val_at >= a.val_minutes
+        if val_due and time.time() + mid_cost + final_cost() > deadline:
             print(time.strftime('%H:%M'), '중간 검증 건너뜀: 마감 전에 마지막 평가 몫이 모자람', flush=True)
-            last_val = time.time()
-        elif time.time() - last_val > a.val_minutes * 60:
+            val_at = st['train_min']
+        elif val_due:
+            val_at = st['train_min']
             last_val = time.time()
             vl, vc, n, vbad, vhn = validate()
             vkr = validate_kind() if vk is not None else {}
+            last_v = (st['step'], (vl, vc, n, vbad, vhn), vkr)
             tm['val'] += time.time() - last_val
             rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, val_sec=round(time.time() - last_val), stage_steps=dict(st.get('stage_steps', {})),
                        minutes=done0 + active_min(), train_min=st['train_min'], prog=prog, val_list=val_list,
@@ -1152,11 +1159,12 @@ def train(a):
             last_save = time.time()
             rec.update(vkr)
             g_c = gen_cost(False)
-            if a.gen_minutes and time.time() - last_gen > a.gen_minutes * 60 and g_c is not None and \
-                    time.time() + a.reserve_margin * g_c + final_cost() > deadline:
+            gen_due = a.gen_minutes and st['train_min'] - gen_at >= a.gen_minutes
+            if gen_due and g_c is not None and time.time() + a.reserve_margin * g_c + final_cost() > deadline:
                 print(time.strftime('%H:%M'), '중간 생성 평가 건너뜀: 마감 전에 마지막 평가 몫이 모자람', flush=True)
-                last_gen = time.time()
-            elif a.gen_minutes and time.time() - last_gen > a.gen_minutes * 60:
+                gen_at = st['train_min']
+            elif gen_due:
+                gen_at = st['train_min']
                 last_gen = time.time()
                 rec.update(gen_eval())
                 tm['gen'] += time.time() - last_gen
@@ -1172,7 +1180,10 @@ def train(a):
     est_final = final_cost()   # 예상과 실제를 함께 남겨 다음 회차 몫을 맞춘다(GPT 2라운드 3-2 측정)
     t_final = time.time()
     t_v = time.time()   # 마지막 검증 시간도 시간 내역에 넣는다(11-01 흐름 시험: 중간 검증이 없던 회차의 val이 0으로 나왔다)
-    vl, vc, n, vbad, vhn = validate()
+    same = last_v is not None and last_v[0] == st['step']   # 중간 검증 뒤 업데이트가 없었으면 같은 모델 — 다시 재지 않는다(Kaggle CPU 점검 11-02: 35분 중복)
+    vl, vc, n, vbad, vhn = last_v[1] if same else validate()
+    if same:
+        print('마지막 검증: 중간 검증 뒤 업데이트가 없어 그 결과를 씀', flush=True)
     tm['val'] += time.time() - t_v
     rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, final=True, minutes=done0 + active_min(),
                train_min=st['train_min'], plan_min=st['plan_min'], stop=stop_why, val_list=val_list,
@@ -1183,7 +1194,7 @@ def train(a):
     save_ckpt(final=not a.gen_minutes)   # 생성 판정이 없으면 이것이 마지막 저장
     if vk is not None:
         t_v = time.time()
-        rec.update(validate_kind())
+        rec.update(last_v[2] if same and last_v[2] else validate_kind())
         tm['val'] += time.time() - t_v
     if a.gen_minutes:
         t_g = time.time()
@@ -1336,12 +1347,12 @@ def main():
     t.add_argument('--heads', type=int, default=8)
     t.add_argument('--backbone', default='resnet34')
     t.add_argument('--log-every', type=int, default=50)
-    t.add_argument('--val-minutes', type=float, default=20)
+    t.add_argument('--val-minutes', type=float, default=20, help='중간 검증 간격(학습 진행 분 — 자료 읽기·평가 시간은 세지 않음)')
     t.add_argument('--save-minutes', type=float, default=10)
     t.add_argument('--val-n', type=int, default=400)
     t.add_argument('--gen-n', type=int, default=20, help='생성 채점에 쓰는 고정 시험 장 수')
     t.add_argument('--shift-val', default='', help='위치 시험 자료 폴더(seq_data --fixed) — 생성 채점에 같이')
-    t.add_argument('--gen-minutes', type=float, default=60, help='생성 채점 간격(분). 0이면 안 함')
+    t.add_argument('--gen-minutes', type=float, default=60, help='생성 채점 간격(학습 진행 분). 0이면 안 함')
     t.add_argument('--judge', default='', help='판정 자료 폴더(seq_judge build — 입력 교환 생성 대조·건전성·A/B/외움, 판정 기준 §2)')
     t.add_argument('--judge-dirs', type=int, default=2, choices=(2, 4), help='중간 판정의 이동 방향 수(2 = 공식 쌍만)')
     t.add_argument('--judge-dirs-final', type=int, default=4, choices=(2, 4), help='마지막(공식 시점) 판정의 방향 수(4 = 축별 진단 16칸 표 포함)')
