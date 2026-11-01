@@ -62,6 +62,7 @@ def objs(fr, hwr=0.5625):
     import sfa_tokens as K
     out = []
     pid = {}
+    find = K.link_groups(fr.findall('AO'), frs=fr.findall('FR'))   # 그리기 묶음(점 연결 무리) — 묶음 안은 글로우를 먼저 모두 그린다
     for k, (li, a) in enumerate(K.order_objects(None, fr)):
         aps = a.findall('AP')
         for j, p in enumerate(aps):
@@ -73,7 +74,7 @@ def objs(fr, hwr=0.5625):
                     int(float(a.get('GlowColor') or 0)) & 0xFFFFFF)
         out.append(dict(t=a.get('TypeId'), xy=[(float(p.get('X')), float(p.get('Y')) * hwr) for p in aps],
                         col=int(float(a.get('Color'))) & 0xFFFFFFFF, th=float(a.get('ThicknessScale') or 1), glow=glow,
-                        layer=li, aps=aps, id=a.get('ID')))
+                        layer=li, aps=aps, id=a.get('ID'), grp=find(a.get('ID'))))
     links = set()
     for k, o in enumerate(out):
         for j, p in enumerate(o['aps']):
@@ -344,8 +345,22 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
                 tot += 1
                 same += (i1 < i2) == (j1 < j2)
         r['order'] = same / tot if tot else None
+        # 글로우 묶음(GPT 코드 검토 I-10, 앱 확인 11-01 glow_link_test3·4): 점으로 이은 무리는 무리 안 글로우를 먼저 모두 그리고 선을 그린다.
+        # 글로우가 있는 쌍이 겹칠 때 '같은 무리인지'가 원본과 다르면 가림이 달라진다 → 만점 아님. 겹치지 않거나 글로우가 없으면 영상이 같아 무관.
+        gsame = gtot = 0
+        for x in range(len(items)):
+            for y in range(x + 1, len(items)):
+                (i1, j1), (i2, j2) = items[x], items[y]
+                if A[j1]['glow'] is None and A[j2]['glow'] is None:
+                    continue
+                b1, b2 = bx[j1], bx[j2]
+                if b1[2] < b2[0] or b2[2] < b1[0] or b1[3] < b2[1] or b2[3] < b1[1]:
+                    continue
+                gtot += 1
+                gsame += (P[i1]['grp'] == P[i2]['grp']) == (A[j1]['grp'] == A[j2]['grp'])
+        r['glow_group'] = gsame / gtot if gtot else None
     # 만점 = 같은 영상: 모든 오브젝트가 짝지어지고, 점은 칸 단위로 같고(EXACT_PT), 굵기·색·글로우·면·배경·순서가 같다.
-    # 관절 연결(AC)은 만점에서 뺀다(사용자 10-31: 24,24 목표라 트위닝이 없고 한 장 그림에 영향 없음 — 파란점·점 방향과 같은 '영상이 안 바뀌는 차이').
+    # 점 연결(AC) 자체는 만점에서 뺀다(사용자 10-31: 24,24 목표라 트위닝이 없음). 단 글로우가 겹치는 쌍의 묶음 차이는 그림을 바꾸므로 glow_group으로 본다(I-10, 앱 확인 11-01).
     # 연결 F1(link_f1)은 앱 편집·2단계(장 사이 추적)용 참고 점수로 계속 기록한다.
     # '맞음'(허용 오차 tol)과 분리(GPT 2차: 0.5% 이동·굵기 4% 차이도 만점이던 것)
     # perfect = 모든 점이 같은 좌표 칸(점마다 최대 차이 ≤ 반 칸) — 영상 동일. near_perfect = 평균 차이 ≤ EXACT_PT(GPT 3차: 평균으로는 한 점이 한 칸 틀려도 통과)
@@ -359,7 +374,7 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
         return np.abs((Pp[::-1] if flip[i, j] else Pp) - Aa).max()
     same_style = all(abs(math.log(max(P[i]['th'], 1e-3) / max(A[j]['th'], 1e-3))) <= EXACT_TH
                      and P[i]['col'] == A[j]['col'] and P[i]['glow'] == A[j]['glow'] for i, j in ok)
-    rest = r['match'] == len(A) == len(P) and same_style and r['bg'] and r['fill_f1'] == 1.0 and r['order'] in (None, 1.0)
+    rest = r['match'] == len(A) == len(P) and same_style and r['bg'] and r['fill_f1'] == 1.0 and r['order'] in (None, 1.0) and r.get('glow_group') in (None, 1.0)
     r['perfect'] = rest and all(pt_max(i, j) <= HALF_BIN for i, j in ok)
     r['near_perfect'] = rest and all(C[i, j] <= EXACT_PT for i, j in ok)
     return r

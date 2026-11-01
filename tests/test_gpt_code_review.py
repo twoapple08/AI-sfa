@@ -187,6 +187,35 @@ class ScorerOrderTest(unittest.TestCase):
         self.assertGreater(self.diff(p, a), 1000)
         self.assertFalse(OS.score(p, a)['perfect'])          # 수정 전: perfect=True, order=None
 
+    def _vee(self, linked, glow):
+        """앱 확인 파일(glow_link_test3·4) 모양: 굵은 검은 선 A(먼저) + 빨간 선 B, 꼭짓점에서 이음."""
+        from test_sfa_objscore import frame, BLACK, RED
+        la, lb = ([(1, 10)], [(0, 1)]) if linked else ([], [])
+        f = frame([('1', [(30, 25), (50, 65)], BLACK, 0, la), ('1', [(50, 65), (70, 25)], RED, 1, lb)])
+        a_, b_ = f.findall('AO')
+        a_.set('ThicknessScale', '3.0')
+        if glow:
+            a_.attrib.update(GlowRadius='2', GlowThickness='60', GlowAlpha='255', GlowColor=str(-256))
+            b_.attrib.update(GlowRadius='2', GlowThickness='150', GlowAlpha='255', GlowColor=str(-16711681))
+        return f
+
+    def test_glow_link_group_changes_image(self):
+        """I-10(앱 확인 11-01): 글로우 선을 이으면 무리 글로우를 먼저 그려 검은 선 끝이 청록 위로 — 이음 차이는 만점이 아니다."""
+        import sfa_objscore as OS
+        a, p = self._vee(True, True), self._vee(False, True)
+        self.assertGreater(self.diff(p, a), 100)
+        r = OS.score(p, a)
+        self.assertLess(r['glow_group'], 1.0)
+        self.assertFalse(r['perfect'])                       # 수정 전: perfect=True
+        self.assertTrue(OS.score(a, a)['perfect'])
+
+    def test_plain_link_still_free(self):
+        """글로우 없는 선의 이음 차이는 영상이 같다 — 그대로 만점(사용자 10-31)."""
+        import sfa_objscore as OS
+        a, p = self._vee(True, False), self._vee(False, False)
+        self.assertEqual(self.diff(p, a), 0)
+        self.assertTrue(OS.score(p, a)['perfect'])
+
     def test_same_plain_lines_still_free(self):
         """같은 색 단색 선끼리는 순서를 바꿔도 같은 영상 — 그대로 만점."""
         import sfa_objscore as OS

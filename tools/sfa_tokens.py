@@ -212,59 +212,33 @@ def canon_circle(xy, hwr, rmax=CIRC_RMAX):
     return [q, f] if near1 else [f, q]
 
 
-def glowing(a):
-    """글로우가 실제로 그려지는 오브젝트(반경·두께·알파 모두 > 0)."""
-    return all(float(a.get(k) or 0) > 0 for k in ('GlowRadius', 'GlowThickness', 'GlowAlpha'))
-
-
-# 연결 묶음 규칙(그리기 순서 단위). True: 점 연결(AC)로 이어진 모든 오브젝트, 'glow'·'fill'·'acfill'·False: 앱 확인용 대안.
-# 앱 확인(11-01, 사용자 화면): ① glow_link_test·test2(A끝 Flags 9 ↔ B시작 8로 이은 두 선)는 앱에서 이은 장 = 안 이은 장(묶음 없음).
-# ② 실제 파일(막고라 part.2 38장·연습 76장)의 판 테두리(A끝 8 ↔ B시작 9, 채운 면)와 관절 스틱맨(33 ↔ 5)은 앱에서 묶인 그림.
-# 실제 파일과 맞는 True를 유지하고, 점 표시 방식별 시험(glow_link_test3) 결과를 기다린다(docs/GPT-RESPONSE-CODE-REVIEW-2026-11-01.md I-10).
+# 그리기 묶음 규칙: 점 연결(AC)로 이어진 오브젝트는 한 무리 — 무리 안 글로우를 먼저 모두 그리고, 무리 안 오브젝트를 이어서 그린다.
+# 앱 확인(11-01, 사용자 화면, docs/GPT-RESPONSE-CODE-REVIEW-2026-11-01.md I-10): glow_link_test3·4 — 점 값(8/9, 관절 33/5)·이음 방향·
+# 한쪽에만 적은 AC 모두 묶였다. 실제 파일 2장(막고라 part.2 38장·연습 76장)도 묶인 그림. 시험 1·2가 안 묶인 것은 같은 점 ID를
+# 장마다 다른 오브젝트에 다시 쓴 시험 파일 탓(실제 파일은 점 ID → 주인 오브젝트가 장마다 같다: 111파일 위반 0).
 GROUP_MODE = True
 
 
 def link_groups(aos, mode=None, frs=()):
-    """AO 목록 → find(ID) 대표값 함수. 렌더러와 정답 문장이 같은 규칙을 쓴다.
-    mode: True 점 연결(AC) 무리 전체, 'glow' 글로우 있는 것끼리의 연결만, 'fill' 같은 채우기(FR)의 테두리(FS ObjId)끼리,
-    'acfill' 점 연결 무리 중 채우기 테두리를 가진 무리만, False 묶음 없음."""
+    """AO 목록 → find(ID) 대표값 함수. 렌더러·정답 문장·채점기가 같은 규칙을 쓴다. mode False면 묶음 없음(시험용)."""
     mode = GROUP_MODE if mode is None else mode
-    by = {a.get('ID'): a for a in aos}
     ap_owner = {p.get('ID'): a.get('ID') for a in aos for p in a.findall('AP')}
-    parent = {k: k for k in by}
+    parent = {a.get('ID'): a.get('ID') for a in aos}
 
     def find(x):
         while parent[x] != x:
             parent[x] = parent[parent[x]]
             x = parent[x]
         return x
-
-    def union(x, y):
-        rx, ry = find(x), find(y)
-        if rx != ry:
-            parent[rx] = ry
-    if mode in (True, 'glow', 'acfill'):
+    if mode:
         for a in aos:
             for p in a.findall('AP'):
                 for ac in p.findall('AC'):
                     o = ap_owner.get(ac.get('ConnPtId'))
-                    if not o or o not in parent:
-                        continue
-                    if mode == 'glow' and not (glowing(a) and glowing(by[o])):
-                        continue
-                    union(a.get('ID'), o)
-    if mode == 'acfill':
-        edge = {s.get('ObjId') for r in frs for s in r.findall('FS')}
-        root = {k: find(k) for k in by}
-        keep = {root[k] for k in by if k in edge}
-        for k in by:   # 채우기 테두리가 없는 무리는 낱개로
-            if root[k] not in keep:
-                parent[k] = k
-    if mode == 'fill':
-        for r in frs:
-            ids = [s.get('ObjId') for s in r.findall('FS') if s.get('ObjId') in parent]
-            for x in ids[1:]:
-                union(ids[0], x)
+                    if o and o in parent:
+                        ra, rb = find(a.get('ID')), find(o)
+                        if ra != rb:
+                            parent[ra] = rb
     return find
 
 
