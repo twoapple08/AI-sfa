@@ -5,6 +5,7 @@ Drive 연결·절전 막기·화면 기록·올리기는 pc_vec_run.py의 것을
 """
 import argparse
 import glob
+import json
 import os
 import shutil
 import subprocess
@@ -31,6 +32,15 @@ def uploader(out, rclone, drive, stop, every=900):
         if os.path.exists(os.path.join(out, 'ckpt.pt')):
             ok = upload(rclone, out, drive, ['ckpt.pt', 'best.pt', 'log.jsonl', 'train_console.txt', SHEETS])
             print(time.strftime('%H:%M'), 'Drive 중간 저장', '정상' if ok else '실패', flush=True)
+
+
+def last_step(out):
+    """출력 폴더 log.jsonl 마지막 기록의 걸음 수(없으면 None)."""
+    p = os.path.join(out, 'log.jsonl')
+    if not os.path.exists(p):
+        return None
+    lines = [x for x in open(p, encoding='utf-8').read().splitlines() if x.strip()]
+    return json.loads(lines[-1]).get('step') if lines else None
 
 
 def main():
@@ -81,10 +91,18 @@ def main():
         print(f'[1/3] 자료(파일 12개 중 1개) 정상 {(time.time() - t0) / 60:.1f}분', flush=True)
         base = (f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --log-every 20 --val-minutes 2 --val-n 64 --tok-budget {a.tok_budget}'
                 + st + extra)
-        P.run_logged(base + ' --minutes 4 --plan-minutes 60' + (' --yield' if a.yield_ else ''), out)
-        print('[2/3] 4분 학습 정상 — 위 줄의 걸음 수·GPU 메모리로 본 학습 속도를 계산', flush=True)
-        P.run_logged(base + ' --minutes 1', out)
-        print('[3/3] 이어하기 정상', flush=True)
+        # 빠른 시험의 시간은 벽시계(자료·모델 준비 포함). 마지막 평가 몫을 작게 주지 않으면 기본 20분 몫 때문에 0걸음으로 끝난다(GPT 코드 검토 I-04)
+        quick = ' --final-reserve-min 0.5 --gen-minutes 0 --val-n 16'
+        P.run_logged(base + quick + ' --minutes 4 --plan-minutes 60' + (' --yield' if a.yield_ else ''), out)
+        s1 = last_step(out)
+        if not s1:
+            raise SystemExit(f'[2/3] 실패: 4분 동안 학습 걸음 0 — train_console.txt 확인(걸음 {s1})')
+        print(f'[2/3] 4분 학습 정상 — {s1}걸음. 위 줄의 걸음 수·GPU 메모리로 본 학습 속도를 계산', flush=True)
+        P.run_logged(base + quick + ' --minutes 2', out)
+        s2 = last_step(out)
+        if not s2 or s2 <= s1:
+            raise SystemExit(f'[3/3] 실패: 이어하기에서 걸음이 늘지 않음({s1} → {s2})')
+        print(f'[3/3] 이어하기 정상 — {s1} → {s2}걸음', flush=True)
         if a.rclone:
             print('Drive 올리기', '정상' if upload(a.rclone, out, drive, ['log.jsonl', 'train_console.txt']) else '실패', drive, flush=True)
         print(f'빠른 시험 끝 {(time.time() - t_start) / 60:.1f}분. 이 창 아래쪽을 사진으로 보내 주세요.', flush=True)

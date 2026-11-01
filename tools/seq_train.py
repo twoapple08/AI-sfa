@@ -511,7 +511,11 @@ def train(a):
     # 생성·저장 제외), plan_min = 학습 진행 계획(분). 학습률·해상도 단계·쉬운 것부터·공식 판정의 '계획 끝'은 모두 train_min / plan_min.
     st = dict(step=0, best=1e9, done_min=0.0, train_min=0.0, plan_min=a.plan_minutes or a.minutes, budget=a.tok_budget, grad_ckpt=a.grad_ckpt,
               px=a.px_budget, stage=0)
-    saved = torch.load(ck, map_location='cpu', weights_only=False) if os.path.exists(ck) else None
+    cands = [p_ for p_ in (ck, ck + '.fallback') if os.path.exists(p_)]   # 예비 파일이 더 새것이면 그것(저장 실패 대비, I-08)
+    src_ck = max(cands, key=os.path.getmtime) if cands else None
+    saved = torch.load(src_ck, map_location='cpu', weights_only=False) if src_ck else None
+    if src_ck and src_ck != ck:
+        print('이어하기: 예비 저장본에서', flush=True)
     if saved:
         cfg = saved['cfg']   # 이어하기: 처음 정한 모델 크기·입력 크기·계획 그대로(명령줄 값보다 우선)
         st.update(saved['state'])
@@ -534,8 +538,16 @@ def train(a):
     sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w']) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
     js = J.JudgeSet(a.judge, cfg['in_w']) if a.judge else None   # 판정 장치(11-01): 평가 목록 고정 장 × 이동 4방향
     js_reduced = False
+    if js is not None:   # 공식 자격 = 저장소 고정 평가 목록과 같은 자료(GPT 코드 검토 I-06: 판·어휘만 보고, 다른·축소 자료도 '전체 목록'으로 공식이 될 수 있었다)
+        list_ok = judge_list_ok(js.meta, J.load_manifest())
+        judge_id = f"{js.meta.get('manifest_sha')}:{js.meta.get('version')}"
+        if st.setdefault('judge_id', judge_id) != judge_id:   # 첫 회차와 다른 평가 목록이면 공식 아님(같은 학습의 판정끼리 같은 목록)
+            list_ok = False
+        if not list_ok:
+            js_reduced = True
+            print('주의: 판정 자료가 저장소 고정 평가 목록(또는 첫 회차 목록)과 다름 — 공식 판정 없음(추세만)', flush=True)
     if js is not None and a.judge_n:
-        js_reduced = a.judge_n < len(js)
+        js_reduced = js_reduced or a.judge_n < len(js)
         js.keep(a.judge_n)
         print(f'주의: 판정 장을 앞 {len(js)}장으로 줄임(흐름 시험용 — 공식 판정 아님)', flush=True)
     memo = {}
@@ -705,14 +717,25 @@ def train(a):
         sv_ = rate.get('save', [30.0, 1])
         return a.reserve_margin * ((v_tok + vk_tok) * spt_v + gen + 2 * sv_[0] / sv_[1]) + 60
 
-    def save_ckpt():
+    def save_ckpt(final=False):
+        """저장. 성공하면 True. 본 파일을 못 바꾸면(Windows 파일 잠금 등) 예비 파일(ckpt.pt.fallback)에 쓴다 — 이어하기는 둘 중 새것을 읽는다.
+        마지막 저장(final)이 둘 다 실패하면 멈춘다: 공식 결과(official_n 등)가 저장본에 없는 채로 '정상 끝'이 되지 않게(GPT 코드 검토 I-08)."""
         t_s = time.time()
         st['done_min'] = done0 + active_min()
         rng = dict(py=random.getstate(), torch=torch.get_rng_state(), cuda=torch.cuda.get_rng_state() if dev == 'cuda' else None)
-        VT.save(dict(model=net.state_dict(), opt=opt.state_dict(), scaler=scaler.state_dict(), rng=rng, cfg=cfg, state=dict(st)), ck)
-        r_ = rate.setdefault('save', [0.0, 0])
-        r_[0] += time.time() - t_s
-        r_[1] += 1
+        obj = dict(model=net.state_dict(), opt=opt.state_dict(), scaler=scaler.state_dict(), rng=rng, cfg=cfg, state=dict(st))
+        ok = VT.save(obj, ck) is not False
+        if not ok:
+            ok = VT.save(obj, ck + '.fallback', tries=5) is not False
+            print('저장: 본 파일 실패 → 예비 파일', '성공' if ok else '도 실패', flush=True)
+            st['save_failed'] = st.get('save_failed', 0) + 1
+        if ok:
+            r_ = rate.setdefault('save', [0.0, 0])
+            r_[0] += time.time() - t_s
+            r_[1] += 1
+        elif final:
+            raise SystemExit('마지막 저장 실패(본·예비 모두) — 이 회차 결과가 저장본에 없음. 출력 폴더 잠금을 풀고 다시 실행')
+        return ok
 
     def val_batch(b, ds_=None):
         """한 묶음의 (손실 합, 맞힘 합, 토큰 수, 못 잰 장 수). 메모리 부족이면 오류 처리를 벗어난 뒤 반으로 나눠 다시(GPT 2차).
@@ -818,6 +841,20 @@ def train(a):
             return cfg['maxlen']
         return min(cfg['maxlen'], int(a.gen_len_mult * n_ans + 128))
 
+    def official_gate(final, w):
+        """공식 판정 자격과 횟수(GPT 코드 검토 P-02). 조건(official_judgment)을 만족해도, 같은 계획 끝에서 이미 공식 판정을 했으면
+        재계산(공식 아님, 'repeat'), 이미 두 번(최초 끝·연장 끝) 했으면 셋째(공식 아님, 'third'). → (공식인가, 막힌 이유)"""
+        if not official_judgment(final, st['train_min'], st['plan_min'], js_reduced, w, cfg['in_w']):
+            return False, None
+        plans = st.setdefault('official_plans', [])
+        if st['plan_min'] in plans:
+            return False, 'repeat'
+        if st.get('official_n', 0) >= 2:
+            return False, 'third'
+        st['official_n'] = st.get('official_n', 0) + 1
+        plans.append(st['plan_min'])
+        return True, None
+
     def judge_eval(nd, final=False):
         """판정(판정 기준 §2). 그때 배우는 해상도 단계 폭의 그림으로 묻는다(11-01: 1080 단계에 360 영상을 넣으면 위치를 못 읽는 것과
         처음 보는 화질을 구분할 수 없다). 마지막 판정이 고해상도 단계면 기본 입력(360) 공식 2방향도 따로(judge360_)."""
@@ -828,28 +865,24 @@ def train(a):
         try:
             # 공식 판정(판정 기준 §2, GPT 1라운드 A·⑤): 계획 끝에 도달한 마지막 판정만. 길이 상한 없이(모델 최대 길이, 모든 방향 같음).
             # 추세 판정: 길이 상한은 장마다 네 방향 정답 중 가장 긴 것 기준 — 입력 방향에 따라 상한이 달라지지 않게
-            official = official_judgment(final, st['train_min'], st['plan_min'], js_reduced, w, cfg['in_w'])
-            if official:   # 사전 지정 기회는 최초 끝·연장 끝 두 번 — 몇 번째 공식 판정인지 남긴다(셋째부터는 기준 밖)
-                st['official_n'] = st.get('official_n', 0) + 1
+            official, blocked = official_gate(final, w)
             reasons.clear()
             cap_of = (lambda i: None) if official else (lambda i: max(len(t) for t in js.tok[i]))
             res, gens = J.evaluate(js, lambda i, d: gen_img(js.image(i, d, w), js.ents[i]['hwr'], cap_of(i)), dirs=range(nd),
                                    memo=memo[2], memo4=memo[4])
             rec_ = J.flat(res)
-            rec_.update(judge_dirs=nd, judge_w=w, judge_official=official, judge_official_n=st.get('official_n', 0) if official else None,
+            rec_.update(judge_dirs=nd, judge_w=w, judge_official=official, judge_official_blocked=blocked, judge_official_n=st.get('official_n', 0) if official else None,
                         judge_reduced=js_reduced, judge_end=dict(reasons))
             print(f'[{w}폭 {"공식" if official else "추세"}]', J.summary_line(res, official), f"({round(time.time() - t1)}초, {nd}방향, 끝냄 {dict(reasons)})", flush=True)
             judge_sheet(gens, w)
             if final and w != cfg['in_w']:
                 t2 = time.time()
                 reasons.clear()
-                off360 = official_judgment(final, st['train_min'], st['plan_min'], js_reduced, cfg['in_w'], cfg['in_w'])
+                off360, blocked360 = official_gate(final, cfg['in_w'])
                 cap360 = (lambda i: None) if off360 else (lambda i: max(len(t) for t in js.tok[i]))
-                if off360:
-                    st['official_n'] = st.get('official_n', 0) + 1
                 r2, _ = J.evaluate(js, lambda i, d: gen_img(js.image(i, d), js.ents[i]['hwr'], cap360(i)), dirs=range(2), memo=memo[2])
                 rec_.update(J.flat(r2, 'judge360_'))
-                rec_.update(judge360_end=dict(reasons), judge360_official=off360, judge360_official_n=st.get('official_n', 0) if off360 else None)
+                rec_.update(judge360_end=dict(reasons), judge360_official=off360, judge360_official_blocked=blocked360, judge360_official_n=st.get('official_n', 0) if off360 else None)
                 print(f"[{cfg['in_w']}폭 {'공식' if off360 else '추세'}]", J.summary_line(r2, off360), f"({round(time.time() - t2)}초, 2방향)", flush=True)
             rec_['judge_sec'] = round(time.time() - t1)
         finally:
@@ -1018,7 +1051,23 @@ def train(a):
             scaler.scale(loss).backward()
             scaler.unscale_(opt)
             unscaled = True
-            nn.utils.clip_grad_norm_(net.parameters(), 1.0)
+            gnorm = nn.utils.clip_grad_norm_(net.parameters(), 1.0)
+            if not torch.isfinite(gnorm):
+                # 기울기 넘침(GPT 코드 검토 I-01): GradScaler는 step을 건너뛰고 배율만 줄인다. 배율이 없는 경로(CPU·bf16)는 그대로면
+                # 비유한 기울기가 옵티마이저에 들어간다 — 둘 다 업데이트 없음으로 보고 실패로 센다(학습 진행·성공 기록에 넣지 않는다)
+                if scaler.is_enabled():
+                    scaler.step(opt)   # 넘침이 기록돼 있어 건너뛴다
+                    scaler.update()
+                opt.zero_grad(set_to_none=True)
+                skipped += 1
+                sel[2] += 1
+                train_tick(t_it, l0, p0, ok=False)
+                sel[3] += step_s[0]
+                fails_in_row += 1
+                if fails_in_row >= a.max_fail_row:
+                    stop_why = 'failures'
+                    break
+                continue
             scaler.step(opt)
             scaler.update()
         except torch.OutOfMemoryError:
@@ -1091,8 +1140,8 @@ def train(a):
                        oom=oom, skipped=skipped, budget=st['budget'], grad_ckpt=net.grad_ckpt, paused_min=yl.paused / 60,
                        stage_w=widths[k], px=st['px'], **field_report(vhn, 'val_')[0])
             if n and not vbad and vl < st['best']:   # 못 잰 장이 있으면 best 안 바꿈(GPT 2차)
-                st['best'] = vl
-                VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
+                if VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt')) is not False:
+                    st['best'] = vl   # 저장된 뒤에만(GPT 코드 검토 I-08)
             save_ckpt()   # 생성 채점 전에 저장(GPT 2차: 생성 중 문제가 생겨도 학습 상태는 남게)
             last_save = time.time()
             rec.update(vkr)
@@ -1123,9 +1172,9 @@ def train(a):
                train_min=st['train_min'], plan_min=st['plan_min'], stop=stop_why, val_list=val_list,
                stage_steps=dict(st.get('stage_steps', {})), **field_report(vhn, 'val_')[0])
     if n and not vbad and vl < st['best']:
-        st['best'] = vl
-        VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
-    save_ckpt()
+        if VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt')) is not False:
+            st['best'] = vl
+    save_ckpt(final=not a.gen_minutes)   # 생성 판정이 없으면 이것이 마지막 저장
     if vk is not None:
         t_v = time.time()
         rec.update(validate_kind())
@@ -1134,7 +1183,7 @@ def train(a):
         t_g = time.time()
         rec.update(gen_eval(final=True))
         tm['gen'] += time.time() - t_g
-        save_ckpt()   # 마지막 판정이 올린 공식 횟수(official_n)를 저장본에 남긴다 — 연장 회차가 2로 이어지게(GPT 확인 11-01: 저장 뒤 올려 연장이 다시 1이던 것)
+        save_ckpt(final=True)   # 마지막 판정이 올린 공식 횟수(official_n)를 저장본에 남긴다 — 연장 회차가 2로 이어지게(GPT 확인 11-01: 저장 뒤 올려 연장이 다시 1이던 것)
     rec.update(minutes=st['done_min'], fail_min=st.get('fail_min', 0.0), rss_gb=max_rss_gb())   # 마지막 평가·저장 뒤 값(GPT 확인 11-01: 예전엔 교사 검증 직후 값)
     rec.update(time_sec=dict(tm, load=tm_load[0], wall=time.time() - t_run), expo=dict(st.get('expo', {})), sel=dict(st.get('sel', {})),
                cur_max=dict(st.get('cur_max', {})), plan_reached=bool(st['train_min'] >= st['plan_min'] - 1e-6),
@@ -1147,6 +1196,13 @@ def train(a):
 
 
 OFFICIAL_W = 640   # 공식 판정 폭 = 360(640×360) 고정(판정 기준 §2·사용자 11-01: 최종적으로 360에서도 잘하나)
+
+
+def judge_list_ok(meta, manifest):
+    """판정 자료가 저장소 고정 평가 목록 그대로인가(GPT 코드 검토 I-06): 목록 해시·(파일, 장, 묶음) 순서·방향 4개·기본 폭 640."""
+    key = lambda es: [(e['file'], e['pos'], e['group']) for e in es]  # noqa: E731
+    return (meta.get('manifest_sha') == J.manifest_sha(manifest) and key(meta['entries']) == key(manifest['entries'])
+            and [list(d) for d in meta['dirs']] == [list(d) for d in J.DIRS] and meta.get('W') == 640)
 
 
 def official_judgment(final, done_min, plan_min, reduced, w, in_w):

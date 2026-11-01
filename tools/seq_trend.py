@@ -3,7 +3,9 @@
 사용: python seq_trend.py log.jsonl [--md 결과.md]
 
 보는 것(미리 정함, 판정 기준 §2와 같은 이름):
-- 위치 읽기: 입력 교환 승수(공식 46개 중 31승이면 통과)와 Δ 중앙값이 오르는가.
+- 위치 읽기: 입력 교환 승수(필요 승수는 기록의 judge_need, 지금 목록 45단위 30승)와 Δ 중앙값이 오르는가.
+  통과가 증명하는 것은 '입력의 위치를 읽는다'까지다. 외운 정답을 위치에 맞춰 골라 내는 방식으로도 통과할 수 있다(GPT 코드 검토 P-01:
+  원래 자리 정답 46개 + 변환 템플릿 검색이 45/45승). 처음 보는 형상을 그리는 실력은 '새 작품' 점수로 본다.
 - 외움보다 나은가: A(옮긴 정답 점수) − 외움 기준선이 0보다 크고 오르는가. B(원래 자리)만 오르면 외우는 쪽.
 - 새 작품: 시험 파일(학습에 없던 작품) 생성 부분 점수가 오르는가 — 외워서는 오를 수 없는 점수.
 - 건전성: 빈 출력·미완료가 한도 안인가.
@@ -31,16 +33,29 @@ def rows_of(path):
     return out
 
 
+def badge(r, pre):
+    """'통과'는 공식 판정(기록의 *_official)이면서 부호 검정 + 건전성일 때만. 추세는 '기준선 초과(추세)'(GPT 코드 검토 I-07)."""
+    ok = r.get(f'{pre}passed_all', r.get(f'{pre}passed') and r.get(f'{pre}health_passed'))
+    if not ok:
+        return ''
+    return ' 통과' if r.get(f'{pre}official') else ' 기준선 초과(추세)'
+
+
+def cond(r):
+    """비교 조건: 판정 폭·축소 여부·평가 장 수·검증 목록. 이것이 다르면 점수 차이에 해상도·목록 변화가 섞인다(GPT 코드 검토 I-07)."""
+    return (r.get('judge_w'), bool(r.get('judge_reduced')), r.get('judge_n_entries'), (r.get('val_list') or {}).get('hash'))
+
+
 def table(rows):
     head = ['분', '걸음', '단계폭', '위치 읽기(승/N, 필요)', 'Δ중앙', 'A', 'B', '외움', 'A−외움', '새 작품 부분', '새 작품 F1', '건전성', '첫 점', '이어지는 점']
     lines = ['| ' + ' | '.join(head) + ' |', '|' + '---|' * len(head)]
     for r in rows:
         rc, pr = r.get('gen_recall'), r.get('gen_precision')
         gf1 = 2 * rc * pr / (rc + pr) if rc is not None and pr and rc + pr else (0.0 if rc is not None else None)
-        win = (f"{r.get('judge_win')}/{r.get('judge_N')}({r.get('judge_need')})" + (' 통과' if r.get('judge_passed_all', r.get('judge_passed') and r.get('judge_health_passed')) else '')
+        win = (f"{r.get('judge_win')}/{r.get('judge_N')}({r.get('judge_need')})" + badge(r, 'judge_')
                + (f" @{r['judge_w']}" if r.get('judge_w') else '')) if r.get('judge_N') else '-'
         if r.get('judge360_N'):
-            win += f" · 360폭 {r.get('judge360_win')}/{r.get('judge360_N')}" + (' 통과' if r.get('judge360_passed_all', r.get('judge360_passed') and r.get('judge360_health_passed')) else '')
+            win += f" · 360폭 {r.get('judge360_win')}/{r.get('judge360_N')}" + badge(r, 'judge360_')
         hp = r.get('judge_health_passed')
         lines.append('| ' + ' | '.join([
             f(r.get('minutes'), 0), str(r.get('step', '-')), str(r.get('stage_w', '마지막' if r.get('final') else '-')), win,
@@ -54,14 +69,23 @@ def verdict(rows):
     j = [r for r in rows if r.get('judge_N')]
     if len(j) < 2:
         return '판정 기록이 2번 미만 — 추세를 말할 수 없음'
-    a, b = j[0], j[-1]
+    b = j[-1]
+    same = [r for r in j if cond(r) == cond(b)]
     out = []
+    changes = [k for k in range(1, len(j)) if cond(j[k]) != cond(j[k - 1])]
+    if changes:
+        out.append(f"조건 바뀐 곳(판정 폭·축소·장 수·검증 목록): 기록 {', '.join(str(k + 1) for k in changes)}번째 — 비교는 마지막과 같은 조건의 기록끼리만")
+    if len(same) < 2:
+        return '\n'.join(out + ['마지막과 같은 조건의 판정 기록이 2번 미만 — 추세를 말할 수 없음'])
+    a = same[0]
 
     def d(k):
         return None if a.get(k) is None or b.get(k) is None else b[k] - a[k]
     out.append(f"위치 읽기 승수 {a.get('judge_win')} → {b.get('judge_win')} (필요 {b.get('judge_need')}), Δ중앙 {f(a.get('judge_delta_median'), 2)} → {f(b.get('judge_delta_median'), 2)}")
     out.append(f"A−외움 {f(a.get('judge_A_minus_memo'))} → {f(b.get('judge_A_minus_memo'))}, B {f(a.get('judge_B'))} → {f(b.get('judge_B'))}")
+    vl = lambda r: (r.get('val_list') or {}).get('hash')  # noqa: E731
     g = [r for r in rows if r.get('gen_partial') is not None]
+    g = [r for r in g if vl(r) == vl(g[-1])] if g else g   # 새 작품 점수도 같은 검증 목록끼리
     if len(g) >= 2:
         out.append(f"새 작품 부분 점수 {f(g[0]['gen_partial'], 1, True)} → {f(g[-1]['gen_partial'], 1, True)}")
     sig = []

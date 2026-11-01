@@ -90,7 +90,7 @@ def _controller():
     import seq_train as ST
     tree = ast.parse((Path(ST.__file__)).read_text(encoding='utf-8'))
     train = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == 'train')
-    judge = next(n for n in train.body if isinstance(n, ast.FunctionDef) and n.name == 'judge_eval')
+    judge = [n for n in train.body if isinstance(n, ast.FunctionDef) and n.name in ('official_gate', 'judge_eval')]
     loop_idx = max(i for i, n in enumerate(train.body) if isinstance(n, ast.While))
 
     def is_save(n):
@@ -100,7 +100,7 @@ def _controller():
         return any(isinstance(x, ast.Call) and isinstance(x.func, ast.Name) and x.func.id == 'gen_eval' for x in ast.walk(n))
     tail = [n for n in train.body[loop_idx + 1:] if is_save(n) or (isinstance(n, ast.If) and has_gen(n))]
     tail_code = compile(ast.Module(body=tail, type_ignores=[]), '<train-tail>', 'exec')
-    judge_code = compile(ast.Module(body=[judge], type_ignores=[]), '<judge_eval>', 'exec')
+    judge_code = compile(ast.Module(body=judge, type_ignores=[]), '<judge_eval>', 'exec')
 
     def run(state, width=640, reduced=False):
         st = copy.deepcopy(state)
@@ -122,7 +122,7 @@ def _controller():
                    memo={2: 12.07, 4: 11.63}, judge_sheet=lambda *x: None, dev='cpu', a=SimpleNamespace(gen_minutes=1), rec={},
                    tm={'gen': 0})
         exec(judge_code, env)
-        env['save_ckpt'] = lambda: saved.update(copy.deepcopy(st))
+        env['save_ckpt'] = lambda **kw: saved.update(copy.deepcopy(st))
         env['gen_eval'] = lambda final=False: env['judge_eval'](4, final)
         with contextlib.redirect_stdout(io.StringIO()):
             exec(tail_code, env)
@@ -140,6 +140,19 @@ class OfficialCountTest(unittest.TestCase):
         second = run(dict(first["saved"], done_min=1200, train_min=1200, plan_min=1200))
         self.assertEqual(second['rec']['judge_official_n'], 2)
         self.assertEqual(second['saved'].get('official_n'), 2)
+
+    def test_repeat_and_third_not_official(self):
+        """GPT 코드 검토 P-02: 같은 계획 끝 재실행은 재계산(공식 아님), 셋째 기회도 공식 아님(수정 전: 공식 1 → 2 → 3)."""
+        run = _controller()
+        s = dict(stage=0, done_min=600, train_min=600, plan_min=600)
+        r1 = run(s)
+        r2 = run(r1['saved'])
+        self.assertEqual((r1['rec']['judge_official'], r1['rec']['judge_official_n']), (True, 1))
+        self.assertEqual((r2['rec']['judge_official'], r2['rec']['judge_official_blocked']), (False, 'repeat'))
+        r3 = run(dict(r2['saved'], train_min=780, plan_min=780))
+        self.assertEqual((r3['rec']['judge_official'], r3['rec']['judge_official_n']), (True, 2))
+        r4 = run(dict(r3['saved'], train_min=900, plan_min=900))
+        self.assertEqual((r4['rec']['judge_official'], r4['rec']['judge_official_blocked']), (False, 'third'))
 
     def test_high_res_end_counts_once(self):
         """고해상도에서 끝난 회차: 고해상도 판정은 추세, 뒤따르는 360만 공식 — 한 번만 센다. 상한은 추세 178·공식 2048."""

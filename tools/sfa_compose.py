@@ -77,8 +77,10 @@ def units_of(fr, hwr, max_objs=MAX_UNIT_OBJS):
         if not vis or (max_objs and len(g) > max_objs) or any(not a.findall('AP') for a in g):
             continue
         ufr = [r for r in frs if r.findall('FS')[0].get('ObjId') in ids]
+        used = {a.get('LayerId', '0') for a in g}
         out.append(dict(aos=[copy.deepcopy(a) for a in g], frs=[copy.deepcopy(r) for r in ufr], n=len(g), hwr=hwr,
-                        z=min(rank.get(i, 1 << 30) for i in ids)))
+                        z=min(rank.get(i, 1 << 30) for i in ids),
+                        layers=[d.get('ID') for d in defs if d.get('ID') in used]))   # 원래 레이어 그리는 순서(GPT 코드 검토 I-09)
     return out
 
 
@@ -211,7 +213,7 @@ def place(u, fr, hwr, rng, ids, z, keep=False):
     if flip and not mirror_ok(u['frs'], circ):
         flip = False   # 원 면 T를 범위 안으로 옮길 수 없으면 반전하지 않는다
     hs = u['hwr']
-    old_layers = []
+    old_layers = list(u.get('layers') or [])   # 원래 LayerDef 순서(그리는 순서) — AO가 XML에 나온 순서가 아니다(GPT 코드 검토 I-09: 묶음 안 가림이 바뀌었다)
     for a in u['aos']:
         if a.get('LayerId', '0') not in old_layers:
             old_layers.append(a.get('LayerId', '0'))

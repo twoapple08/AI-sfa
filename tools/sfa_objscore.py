@@ -306,22 +306,40 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
                 c, rr = xy[:2].mean(0), np.linalg.norm(xy[1] - xy[0]) / 2
                 return c[0] - rr, c[1] - rr, c[0] + rr, c[1] + rr
             return xy[:, 0].min(), xy[:, 1].min(), xy[:, 0].max(), xy[:, 1].max()
-        bx = {j: box(A[j]) for j in m.values()}
-        # 겉모습 = 선 색 + 글로우 + 그 오브젝트와 함께 칠해지는 면(주인 = 면의 첫 조각 오브젝트)의 색들.
-        # 겉모습이 같으면 순서를 바꿔도 영상이 같다(GPT 3차: 선 색만 보면 면 색이 다른 겹친 원의 순서를 놓쳤다)
-        own = {}
+        def reach(o):
+            """그려지는 범위의 여백(화면 가로 %): 선 굵기 반, 글로우면 번짐 폭(렌더러 글로우 폭 반 + 흐림 4σ, sfa_tokens.far_away와 같은 식) + 0.5."""
+            m_px = 8.0 * 1.14 * abs(o['th']) / 2 + 1
+            if o['glow']:
+                gr, gw = o['glow'][0], o['glow'][1]
+                m_px = max(m_px, 8.0 * abs(o['th']) * gw / 10 / 2 + 4 * gr + 1)
+            return m_px / 1900 * 100 + 0.5
+        # 면: 주인 = 면의 첫 조각 오브젝트. 면 범위 = 면을 이루는 모든 조각 오브젝트 범위의 합(GPT 코드 검토 I-03: 주인 경계만 보던 것)
+        own, fill_objs = {}, {}
         for col, groups in fa:
             if groups:
-                own.setdefault(groups[0][0][1], []).append(col)
-        look = {j: (A[j]['col'], A[j]['glow'], tuple(sorted(own.get(j, [])))) for j in m.values()}
+                o_ = groups[0][0][1]
+                own.setdefault(o_, []).append(col)
+                fill_objs.setdefault(o_, set()).update(seg[1] for g in groups for seg in g)
+        bx = {}
+        for j in m.values():
+            x0, y0, x1, y1 = box(A[j])
+            e = reach(A[j])
+            x0, y0, x1, y1 = x0 - e, y0 - e, x1 + e, y1 + e
+            for k in fill_objs.get(j, ()):
+                if 0 <= k < len(A):
+                    bb = box(A[k])
+                    x0, y0, x1, y1 = min(x0, bb[0]), min(y0, bb[1]), max(x1, bb[2]), max(y1, bb[3])
+            bx[j] = (x0, y0, x1, y1)
+        # 순서 무관 예외는 '면·글로우 없는 같은 색 선'끼리만: 같은 색 한 번 칠은 겹쳐도 결과가 같다. 선 + 면처럼 여러 번 칠하는 오브젝트는
+        # 색 목록이 같아도 나중 것의 면이 앞 것의 선을 덮어 순서가 영상을 바꾼다(GPT 코드 검토 I-02, 렌더 1,224화소 차이).
+        plain = {j: not own.get(j) and A[j]['glow'] is None for j in m.values()}
         same = tot = 0
         items = sorted(m.items())
         for x in range(len(items)):
             for y in range(x + 1, len(items)):
                 (i1, j1), (i2, j2) = items[x], items[y]
                 b1, b2 = bx[j1], bx[j2]
-                pad = 0.5 + (A[j1]['th'] + A[j2]['th']) * 8 * 1.14 / 2 / 1900 * 100   # 선 굵기 반 + 여유
-                if look[j1] == look[j2] or b1[2] + pad < b2[0] or b2[2] + pad < b1[0] or b1[3] + pad < b2[1] or b2[3] + pad < b1[1]:
+                if (plain[j1] and plain[j2] and A[j1]['col'] == A[j2]['col']) or b1[2] < b2[0] or b2[2] < b1[0] or b1[3] < b2[1] or b2[3] < b1[1]:
                     continue
                 tot += 1
                 same += (i1 < i2) == (j1 < j2)

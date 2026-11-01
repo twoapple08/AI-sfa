@@ -25,8 +25,8 @@ echo GPU: %GPU%
   %PY% -m pip install -q --upgrade pip
   %PY% -m pip install -q --force-reinstall torch torchvision --index-url https://download.pytorch.org/whl/%CU%
 )
-%PY% -m pip install -q skia-python opencv-python-headless numpy
-%PY% -c "import torch,skia,cv2;print('torch',torch.__version__,'cuda',torch.cuda.is_available(),torch.cuda.get_device_name(0))" || (echo torch/skia failed & pause & exit /b 1)
+%PY% -m pip install -q skia-python opencv-python-headless numpy scipy
+%PY% -c "import torch,skia,cv2,scipy;print('torch',torch.__version__,'cuda',torch.cuda.is_available(),torch.cuda.get_device_name(0))" || (echo torch/skia/scipy failed & pause & exit /b 1)
 
 echo [3/6] ffmpeg
 if not exist %ROOT%\ffmpeg\bin\ffmpeg.exe (
