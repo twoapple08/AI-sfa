@@ -3,12 +3,12 @@
 근거: docs/GPT-RESPONSE-VERIFY-ROUND2-FLOWTEST-2026-11-01.md §5(첫 GPU는 본 학습과 분리한 속도 측정). 계획(학습 진행 분)은 첫 본 학습 회차에 고정하고 줄이지 않으므로, 그 전에 학습 외 시간을 실측한다.
 
 ## 전제
-- Kaggle 자료 판 9(sj 포함)가 끝나고 `data-check`가 모두 0일 것.
+- Kaggle 자료 판 10(sj 포함, 11-02 레이어 투명도 단어)이 끝나고 `data-check`가 모두 0일 것.
 - 사용자 GPU 지시(코드도 `--gpu-ok` 없이는 GPU push를 거부).
 
 ## 명령(한 번)
 ```
-python tools/kaggle_seq_remote.py push --prebuilt --prebuilt-any-code --gpu-ok --fresh --minutes 60 --plan-minutes 16 --extra "--gen-minutes 15"
+python tools/kaggle_seq_remote.py push --prebuilt --gpu-ok --fresh --minutes 60 --plan-minutes 16 --extra "--gen-minutes 15"
 python tools/kaggle_seq_remote.py wait
 python tools/kaggle_seq_remote.py pull 작업폴더      # save-ckpt는 하지 않는다(본 학습이 이 모델을 이어받지 않게)
 ```
@@ -18,7 +18,7 @@ python tools/kaggle_seq_remote.py pull 작업폴더      # save-ckpt는 하지 �
 - 판정 자료는 자료 커널이 만든 sj를 쓴다(콘솔 '판정 자료: 미리 만든 것 사용' 확인 — R4).
 - 예상 GPU 사용 40–60분(주간 30시간 중).
 
-- `--prebuilt-any-code`: 판 9 자료(cb3f34f 코드) 뒤 렌더러·정답 문장 코드가 바뀌었지만(묶음 규칙 정리·레이어 투명도) 학습 파일 3,772장 표본에서 그림·정답이 옛 코드와 모두 같다(11-02). 자료 판은 그대로 9.
+- (판 10부터 `--prebuilt-any-code`는 쓰지 않는다 — 자료가 지금 코드로 만들어졌다. 옛 기록:) `--prebuilt-any-code`: 판 9 자료(cb3f34f 코드) 뒤 렌더러·정답 문장 코드가 바뀌었지만(묶음 규칙 정리·레이어 투명도) 학습 파일 3,772장 표본에서 그림·정답이 옛 코드와 모두 같다(11-02). 자료 판은 그대로 9.
 
 ## 볼 것(기록 → 계획 계산)
 | 항목 | 어디서 |
