@@ -18,7 +18,7 @@
 - 토론은 논증거리가 없어질 때까지(사용자 10-31). GPT는 GitHub·Drive 직접 접근.
 
 ## 바로 할 일
-1. **Kaggle 자료 판 9**(CPU, 11-01 17:44 UTC 올림, 판정 자료 sj 포함, 예상 2–3시간): 끝나면 `python tools/kaggle_seq_remote.py data-check 폴더`로 정합성 확인(판 7·8은 모두 0).
+1. **Kaggle 자료 판 9 완료**(cb3f34f, CPU 125분): `data-check` — sd·sd1920·sd1280·sd854·sc 모두 100화소 넘는 어긋남 0(최대 85). 판정 자료(sj)도 들어 있으나, 그 뒤 `seq_judge.py`가 바뀌어(R-04 내용 검사) 학습 커널은 판정 자료를 새로 만든다(3–4분, 정상 동작). 렌더러·정답 코드 변경은 자료에 영향 없음(3,772장 동일) → `--prebuilt-any-code`.
 2. **사용자 지시를 받고** GPU: ① 속도 측정 회차(40–60분, 실행표 docs/GPU-SPEEDTEST-RUNBOOK-2026-11-01.md) → ② 실측한 학습 외 시간으로 계획(학습 진행 분)을 정함 → ③ 본 학습. 회차마다 `python tools/seq_trend.py log.jsonl`로 추세를 보여 드린다. 계획 정책: docs/GPT-RESPONSE-VERIFY-ROUND2-FLOWTEST-2026-11-01.md §5.
 3. GPT에 응답 문서 재검토 요청(docs/GPT-RESPONSE-CODE-REVIEW-2026-11-01.md).
 4. 측정(GPU 뒤): 길이별 생성 시간·마지막 평가 예상 대 실제, 메모리(rss_gb), 실제 장 노출, 묶음 검출 오탐(M-01–M-04).
