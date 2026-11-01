@@ -112,7 +112,7 @@ def main():
     out = '/kaggle/working/out'
     os.makedirs(out, exist_ok=True)
     sh('nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true')
-    repo, _ = clone(c)
+    repo, commit = clone(c)   # 실행 식별(GPT 1라운드 흐름 시험 항목): 학습 코드 커밋·미리 만든 자료 커밋을 run.json에
     tools = f'{repo}/tools'
     # 이어하기: 입력 자료에 이전 학습 상태가 있으면 출력 폴더로(학습이 그 자리에서 이어서 한다)
     prev = sorted(glob.glob('/kaggle/input/**/ckpt.pt', recursive=True))
@@ -156,7 +156,10 @@ def main():
     rc = pr.wait()
     for f in ('seq_train.py', 'sfa_tokens.py'):
         shutil.copy(f'{tools}/{f}', out)
-    json.dump(dict(rc=rc, minutes=(time.time() - T0) / 60, config=c), open(f'{out}/run.json', 'w'))
+    infos = sorted(glob.glob('/kaggle/input/**/data_info.json', recursive=True))
+    data_commit = json.load(open(infos[0], encoding='utf-8')).get('commit') if infos and c.get('prebuilt') else None
+    json.dump(dict(rc=rc, minutes=(time.time() - T0) / 60, commit=commit, data_commit=data_commit, resumed=bool(prev), config=c),
+              open(f'{out}/run.json', 'w'))
     print('끝', rc, f'{(time.time() - T0) / 60:.0f}분', flush=True)
     if rc:
         raise SystemExit(rc)

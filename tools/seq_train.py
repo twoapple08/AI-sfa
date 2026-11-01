@@ -959,7 +959,9 @@ def train(a):
         elif time.time() - last_save > a.save_minutes * 60:
             save_ckpt()
             last_save = time.time()
+    t_v = time.time()   # 마지막 검증 시간도 시간 내역에 넣는다(11-01 흐름 시험: 중간 검증이 없던 회차의 val이 0으로 나왔다)
     vl, vc, n, vbad, vhn = validate()
+    tm['val'] += time.time() - t_v
     rec = dict(step=st['step'], val=vl, val_acc=vc, val_tokens=n, val_failed=vbad, final=True, minutes=done0 + active_min(),
                stage_steps=dict(st.get('stage_steps', {})), **field_report(vhn, 'val_')[0])
     if n and not vbad and vl < st['best']:
@@ -967,7 +969,9 @@ def train(a):
         VT.save(dict(model=net.state_dict(), cfg=cfg, step=st['step'], val=vl), os.path.join(a.out, 'best.pt'))
     save_ckpt()
     if vk is not None:
+        t_v = time.time()
         rec.update(validate_kind())
+        tm['val'] += time.time() - t_v
     if a.gen_minutes:
         t_g = time.time()
         rec.update(gen_eval(final=True))
