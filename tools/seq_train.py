@@ -657,8 +657,9 @@ def train(a):
             return None
         a_w = {w: min(sec for _, sec in v) for w, v in gs.items()}
         per = [(sec - a_w[w]) / tk for w, v in gs.items() for tk, sec in v if tk >= 32]
-        b = float(np.median(per)) if per else max(sec / tk for v in gs.values() for tk, sec in v)
-        return a_w, max(b, 0.0)
+        if not per:   # 짧은 생성만 있으면 토큰당 비용을 가를 수 없다 → 기본 몫(--final-reserve-min)을 쓴다
+            return None   # (11-01 통합 시험: 8토큰 생성의 초/토큰 최댓값을 쓰니 예상 205초·실제 24초)
+        return a_w, max(float(np.median(per)), 0.0)
 
     def gen_cost(final):
         """생성 평가 예상 초 — 모든 장이 길이 상한까지 간다고 보는 보수적 값. 실측이 없으면 None.
@@ -675,8 +676,8 @@ def train(a):
     def final_cost():
         """마지막 평가(교사 강제 검증·종류별 검증·생성 채점·판정·저장) 예상 초 — 보수적: 생성은 상한까지 간다고 본다.
         실측이 없으면 --final-reserve-min. 실측 속도는 회차마다 갱신해 저장본에 남긴다(첫 GPU 회차의 중간 평가부터)."""
-        rv, rg = rate.get('val'), rate.get('gen_s', {})
-        if not rv or not rg:
+        rv = rate.get('val')
+        if not rv or (a.gen_minutes and gen_model() is None):
             return a.final_reserve_min * 60
         spt_v = rv[0] / max(rv[1], 1)
         gen = gen_cost(True) if a.gen_minutes else 0.0
