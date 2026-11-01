@@ -37,7 +37,7 @@
    - 1-2. **CPU 흐름 시험 1회차 끝(rc 0, 110분, 1걸음)**: 1080 자료 읽기 14.5분·검증 41분(CPU). 진행 시간에 읽기·검증 시간이 들어가 단계·쉬운 것부터 시간을 잡아먹는 문제 → GPT 2라운드 쟁점. 2회차(이어하기, 시험용 저장본 aisfa-seq-ckpt-flowtest) 끝: rc 0, 1→207걸음, 검증 맞힘 40%. **GPT 2라운드 문서: docs/GPT-ROUND2-FLOWTEST-2026-11-01.md**(쟁점: 진행 시간에 읽기 포함·회차 초과·섞기 분위). GPT 답을 받은 뒤 사용자 지시로 GPU.
    - (1회차 실행 기록) **CPU 흐름 시험 실행 중(11-01 03:3x UTC, 커널 aisfa-seq-train 판 2)**: `push --prebuilt --cpu --fresh --minutes 60 --tok-budget 1024 --extra "--max-batch 2 --judge-n 3 --gen-n 2 --gen-minutes 10 --val-minutes 8"`. 끝나면 pull → GPT 측정 항목 확인 → 끊고 재개 시험(save-ckpt 이름은 시험용으로 따로).
    - (이전 계획) 자료가 되면 Kaggle CPU 흐름 시험을 짧게 한 번 더(새 자료·쉬운 것부터·배우는 해상도 판정). 이전 흐름 시험(판 3 자료)은 rc 0 통과. 그 결과로 GPT와 2라운드 토론.
-   - 1-3. 그다음 **사용자 지시를 받고** GPU: 전체 계획 10시간을 3시간 회차로 나눠(사용자 11-01: 12시간을 한 번에 쓰지 않음, 이어 갈 수 있게). 첫 회차 `push --prebuilt --fresh --minutes 180 --plan-minutes 600 --extra "--gen-minutes 20"`(첫 판정을 20분에 — 새 판정 코드가 Kaggle GPU에서 깨지면 빨리 드러나게), 다음 회차 `pull` → `save-ckpt` → `push --prebuilt --minutes 180 --plan-minutes 600`. PC로 넘길 땐 `to-drive`.
+   - 1-3. 그다음 **사용자 지시를 받고** GPU(11-01 제안): ① 분리된 속도 측정 회차(시험용 저장본, GPU 40–60분) → ② 측정한 학습 외 시간으로 계획(학습 진행 분)을 계산해 사용자와 확정 → ③ 본 학습 `push --gpu-ok --prebuilt --fresh --minutes 180 --plan-minutes <확정값> --extra "--gen-minutes 20"`, 다음 회차 `pull` → `save-ckpt` → `push --gpu-ok --prebuilt --minutes 180 --plan-minutes <같은 값>`. `--gpu-ok` 없으면 GPU push가 거부된다. 계획은 줄이지 않는다(연장만). 상세: docs/GPT-RESPONSE-VERIFY-ROUND2-FLOWTEST-2026-11-01.md §5
    - 회차마다 `python tools/seq_trend.py log.jsonl`로 '외우는가, 보고 판단하며 크는가'(위치 읽기 승수·A−외움·새 작품 점수)를 보여 드리고 이어 갈지 정한다.
    - PC bat(Drive `AI-sfa` 맨 위)은 PC를 쓸 수 있을 때의 대안. Drive `seq`에 s1_4060 저장본 없음(11-01).
 2. **최대 예산**: 사용자 11-01 '카글 30시간을 풀로' → 주간 30시간(남은 시간은 실행 전 Kaggle에서 확인).
