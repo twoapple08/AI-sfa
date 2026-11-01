@@ -1,52 +1,41 @@
-# AI-sfa 현행 인수인계 — 2026-11-01
+# AI-sfa 현행 인수인계 — 2026-11-01 밤
 
 이전 판(10-31 낮의 상세 기록): docs/history/HANDOFF-2026-10-31-day.md
 전체 역사(10-14 → 10-31): docs/PROJECT-HISTORY-2026-10-31.md
 새 대화 시작 문구: docs/HANDOFF-PROMPT.md
 
 ## 현재 우선순위
-**영상 → SFA 변환 AI(재설계판) 1판.** 판정 장치 구현을 마쳤다(11-01). 다음은 PC 시험 학습이다.
-- **GPT 독립 전체 검토(11-01, 기준 `68da6ce`)**: `docs/GPT-CODE-REVIEW-2026-11-01.md`. 핵심 17파일·시험 전체 정독, CPU 전체 시험 142개 통과. AMP 업데이트 생략의 성공 기록, 만점 채점의 순서 반례, 공식 평가 목록 확인, 저장 실패 처리, PC quick/의존성 결함을 보고했다. 구현 결함과 측정·설계 과제를 구분했으며 코드 수정은 하지 않았다. **다음 조치:** 보고서 I-01~I-10을 검토·수정하고 해당 회귀를 확인한 뒤 기존 GPU 계획을 진행한다. GPU·Kaggle 실행과 원본/가중치 추가 공개는 없었다. 재현 산출물은 이번 GPT 환경 `/tmp/gpt-review-*`에만 있으며 영구 보관을 보장하지 않는다.
-- 모델이 영상 한 장을 보고 SFA 오브젝트 문장(토큰열)을 빈 상태에서 직접 쓴다. 그 파일을 원본 파일과 오브젝트 단위로 채점한다.
-- 주 목적은 스틱맨 동작(사용자 10-28).
-- 설계: docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md(§6.2 해상도 단계). 일반인용 해설: docs/EXPLAINER-VIDEO-TO-SFA-2026-10-31.md
-- **판정 기준(확정): docs/JUDGE-CRITERIA-FINAL-2026-10-31.md** — GPT와 4라운드 토론 끝에 '논증거리 없음'. 경과: docs/JUDGE-CRITERIA-DEBATE-2026-10-31.md
+**영상 → SFA 변환 AI(재설계판) 1판 — GPU 첫 회차 직전.** 코드는 Claude·GPT 독립 전체 검토와 반례 수정까지 끝났다(11-01).
+- 모델이 영상 한 장을 보고 SFA 오브젝트 문장(토큰열)을 직접 쓰고, 원본 파일과 오브젝트 단위로 채점한다. 주 목적은 스틱맨 동작(사용자 10-28).
+- 설계: docs/VIDEO-TO-SFA-REDESIGN-2026-10-30.md, 해설: docs/EXPLAINER-VIDEO-TO-SFA-2026-10-31.md, 판정 기준(확정): docs/JUDGE-CRITERIA-FINAL-2026-10-31.md
+- 학습 방식: 조합 문제 + 쉬운 것부터 + 해상도 단계 1080→720→480→360(docs/COMPOSE-CURRICULUM-2026-11-01.md)
+- 11-01 낮까지의 상세 경과: docs/history/HANDOFF-2026-11-01-day.md
 
 ## 꼭 지킬 사용자 결정
-- **사용자 지시 없이 Kaggle GPU 실행 금지.** GPU 시간은 남은 확인 뒤에 풀로 쓴다(주간 30시간 중 약 0.5시간 사용, 10-31 09:02 KST 초기화). Kaggle CPU 자료 만들기·CPU 흐름 시험은 승인 범위.
-- 채점 원칙
-  - AI 파일 대 원본 파일, 만점이면 영상도 육안상 같다.
-  - 영상이 안 바뀌는 차이는 정답: ID·면 칠 순서·파란점·점 방향·**점 연결(10-31 기록의 '관절 연결', AC)**·겹치지 않는 것끼리 순서.
-  - 기본 점수 없음.
-- 토론은 논증거리가 없어질 때까지 한다(사용자 10-31). GPT는 GitHub·Drive에 직접 접근 가능하다.
+- **사용자 지시 없이 Kaggle GPU 실행 금지**(코드도 막음: GPU push는 `--gpu-ok` 필요). 예산은 주간 30시간 '풀로'(사용자 11-01).
+- 채점 원칙: AI 파일 대 원본 파일, 만점이면 영상도 육안상 같다. 영상이 안 바뀌는 차이는 정답(ID·면 칠 순서·파란점·점 방향·점 연결·겹치지 않는 것끼리 순서). **예외: 글로우가 겹치는 쌍의 점 연결 무리 차이는 영상을 바꾸므로 만점 아님(`glow_group`, 앱 확인 11-01).** 기본 점수 없음.
+- 시험 작품 중 `47112(2_2)-1`의 7·8장만 새 작품 시험에서 뺀다(학습 `바람1-1`과 같은 그림, `data/holdout_exclude.json`).
+- 토론은 논증거리가 없어질 때까지(사용자 10-31). GPT는 GitHub·Drive 직접 접근.
 
 ## 바로 할 일
-0. **판정 장치 구현 완료(11-01)** — docs/JUDGE-IMPLEMENTATION-2026-11-01.md
-   - 평가 목록 `data/judge_manifest.json`: 학습 파일 5개 중 1개 → 46장, 작품 묶음 판정(§5, `seq_bundle.py`) 뒤 **독립 단위 N=45, 필요 30승**(묶음 도구 3판 누락률 반전·발췌·이동·확대 각 19/20, 11-01). 외움 기준선 공식 2방향 12.94점(먼 곡선 자르기 뒤, 이전 12.07).
-   - 판정은 그때 배우는 해상도 단계 폭으로 한다(판정 자료 판 2) → 첫 회차(1080)부터 위치 읽기 추세를 본다. 추세 표: `python tools/seq_trend.py log.jsonl`.
-   - `tools/seq_judge.py`(목록·자료·계산), `seq_train.py --judge`(중간 2방향·마지막 4방향, 그림 시트, 단계별 업데이트 수).
-   - PC 본 학습은 `--judge … --gen-minutes 20`, Kaggle은 학습 커널에서 판정 자료를 만든다(미리 만든 자료 판 3 그대로).
-   - **채점기 원 수정(§4)도 완료**: 원 면 T 구간 = (시작 위상 mod 1, 부호 있는 길이)·δ 대응, 독립 WHOLE만 방향 무시, 반례 시험 10개(옛 채점기 9개 실패), 렌더 화소와 판정 일치.
-   - 첫 점·이어지는 점 좌표 진단 추가(11-01, 분야 점수 `coord_first`·`coord_rest`, 교사 강제 값). 미구현: 앱 열기 확인. 동점 범위 |Δ| ≤ 0.5점은 사용자 확정(11-01, 첫 판정 전).
-1. **학습 방식 변경: 조합 문제 + 쉬운 것부터(사용자 11-01)** — docs/COMPOSE-CURRICULUM-2026-11-01.md
-   - 묶음(연결·면으로 이어진 오브젝트)을 무작위 자리·크기로 놓은 장 + 장마다 다른 변환의 실제 장 30%. 해상도마다 다른 문제 4만 장. 단계마다 정답 길이 하위 20%→전체.
-   - GPT 검토 3회 반영(1라운드·재확인·404ca46 확인): 응답 docs/GPT-RESPONSE-{COMPOSE-ROUND1,RECHECK-COMPOSE-ROUND1,VERIFY-404ca46}-2026-11-01.md. 공식 판정은 계획 끝·전체 목록·360(640폭)에서만, 공식 횟수는 저장본에 남음.
-   - 1-1. 판 5 자료(Kaggle CPU, 97분)는 정합성 표본에서 실제 장 18만 화소 어긋남이 나와 **무효**. 원인은 조절점이 수백만 %인 곡선의 렌더 불안정 → `sfa_tokens.clip_quad`로 고침(VERIFY 응답 §7). **자료 판 6을 Kaggle CPU로 다시 만든다**(11-01 올림, 커널 판 11, 분기 claude/new-session-gknz4t — kaggle_seq_remote 기본 분기도 이것으로 바꿈). 끝나면 `kaggle kernels output twoapple08/aisfa-seq-data -p <dir> --file-pattern 'data_info.json|done.json'`으로 정합성 표본만 받아 본다(실제 장 100화소 넘음 0 기대).
-   - 판 6 자료 완료(커밋 5abfce7, 120분). 정합성 표본 sd·sd1280·sc: 100화소 넘음 0.
-   - 시험·학습 작품 중복(11-01): 시험 38 × 학습 403에서 확실한 겹침 1쌍 — 학습 `바람1-1`(1장)이 시험 `47112(2_2)-1`(94장)의 7·8장과 같은 그림 → 그 두 장만 새 작품 시험에서 뺌(`data/holdout_exclude.json`; 처음 파일 전체를 뺀 것은 오판, 사용자 지적으로 고침).
-   - **GPT 2라운드 응답(11-01): docs/GPT-RESPONSE-ROUND2-FLOWTEST-2026-11-01.md** — 학습 진행 시계(읽기·평가 제외)로 학습률·단계·분위·공식 계획 끝 통일, 절대 회차 마감 + 실측 마지막 평가 예상, 연장 때 분위 유지, 섞기 기록, 작은 CPU 통합 시험(`tools/seq_flow_small.py`, 14항목 통과), 아주 큰 원 수정(앱 화면 대조 일치). **자료 판 7**(Kaggle, 42c2f87) 정합성 모두 0. `--plan-minutes`는 이제 학습 진행 분(벽시계 아님). 자료 정합성은 `kaggle_seq_remote.py data-check 폴더`.
-   - 1-2. **CPU 흐름 시험 1회차 끝(rc 0, 110분, 1걸음)**: 1080 자료 읽기 14.5분·검증 41분(CPU). 진행 시간에 읽기·검증 시간이 들어가 단계·쉬운 것부터 시간을 잡아먹는 문제 → GPT 2라운드 쟁점. 2회차(이어하기, 시험용 저장본 aisfa-seq-ckpt-flowtest) 끝: rc 0, 1→207걸음, 검증 맞힘 40%. **GPT 2라운드 문서: docs/GPT-ROUND2-FLOWTEST-2026-11-01.md**(쟁점: 진행 시간에 읽기 포함·회차 초과·섞기 분위). GPT 답을 받은 뒤 사용자 지시로 GPU.
-   - (1회차 실행 기록) **CPU 흐름 시험 실행 중(11-01 03:3x UTC, 커널 aisfa-seq-train 판 2)**: `push --prebuilt --cpu --fresh --minutes 60 --tok-budget 1024 --extra "--max-batch 2 --judge-n 3 --gen-n 2 --gen-minutes 10 --val-minutes 8"`. 끝나면 pull → GPT 측정 항목 확인 → 끊고 재개 시험(save-ckpt 이름은 시험용으로 따로).
-   - (이전 계획) 자료가 되면 Kaggle CPU 흐름 시험을 짧게 한 번 더(새 자료·쉬운 것부터·배우는 해상도 판정). 이전 흐름 시험(판 3 자료)은 rc 0 통과. 그 결과로 GPT와 2라운드 토론.
-   - 1-3. 그다음 **사용자 지시를 받고** GPU(11-01 제안): ① 분리된 속도 측정 회차(시험용 저장본, GPU 40–60분) → ② 측정한 학습 외 시간으로 계획(학습 진행 분)을 계산해 사용자와 확정 → ③ 본 학습 `push --gpu-ok --prebuilt --fresh --minutes 180 --plan-minutes <확정값> --extra "--gen-minutes 20"`, 다음 회차 `pull` → `save-ckpt` → `push --gpu-ok --prebuilt --minutes 180 --plan-minutes <같은 값>`. `--gpu-ok` 없으면 GPU push가 거부된다. 계획은 줄이지 않는다(연장만). 상세: docs/GPT-RESPONSE-VERIFY-ROUND2-FLOWTEST-2026-11-01.md §5
-   - 회차마다 `python tools/seq_trend.py log.jsonl`로 '외우는가, 보고 판단하며 크는가'(위치 읽기 승수·A−외움·새 작품 점수)를 보여 드리고 이어 갈지 정한다.
-   - PC bat(Drive `AI-sfa` 맨 위)은 PC를 쓸 수 있을 때의 대안. Drive `seq`에 s1_4060 저장본 없음(11-01).
-2. **최대 예산**: 사용자 11-01 '카글 30시간을 풀로' → 주간 30시간(남은 시간은 실행 전 Kaggle에서 확인).
+1. **Kaggle 자료 판 9**(CPU, 11-01 17:44 UTC 올림, 판정 자료 sj 포함, 예상 2–3시간): 끝나면 `python tools/kaggle_seq_remote.py data-check 폴더`로 정합성 확인(판 7·8은 모두 0).
+2. **사용자 지시를 받고** GPU: ① 속도 측정 회차(40–60분) → ② 실측한 학습 외 시간으로 계획(학습 진행 분)을 정함 → ③ 본 학습. 회차마다 `python tools/seq_trend.py log.jsonl`로 추세를 보여 드린다. 계획 정책: docs/GPT-RESPONSE-VERIFY-ROUND2-FLOWTEST-2026-11-01.md §5.
+3. GPT에 응답 문서 재검토 요청(docs/GPT-RESPONSE-CODE-REVIEW-2026-11-01.md).
+4. 측정(GPU 뒤): 길이별 생성 시간·마지막 평가 예상 대 실제, 메모리(rss_gb), 실제 장 노출, 묶음 검출 오탐(M-01–M-04).
 
 **사용자 결정 대기**
-1. Kaggle GPU 첫 회차 실행 지시(CPU 흐름 시험 통과 뒤)
-2. 숫자 허용 범위 눈 판정 시트(한 속성만 바꾼 렌더)를 볼지
-3. '연기 1'·'연기 4'가 같은 작품인지(정확 사본은 아님, 둘 다 이번 평가 목록에서는 '이동으로 잘림'으로 빠짐)
+1. GPU 첫 회차 지시와 본 학습 예산
+2. P-03 시험 38파일을 판단용·최종용으로 나눌지 / P-01 처음 보는 형상의 공식 시험
+3. P1 관절점(Flags 0x21)을 정답 문장에 넣을지(Claude 권장: 넣음 — 스틱맨 포즈 편집에 필요)
+4. 예전 도구를 `tools/legacy/`로 옮길지
+
+## 11-01 검토·확인 요약
+- 검토 문서: Claude docs/CODE-REVIEW-CLAUDE-2026-11-01.md, GPT docs/GPT-CODE-REVIEW-2026-11-01.md(fef6ffb), 응답·대조 docs/GPT-RESPONSE-CODE-REVIEW-2026-11-01.md
+- 고친 것: 공식 통과 = 부호 검정 ∧ 건전성, GPU push 잠금, PC 절대 마감, 판정 자료 미리 만들기, 메모리 기록, 비유한 기울기 = 실패, 채점 순서 예외 좁힘·글로우 번짐 범위, 판정 목록 검사(judge_list_ok), 추세 표 '통과'는 공식만, 저장 실패 처리, 묶음 레이어 순서, 공식 반복 차단, 글로우 묶음 채점(I-10).
+- 시계: `train_min`(성공 업데이트만)이 학습률·단계·쉬운 것부터·공식 계획 끝을 정한다. 실패 시간은 `fail_min`, 벽시계는 `done_min`. `--deadline`은 절대 마감.
+- 작은 CPU 통합 시험 `tools/seq_flow_small.py`(19항목 통과). 단위 시험 154개 통과.
+- **앱 규칙 확인(11-01, 사용자 화면, 시험 SFA 4개)**: 점 연결(AC)로 이은 오브젝트는 한 무리로, 무리 글로우를 먼저 모두 그린 뒤 선을 그린다. 점 값(8/9·관절 33/5)·이음 방향·한쪽만 적은 AC와 무관. 점 ID는 파일 전체에서 같은 오브젝트를 가리킨다(실제 파일 위반 0) — 시험 SFA도 이를 지켜야 한다.
+- 레이어 순서는 모든 장 공통(사용자 11-01). 여러 장 출력 조립 때 장별 레이어 목록을 하나의 공통 순서로 맞춰야 한다(조립 도구 만들 때 반영).
 
 ## 1판에 들어간 것(10-31)
 - **해상도 단계 1080 → 720 → 480 → 360**(사용자 10-29 지시, 재설계 때 빠졌다 복원)
@@ -58,7 +47,7 @@
 - **굵기 배율**(사용자 10-31): 늘린 사본마다 ThicknessScale × 0.5–2, 정답도 같이 바뀐다. 자료 판 3.
 - **인코더 이어 쓰기**: 이전 픽셀 지도 2차 모델 `vec/pc2/best.pt`를 변환했다(같은 그림 출력 차 0.12%) → `--init-encoder`. Kaggle 비공개 자료 `aisfa-vec-encoder`, Drive `seq/vec_encoder.pt`. 새로 시작할 때만 쓴다.
 - **채점기**
-  - 관절 연결을 만점에서 뺐다.
+  - 점 연결을 만점에서 뺐다(단 글로우 겹침 무리 차이는 `glow_group`).
   - 위치·형상 부분 점수(`*_partial`)를 추가했다.
   - 분야별 연습 점수(구조·좌표·색·굵기·글로우·연결·면, 좌표는 '몇 개마다 지적')를 추가했다. 진단용이고 교사 강제 값이다.
 - 끄기: `--no-stages`, `--no-init-encoder`. 계획만 있는 것: 색·배경색 늘리기.
@@ -70,13 +59,13 @@
 - **외움 기준선**[서버, GPT 재현]: 원본을 원래 자리에 그대로 그린 '완벽하게 외운 AI'의 위치 시험 부분 점수는 전체 134장에서 17.65점, 학습기 기본 20장에서 15.88점이다(엄격 2.4%·1.1%). 그래서 절대 점수 합격선은 폐기했다.
 - **페인트 저장 방식**[사용자 앱 녹화 11-01]: 면은 오브젝트별 T 구간 + 자동 연결선으로 저장된다. 관절 연결은 칠하기 조건이 아니다(docs/FORMAT.md 끝).
 - **이전 확인**: 정답지 왕복 100%(22,371장), 렌더러 ≈ 앱 0.3%, Kaggle T4 30분 시험(2,403걸음, 54장 흐름용 — 실력 판단 불가), Drive ↔ Kaggle ↔ PC 이어하기.
-- **단위 시험 108개 통과**(11-01, `python -m unittest discover -s tests`, 판정 장치 10개 + 원 면 반례 10개 + 점 번호 2개 추가).
+- 단위 시험: `python -m unittest discover -s tests`(11-01 154개 통과).
 
 ## 도구 요약
 - `tools/kaggle_seq_remote.py`
-  - `push [--prebuilt] [--smoke] [--cpu] [--minutes] [--tok-budget] [--extra] [--no-stages] [--no-init-encoder]`
+  - `push [--prebuilt] [--smoke] [--cpu] [--gpu-ok] [--minutes] [--tok-budget] [--extra] [--no-stages] [--no-init-encoder]`
   - `push-data [--smoke] [--no-stages]`, `push-encoder 파일`
-  - `status|wait|pull [--data] [--smoke]`, `save-ckpt`, `to-drive`, `from-drive`
+  - `status|wait|pull [--data] [--smoke]`, `data-check 폴더`(자료 커널은 pull 대신 이것), `save-ckpt`, `to-drive`, `from-drive`
 - `tools/seq_train.py`
   - `train … [--stages 1920,1280,854 자료] [--init-encoder] [--px-budget] [--gen-minutes]`
   - `draw`, `vec-encoder`, `train … --judge 폴더 [--judge-dirs 2] [--judge-dirs-final 4] [--sheet-n 6]`
@@ -92,7 +81,7 @@
 
 ## 막힌 것 / 환경
 - 서버 GPU 없음(CPU 4개, RAM 15GB). 사용자 GPU: 1050 Ti 상시, 5060 가끔, 4060 PC(RAM 32GB).
-- 저장소 `/home/user/AI-sfa`, 주 브랜치 `ccr-bccf15a6-d6ee46`(11-01 세션은 `claude/new-session-gknz4t`에서 작업하고 같은 HEAD를 주 브랜치에도 푸시).
+- 저장소 `/home/user/AI-sfa`, 작업 브랜치 `claude/new-session-gknz4t`(Kaggle 원격 도구 기본값도 이 브랜치).
 - 새 컨테이너 준비
   - `pip install opencv-python-headless numpy skia-python scipy scikit-image kaggle` + CPU torch(`--index-url https://download.pytorch.org/whl/cpu`)
   - `apt-get install libegl1 libgl1`
