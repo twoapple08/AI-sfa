@@ -177,6 +177,8 @@ def clip_quad(xy):
     return quad_sub(p, ins[0][0], ins[-1][1])
 
 
+CIRC_FAR = 1e4    # 화면 가운데(등방 좌표)에서 원 테두리까지 이보다 멀면 안 보이는 원. 상자(CLIP −1000~1100%) 대각 약 1,600%보다 넉넉히
+                  # 크고, 굵기 배율 수천 배의 선 반 폭보다도 크다(앱 굵기 1배 ≈ 화면 폭의 0.24%).
 CIRC_RMAX = 1e8   # 정답에 적는 원 반지름 상한(%, 가로 기준 등방 좌표). BIG 수 범위(약 ±6.9e9 %) 안
 
 
@@ -186,7 +188,10 @@ def canon_circle(xy, hwr, rmax=CIRC_RMAX):
     (11-01: 반지름이 1경 %인 원은 BIG 수 범위를 넘어 좌표가 잘렸다. 렌더러가 큰 원을 정확히 그리게 되자 원본·정답이 갈렸다.)
     계산은 화소와 같은 비율의 등방 좌표(x, y·hwr)에서 한다(렌더러의 원은 화소에서 둥글다). 큰 수끼리 빼지 않도록 화면에 가까운
     지름 끝 P를 기준으로 쓴다: v = (반대편 − P)/2, w = 가운데 − P, n = |v − w|, Q = P + v·(n − r)/n + w·r/n, 중심 방향 = (v − w)/n.
-    바꿀 필요가 없으면 None, 아니면 [Q, 새 지름 반대편 끝] — 화면에 더 가까웠던 점 자리에 Q."""
+    바꿀 필요가 없으면 None, 아니면 [Q, 새 지름 반대편 끝] — 화면에 더 가까웠던 점 자리에 Q.
+    원이 화면 상자 근처에 전혀 오지 않으면(화면 가운데에서 원까지 거리 |n − r| > CIRC_FAR) [] — 안 보이는 원으로 뺀다.
+    중심이 화면 가운데와 같으면(n = 0) Q의 방향이 정해지지 않는데, 그때 원은 화면에서 반지름(> rmax)만큼 떨어져 있어 이 경우에 든다
+    (GPT 확인 11-01: 동심 큰 원에서 정규화·인코딩·렌더가 모두 0으로 나누기 오류)."""
     pts = [(x, y * hwr) for x, y in xy[:2]]
     sx, sy = 50.0, 50.0 * hwr
     near1 = math.hypot(pts[0][0] - sx, pts[0][1] - sy) <= math.hypot(pts[1][0] - sx, pts[1][1] - sy)
@@ -197,7 +202,9 @@ def canon_circle(xy, hwr, rmax=CIRC_RMAX):
         return None
     wx, wy = sx - px, sy - py
     n = math.hypot(vx - wx, vy - wy)
-    t = (wx * wx + wy * wy - 2 * (wx * vx + wy * vy)) / (n + r)   # = n − r(안정한 꼴)
+    t = (wx * wx + wy * wy - 2 * (wx * vx + wy * vy)) / (n + r)   # = n − r(안정한 꼴) = 화면 가운데에서 원까지 부호 있는 거리
+    if abs(t) > CIRC_FAR:
+        return []
     qx, qy = px + vx * t / n + wx * r / n, py + vy * t / n + wy * r / n
     ux, uy = (vx - wx) / n, (vy - wy) / n
     fx, fy = qx + 2 * rmax * ux, qy + 2 * rmax * uy
@@ -259,7 +266,8 @@ def encode(seq, fr):
             # 점이 모자란 오브젝트: 앱의 점 삭제 기능으로 생길 수 있다(사용자 10-30). 빼지 않고 그대로 적는다
             # (실측: tlqkf.sfa 154–156장 곡선 1점 하나뿐. 앱에서 어떻게 보이는지 미확인 — 렌더러는 안 그림)
             st['short'] = st.get('short', 0) + 1
-        if not used and (far_away(a, xy, hwr) or (a.get('TypeId') == '3' and len(xy) >= 3 and clip_quad(xy) == [])):
+        if not used and (far_away(a, xy, hwr) or (a.get('TypeId') == '3' and len(xy) >= 3 and clip_quad(xy) == [])
+                         or (a.get('TypeId') == '2' and len(xy) >= 2 and canon_circle(xy, hwr) == [])):
             st['drop_far'] += 1
             continue
         keep.append((li, a))

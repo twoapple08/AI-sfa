@@ -36,23 +36,30 @@ def sh(cmd, log=None):
     return out
 
 
+def fresh(path, args):
+    """done.json이 지금 자료 판·설정과 맞는지(seq_data --check, GPT 확인 11-01: 예전엔 파일 존재만 봤다). 아니면 지우고 다시 만든다."""
+    if os.path.exists(f'{path}/done.json') and subprocess.run(f'{PY} -u seq_data.py {path} {args} --check', shell=True, cwd=TOOLS,
+                                                               capture_output=True).returncode == 0:
+        return
+    subprocess.run(['rm', '-rf', path])
+    sh(f'{PY} -u seq_data.py {path} {args}')
+
+
 def build(root, n):
     d = {}
     for w in (1920, 1280, 854):
         d[f'sd{w}'] = f'{root}/sd{w}'
-        if not os.path.exists(f'{d[f"sd{w}"]}/done.json'):
-            sh(f'{PY} -u seq_data.py {d[f"sd{w}"]} --maxlen 2048 --compose {n} --W {w} --video --seed {w} --workers 4')
+        fresh(d[f'sd{w}'], f'--maxlen 2048 --compose {n} --W {w} --video --seed {w} --workers 4')
     jobs = dict(sd=f'--maxlen 2048 --compose {n} --seed 640 --workers 4',
                 sv='--maxlen 2048 --max-frames 3 --every 8 --holdout --workers 4',
                 ss='--maxlen 2048 --max-frames 2 --every 40 --fixed 6,4,1.05 --workers 4',
                 sc='--maxlen 2048 --compose 30 --seed 7777 --workers 4')
     for k, args in jobs.items():
         d[k] = f'{root}/{k}'
-        if not os.path.exists(f'{d[k]}/done.json'):
-            sh(f'{PY} -u seq_data.py {d[k]} {args}')
+        fresh(d[k], args)
     d['sj'] = f'{root}/sj'
-    if not os.path.exists(f'{d["sj"]}/judge.npz'):
-        sh(f'{PY} -u seq_judge.py build {d["sj"]}')
+    subprocess.run(['rm', '-rf', d['sj']])   # 판정 자료는 작아서(2–3분) 매번 새로
+    sh(f'{PY} -u seq_judge.py build {d["sj"]}')
     return d
 
 
@@ -64,7 +71,12 @@ def session(d, out, minutes, plan, log):
        f'--judge {d["sj"]} --val-kind {d["sc"]} --stages {stages} {small}', log)
 
 
-def check(out, console, plan, plan2):
+def kinds_of(path):
+    with open(f'{path}/done.json', encoding='utf-8') as fh:
+        return (json.load(fh).get('check') or {}).get('kinds', {})
+
+
+def check(out, console, plan, plan2, d=None):
     L = [json.loads(x) for x in open(f'{out}/log.jsonl', encoding='utf-8')]
     txt = open(console, encoding='utf-8').read()
     fin = [r for r in L if r.get('final')]
@@ -82,7 +94,14 @@ def check(out, console, plan, plan2):
     c['섞기 선택·성공 기록'] = any(k.endswith('|mix') and v[0] > 0 for k, v in sel.items())
     c['회차 1은 마감으로 끊김'] = fin[0].get('stop') == 'deadline' and fin[0]['train_min'] < plan
     c['회차 2는 계획 끝'] = len(fin) >= 2 and fin[1].get('stop') == 'plan' and fin[1].get('plan_reached') is True
-    c['재개 때 학습 진행 이어받음'] = '이어하기' in txt and fin[1]['train_min'] > fin[0]['train_min']
+    resumed = [float(x) for x in re.findall(r'이어하기: \d+걸음, 학습 진행 ([\d.]+)/', txt)]
+    c['재개 직후 학습 진행 = 앞 회차 저장값'] = len(resumed) >= 2 and all(abs(r - f['train_min']) < 0.011 for r, f in zip(resumed, fin))
+    c['재개 뒤 학습 진행 증가'] = fin[1]['train_min'] > fin[0]['train_min']
+    c['네 단계 각각 정규(cur) 업데이트 성공'] = all(fin[-1].get('sel', {}).get(f'{w}|cur', [0, 0])[1] > 0 for w in (1920, 1280, 854, 640))
+    if d:   # 자료 구성(GPT 확인 11-01: --compose 40/30이 실제 장만 만들던 것)
+        c['단계 자료마다 실제·조합 장 모두'] = all(kinds_of(d[k]).get('comp', 0) > 0 and kinds_of(d[k]).get('real', 0) + kinds_of(d[k]).get('real_crop', 0) > 0
+                                       for k in ('sd1920', 'sd1280', 'sd854', 'sd', 'sc'))
+    c['실패 시간은 학습 진행 밖'] = all('fail_min' in r for r in fin)
     c['판정 폭이 단계 폭을 따라감'] = all(r.get('judge_w') in (1920, 1280, 854, 640) for r in L if 'judge_w' in r) and \
         any(r.get('judge_w', 640) != 640 for r in L)
     c['축소 목록이라 공식 아님'] = all(not r.get('judge_official') and not r.get('judge360_official') for r in L)
@@ -117,7 +136,8 @@ def main():
     session(d, out, 60, a.plan, con)
     plan2 = a.plan * 1.5
     session(d, out, 60, plan2, con)
-    c, info = check(out, con, a.plan, plan2)
+    c, info = check(out, con, a.plan, plan2, d)
+    info['kinds'] = {k: kinds_of(d[k]) for k in ('sd1920', 'sd1280', 'sd854', 'sd', 'sc')}
     res = dict(checks=c, passed=all(c.values()), info=info)
     json.dump(res, open(f'{a.root}/result.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     for k, v in c.items():

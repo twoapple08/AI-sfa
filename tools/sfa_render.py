@@ -202,7 +202,11 @@ def render_frame(seq, fr, W=1920, H=1080):
             xy = [(float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP')[:2]]
             if not all(K.CLIP[0] <= v <= K.CLIP[1] for q in xy for v in q):
                 # 반지름이 상한보다 크면 정답 문장과 같은 원으로 바꾼 뒤(K.canon_circle — 큰 수끼리 빼는 정밀도 손실도 막는다) 호를 계산
-                xy = K.canon_circle(xy, float(seq.get('HeightWidthRatio') or 0.5625) or 0.5625) or xy
+                cc = K.canon_circle(xy, float(seq.get('HeightWidthRatio') or 0.5625) or 0.5625)
+                if cc == []:   # 화면 상자에 닿지 않는 원(정답 문장에서도 뺀다)
+                    by_id[a.get('ID')] = ('P', [], a)
+                    continue
+                xy = cc or xy
                 (px1, py1), (px2, py2) = [geo.pt(x, y) for x, y in xy]
                 bx0, by0 = geo.pt(K.CLIP[0], K.CLIP[0])
                 bx1, by1 = geo.pt(K.CLIP[1], K.CLIP[1])

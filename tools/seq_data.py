@@ -24,7 +24,7 @@ import sfa_tokens as K  # noqa: E402
 import vec_data as V  # noqa: E402
 
 ROOT = V.ROOT
-SEQ_DATA_VERSION = 7   # 정답 문장·렌더 방식이 바뀌면 올린다(다 만듦 표시가 옛 자료를 건너뛰지 않게). 2: GPT 검토 10-30 정답 변환 수정·늘리기. 3: 늘리기에 굵기 배율(10-31). 4: 굵기를 정답 칸 값으로·조합 문제 모드(11-01). 5: 정합성 검사가 렌더 설정을 바꿔 고해상도 선이 얇아지던 판 무효(GPT 재확인 11-01). 6: 먼 곡선 자르기(sfa_tokens.clip_quad — 판 5 정합성 표본 18만 화소 어긋남, 11-01). 7: 아주 큰 원 — 렌더러 상자 안 호 정확히·정답 반지름 상한(canon_circle, 판 6 1080 표본 6,410화소)
+SEQ_DATA_VERSION = 8   # 정답 문장·렌더 방식이 바뀌면 올린다(다 만듦 표시가 옛 자료를 건너뛰지 않게). 2: GPT 검토 10-30 정답 변환 수정·늘리기. 3: 늘리기에 굵기 배율(10-31). 4: 굵기를 정답 칸 값으로·조합 문제 모드(11-01). 5: 정합성 검사가 렌더 설정을 바꿔 고해상도 선이 얇아지던 판 무효(GPT 재확인 11-01). 6: 먼 곡선 자르기(sfa_tokens.clip_quad — 판 5 정합성 표본 18만 화소 어긋남, 11-01). 7: 아주 큰 원 — 렌더러 상자 안 호 정확히·정답 반지름 상한(canon_circle, 판 6 1080 표본 6,410화소). 8: 화면에서 1만 % 넘게 떨어진 큰 원은 안 보이는 원으로 뺌(동심 큰 원 0 나누기, GPT 확인 11-01)
 THICK_RANGE = (0.5, 2.0)   # 늘린 사본의 파일 전체 굵기 배율(로그 고르게). 사용자 10-31: "굵기 조절도 다양한 기능을 고루 쓸 줄 알아야" — 이전 방식 0.75–1.5보다 넓게
 
 
@@ -332,11 +332,15 @@ def main_compose(a, want):
     per_file = max(1, math.ceil(n_real / len(files)))
     chunk = 100
     cfg = dict(maxlen=a.maxlen, W=a.W, video=a.video)
-    jobs = [('real', i, seed + 7 * i + 1, per_file, a.out_dir, cfg) for i in range(len(files))]
+    real_idx = list(range(len(files)))
+    if len(files) > a.compose:   # 목표가 파일 수보다 적은 작은 자료(통합 시험 등): 실제 장은 고른 파일 n_real개에서 한 장씩 —
+        import random            # 모든 파일에서 한 장씩 뽑으면 실제 장만 403장이 되고 조합 장이 0개였다(GPT 확인 11-01). 본 자료(4만)·sc(1,200)는 그대로
+        real_idx = sorted(random.Random(seed).sample(real_idx, max(1, n_real)))
+    jobs = [('real', i, seed + 7 * i + 1, per_file, a.out_dir, cfg) for i in real_idx]
     import sfa_compose as C
     # 실제 장은 파일마다 min(파일당 몫, 장 수 × 3)장만 나온다(장 1–2개 파일이 많음, 11-01 실측 6,774/12,090) → 모자란 만큼 조합 장으로 채운다.
     # 길이 한도로 빠지는 몫(약 3%)도 조합 장을 더 만들어 채운다
-    real_req = sum(min(per_file, 3 * len(C.load(f, ROOT).findall('Frame'))) for f in files)
+    real_req = sum(min(per_file, 3 * len(C.load(files[i], ROOT).findall('Frame'))) for i in real_idx)
     n_comp = math.ceil((a.compose - real_req) * 1.03)
     print(f'조합 문제: 실제 장 요청 {real_req} + 조합 장 {n_comp} (목표 {a.compose})', flush=True)
     jobs += [('comp', i, seed + 7 * i + 3, min(chunk, n_comp - i * chunk), a.out_dir, cfg) for i in range(max(0, math.ceil(n_comp / chunk)))]

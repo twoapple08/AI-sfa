@@ -509,6 +509,8 @@ def train(a):
         if 'train_min' not in saved['state']:   # 11-01 이전 저장본(벽시계 진행): 그 값을 학습 진행으로 넘겨받는다
             st['train_min'] = st['done_min']
             print(f"옛 저장본: 학습 진행을 벽시계 {st['done_min']:.0f}분으로 시작", flush=True)
+        if a.plan_minutes and a.plan_minutes < st['plan_min']:
+            print(f"계획 축소 요청({a.plan_minutes:.0f} < 저장 계획 {st['plan_min']:.0f}분)은 하지 않음 — 계획은 첫 회차에 고정, 연장만 가능", flush=True)
         if a.plan_minutes > st['plan_min']:   # 계획을 더 길게 다시 정함(연장 — 단계는 되돌아가지 않고, 단계마다 도달한 길이 분위도 내려가지 않는다)
             st['plan_min'] = a.plan_minutes
         elif not a.plan_minutes and st['train_min'] + a.minutes > st['plan_min']:
@@ -582,7 +584,7 @@ def train(a):
     if saved:
         net.load_state_dict(saved['model'])
         opt.load_state_dict(saved['opt'])
-        print(f"이어하기: {st['step']}걸음, 학습 진행 {st['train_min']:.0f}/{st['plan_min']:.0f}분(벽시계 누적 {st['done_min']:.0f}분), best {st['best']:.4f}", flush=True)
+        print(f"이어하기: {st['step']}걸음, 학습 진행 {st['train_min']:.2f}/{st['plan_min']:.0f}분(벽시계 누적 {st['done_min']:.0f}분), best {st['best']:.4f}", flush=True)
     print('변수', sum(p.numel() for p in net.parameters()) // 1000, '천 · 설정', cfg, flush=True)
     amp = dev == 'cuda'
     dt = torch.bfloat16 if amp and torch.cuda.get_device_capability(0)[0] >= 8 else torch.float16
@@ -649,17 +651,27 @@ def train(a):
         return out
 
     def gen_model():
-        """생성 한 장 시간 = 폭별 고정 비용 a_w(그림 읽기·준비) + 토큰당 비용 b × 토큰 수. 디코더는 그림 특징 칸 수가 폭과 상관없이
-        같아(45×80) b는 폭 공통으로 본다. a_w = 그 폭 실측 중 가장 짧은 장, b = 32토큰 이상 장의 (초 − a_w) / 토큰 중앙값.
-        (11-01 작은 통합 시험: 토큰당 초 하나로 잡았더니 8토큰 만에 끝난 1280폭 생성의 그림 읽기 비용이 상한 길이만큼 곱해져 예상 218초, 실제 25초)"""
+        """생성 한 장 시간 = 폭별 고정 비용 a_w + 토큰당 비용 b × 토큰 수. b는 폭 공통(디코더 그림 특징 칸이 폭과 상관없이 45×80).
+        같은 폭 안 표본으로 절편·기울기를 함께 추정한다(폭별 평균을 뺀 회귀, b = Σ(t−t̄_w)(s−s̄_w) / Σ(t−t̄_w)², a_w = s̄_w − b·t̄_w).
+        식별 조건: 같은 폭 안에 길이가 2배 이상·64토큰 이상 다른 표본이 있어야 한다. 아니면 None → 기본 몫(--final-reserve-min).
+        (GPT 확인 11-01: 예전 식은 가장 짧은 장 시간을 고정 비용으로 통째로 빼 선형 모의 표본 T=1+0.01L에서 2,048토큰을 6.76초로
+        예상했다(참값 21.48). 표본 하나면 기울기 0.)"""
         gs = {int(w): v for w, v in rate.get('gen_s', {}).items() if v}
-        if not gs:
+        num = den = 0.0
+        ok = False
+        means = {}
+        for w, v in gs.items():
+            t = np.array([x[0] for x in v], float)
+            y = np.array([x[1] for x in v], float)
+            means[w] = (t.mean(), y.mean())
+            num += float(((t - t.mean()) * (y - y.mean())).sum())
+            den += float(((t - t.mean()) ** 2).sum())
+            ok |= len(v) >= 2 and t.max() >= 2 * t.min() and t.max() - t.min() >= 64
+        if not ok or den <= 0:
             return None
-        a_w = {w: min(sec for _, sec in v) for w, v in gs.items()}
-        per = [(sec - a_w[w]) / tk for w, v in gs.items() for tk, sec in v if tk >= 32]
-        if not per:   # 짧은 생성만 있으면 토큰당 비용을 가를 수 없다 → 기본 몫(--final-reserve-min)을 쓴다
-            return None   # (11-01 통합 시험: 8토큰 생성의 초/토큰 최댓값을 쓰니 예상 205초·실제 24초)
-        return a_w, max(float(np.median(per)), 0.0)
+        b = max(num / den, 0.0)
+        a_w = {w: max(ym - b * tm_, 0.0) for w, (tm_, ym) in means.items()}
+        return a_w, b
 
     def gen_cost(final):
         """생성 평가 예상 초 — 모든 장이 길이 상한까지 간다고 보는 보수적 값. 실측이 없으면 None.
@@ -917,13 +929,19 @@ def train(a):
     oom = skipped = 0
     step_s = [0.0]   # 최근 한 걸음 벽시계(초) — 마감 전에 다음 걸음을 시작할지
     stop_why = 'plan'
+    fails_in_row = 0
 
-    def train_tick(t_it, l0, p0):
-        """학습 진행에 이번 반복의 시간을 더한다: 반복 시작부터 지금까지에서 자료 읽기·양보로 쉰 시간을 뺀다(실패한 시도 포함 —
-        학습을 위해 쓴 시간). 검증·생성·저장은 이 구간 밖이라 들어가지 않는다(GPT 2라운드 3-1)."""
-        dt_ = time.time() - t_it - (tm_load[0] - l0) - (yl.paused - p0)
-        st['train_min'] += max(0.0, dt_) / 60
-        step_s[0] = max(0.0, dt_)
+    def train_tick(t_it, l0, p0, ok=True):
+        """이번 반복의 시간(반복 시작부터 지금까지 − 자료 읽기 − 양보로 쉰 시간). 성공한 업데이트면 학습 진행(train_min)과
+        tm['train']에, 실패한 시도(메모리 부족·비정상 손실)면 fail_min에만 더한다 — 실패는 예산(벽시계)에는 들어가도 학습률·단계·분위·
+        공식 계획 끝을 진행시키지 않는다(GPT 확인 11-01). 검증·생성·저장은 이 구간 밖이다."""
+        dt_ = max(0.0, time.time() - t_it - (tm_load[0] - l0) - (yl.paused - p0))
+        if ok:
+            st['train_min'] += dt_ / 60
+            tm['train'] += dt_
+        else:
+            st['fail_min'] = st.get('fail_min', 0.0) + dt_ / 60
+        step_s[0] = dt_
     while st['train_min'] < st['plan_min']:
         if time.time() + final_cost() + 2 * step_s[0] > deadline:   # 마지막 평가 몫을 남기고 멈춘다(GPT 2라운드 3-2)
             stop_why = 'deadline'
@@ -944,6 +962,10 @@ def train(a):
         sel = st.setdefault('sel', {}).setdefault(f"{widths[i]}|{'cur' if i == k else 'mix'}", [0, 0, 0, 0.0])   # [선택, 성공 업데이트, 실패, 학습 초](GPT 2라운드 3-4)
         sel[0] += 1
         ds = stage_set(i)
+        if time.time() + final_cost() + 2 * step_s[0] > deadline:   # 자료 읽기(1080 약 15분) 뒤 다시 확인(GPT 확인 11-01)
+            sel[0] -= 1
+            stop_why = 'deadline'
+            break
         lv = 1.0
         if not a.no_curriculum and i == k:   # 쉬운 것부터(11-01): 지금 단계 자료는 정답 길이 분위를 단계 진행에 따라 늘린다. 앞 단계 섞기는 전체
             lv = cur_quantile(stage_progress(prog, stg['frac'] if stg else [1.0], k))
@@ -976,8 +998,12 @@ def train(a):
                 skipped += 1
                 sel[2] += 1
                 opt.zero_grad(set_to_none=True)
-                train_tick(t_it, l0, p0)
+                train_tick(t_it, l0, p0, ok=False)
                 sel[3] += step_s[0]
+                fails_in_row += 1
+                if fails_in_row >= a.max_fail_row:
+                    stop_why = 'failures'
+                    break
                 continue
             opt.zero_grad(set_to_none=True)
             scaler.scale(loss).backward()
@@ -1010,12 +1036,16 @@ def train(a):
                 time.sleep(60)
                 yl.paused += 60
             sel[2] += 1
-            train_tick(t_it, l0, p0)
+            train_tick(t_it, l0, p0, ok=False)
             sel[3] += step_s[0]
+            fails_in_row += 1
+            if fails_in_row >= a.max_fail_row:   # 실패만 이어지면 원인 조사로 멈춘다(학습 진행은 늘지 않으므로 끝없이 돌 수 있다)
+                stop_why = 'failures'
+                break
             continue
         st['step'] += 1
-        tm['train'] += time.time() - t_step
         sel[1] += 1
+        fails_in_row = 0
         ss_ = st.setdefault('stage_steps', {})
         ss_[str(widths[i])] = ss_.get(str(widths[i]), 0) + 1   # 단계(자료 해상도)별 업데이트 수
         ex = st.setdefault('expo', {})   # 실제 노출(GPT 1라운드 D·E): 해상도|쉬운 것부터 분위|장 종류 → [장, 단어, 업데이트]
@@ -1095,6 +1125,7 @@ def train(a):
         rec.update(gen_eval(final=True))
         tm['gen'] += time.time() - t_g
         save_ckpt()   # 마지막 판정이 올린 공식 횟수(official_n)를 저장본에 남긴다 — 연장 회차가 2로 이어지게(GPT 확인 11-01: 저장 뒤 올려 연장이 다시 1이던 것)
+    rec.update(minutes=st['done_min'], fail_min=st.get('fail_min', 0.0))   # 마지막 평가·저장 뒤 값(GPT 확인 11-01: 예전엔 교사 검증 직후 값)
     rec.update(time_sec=dict(tm, load=tm_load[0], wall=time.time() - t_run), expo=dict(st.get('expo', {})), sel=dict(st.get('sel', {})),
                cur_max=dict(st.get('cur_max', {})), plan_reached=bool(st['train_min'] >= st['plan_min'] - 1e-6),
                final_est_sec=round(est_final), final_sec=round(time.time() - t_final), deadline_over_sec=round(time.time() - deadline))
@@ -1220,6 +1251,7 @@ def main():
     t.add_argument('--plan-minutes', type=float, default=0, help='전체 학습 계획(학습 진행 분 — 학습 걸음에 쓴 시간, 읽기·평가 제외). 학습률·단계·쉬운 것부터·공식 판정의 계획 끝 기준. 0이면 --minutes')
     t.add_argument('--deadline', type=float, default=0, help='이번 회차 절대 마감(유닉스 초, 작업자가 줌). 마지막 평가 예상 몫을 남기고 학습을 멈춘다. 0이면 시작 + --minutes')
     t.add_argument('--final-reserve-min', type=float, default=20, help='속도 실측이 없을 때 마지막 평가 몫(분). 실측이 생기면 폭·길이별 예상으로 바뀐다')
+    t.add_argument('--max-fail-row', type=int, default=200, help='실패(메모리 부족·비정상 손실)만 이만큼 이어지면 멈춤')
     t.add_argument('--reserve-margin', type=float, default=1.25, help='평가 예상 시간에 곱하는 안전 여유')
     t.add_argument('--max-batch', type=int, default=16, help='한 묶음 최대 장 수')
     t.add_argument('--tok-budget', type=int, default=12288, help='한 묶음 토큰 한도(가장 긴 장 길이 × 장 수). 메모리 부족이면 자동으로 줄인다')
