@@ -125,6 +125,7 @@ def main():
     out = '/kaggle/working/out'
     os.makedirs(out, exist_ok=True)
     sh('nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true')
+    sh("lscpu | grep -E 'Model name|^CPU\\(s\\)|Thread|MHz' || true")   # CPU 모델 기록(11-02 사용자 질문: 어떤 CPU인가)
     repo, commit = clone(c)   # 실행 식별(GPT 1라운드 흐름 시험 항목): 학습 코드 커밋·미리 만든 자료 커밋을 run.json에
     tools = f'{repo}/tools'
     # 이어하기: 입력 자료에 이전 학습 상태가 있으면 출력 폴더로(학습이 그 자리에서 이어서 한다)
