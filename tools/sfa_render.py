@@ -19,7 +19,7 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import skia
 
-PARAMS = dict(pad=6.0, base=8.0, stab=1.14, layer_order='normal', glow=True, fill_first=True, objscale_thick=False, circ_off=0, circ_dir=1, evenodd=True, gap=1.5, split_strict=False, gsig=1.0, gw=1.0, glow_mode='cv', groups=True, hole_mode='difference', thick_mul=1.0)
+PARAMS = dict(pad=6.0, base=8.0, stab=1.14, layer_order='normal', glow=True, fill_first=True, objscale_thick=False, circ_off=0, circ_dir=1, evenodd=True, gap=1.5, split_strict=False, gsig=1.0, gw=1.0, glow_mode='cv', groups=None, hole_mode='difference', thick_mul=1.0)
 
 
 def argb(v):
@@ -268,26 +268,9 @@ def render_frame(seq, fr, W=1920, H=1080):
         c.drawPath(outer, skia.Paint(Color=argb(r.get('Color')), AntiAlias=True, Style=skia.Paint.kFill_Style))
 
     S = geo.S
-    # 연결 그룹: AP의 AC(ConnPtId)로 이어진 AO끼리 묶는다(정적 분석: _BuildLayerObjectGroups).
-    ap_owner = {}
-    for a in aos:
-        for p_ in a.findall('AP'):
-            ap_owner[p_.get('ID')] = a.get('ID')
-    parent = {a.get('ID'): a.get('ID') for a in aos}
-
-    def find(x):
-        while parent[x] != x:
-            parent[x] = parent[parent[x]]
-            x = parent[x]
-        return x
-    for a in aos:
-        for p_ in a.findall('AP'):
-            for ac in p_.findall('AC'):
-                o = ap_owner.get(ac.get('ConnPtId'))
-                if o and o in parent:
-                    ra, rb = find(a.get('ID')), find(o)
-                    if ra != rb:
-                        parent[ra] = rb
+    # 연결 그룹(그리기 단위): 규칙은 sfa_tokens.link_groups 하나(정답 문장 순서와 같게). PARAMS['groups']가 None이면 sfa_tokens.GROUP_MODE.
+    import sfa_tokens as K
+    find = K.link_groups(aos, PARAMS['groups'])
 
     def draw_glow(a, path):
         T = float(a.get('ThicknessScale') or 1)
@@ -327,7 +310,7 @@ def render_frame(seq, fr, W=1920, H=1080):
         if layer.get('Visible') == 'false':
             continue
         objs = sorted((a for a in aos if a.get('LayerId', '0') == layer.get('ID')), key=lambda a: int(a.get('DrawOrder') or a.get('ID')))
-        if PARAMS['groups']:
+        if True:
             groups = {}
             for a in objs:
                 groups.setdefault(find(a.get('ID')), []).append(a)

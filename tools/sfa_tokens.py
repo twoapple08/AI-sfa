@@ -212,28 +212,51 @@ def canon_circle(xy, hwr, rmax=CIRC_RMAX):
     return [q, f] if near1 else [f, q]
 
 
-def order_objects(seq, fr):
-    """sfa_render.render_frame과 같은 그리기 순서로 (레이어 번호, AO) 목록을 돌려준다."""
-    layers = fr.findall('LayerDef')
-    aos = fr.findall('AO')
-    if not layers:
-        layers = [{'ID': v} for v in dict.fromkeys(a.get('LayerId', '0') for a in aos)]
+def glowing(a):
+    """글로우가 실제로 그려지는 오브젝트(반경·두께·알파 모두 > 0)."""
+    return all(float(a.get(k) or 0) > 0 for k in ('GlowRadius', 'GlowThickness', 'GlowAlpha'))
+
+
+# 연결 묶음 규칙(그리기 순서 단위). True: 점 연결(AC)로 이어진 모든 오브젝트, 'glow': 글로우 있는 오브젝트끼리의 연결만, False: 묶음 없음.
+# 앱 확인(11-01, 사용자 화면): glow_link_test(글로우 없는 선 + 글로우 선)·glow_link_test2(둘 다 글로우) 모두 이은 장과 안 이은 장이
+# 앱에서 같았다 → 앱은 연결로 그리기 순서를 묶지 않는다(오브젝트마다 글로우 → 선, DrawOrder 순). True·'glow'는 틀림(시험용으로만 남김).
+GROUP_MODE = False
+
+
+def link_groups(aos, mode=None):
+    """AO 목록 → find(ID) 대표값 함수. 렌더러와 정답 문장이 같은 규칙을 쓴다."""
+    mode = GROUP_MODE if mode is None else mode
+    by = {a.get('ID'): a for a in aos}
     ap_owner = {p.get('ID'): a.get('ID') for a in aos for p in a.findall('AP')}
-    parent = {a.get('ID'): a.get('ID') for a in aos}
+    parent = {k: k for k in by}
 
     def find(x):
         while parent[x] != x:
             parent[x] = parent[parent[x]]
             x = parent[x]
         return x
-    for a in aos:
-        for p in a.findall('AP'):
-            for ac in p.findall('AC'):
-                o = ap_owner.get(ac.get('ConnPtId'))
-                if o and o in parent:
+    if mode:
+        for a in aos:
+            for p in a.findall('AP'):
+                for ac in p.findall('AC'):
+                    o = ap_owner.get(ac.get('ConnPtId'))
+                    if not o or o not in parent:
+                        continue
+                    if mode == 'glow' and not (glowing(a) and glowing(by[o])):
+                        continue
                     ra, rb = find(a.get('ID')), find(o)
                     if ra != rb:
                         parent[ra] = rb
+    return find
+
+
+def order_objects(seq, fr):
+    """sfa_render.render_frame과 같은 그리기 순서로 (레이어 번호, AO) 목록을 돌려준다."""
+    layers = fr.findall('LayerDef')
+    aos = fr.findall('AO')
+    if not layers:
+        layers = [{'ID': v} for v in dict.fromkeys(a.get('LayerId', '0') for a in aos)]
+    find = link_groups(aos)
     out = []
     for li, layer in enumerate(layers):
         if layer.get('Visible') == 'false':

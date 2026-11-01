@@ -32,7 +32,7 @@ import sfa_tokens as K  # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__))
 MANIFEST = os.path.join(HERE, '..', 'data', 'judge_manifest.json')
 JUDGE_VERSION = 1        # 평가 목록 판
-DATA_VERSION = 4         # judge.npz 판. 3(11-01): 먼 곡선 자르기로 3장 정답·그림 바뀜. 4(11-01): 아주 큰 원 그리기·정답. 2(11-01): 해상도 단계 폭마다 모든 장·4방향 그림(JPEG) — 그때 배우는 해상도로 판정
+DATA_VERSION = 5         # judge.npz 판. 5(11-01): 점 연결 묶음 그리기 폐지(앱 확인, GPT I-10). 3(11-01): 먼 곡선 자르기로 3장 정답·그림 바뀜. 4(11-01): 아주 큰 원 그리기·정답. 2(11-01): 해상도 단계 폭마다 모든 장·4방향 그림(JPEG) — 그때 배우는 해상도로 판정
 # 이동 4방향(배율 모두 1.05, GPT 2차 §B). 0·1 = 공식 반대 방향 쌍, 2·3 = 축별 진단용(별도 합격 기회 아님)
 DIRS = ((6.0, 4.0, 1.05), (-6.0, -4.0, 1.05), (6.0, -4.0, 1.05), (-6.0, 4.0, 1.05))
 OFFICIAL = (0, 1)
