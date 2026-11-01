@@ -91,6 +91,8 @@ def check(out, console, plan, plan2):
         c['연장: 360 유지'] = '해상도 단계' not in part3 and fin[2]['stage_steps'].get('640', 0) > fin[1]['stage_steps'].get('640', 0)
         c['연장: 360 길이 분위 유지(100%)'] = fin[2].get('cur_max', {}).get('3') == 1.0 and '640폭 정답 길이 하위' not in part3
         c['연장: 계획'] = fin[2].get('plan_min') == plan2
+    c['마지막 평가 예상 ≥ 실제(보수적)'] = all((r.get('final_est_sec') or 0) >= (r.get('final_sec') or 0) for r in fin)
+    c['마감 안에 끝남'] = all((r.get('deadline_over_sec') or 0) <= 0 for r in fin)
     lost = [round(r['time_sec']['load'] + r['time_sec']['val'] + r['time_sec']['gen']) for r in fin]
     return c, dict(stage_steps=ss, sel=sel, cur_max=fin[-1].get('cur_max'), stops=[r.get('stop') for r in fin],
                    train_min=[round(r['train_min'], 2) for r in fin], wall_min=[round(r['minutes'], 2) for r in fin],

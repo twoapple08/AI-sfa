@@ -648,19 +648,34 @@ def train(a):
                 out += [(w_, cfg['maxlen'] if off else gen_cap(max(len(t) for t in js.tok[i]))) for i in range(len(js)) for _ in range(nd)]
         return out
 
-    def gen_cost(final):
-        """생성 평가 예상 초(실측 폭별 속도 × 상한 길이, 보수적). 실측이 없으면 None."""
-        rg = rate.get('gen', {})
-        if not rg:
+    def gen_model():
+        """생성 한 장 시간 = 폭별 고정 비용 a_w(그림 읽기·준비) + 토큰당 비용 b × 토큰 수. 디코더는 그림 특징 칸 수가 폭과 상관없이
+        같아(45×80) b는 폭 공통으로 본다. a_w = 그 폭 실측 중 가장 짧은 장, b = 32토큰 이상 장의 (초 − a_w) / 토큰 중앙값.
+        (11-01 작은 통합 시험: 토큰당 초 하나로 잡았더니 8토큰 만에 끝난 1280폭 생성의 그림 읽기 비용이 상한 길이만큼 곱해져 예상 218초, 실제 25초)"""
+        gs = {int(w): v for w, v in rate.get('gen_s', {}).items() if v}
+        if not gs:
             return None
-        spt_g = {int(w): v[0] / max(v[1], 1) for w, v in rg.items()}
-        worst = max(spt_g.values())
-        return sum(cap * spt_g.get(w, worst) for w, cap in final_plan(final))
+        a_w = {w: min(sec for _, sec in v) for w, v in gs.items()}
+        per = [(sec - a_w[w]) / tk for w, v in gs.items() for tk, sec in v if tk >= 32]
+        b = float(np.median(per)) if per else max(sec / tk for v in gs.values() for tk, sec in v)
+        return a_w, max(b, 0.0)
+
+    def gen_cost(final):
+        """생성 평가 예상 초 — 모든 장이 길이 상한까지 간다고 보는 보수적 값. 실측이 없으면 None.
+        실측이 없는 폭의 고정 비용은 아는 폭에서 화소 수 비례로 올려 잡는다."""
+        m = gen_model()
+        if m is None:
+            return None
+        a_w, b = m
+
+        def a_of(w):
+            return a_w[w] if w in a_w else max(a * max(1.0, (w / k) ** 2) for k, a in a_w.items())
+        return sum(a_of(w) + b * cap for w, cap in final_plan(final))
 
     def final_cost():
         """마지막 평가(교사 강제 검증·종류별 검증·생성 채점·판정·저장) 예상 초 — 보수적: 생성은 상한까지 간다고 본다.
         실측이 없으면 --final-reserve-min. 실측 속도는 회차마다 갱신해 저장본에 남긴다(첫 GPU 회차의 중간 평가부터)."""
-        rv, rg = rate.get('val'), rate.get('gen', {})
+        rv, rg = rate.get('val'), rate.get('gen_s', {})
         if not rv or not rg:
             return a.final_reserve_min * 60
         spt_v = rv[0] / max(rv[1], 1)
@@ -758,10 +773,13 @@ def train(a):
             reasons[why + ('_cap' if why != 'eos' and cap < cfg['maxlen'] else '')] += 1
             if dev == 'cuda':
                 torch.cuda.synchronize()
-            r_ = rate.setdefault('gen', {}).setdefault(str(int(im.shape[1])), [0.0, 0, 0])   # 폭별 생성 속도(마지막 평가 예상, GPT 2라운드 3-2)
+            r_ = rate.setdefault('gen', {}).setdefault(str(int(im.shape[1])), [0.0, 0, 0])   # 폭별 생성 합계(기록용)
             r_[0] += time.time() - t1
             r_[1] += len(toks) + 1
             r_[2] += 1
+            gs = rate.setdefault('gen_s', {}).setdefault(str(int(im.shape[1])), [])   # 장마다 (토큰, 초) 최근 64개 — 고정 비용과 토큰당 비용을 나눠 잡는다
+            gs.append([len(toks) + 1, time.time() - t1])
+            del gs[:-64]
             return toks, done, time.time() - t1
         except torch.OutOfMemoryError:
             if dev == 'cuda':
