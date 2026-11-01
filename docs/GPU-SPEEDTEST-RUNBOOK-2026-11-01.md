@@ -8,7 +8,7 @@
 
 ## 명령(한 번)
 ```
-python tools/kaggle_seq_remote.py push --prebuilt --gpu-ok --fresh --minutes 60 --plan-minutes 16 --extra "--gen-minutes 15"
+python tools/kaggle_seq_remote.py push --prebuilt --prebuilt-any-code --gpu-ok --fresh --minutes 60 --plan-minutes 16 --extra "--gen-minutes 15"
 python tools/kaggle_seq_remote.py wait
 python tools/kaggle_seq_remote.py pull 작업폴더      # save-ckpt는 하지 않는다(본 학습이 이 모델을 이어받지 않게)
 ```
@@ -17,6 +17,8 @@ python tools/kaggle_seq_remote.py pull 작업폴더      # save-ckpt는 하지 �
 - `--gen-minutes 15`: 중간 생성 채점 1회 이상을 잰다.
 - 판정 자료는 자료 커널이 만든 sj를 쓴다(콘솔 '판정 자료: 미리 만든 것 사용' 확인 — R4).
 - 예상 GPU 사용 40–60분(주간 30시간 중).
+
+- `--prebuilt-any-code`: 판 9 자료(cb3f34f 코드) 뒤 렌더러·정답 문장 코드가 바뀌었지만(묶음 규칙 정리·레이어 투명도) 학습 파일 3,772장 표본에서 그림·정답이 옛 코드와 모두 같다(11-02). 자료 판은 그대로 9.
 
 ## 볼 것(기록 → 계획 계산)
 | 항목 | 어디서 |

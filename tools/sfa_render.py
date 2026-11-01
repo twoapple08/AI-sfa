@@ -317,6 +317,10 @@ def render_frame(seq, fr, W=1920, H=1080):
             units = list(groups.values())
         else:
             units = [[a] for a in objs]
+        # 레이어 투명도(LayerDef Opacity 0–100, 새 앱 기능 — 11-02 사용자 '막고라' 파일에서 처음 봄, 예전 수집 441파일에는 없음):
+        # 레이어를 그대로 그린 뒤 그리기 전 화면과 op 비율로 섞는다 = 레이어 묶음을 불투명도 op로 덮어 그리기(srcOver 그룹 불투명도와 같은 식)
+        op = min(max(float(layer.get('Opacity') or 100) / 100, 0.0), 1.0)
+        before = surf.makeImageSnapshot().toarray().astype(np.float32) if op < 1 else None
         for g in units:
             paths = [(a, geom_path(by_id[a.get('ID')][0], by_id[a.get('ID')][1])) for a in g]
             for a, path in paths:
@@ -327,6 +331,10 @@ def render_frame(seq, fr, W=1920, H=1080):
                 draw_base(a, path)
                 if not PARAMS['fill_first']:
                     fills_of(a)
+        if before is not None:
+            after = surf.makeImageSnapshot().toarray().astype(np.float32)
+            mix = np.clip(before + (after - before) * op, 0, 255).astype(np.uint8)
+            surf.getCanvas().drawImage(skia.Image.fromarray(mix, colorType=skia.kBGRA_8888_ColorType), 0, 0)
     # 남은 채우기(주인 곡선이 어느 레이어에도 안 그려진 것)만 마지막에. 주인 곡선이 숨긴 레이어에 있으면 그리지 않는다
     # (2026-10-26 사용자 색칠공부 SFA: 숨긴 '중간 레이어'의 채색 면이 그려져 앱 화면과 달랐다)
     hidden = {l.get('ID') for l in layers if l.get('Visible') == 'false'}
