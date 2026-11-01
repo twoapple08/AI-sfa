@@ -19,7 +19,7 @@
 
 ## 바로 할 일
 1. **Kaggle 자료 판 9**(CPU, 11-01 17:44 UTC 올림, 판정 자료 sj 포함, 예상 2–3시간): 끝나면 `python tools/kaggle_seq_remote.py data-check 폴더`로 정합성 확인(판 7·8은 모두 0).
-2. **사용자 지시를 받고** GPU: ① 속도 측정 회차(40–60분) → ② 실측한 학습 외 시간으로 계획(학습 진행 분)을 정함 → ③ 본 학습. 회차마다 `python tools/seq_trend.py log.jsonl`로 추세를 보여 드린다. 계획 정책: docs/GPT-RESPONSE-VERIFY-ROUND2-FLOWTEST-2026-11-01.md §5.
+2. **사용자 지시를 받고** GPU: ① 속도 측정 회차(40–60분, 실행표 docs/GPU-SPEEDTEST-RUNBOOK-2026-11-01.md) → ② 실측한 학습 외 시간으로 계획(학습 진행 분)을 정함 → ③ 본 학습. 회차마다 `python tools/seq_trend.py log.jsonl`로 추세를 보여 드린다. 계획 정책: docs/GPT-RESPONSE-VERIFY-ROUND2-FLOWTEST-2026-11-01.md §5.
 3. GPT에 응답 문서 재검토 요청(docs/GPT-RESPONSE-CODE-REVIEW-2026-11-01.md).
 4. 측정(GPU 뒤): 길이별 생성 시간·마지막 평가 예상 대 실제, 메모리(rss_gb), 실제 장 노출, 묶음 검출 오탐(M-01–M-04).
 
