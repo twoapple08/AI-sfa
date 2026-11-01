@@ -50,6 +50,14 @@ def code_hash(tools):
     return {f: hashlib.sha256(open(f'{tools}/{f}', 'rb').read()).hexdigest()[:16] for f in CODE}
 
 
+def judge_code(tools):
+    """판정 자료를 만드는 코드의 해시(seq_judge·평가 목록). 렌더러·정답 문장은 CODE(자료 판)로 따로 확인한다."""
+    h = hashlib.sha256()
+    for f in (f'{tools}/seq_judge.py', f'{tools}/../data/judge_manifest.json'):
+        h.update(open(f, 'rb').read())
+    return h.hexdigest()[:16]
+
+
 def clone(c):
     sh('pip install -q skia-python')
     repo = '/kaggle/tmp/AI-sfa'
@@ -75,6 +83,9 @@ def make_data(c):
                                     mb=round(sum(os.path.getsize(p) for p in glob.glob(f'{work}/{name}/*.npz')) / 2 ** 20),
                                     check=(d.get('check') or {}).get('check'))   # 정합성 표본 요약(11-01: 출력 파일 수천 개 목록을 받다 Kaggle 요청 제한 — data_info 하나로 보게)
         print(name, info['splits'][name], flush=True)
+    t1 = time.time()   # 판정 자료도 여기서(코드 검토 11-01: GPU 회차마다 2.5–4분씩 만들던 것). 학습 커널은 판·평가 목록·코드가 맞을 때만 쓴다
+    sh(f'cd {tools} && python -u seq_judge.py build {work}/sj')
+    info['sj'] = dict(minutes=round((time.time() - t1) / 60, 1), judge_code=judge_code(tools))
     info['minutes'] = round((time.time() - T0) / 60, 1)
     json.dump(info, open(f'{work}/data_info.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
     print('자료 끝', json.dumps(info, ensure_ascii=False), flush=True)
@@ -103,6 +114,7 @@ def find_prebuilt(c, tools, cpus):
         if r.returncode:
             raise SystemExit(f'미리 만든 자료 {name}가 지금 판·설정과 다름 — push-data로 다시 만들 것')
         out[name] = d
+    out['_judge_code'] = (info.get('sj') or {}).get('judge_code')   # 판정 자료 재사용 확인용(이름이 '_'로 시작 — 자료 폴더 아님)
     return out
 
 
@@ -132,8 +144,13 @@ def main():
         for name, args in data_args(c, cpus).items():
             sh(f'cd {tools} && python -u seq_data.py {dirs[name]} {args}')
     data, val, shv, vkd = dirs['sd'], dirs['sv'], dirs['ss'], dirs['sc']
-    sj = '/kaggle/tmp/sj'   # 판정 자료(11-01): 작아서(장 46 × 4방향, 1분 안팎) 학습 커널에서 바로 만든다 — 미리 만든 자료(판 3)는 그대로
-    sh(f'cd {tools} && python -u seq_judge.py build {sj}')
+    sj = '/kaggle/tmp/sj'   # 판정 자료: 미리 만든 자료에 있고 판정 코드·평가 목록이 같으면 그대로, 아니면 여기서 만든다(2.5–4분)
+    pre_sj = os.path.join(os.path.dirname(dirs['sd']), 'sj')
+    if c.get('prebuilt') and os.path.exists(f'{pre_sj}/judge.npz') and dirs.get('_judge_code') == judge_code(tools):
+        sj = pre_sj
+        print('판정 자료: 미리 만든 것 사용', flush=True)
+    else:
+        sh(f'cd {tools} && python -u seq_judge.py build {sj}')
     stages = ','.join(dirs[f'sd{r}'] for r in HIRES) if c.get('stages', True) else ''
     print(f'자료 {(time.time() - t1) / 60:.1f}분', flush=True)
     enc = ''

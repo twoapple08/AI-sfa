@@ -112,7 +112,8 @@ def main():
             P.sh(f'cd /d "{tools}" && "{py}" -u seq_data.py "{d}" --W {r} --video --maxlen 2048 --compose 40000 --workers {cpus}{lp}')
         st = ' --stages "' + ','.join(hi) + '"'
     print(f'자료 {(time.time() - t0) / 60:.1f}분', flush=True)
-    left = a.hours * 60 - (time.time() - t_start) / 60 - 12   # 자료 읽기(몇 분)·마무리 올리기 몫
+    deadline = t_start + a.hours * 3600 - 5 * 60   # 절대 마감(Kaggle 작업자와 같은 방식, 11-01) — 마무리 올리기 5분. 학습기가 마지막 평가 몫을 남긴다
+    left = (deadline - time.time()) / 60
     if left < 5:
         print('남은 시간이 없어 학습을 건너뜀(자료는 만들어 둠 — 다음 실행 때 바로 학습)', flush=True)
         return
@@ -129,8 +130,8 @@ def main():
         if not os.path.exists(ef):
             raise SystemExit(f'인코더 파일 없음({DRIVE_BASE}/vec_encoder.pt) — 사진을 보내 주세요(또는 --no-init-encoder)')
         enc = f' --init-encoder "{ef}"'
-    plan = a.plan_hours * 60   # 0이면 seq_train이 처음엔 이번 실행 시간, 이어할 땐 이번 실행만큼 늘림
-    cmd = (f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --minutes {left:.0f} --plan-minutes {plan:.0f}'
+    plan = a.plan_hours * 60   # 학습 진행 분(읽기·평가 제외, 11-01). 0이면 seq_train이 처음엔 이번 실행 시간, 이어할 땐 이번 실행만큼 늘림
+    cmd = (f'cd /d "{tools}" && "{py}" -u seq_train.py train "{data}" "{val}" "{out}" --minutes {left:.0f} --deadline {deadline:.0f} --plan-minutes {plan:.0f}'
            f' --tok-budget {a.tok_budget} --shift-val "{shv}" --judge "{sj}" --val-kind "{vkd}" --gen-minutes 20' + st + enc + (' --yield' if a.yield_ else '') + extra)
     try:
         P.run_logged(cmd, out)

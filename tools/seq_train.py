@@ -384,6 +384,15 @@ def generate(net, img, hwr, maxlen=None, temp=0.0, reason=False):
     return (toks, False, 'limit') if reason else (toks, False)
 
 
+def max_rss_gb():
+    """이 프로세스의 최대 상주 메모리(GB, 리눅스 ru_maxrss는 KB). 측정 못 하면 None."""
+    try:
+        import resource
+        return round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 2 ** 20, 2)
+    except Exception:
+        return None
+
+
 def lr_at(step, prog, base, warm=500):
     """예열(걸음) 뒤 진행률(쓴 시간 / 계획 시간) 기준 코사인 — 끊어서 돌려도 계획대로 이어진다."""
     w = min(1.0, (step + 1) / warm)
@@ -1096,7 +1105,8 @@ def train(a):
                 last_gen = time.time()
                 rec.update(gen_eval())
                 tm['gen'] += time.time() - last_gen
-            rec.update(time_sec=dict(tm, load=tm_load[0], wall=time.time() - t_run), expo=dict(st.get('expo', {})), sel=dict(st.get('sel', {})))
+            rec.update(time_sec=dict(tm, load=tm_load[0], wall=time.time() - t_run), expo=dict(st.get('expo', {})), sel=dict(st.get('sel', {})),
+                       rss_gb=max_rss_gb(), sets_loaded=sorted(widths[j] for j in sets))   # 메모리(코드 검토 11-01: 1080 단계 4만 장 + 섞기 자료)
             print('검증', rec, flush=True)
             print('검증 분야(100점 만점):', field_report(vhn)[1], flush=True)
             with open(log, 'a', encoding='utf-8') as fh:
@@ -1125,7 +1135,7 @@ def train(a):
         rec.update(gen_eval(final=True))
         tm['gen'] += time.time() - t_g
         save_ckpt()   # 마지막 판정이 올린 공식 횟수(official_n)를 저장본에 남긴다 — 연장 회차가 2로 이어지게(GPT 확인 11-01: 저장 뒤 올려 연장이 다시 1이던 것)
-    rec.update(minutes=st['done_min'], fail_min=st.get('fail_min', 0.0))   # 마지막 평가·저장 뒤 값(GPT 확인 11-01: 예전엔 교사 검증 직후 값)
+    rec.update(minutes=st['done_min'], fail_min=st.get('fail_min', 0.0), rss_gb=max_rss_gb())   # 마지막 평가·저장 뒤 값(GPT 확인 11-01: 예전엔 교사 검증 직후 값)
     rec.update(time_sec=dict(tm, load=tm_load[0], wall=time.time() - t_run), expo=dict(st.get('expo', {})), sel=dict(st.get('sel', {})),
                cur_max=dict(st.get('cur_max', {})), plan_reached=bool(st['train_min'] >= st['plan_min'] - 1e-6),
                final_est_sec=round(est_final), final_sec=round(time.time() - t_final), deadline_over_sec=round(time.time() - deadline))

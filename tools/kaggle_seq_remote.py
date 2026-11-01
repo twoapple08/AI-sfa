@@ -81,6 +81,8 @@ def push_kernel(d, kname, cfg):
 
 
 def push(a):
+    if not a.cpu and not a.gpu_ok:   # 규칙: 사용자 지시 없이 Kaggle GPU 금지 — 실수로 --cpu를 빠뜨려도 GPU가 돌지 않게(코드 검토 11-01)
+        raise SystemExit('GPU 실행은 사용자 지시가 있을 때만: --gpu-ok를 붙이거나, CPU면 --cpu')
     u = user()
     cfg = dict(branch=a.branch, session_minutes=a.minutes, plan_minutes=a.plan_minutes, tok_budget=a.tok_budget, extra=a.extra, smoke=a.smoke,
                mode='train', prebuilt=a.prebuilt, prebuilt_any_code=a.prebuilt_any_code, stages=not a.no_stages,
@@ -232,6 +234,7 @@ def main():
     p.add_argument('--fresh', action='store_true', help='이어하기 자료를 붙이지 않고 처음부터')
     p.add_argument('--smoke', action='store_true', help='흐름 확인(작은 자료·모델 몇 분, 별도 커널 aisfa-seq-train-smoke)')
     p.add_argument('--cpu', action='store_true', help='GPU 끄고(주간 GPU 시간을 쓰지 않음)')
+    p.add_argument('--gpu-ok', action='store_true', help='사용자가 GPU 실행을 지시했음(없으면 GPU push를 거부)')
     p.add_argument('--ckpt', default=CKPT, help='이어하기 자료 이름')
     p.add_argument('--prebuilt', action='store_true', help='push-data 커널 출력을 입력으로 붙여 자료 만들기 없이 학습')
     p.add_argument('--no-init-encoder', action='store_true', help='이전 픽셀 지도 모델 인코더 없이 ImageNet에서 출발')

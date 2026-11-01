@@ -94,6 +94,22 @@ class TestEvaluate(unittest.TestCase):
     def gen(self, f):
         return lambda i, d: (f(i, d), True, 0.01)
 
+    def test_official_pass_needs_health(self):
+        """공식 통과 = 부호 검정 + 건전성(필수, 판정 기준 §1). 코드 검토 11-01: 건전성 미통과여도 '통과'로 찍힐 수 있었다."""
+        from unittest import mock
+        js = self.js
+        real = J.sign_test
+        with mock.patch.object(J, 'sign_test', lambda *x, **k: dict(real(*x, **k), passed=True)):   # N=3이라 진짜로는 못 이긴다 → 승리만 가정
+            ok, _ = J.evaluate(js, self.gen(lambda i, d: js.tok[i][d]), dirs=range(2))
+            bad, _ = J.evaluate(js, lambda i, d: (js.tok[i][d], False, 0.01), dirs=range(2))   # 모두 미완료 → 건전성 미통과
+        self.assertTrue(ok['judge']['passed_all'])
+        self.assertFalse(bad['health']['passed'])
+        self.assertTrue(bad['judge']['passed'])
+        self.assertFalse(bad['judge']['passed_all'])
+        self.assertIn('미통과(건전성)', J.summary_line(bad, official=True))
+        self.assertIn('통과', J.summary_line(ok, official=True))
+        self.assertTrue(J.flat(bad)['judge_passed'] and not J.flat(bad)['judge_passed_all'])
+
     def test_oracle_wins_memorizer_ties(self):
         js = self.js
         o, _ = J.evaluate(js, self.gen(lambda i, d: js.tok[i][d]), memo=J.memo_baseline(js))

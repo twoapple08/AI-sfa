@@ -423,6 +423,9 @@ def evaluate(js, gen, dirs=None, tie=TIE, alpha=ALPHA, memo=None, memo4=None):
         wro = [tab[i, g, p] for i in range(len(js)) for g, p in (OFFICIAL, OFFICIAL[::-1]) if tab.get((i, g, p)) is not None]
         out['judge']['pooled_diff'] = statistics.fmean(cor) - statistics.fmean(wro) if cor and wro else None   # 합산 차이(효과 크기)
         out['judge']['per_unit'] = [None if d is None else round(d, 3) for d in ud]
+        # 공식 판정 = 위치 사용(부호 검정) + 생성 건전성(필수) 둘 다(판정 기준 §1·§2). passed는 부호 검정만이라 따로 둔다
+        # (코드 검토 11-01: 건전성 미통과여도 '통과'로 찍힐 수 있었다)
+        out['judge']['passed_all'] = bool(out['judge']['passed'] and out['health']['passed'])
     else:
         out.update(metrics(dirs, memo))
         out['judge'] = None
@@ -469,7 +472,7 @@ def flat(out, pre='judge_'):
     keys = ('A', 'B', 'A_minus_B', 'memo', 'A_minus_memo', 'recall', 'precision', 'f1', 'f1_file_mean', 'n_measured', 'n_planned')
     r = {f'{pre}{k}': out.get(k) for k in keys}
     r[f'{pre}n_entries'] = out['n_entries']
-    r.update({f'{pre}{k}': j.get(k) for k in ('N', 'win', 'tie', 'loss', 'fail', 'need', 'p', 'passed', 'delta_median', 'delta_mean', 'pooled_diff', 'per_unit')})
+    r.update({f'{pre}{k}': j.get(k) for k in ('N', 'win', 'tie', 'loss', 'fail', 'need', 'p', 'passed', 'passed_all', 'delta_median', 'delta_mean', 'pooled_diff', 'per_unit')})
     r.update({f'{pre}health_{k}': v for k, v in out['health'].items()})
     r[f'{pre}gen_time'] = out['gen_time']
     if 'diag' in out:
@@ -486,7 +489,10 @@ def summary_line(out, official=None):
     """한 줄 요약(공식 두 방향). official=False면 '추세'로 — 통과 표시는 공식 판정에만(GPT 1라운드 A)."""
     j, h = out.get('judge') or {}, out['health']
     f = lambda v, n=1: '-' if v is None else f'{v:.{n}f}'  # noqa: E731
-    verdict = ('통과' if j.get('passed') else '미통과') if official else ('추세: 기준선 넘음' if j.get('passed') else '추세: 기준선 아래')
+    if official:   # 공식 통과 = 부호 검정 + 건전성(필수)
+        verdict = '통과' if j.get('passed_all') else ('미통과(건전성)' if j.get('passed') else '미통과')
+    else:
+        verdict = ('추세: 기준선 넘음' if j.get('passed') else '추세: 기준선 아래') + ('' if h['passed'] else '·건전성 미통과')
     return (f"판정: N {j.get('N')} 승 {j.get('win')}/동 {j.get('tie')}/패 {j.get('loss')}/실패 {j.get('fail')} (필요 {j.get('need')}승, p {f(j.get('p'), 4)}, "
             f"{verdict}) Δ중앙 {f(j.get('delta_median'), 2)} 합산차 {f(j.get('pooled_diff'), 2)} | "
             f"A {f(out['A'])} B {f(out['B'])} 외움 {f(out['memo'])} (측정 {out['n_measured']}/{out['n_planned']}) | F1 {f(out['f1'] * 100)}% | "
