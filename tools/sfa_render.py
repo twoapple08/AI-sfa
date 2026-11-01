@@ -151,6 +151,15 @@ def render_frame(seq, fr, W=1920, H=1080):
         # 옛 형식(LayerDef 없음): 원래 앱은 오브젝트 전체를 그린다. 오브젝트의 LayerId 값마다 보이는 레이어를 만든다.
         layers = [{'ID': v} for v in dict.fromkeys(a.get('LayerId', '0') for a in aos)]
     by_id = {a.get('ID'): (a.get('TypeId'), obj_points(a, geo), a) for a in aos}
+    # 조절점이 아주 먼 곡선은 상자 안 구간만 그린다(sfa_tokens.clip_quad, 정답 문장과 같은 자르기 — 11-01 그림·정답 어긋남).
+    # 면이 쓰는 곡선은 그대로(면 T가 원래 곡선 기준).
+    import sfa_tokens as K
+    used = {s.get('ObjId') for r in fr.findall('FR') if K._alpha(r.get('Color')) > 0 for s in r.findall('FS')}
+    for a in aos:
+        if a.get('TypeId') == '3' and a.get('ID') not in used and len(a.findall('AP')) >= 3:
+            cq = K.clip_quad([(float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP')[:3]])
+            if cq is not None:
+                by_id[a.get('ID')] = ('3', [geo.pt(x, y) for x, y in cq], a)
     frs = fr.findall('FR')
     fr_owner = {}
     for i, r in enumerate(frs):

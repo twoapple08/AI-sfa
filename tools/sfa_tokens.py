@@ -136,6 +136,47 @@ def clip_line(xy):
     return [(x0 + dx * t0, y0 + dy * t0), (x0 + dx * t1, y0 + dy * t1)]
 
 
+def _roots(a, b, c):
+    """a·t² + b·t + c = 0의 실근(수치 안정형)."""
+    if abs(a) < 1e-300:
+        return [] if abs(b) < 1e-300 else [-c / b]
+    d = b * b - 4 * a * c
+    if d < 0:
+        return []
+    q = -0.5 * (b + math.copysign(math.sqrt(d), b))
+    return [q / a] + ([c / q] if q != 0 else [])
+
+
+def quad_sub(p, a, b):
+    """2차 베지어 p의 [a, b] 구간 = 정확히 같은 모양의 2차 베지어(블로섬)."""
+    def bl(s, t):
+        w0, w1, w2 = (1 - s) * (1 - t), s * (1 - t) + t * (1 - s), s * t
+        return tuple(w0 * p[0][i] + w1 * p[1][i] + w2 * p[2][i] for i in (0, 1))
+    return [bl(a, a), bl(a, b), bl(b, b)]
+
+
+def clip_quad(xy):
+    """곡선(2차 베지어)을 CLIP 상자 안 구간으로 정확히 자른다(11-01: 조절점이 수백만 %인 곡선은 렌더러(skia)가
+    좌표가 조금만 달라도 '안 보임'↔'화면 전체 회색'으로 다르게 그려 그림·정답이 어긋났다 — H_SPECTRUM 58장 180,375화소).
+    세 점이 모두 상자 안이면 None(그대로), 상자 안 구간이 없으면 [](안 보임), 아니면 잘린 세 점.
+    학습 파일 실측: 상자 밖 곡선 960개 중 면에 안 쓰이고 멀리 있지 않은 708개 — 상자 안 구간 1개 703, 0개 5, 2개 이상 0.
+    2개 이상이면 첫 구간 시작~끝 구간 끝을 쓴다(정확하지 않음, 실측 0건)."""
+    lo, hi = CLIP
+    p = [tuple(q) for q in xy[:3]]
+    if all(lo <= v <= hi for q in p for v in q):
+        return None
+    br = {0.0, 1.0}
+    for i in (0, 1):
+        c0, c1, c2 = p[0][i], p[1][i], p[2][i]
+        for v in (lo, hi):
+            br.update(r for r in _roots(c0 - 2 * c1 + c2, 2 * (c1 - c0), c0 - v) if 0 < r < 1)
+    br = sorted(br)
+    ins = [(s, t) for s, t in zip(br, br[1:]) if all(lo <= v <= hi for v in quad_sub(p, (s + t) / 2, (s + t) / 2)[0])]
+    if not ins:
+        return []
+    return quad_sub(p, ins[0][0], ins[-1][1])
+
+
 def order_objects(seq, fr):
     """sfa_render.render_frame과 같은 그리기 순서로 (레이어 번호, AO) 목록을 돌려준다."""
     layers = fr.findall('LayerDef')
@@ -190,7 +231,7 @@ def encode(seq, fr):
             # 점이 모자란 오브젝트: 앱의 점 삭제 기능으로 생길 수 있다(사용자 10-30). 빼지 않고 그대로 적는다
             # (실측: tlqkf.sfa 154–156장 곡선 1점 하나뿐. 앱에서 어떻게 보이는지 미확인 — 렌더러는 안 그림)
             st['short'] = st.get('short', 0) + 1
-        if not used and far_away(a, xy, hwr):
+        if not used and (far_away(a, xy, hwr) or (a.get('TypeId') == '3' and len(xy) >= 3 and clip_quad(xy) == [])):
             st['drop_far'] += 1
             continue
         keep.append((li, a))
@@ -214,7 +255,12 @@ def encode(seq, fr):
         oidx[a.get('ID')] = len(oidx)
         xy = [(float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP')]
         # 면이 쓰는 직선은 자르지 않는다(잘라도 FS의 T는 그대로라 면 구간이 바뀐다, GPT 검토 10-30) → BIG 좌표로 보존
-        cl = clip_line(xy) if a.get('TypeId') == '1' and len(xy) == 2 and a.get('ID') not in fill_objs else None
+        cl = None
+        if a.get('ID') not in fill_objs:   # 곡선도 상자 안 구간만(면이 쓰는 곡선은 T 때문에 그대로, 실측 0건)
+            if a.get('TypeId') == '1' and len(xy) == 2:
+                cl = clip_line(xy)
+            elif a.get('TypeId') == '3' and len(xy) >= 3:
+                cl = clip_quad(xy)
         for pi, p in enumerate(a.findall('AP')[:NPTS[TYPES.get(a.get('TypeId'), 'LINE')]]):
             for v in (cl[pi] if cl else (float(p.get('X')), float(p.get('Y')))):
                 v = v if v == v else 50.0

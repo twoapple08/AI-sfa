@@ -192,7 +192,7 @@ def apply(bundles_path, manifest_path=J.MANIFEST):
         groups.append(dict(id=g, files=files, status=st))
     m['groups'], m['n_units'] = groups, len(groups)
     m['bundle_check'] = dict(tool='seq_bundle.py', threshold=b['threshold'], high=b['high'], weak=b['weak'], frames_per_file=b['frames_per_file'],
-                             note='약한 공유는 미확정으로 두고 합치지 않음. 회전·반전·다시 그린 변형은 못 찾을 수 있음')
+                             note='약한 공유는 미확정으로 두고 합치지 않음. 회전·다시 그린 변형과 400 오브젝트 넘는 장은 못 찾을 수 있음(누락률 3판: 반전·발췌·이동·확대 각 19/20)')
     with open(manifest_path, 'w', encoding='utf-8') as fh:
         json.dump(m, fh, ensure_ascii=False, indent=1)
     print(f"평가 목록 묶음 갱신: 독립 단위 {m['n_units']} (필요 {J.need_wins(m['n_units'])}승)", flush=True)

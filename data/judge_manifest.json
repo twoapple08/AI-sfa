@@ -128,32 +128,32 @@
    "pool": 1,
    "pool_kind": "4방향",
    "all4": true,
-   "len0": 87,
+   "len0": 81,
    "n0": 3,
-   "frame_hash": "8945c73b460aa0e4",
+   "frame_hash": "8f71ba033c152f4d",
    "file_sha": "ae6fb6f558f036ce",
-   "tok_hash": "4e20b72934687e1e",
+   "tok_hash": "0e1459f04edd3af3",
    "dirs": [
     {
-     "len": 87,
+     "len": 81,
      "n": 3,
      "clip": 0,
      "fields_ok": true
     },
     {
-     "len": 87,
+     "len": 81,
      "n": 3,
      "clip": 0,
      "fields_ok": true
     },
     {
-     "len": 87,
+     "len": 81,
      "n": 3,
      "clip": 0,
      "fields_ok": true
     },
     {
-     "len": 87,
+     "len": 81,
      "n": 3,
      "clip": 0,
      "fields_ok": true
@@ -174,7 +174,7 @@
    "n0": 1,
    "frame_hash": "6faeda28f680f763",
    "file_sha": "478f952a3e9f54a1",
-   "tok_hash": "b147805f9a5429b5",
+   "tok_hash": "b2167ba8051551a1",
    "dirs": [
     {
      "len": 22,
@@ -296,32 +296,32 @@
    "pool": 5,
    "pool_kind": "4방향",
    "all4": true,
-   "len0": 212,
+   "len0": 203,
    "n0": 8,
-   "frame_hash": "840fba862bb9f0a2",
+   "frame_hash": "c4386277687c59da",
    "file_sha": "1546f0559c39e123",
-   "tok_hash": "98b93af095abcda7",
+   "tok_hash": "fe52d9ab65547374",
    "dirs": [
     {
-     "len": 212,
+     "len": 200,
      "n": 8,
      "clip": 0,
      "fields_ok": true
     },
     {
-     "len": 212,
+     "len": 203,
      "n": 8,
      "clip": 0,
      "fields_ok": true
     },
     {
-     "len": 212,
+     "len": 200,
      "n": 8,
      "clip": 0,
      "fields_ok": true
     },
     {
-     "len": 212,
+     "len": 203,
      "n": 8,
      "clip": 0,
      "fields_ok": true
@@ -508,9 +508,9 @@
    "all4": true,
    "len0": 166,
    "n0": 6,
-   "frame_hash": "6c2e752094f9e84e",
+   "frame_hash": "b9651bfea061cc2b",
    "file_sha": "4a4471c21b5b411c",
-   "tok_hash": "d814538d772b8c54",
+   "tok_hash": "5434c3326b024983",
    "dirs": [
     {
      "len": 166,
@@ -594,7 +594,7 @@
    "n0": 1,
    "frame_hash": "636f9fbb5a83e5c6",
    "file_sha": "066443fc8ed9d53c",
-   "tok_hash": "84c32eb05e711b32",
+   "tok_hash": "99f74dbffa6e10c7",
    "dirs": [
     {
      "len": 25,
@@ -636,7 +636,7 @@
    "n0": 1,
    "frame_hash": "2bb1957f29a1ad9f",
    "file_sha": "24b4b1b1025aa08d",
-   "tok_hash": "1d4c2440e4737192",
+   "tok_hash": "ce9b34a2d30eb905",
    "dirs": [
     {
      "len": 22,
@@ -1224,7 +1224,7 @@
    "n0": 10,
    "frame_hash": "20b0c096d9c7b524",
    "file_sha": "a37e9f421505326f",
-   "tok_hash": "5f331cd23c763d09",
+   "tok_hash": "a0914d5e9806d465",
    "dirs": [
     {
      "len": 112,
@@ -1896,7 +1896,7 @@
    "n0": 8,
    "frame_hash": "6ef816f00c659774",
    "file_sha": "7605748a0dafcaae",
-   "tok_hash": "5a378d54d622b362",
+   "tok_hash": "6d8fe3c67e0ae124",
    "dirs": [
     {
      "len": 97,
@@ -2591,10 +2591,24 @@
    {
     "a": "묶음2_Drive/푸르름이 죽는 곳.sfa",
     "b": "묶음2_Drive/( ´ ▽ ` )ﾉ.sfa",
-    "share": 0.071
+    "share": 0.125
    }
   ],
-  "frames_per_file": 16,
-  "note": "약한 공유는 미확정으로 두고 합치지 않음. 회전·반전·다시 그린 변형은 못 찾을 수 있음"
+  "frames_per_file": "질문 16·참조 48, 좌우 반전 포함",
+  "note": "약한 공유는 미확정으로 두고 합치지 않음. 회전·다시 그린 변형과 400 오브젝트 넘는 장은 못 찾을 수 있음(누락률 3판: 반전·발췌·이동·확대 각 19/20)"
+ },
+ "hash_update": {
+  "date": "2026-11-01",
+  "why": "먼 곡선 자르기(sfa_tokens.clip_quad) — 같은 장 선택(46장·제외 목록 동일, 새 코드로 다시 뽑아 대조). 고른 장의 정답이 바뀐 것 3장(Hjll·Vanel·월남폭암), 나머지 5개 파일은 다른 장 때문에 파일 해시만 바뀜. 모델 출력을 보기 전",
+  "files": [
+   "묶음1_Sfa__zip/Hjll_SPECTRUM.sfa",
+   "묶음1_Sfa__zip/Kllll_SPECTRUM.sfa",
+   "묶음1_Sfa__zip/Vanel_SPECTRUM.sfa",
+   "묶음1_Sfa__zip/월남폭암.sfa",
+   "묶음2_Drive/( ´ ▽ ` )ﾉ.sfa",
+   "묶음2_Drive/(뉴스쿨 이펙 예시-1)-1.sfa",
+   "묶음2_Drive/스가구신버2.sfa",
+   "묶음6_추가/Jsjw_SPECTRUM.sfa"
+  ]
  }
 }

@@ -21,7 +21,7 @@
 
 ## 바로 할 일
 0. **판정 장치 구현 완료(11-01)** — docs/JUDGE-IMPLEMENTATION-2026-11-01.md
-   - 평가 목록 `data/judge_manifest.json`: 학습 파일 5개 중 1개 → 46장, 작품 묶음 판정(§5, `seq_bundle.py`) 뒤 **독립 단위 N=45, 필요 30승**. 외움 기준선 공식 2방향 12.07점.
+   - 평가 목록 `data/judge_manifest.json`: 학습 파일 5개 중 1개 → 46장, 작품 묶음 판정(§5, `seq_bundle.py`) 뒤 **독립 단위 N=45, 필요 30승**(묶음 도구 3판 누락률 반전·발췌·이동·확대 각 19/20, 11-01). 외움 기준선 공식 2방향 12.94점(먼 곡선 자르기 뒤, 이전 12.07).
    - 판정은 그때 배우는 해상도 단계 폭으로 한다(판정 자료 판 2) → 첫 회차(1080)부터 위치 읽기 추세를 본다. 추세 표: `python tools/seq_trend.py log.jsonl`.
    - `tools/seq_judge.py`(목록·자료·계산), `seq_train.py --judge`(중간 2방향·마지막 4방향, 그림 시트, 단계별 업데이트 수).
    - PC 본 학습은 `--judge … --gen-minutes 20`, Kaggle은 학습 커널에서 판정 자료를 만든다(미리 만든 자료 판 3 그대로).
@@ -29,8 +29,9 @@
    - 첫 점·이어지는 점 좌표 진단 추가(11-01, 분야 점수 `coord_first`·`coord_rest`, 교사 강제 값). 미구현: 앱 열기 확인. 동점 범위 |Δ| ≤ 0.5점은 사용자 확정(11-01, 첫 판정 전).
 1. **학습 방식 변경: 조합 문제 + 쉬운 것부터(사용자 11-01)** — docs/COMPOSE-CURRICULUM-2026-11-01.md
    - 묶음(연결·면으로 이어진 오브젝트)을 무작위 자리·크기로 놓은 장 + 장마다 다른 변환의 실제 장 30%. 해상도마다 다른 문제 4만 장. 단계마다 정답 길이 하위 20%→전체.
-   - 1-1. **Kaggle CPU 자료 만들기 진행 중(11-01 21:0x UTC)**: `push-data --smoke`(검사)와 `push-data`(본 자료, 판 4)를 동시에 띄웠다. 시험판이 실패하면 본 자료를 멈추고 고친다.
-   - 1-2. 자료가 되면 Kaggle CPU 흐름 시험을 짧게 한 번 더(새 자료·쉬운 것부터·배우는 해상도 판정). 이전 흐름 시험(판 3 자료)은 rc 0 통과.
+   - GPT 검토 3회 반영(1라운드·재확인·404ca46 확인): 응답 docs/GPT-RESPONSE-{COMPOSE-ROUND1,RECHECK-COMPOSE-ROUND1,VERIFY-404ca46}-2026-11-01.md. 공식 판정은 계획 끝·전체 목록·360(640폭)에서만, 공식 횟수는 저장본에 남음.
+   - 1-1. 판 5 자료(Kaggle CPU, 97분)는 정합성 표본에서 실제 장 18만 화소 어긋남이 나와 **무효**. 원인은 조절점이 수백만 %인 곡선의 렌더 불안정 → `sfa_tokens.clip_quad`로 고침(VERIFY 응답 §7). **자료 판 6을 Kaggle CPU로 다시 만든다**(`push-data --branch claude/new-session-gknz4t`). 끝나면 `kaggle kernels output twoapple08/aisfa-seq-data -p <dir> --file-pattern 'data_info.json|done.json'`으로 정합성 표본만 받아 본다(실제 장 100화소 넘음 0 기대).
+   - 1-2. 자료가 되면 Kaggle CPU 흐름 시험을 짧게 한 번 더(새 자료·쉬운 것부터·배우는 해상도 판정). 이전 흐름 시험(판 3 자료)은 rc 0 통과. 그 결과로 GPT와 2라운드 토론.
    - 1-3. 그다음 **사용자 지시를 받고** GPU: 전체 계획 10시간을 3시간 회차로 나눠(사용자 11-01: 12시간을 한 번에 쓰지 않음, 이어 갈 수 있게). 첫 회차 `push --prebuilt --fresh --minutes 180 --plan-minutes 600 --extra "--gen-minutes 20"`(첫 판정을 20분에 — 새 판정 코드가 Kaggle GPU에서 깨지면 빨리 드러나게), 다음 회차 `pull` → `save-ckpt` → `push --prebuilt --minutes 180 --plan-minutes 600`. PC로 넘길 땐 `to-drive`.
    - 회차마다 `python tools/seq_trend.py log.jsonl`로 '외우는가, 보고 판단하며 크는가'(위치 읽기 승수·A−외움·새 작품 점수)를 보여 드리고 이어 갈지 정한다.
    - PC bat(Drive `AI-sfa` 맨 위)은 PC를 쓸 수 있을 때의 대안. Drive `seq`에 s1_4060 저장본 없음(11-01).
