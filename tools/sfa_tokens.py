@@ -177,6 +177,34 @@ def clip_quad(xy):
     return quad_sub(p, ins[0][0], ins[-1][1])
 
 
+CIRC_RMAX = 1e8   # 정답에 적는 원 반지름 상한(%, 가로 기준 등방 좌표). BIG 수 범위(약 ±6.9e9 %) 안
+
+
+def canon_circle(xy, hwr, rmax=CIRC_RMAX):
+    """아주 큰 원(반지름 > rmax)을 화면에서 같은 모양의 원으로 바꾼다: 원 위에서 화면 가운데(50, 50)에 가장 가까운 점 Q와 그 점의
+    접선을 그대로 두고 반지름만 rmax로 줄인다. 화면 근처 차이는 처짐 차이 L²/8R — 상자 폭 2,100%에서 0.0055%(1920폭 0.1화소).
+    (11-01: 반지름이 1경 %인 원은 BIG 수 범위를 넘어 좌표가 잘렸다. 렌더러가 큰 원을 정확히 그리게 되자 원본·정답이 갈렸다.)
+    계산은 화소와 같은 비율의 등방 좌표(x, y·hwr)에서 한다(렌더러의 원은 화소에서 둥글다). 큰 수끼리 빼지 않도록 화면에 가까운
+    지름 끝 P를 기준으로 쓴다: v = (반대편 − P)/2, w = 가운데 − P, n = |v − w|, Q = P + v·(n − r)/n + w·r/n, 중심 방향 = (v − w)/n.
+    바꿀 필요가 없으면 None, 아니면 [Q, 새 지름 반대편 끝] — 화면에 더 가까웠던 점 자리에 Q."""
+    pts = [(x, y * hwr) for x, y in xy[:2]]
+    sx, sy = 50.0, 50.0 * hwr
+    near1 = math.hypot(pts[0][0] - sx, pts[0][1] - sy) <= math.hypot(pts[1][0] - sx, pts[1][1] - sy)
+    (px, py), (ox, oy) = pts if near1 else pts[::-1]
+    vx, vy = (ox - px) / 2, (oy - py) / 2
+    r = math.hypot(vx, vy)
+    if not r > rmax or not math.isfinite(r):
+        return None
+    wx, wy = sx - px, sy - py
+    n = math.hypot(vx - wx, vy - wy)
+    t = (wx * wx + wy * wy - 2 * (wx * vx + wy * vy)) / (n + r)   # = n − r(안정한 꼴)
+    qx, qy = px + vx * t / n + wx * r / n, py + vy * t / n + wy * r / n
+    ux, uy = (vx - wx) / n, (vy - wy) / n
+    fx, fy = qx + 2 * rmax * ux, qy + 2 * rmax * uy
+    q, f = (qx, qy / hwr), (fx, fy / hwr)
+    return [q, f] if near1 else [f, q]
+
+
 def order_objects(seq, fr):
     """sfa_render.render_frame과 같은 그리기 순서로 (레이어 번호, AO) 목록을 돌려준다."""
     layers = fr.findall('LayerDef')
@@ -261,6 +289,8 @@ def encode(seq, fr):
                 cl = clip_line(xy)
             elif a.get('TypeId') == '3' and len(xy) >= 3:
                 cl = clip_quad(xy)
+            elif a.get('TypeId') == '2' and len(xy) >= 2:
+                cl = canon_circle(xy, hwr)
         for pi, p in enumerate(a.findall('AP')[:NPTS[TYPES.get(a.get('TypeId'), 'LINE')]]):
             for v in (cl[pi] if cl else (float(p.get('X')), float(p.get('Y')))):
                 v = v if v == v else 50.0

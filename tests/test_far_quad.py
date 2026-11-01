@@ -1,6 +1,7 @@
 """먼 곡선 자르기(11-01): 조절점이 수백만 %인 2차 베지어를 렌더러(skia)가 좌표가 조금만 달라도 '안 보임'↔'화면 전체 회색'으로
 다르게 그려, 판 5 Kaggle 자료의 정합성 표본에서 그림·정답이 180,375화소 어긋났다(H_SPECTRUM 58장). 정답 문장과 렌더러가
 같은 정확한 자르기(sfa_tokens.clip_quad)를 쓰는지 확인한다."""
+import math
 import random
 import sys
 import unittest
@@ -101,3 +102,59 @@ class ClipQuadTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class HugeCircleTest(unittest.TestCase):
+    """아주 큰 원(11-01): 렌더러 원 근사가 무너져 대각선 쐐기로 그려지고(판 6 1080 표본 6,410화소), 반지름 1경 %는 BIG 수 범위를 넘어
+    정답 좌표가 잘렸다. 렌더러는 상자 안 호를 정확히 그리고, 정답·렌더러 모두 반지름 상한 원(canon_circle)으로 바꾼다."""
+    # 나진짜너무슬프고속상하고 11장과 같은 꼴: 지름 한 끝이 화면 안(50.19), 다른 끝이 2천만 % 위
+    HUGE = [(18.2, -1.996e7), (18.2, 50.19)]
+
+    def test_canon_keeps_near_point_and_tangent(self):
+        self.assertIsNone(K.canon_circle(self.HUGE, 0.5625))   # 반지름 1천만 %는 상한(1억 %) 안 — 그대로, 렌더러가 호만 정확히 그린다
+        orig = [(18.2, -1.996e9), (18.2, 50.19)]
+        c = K.canon_circle(orig, 0.5625)
+        self.assertAlmostEqual(c[1][1], 50.19, places=4)      # 화면 쪽 점 Q: 같은 접선(y ≈ 50.19) 위, 화면 가운데에 가장 가까운 원 위 점
+        self.assertLess(abs(c[0][0] - c[1][0]) / abs((c[0][1] - c[1][1]) * 0.5625), 1e-6)   # 지름 방향(거의 세로) 유지 = 같은 접선 방향
+        h = 0.5625                                            # 원래 화면 쪽 끝점이 새 원 위에 있다(등방 좌표, 처짐 차이 이내)
+        cx, cy = (c[0][0] + c[1][0]) / 2, (c[0][1] + c[1][1]) * h / 2
+        r = math.hypot(c[1][0] - c[0][0], (c[1][1] - c[0][1]) * h) / 2
+        self.assertLess(abs(math.hypot(18.2 - cx, 50.19 * h - cy) - r), 1e-3)
+        self.assertIsNone(K.canon_circle([(10, 10), (60, 40)], 0.5625))   # 작은 원은 그대로
+        far = [(5e15, -3e15), (50.0, 30.0)]                   # 1경 %급, 비스듬
+        c = K.canon_circle(far, 0.5625)
+        self.assertLess(max(abs(v) for q in c for v in q), 7e9)   # BIG 수 범위 안
+
+    def test_render_band_not_wedge(self):
+        """큰 원의 화면 부분은 수평 띠(접선). 예전 렌더러는 대각선 쐐기."""
+        saved = dict(R.PARAMS)
+        try:
+            R.PARAMS.update(pad=0.0, thick_mul=640 / 1920)
+            seq = ET.Element('Sequence', HeightWidthRatio='0.5625', BackgroundColor='-1')
+            fr = ET.SubElement(seq, 'Frame', ID='1', Position='0')
+            ET.SubElement(fr, 'LayerDef', ID='0', Visible='true')
+            ao = ET.SubElement(fr, 'AO', ID='1', TypeId='2', Color='-16777216', LayerId='0', DrawOrder='0', ThicknessScale='2.0')
+            for i, (x, y) in enumerate(self.HUGE):
+                ET.SubElement(ao, 'AP', ID=str(10 + i), X=repr(x), Y=repr(y))
+            img = R.render_frame(seq, fr, 640, 360)[..., :3]
+        finally:
+            R.PARAMS.clear()
+            R.PARAMS.update(saved)
+        dark = img.mean(-1) < 128
+        rows = np.where(dark.any(1))[0]
+        self.assertTrue(len(rows) and rows.max() - rows.min() < 12)          # 한 줄 띠(두께만큼)
+        self.assertGreater(dark.any(0).sum(), 600)                           # 화면 가로 전체
+
+    def test_huge_circle_answer_matches_image(self):
+        for far in ([(18.2, -1.996e7), (18.2, 50.19)], [(5e15, -3e15), (50.0, 30.0)], [(-2e9, 40.0), (77.0, 40.0)]):
+            seq = ET.Element('Sequence', HeightWidthRatio='0.5625', BackgroundColor='-1')
+            fr = ET.SubElement(seq, 'Frame', ID='1', Position='0')
+            ET.SubElement(fr, 'LayerDef', ID='0', Visible='true')
+            ao = ET.SubElement(fr, 'AO', ID='1', TypeId='2', Color='-16777216', LayerId='0', DrawOrder='0', ThicknessScale='2.0')
+            for i, (x, y) in enumerate(far):
+                ET.SubElement(ao, 'AP', ID=str(10 + i), X=repr(x), Y=repr(y))
+            root = ET.Element('Sequence', HeightWidthRatio='0.5625', BackgroundColor='-1')
+            root.append(fr)
+            for sd in range(6):
+                s_, f_ = C.real_frame(root, fr, random.Random(sd), 0.5625)
+                self.assertLess(SC.mismatch(s_, f_)[0], 100, (far, sd))

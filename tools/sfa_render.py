@@ -74,9 +74,46 @@ def qb(p, t):
     return u * u * x0 + 2 * u * t * x1 + t * t * x2, u * u * y0 + 2 * u * t * y1 + t * t * y2
 
 
+def circle_arcs(cx, cy, r, box, tol=0.05, max_seg=32.0):
+    """원(중심·반지름, 화소)의 상자 안 호들을 꺾은선으로(float64로 직접 계산). 상자 = (x0, y0, x1, y1).
+    반지름이 아주 큰 원(수백만 %)은 skia 원 근사가 무너져 화면에 대각선 쐐기로 나오고, 좌표가 조금만 달라도 모양이 바뀌었다
+    (11-01 판 6 자료 1080 정합성 표본 6,410화소·서버 재현 30,006화소). 꺾은선 마디 길이는 처짐(sagitta) tol 화소 이하."""
+    x0, y0, x1, y1 = box
+    angs = {0.0, 2 * math.pi}
+    for v, ax in ((x0, 0), (x1, 0), (y0, 1), (y1, 1)):
+        d = v - (cx if ax == 0 else cy)
+        if abs(d) <= r:
+            u = max(-1.0, min(1.0, d / r))
+            cand = (math.acos(u), -math.acos(u)) if ax == 0 else (math.asin(u), math.pi - math.asin(u))   # x = cx + r cos θ, y = cy + r sin θ
+            for t in cand:
+                angs.add(t % (2 * math.pi))
+    angs = sorted(angs)
+    seg = min(max_seg, math.sqrt(8 * r * tol)) if r > 0 else max_seg
+    out = []
+    for a0, a1 in zip(angs, angs[1:]):
+        m = (a0 + a1) / 2
+        if not (x0 <= cx + r * math.cos(m) <= x1 and y0 <= cy + r * math.sin(m) <= y1):
+            continue
+        n = max(2, int(math.ceil((a1 - a0) * r / seg)) + 1)
+        pts = [(cx + r * math.cos(t), cy + r * math.sin(t)) for t in np.linspace(a0, a1, n)]
+        if out and abs(out[-1][1] - a0) < 1e-12:
+            out[-1] = (out[-1][0], a1, out[-1][2] + pts[1:])
+        else:
+            out.append((a0, a1, pts))
+    if len(out) > 1 and out[0][0] == 0.0 and out[-1][1] == 2 * math.pi:   # 0 각도를 지나는 호는 이어 붙인다
+        out = [(out[-1][0], out[0][1], out[-1][2] + out[0][2][1:])] + out[1:-1]
+    return [p for _, _, p in out]
+
+
 def geom_path(kind, pts):
     path = skia.Path()
-    if kind == '1' and len(pts) >= 2:
+    if kind == 'P':   # 상자 안 호 꺾은선들(아주 큰 원)
+        for line in pts:
+            if len(line) >= 2:
+                path.moveTo(*line[0])
+                for q in line[1:]:
+                    path.lineTo(*q)
+    elif kind == '1' and len(pts) >= 2:
         path.moveTo(*pts[0]); path.lineTo(*pts[1])
     elif kind == '2' and len(pts) >= 2:
         (x1, y1), (x2, y2) = pts[:2]
@@ -160,6 +197,17 @@ def render_frame(seq, fr, W=1920, H=1080):
             cq = K.clip_quad([(float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP')[:3]])
             if cq is not None:
                 by_id[a.get('ID')] = ('3', [geo.pt(x, y) for x, y in cq], a)
+        elif a.get('TypeId') == '2' and a.get('ID') not in used and len(a.findall('AP')) >= 2:
+            # 아주 큰 원(점이 상자 밖): 상자 안 호만 꺾은선으로 정확히(circle_arcs). 정답 문장은 원 그대로(좌표가 조금 달라도 같은 모양으로 그려진다)
+            xy = [(float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP')[:2]]
+            if not all(K.CLIP[0] <= v <= K.CLIP[1] for q in xy for v in q):
+                # 반지름이 상한보다 크면 정답 문장과 같은 원으로 바꾼 뒤(K.canon_circle — 큰 수끼리 빼는 정밀도 손실도 막는다) 호를 계산
+                xy = K.canon_circle(xy, float(seq.get('HeightWidthRatio') or 0.5625) or 0.5625) or xy
+                (px1, py1), (px2, py2) = [geo.pt(x, y) for x, y in xy]
+                bx0, by0 = geo.pt(K.CLIP[0], K.CLIP[0])
+                bx1, by1 = geo.pt(K.CLIP[1], K.CLIP[1])
+                by_id[a.get('ID')] = ('P', circle_arcs((px1 + px2) / 2, (py1 + py2) / 2, math.hypot(px2 - px1, py2 - py1) / 2,
+                                                       (bx0, by0, bx1, by1)), a)
     frs = fr.findall('FR')
     fr_owner = {}
     for i, r in enumerate(frs):
