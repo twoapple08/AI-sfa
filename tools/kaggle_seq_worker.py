@@ -175,6 +175,10 @@ def main():
         con.write(line)
         con.flush()
     rc = pr.wait()
+    import sys
+    sys.path.insert(0, tools)
+    import ckpt_files
+    ckpt_files.promote(out)   # 예비 저장본이 최신이면 본 파일로 — 출력·이어하기 자료는 ckpt.pt만 옮긴다(GPT 재확인 R-05)
     for f in ('seq_train.py', 'sfa_tokens.py'):
         shutil.copy(f'{tools}/{f}', out)
     infos = sorted(glob.glob('/kaggle/input/**/data_info.json', recursive=True))

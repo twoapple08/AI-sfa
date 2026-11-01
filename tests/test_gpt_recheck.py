@@ -119,7 +119,7 @@ def _controller():
         env = dict(net=SimpleNamespace(eval=lambda: None, train=lambda: None), time=time, widths=[width], st=st, js=js,
                    cfg=dict(in_w=640), js_reduced=reduced, official_judgment=ST.official_judgment, reasons=Counter(), gen_img=gen_img,
                    J=SimpleNamespace(evaluate=fake_eval, flat=lambda out, pre='judge_': {}, summary_line=lambda *x: ''),
-                   memo={2: 12.07, 4: 11.63}, judge_sheet=lambda *x: None, dev='cpu', a=SimpleNamespace(gen_minutes=1), rec={},
+                   memo={2: 12.07, 4: 11.63}, judge_sheet=lambda *x: None, dev='cpu', a=SimpleNamespace(gen_minutes=1, gen_len_mult=2.0), rec={},
                    tm={'gen': 0})
         exec(judge_code, env)
         env['save_ckpt'] = lambda **kw: saved.update(copy.deepcopy(st))

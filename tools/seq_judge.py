@@ -295,6 +295,29 @@ def manifest_sha(m):
     return hashlib.sha256(json.dumps(m['entries'], sort_keys=True, ensure_ascii=False).encode()).hexdigest()[:16]
 
 
+def content_ok(js, manifest):
+    """판정 자료 내용이 목록과 맞는가(GPT 재확인 R-04: 메타데이터는 전체 목록인데 실제 그림·정답이 한 장 반복이어도 통과했다).
+    ① 원래 자리 정답(tok0)의 해시 = 목록의 frame_hash ② 장마다 방향 수만큼 정답·그림, 빈 정답 없음 ③ 장마다 방향 정답 묶음과 그림이
+    다른 장과 겹치지 않음(복사·섞임 검출). 정상 build_data 결과의 손상·혼합 검출용이며 고의 조작 방지까지는 아니다. (통과, 사유)"""
+    es = manifest['entries']
+    nd = len(js.meta['dirs'])
+    if len(js.tok0) != len(es) or len(js.tok) != len(es) or len(js.img) != len(es) * nd:
+        return False, '장·그림 수'
+    seen_t, seen_i = set(), set()
+    for i, e in enumerate(es):
+        if hashlib.sha1(np.asarray(js.tok0[i], np.int32).tobytes()).hexdigest()[:16] != e['frame_hash']:
+            return False, f'원래 자리 정답 해시({i})'
+        if len(js.tok[i]) != nd or any(len(t) == 0 for t in js.tok[i]):
+            return False, f'방향 정답({i})'
+        kt = tuple(hashlib.sha1(np.asarray(t, np.int32).tobytes()).hexdigest() for t in js.tok[i])
+        ki = hashlib.sha1(np.ascontiguousarray(js.img[i * nd:(i + 1) * nd]).tobytes()).hexdigest()
+        if kt in seen_t or ki in seen_i:
+            return False, f'다른 장과 같은 내용({i})'
+        seen_t.add(kt)
+        seen_i.add(ki)
+    return True, ''
+
+
 class JudgeSet:
     """judge.npz 읽기. 그림 i*4+d = 장 i의 방향 d."""
 

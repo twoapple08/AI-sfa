@@ -145,6 +145,41 @@ def fills(fr, O, pid, mp=None):
     return out
 
 
+def fill_boxes(fr, O):
+    """면 주인(첫 조각 오브젝트 번호) → 실제 면 경로의 경계 상자 목록(화면 % 좌표, O와 같은 단위).
+    렌더러와 같이 직선·원 조각의 T는 자르지 않고 곡선만 0–1로 자른다(GPT 재확인 R-02: 직선 T=3인 면이 참조 오브젝트 상자를 넘었다).
+    조각 사이 자동 연결선은 조각 점들의 볼록 껍질 안이므로 점 상자로 덮인다."""
+    idx = {o['id']: k for k, o in enumerate(O)}
+    out = {}
+    for r in fr.findall('FR'):
+        if (int(float(r.get('Color'))) & 0xFFFFFFFF) >> 24 == 0:
+            continue
+        pts, owner = [], None
+        for s_ in r.findall('FS'):
+            k = idx.get(s_.get('ObjId'))
+            if k is None:
+                continue
+            owner = k if owner is None else owner
+            xy = np.array(O[k]['xy'], float)
+            if len(xy) < 2:
+                continue
+            whole = s_.get('Kind') == '1' or s_.get('StartT') is None
+            t0 = 0.0 if whole else float(s_.get('StartT'))
+            t1 = 1.0 if whole else float(s_.get('EndT') if s_.get('EndT') is not None else 1)
+            t = O[k]['t']
+            if t == '2':
+                c, rr = xy[:2].mean(0), np.linalg.norm(xy[1] - xy[0]) / 2
+                pts += [c - rr, c + rr]
+            elif t == '3':
+                pts += list(xy[:3])   # 곡선은 T를 0–1로 자르므로 조절점 상자 안
+            else:
+                pts += [xy[0] + (xy[1] - xy[0]) * t0, xy[0] + (xy[1] - xy[0]) * t1]
+        if owner is not None and pts:
+            P_ = np.array(pts)
+            out.setdefault(owner, []).append((P_[:, 0].min(), P_[:, 1].min(), P_[:, 0].max(), P_[:, 1].max()))
+    return out
+
+
 def _pdist(a, b):
     """점 평균 거리(화면 가로 % 단위)와 점 순서를 뒤집었는지. 점 수가 다르거나 모자라면 맞을 수 없음."""
     n = NEED.get(a['t'], 2)
@@ -314,22 +349,19 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
                 gr, gw = o['glow'][0], o['glow'][1]
                 m_px = max(m_px, 8.0 * abs(o['th']) * gw / 10 / 2 + 4 * gr + 1)
             return m_px / 1900 * 100 + 0.5
-        # 면: 주인 = 면의 첫 조각 오브젝트. 면 범위 = 면을 이루는 모든 조각 오브젝트 범위의 합(GPT 코드 검토 I-03: 주인 경계만 보던 것)
-        own, fill_objs = {}, {}
+        # 면: 주인 = 면의 첫 조각 오브젝트. 면 범위 = 실제 면 경로(조각 T 포함)의 상자(GPT 코드 검토 I-03 → 재확인 R-02)
+        own = {}
         for col, groups in fa:
             if groups:
-                o_ = groups[0][0][1]
-                own.setdefault(o_, []).append(col)
-                fill_objs.setdefault(o_, set()).update(seg[1] for g in groups for seg in g)
+                own.setdefault(groups[0][0][1], []).append(col)
+        fbox = fill_boxes(ans_fr, A)
         bx = {}
         for j in m.values():
             x0, y0, x1, y1 = box(A[j])
             e = reach(A[j])
             x0, y0, x1, y1 = x0 - e, y0 - e, x1 + e, y1 + e
-            for k in fill_objs.get(j, ()):
-                if 0 <= k < len(A):
-                    bb = box(A[k])
-                    x0, y0, x1, y1 = min(x0, bb[0]), min(y0, bb[1]), max(x1, bb[2]), max(y1, bb[3])
+            for bb in fbox.get(j, ()):
+                x0, y0, x1, y1 = min(x0, bb[0] - 0.5), min(y0, bb[1] - 0.5), max(x1, bb[2] + 0.5), max(y1, bb[3] + 0.5)
             bx[j] = (x0, y0, x1, y1)
         # 순서 무관 예외는 '면·글로우 없는 같은 색 선'끼리만: 같은 색 한 번 칠은 겹쳐도 결과가 같다. 선 + 면처럼 여러 번 칠하는 오브젝트는
         # 색 목록이 같아도 나중 것의 면이 앞 것의 선을 덮어 순서가 영상을 바꾼다(GPT 코드 검토 I-02, 렌더 1,224화소 차이).
@@ -347,17 +379,23 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
         r['order'] = same / tot if tot else None
         # 글로우 묶음(GPT 코드 검토 I-10, 앱 확인 11-01 glow_link_test3·4): 점으로 이은 무리는 무리 안 글로우를 먼저 모두 그리고 선을 그린다.
         # 글로우가 있는 쌍이 겹칠 때 '같은 무리인지'가 원본과 다르면 가림이 달라진다 → 만점 아님. 겹치지 않거나 글로우가 없으면 영상이 같아 무관.
+        # 그림이 바뀌는 쌍만(GPT 재확인 R-03): 렌더러는 레이어마다 따로 묶으므로 같은 레이어끼리, 그리고 한쪽 글로우와 다른 쪽의
+        # 보이는 선·면이 만나는 쌍(글로우끼리만이면 묶여도 글로우 → 글로우 순서가 같다).
+        def vis(j):
+            return (A[j]['col'] >> 24) > 0 or bool(own.get(j))
         gsame = gtot = 0
         for x in range(len(items)):
             for y in range(x + 1, len(items)):
                 (i1, j1), (i2, j2) = items[x], items[y]
-                if A[j1]['glow'] is None and A[j2]['glow'] is None:
+                if A[j1]['layer'] != A[j2]['layer']:
+                    continue
+                if not ((A[j1]['glow'] is not None and vis(j2)) or (A[j2]['glow'] is not None and vis(j1))):
                     continue
                 b1, b2 = bx[j1], bx[j2]
                 if b1[2] < b2[0] or b2[2] < b1[0] or b1[3] < b2[1] or b2[3] < b1[1]:
                     continue
                 gtot += 1
-                gsame += (P[i1]['grp'] == P[i2]['grp']) == (A[j1]['grp'] == A[j2]['grp'])
+                gsame += (P[i1]['grp'] == P[i2]['grp'] and P[i1]['layer'] == P[i2]['layer']) == (A[j1]['grp'] == A[j2]['grp'])
         r['glow_group'] = gsame / gtot if gtot else None
     # 만점 = 같은 영상: 모든 오브젝트가 짝지어지고, 점은 칸 단위로 같고(EXACT_PT), 굵기·색·글로우·면·배경·순서가 같다.
     # 점 연결(AC) 자체는 만점에서 뺀다(사용자 10-31: 24,24 목표라 트위닝이 없음). 단 글로우가 겹치는 쌍의 묶음 차이는 그림을 바꾸므로 glow_group으로 본다(I-10, 앱 확인 11-01).

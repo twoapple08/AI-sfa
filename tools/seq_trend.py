@@ -42,8 +42,11 @@ def badge(r, pre):
 
 
 def cond(r):
-    """비교 조건: 판정 폭·축소 여부·평가 장 수·검증 목록. 이것이 다르면 점수 차이에 해상도·목록 변화가 섞인다(GPT 코드 검토 I-07)."""
-    return (r.get('judge_w'), bool(r.get('judge_reduced')), r.get('judge_n_entries'), (r.get('val_list') or {}).get('hash'))
+    """비교 조건: 판정 폭·축소 여부·평가 장 수·검증 목록·생성 길이 상한. 이것이 다르면 점수 차이에 해상도·목록·상한 변화가 섞인다
+    (GPT 코드 검토 I-07, 재확인 R-06: 추세(정답 길이 기반 상한)와 공식(모델 최대 길이)을 같은 조건으로 비교했다).
+    상한 기록(judge_cap)이 없는 옛 기록은 공식이면 'max', 아니면 '옛 추세 상한'으로 본다."""
+    cap = r.get('judge_cap') or ('max' if r.get('judge_official') else 'old-trend-cap')
+    return (r.get('judge_w'), bool(r.get('judge_reduced')), r.get('judge_n_entries'), (r.get('val_list') or {}).get('hash'), cap)
 
 
 def table(rows):
@@ -74,7 +77,7 @@ def verdict(rows):
     out = []
     changes = [k for k in range(1, len(j)) if cond(j[k]) != cond(j[k - 1])]
     if changes:
-        out.append(f"조건 바뀐 곳(판정 폭·축소·장 수·검증 목록): 기록 {', '.join(str(k + 1) for k in changes)}번째 — 비교는 마지막과 같은 조건의 기록끼리만")
+        out.append(f"조건 바뀐 곳(판정 폭·축소·장 수·검증 목록·생성 상한): 기록 {', '.join(str(k + 1) for k in changes)}번째 — 비교는 마지막과 같은 조건의 기록끼리만")
     if len(same) < 2:
         return '\n'.join(out + ['마지막과 같은 조건의 판정 기록이 2번 미만 — 추세를 말할 수 없음'])
     a = same[0]

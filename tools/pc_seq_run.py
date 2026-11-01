@@ -15,6 +15,7 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import pc_vec_run as P  # noqa: E402
+import ckpt_files  # noqa: E402
 
 DRIVE_BASE = 'gdrive:AI-sfa/02_분석자료/seq'
 HIRES = (1920, 1280, 854)   # 해상도 단계 자료 폭(kaggle_seq_worker.HIRES와 같게)
@@ -159,6 +160,8 @@ def main():
             up.join(timeout=600)
         for f in ('seq_train.py', 'sfa_tokens.py'):
             shutil.copy(os.path.join(tools, f), out)
+        if ckpt_files.promote(out) == 'locked':   # 예비 저장본만 최신이면 본 파일로(GPT 재확인 R-05)
+            print('경고: 출력 폴더의 ckpt.pt.fallback이 최신이다 — 잠금을 풀고 python tools/ckpt_files.py 폴더 로 옮긴 뒤 올릴 것', flush=True)
         if a.rclone:
             ok = upload(a.rclone, out, drive, KEEP + [SHEETS])
             print('Drive에 올림:' if ok else 'Drive 올리기 실패(zip 사용):', drive, flush=True)

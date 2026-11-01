@@ -25,6 +25,9 @@ import sys
 import tempfile
 import time
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import ckpt_files  # noqa: E402  같은 폴더(예비 저장본 정리, GPT 재확인 R-05)
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 KERNEL = 'aisfa-seq-train'
 DATA_KERNEL = 'aisfa-seq-data'
@@ -187,6 +190,8 @@ def pull(a):
 def save_ckpt(a):
     u = user()
     src = os.path.join(a.dir, 'out')
+    if ckpt_files.promote(src) == 'locked':   # 예비 저장본이 최신이면 본 파일로(GPT 재확인 R-05)
+        raise SystemExit(f'{src}/ckpt.pt.fallback을 본 파일로 옮기지 못함 — 잠금을 풀고 다시')
     if not os.path.exists(os.path.join(src, 'ckpt.pt')):
         raise SystemExit(f'{src}/ckpt.pt 없음 — pull 먼저')
     d = tempfile.mkdtemp(prefix='kckpt_')
@@ -206,7 +211,9 @@ DRIVE = 'gdrive:AI-sfa/02_분석자료/seq'
 
 
 def to_drive(a):
-    src = os.path.join(a.dir, 'out') if os.path.exists(os.path.join(a.dir, 'out', 'ckpt.pt')) else a.dir
+    src = os.path.join(a.dir, 'out') if os.path.exists(os.path.join(a.dir, 'out')) else a.dir
+    if ckpt_files.promote(src) == 'locked':   # GPT 재확인 R-05
+        raise SystemExit(f'{src}/ckpt.pt.fallback을 본 파일로 옮기지 못함 — 잠금을 풀고 다시')
     inc = ' '.join(f'--include "{f}"' for f in ('ckpt.pt', 'best.pt', 'log.jsonl'))
     r = subprocess.run(f'rclone copy "{src}" "{DRIVE}/{a.run}" {inc}', shell=True)
     print('Drive에 올림:' if r.returncode == 0 else 'Drive 올리기 실패:', f'{DRIVE}/{a.run}', flush=True)

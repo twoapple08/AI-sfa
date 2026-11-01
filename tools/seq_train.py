@@ -540,6 +540,10 @@ def train(a):
     js_reduced = False
     if js is not None:   # 공식 자격 = 저장소 고정 평가 목록과 같은 자료(GPT 코드 검토 I-06: 판·어휘만 보고, 다른·축소 자료도 '전체 목록'으로 공식이 될 수 있었다)
         list_ok = judge_list_ok(js.meta, J.load_manifest())
+        c_ok, c_why = J.content_ok(js, J.load_manifest())   # 내용도 목록과 맞는지(GPT 재확인 R-04)
+        if not c_ok:
+            print('주의: 판정 자료 내용이 평가 목록과 다름:', c_why, flush=True)
+            list_ok = False
         judge_id = f"{js.meta.get('manifest_sha')}:{js.meta.get('version')}"
         if st.setdefault('judge_id', judge_id) != judge_id:   # 첫 회차와 다른 평가 목록이면 공식 아님(같은 학습의 판정끼리 같은 목록)
             list_ok = False
@@ -872,7 +876,8 @@ def train(a):
                                    memo=memo[2], memo4=memo[4])
             rec_ = J.flat(res)
             rec_.update(judge_dirs=nd, judge_w=w, judge_official=official, judge_official_blocked=blocked, judge_official_n=st.get('official_n', 0) if official else None,
-                        judge_reduced=js_reduced, judge_end=dict(reasons))
+                        judge_reduced=js_reduced, judge_end=dict(reasons),
+                        judge_cap='max' if official or not a.gen_len_mult else f'ans4x{a.gen_len_mult:g}+128')   # 생성 길이 상한(추세 비교 조건, GPT 재확인 R-06)
             print(f'[{w}폭 {"공식" if official else "추세"}]', J.summary_line(res, official), f"({round(time.time() - t1)}초, {nd}방향, 끝냄 {dict(reasons)})", flush=True)
             judge_sheet(gens, w)
             if final and w != cfg['in_w']:
@@ -1055,8 +1060,9 @@ def train(a):
             if not torch.isfinite(gnorm):
                 # 기울기 넘침(GPT 코드 검토 I-01): GradScaler는 step을 건너뛰고 배율만 줄인다. 배율이 없는 경로(CPU·bf16)는 그대로면
                 # 비유한 기울기가 옵티마이저에 들어간다 — 둘 다 업데이트 없음으로 보고 실패로 센다(학습 진행·성공 기록에 넣지 않는다)
+                # step(opt)는 부르지 않는다(GPT 재확인 R-01): 기울기 값은 유한한데 노름 계산만 넘친 경우 GradScaler는 넘침을 모르므로
+                # step이 실제로 옵티마이저를 돌린다(클리핑 0 기울기 + weight decay). update()는 unscale_ 상태 정리용 — 실제 inf면 배율을 줄인다
                 if scaler.is_enabled():
-                    scaler.step(opt)   # 넘침이 기록돼 있어 건너뛴다
                     scaler.update()
                 opt.zero_grad(set_to_none=True)
                 skipped += 1
