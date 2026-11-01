@@ -46,9 +46,9 @@
    "all4": true,
    "len0": 32,
    "n0": 2,
-   "frame_hash": "f666d2559f5c2ab1",
+   "frame_hash": "b25ca1bcadee26ed",
    "file_sha": "e8392b49caa4ee3c",
-   "tok_hash": "a48c824df2ad0722",
+   "tok_hash": "c6cdc74613c726aa",
    "dirs": [
     {
      "len": 32,
@@ -88,9 +88,9 @@
    "all4": true,
    "len0": 112,
    "n0": 10,
-   "frame_hash": "367c0ccaf5e99bcc",
+   "frame_hash": "a57587a92eb9b38e",
    "file_sha": "54035c50f5f1758e",
-   "tok_hash": "838ce858e87c46da",
+   "tok_hash": "cb5c72c4b3f69c6d",
    "dirs": [
     {
      "len": 112,
@@ -130,9 +130,9 @@
    "all4": true,
    "len0": 81,
    "n0": 3,
-   "frame_hash": "8f71ba033c152f4d",
+   "frame_hash": "47156ce406f97b5f",
    "file_sha": "ae6fb6f558f036ce",
-   "tok_hash": "0e1459f04edd3af3",
+   "tok_hash": "1211bbc027ba1d84",
    "dirs": [
     {
      "len": 81,
@@ -172,9 +172,9 @@
    "all4": true,
    "len0": 22,
    "n0": 1,
-   "frame_hash": "6faeda28f680f763",
+   "frame_hash": "3937639d015fd91b",
    "file_sha": "478f952a3e9f54a1",
-   "tok_hash": "b2167ba8051551a1",
+   "tok_hash": "4e022df705e6c705",
    "dirs": [
     {
      "len": 22,
@@ -214,9 +214,9 @@
    "all4": true,
    "len0": 920,
    "n0": 57,
-   "frame_hash": "9df202891fd3854b",
+   "frame_hash": "60793c1f49989f99",
    "file_sha": "aa5643ec77d71885",
-   "tok_hash": "a4ec6b9969c5ad2f",
+   "tok_hash": "550daf485d5467c0",
    "dirs": [
     {
      "len": 920,
@@ -256,9 +256,9 @@
    "all4": true,
    "len0": 182,
    "n0": 14,
-   "frame_hash": "650b1a9e1e537730",
+   "frame_hash": "2a47f6b0dd5279d9",
    "file_sha": "0ac82b7e421edfca",
-   "tok_hash": "8b381296dc63e66b",
+   "tok_hash": "32b044048fcc4081",
    "dirs": [
     {
      "len": 182,
@@ -298,9 +298,9 @@
    "all4": true,
    "len0": 203,
    "n0": 8,
-   "frame_hash": "c4386277687c59da",
+   "frame_hash": "eb8f0b8f17ca2b0d",
    "file_sha": "1546f0559c39e123",
-   "tok_hash": "fe52d9ab65547374",
+   "tok_hash": "19d7c973ada33134",
    "dirs": [
     {
      "len": 200,
@@ -340,9 +340,9 @@
    "all4": true,
    "len0": 158,
    "n0": 12,
-   "frame_hash": "9e75b97d5aac1b41",
+   "frame_hash": "af47a575ae918b29",
    "file_sha": "d2afbbce40131467",
-   "tok_hash": "671eeada56fa3b79",
+   "tok_hash": "f9399307537c7619",
    "dirs": [
     {
      "len": 158,
@@ -382,9 +382,9 @@
    "all4": true,
    "len0": 384,
    "n0": 37,
-   "frame_hash": "175db8f141410c27",
+   "frame_hash": "222f4299a800a5ee",
    "file_sha": "ccf036543d7d288b",
-   "tok_hash": "993b9b1a6af53fc4",
+   "tok_hash": "98333fc616e13987",
    "dirs": [
     {
      "len": 384,
@@ -424,9 +424,9 @@
    "all4": true,
    "len0": 1886,
    "n0": 188,
-   "frame_hash": "d9a3b9506ff5d044",
+   "frame_hash": "0b986c954f33bfa3",
    "file_sha": "8c90d105d9f405a5",
-   "tok_hash": "46c40c7571fc70ef",
+   "tok_hash": "bd78d826f774f9f1",
    "dirs": [
     {
      "len": 1886,
@@ -466,9 +466,9 @@
    "all4": true,
    "len0": 1760,
    "n0": 173,
-   "frame_hash": "6085403343084b2d",
+   "frame_hash": "4bab12b595d2f706",
    "file_sha": "741f3c1cc114d124",
-   "tok_hash": "751cc40678c46824",
+   "tok_hash": "82b6fb30ef821962",
    "dirs": [
     {
      "len": 1760,
@@ -508,9 +508,9 @@
    "all4": true,
    "len0": 166,
    "n0": 6,
-   "frame_hash": "b9651bfea061cc2b",
+   "frame_hash": "7339a4e666a53bea",
    "file_sha": "4a4471c21b5b411c",
-   "tok_hash": "5434c3326b024983",
+   "tok_hash": "99e50a8b61146a2f",
    "dirs": [
     {
      "len": 166,
@@ -550,9 +550,9 @@
    "all4": true,
    "len0": 200,
    "n0": 16,
-   "frame_hash": "82f0d112f6590329",
+   "frame_hash": "2bbc66d216ca3da0",
    "file_sha": "52ac409293742090",
-   "tok_hash": "a04bfcb1b40732a7",
+   "tok_hash": "5f2f83cf3164aac8",
    "dirs": [
     {
      "len": 200,
@@ -592,9 +592,9 @@
    "all4": true,
    "len0": 22,
    "n0": 1,
-   "frame_hash": "636f9fbb5a83e5c6",
+   "frame_hash": "9f17cb12aa6145d3",
    "file_sha": "066443fc8ed9d53c",
-   "tok_hash": "99f74dbffa6e10c7",
+   "tok_hash": "fb43347029168cef",
    "dirs": [
     {
      "len": 25,
@@ -634,9 +634,9 @@
    "all4": true,
    "len0": 22,
    "n0": 1,
-   "frame_hash": "2bb1957f29a1ad9f",
+   "frame_hash": "f249e839c729edfa",
    "file_sha": "24b4b1b1025aa08d",
-   "tok_hash": "ce9b34a2d30eb905",
+   "tok_hash": "5d71a75e43f9ac7e",
    "dirs": [
     {
      "len": 22,
@@ -676,9 +676,9 @@
    "all4": true,
    "len0": 584,
    "n0": 50,
-   "frame_hash": "7145044d27ff33b6",
+   "frame_hash": "5387d82f1f72a73a",
    "file_sha": "cc0c81708b5b13d7",
-   "tok_hash": "60441b6b04ef3329",
+   "tok_hash": "4e9808514824a239",
    "dirs": [
     {
      "len": 584,
@@ -718,9 +718,9 @@
    "all4": true,
    "len0": 1571,
    "n0": 142,
-   "frame_hash": "ee9c86ec5c9f22a3",
+   "frame_hash": "ccea80b5593b4248",
    "file_sha": "670e90cb326c171b",
-   "tok_hash": "0f73504467159ef9",
+   "tok_hash": "10a8692783bff96c",
    "dirs": [
     {
      "len": 1571,
@@ -760,9 +760,9 @@
    "all4": true,
    "len0": 134,
    "n0": 12,
-   "frame_hash": "7f9b2710c9089fcc",
+   "frame_hash": "395aeb290508cfeb",
    "file_sha": "378b29672a221f04",
-   "tok_hash": "31d456d90ed3bb24",
+   "tok_hash": "2db47512bf9bf512",
    "dirs": [
     {
      "len": 134,
@@ -802,9 +802,9 @@
    "all4": true,
    "len0": 112,
    "n0": 10,
-   "frame_hash": "9323ba05c3a07b0f",
+   "frame_hash": "1424f9abee2af77e",
    "file_sha": "7be77950214f60c7",
-   "tok_hash": "0ea2cabc403d8974",
+   "tok_hash": "4b212e6d724a9cfa",
    "dirs": [
     {
      "len": 112,
@@ -844,9 +844,9 @@
    "all4": true,
    "len0": 216,
    "n0": 20,
-   "frame_hash": "67d6f81c3390cb01",
+   "frame_hash": "471b171d0ced1338",
    "file_sha": "fa2fccacff2feec8",
-   "tok_hash": "1536eeb475a0fecb",
+   "tok_hash": "7a329abfd55eb485",
    "dirs": [
     {
      "len": 216,
@@ -886,9 +886,9 @@
    "all4": true,
    "len0": 456,
    "n0": 34,
-   "frame_hash": "82a92877116a83ff",
+   "frame_hash": "cc9a3a51c158a884",
    "file_sha": "5e24f66e0d284471",
-   "tok_hash": "999de918527ea0f4",
+   "tok_hash": "f7c96e7bc9d023ff",
    "dirs": [
     {
      "len": 456,
@@ -928,9 +928,9 @@
    "all4": true,
    "len0": 262,
    "n0": 25,
-   "frame_hash": "d882670a17d9bde1",
+   "frame_hash": "bf5777ee99777bc1",
    "file_sha": "42c679aae56b8597",
-   "tok_hash": "1e83d4360585f216",
+   "tok_hash": "df54fe77b1147fec",
    "dirs": [
     {
      "len": 262,
@@ -970,9 +970,9 @@
    "all4": true,
    "len0": 952,
    "n0": 94,
-   "frame_hash": "b51e819a6ca2d4ed",
+   "frame_hash": "54f9f3b4eae5dbec",
    "file_sha": "495527d52e2bd919",
-   "tok_hash": "a0e579e0571c521e",
+   "tok_hash": "3c34648ebc8b5821",
    "dirs": [
     {
      "len": 952,
@@ -1012,9 +1012,9 @@
    "all4": true,
    "len0": 1348,
    "n0": 131,
-   "frame_hash": "c6ca2aa666907a57",
+   "frame_hash": "025c15483a119843",
    "file_sha": "db77b22547eae939",
-   "tok_hash": "ca1a54ccec979fd0",
+   "tok_hash": "630aec4d8511181d",
    "dirs": [
     {
      "len": 1348,
@@ -1054,9 +1054,9 @@
    "all4": true,
    "len0": 238,
    "n0": 28,
-   "frame_hash": "deaec01ed2df24ed",
+   "frame_hash": "8da136791c89a083",
    "file_sha": "c860970abdbed4f0",
-   "tok_hash": "43ef80a198b8367e",
+   "tok_hash": "db9bef8948a11264",
    "dirs": [
     {
      "len": 238,
@@ -1096,9 +1096,9 @@
    "all4": true,
    "len0": 439,
    "n0": 33,
-   "frame_hash": "75e33ea01f4f51b6",
+   "frame_hash": "29dff45d515afea6",
    "file_sha": "fd419a72783c1da7",
-   "tok_hash": "136468d1fe099c65",
+   "tok_hash": "e340f38ba8e7eb9a",
    "dirs": [
     {
      "len": 439,
@@ -1138,9 +1138,9 @@
    "all4": true,
    "len0": 972,
    "n0": 98,
-   "frame_hash": "9f4dfc5e410c2815",
+   "frame_hash": "108c38d807d0cc49",
    "file_sha": "3cb17a16d695e569",
-   "tok_hash": "f86121e578bcddfb",
+   "tok_hash": "4ee10cf81c3c3a24",
    "dirs": [
     {
      "len": 972,
@@ -1180,9 +1180,9 @@
    "all4": true,
    "len0": 112,
    "n0": 10,
-   "frame_hash": "ac34c0bdd0767745",
+   "frame_hash": "f99cd2da1c88c695",
    "file_sha": "7232c78e45d0b1b9",
-   "tok_hash": "2e1f03b25f7a67fc",
+   "tok_hash": "64a343182b189668",
    "dirs": [
     {
      "len": 112,
@@ -1222,9 +1222,9 @@
    "all4": true,
    "len0": 112,
    "n0": 10,
-   "frame_hash": "20b0c096d9c7b524",
+   "frame_hash": "6d2f83b1b82d5a7b",
    "file_sha": "a37e9f421505326f",
-   "tok_hash": "a0914d5e9806d465",
+   "tok_hash": "806673f9434331eb",
    "dirs": [
     {
      "len": 112,
@@ -1264,9 +1264,9 @@
    "all4": true,
    "len0": 1054,
    "n0": 92,
-   "frame_hash": "eb38200d54ec2727",
+   "frame_hash": "9be403cd3bb35957",
    "file_sha": "9397a76490a63cfc",
-   "tok_hash": "6d45b31ca0f8a0ba",
+   "tok_hash": "009398ee18849d07",
    "dirs": [
     {
      "len": 1054,
@@ -1306,9 +1306,9 @@
    "all4": true,
    "len0": 216,
    "n0": 20,
-   "frame_hash": "392a17e3e2b89422",
+   "frame_hash": "434b58856df4b3cf",
    "file_sha": "401bc87eead01552",
-   "tok_hash": "10438ed5e85389e7",
+   "tok_hash": "f2245e95fe8416a3",
    "dirs": [
     {
      "len": 216,
@@ -1348,9 +1348,9 @@
    "all4": true,
    "len0": 1073,
    "n0": 92,
-   "frame_hash": "e24a936c9cea94ab",
+   "frame_hash": "00e3ec04624808b6",
    "file_sha": "65ff48908b3d6ee8",
-   "tok_hash": "e6828102ab1c7260",
+   "tok_hash": "26342f7c32115f31",
    "dirs": [
     {
      "len": 1073,
@@ -1390,9 +1390,9 @@
    "all4": true,
    "len0": 750,
    "n0": 73,
-   "frame_hash": "bf74cedfbed2ca1f",
+   "frame_hash": "49602d8e83fe87a0",
    "file_sha": "14023ebee5430f39",
-   "tok_hash": "8ea55254019ef6e7",
+   "tok_hash": "70ec69fa8e92fe2f",
    "dirs": [
     {
      "len": 750,
@@ -1432,9 +1432,9 @@
    "all4": true,
    "len0": 202,
    "n0": 19,
-   "frame_hash": "27dab6f586137f1d",
+   "frame_hash": "3855c1ce6eaa76cf",
    "file_sha": "385aebbb193a940c",
-   "tok_hash": "05810062670136b4",
+   "tok_hash": "7e26f958b9b6e1ed",
    "dirs": [
     {
      "len": 202,
@@ -1474,9 +1474,9 @@
    "all4": true,
    "len0": 112,
    "n0": 10,
-   "frame_hash": "093ad35f24c33e23",
+   "frame_hash": "95da78e99ae58147",
    "file_sha": "32bd851ab4918dba",
-   "tok_hash": "4bf33df27e761fd1",
+   "tok_hash": "b9af2b218333902c",
    "dirs": [
     {
      "len": 112,
@@ -1516,9 +1516,9 @@
    "all4": true,
    "len0": 792,
    "n0": 78,
-   "frame_hash": "e73831db7a9eed95",
+   "frame_hash": "280ccd206d9d1bd2",
    "file_sha": "15fac40016cd877b",
-   "tok_hash": "5981d7b3a0c8f177",
+   "tok_hash": "8296fc28df2ca03e",
    "dirs": [
     {
      "len": 792,
@@ -1558,9 +1558,9 @@
    "all4": true,
    "len0": 136,
    "n0": 14,
-   "frame_hash": "dff3c096bc79e7f7",
+   "frame_hash": "964d18fcf36534f5",
    "file_sha": "e02cd577e855ffaf",
-   "tok_hash": "a07d734a9d5912ed",
+   "tok_hash": "3965e4a654354f69",
    "dirs": [
     {
      "len": 136,
@@ -1600,9 +1600,9 @@
    "all4": true,
    "len0": 527,
    "n0": 46,
-   "frame_hash": "affd3d4bee3d62b1",
+   "frame_hash": "d19915168f2a74a2",
    "file_sha": "fe01d9bd99b835d8",
-   "tok_hash": "d43dbb4ce0e7e401",
+   "tok_hash": "0ca4bb7e70496af8",
    "dirs": [
     {
      "len": 527,
@@ -1642,9 +1642,9 @@
    "all4": true,
    "len0": 336,
    "n0": 29,
-   "frame_hash": "234f0e34e2eac43a",
+   "frame_hash": "fa82e756f3849347",
    "file_sha": "95bf8ca1bce858e0",
-   "tok_hash": "73b201d4471d29a6",
+   "tok_hash": "0f6233202c5bbfcc",
    "dirs": [
     {
      "len": 336,
@@ -1684,9 +1684,9 @@
    "all4": true,
    "len0": 688,
    "n0": 56,
-   "frame_hash": "9eacfc68d6269389",
+   "frame_hash": "f92318cb0f8da1cb",
    "file_sha": "b58aee33ef57f45a",
-   "tok_hash": "996d4eb3b3f6f301",
+   "tok_hash": "1304562141448569",
    "dirs": [
     {
      "len": 688,
@@ -1726,9 +1726,9 @@
    "all4": false,
    "len0": 1712,
    "n0": 74,
-   "frame_hash": "be7ca8bf7edf5d1f",
+   "frame_hash": "754873c23b2b922a",
    "file_sha": "6eb867f1709df25a",
-   "tok_hash": "71c678104624f612",
+   "tok_hash": "79cbeb03755699e3",
    "dirs": [
     {
      "len": 1724,
@@ -1768,9 +1768,9 @@
    "all4": true,
    "len0": 285,
    "n0": 18,
-   "frame_hash": "96cee97bec539e5d",
+   "frame_hash": "650ebb435d72290e",
    "file_sha": "a8d0abca450481c9",
-   "tok_hash": "0b4392a8db026a03",
+   "tok_hash": "30c37cee140ec7cd",
    "dirs": [
     {
      "len": 285,
@@ -1810,9 +1810,9 @@
    "all4": true,
    "len0": 129,
    "n0": 11,
-   "frame_hash": "021f91a2f452fcaa",
+   "frame_hash": "b975edc8f65fbeac",
    "file_sha": "1bd21b3c4fe534c9",
-   "tok_hash": "e7be592ab4eb2761",
+   "tok_hash": "68c182477955363d",
    "dirs": [
     {
      "len": 129,
@@ -1852,9 +1852,9 @@
    "all4": true,
    "len0": 22,
    "n0": 1,
-   "frame_hash": "3f6a126049899db3",
+   "frame_hash": "e8c07f1826d3501f",
    "file_sha": "a2d4c6a52865afd0",
-   "tok_hash": "a30640fb1ab20d3f",
+   "tok_hash": "39cfa5fc51c9aee2",
    "dirs": [
     {
      "len": 22,
@@ -1894,9 +1894,9 @@
    "all4": true,
    "len0": 100,
    "n0": 8,
-   "frame_hash": "6ef816f00c659774",
+   "frame_hash": "3427bb18edbe76f6",
    "file_sha": "7605748a0dafcaae",
-   "tok_hash": "6d8fe3c67e0ae124",
+   "tok_hash": "808f71b0a9341d1f",
    "dirs": [
     {
      "len": 97,
@@ -1936,9 +1936,9 @@
    "all4": true,
    "len0": 267,
    "n0": 16,
-   "frame_hash": "5f9ddfca9e1a7f76",
+   "frame_hash": "4a730541d5b4c552",
    "file_sha": "1f8f71cabceccc10",
-   "tok_hash": "d05444146ef083be",
+   "tok_hash": "eeb360e4ea313f8f",
    "dirs": [
     {
      "len": 267,
@@ -2597,18 +2597,25 @@
   "frames_per_file": "질문 16·참조 48, 좌우 반전 포함",
   "note": "약한 공유는 미확정으로 두고 합치지 않음. 회전·다시 그린 변형과 400 오브젝트 넘는 장은 못 찾을 수 있음(누락률 3판: 반전·발췌·이동·확대 각 19/20)"
  },
- "hash_update": {
-  "date": "2026-11-01",
-  "why": "먼 곡선 자르기(sfa_tokens.clip_quad) — 같은 장 선택(46장·제외 목록 동일, 새 코드로 다시 뽑아 대조). 고른 장의 정답이 바뀐 것 3장(Hjll·Vanel·월남폭암), 나머지 5개 파일은 다른 장 때문에 파일 해시만 바뀜. 모델 출력을 보기 전",
-  "files": [
-   "묶음1_Sfa__zip/Hjll_SPECTRUM.sfa",
-   "묶음1_Sfa__zip/Kllll_SPECTRUM.sfa",
-   "묶음1_Sfa__zip/Vanel_SPECTRUM.sfa",
-   "묶음1_Sfa__zip/월남폭암.sfa",
-   "묶음2_Drive/( ´ ▽ ` )ﾉ.sfa",
-   "묶음2_Drive/(뉴스쿨 이펙 예시-1)-1.sfa",
-   "묶음2_Drive/스가구신버2.sfa",
-   "묶음6_추가/Jsjw_SPECTRUM.sfa"
-  ]
- }
+ "hash_update": [
+  {
+   "date": "2026-11-01",
+   "why": "먼 곡선 자르기(sfa_tokens.clip_quad) — 같은 장 선택(46장·제외 목록 동일, 새 코드로 다시 뽑아 대조). 고른 장의 정답이 바뀐 것 3장(Hjll·Vanel·월남폭암), 나머지 5개 파일은 다른 장 때문에 파일 해시만 바뀜. 모델 출력을 보기 전",
+   "files": [
+    "묶음1_Sfa__zip/Hjll_SPECTRUM.sfa",
+    "묶음1_Sfa__zip/Kllll_SPECTRUM.sfa",
+    "묶음1_Sfa__zip/Vanel_SPECTRUM.sfa",
+    "묶음1_Sfa__zip/월남폭암.sfa",
+    "묶음2_Drive/( ´ ▽ ` )ﾉ.sfa",
+    "묶음2_Drive/(뉴스쿨 이펙 예시-1)-1.sfa",
+    "묶음2_Drive/스가구신버2.sfa",
+    "묶음6_추가/Jsjw_SPECTRUM.sfa"
+   ]
+  },
+  {
+   "date": "2026-11-02",
+   "why": "단어장에 레이어 투명도(LOPAC) 추가로 토큰 번호가 하나씩 밀림 — 새 코드로 다시 뽑아 같은 46장·제외 목록 동일 확인, 정답 해시(frame_hash·tok_hash)만 갱신. 평가 목록 자체(파일·장·묶음)는 그대로. 모델 출력을 보기 전",
+   "files": "전체 46장"
+  }
+ ]
 }

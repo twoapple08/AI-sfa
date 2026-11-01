@@ -24,6 +24,7 @@ MAX_UNIT_OBJS = 300
 BG_AREA = 0.4        # 원래 화면의 이 비율 이상을 덮는 묶음은 배경 — 맨 아래에 원래 크기·자리 그대로(앞에 놓이면 모두 가린다)
 BG_PROB = 0.3        # 조합 장에 배경 묶음을 하나 깔 확률
 REAL_FRAC = 0.3
+LOPAC_AUG = 0.1      # 조합 장에서 묶음 레이어마다 이 확률로 레이어 투명도(15–90)를 붙인다 — 수집 자료에 없는 새 앱 기능의 학습 예시(11-02 사용자)
 WHITE = str(-1)
 
 
@@ -80,7 +81,8 @@ def units_of(fr, hwr, max_objs=MAX_UNIT_OBJS):
         used = {a.get('LayerId', '0') for a in g}
         out.append(dict(aos=[copy.deepcopy(a) for a in g], frs=[copy.deepcopy(r) for r in ufr], n=len(g), hwr=hwr,
                         z=min(rank.get(i, 1 << 30) for i in ids),
-                        layers=[d.get('ID') for d in defs if d.get('ID') in used]))   # 원래 레이어 그리는 순서(GPT 코드 검토 I-09)
+                        layers=[d.get('ID') for d in defs if d.get('ID') in used],   # 원래 레이어 그리는 순서(GPT 코드 검토 I-09)
+                        lop={d.get('ID'): d.get('Opacity') for d in defs if d.get('ID') in used and d.get('Opacity') is not None}))
     return out
 
 
@@ -221,7 +223,13 @@ def place(u, fr, hwr, rng, ids, z, keep=False):
     for k, lid in enumerate(old_layers):
         ids.layer += 1
         lmap[lid] = str(ids.layer)
-        z.append(ET.Element('LayerDef', dict(ID=lmap[lid], Name=f'L{ids.layer}', Visible='true', Locked='false')))
+        ld = ET.Element('LayerDef', dict(ID=lmap[lid], Name=f'L{ids.layer}', Visible='true', Locked='false'))
+        op = (u.get('lop') or {}).get(lid)
+        if op is None and not keep and rng.random() < LOPAC_AUG:
+            op = str(rng.randint(15, 90))
+        if op is not None:
+            ld.set('Opacity', op)
+        z.append(ld)
     aomap, apmap = {}, {}
     new_aos = []
     for a in sorted(u['aos'], key=lambda a: int(a.get('DrawOrder') or a.get('ID') or 0)):

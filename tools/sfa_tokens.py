@@ -19,7 +19,7 @@ import math
 import xml.etree.ElementTree as ET
 
 SPECIAL = ['PAD', 'BOS', 'EOS', 'BG', 'LAYER', 'LINE', 'CIRC', 'CURVE', 'SAME', 'COLOR', 'THICK', 'GLOW', 'PT', 'LINK',
-           'FILL', 'CONTOUR', 'SEG', 'WHOLE', 'BIG']
+           'FILL', 'CONTOUR', 'SEG', 'WHOLE', 'BIG', 'LOPAC']   # LOPAC: 레이어 투명도(11-02 사용자, 새 앱 기능) — [LAYER] 바로 뒤 [LOPAC] 값(0–99)
 TOK = {s: i for i, s in enumerate(SPECIAL)}
 NUM = 8192
 OFF = len(SPECIAL)
@@ -242,6 +242,15 @@ def link_groups(aos, mode=None, frs=()):
     return find
 
 
+def layer_opacity(layer):
+    """LayerDef Opacity(0–100, 없으면 100) → 정수. 렌더러와 같은 값."""
+    try:
+        v = float(layer.get('Opacity') if layer.get('Opacity') is not None else 100)
+    except (TypeError, ValueError):
+        v = 100.0
+    return int(round(min(max(v, 0.0), 100.0)))
+
+
 def order_objects(seq, fr):
     """sfa_render.render_frame과 같은 그리기 순서로 (레이어 번호, AO) 목록을 돌려준다."""
     layers = fr.findall('LayerDef')
@@ -289,9 +298,14 @@ def encode(seq, fr):
     toks = [TOK['BOS'], TOK['BG']] + argb4(fr.get('BackgroundColor', seq.get('BackgroundColor', '-1')))
     pidx, oidx = {}, {}
     prev_style, prev_layer = None, None
+    ldefs = fr.findall('LayerDef')
     for li, a in keep:
         if li != prev_layer:
             toks.append(TOK['LAYER'])
+            op = layer_opacity(ldefs[li]) if li < len(ldefs) else 100
+            if op < 100:
+                toks += [TOK['LOPAC'], n(op)]
+                st['lopac'] = st.get('lopac', 0) + 1
             prev_layer, prev_style = li, None
         toks.append(TOK[TYPES.get(a.get('TypeId'), 'LINE')])
         sty = style_of(a)
@@ -422,6 +436,10 @@ def decode(toks, fid=1, pos=0, ids=None):
             layer += 1
             ET.SubElement(fr, 'LayerDef', dict(ID=str(layer), Name=f'Layer {layer + 1}', Visible='true', Locked='false'))
             style = None
+        elif t == TOK['LOPAC'] and layer >= 0:
+            v = toks[i] - OFF if i < len(toks) and toks[i] >= OFF else 100
+            i += 1
+            fr.findall('LayerDef')[-1].set('Opacity', str(min(max(v, 0), 100)))
         elif t in (TOK['LINE'], TOK['CIRC'], TOK['CURVE']):
             if layer < 0:
                 layer = 0
@@ -570,7 +588,10 @@ def grammar(strict=False):
             return
         if t == T['LAYER']:
             style = False
-            t = yield from ask(('LAYER', 'LINE', 'CIRC', 'CURVE', 'EOS') + (('FILL',) if nobj else ()))
+            t = yield from ask(('LAYER', 'LINE', 'CIRC', 'CURVE', 'EOS', 'LOPAC') + (('FILL',) if nobj else ()))
+            if t == T['LOPAC']:
+                yield from num(0, 99, 'color')   # 100(불투명)은 적지 않는다
+                t = yield from ask(('LAYER', 'LINE', 'CIRC', 'CURVE', 'EOS') + (('FILL',) if nobj else ()))
             continue
         if t == T['FILL']:
             for _ in range(4):

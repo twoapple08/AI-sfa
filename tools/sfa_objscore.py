@@ -63,6 +63,7 @@ def objs(fr, hwr=0.5625):
     out = []
     pid = {}
     find = K.link_groups(fr.findall('AO'), frs=fr.findall('FR'))   # 그리기 묶음(점 연결 무리) — 묶음 안은 글로우를 먼저 모두 그린다
+    ldefs = fr.findall('LayerDef')
     for k, (li, a) in enumerate(K.order_objects(None, fr)):
         aps = a.findall('AP')
         for j, p in enumerate(aps):
@@ -74,7 +75,8 @@ def objs(fr, hwr=0.5625):
                     int(float(a.get('GlowColor') or 0)) & 0xFFFFFF)
         out.append(dict(t=a.get('TypeId'), xy=[(float(p.get('X')), float(p.get('Y')) * hwr) for p in aps],
                         col=int(float(a.get('Color'))) & 0xFFFFFFFF, th=float(a.get('ThicknessScale') or 1), glow=glow,
-                        layer=li, aps=aps, id=a.get('ID'), grp=find(a.get('ID'))))
+                        layer=li, aps=aps, id=a.get('ID'), grp=find(a.get('ID')),
+                        lop=K.layer_opacity(ldefs[li]) if li < len(ldefs) else 100))   # 레이어 투명도(11-02)
     links = set()
     for k, o in enumerate(out):
         for j, p in enumerate(o['aps']):
@@ -411,7 +413,7 @@ def score(pred_fr, ans_fr, tol=1.0, align=False, hwr=0.5625):
                        abs(np.linalg.norm(Pp[1] - Pp[0]) - np.linalg.norm(Aa[1] - Aa[0])) / 2)
         return np.abs((Pp[::-1] if flip[i, j] else Pp) - Aa).max()
     same_style = all(abs(math.log(max(P[i]['th'], 1e-3) / max(A[j]['th'], 1e-3))) <= EXACT_TH
-                     and P[i]['col'] == A[j]['col'] and P[i]['glow'] == A[j]['glow'] for i, j in ok)
+                     and P[i]['col'] == A[j]['col'] and P[i]['glow'] == A[j]['glow'] and P[i]['lop'] == A[j]['lop'] for i, j in ok)
     rest = r['match'] == len(A) == len(P) and same_style and r['bg'] and r['fill_f1'] == 1.0 and r['order'] in (None, 1.0) and r.get('glow_group') in (None, 1.0)
     r['perfect'] = rest and all(pt_max(i, j) <= HALF_BIN for i, j in ok)
     r['near_perfect'] = rest and all(C[i, j] <= EXACT_PT for i, j in ok)
