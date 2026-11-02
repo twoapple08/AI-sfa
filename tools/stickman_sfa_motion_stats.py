@@ -7,6 +7,7 @@
 - 정지는 화면 기준(이동 포함)과 골반 기준(이동 제거) 두 가지를 모두 낸다.
 - 팔·다리 대응 순서(오브젝트 ID 목록)가 연속 장 사이에 같은지 센다.
 - 길이 편차는 '장×마디 관측값' 분포이며, 부호(짧아짐/늘어남)와 큰 편차 표본을 함께 낸다.
+- 3판(11-02): 장별 몸 전체 배율 s = median_i(L_i/트랙중앙_i)와 배율 제거 편차 |L_i/(s·트랙중앙_i) − 1|을 함께 낸다.
 
 사용: python tools/stickman_sfa_motion_stats.py 뼈대.jsonl tf.json [--samples N]
 """
@@ -52,6 +53,7 @@ def main(path, tf_path, nsamp=12):
     tracks = {k: sorted(v, key=lambda r: r['frame']) for k, v in tracks.items() if len(v) >= 10}
 
     dev, sdev, dev_noasp, big = [], [], [], []
+    scale_dev, dev_noscale = [], []  # 장별 몸 전체 배율 s=median(L_i/중앙_i), 배율 제거 편차 |L_i/(s*중앙_i)-1|
     move, relmove = [], []
     hold_scr = hold_rel = n_pairs = 0
     order_same_arm = order_same_leg = 0
@@ -63,6 +65,11 @@ def main(path, tf_path, nsamp=12):
         S1 = [segs(r, 1.0) for r in tr]
         med1 = [st.median(s[i] for s in S1) for i in range(len(S1[0]))]
         for r, s, s1 in zip(tr, S, S1):
+            rat = [s[i] / med[i] for i in range(len(s)) if med[i] > 1e-6]
+            if rat:
+                sc = st.median(rat)
+                scale_dev.append(abs(sc - 1))
+                dev_noscale += [abs(x / sc - 1) for x in rat] if sc > 1e-9 else []
             for i, v in enumerate(s):
                 if med[i] > 1e-6:
                     x = v / med[i] - 1
@@ -100,6 +107,7 @@ def main(path, tf_path, nsamp=12):
     print('연속 장 쌍:', n_pairs, ' 팔 ID 순서 같음:', round(order_same_arm / n_pairs, 4),
           ' 다리 ID 순서 같음:', round(order_same_leg / n_pairs, 4))
     print('길이 편차 |L/트랙중앙-1| (장×마디 관측값) 50/90/99%: 보정', q(dev), ' 보정없음', q(dev_noasp))
+    print('장별 몸 전체 배율 편차 |s-1| 50/90/99%:', q(scale_dev), ' 배율 제거 뒤 마디 편차 50/90/99%:', q(dev_noscale))
     print('  부호: 짧아짐(<-0.11)', round(sum(1 for x in sdev if x < -0.11) / len(sdev), 4),
           ' 늘어남(>+0.11)', round(sum(1 for x in sdev if x > 0.11) / len(sdev), 4))
     print('정지 비율(쌍): 화면 기준', round(hold_scr / n_pairs, 4), ' 골반 기준', round(hold_rel / n_pairs, 4))
