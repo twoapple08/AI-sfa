@@ -165,6 +165,7 @@ def main():
     ap.add_argument('--color', default='blue')
     ap.add_argument('--bend-gain', type=float, default=1.0, help='curve: 잰 휨에 곱하는 배율')
     ap.add_argument('--bend-max', type=float, default=0.2, help='curve: 휨 상한(몸통 단위)')
+    ap.add_argument('--bend-sigma', type=float, default=0.03, help='curve: 그림별 휨 흔들림 허용치(몸통 단위, 0이면 그대로 잇기)')
     a = ap.parse_args()
     J, S, rep = load(a.joints, a.report)
     W, H = a.width, a.width * 9 / 16
@@ -175,17 +176,21 @@ def main():
         frames = [basic_frame_xml(n, {k: v[n] for k, v in B.items()}, to_pct) for n in range(T)]
     else:
         from rtmw_to_stickman_2d import load_rtmw, pick_target
-        from rtmw_to_stickman_2d_v2 import pchip_wrap
+        from rtmw_to_stickman_2d_v2 import smooth_keys
         fr_ids = list(range(a.start, a.start + T))
         K = np.array(pick_target(load_rtmw(a.rtmw), fr_ids, a.video, a.color))
         segs = [(s - a.start, e - a.start) for s, e in rep['keypose_segments']]
         sb, wmed = measure_bend(a.video, K, fr_ids, segs, a.color)
         ck = np.array([(s + e) / 2 for s, e in segs])
         ok = ~np.isnan(sb)
-        bend = np.clip(a.bend_gain * pchip_wrap(ck[ok], sb[ok], np.arange(T, dtype=float)), -a.bend_max, a.bend_max)
+        # 그림별 휨을 그대로 이으면 허리가 꿀렁인다(사용자 11-03, B 322–324·328–330만 부호가 튐) → 흔들림 허용치 안에서 고른 뒤 잇는다
+        bend_sm = smooth_keys(ck[ok], sb[ok][:, None], a.bend_sigma, np.arange(T, dtype=float))[:, 0] if a.bend_sigma > 0 \
+            else smooth_keys(ck[ok], sb[ok][:, None], 1e-9, np.arange(T, dtype=float))[:, 0]
+        bend = np.clip(a.bend_gain * bend_sm, -a.bend_max, a.bend_max)
         frames = [curve_frame_xml(n, {k: v[n] for k, v in B.items()}, bend[n], to_pct) for n in range(T)]
         info.update(segment_bend=[None if np.isnan(x) else round(float(x), 3) for x in sb], torso_width_median=round(wmed, 3),
-                    bend_gain=a.bend_gain, bend_max=a.bend_max)
+                    bend_gain=a.bend_gain, bend_max=a.bend_max, bend_sigma=a.bend_sigma,
+                    frame_bend=[round(float(x), 3) for x in bend])
     write_sfa(a.out, a.name, frames, W, H)
     if a.joints_out:
         json.dump([{k: [round(float(v[n, 0]), 2), round(float(v[n, 1]), 2)] for k, v in B.items()} for n in range(T)],

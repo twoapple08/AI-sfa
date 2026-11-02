@@ -28,7 +28,7 @@
    - **2회차 제안:** `python tools/kaggle_seq_remote.py push --prebuilt --gpu-ok --minutes 600 --plan-minutes 900 --extra "--gen-minutes 120"`. `--fresh`는 붙이지 않는다. GPU 실행은 사용자 허락 뒤에 한다.
 2. **스틱맨: 시제품 4 "느낌 있어"(성공) → 변형 작업 3개 진행 중(11-03)**
    - 변형 1 기본 스틱맨: 사용자 리뷰(잔떨림, 거꾸로 꺾인 무릎)를 반영해 시제품 5(`*_basic5`)를 만들었고 재판정을 기다린다.
-   - 변형 2 곡선 몸통: `*_curve5`를 만들었고 리뷰를 기다린다.
+   - 변형 2 곡선 몸통: curve5 리뷰는 "다 좋은데 허리 꿀렁꿀렁"이었다. 그림별 휨을 고르게 다듬은 `*_curve6`을 만들었고 재판정을 기다린다.
    - 변형 3 실루엣: 다음 작업이다.
    - 상세: docs/STICKMAN-PROTO4-A1500-1523-2026-11-03.md '판정 경과와 변형 작업'. 도구는 `tools/stickman_variants.py`와 `tools/rtmw_to_stickman_2d_v2.py`(발 점, `fix_knees`, `smooth_keys`).
    - **시제품 4:** docs/STICKMAN-PROTO4-A1500-1523-2026-11-03.md. Drive `.../stickman_proto_2026-11-03/A1500-1523/`
