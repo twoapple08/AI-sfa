@@ -13,8 +13,8 @@
 - 목·머리: 목 = 어깨 중점에서 몸통 방향으로 Ln, 머리 원 = 그 위 지름 D. 기본 Ln 0.17, D 0.5(몸통 단위).
   근거: B 300–334 RTMW에서 어깨 중점 → 귀 중점이 몸통의 0.417(10–90% 0.376–0.443) → 머리 중심(Ln + D/2 = 0.42)을 귀 높이에 둠.
   귀·코는 '확인된 관측'이 아니므로 머리 방향에는 쓰지 않는다(몸통 방향을 따름).
-- 굵기: 머리 원은 1.0, 나머지 조각은 body_thick × (몸통 화면 % / 11.2)(앱 기본 스틱맨 몸통 11.2%일 때 body_thick).
-  인물이 멀어지면 선도 같이 가늘어진다.
+- 굵기: 기본은 모든 조각 1.0(앱 기본 스틱맨과 같음). 사용자가 굵은 몸 선(3.0 × 몸 크기 비례)을 본 뒤 굵기만 롤백했다(11-03).
+  --thick-by-size를 주면 머리 원 1.0, 나머지 body_thick × (몸통 화면 % / 11.2)로 그린다(시제품 2 첫 판).
 
 SFA: 15조각(머리 원, 목, 몸통, 어깨 2, 팔 4, 엉덩이 2, 다리 4). 점 ID 장마다 새로, 오브젝트 ID 유지, 파란점(골반) 하나.
 Flags는 시제품 1(앱에서 조작 확인됨, 11-03 사용자)의 방식을 따른다. 목 조각은 새로 넣었으므로 앱 확인 전이다.
@@ -275,7 +275,8 @@ def main():
     ap.add_argument('--lam', type=float, default=1.0, help='이웃 장 변화 벌점(0이면 매 장 독립과 같음)')
     ap.add_argument('--neck', type=float, default=0.17)
     ap.add_argument('--head', type=float, default=0.5)
-    ap.add_argument('--body-thick', type=float, default=3.0, help='몸통이 화면 폭 11.2%일 때 몸 조각 굵기 배율')
+    ap.add_argument('--body-thick', type=float, default=1.0, help='몸 조각 굵기 배율(기본 1.0 = 앱 기본)')
+    ap.add_argument('--thick-by-size', action='store_true', help='몸 굵기를 몸통 화면 %에 비례(몸통 11.2%일 때 body_thick)')
     ap.add_argument('--name', default='stickman_proto2')
     ap.add_argument('--report')
     ap.add_argument('--joints')
@@ -288,7 +289,8 @@ def main():
     frames = list(range(a.start, a.end + 1))
     J, S, rep, _, _ = run(R, frames, parse_drop(a.drop), a.min_score, a.video, a.target_color, a.quantile,
                           not a.no_symmetric, a.lam, a.neck, a.head)
-    body_th = a.body_thick * (100 * S * rep['L_torso_units']['torso'] / Wv) / 11.2
+    body_th = (a.body_thick * (100 * S * rep['L_torso_units']['torso'] / Wv) / 11.2 if a.thick_by_size
+               else np.full(len(frames), a.body_thick))
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as z:
         z.writestr(a.name + '.xml', sfa_xml(J, Wv, H, a.crop_y, a.name, body_th))
     rep.update(body_thick=[round(float(v), 3) for v in body_th], drop=a.drop, crop_y=a.crop_y, screen_16x9=[Wv, H])
