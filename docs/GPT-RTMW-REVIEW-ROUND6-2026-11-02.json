@@ -1,0 +1,53 @@
+{
+  "what": "GPT 6차 관절별 범위 정리 — Claude RTMW 재검토 수용, 사전 판정은 변경하지 않음",
+  "independent": false,
+  "source_claude_review_blob": "29e68ad5d686467ab8a391697a6d2c7a91bd9900",
+  "preserve_original_files": [
+    "docs/GPT-RTMW-INDEPENDENT-JUDGMENTS-2026-11-02.json",
+    "docs/GPT-RTMW-REJUDGE-2026-11-02.json"
+  ],
+  "updates": [
+    {
+      "scene": "B",
+      "frames": [
+        301,
+        303
+      ],
+      "joint": 10,
+      "state": "틀림",
+      "reason": "보이는 반대팔 손 위치와 모델 손목 위치가 다름. 정밀 정답 좌표 오차를 새로 측정한 것은 아님.",
+      "filtered_fit_weight": 0
+    },
+    {
+      "scene": "B",
+      "frames": [
+        301,
+        303
+      ],
+      "joint": 8,
+      "state": "판정 불가",
+      "suspicion": "위치가 높아 보임",
+      "reason": "가려진 팔꿈치 정답 좌표를 확정할 수 없으므로 이전 오류 후보를 확정 오답으로 쓰지 않음.",
+      "filtered_fit_weight": 0
+    },
+    {
+      "scene": "A",
+      "frames": [
+        1508
+      ],
+      "joints": [
+        7,
+        8,
+        9,
+        10,
+        13,
+        14,
+        15,
+        16
+      ],
+      "state": "판정 불가",
+      "reason": "스미어/중첩. 다리의 큰 윤곽이 비슷하다는 인상을 관절 정답으로 쓰지 않음."
+    }
+  ],
+  "summary_note": "장 요약은 검증 범위·미검증 목록과 함께 읽는다. 이전 프레임 판정 불가를 v1.1의 맞음(검증 범위 제한)으로 바꾸는 것은 관절 성능 개선 또는 학습 통과 인증이 아니다."
+}

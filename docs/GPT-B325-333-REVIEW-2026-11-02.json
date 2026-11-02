@@ -1,0 +1,558 @@
+{
+  "source_video": "1913231262086463573.mp4",
+  "source_video_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "metadata": {
+    "width": 1152,
+    "height": 720,
+    "fps": 24,
+    "frame_index": "zero-based decoding order"
+  },
+  "opencv_version": "5.0.0",
+  "raw_blue_segmentation": {
+    "range": [
+      300,
+      334
+    ],
+    "color": "blue",
+    "hi": 0.3,
+    "lo": 0.1,
+    "segments": [
+      {
+        "first": 300,
+        "last": 300,
+        "len": 1,
+        "partial": true
+      },
+      {
+        "first": 301,
+        "last": 303,
+        "len": 3,
+        "partial": false
+      },
+      {
+        "first": 304,
+        "last": 306,
+        "len": 3,
+        "partial": false
+      },
+      {
+        "first": 307,
+        "last": 309,
+        "len": 3,
+        "partial": false
+      },
+      {
+        "first": 310,
+        "last": 312,
+        "len": 3,
+        "partial": false
+      },
+      {
+        "first": 313,
+        "last": 315,
+        "len": 3,
+        "partial": false
+      },
+      {
+        "first": 316,
+        "last": 318,
+        "len": 3,
+        "partial": false
+      },
+      {
+        "first": 319,
+        "last": 321,
+        "len": 3,
+        "partial": false
+      },
+      {
+        "first": 322,
+        "last": 324,
+        "len": 3,
+        "partial": false
+      },
+      {
+        "first": 325,
+        "last": 333,
+        "len": 9,
+        "partial": false
+      },
+      {
+        "first": 334,
+        "last": 334,
+        "len": 1,
+        "partial": true
+      }
+    ],
+    "representatives": [
+      300,
+      301,
+      304,
+      307,
+      310,
+      313,
+      316,
+      319,
+      322,
+      325,
+      334
+    ],
+    "ambiguous_pairs": [
+      [
+        311,
+        312,
+        0.109
+      ],
+      [
+        316,
+        317,
+        0.1
+      ],
+      [
+        317,
+        318,
+        0.105
+      ],
+      [
+        320,
+        321,
+        0.115
+      ],
+      [
+        322,
+        323,
+        0.102
+      ],
+      [
+        326,
+        327,
+        0.108
+      ],
+      [
+        327,
+        328,
+        0.283
+      ],
+      [
+        330,
+        331,
+        0.255
+      ]
+    ],
+    "none_pairs": []
+  },
+  "pairs": [
+    {
+      "a": 325,
+      "b": 326,
+      "blue_mask_xor": 0.09984152139461172,
+      "any_color_mask_xor": 0.09299931365820178,
+      "target_roi_xyxy": [
+        330,
+        40,
+        640,
+        660
+      ],
+      "translation_alignment": {
+        "roi": [
+          330,
+          40,
+          640,
+          660
+        ],
+        "thr": 40,
+        "raw_changed": 4.098,
+        "raw_mean_abs": 5.893,
+        "model": "translation",
+        "ecc_cc": 0.9998,
+        "matrix": [
+          [
+            1,
+            0,
+            1.17779
+          ],
+          [
+            0,
+            1,
+            -0.07197
+          ]
+        ],
+        "dx": 1.18,
+        "dy": -0.07,
+        "scale": 1,
+        "shear": 0,
+        "overlap": 1,
+        "aligned_changed": 0.015,
+        "aligned_mean_abs": 1.809,
+        "status": "정렬 유효"
+      },
+      "visual_drawing": "같음",
+      "visual_note": "대상 주요 선·면 유지. 미세 화면 이동/압축 차이와 별도 효과는 작화 변경으로 세지 않음"
+    },
+    {
+      "a": 326,
+      "b": 327,
+      "blue_mask_xor": 0.10822510822510822,
+      "any_color_mask_xor": 0.09825997952917093,
+      "target_roi_xyxy": [
+        330,
+        40,
+        640,
+        660
+      ],
+      "translation_alignment": {
+        "roi": [
+          330,
+          40,
+          640,
+          660
+        ],
+        "thr": 40,
+        "raw_changed": 3.928,
+        "raw_mean_abs": 5.641,
+        "model": "translation",
+        "ecc_cc": 0.9999,
+        "matrix": [
+          [
+            1,
+            0,
+            1.1399
+          ],
+          [
+            0,
+            1,
+            -0.06861
+          ]
+        ],
+        "dx": 1.14,
+        "dy": -0.07,
+        "scale": 1,
+        "shear": 0,
+        "overlap": 1,
+        "aligned_changed": 0.002,
+        "aligned_mean_abs": 1.549,
+        "status": "정렬 유효"
+      },
+      "visual_drawing": "같음",
+      "visual_note": "대상 주요 선·면 유지. 미세 화면 이동/압축 차이와 별도 효과는 작화 변경으로 세지 않음"
+    },
+    {
+      "a": 327,
+      "b": 328,
+      "blue_mask_xor": 0.2831732479544646,
+      "any_color_mask_xor": 0.33253156945279616,
+      "target_roi_xyxy": [
+        330,
+        40,
+        640,
+        660
+      ],
+      "translation_alignment": {
+        "roi": [
+          330,
+          40,
+          640,
+          660
+        ],
+        "thr": 40,
+        "raw_changed": 21.356,
+        "raw_mean_abs": 22.512,
+        "model": "translation",
+        "ecc_cc": 0.9382,
+        "matrix": [
+          [
+            1,
+            0,
+            0.95665
+          ],
+          [
+            0,
+            1,
+            -0.40738
+          ]
+        ],
+        "dx": 0.96,
+        "dy": -0.41,
+        "scale": 1,
+        "shear": 0,
+        "overlap": 1,
+        "aligned_changed": 21.152,
+        "aligned_mean_abs": 22.512,
+        "status": "정렬 유효"
+      },
+      "visual_drawing": "다름",
+      "visual_note": "머리카락·올린 팔·내려온 팔·몸통 주름·다리 윤곽/꺾임 변화"
+    },
+    {
+      "a": 328,
+      "b": 329,
+      "blue_mask_xor": 0.08519108280254777,
+      "any_color_mask_xor": 0.08016877637130802,
+      "target_roi_xyxy": [
+        330,
+        40,
+        640,
+        660
+      ],
+      "translation_alignment": {
+        "roi": [
+          330,
+          40,
+          640,
+          660
+        ],
+        "thr": 40,
+        "raw_changed": 4.263,
+        "raw_mean_abs": 5.759,
+        "model": "translation",
+        "ecc_cc": 0.9999,
+        "matrix": [
+          [
+            1,
+            0,
+            1.14094
+          ],
+          [
+            0,
+            1,
+            -0.07567
+          ]
+        ],
+        "dx": 1.14,
+        "dy": -0.08,
+        "scale": 1,
+        "shear": 0,
+        "overlap": 1,
+        "aligned_changed": 0.004,
+        "aligned_mean_abs": 1.572,
+        "status": "정렬 유효"
+      },
+      "visual_drawing": "같음",
+      "visual_note": "대상 주요 선·면 유지. 미세 화면 이동/압축 차이와 별도 효과는 작화 변경으로 세지 않음"
+    },
+    {
+      "a": 329,
+      "b": 330,
+      "blue_mask_xor": 0.09137862534763608,
+      "any_color_mask_xor": 0.08785439271963598,
+      "target_roi_xyxy": [
+        330,
+        40,
+        640,
+        660
+      ],
+      "translation_alignment": {
+        "roi": [
+          330,
+          40,
+          640,
+          660
+        ],
+        "thr": 40,
+        "raw_changed": 4.035,
+        "raw_mean_abs": 5.542,
+        "model": "translation",
+        "ecc_cc": 0.9998,
+        "matrix": [
+          [
+            1,
+            0,
+            1.129
+          ],
+          [
+            0,
+            1,
+            -0.07864
+          ]
+        ],
+        "dx": 1.13,
+        "dy": -0.08,
+        "scale": 1,
+        "shear": 0,
+        "overlap": 1,
+        "aligned_changed": 0.01,
+        "aligned_mean_abs": 1.713,
+        "status": "정렬 유효"
+      },
+      "visual_drawing": "같음",
+      "visual_note": "대상 주요 선·면 유지. 미세 화면 이동/압축 차이와 별도 효과는 작화 변경으로 세지 않음"
+    },
+    {
+      "a": 330,
+      "b": 331,
+      "blue_mask_xor": 0.25505146778497906,
+      "any_color_mask_xor": 0.3162118780096308,
+      "target_roi_xyxy": [
+        330,
+        40,
+        640,
+        660
+      ],
+      "translation_alignment": {
+        "roi": [
+          330,
+          40,
+          640,
+          660
+        ],
+        "thr": 40,
+        "raw_changed": 18.696,
+        "raw_mean_abs": 20.112,
+        "model": "translation",
+        "ecc_cc": 0.9461,
+        "matrix": [
+          [
+            1,
+            0,
+            0.88728
+          ],
+          [
+            0,
+            1,
+            -0.24632
+          ]
+        ],
+        "dx": 0.89,
+        "dy": -0.25,
+        "scale": 1,
+        "shear": 0,
+        "overlap": 1,
+        "aligned_changed": 18.496,
+        "aligned_mean_abs": 19.919,
+        "status": "정렬 유효"
+      },
+      "visual_drawing": "다름",
+      "visual_note": "머리카락·올린 팔·내려온 팔·몸통 주름·다리 윤곽/꺾임 변화"
+    },
+    {
+      "a": 331,
+      "b": 332,
+      "blue_mask_xor": 0.09043250327653997,
+      "any_color_mask_xor": 0.08406238113351085,
+      "target_roi_xyxy": [
+        330,
+        40,
+        640,
+        660
+      ],
+      "translation_alignment": {
+        "roi": [
+          330,
+          40,
+          640,
+          660
+        ],
+        "thr": 40,
+        "raw_changed": 3.789,
+        "raw_mean_abs": 5.177,
+        "model": "translation",
+        "ecc_cc": 0.9998,
+        "matrix": [
+          [
+            1,
+            0,
+            1.16643
+          ],
+          [
+            0,
+            1,
+            -0.05332
+          ]
+        ],
+        "dx": 1.17,
+        "dy": -0.05,
+        "scale": 1,
+        "shear": 0,
+        "overlap": 1,
+        "aligned_changed": 0.019,
+        "aligned_mean_abs": 1.543,
+        "status": "정렬 유효"
+      },
+      "visual_drawing": "같음",
+      "visual_note": "대상 주요 선·면 유지. 미세 화면 이동/압축 차이와 별도 효과는 작화 변경으로 세지 않음"
+    },
+    {
+      "a": 332,
+      "b": 333,
+      "blue_mask_xor": 0.09484265734265734,
+      "any_color_mask_xor": 0.0859106529209622,
+      "target_roi_xyxy": [
+        330,
+        40,
+        640,
+        660
+      ],
+      "translation_alignment": {
+        "roi": [
+          330,
+          40,
+          640,
+          660
+        ],
+        "thr": 40,
+        "raw_changed": 4.226,
+        "raw_mean_abs": 5.634,
+        "model": "translation",
+        "ecc_cc": 0.9998,
+        "matrix": [
+          [
+            1,
+            0,
+            1.20089
+          ],
+          [
+            0,
+            1,
+            -0.07152
+          ]
+        ],
+        "dx": 1.2,
+        "dy": -0.07,
+        "scale": 1,
+        "shear": 0,
+        "overlap": 1,
+        "aligned_changed": 0.004,
+        "aligned_mean_abs": 1.575,
+        "status": "정렬 유효"
+      },
+      "visual_drawing": "같음",
+      "visual_note": "대상 주요 선·면 유지. 미세 화면 이동/압축 차이와 별도 효과는 작화 변경으로 세지 않음"
+    }
+  ],
+  "human_confirmed_segments_in_325_333": [
+    [
+      325,
+      327
+    ],
+    [
+      328,
+      330
+    ],
+    [
+      331,
+      333
+    ]
+  ],
+  "interpretation": "시각 판독으로 경계를 확정하고 마스크·정렬 수치는 보조로 제시한다. 같은 그림은 바이트 동일성·카메라 정지·정확한 관절 좌표를 뜻하지 않는다.",
+  "tool_blobs": {
+    "drawing_segments": "897f54b69f69f251b929800efdb89d23bbb7ef86",
+    "anime_char_hold": "bae7a20d85418521b260e74e8048fbb6b6c2c239",
+    "aligned_diff": "05750821a59de95d0c49dded2faad214d2fa80b6"
+  },
+  "review_scope": "Claude 6차 읽은 뒤의 비블라인드 검토. 325–333 9장을 원본에서 직접 보았고 8개 인접 쌍 수치를 CPU로 재계산했다. 300–334 전체의 자동 후보 출력은 재실행했으나 전체 35장의 모든 시각 경계를 새로 승인한 것은 아니다.",
+  "conditional_representatives_if_other_candidates_unchanged": [
+    300,
+    301,
+    304,
+    307,
+    310,
+    313,
+    316,
+    319,
+    322,
+    325,
+    328,
+    331,
+    334
+  ]
+}
