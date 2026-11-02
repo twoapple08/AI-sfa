@@ -1,5 +1,7 @@
 # GPT 토론 프롬프트 — 애니 캐릭터 움직임 → 스틱맨 SFA (2026-11-02)
 
+> **중단(11-02 밤 사용자):** 이 방식(v1–v5)은 중단했다. 이 프롬프트도 쓰지 않는다. 주제를 처음부터 다시 토론한다. 새 프롬프트는 docs/GPT-PROMPT-ANIME-TO-STICKMAN-FRESH-2026-11-02.md, 토론 기록은 docs/ANIME-TO-STICKMAN-DEBATE-2026-11-02.md에 있다. 아래 내용은 기록용으로만 남긴다.
+
 > 사용법: 아래 "복붙용" 전체를 GPT 새 세션에 붙인다. GPT는 GitHub(twoapple08/AI-sfa, 브랜치 `claude/new-session-gknz4t`)와 Drive를 읽을 수 있다.
 > GPT 답을 사용자가 Claude에게 그대로 붙이면, Claude가 근거로 반박·동의·보완해 다시 넘긴다(AGENTS.md 토론 규칙: 근거로 반대, 맞는 건 인정, 합의 안 되면 '미결' + 사용자 판정).
 

@@ -2,7 +2,7 @@
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `claude/new-session-gknz4t`다. 시작할 때 fetch해서 이 브랜치의 최신 상태로 맞춘다. 시스템이 다른 브랜치를 배정하면 같은 HEAD를 그 브랜치에도 푸시한다. **모든 답을 한국어로만 쓴다.**
 
-**읽기 순서:** AGENTS.md → HANDOFF.md(현재 우선순위·바로 할 일·결정 대기·이번 세션 실수) → docs/GPT-PROMPT-ANIME-TO-STICKMAN-2026-11-02.md(스틱맨 토론의 현재 상태) → 필요할 때 docs/STAGE2-GENERATOR-DESIGN-2026-11-02.md(2단계 설계), docs/history/PROJECT-HISTORY-2026-11-01-02.md(최근 이틀 경과), docs/PROJECT-HISTORY-2026-10-31.md(전체 역사), docs/GPU-SPEEDTEST-RUNBOOK-2026-11-01.md(GPU 실측), docs/JUDGE-CRITERIA-FINAL-2026-10-31.md(판정 기준).
+**읽기 순서:** AGENTS.md → HANDOFF.md(현재 우선순위·바로 할 일·결정 대기·이번 세션 실수) → docs/ANIME-TO-STICKMAN-DEBATE-2026-11-02.md(스틱맨 토론 기록 — 처음부터 다시, 옛 v1–v5는 중단) → 필요할 때 docs/STAGE2-GENERATOR-DESIGN-2026-11-02.md(2단계 설계), docs/history/PROJECT-HISTORY-2026-11-01-02.md(최근 이틀 경과), docs/PROJECT-HISTORY-2026-10-31.md(전체 역사), docs/GPU-SPEEDTEST-RUNBOOK-2026-11-01.md(GPU 실측), docs/JUDGE-CRITERIA-FINAL-2026-10-31.md(판정 기준).
 
 ## 목표
 - **최종:** 태그·자연어·스토리보드를 받아 .sfa 애니메이션을 만드는 창작 AI. 개인용이다. 실행 위치는 임시로 서버 GPU로 정했다(AGENTS.md '최종 목표').
@@ -16,8 +16,7 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜�
 - Kaggle `aisfa-seq-train` 판 6이 실행 중이다. 예상 종료는 15:10–15:40 UTC다.
   - 끝나면: pull → save-ckpt → seq_trend로 보고 → 2회차 제안(`--fresh` 없이).
   - **사용자 지시 없이 GPU 실행 금지.**
-- 스틱맨 v5(점 ID를 장마다 새로 씀)는 사용자 앱 확인 대기 중이다.
-- 애니 → 스틱맨 방법은 처음부터 다시 정한다. GPT 토론 중이고, 이 토론에서는 3D도 같은 기준으로 평가한다(채택은 사용자 결정).
+- 애니 → 스틱맨은 **진짜 처음부터** 다시 한다(11-02 밤 사용자). 옛 변환 v1–v5는 중단했다. GPT와 토론·의논 형식으로 하고, 3D 배제는 뺐다. Claude·GPT 모두 외부 도구 제약이 없다. 새 GPT 프롬프트는 docs/GPT-PROMPT-ANIME-TO-STICKMAN-FRESH-2026-11-02.md에 있다. Claude 1차 의견은 토론 기록에 있다.
 
 ## 사용자와 일하는 방식(핵심)
 - 먼저 답하고, 계획(무엇·왜·얼마나)을 말한 뒤 작업한다.
