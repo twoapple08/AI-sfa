@@ -47,5 +47,36 @@ class TestBorder(unittest.TestCase):
         self.assertFalse(bm[7])
 
 
+class TestHalfObs(unittest.TestCase):
+    def test_border_info_axes(self):
+        K = np.zeros((1, 23, 3))
+        K[0, :, :2] = [500, 400]
+        K[0, 5, :2], K[0, 6, :2] = [450, 330], [550, 330]
+        K[0, 11, :2], K[0, 12, :2] = [470, 620], [530, 620]
+        K[0, 13, :2] = [480, 718]        # 아래 끝 무릎: x만 관측, side 1
+        K[0, 15, :2] = [470, 715]        # 발목도 아래 끝 → 자기 반쪽 관측(사슬로 지우지 않음)
+        K[0, 10, :2] = [1150, 400]       # 오른 손목 오른쪽 끝: y만, side 4
+        bm, Wax, side = sc.border_info(K, 1152, 720, 63)
+        self.assertEqual(side[0, 13], 1)
+        self.assertEqual(list(Wax[0, 13]), [1, 0])
+        self.assertEqual(list(Wax[0, 15]), [1, 0])
+        self.assertEqual(side[0, 10], 4)
+        self.assertEqual(list(Wax[0, 10]), [0, 1])
+        self.assertTrue((Wax[0, 17:20] == 0).all())   # 발 점은 사슬로 완전히 뺀다
+
+    def test_edge_reflection_keeps_length(self):
+        from rtmw_to_stickman_2d_v2 import fix_edge_side
+        names = ('hip_l', 'kne_l', 'ank_l', 'hip_r', 'kne_r', 'ank_r', 'sho_l', 'elb_l', 'wri_l', 'sho_r', 'elb_r', 'wri_r')
+        J = {k: np.zeros((1, 2)) for k in names}
+        J['hip_l'][0], J['kne_l'][0], J['ank_l'][0] = [500, 600], [520, 800], [530, 650]
+        side = np.zeros((1, 23), int)
+        side[0, 13] = side[0, 15] = 1
+        before = np.linalg.norm(J['ank_l'][0] - J['kne_l'][0])
+        fixed = fix_edge_side(J, (None, side, None))
+        self.assertEqual(fixed, [(0, 'ank_l')])
+        self.assertGreater(J['ank_l'][0, 1], J['kne_l'][0, 1])
+        self.assertAlmostEqual(np.linalg.norm(J['ank_l'][0] - J['kne_l'][0]), before)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -127,31 +127,46 @@ def calib(K, W, q=90, symmetric=True):
     return L, n, tor
 
 
-def fit_all(K, W, L, S, lam=1.0, prior_w=0.01):
+def fit_all(K, W, L, S, lam=1.0, prior_w=0.01, half=None, bound_w=10.0):
+    """half = (Wax, side, edges): 화면 가장자리에 몰린 관절의 '반쪽 관측'(11-03).
+    Wax (T,점,2): 축별 가중(아래·위 끝에 몰리면 x만, 좌·우 끝이면 y만). side (T,점): 1 아래 2 위 3 왼 4 오른 — 그 관절은 그 끝 바깥에
+    있어야 한다(넘으면 벌점). edges = (x_min, x_max, y_min, y_max). SFA는 틀 밖 좌표를 허용하므로 다리가 틀 밖으로 뻗는다."""
     T = len(K)
     P, Wt = obs_arrays(K, W)
     A, prior = raw_dirs(K, W)
     unobs = np.isnan(A)
     x0 = np.concatenate([prior, (K[:, LHIP, :2] + K[:, RHIP, :2]) / 2], 1).ravel()   # 장마다 [11 각도, 2 위치]
     NV = 13
-    sw = np.sqrt(Wt)
+    if half is not None:
+        Wax, side, edges = half
+        sw2 = np.sqrt(np.stack([Wax[:, OBS[n], :] for n in NODES], 1))     # (T,12,2)
+        sd = np.stack([side[:, OBS[n]] for n in NODES], 1)                 # (T,12)
+        xmin, xmax, ymin, ymax = edges
+    else:
+        sw2 = np.repeat(np.sqrt(Wt)[..., None], 2, axis=2)
+        sd = np.zeros((T, 12), int)
+        xmin = xmax = ymin = ymax = 0.0
 
     def resid(x):
         X = x.reshape(T, NV)
         th, t = X[:, :11], X[:, 11:]
         J = forward(th, t, S, L)
         M = np.stack([J[n] for n in NODES], 1)
-        r_obs = ((M - P) / S[:, None, None] * sw[..., None]).ravel()
+        r_obs = ((M - P) / S[:, None, None] * sw2).ravel()
+        mx, my = M[..., 0], M[..., 1]
+        rb = np.where(sd == 1, np.maximum(0, ymax - my), 0) + np.where(sd == 2, np.maximum(0, my - ymin), 0) \
+            + np.where(sd == 3, np.maximum(0, mx - xmin), 0) + np.where(sd == 4, np.maximum(0, xmax - mx), 0)
+        r_obs = np.concatenate([r_obs.reshape(T, 24), bound_w * rb / S[:, None]], 1).ravel()
         d = np.angle(np.exp(1j * (th[1:] - th[:-1])))
         r_tmp = np.concatenate([(lam * d).ravel(), (lam * (t[1:] - t[:-1]) / S[1:, None]).ravel()])
         r_pr = (prior_w * np.angle(np.exp(1j * (th - prior))) * unobs).ravel()
         return np.concatenate([r_obs, r_tmp, r_pr])
 
     # 희소 구조: 관측 잔차는 자기 장, 시간 잔차는 이웃 두 장, 사전은 자기 변수
-    n_obs, n_tmp = T * 24, (T - 1) * 13
+    n_obs, n_tmp = T * 36, (T - 1) * 13
     sp = lil_matrix((n_obs + n_tmp + T * 11, T * NV), dtype=int)
     for f in range(T):
-        sp[f * 24:(f + 1) * 24, f * NV:(f + 1) * NV] = 1
+        sp[f * 36:(f + 1) * 36, f * NV:(f + 1) * NV] = 1
     for f in range(T - 1):
         for i in range(11):
             r = n_obs + f * 11 + i
@@ -360,6 +375,31 @@ def stable_facing(f, min_run=4):
     return f
 
 
+EDGE_CHAIN = (('hip_l', 'kne_l'), ('hip_r', 'kne_r'), ('kne_l', 'ank_l'), ('kne_r', 'ank_r'),
+              ('sho_l', 'elb_l'), ('sho_r', 'elb_r'), ('elb_l', 'wri_l'), ('elb_r', 'wri_r'))
+
+
+def fix_edge_side(J, half):
+    """화면 끝 바깥에 있어야 하는 관절(side)이 부모보다 화면 안쪽으로 접혀 들어오면, 부모를 기준으로 그 축만 뒤집는다(길이·다른 축 유지).
+    (11-03: 발목은 x만 관측해 '무릎 아래/위' 두 답이 같고, 키 사이 보간에서 위쪽 답으로 넘어가 발목이 틀 안으로 들어왔다.)"""
+    _, side, _ = half
+    fixed = []
+    for par, ch in EDGE_CHAIN:
+        sd = side[:, OBS[ch]]
+        P_, C_ = J[par], J[ch].copy()
+        for code, ax, sign in ((1, 1, 1), (2, 1, -1), (3, 0, -1), (4, 0, 1)):   # 아래: 자식 y > 부모 y 여야 함 등
+            bad = (sd == code) & (sign * (C_[:, ax] - P_[:, ax]) < 0)
+            C_[bad, ax] = P_[bad, ax] + sign * np.abs(C_[bad, ax] - P_[bad, ax])
+            fixed += [(int(t), ch) for t in np.flatnonzero(bad)]
+        delta = C_ - J[ch]
+        J[ch] = C_
+        # 자식이 움직였으면 그 아래 관절(발목·손목)도 같은 만큼 옮겨 마디 길이를 지킨다. 그다음 순서(무릎 → 발목)에서 다시 검사된다.
+        for gp, gc in EDGE_CHAIN:
+            if gp == ch:
+                J[gc] = J[gc] + delta
+    return fixed
+
+
 def fix_knees(J, facing, roots=(('hip_l', 'kne_l', 'ank_l'), ('hip_r', 'kne_r', 'ank_r'))):
     """무릎이 앞쪽(발끝 방향)과 반대로 꺾였으면 뿌리–발목 선을 기준으로 무릎을 대칭으로 옮긴다(길이 유지).
     facing: 배열 하나(양 다리 공통) 또는 {'l': 배열, 'r': 배열}(다리마다, 무릎 이름 끝 글자로 고른다).
@@ -390,7 +430,7 @@ def pchip_wrap(xk, yk, x):
     return PchipInterpolator(xk, yk, axis=0)(xc)
 
 
-def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05, key_sigma=(0.06, 0.05)):
+def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05, key_sigma=(0.06, 0.05), half=None):
     """원본 그림 하나 = 키포즈 하나. 같은 그림 구간의 관측을 평균해 키포즈를 풀고, 구간 가운데 시각에 놓은 뒤
     그 사이 장은 PCHIP으로 이어 24장 모두 움직이게 한다(3컷 작화의 끊김 → 부드러운 이동).
     - 키끼리 벌점 기본 0.05(A 1500–1523: 그림 하나에 몸통 1.5배 이상 이동·몸 돌리기가 있어 0.3에서 잔차 0.5 이상).
@@ -398,19 +438,27 @@ def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05, key_sigma=(0.06, 0.05))
     if thr is None:
         thr = auto_thr(frame_disp(K, W, tor))
     segs = drawing_segments(K, W, tor, thr)
-    Kk, Wk, Sk, ck = [], [], [], []
+    Kk, Wk, Sk, ck, Wak, sdk = [], [], [], [], [], []
+    Wax = half[0] if half is not None else np.repeat(W[..., None], 2, axis=2)
+    side = half[1] if half is not None else np.zeros(W.shape, int)
     for s, e in segs:
         w = W[s:e + 1]
         cnt = w.sum(0)
+        wa = Wax[s:e + 1]
+        cnta = wa.sum(0)                                                   # (점,2)
         k = np.zeros((K.shape[1], 3))
-        k[:, :2] = (K[s:e + 1, :, :2] * w[..., None]).sum(0) / np.maximum(cnt, 1)[:, None]
+        k[:, :2] = (K[s:e + 1, :, :2] * wa).sum(0) / np.maximum(cnta, 1)
         k[:, 2] = K[s:e + 1, :, 2].mean(0)
         Kk.append(k)
         Wk.append((cnt > 0).astype(float))
+        Wak.append((cnta > 0).astype(float))
+        sg = side[s:e + 1]
+        sdk.append(np.array([np.bincount(c[c > 0]).argmax() if (c > 0).any() else 0 for c in sg.T]))
         Sk.append(S[s:e + 1].mean())
         ck.append((s + e) / 2)
     Kk, Wk, Sk, ck = np.array(Kk), np.array(Wk), np.array(Sk), np.array(ck)
-    Jk, Xk, rms_k, unobs_k, sol = fit_all(Kk, Wk, L, Sk, lam_key)
+    hk = (np.array(Wak), np.array(sdk), half[2]) if half is not None else None
+    Jk, Xk, rms_k, unobs_k, sol = fit_all(Kk, Wk, L, Sk, lam_key, half=hk)
     th = np.unwrap(Xk[:, :11], axis=0)
     tt = np.arange(len(K), dtype=float)
     hpk, hsk = L['hip_span'] / 2 * unit(Xk[:, 0]), L['sho_span'] / 2 * unit(Xk[:, 2])
@@ -447,7 +495,7 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
 
 
 def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=0.5, keys=False, key_thr=None,
-             lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True, L_fallback=None, min_cal=15):
+             lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True, L_fallback=None, min_cal=15, half=None):
     """대상 관측 K(장×점×3)와 가중 W(장×점)에서 풀이. 관측이 없는 장은 W 행 전체를 0으로 두면 이웃 키로 잇는다.
     L_fallback: 이 구간 표본이 min_cal장 미만인 뼈에 쓸 길이(같은 인물의 여러 컷을 모은 리그, 11-03 가까운 화면 다리)."""
     L, n_cal, tor = calib(K, W, q, symmetric)
@@ -460,16 +508,20 @@ def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=
     S = smooth(tor)
     segs = None
     if keys:
-        J, rms, segs, rms_k, unobs, sol = keypose_fit(K, W, L, S, tor, key_thr, lam_key, key_sigma)
+        J, rms, segs, rms_k, unobs, sol = keypose_fit(K, W, L, S, tor, key_thr, lam_key, key_sigma, half)
         unobs_frames = [((frames[segs[k][0]], frames[segs[k][1]]), DIRS[i]) for k, i in zip(*np.nonzero(unobs))]
     else:
-        J, X, rms, unobs, sol = fit_all(K, W, L, S, lam)
+        J, X, rms, unobs, sol = fit_all(K, W, L, S, lam, half=half)
         unobs_frames = [(frames[t], DIRS[i]) for t, i in zip(*np.nonzero(unobs))]
     facing_raw = frame_facing(K, W, tor)
     facing = stable_facing(facing_raw)
     legs_raw = leg_facing(K, W, tor)
     legs = {s: stable_facing(v) for s, v in legs_raw.items()}
+    # 무릎·발목이 완전히 관측된 장에서만 무릎 뒤집기를 한다(11-03: 화면 밖 다리를 반대쪽 발 방향으로 뒤집어 빨강 1231 무릎이 위로 감)
+    for sd_, kn, an in (('l', 13, 15), ('r', 14, 16)):
+        legs[sd_] = np.where((W[:, kn] > 0) & (W[:, an] > 0), legs[sd_], 0)
     knee_fixed = fix_knees(J, legs) if knee_fix else []
+    edge_fixed = fix_edge_side(J, half) if half is not None else []
     J = with_head(J, S, neck_len, head_d)
     rep = {
         'model': '중점 11방향, 몸통 기준 배율, ' + ('키포즈(원본 그림 하나 = 키 하나) + PCHIP 보간' if keys else '전 장 동시 풀이'),
@@ -482,7 +534,8 @@ def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=
         'accel_median_torso': {'fit': round(float(np.median(accel(J, S))), 4)},
         'unobserved_dir_frames': unobs_frames,
         'facing': [int(x) for x in facing], 'facing_raw': [int(x) for x in facing_raw],
-        'facing_leg': {k: [int(x) for x in v] for k, v in legs.items()}, 'knee_fixed': [(frames[t], k) for t, k in knee_fixed],
+        'facing_leg': {k: [int(x) for x in v] for k, v in legs.items()},
+        'edge_fixed': [(frames[t], k) for t, k in edge_fixed], 'knee_fixed': [(frames[t], k) for t, k in knee_fixed],
         'key_sigma': list(key_sigma) if (keys and key_sigma) else None,
         'optimizer': {'status': int(sol.status), 'nfev': int(sol.nfev), 'cost': round(float(sol.cost), 5)},
     }

@@ -46,22 +46,41 @@ def color_area(video, frames, color):
     return np.array(out)
 
 
-CHAIN_DOWN = {11: (13, 15), 12: (14, 16), 13: (15,), 14: (16,), 5: (7, 9), 6: (8, 10), 7: (9,), 8: (10,)}
+CHAIN_DOWN = {11: (13, 15), 12: (14, 16), 13: (15,), 14: (16,), 5: (7, 9), 6: (8, 10), 7: (9,), 8: (10,),
+              15: (17, 18, 19), 16: (20, 21, 22)}
 
 
-def border_mask(K, img_w, img_h, top, frac=0.06, min_px=8.0):
-    """화면 가장자리 관절(가까운 화면에서 화면 밖 다리를 RTMW가 아래 끝에 몰아 찍는다, 11-03 실측: 1136–1233 무릎 y 707–723, 점수 3.9).
-    가장자리에서 max(min_px, frac × 관측 몸통) 안이면 True(4%로는 y 700–707 발목이 남아 6%로 넓힘)."""
+def border_info(K, img_w, img_h, top, frac=0.06, min_px=8.0):
+    """화면 가장자리 관절 판정(11-03).
+    가까운 화면에서 RTMW는 화면 밖 무릎·발목을 화면 끝에 몰아 찍는다(1136–1233: 무릎 y 707–723, 점수 3.9).
+    몰린 축(아래·위 끝이면 y, 좌·우 끝이면 x)만 버리고 나머지 축은 관측으로 남긴다 — x는 다리 움직임을 따라 바뀐다
+    (1186–1194 왼무릎 x 485 → 665). 그 관절은 그 끝 바깥에 있어야 한다는 조건(side)을 단다.
+    반환: bm(가장자리 또는 사슬로 뺀 관절: 완전 관측 아님), Wax 축별 가중(0/1, 점수 조건은 호출 쪽에서 곱함), side(1 아래 2 위 3 왼 4 오른).
+    사슬 규칙: 부모가 가장자리이고 자식이 가장자리가 아니면(화면 안에 찍힘) 자식은 관측에서 완전히 뺀다(발 점 포함)."""
+    T, Jn = K.shape[:2]
     tor = np.linalg.norm((K[:, 5, :2] + K[:, 6, :2]) / 2 - (K[:, 11, :2] + K[:, 12, :2]) / 2, axis=1)
     m = np.maximum(min_px, frac * tor)[:, None]
     x, y = K[:, :, 0], K[:, :, 1]
-    bm = (x <= m) | (x >= img_w - 1 - m) | (y <= top + m) | (y >= img_h - 1 - m)
-    # 사슬 규칙: 관절이 화면 밖이면 그 아래쪽(손목·발목 쪽) 관절도 관측에서 뺀다
-    # (11-03: 무릎이 빠진 뒤 화면 끝 근처에 남은 발목이 다리를 옆으로 끌었다)
+    d = np.stack([(img_h - 1) - y, y - top, x, (img_w - 1) - x], -1)      # 아래·위·왼·오른 끝까지 거리
+    near = d <= m[..., None]
+    at = near.any(-1)
+    side = np.where(at, np.argmin(np.where(near, d, np.inf), -1) + 1, 0)
+    Wax = np.ones((T, Jn, 2))
+    Wax[side == 1, 1] = Wax[side == 2, 1] = 0                # 아래·위 끝: y 버림
+    Wax[side == 3, 0] = Wax[side == 4, 0] = 0                # 좌·우 끝: x 버림
+    bm = at.copy()
     for j, kids in CHAIN_DOWN.items():
         for k in kids:
+            if k >= Jn:
+                continue
+            chain_only = bm[:, j] & ~at[:, k]
             bm[:, k] |= bm[:, j]
-    return bm
+            Wax[chain_only, k, :] = 0
+    return bm, Wax, side
+
+
+def border_mask(K, img_w, img_h, top, frac=0.06, min_px=8.0):
+    return border_info(K, img_w, img_h, top, frac, min_px)[0]
 
 
 def pick_shot(R, video, frames, color):
@@ -89,11 +108,15 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
     W[~obs[i0:i1 + 1]] = 0
     n_border = 0
     if img is not None:
-        bm = border_mask(Kf, *img)
+        bm, Wax, side = border_info(Kf, *img)
         n_border = int((bm[:, 5:17] & (W[:, 5:17] > 0)).sum())
-        W[bm] = 0
+        Wax = Wax * W[..., None]          # 점수·못 잡은 장 조건
+        W[bm] = 0                         # 완전 관측(방향·길이 보정·앞쪽 판단)에서는 뺀다
+        half = (Wax, side, (0.0, img[0] - 1, img[2], img[1] - 1))
+    else:
+        half = None
     sub = frames[i0:i1 + 1]
-    J, S, r, _, _ = run_core(Kf, W, sub, q=50, symmetric=True, keys=True, L_fallback=L_fallback)
+    J, S, r, _, _ = run_core(Kf, W, sub, q=50, symmetric=True, keys=True, L_fallback=L_fallback, half=half)
     rep['border_joints_dropped'] = n_border
     rep['L_from_fallback'] = r['L_from_fallback']
     B, info = basic_joints(J, S, facing=r['facing_leg'])
