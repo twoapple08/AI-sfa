@@ -74,7 +74,7 @@ def pick_target(R, frames, video=None, color='blue', strict=False, min_share=0.0
         share = lambda p, mm: mm[max(0, int(p[0][1])):int(p[0][3]), max(0, int(p[0][0])):int(p[0][2])].mean()  # noqa: E731
         if select == 'coverage':
             # (a) 재선택(겹침 토론 1·2차 합의, 11-03): 밀도는 통과 조건으로만 쓴다.
-            # 통과: 상자 안 대상색 ≥ min_share, 대상색 > 다른 색, 몸통 4점(양어깨·양엉덩이) 중 절반 이상이 대상색 위.
+            # 통과: 상자 안 대상색 ≥ min_share, 대상색 > 다른 색. 후보가 둘 이상이면 몸통 4점(양어깨·양엉덩이) 중 절반 이상이 대상색 위.
             # (1162 빨강 p1처럼 두 인물을 섞은 큰 상자는 어깨·엉덩이가 다른 인물 위에 있어 빠진다.)
             # 선택: 화면의 대상색 화소 포함률 최대(1223–1226 빨강 p1처럼 뻗은 다리까지 담은 검출).
             # 1위와 2% 안이면 앞 장 몸통 중심에 가까운 쪽.
@@ -92,7 +92,11 @@ def pick_target(R, frames, video=None, color='blue', strict=False, min_share=0.0
                     ok_ += m[win].mean() >= 0.3 and m[win].mean() > o[win].mean()
                 return ok_ / n if n else 0.0
 
-            cands = [p for p in ps if share(p, m) >= min_share and share(p, m) > share(p, o) and own(p) >= 0.5]
+            cands = [p for p in ps if share(p, m) >= min_share and share(p, m) > share(p, o)]
+            # 몸통 소유권 검사는 후보가 둘 이상일 때만(겹침 토론 3차, 11-03): 먼 화면의 작은 인물(몸통 23px)은 어깨 주변 9×9에
+            # 대상색이 0%로 잡혀, 후보가 하나뿐인 빨강 1235가 탈락했고 키가 합쳐져 1234–1236이 멈췄다.
+            if len(cands) > 1:
+                cands = [p for p in cands if own(p) >= 0.5]
             if not cands:
                 out.append(None)
                 if log is not None:
