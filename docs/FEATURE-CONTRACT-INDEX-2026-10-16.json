@@ -301,6 +301,27 @@
         "실제 화면/pixel·비정상 입력"
       ],
       "complete": false
+    },
+    {
+      "id": "frame-background",
+      "title_ko": "프레임별 배경색",
+      "evidence_reports": [
+        "docs/AOT-FRAME-BACKGROUND-PICKER-TRACE-2026-11-02.md",
+        "docs/AOT-FRAME-OPTIONS-POPUP-TRACE-2026-11-02.md",
+        "docs/AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md"
+      ],
+      "existing_runtime_samples": [],
+      "static_scope": [
+        "frame ID 키 map·기본색(없으면 흰색) 조회",
+        "picker 불투명 색(hex 6자리만)·실시간 미리보기·취소 시 시작색 복원",
+        "확인 시 frame_background UPSERT·map 갱신·history 항목 호출",
+        "재생/녹화 RecordPicture의 clip 후 배경 drawRect→Frame.Draw"
+      ],
+      "remaining": [
+        "history undo 시 배경 복원 여부·점 색 용도",
+        "실제 화면/인코더 pixel"
+      ],
+      "complete": false
     }
   ],
   "analysis_environment_restored": true,
