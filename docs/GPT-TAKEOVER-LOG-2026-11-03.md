@@ -25,3 +25,13 @@
 - 실제 SFA 연결 참조 8,406개가 같은 장에 존재하고 연결 양끝 좌표가 일치함을 추가 확인했다.
 - HANDOFF와 시작 프롬프트를 현재 대기 상태로 갱신했다. 직전 두 문서는 docs/history의 before-gpt 사본에 보존했다.
 - 문서 정리 커밋은 위 구현 커밋 다음이다. 사용자 영상 판정과 Kaggle 출력 업로드는 계속 대기한다.
+
+## 2026-11-03 08:52 KST — 새 환경 인증 복구
+
+- 사용자 환경 업데이트 후 새 실행 환경으로 교체됐다. 이전 환경은 unavailable이다. 사용자 화면의 이름 변경과 변수 반영의 관계는 원인을 확정하지 않았다.
+- 환경 상태의 현재 관측과 프로세스 모두 KAGGLE_USERNAME·KAGGLE_API_TOKEN 설정 확인. 값은 출력하지 않았다.
+- 지정 브랜치 최신 `e70024fa4e2f1a30893e4a4e9e019d0641bb2b29`에서 Kaggle 도구 설치 후 `python tools/kaggle_seq_remote.py status` 성공, `KernelWorkerStatus.RUNNING` 확인. 새 학습·GPU 실행은 하지 않았다.
+- 예상 종료는 11-03 10:00–10:45 KST. 종료 전이므로 결과를 받거나 완료했다고 보고하지 않았다. 사용자 수동 Drive 업로드 요청은 해제했다.
+- 다음: 완료 확인 → pull → save-ckpt → seq_trend 같은 조건 비교. 스틱맨 사용자 영상 판정 대기는 유지한다.
+- 새 환경에는 이전 비공개 캐시가 없음을 확인했다. 결과물은 Drive·코드/기록은 GitHub에 보존돼 있다.
+- 문서 저장 전 새 환경 CPU 의존성 복구 후 루트 `python -m unittest discover -s tests` 전체 197개 OK·종료 코드 0 확인. 코드·학습·판정 JSON 변경 없음.

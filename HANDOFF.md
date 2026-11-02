@@ -7,14 +7,14 @@
 - GPT 작업·커밋: `docs/GPT-TAKEOVER-LOG-2026-11-03.md`.
 
 ## 현재 우선순위
-1. **1단계 영상 → SFA AI:** Kaggle `aisfa-seq-train` 판 7, 2회차 결과 확인. 11-02 15:47 UTC 시작, 예상 종료 11-03 01:00–01:45 UTC. 완료 여부는 아직 직접 확인하지 못했다.
+1. **1단계 영상 → SFA AI:** Kaggle `aisfa-seq-train` 판 7, 2회차 결과 확인. 11-02 15:47 UTC 시작, 예상 종료 11-03 01:00–01:45 UTC. 11-03 08:52 KST 상태 조회는 RUNNING(실행 중)이었다.
 2. **2단계 애니 인물 → 스틱맨:** 기본값 기준판은 `--select coverage --side-rule valid`, 직선 몸통·기본 10조각, **2D 유지**. 기존 최종판은 Drive `02_분석자료/stickman_proto_2026-11-03/clip1032-1271_final/`.
 
 ## 바로 할 일
-1. **Kaggle 결과 대기:** 현 GPT 환경에는 Kaggle 인증·설정 파일이 없다. Drive `02_분석자료/seq/`에는 11-02 22:55 UTC 확인 당시 1회차만 있었다. 사용자에게 2회차 `log.jsonl`·판정 시트를 `seq/run2_2026-11-03/`에 올려 달라고 요청했다.
+1. **Kaggle 결과 대기:** 새 환경에서 `KAGGLE_USERNAME`·`KAGGLE_API_TOKEN` 반영 및 실제 접근 성공. 11-03 08:52 KST `aisfa-seq-train`은 RUNNING. 이전 수동 업로드 요청은 해제했다. 완료되면 직접 pull → save-ckpt → 같은 조건 추세 비교를 한다.
    - 올라오면 `tools/seq_trend.py`로 1회차와 **같은 판정 조건끼리** 비교한다. 그림 먼저 보고한다.
    - 1회차: `seq/run1_2026-11-02/`. 마지막과 같은 조건의 판정이 2회 미만이어서 기존 1회차만으로는 추세를 말할 수 없었다.
-   - Kaggle 접근 복구 시 완료 확인 → pull → save-ckpt. **3회차·GPU 실행·학습은 사용자 허락 뒤에만** 한다.
+   - Kaggle 접근 복구 완료. 종료 확인 후 pull → save-ckpt. **3회차·GPU 실행·학습은 사용자 허락 뒤에만** 한다.
 2. **스틱맨 후보 23장 점검 완료, 사용자 영상 판정 대기.** 상세: `docs/GPT-STICKMAN-CANDIDATE-REVIEW-2026-11-03.md`, 수치: `data/stickman_motion/candidate_review_2026-11-03.json`.
    - 파랑 1036–1039·1086–1089·1251–1254에서 다른 포즈가 한 키에 합쳐졌다. 앞의 두 곳은 이동 중앙값이 문턱 미만, 마지막은 1253 결측 양옆 경계가 NaN이라 누락됐다.
    - 선택 기능 `--key-start blue:1038 blue:1088 blue:1253` 추가. 기본 자동 경계·기준판·확인 경계 JSON은 그대로다. **자동 분할 문제 전체의 해결판은 아니다.**
@@ -40,11 +40,11 @@
 - 커밋 전 루트에서 `python -m unittest discover -s tests` 전체 통과 확인. 시험과 커밋은 별도 명령. 실패하면 커밋하지 않는다.
 
 ## 환경·검증
-- 저장소 `/workspace/AI-sfa`, CPU 작업. 비공개 캐시 `/workspace/ai-sfa-private/`(저장소 밖, 세션 소실 가능).
+- 저장소 `/workspace/AI-sfa`, CPU 작업. 이전 비공개 캐시 `/workspace/ai-sfa-private/`는 새 환경에 없음(확인). 필요 자료는 Drive에서 복구한다.
 - 원본: Drive `AI-sfa/01_원본영상/nian41/x_self_posts/1913231262086463573.mp4`, 1152×720·4216장·24fps.
   SHA-256 `5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da`.
 - RTMW: Drive `AI-sfa/02_분석자료/포즈_RTMW/nian41/1913231262086463573.jsonl.gz`.
   SHA-256 `6c7905164776c20838d6ca58c05d9fb5dcd9a47a2b47d7669d02433701167d0a`.
-- GitHub·Drive 연결 정상. Kaggle 인증 없음. CPU 의존성만 복구했다.
+- GitHub·Drive 연결 정상. 새 환경에서 Kaggle 인증 반영·상태 조회 성공(11-03 08:52 KST). 새 환경 CPU 의존성을 복구하고 전체 197개 시험 OK·종료 코드 0을 확인했다.
 - 수정 후 **전체 197개 시험 통과**, 240장 SFA ID·10조각·인물별 파란점 검사 통과. 영상 24fps·240장·10초 확인. 앱 편집·실시간 영상 재생 판정은 수행하지 않았다.
 - Claude 복귀 시 GPT 로그와 기간 커밋부터 검토한다. 마지막 SHA와 짧은 전달 문구를 사용자에게 준다.
