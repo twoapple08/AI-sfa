@@ -27,7 +27,7 @@
    - 마지막 판정 시트(입력 | AI SFA | 정답 SFA): 물체 위치·종류는 대체로 맞추기 시작했지만, 스틱맨 팔다리 엉킴·십자 → 선처럼 모양은 아직 틀리다(Claude 눈).
    - **2회차 제안:** `python tools/kaggle_seq_remote.py push --prebuilt --gpu-ok --minutes 600 --plan-minutes 900 --extra "--gen-minutes 120"`. `--fresh`는 붙이지 않는다. GPU 실행은 사용자 허락 뒤에 한다.
 - **(11-03 사용자) 새 Claude 세션으로 넘어가는 것은 미룬다. Claude 주간 사용량이 거의 소진돼, 사용자가 말하면 GPT가 일시적으로 모든 일(구현 포함)을 맡는다.** 인계 프롬프트: docs/GPT-PROMPT-TAKEOVER-2026-11-03.md. GPT 작업 기록: docs/GPT-TAKEOVER-LOG-2026-11-03.md(GPT가 만든다). Claude가 돌아오면 이 기록과 커밋을 먼저 읽고 검토한다.
-2. **스틱맨: 인물 겹침 다리 버그를 새 세션에서 GPT와 토론으로 찾고 고친다(11-03 사용자 지시).**
+2. **스틱맨: 인물 겹침 다리 버그 토론 1차 종결(11-03, GPT 5차 f733908).** 기준판은 (a)+(b)이고 `stickman_clip.py` 기본값이다. 최종 SFA(거리 굵기 포함)는 Drive `clip1032-1271_final/`에 있다. 1217은 알려진 한계, c3는 선택 옵션이다. 남은 후보는 docs/STICKMAN-OVERLAP-DEBATE-2026-11-03.md '5차' 절에 있다. 다음 작업은 사용자 지시 대기.
    - 출발 문서: docs/STICKMAN-OVERLAP-BUGS-2026-11-03.md. 토론 기록: docs/STICKMAN-OVERLAP-DEBATE-2026-11-03.md
    - 순서: ① 사용자가 새 GPT 세션에 docs/GPT-PROMPT-STICKMAN-OVERLAP-FRESH-2026-11-03.md를 넣는다. ② GPT 1차 답(docs/GPT-STICKMAN-OVERLAP-ROUND1-2026-11-03.md)이 오면 새 Claude 세션이 읽고 1차 답을 쓴다.
    - 표시된 3곳: 빨강 1217(무릎), 1222·1227(뻗은 발차기). 근거는 Drive `stickman_proto_2026-11-03/overlap_bugs/`에 있다.
