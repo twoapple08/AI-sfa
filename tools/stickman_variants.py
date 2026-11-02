@@ -38,7 +38,7 @@ def unit(v):
     return v / np.maximum(n, 1e-9)
 
 
-def basic_joints(J, S, head_d=HEAD_TEMPLATE):
+def basic_joints(J, S, head_d=HEAD_TEMPLATE, facing=None):
     """시제품 관절 → 기본 스틱맨 관절(이름은 pose_to_stickman.BODY와 같음)."""
     neck, pel = J['neck'], J['pel']
     out = {'neck': neck, 'pelvis': pel}
@@ -51,12 +51,16 @@ def basic_joints(J, S, head_d=HEAD_TEMPLATE):
         out[f'wri_{s}'] = out[f'elb_{s}'] + (J[f'wri_{s}'] - J[f'elb_{s}'])
         out[f'kne_{s}'] = pel + unit(J[f'kne_{s}'] - pel) * (S * ratios['kne'])[:, None]
         out[f'ank_{s}'] = out[f'kne_{s}'] + (J[f'ank_{s}'] - J[f'kne_{s}'])
+    knee_fixed = []
+    if facing is not None:   # 허벅지 뿌리를 골반 가운데로 옮기면 거의 곧은 다리가 반대로 꺾일 수 있다(B 326–334, 11-03) → 다시 검사
+        from rtmw_to_stickman_2d_v2 import fix_knees
+        knee_fixed = fix_knees(out, np.asarray(facing), (('pelvis', 'kne_l', 'ank_l'), ('pelvis', 'kne_r', 'ank_r')))
     u = unit(neck - pel)
     tor = np.linalg.norm(neck - pel, axis=1)
     out['head_t'] = neck + u * (tor * head_d)[:, None]
     shift = {f'{p}_{s}': float(np.median(np.linalg.norm(out[f'{p}_{s}'] - J[f'{p}_{s}'], axis=1) / S))
              for p in ('wri', 'ank') for s in ('l', 'r')}
-    return out, {'ratios_torso_units': ratios, 'head_d': head_d, 'median_end_shift_torso': shift}
+    return out, {'ratios_torso_units': ratios, 'head_d': head_d, 'median_end_shift_torso': shift, 'knee_fixed_frames': knee_fixed}
 
 
 def torso_offset(mask, P, N, fr=np.linspace(0.35, 0.65, 7)):
@@ -165,7 +169,7 @@ def main():
     J, S, rep = load(a.joints, a.report)
     W, H = a.width, a.width * 9 / 16
     to_pct = lambda p: (100 * p[0] / W, 100 * (p[1] - a.crop_y) / H)  # noqa: E731
-    B, info = basic_joints(J, S, a.head)
+    B, info = basic_joints(J, S, a.head, rep.get('facing'))
     T = len(S)
     if a.mode == 'basic':
         frames = [basic_frame_xml(n, {k: v[n] for k, v in B.items()}, to_pct) for n in range(T)]

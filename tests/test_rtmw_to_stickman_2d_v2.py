@@ -78,6 +78,35 @@ class TestV2(unittest.TestCase):
         self.assertTrue(0.13 < t2 < 0.29)
         self.assertEqual(m.auto_thr(rng.uniform(0.05, 0.08, 12)), 0.04)   # 안 갈리면 기본값
 
+    def test_fix_knees_mirrors_reversed_only(self):
+        # 앞쪽 +x(화면 오른쪽): 정상 무릎은 +x로 나온다. 거꾸로(−x) 꺾인 장만 대칭으로 옮기고 길이는 유지
+        J = {'hip_l': np.array([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]),
+             'kne_l': np.array([[0.3, 1.0], [-0.3, 1.0], [-0.3, 1.0]]),
+             'ank_l': np.array([[0.0, 2.0], [0.0, 2.0], [0.0, 2.0]])}
+        fixed = m.fix_knees(J, np.array([1, 1, 0]), (('hip_l', 'kne_l', 'ank_l'),))
+        self.assertEqual(fixed, [(1, 'kne_l')])
+        np.testing.assert_allclose(J['kne_l'][1], [0.3, 1.0], atol=1e-9)
+        np.testing.assert_allclose(J['kne_l'][2], [-0.3, 1.0], atol=1e-9)   # 앞쪽 불분명이면 그대로
+
+    def test_facing_from_feet(self):
+        K = np.zeros((2, 23, 3))
+        K[:, :, 2] = 5
+        K[0, 17, 0], K[0, 19, 0], K[0, 20, 0], K[0, 22, 0] = 30, 0, 28, 0     # 발끝 오른쪽
+        K[1, 17, 0], K[1, 19, 0] = 2, 0                                       # 거의 정면
+        f = m.frame_facing(K, np.ones((2, 23)), np.array([100.0, 100.0]))
+        self.assertEqual(list(f), [1, 0])
+
+    def test_smooth_keys_reduces_wobble_keeps_big_motion(self):
+        xk = np.arange(0, 39, 3.0)
+        rng = np.random.default_rng(4)
+        slow = 0.02 * xk + rng.normal(0, 0.05, len(xk))          # 느린 이동 + 흔들림
+        y = m.smooth_keys(xk, slow[:, None], 0.06, xk)[:, 0]
+        d2 = lambda v: np.abs(np.diff(v, 2)).mean()  # noqa: E731
+        self.assertLess(d2(y), 0.5 * d2(slow))
+        fast = np.sin(xk / 3.0) * 2.0                              # 큰 동작
+        yf = m.smooth_keys(xk, fast[:, None], 0.06, xk)[:, 0]
+        self.assertLess(np.abs(yf - fast).max(), 0.2)
+
     def test_sfa_structure(self):
         J = m.with_head(m.forward(self.th, self.t, self.S, L), self.S, 0.17, 0.5)
         root = ET.fromstring(m.sfa_xml(J, 1152, 648, 63, 'x', np.full(self.T, 3.0)).split('?>', 1)[1])

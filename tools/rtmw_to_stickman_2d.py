@@ -44,7 +44,8 @@ def load_rtmw(path):
     R = {}
     for line in gzip.open(path, 'rt'):
         r = json.loads(line)
-        R[r['f']] = [(np.array(p['b'], float), np.array(p['k'], float)[:17]) for p in r['p']]
+        # 몸 17점 + 발 6점(17–22: 왼 엄지·새끼·뒤꿈치, 오른 같음). 발은 무릎 꺾임 방향(앞쪽) 판단에 쓴다(11-03).
+        R[r['f']] = [(np.array(p['b'], float), np.array(p['k'], float)[:23]) for p in r['p']]
     return R
 
 

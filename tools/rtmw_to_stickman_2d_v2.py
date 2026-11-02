@@ -279,6 +279,56 @@ def drawing_segments(K, W, tor, thr=0.04):
     return [(s, (starts[i + 1] - 1) if i + 1 < len(starts) else T - 1) for i, s in enumerate(starts)]
 
 
+def smooth_keys(xk, yk, sigma, x):
+    """sigma: 수 하나 또는 키마다 배열(위치는 px 그대로 두고 sigma = 몸통 단위 × 키 배율)."""
+    """키 값을 그대로 잇지 않고, 키 흔들림 크기 sigma 안에서 매끄러운 3차 스플라인으로 맞춰 키 값을 고른 뒤 PCHIP으로 x에서 잇는다(열마다).
+    UnivariateSpline s = 키 수 × sigma²(잔차 제곱합 허용치). 키가 4개 미만이면 PCHIP으로 잇는다. 범위 밖은 끝값 유지.
+    (11-03: B 걷기에서 키 2차 차분이 1차 차분과 같아(골반 0.110 대 0.109 몸통) 떨림으로 보였다. 큰 동작(A)은 sigma보다 훨씬 커서 거의 남는다.)"""
+    from scipy.interpolate import UnivariateSpline
+    yk = np.asarray(yk, float)
+    if len(xk) < 4:
+        return pchip_wrap(xk, yk, x)
+    cols = yk.reshape(len(xk), -1)
+    # 스플라인은 키 값의 흔들림만 깎는다(키 시각에서 읽음). 키 사이는 PCHIP으로 잇는다 —
+    # 3차 스플라인을 그대로 이으면 빠른 동작(A)에서 키 사이가 넘쳐 가속도가 0.27 → 0.34로 늘었다(11-03).
+    w = 1.0 / np.broadcast_to(np.asarray(sigma, float), (len(xk),))
+    den = np.stack([UnivariateSpline(xk, c, w=w, k=3, s=len(xk))(xk) for c in cols.T], -1)
+    return pchip_wrap(xk, den.reshape(yk.shape), x)
+
+
+def frame_facing(K, W, tor, min_frac=0.05):
+    """발끝 방향(엄지발가락 x − 발뒤꿈치 x, 두 발 평균)으로 장마다 앞쪽을 정한다: +1 화면 오른쪽, −1 왼쪽, 0 불분명.
+    |값| < min_frac × 몸통이면 0(발이 카메라 쪽·반대쪽을 향함). K는 23점(발 17–22 포함)이어야 한다."""
+    T = len(K)
+    out = np.zeros(T)
+    if K.shape[1] < 23:
+        return out
+    for t in range(T):
+        v = [K[t, toe, 0] - K[t, heel, 0] for toe, heel in ((17, 19), (20, 22)) if W[t, toe] > 0 and W[t, heel] > 0]
+        if v and abs(np.mean(v)) >= min_frac * tor[t]:
+            out[t] = np.sign(np.mean(v))
+    return out
+
+
+def fix_knees(J, facing, roots=(('hip_l', 'kne_l', 'ank_l'), ('hip_r', 'kne_r', 'ank_r'))):
+    """무릎이 앞쪽(발끝 방향)과 반대로 꺾였으면 뿌리–발목 선을 기준으로 무릎을 대칭으로 옮긴다(길이 유지).
+    화면 좌표(y 아래)에서 앞쪽이 +x이면 정상 꺾임은 cross(허벅지, 정강이) > 0. facing 0인 장은 건드리지 않는다.
+    반환: 고친 (장, 다리) 목록."""
+    fixed = []
+    for root, kn, an in roots:
+        R_, K_, A_ = J[root], J[kn].copy(), J[an]
+        th, sh = K_ - R_, A_ - K_
+        cr = th[:, 0] * sh[:, 1] - th[:, 1] * sh[:, 0]
+        bad = (facing != 0) & (cr * facing < 0)
+        d = A_ - R_
+        p = K_ - R_
+        proj = (p * d).sum(1, keepdims=True) / np.maximum((d * d).sum(1, keepdims=True), 1e-9) * d
+        K_[bad] = (R_ + 2 * proj - p)[bad]
+        J[kn] = K_
+        fixed += [(int(t), kn) for t in np.flatnonzero(bad)]
+    return fixed
+
+
 def pchip_wrap(xk, yk, x):
     """키 시각 xk의 값 yk(각도는 미리 풀어 둠)를 PCHIP으로 잇는다(넘침 없음). 범위 밖은 끝값 유지."""
     from scipy.interpolate import PchipInterpolator
@@ -288,7 +338,7 @@ def pchip_wrap(xk, yk, x):
     return PchipInterpolator(xk, yk, axis=0)(xc)
 
 
-def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05):
+def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05, key_sigma=(0.06, 0.05)):
     """원본 그림 하나 = 키포즈 하나. 같은 그림 구간의 관측을 평균해 키포즈를 풀고, 구간 가운데 시각에 놓은 뒤
     그 사이 장은 PCHIP으로 이어 24장 모두 움직이게 한다(3컷 작화의 끊김 → 부드러운 이동).
     - 키끼리 벌점 기본 0.05(A 1500–1523: 그림 하나에 몸통 1.5배 이상 이동·몸 돌리기가 있어 0.3에서 잔차 0.5 이상).
@@ -300,7 +350,7 @@ def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05):
     for s, e in segs:
         w = W[s:e + 1]
         cnt = w.sum(0)
-        k = np.zeros((17, 3))
+        k = np.zeros((K.shape[1], 3))
         k[:, :2] = (K[s:e + 1, :, :2] * w[..., None]).sum(0) / np.maximum(cnt, 1)[:, None]
         k[:, 2] = K[s:e + 1, :, 2].mean(0)
         Kk.append(k)
@@ -311,10 +361,16 @@ def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05):
     Jk, Xk, rms_k, unobs_k, sol = fit_all(Kk, Wk, L, Sk, lam_key)
     th = np.unwrap(Xk[:, :11], axis=0)
     tt = np.arange(len(K), dtype=float)
-    th_all = pchip_wrap(ck, th, tt)
-    t_all = pchip_wrap(ck, Xk[:, 11:], tt)
-    hp = pchip_wrap(ck, L['hip_span'] / 2 * unit(Xk[:, 0]), tt)
-    hs = pchip_wrap(ck, L['sho_span'] / 2 * unit(Xk[:, 2]), tt)
+    hpk, hsk = L['hip_span'] / 2 * unit(Xk[:, 0]), L['sho_span'] / 2 * unit(Xk[:, 2])
+    if key_sigma:   # 키 흔들림 깎기(각도 sigma rad, 위치·가로선은 몸통 단위 sigma)
+        sa, sp = key_sigma
+        th_all = smooth_keys(ck, th, sa, tt)
+        t_all = smooth_keys(ck, Xk[:, 11:], sp * Sk, tt)
+        hp, hs = smooth_keys(ck, hpk, sp, tt), smooth_keys(ck, hsk, sp, tt)
+    else:
+        th_all = pchip_wrap(ck, th, tt)
+        t_all = pchip_wrap(ck, Xk[:, 11:], tt)
+        hp, hs = pchip_wrap(ck, hpk, tt), pchip_wrap(ck, hsk, tt)
     J = forward(th_all, t_all, S, L, hp, hs)
     P, Wt = obs_arrays(K, W)
     M = np.stack([J[n] for n in NODES], 1)
@@ -325,7 +381,7 @@ def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05):
 
 
 def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, symmetric=True, lam=1.0,
-        neck_len=0.17, head_d=0.5, keys=False, key_thr=None, lam_key=0.05):
+        neck_len=0.17, head_d=0.5, keys=False, key_thr=None, lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True):
     K = pick_target(R, frames, video, color)
     if any(k is None for k in K):
         raise SystemExit('구간 안에 대상이 없는 장이 있다')
@@ -339,11 +395,13 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
     S = smooth(tor)
     segs = None
     if keys:
-        J, rms, segs, rms_k, unobs, sol = keypose_fit(K, W, L, S, tor, key_thr, lam_key)
+        J, rms, segs, rms_k, unobs, sol = keypose_fit(K, W, L, S, tor, key_thr, lam_key, key_sigma)
         unobs_frames = [((frames[segs[k][0]], frames[segs[k][1]]), DIRS[i]) for k, i in zip(*np.nonzero(unobs))]
     else:
         J, X, rms, unobs, sol = fit_all(K, W, L, S, lam)
         unobs_frames = [(frames[t], DIRS[i]) for t, i in zip(*np.nonzero(unobs))]
+    facing = frame_facing(K, W, tor)
+    knee_fixed = fix_knees(J, facing) if knee_fix else []
     J = with_head(J, S, neck_len, head_d)
     rep = {
         'model': '중점 11방향, 몸통 기준 배율, ' + ('키포즈(원본 그림 하나 = 키 하나) + PCHIP 보간' if keys else '전 장 동시 풀이'),
@@ -355,6 +413,8 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
         'rms_resid_torso': [None if v is None else round(v, 4) for v in rms],
         'accel_median_torso': {'fit': round(float(np.median(accel(J, S))), 4)},
         'unobserved_dir_frames': unobs_frames,
+        'facing': [int(x) for x in facing], 'knee_fixed': [(frames[t], k) for t, k in knee_fixed],
+        'key_sigma': list(key_sigma) if (keys and key_sigma) else None,
         'optimizer': {'status': int(sol.status), 'nfev': int(sol.nfev), 'cost': round(float(sol.cost), 5)},
     }
     return J, S, rep, K, W
@@ -377,6 +437,8 @@ def main():
     ap.add_argument('--keys', action='store_true', help='원본 그림 하나 = 키포즈 하나로 풀고 사이 장을 PCHIP으로 잇기')
     ap.add_argument('--key-thr', type=float, default=None, help='새 그림 판정 문턱(이웃 장 관절 이동 중앙값/몸통). 비우면 영상마다 자동')
     ap.add_argument('--lam-key', type=float, default=0.05, help='키포즈끼리 변화 벌점')
+    ap.add_argument('--key-sigma', type=float, nargs=2, default=[0.06, 0.05], help='키 흔들림 깎기: 각도 rad, 위치 몸통 단위(0 0이면 끔)')
+    ap.add_argument('--no-knee-fix', action='store_true')
     ap.add_argument('--neck', type=float, default=0.17)
     ap.add_argument('--head', type=float, default=0.5)
     ap.add_argument('--body-thick', type=float, default=1.0, help='몸 조각 굵기 배율(기본 1.0 = 앱 기본)')
@@ -392,7 +454,8 @@ def main():
     R = load_rtmw(a.rtmw)
     frames = list(range(a.start, a.end + 1))
     J, S, rep, _, _ = run(R, frames, parse_drop(a.drop), a.min_score, a.video, a.target_color, a.quantile,
-                          not a.no_symmetric, a.lam, a.neck, a.head, a.keys, a.key_thr, a.lam_key)
+                          not a.no_symmetric, a.lam, a.neck, a.head, a.keys, a.key_thr, a.lam_key,
+                          tuple(a.key_sigma) if any(a.key_sigma) else None, not a.no_knee_fix)
     body_th = (a.body_thick * (100 * S * rep['L_torso_units']['torso'] / Wv) / 11.2 if a.thick_by_size
                else np.full(len(frames), a.body_thick))
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as z:
