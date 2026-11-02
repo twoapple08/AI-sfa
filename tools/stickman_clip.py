@@ -83,7 +83,7 @@ def border_mask(K, img_w, img_h, top, frac=0.06, min_px=8.0):
     return border_info(K, img_w, img_h, top, frac, min_px)[0]
 
 
-SELECT = {'mode': 'density', 'side_rule': 'any', 'log': None}
+SELECT = {'mode': 'density', 'side_rule': 'any', 'log': None, 'q': 50, 'scale_smooth': (9, 5), 'resym': False, 'key_sigma': (0.06, 0.05)}
 
 
 def pick_shot(R, video, frames, color):
@@ -120,8 +120,9 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
     else:
         half = None
     sub = frames[i0:i1 + 1]
-    J, S, r, _, _ = run_core(Kf, W, sub, q=50, symmetric=True, keys=True, L_fallback=L_fallback, half=half,
-                             side_rule=SELECT['side_rule'])
+    J, S, r, _, _ = run_core(Kf, W, sub, q=SELECT['q'], symmetric=True, keys=True, L_fallback=L_fallback, half=half,
+                             side_rule=SELECT['side_rule'], scale_smooth=SELECT['scale_smooth'], resym=SELECT['resym'],
+                             key_sigma=SELECT['key_sigma'])
     rep['border_joints_dropped'] = n_border
     rep['L_from_fallback'] = r['L_from_fallback']
     B, info = basic_joints(J, S, facing=r['facing_leg'])
@@ -182,7 +183,7 @@ def build(R, video, start, end, cuts, colors, img=None):
             AW = (AK[:, :, 2] >= 1.5).astype(float)
             if img is not None:
                 AW[border_mask(AK, *img)] = 0
-            L_rig, n_rig, _ = calib(AK, AW, 50, True)
+            L_rig, n_rig, _ = calib(AK, AW, SELECT['q'], True)
             rep.setdefault('person_rig', {})[c] = {'L': {k: round(v, 3) for k, v in L_rig.items()}, 'samples': n_rig}
         for s, e in shots:
             sub = list(range(s, e + 1))
@@ -216,6 +217,10 @@ def main():
     ap.add_argument('--joints')
     ap.add_argument('--select', choices=['density', 'coverage'], default='density', help='인물 검출 고르기: density(기존) / coverage((a) 재선택)')
     ap.add_argument('--side-rule', choices=['any', 'valid'], default='any', help='키 끝 조건: any(기존) / valid((b) 유효 축 관측이 있으면 끔)')
+    ap.add_argument('--quantile', type=float, default=50, help='(c) 뼈 길이 분위(기본 L50)')
+    ap.add_argument('--scale-smooth', type=int, nargs=2, default=[9, 5], help='(c) 몸통 배율 평활: 중앙값 창, 평균 창')
+    ap.add_argument('--resym', action='store_true', help='(c) 리그 빌린 뒤 좌우 대칭 다시 맞춤')
+    ap.add_argument('--key-sigma', type=float, nargs=2, default=[0.06, 0.05], help='키 흔들림 깎기(0 0이면 끔)')
     ap.add_argument('--thick-ref', nargs=2, metavar='장:색:굵기', help='거리 굵기 기준 두 점(클립 장 번호 0부터), 예: 40:blue:1.0 120:red:5.0')
     a = ap.parse_args()
     import cv2
@@ -223,7 +228,7 @@ def main():
     H = Wv * 9 / 16
     to_pct = lambda p: (100 * p[0] / Wv, 100 * (p[1] - a.crop_y) / H)  # noqa: E731
     R = load_rtmw(a.rtmw)
-    SELECT.update(mode=a.select, side_rule=a.side_rule, log={})
+    SELECT.update(mode=a.select, side_rule=a.side_rule, log={}, q=a.quantile, scale_smooth=tuple(a.scale_smooth), resym=a.resym, key_sigma=tuple(a.key_sigma) if any(a.key_sigma) else None)
     cap = cv2.VideoCapture(a.video)
     img = (cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT), a.crop_y)
     frames, people, rep = build(R, a.video, a.start, a.end, a.cuts, a.colors, img)

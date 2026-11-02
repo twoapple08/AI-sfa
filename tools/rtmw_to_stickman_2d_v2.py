@@ -503,7 +503,8 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
 
 
 def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=0.5, keys=False, key_thr=None,
-             lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True, L_fallback=None, min_cal=15, half=None, side_rule='any'):
+             lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True, L_fallback=None, min_cal=15, half=None, side_rule='any',
+             scale_smooth=(9, 5), resym=False):
     """대상 관측 K(장×점×3)와 가중 W(장×점)에서 풀이. 관측이 없는 장은 W 행 전체를 0으로 두면 이웃 키로 잇는다.
     L_fallback: 이 구간 표본이 min_cal장 미만인 뼈에 쓸 길이(같은 인물의 여러 컷을 모은 리그, 11-03 가까운 화면 다리)."""
     L, n_cal, tor = calib(K, W, q, symmetric)
@@ -513,7 +514,14 @@ def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=
             if n < min_cal and d in L_fallback:
                 L[d] = L_fallback[d]
                 L_from_fallback.append(d)
-    S = smooth(tor)
+    if resym and symmetric:
+        # (c) 리그 빌린 뒤에도 좌우 대칭을 다시 맞춘다(큰 쪽). 겹침 토론 1차 GPT: fallback이 대칭 뒤에 덮어써
+        # 빨강 가까운 화면 허벅지가 왼 0.915 / 오른 0.829로 '대칭'이 깨졌다.
+        for d in list(L):
+            if d.endswith('_l'):
+                e = d[:-2] + '_r'
+                L[d] = L[e] = max(L[d], L[e])
+    S = smooth(tor, *scale_smooth)
     segs = None
     if keys:
         J, rms, segs, rms_k, unobs, sol = keypose_fit(K, W, L, S, tor, key_thr, lam_key, key_sigma, half, side_rule)
