@@ -51,5 +51,30 @@ class TestBasic(unittest.TestCase):
             self.assertEqual(sum(ap.get('Flags') == '3' for ap in fr.iter('AP')), 1)
 
 
+class TestCurve(unittest.TestCase):
+    def test_torso_offset_measures_shift(self):
+        # 세로 몸통(P 아래 → N 위), 영역 가운데가 오른쪽(+x)으로 10px 밀린 띠 → 오프셋 = ±10/100
+        m = np.zeros((300, 300), np.uint8)
+        m[100:200, 120:180] = 1
+        off, w = sv.torso_offset(m, np.array([140.0, 200.0]), np.array([140.0, 100.0]))
+        self.assertTrue(np.allclose(np.abs(off), 0.10, atol=0.011))
+        self.assertTrue(np.allclose(w, 0.59, atol=0.02))
+
+    def test_curve_frame(self):
+        J, S = fake(T=1)
+        B, _ = sv.basic_joints(J, S)
+        to_pct = lambda p: (100 * p[0] / 1152, 100 * (p[1] - 63) / 648)  # noqa: E731
+        fr = ET.fromstring(sv.curve_frame_xml(0, {k: v[0] for k, v in B.items()}, 0.1, to_pct))
+        curves = [ao for ao in fr.findall('AO') if ao.get('TypeId') == '3']
+        self.assertEqual(len(curves), 1)
+        pts = curves[0].findall('AP')
+        self.assertEqual([p.get('Flags') for p in pts], ['4', '5', '3'])
+        self.assertEqual(pts[1].findall('AC'), [])
+        # 조절점은 몸통 가운데에서 수직으로 2 × 0.1 × 몸통 길이
+        P, N = B['pelvis'][0], B['neck'][0]
+        c = np.array([float(pts[1].get('X')) * 1152 / 100, float(pts[1].get('Y')) * 648 / 100 + 63])
+        self.assertAlmostEqual(np.linalg.norm(c - (P + N) / 2) / np.linalg.norm(N - P), 0.2, places=3)
+
+
 if __name__ == '__main__':
     unittest.main()
