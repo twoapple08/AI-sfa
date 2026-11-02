@@ -50,15 +50,18 @@ def unit(th):
     return np.stack([np.cos(th), np.sin(th)], -1)
 
 
-def forward(th, t, s, L):
-    """th: (T,11), t: (T,2), s: (T,), L: 길이 dict(몸통 단위, hip_span·sho_span은 전체 폭). → 노드 dict (T,2)."""
+def forward(th, t, s, L, hp=None, hs=None):
+    """th: (T,11), t: (T,2), s: (T,), L: 길이 dict(몸통 단위, hip_span·sho_span은 전체 폭). → 노드 dict (T,2).
+    hp·hs: (T,2) 골반·어깨 반폭 벡터(몸통 단위)를 직접 줄 때(키포즈 보간에서 몸 돌리기를 폭 변화로 흉내)."""
     sc = s[:, None]
+    hp = L['hip_span'] / 2 * unit(th[:, 0]) if hp is None else hp
+    hs = L['sho_span'] / 2 * unit(th[:, 2]) if hs is None else hs
     J = {'pel': t}
-    J['hip_l'] = t + sc * L['hip_span'] / 2 * unit(th[:, 0])
-    J['hip_r'] = t - sc * L['hip_span'] / 2 * unit(th[:, 0])
+    J['hip_l'] = t + sc * hp
+    J['hip_r'] = t - sc * hp
     J['neck'] = t + sc * L['torso'] * unit(th[:, 1])
-    J['sho_l'] = J['neck'] + sc * L['sho_span'] / 2 * unit(th[:, 2])
-    J['sho_r'] = J['neck'] - sc * L['sho_span'] / 2 * unit(th[:, 2])
+    J['sho_l'] = J['neck'] + sc * hs
+    J['sho_r'] = J['neck'] - sc * hs
     for i, d in enumerate(DIRS[3:], 3):
         a, b = CHAIN[d]
         J[b] = J[a] + sc * L[d] * unit(th[:, i])
@@ -233,16 +236,46 @@ def sfa_xml(J, W, H, crop_y, name, body_th):
             + ''.join(frames) + '</Sequence>')
 
 
-def drawing_segments(K, W, tor, thr=0.04):
-    """RTMW 관측으로 '같은 그림' 구간을 나눈다. 이웃 장 사이 유효 관절 이동의 중앙값/몸통 > thr이면 새 그림.
-    (B 300–334 실측: 정지 장 0.007–0.016, 새 그림 장 0.07 이상. 확인 경계 328·331과 대조할 것.)"""
-    T = len(K)
-    starts = [0]
-    for t in range(1, T):
+def frame_disp(K, W, tor):
+    """이웃 장 사이 유효 관절 이동의 중앙값/몸통(장 1..T-1, 관측이 없으면 nan)."""
+    out = []
+    for t in range(1, len(K)):
         m = (W[t, 5:17] > 0) & (W[t - 1, 5:17] > 0)
         d = np.linalg.norm(K[t, 5:17, :2] - K[t - 1, 5:17, :2], axis=1)[m] / tor[t]
-        if len(d) and np.median(d) > thr:
-            starts.append(t)
+        out.append(float(np.median(d)) if len(d) else np.nan)
+    return np.array(out)
+
+
+def auto_thr(d, fallback=0.04, min_ratio=4.0):
+    """정지/새 그림 문턱을 영상마다 정한다: log 이동량을 두 무리로 나누는 Otsu. 두 무리의 기하 평균 비가
+    min_ratio 미만(뚜렷이 안 갈림)이거나 한쪽이 2장 미만이면 fallback.
+    (실측: B 300–334 정지 0.007–0.016 / 새 그림 0.07+, A 1500–1523 정지 0.01–0.13 / 새 그림 0.29–2.4 — 인물이 작아 잡음이 큼)"""
+    x = np.log10(np.maximum(d[~np.isnan(d)], 1e-3))
+    if len(x) < 4:
+        return fallback
+    xs = np.sort(x)
+    best, cut = -1, None
+    for i in range(2, len(xs) - 1):
+        a, b = xs[:i], xs[i:]
+        v = len(a) * len(b) * (a.mean() - b.mean()) ** 2
+        if v > best:
+            best, cut = v, i
+    if cut is None:
+        return fallback
+    a, b = xs[:cut], xs[cut:]
+    if b.mean() - a.mean() < np.log10(min_ratio):
+        return fallback
+    return float(10 ** ((a.max() + b.min()) / 2))
+
+
+def drawing_segments(K, W, tor, thr=0.04):
+    """RTMW 관측으로 '같은 그림' 구간을 나눈다. 이웃 장 사이 유효 관절 이동의 중앙값/몸통 > thr이면 새 그림.
+    thr=None이면 auto_thr로 영상마다 정한다. (B 300–334는 0.04로 확인 경계 328·331과 일치.)"""
+    d = frame_disp(K, W, tor)
+    if thr is None:
+        thr = auto_thr(d)
+    T = len(K)
+    starts = [0] + [t for t in range(1, T) if not np.isnan(d[t - 1]) and d[t - 1] > thr]
     return [(s, (starts[i + 1] - 1) if i + 1 < len(starts) else T - 1) for i, s in enumerate(starts)]
 
 
@@ -255,9 +288,13 @@ def pchip_wrap(xk, yk, x):
     return PchipInterpolator(xk, yk, axis=0)(xc)
 
 
-def keypose_fit(K, W, L, S, tor, thr=0.04, lam_key=0.3):
+def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05):
     """원본 그림 하나 = 키포즈 하나. 같은 그림 구간의 관측을 평균해 키포즈를 풀고, 구간 가운데 시각에 놓은 뒤
-    그 사이 장은 PCHIP으로 이어 24장 모두 움직이게 한다(3컷 작화의 끊김 → 부드러운 이동)."""
+    그 사이 장은 PCHIP으로 이어 24장 모두 움직이게 한다(3컷 작화의 끊김 → 부드러운 이동).
+    - 키끼리 벌점 기본 0.05(A 1500–1523: 그림 하나에 몸통 1.5배 이상 이동·몸 돌리기가 있어 0.3에서 잔차 0.5 이상).
+    - 골반·어깨 가로선은 각도가 아니라 반폭 벡터를 이어, 몸이 돌 때 선이 화면 안에서 빙글 돌지 않고 폭이 줄었다 펴진다."""
+    if thr is None:
+        thr = auto_thr(frame_disp(K, W, tor))
     segs = drawing_segments(K, W, tor, thr)
     Kk, Wk, Sk, ck = [], [], [], []
     for s, e in segs:
@@ -276,16 +313,19 @@ def keypose_fit(K, W, L, S, tor, thr=0.04, lam_key=0.3):
     tt = np.arange(len(K), dtype=float)
     th_all = pchip_wrap(ck, th, tt)
     t_all = pchip_wrap(ck, Xk[:, 11:], tt)
-    J = forward(th_all, t_all, S, L)
+    hp = pchip_wrap(ck, L['hip_span'] / 2 * unit(Xk[:, 0]), tt)
+    hs = pchip_wrap(ck, L['sho_span'] / 2 * unit(Xk[:, 2]), tt)
+    J = forward(th_all, t_all, S, L, hp, hs)
     P, Wt = obs_arrays(K, W)
     M = np.stack([J[n] for n in NODES], 1)
     err = np.linalg.norm(M - P, axis=2) / S[:, None]
     rms = [float(np.sqrt(np.mean(e[w > 0] ** 2))) if (w > 0).any() else None for e, w in zip(err, Wt)]
+    keypose_fit.last_thr = thr
     return J, rms, segs, rms_k, unobs_k, sol
 
 
 def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, symmetric=True, lam=1.0,
-        neck_len=0.17, head_d=0.5, keys=False, key_thr=0.04, lam_key=0.3):
+        neck_len=0.17, head_d=0.5, keys=False, key_thr=None, lam_key=0.05):
     K = pick_target(R, frames, video, color)
     if any(k is None for k in K):
         raise SystemExit('구간 안에 대상이 없는 장이 있다')
@@ -308,7 +348,7 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
     rep = {
         'model': '중점 11방향, 몸통 기준 배율, ' + ('키포즈(원본 그림 하나 = 키 하나) + PCHIP 보간' if keys else '전 장 동시 풀이'),
         'lam': lam_key if keys else lam, 'quantile': q, 'symmetric': symmetric,
-        'keypose_segments': [(frames[s], frames[e]) for s, e in segs] if segs else None, 'key_thr': key_thr if keys else None,
+        'keypose_segments': [(frames[s], frames[e]) for s, e in segs] if segs else None, 'key_thr': round(keypose_fit.last_thr, 4) if keys else None,
         'neck_len': neck_len, 'head_d': head_d, 'L_torso_units': {k: round(v, 3) for k, v in L.items()},
         'calib_samples': n_cal, 'scale_obs_torso_px': [round(float(v), 1) for v in tor],
         'scale_smoothed': [round(float(v), 1) for v in S],
@@ -335,8 +375,8 @@ def main():
     ap.add_argument('--no-symmetric', action='store_true')
     ap.add_argument('--lam', type=float, default=1.0, help='이웃 장 변화 벌점(0이면 매 장 독립과 같음)')
     ap.add_argument('--keys', action='store_true', help='원본 그림 하나 = 키포즈 하나로 풀고 사이 장을 PCHIP으로 잇기')
-    ap.add_argument('--key-thr', type=float, default=0.04, help='새 그림 판정: 이웃 장 관절 이동 중앙값/몸통')
-    ap.add_argument('--lam-key', type=float, default=0.3, help='키포즈끼리 변화 벌점')
+    ap.add_argument('--key-thr', type=float, default=None, help='새 그림 판정 문턱(이웃 장 관절 이동 중앙값/몸통). 비우면 영상마다 자동')
+    ap.add_argument('--lam-key', type=float, default=0.05, help='키포즈끼리 변화 벌점')
     ap.add_argument('--neck', type=float, default=0.17)
     ap.add_argument('--head', type=float, default=0.5)
     ap.add_argument('--body-thick', type=float, default=1.0, help='몸 조각 굵기 배율(기본 1.0 = 앱 기본)')

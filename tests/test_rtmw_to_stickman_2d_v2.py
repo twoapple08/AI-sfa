@@ -68,6 +68,16 @@ class TestV2(unittest.TestCase):
         step = np.linalg.norm(np.diff(Jk['wri_l'][1:14], axis=0), axis=1)
         self.assertTrue((step > 1e-6).all())
 
+    def test_auto_threshold(self):
+        # 정지 장 잡음 크기가 영상마다 달라도(작은 인물) 두 무리로 갈라 문턱을 잡는다
+        rng = np.random.default_rng(3)
+        small = np.r_[rng.uniform(0.007, 0.016, 10), rng.uniform(0.07, 0.2, 5)]    # B 같은 3컷
+        big = np.r_[rng.uniform(0.01, 0.13, 10), rng.uniform(0.29, 2.4, 10)]       # A 같은 2컷·작은 인물
+        t1, t2 = m.auto_thr(small), m.auto_thr(big)
+        self.assertTrue(0.016 < t1 < 0.07)
+        self.assertTrue(0.13 < t2 < 0.29)
+        self.assertEqual(m.auto_thr(rng.uniform(0.05, 0.08, 12)), 0.04)   # 안 갈리면 기본값
+
     def test_sfa_structure(self):
         J = m.with_head(m.forward(self.th, self.t, self.S, L), self.S, 0.17, 0.5)
         root = ET.fromstring(m.sfa_xml(J, 1152, 648, 63, 'x', np.full(self.T, 3.0)).split('?>', 1)[1])
