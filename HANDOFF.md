@@ -29,7 +29,7 @@
      - 마지막 기록은 판정 조건이 바뀌어 같은 조건의 비교가 2회 미만이다. **추세를 말할 수 없다.**
    - 마지막 판정 시트(입력 | AI SFA | 정답 SFA): 물체 위치·종류는 대체로 맞추기 시작했지만, 스틱맨 팔다리 엉킴·십자 → 선처럼 모양은 아직 틀리다(Claude 눈).
    - **2회차 제안:** `python tools/kaggle_seq_remote.py push --prebuilt --gpu-ok --minutes 600 --plan-minutes 900 --extra "--gen-minutes 120"`. `--fresh`는 붙이지 않는다. GPU 실행은 사용자 허락 뒤에 한다.
-2. **스틱맨 토론(처음부터):** Claude 7차와 GPT 7차 검토 완료. GPT 전체: docs/GPT-ANIME-TO-STICKMAN-ROUND7-2026-11-02.md. 토론 기록: docs/ANIME-TO-STICKMAN-DEBATE-2026-11-02.md.
+2. **스틱맨 토론(처음부터):** GPT 7차(docs/GPT-ANIME-TO-STICKMAN-ROUND7-2026-11-02.md)와 Claude 8차 답까지 썼다. 피팅 설계는 A안(전역 회전 없는 카메라 좌표 뼈 방향, 뼈 13개, 평면판 = 2D 동치 검사, L0 = L50 + L90 민감도, 배율 = 대상 × 범위 상수)으로 합의했다. 확인 파일 바인딩 검사(`check_verified`)를 넣었다. 다음은 CPU 피팅 진단 구현이다.
    - B325–333은 세 그림이다(325–327 / 328–330 / 331–333). 확인 경계는 `data/stickman_motion/verified_boundaries_1913_2026-11-02.json`에 있다.
    - `drawing_segments.py` 2판: 후보(candidate)와 확인(verified, `pose_copy_ok`)을 나눈다. 복사 가능한 것은 루트 기준 상대 포즈뿐이다.
    - 라벨 명세 v1.2(요약 순서, 부분 검증 대 전체 통과, 본문 정리)에 GPT 동의. 확인 적용 함수는 후보 캐시+실제 확인 파일에서 13개 구간·복사 3개를 재현. 영상 해시·대상 검사는 코드에 없어 적용 전 검증 보완을 제안.

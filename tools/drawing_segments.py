@@ -62,8 +62,38 @@ def segments(path, a, b, color='any', hi=0.3, lo=0.1):
             'candidate_segments': out, 'candidate_representatives': [s['first'] for s in out],
             'ambiguous_pairs': amb, 'mask_none_pairs': [a + i for i, c in enumerate(ch) if c is None]}
 
+def check_verified(ver, video_sha256=None, color=None):
+    """확인 파일 바인딩·모순 검사(GPT 7차). 문제가 있으면 ValueError."""
+    errs = []
+    if video_sha256 is not None and ver.get('video_sha256') != video_sha256:
+        errs.append('영상 SHA-256 불일치')
+    tgt = ver.get('target_color')
+    if color is not None and tgt is not None and tgt != color:
+        errs.append(f'대상 색 불일치({tgt} ≠ {color})')
+    if ver.get('frame_index') and '0부터' not in ver['frame_index']:
+        errs.append('장 번호 규칙이 0부터 디코딩 순서가 아님')
+    b, nb = set(ver.get('boundaries', [])), set(ver.get('not_boundaries', []))
+    if b & nb:
+        errs.append(f'경계이면서 비경계: {sorted(b & nb)}')
+    for f0, f1 in ver.get('same_pairs', []):
+        if f1 != f0 + 1:
+            errs.append(f'같음 쌍이 인접 쌍이 아님: {[f0, f1]}')
+        if f1 in b:
+            errs.append(f'같음 쌍인데 뒤 장이 새 그림 첫 장: {[f0, f1]}')
+    if errs:
+        raise ValueError('; '.join(errs))
+
+def sha256(path):
+    import hashlib
+    h = hashlib.sha256()
+    with open(path, 'rb') as f:
+        for ch in iter(lambda: f.read(1 << 20), b''):
+            h.update(ch)
+    return h.hexdigest()
+
 def apply_verified(res, ver):
-    """확인 파일: {'boundaries':[새 그림 첫 장...], 'not_boundaries':[...], 'same_pairs':[[f,f+1],...]}"""
+    """확인 파일: {'video_sha256', 'target_color', 'boundaries':[새 그림 첫 장...], 'not_boundaries':[...], 'same_pairs':[[f,f+1],...]}
+    호출 전에 check_verified로 바인딩·모순을 검사한다(CLI는 자동으로 한다)."""
     a, last = res['range']
     starts = {s['first'] for s in res['candidate_segments']}
     vb = {f for f in ver.get('boundaries', []) if a < f <= last}
@@ -87,5 +117,7 @@ if __name__ == '__main__':
     opt = lambda k, d: type(d)(args[args.index(k) + 1]) if k in args else d
     r = segments(args[0], int(args[1]), int(args[2]), opt('--color', 'any'), opt('--hi', 0.3), opt('--lo', 0.1))
     if '--verified' in args:
-        r = apply_verified(r, json.load(open(args[args.index('--verified') + 1], encoding='utf-8')))
+        ver = json.load(open(args[args.index('--verified') + 1], encoding='utf-8'))
+        check_verified(ver, sha256(args[0]), opt('--color', 'any'))   # 해시·대상·모순이 안 맞으면 멈춘다
+        r = apply_verified(r, ver)
     print(json.dumps(r, ensure_ascii=False))
