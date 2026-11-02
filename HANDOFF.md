@@ -28,7 +28,7 @@
    - **2회차 제안:** `python tools/kaggle_seq_remote.py push --prebuilt --gpu-ok --minutes 600 --plan-minutes 900 --extra "--gen-minutes 120"`. `--fresh`는 붙이지 않는다. GPU 실행은 사용자 허락 뒤에 한다.
 2. **스틱맨: 2D 시제품 1 → 사용자 판정 대기(새 설계 토론 없음, 추가 시제품 없음)**
    - 사용자 지시(11-03): "시제품 하나만 만들어봐", "새 설계 토론 없이 사용자 시제품 판정을 기다려 줘".
-   - 토론 상태: 8차(GPT, e23d71e) → 9차 Claude 답·보완 → 9차 GPT 검토(89bf07e, `docs/GPT-ANIME-TO-STICKMAN-ROUND9-2026-11-03.md`, `docs/GPT-ROUND9-OUTPUT-AUDIT-2026-11-03.json`) → Claude 확인(토론 기록 '9차 GPT 답 확인').
+   - 토론 상태: 8차(GPT, e23d71e) → 9차 Claude 답·보완 → 9차 GPT 검토(89bf07e, `docs/GPT-ANIME-TO-STICKMAN-ROUND9-2026-11-03.md`, `docs/GPT-ROUND9-OUTPUT-AUDIT-2026-11-03.json`) → Claude 확인(토론 기록 '9차 GPT 답 확인') → GPT 회신 '이견 없음'(11-03). 토론은 사용자 판정까지 멈춘다.
      - 합의: 중점 모델 24/13(장별 전역 배율을 풀면 14, 3D 25), 장별 배율 사용, 2D 장별 가로폭 배율은 별도 조건, 머리 세 점 고정·2D 방향, check_verified 필수 필드.
      - 정정(11-03): 배율 217 → 128은 L50 조건 값이었다. 최종판은 원시 182.6 → 104.7, 평활 172.6 → 108.4다. 각도 사전은 13개 뼈 모두에 있다(설명만 고침).
    - **시제품 1:** docs/STICKMAN-PROTO-2D-B300-334-2026-11-03.md. 산출물은 Drive `02_분석자료/stickman_proto_2026-11-03/`에 있고, 오른팔 확인 그림 `rarm_check.jpg`도 거기 있다.
