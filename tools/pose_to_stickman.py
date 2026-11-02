@@ -149,9 +149,11 @@ def build(pose, start, end, crop_y=0.0, h=None, name='stickman', thick='1.0', fo
     for i, kp in enumerate(kps):
         J, prev = joints(kp, S[i], prev, F[i])
         frames.append(frame_xml(i, J, to_pct, thick))
-    xml = ("<?xml version='1.0' encoding='utf-8'?>\n"
-           f'<Sequence Name="{name}" HeightWidthRatio="{H / W:.4f}" RatioX="16" RatioY="9" FrameCount="{len(frames)}" BackgroundColor="-1">\n'
-           + '\n'.join(frames) + '\n</Sequence>\n')
+    # 앱이 내보내는 형식 그대로(머리글·한 줄). 11-02 사용자 앱 시험: v3 첫 장만(T2)은 편집 연결 정상, 같은 형식의 93장(T3)은
+    # 조각이 떨어짐 → 형식이 아니라 여러 장일 때의 문제(원인 시험 중). 형식은 앱과 맞춰 둔다.
+    xml = ('<?xml version="1.0" encoding="UTF-8" ?>'
+           f'<Sequence Name="{name}" HeightWidthRatio="{H / W:.4f}" RatioX="16" RatioY="9" FrameCount="{len(frames)}" BackgroundColor="-1">'
+           + ''.join(frames) + '</Sequence>')
     return xml, kps
 
 

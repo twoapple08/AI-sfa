@@ -38,7 +38,8 @@ class PoseToStickman(unittest.TestCase):
         res = [dict(kp=np.c_[base + rng.normal(0, 2, base.shape), np.full(17, 0.9)].tolist()) for _ in range(10)]
         res[3]['kp'][9][2] = 0.05   # 낮은 신뢰 점은 보간
         xml, _ = P.build(dict(W=854, H=480, res=res), 0, 9, fore=False)
-        root = ET.fromstring(xml.split('\n', 1)[1])
+        self.assertTrue(xml.startswith('<?xml version="1.0" encoding="UTF-8" ?><Sequence') and '\n' not in xml)  # 앱 형식
+        root = ET.fromstring(xml.encode())
         r = float(root.get('HeightWidthRatio'))
         frs = root.findall('Frame')
         self.assertEqual(len(frs), 10)
@@ -64,7 +65,7 @@ class PoseToStickman(unittest.TestCase):
         for q in res2:
             q['kp'][7][:2] = [(a + b) / 2 for a, b in zip(q['kp'][5][:2], q['kp'][7][:2])]   # 왼 위팔을 절반으로
         xml2, _ = P.build(dict(W=854, H=480, res=res2), 0, 9)
-        f2 = ET.fromstring(xml2.split('\n', 1)[1]).findall('Frame')
+        f2 = ET.fromstring(xml2.encode()).findall('Frame')
         full = np.array(seg_len(frs[5], r))
         short = np.array(seg_len(f2[5], r))
         k = [i for i, (oid, _, pts) in enumerate(P.BODY) if pts[0][1] == 'elb_l'][0]
