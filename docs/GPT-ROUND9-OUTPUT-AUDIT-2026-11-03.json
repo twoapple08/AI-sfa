@@ -1,0 +1,156 @@
+{
+  "kind": "기존 출력 CPU 재집계·파일 구조 확인. 새 피팅·학습 아님",
+  "video_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "rtmw_sha256": "6c7905164776c20838d6ca58c05d9fb5dcd9a47a2b47d7669d02433701167d0a",
+  "frames": [
+    300,
+    334
+  ],
+  "observed_width_over_observed_torso": {
+    "hip": {
+      "min": 0.3245312618477554,
+      "median": 0.3532335963051531,
+      "max": 0.42094112588150623
+    },
+    "shoulder": {
+      "min": 0.502994231980261,
+      "median": 0.6439845520794918,
+      "max": 0.6933671361656872
+    }
+  },
+  "observed_torso_px_endpoints": [
+    222.39340143088774,
+    120.24279604200825
+  ],
+  "final_report_scale": {
+    "raw_endpoints": [
+      182.6,
+      104.7
+    ],
+    "smoothed_endpoints": [
+      172.6,
+      108.4
+    ]
+  },
+  "midpoint_error_over_fitted_torso": {
+    "pel": {
+      "min": 0.002590956706690879,
+      "median": 0.033591202505777136,
+      "max": 0.1373144361209767
+    },
+    "neck": {
+      "min": 0.016611059765807974,
+      "median": 0.07099275376965018,
+      "max": 0.17444491908241738
+    }
+  },
+  "observed_torso_over_fitted_torso": {
+    "min": 1.0686091975504048,
+    "median": 1.1835663558426728,
+    "max": 1.3120333656570922
+  },
+  "fitted_torso_shortening_fraction": {
+    "min": 0.06420419897908336,
+    "median": 0.15509595633273776,
+    "max": 0.23782426104752274
+  },
+  "unobserved_bone_frames": [
+    [
+      301,
+      "sho_r->elb_r"
+    ],
+    [
+      301,
+      "elb_r->wri_r"
+    ],
+    [
+      303,
+      "sho_r->elb_r"
+    ],
+    [
+      303,
+      "elb_r->wri_r"
+    ],
+    [
+      304,
+      "sho_r->elb_r"
+    ],
+    [
+      304,
+      "elb_r->wri_r"
+    ]
+  ],
+  "right_wrist_step_over_observed_torso": [
+    {
+      "from": 301,
+      "to": 302,
+      "value": 0.316629423476979
+    },
+    {
+      "from": 302,
+      "to": 303,
+      "value": 0.5185890646901984
+    },
+    {
+      "from": 303,
+      "to": 304,
+      "value": 0.211025202728235
+    },
+    {
+      "from": 304,
+      "to": 305,
+      "value": 0.4236651764895036
+    },
+    {
+      "from": 333,
+      "to": 334,
+      "value": 0.7968768879493929
+    }
+  ],
+  "sfa_static_checks": {
+    "frames": 35,
+    "objects_per_frame": [
+      14
+    ],
+    "point_ids_disjoint_across_frames": true,
+    "object_ids_maintained": true,
+    "roots_per_frame": [
+      1
+    ],
+    "all_one_component": true,
+    "bad_connection_references": 0,
+    "bad_reciprocal_connections": 0,
+    "bad_coincident_coordinates": 0,
+    "app_open_edit_verified": false
+  },
+  "tests": {
+    "test_check_verified": 2,
+    "test_rtmw_to_stickman_2d": 4,
+    "result": "모두 통과; 전체 저장소 시험은 실행하지 않음"
+  },
+  "visual_scope": "원본 300–334 전부를 원래 픽셀 크기 영역으로 확인하고 B_joints를 원본에 겹쳐 대조. 비교 영상의 첫 반복 35장과 SFA 렌더 35장 확인. 실시간 재생 감상·앱 편집 검증 아님.",
+  "not_run": [
+    "GPU 실행",
+    "학습",
+    "새 2D/3D 피팅",
+    "8차 인공 검산 반복"
+  ],
+  "method": "입력 RTMW와 기존 B_joints·최종 보고 JSON의 재집계. 반올림된 좌표·배율로 재계산하므로 마지막 자릿수 오차 가능.",
+  "source_commit": "f0e28b66f9d5409eae96a1c056038db175b9c9d9",
+  "source_blobs": {
+    "tools/rtmw_to_stickman_2d.py": "c535a63caf65eba9284c6d23c07f54cfb9ff8298",
+    "tools/drawing_segments.py": "5f25f69876e18fe07ff1a3a3c587d73cb5ac7a8a",
+    "tests/test_rtmw_to_stickman_2d.py": "7f4cf94fd8c38dd2a14a6511aa3c3ed58b6f7f74",
+    "tests/test_check_verified.py": "ec3ebb26e8a63597a7c37442baacac68e477bdea",
+    "data/stickman_motion/proto2d_B300-334_report_2026-11-03.json": "fb2e126f45bf5451b647d4a3fd34c7eb52631f49"
+  },
+  "compare_video": {
+    "width": 1920,
+    "height": 360,
+    "panel_width": 640,
+    "panel_height": 360,
+    "fps": 24,
+    "frames": 70,
+    "reviewed_first_repeat_frames": 35
+  }
+}
