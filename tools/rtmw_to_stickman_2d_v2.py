@@ -285,14 +285,19 @@ def auto_thr(d, fallback=0.04, min_ratio=4.0):
     return float(10 ** ((a.max() + b.min()) / 2))
 
 
-def drawing_segments(K, W, tor, thr=0.04):
+def drawing_segments(K, W, tor, thr=0.04, key_starts=()):
     """RTMW 관측으로 '같은 그림' 구간을 나눈다. 이웃 장 사이 유효 관절 이동의 중앙값/몸통 > thr이면 새 그림.
     thr=None이면 auto_thr로 영상마다 정한다. (B 300–334는 0.04로 확인 경계 328·331과 일치.)"""
     d = frame_disp(K, W, tor)
     if thr is None:
         thr = auto_thr(d)
     T = len(K)
-    starts = [0] + [t for t in range(1, T) if not np.isnan(d[t - 1]) and d[t - 1] > thr]
+    key_starts = tuple(key_starts)
+    # 자동 검출은 팔다리 일부만 바뀌면 경계를 놓칠 수 있다. 원본에서 확인할 경계를 추가할 수 있게 한다.
+    # key_starts는 이 배열 안의 위치(0부터)이며 기존 자동 경계는 지우지 않는다.
+    if any(not isinstance(t, (int, np.integer)) or not 0 <= t < T for t in key_starts):
+        raise ValueError('키 시작 위치는 관측 배열 범위 안의 정수여야 한다')
+    starts = sorted({0, *key_starts, *(t for t in range(1, T) if not np.isnan(d[t - 1]) and d[t - 1] > thr)})
     return [(s, (starts[i + 1] - 1) if i + 1 < len(starts) else T - 1) for i, s in enumerate(starts)]
 
 
@@ -430,14 +435,14 @@ def pchip_wrap(xk, yk, x):
     return PchipInterpolator(xk, yk, axis=0)(xc)
 
 
-def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05, key_sigma=(0.06, 0.05), half=None, side_rule='any'):
+def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05, key_sigma=(0.06, 0.05), half=None, side_rule='any', key_starts=()):
     """원본 그림 하나 = 키포즈 하나. 같은 그림 구간의 관측을 평균해 키포즈를 풀고, 구간 가운데 시각에 놓은 뒤
     그 사이 장은 PCHIP으로 이어 24장 모두 움직이게 한다(3컷 작화의 끊김 → 부드러운 이동).
     - 키끼리 벌점 기본 0.05(A 1500–1523: 그림 하나에 몸통 1.5배 이상 이동·몸 돌리기가 있어 0.3에서 잔차 0.5 이상).
     - 골반·어깨 가로선은 각도가 아니라 반폭 벡터를 이어, 몸이 돌 때 선이 화면 안에서 빙글 돌지 않고 폭이 줄었다 펴진다."""
     if thr is None:
         thr = auto_thr(frame_disp(K, W, tor))
-    segs = drawing_segments(K, W, tor, thr)
+    segs = drawing_segments(K, W, tor, thr, key_starts)
     Kk, Wk, Sk, ck, Wak, sdk = [], [], [], [], [], []
     Wax = half[0] if half is not None else np.repeat(W[..., None], 2, axis=2)
     side = half[1] if half is not None else np.zeros(W.shape, int)
@@ -504,9 +509,12 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
 
 def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=0.5, keys=False, key_thr=None,
              lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True, L_fallback=None, min_cal=15, half=None, side_rule='any',
-             scale_smooth=(9, 5), resym=False):
+             scale_smooth=(9, 5), resym=False, key_starts=()):
     """대상 관측 K(장×점×3)와 가중 W(장×점)에서 풀이. 관측이 없는 장은 W 행 전체를 0으로 두면 이웃 키로 잇는다.
     L_fallback: 이 구간 표본이 min_cal장 미만인 뼈에 쓸 길이(같은 인물의 여러 컷을 모은 리그, 11-03 가까운 화면 다리)."""
+    key_starts = tuple(key_starts)
+    if key_starts and not keys:
+        raise ValueError('키 시작 장을 지정하려면 키포즈 모드를 켜야 한다')
     L, n_cal, tor = calib(K, W, q, symmetric)
     L_from_fallback = []
     if L_fallback:
@@ -524,7 +532,11 @@ def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=
     S = smooth(tor, *scale_smooth)
     segs = None
     if keys:
-        J, rms, segs, rms_k, unobs, sol = keypose_fit(K, W, L, S, tor, key_thr, lam_key, key_sigma, half, side_rule)
+        frame_index = {f: t for t, f in enumerate(frames)}
+        if any(f not in frame_index for f in key_starts):
+            raise ValueError('키 시작 장이 처리 구간 밖이다')
+        J, rms, segs, rms_k, unobs, sol = keypose_fit(K, W, L, S, tor, key_thr, lam_key, key_sigma, half, side_rule,
+                                                  [frame_index[f] for f in key_starts])
         unobs_frames = [((frames[segs[k][0]], frames[segs[k][1]]), DIRS[i]) for k, i in zip(*np.nonzero(unobs))]
     else:
         J, X, rms, unobs, sol = fit_all(K, W, L, S, lam, half=half)
@@ -543,6 +555,7 @@ def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=
         'model': '중점 11방향, 몸통 기준 배율, ' + ('키포즈(원본 그림 하나 = 키 하나) + PCHIP 보간' if keys else '전 장 동시 풀이'),
         'lam': lam_key if keys else lam, 'quantile': q, 'symmetric': symmetric,
         'keypose_segments': [(frames[s], frames[e]) for s, e in segs] if segs else None, 'key_thr': round(keypose_fit.last_thr, 4) if keys else None,
+        'key_starts_added': sorted(set(key_starts)),
         'neck_len': neck_len, 'head_d': head_d, 'L_torso_units': {k: round(v, 3) for k, v in L.items()},
         'calib_samples': n_cal, 'L_from_fallback': L_from_fallback, 'scale_obs_torso_px': [round(float(v), 1) for v in tor],
         'scale_smoothed': [round(float(v), 1) for v in S],

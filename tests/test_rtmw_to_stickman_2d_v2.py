@@ -78,6 +78,32 @@ class TestV2(unittest.TestCase):
         self.assertTrue(0.13 < t2 < 0.29)
         self.assertEqual(m.auto_thr(rng.uniform(0.05, 0.08, 12)), 0.04)   # 안 갈리면 기본값
 
+    def test_local_arm_change_needs_extra_drawing_boundary(self):
+        # 12점 중 오른팔 2점만 바뀌면 중앙값은 0이다. 두 그림을 한 키로 평균하지 않고,
+        # 추가 경계로 나누면 각 그림의 중심 시각에서 원래 팔을 복구해야 한다.
+        T = 6
+        th = np.repeat(self.th[:1], T, axis=0)
+        th[3:, 5:7] += 1.0
+        J = m.forward(th, np.repeat(self.t[:1], T, axis=0), self.S[:T], L)
+        K, W, tor = kp_from(J, T), np.ones((T, 17)), self.S[:T]
+        self.assertEqual(m.drawing_segments(K, W, tor), [(0, 5)])
+        merged = m.keypose_fit(K, W, L, tor, tor, lam_key=0.0, key_sigma=None)[0]
+        split, _, segs, _, _, _ = m.keypose_fit(K, W, L, tor, tor, lam_key=0.0, key_sigma=None, key_starts=[3, 3])
+        self.assertEqual(segs, [(0, 2), (3, 5)])
+        for f in (1, 4):
+            self.assertGreater(np.linalg.norm(merged['wri_r'][f] - J['wri_r'][f]), 20)
+            self.assertLess(np.linalg.norm(split['wri_r'][f] - J['wri_r'][f]), 1e-3)
+        for invalid in ([-1], [T], [1.5]):
+            with self.assertRaises(ValueError):
+                m.drawing_segments(K, W, tor, key_starts=invalid)
+        # 실제 영상 장 번호를 배열 위치로 변환하고 적용 기록을 남겨야 한다.
+        frames = list(range(2000, 2000 + T))
+        r = m.run_core(K, W, frames, keys=True, key_starts=[2003], key_sigma=None, knee_fix=False)
+        self.assertEqual(r[2]['keypose_segments'], [(2000, 2002), (2003, 2005)])
+        self.assertEqual(r[2]['key_starts_added'], [2003])
+        with self.assertRaises(ValueError):
+            m.run_core(K, W, frames, keys=False, key_starts=[2003])
+
     def test_fix_knees_mirrors_reversed_only(self):
         # 앞쪽 +x(화면 오른쪽): 정상 무릎은 +x로 나온다. 거꾸로(−x) 꺾인 장만 대칭으로 옮기고 길이는 유지
         J = {'hip_l': np.array([[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]),
