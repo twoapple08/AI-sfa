@@ -45,6 +45,10 @@ class PoseToStickman(unittest.TestCase):
         self.assertEqual(len(frs), 10)
         app_len = np.array(seg_len(app, 0.5625))
         own, acs = collections.defaultdict(set), collections.defaultdict(set)
+        aoids = [tuple(a.get('ID') for a in f.findall('AO')) for f in frs]
+        self.assertEqual(len(set(aoids)), 1)                                     # 오브젝트 ID는 모든 장에서 같음
+        ptids = [{p.get('ID') for p in f.iter('AP')} for f in frs]
+        self.assertEqual(len(set().union(*ptids)), sum(map(len, ptids)))       # 점 ID는 장마다 새로(앱 파일 규칙)
         for fr in frs:
             self.assertEqual(topo(fr), topo(app))                                  # 앱 기본 스틱맨과 같은 구조
             L = np.array(seg_len(fr, r))
@@ -55,13 +59,11 @@ class PoseToStickman(unittest.TestCase):
             for a in aos:
                 for p in a.findall('AP'):
                     own[p.get('ID')].add(a.get('ID'))
-                    acs[p.get('ID')].add(frozenset(c.get('ConnPtId') for c in p.findall('AC')))
         self.assertTrue(all(len(v) == 1 for v in own.values()))
-        self.assertTrue(all(len(v) == 1 for v in acs.values()))
         lens = np.array([seg_len(f, r) for f in frs])
         np.testing.assert_allclose(lens, lens[:1].repeat(len(frs), 0), atol=2e-3)       # 기본: 조각 길이가 모든 장에서 같음(앱 파일처럼)
         fr0 = {f.get('ID') for f in frs}
-        self.assertFalse(set(own) & {i for v in own.values() for i in v} or fr0 & set(own))  # 장·오브젝트·점 ID 범위가 겹치지 않음
+        self.assertFalse(set(own) & {i for v in own.values() for i in v} or fr0 & set(own) or fr0 & {a for t_ in aoids for a in t_})  # 장·오브젝트·점 ID 범위가 겹치지 않음
         # 원근 단축: 짧게 보이는 팔(화면 쪽)은 짧게 그린다
         res2 = [dict(kp=[list(k) for k in r['kp']]) for r in res]
         for q in res2:

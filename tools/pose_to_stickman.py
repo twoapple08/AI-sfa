@@ -2,7 +2,7 @@
 
 구조: 앱 기본 스틱맨 틀(BODY 주석)을 그대로 쓰고 점 위치만 포즈 방향 × 틀 길이로 옮긴다(팔다리 비율 고정,
 화면 쪽으로 향한 팔다리만 원근 단축으로 짧아짐 — 늘어나지 않음).
-머리는 몸통 방향을 따른다(얼굴 점은 애니에서 떨려 머리가 흔들렸다, 11-02 사용자). 무리 하나·파란점 하나, ID·연결은 모든 장에서 같다.
+머리는 몸통 방향을 따른다(얼굴 점은 애니에서 떨려 머리가 흔들렸다, 11-02 사용자). 무리 하나·파란점 하나. 오브젝트 ID는 모든 장에서 같고 점 ID는 장마다 새로(앱 규칙).
 
 사용: python tools/pose_to_stickman.py pose.json 출력.sfa --start 298 --end 390 [--crop-y 27 --h 480] [--name 이름]
 pose.json = {W, H, res: [장마다 None 또는 {kp: 17×[x,y,score]}]} (YOLO11-pose 추론 결과, 큰 사람 하나)
@@ -58,8 +58,8 @@ BODY = [
 ]
 # 틀 길이(가로 % 단위, 세로는 × 0.5625로 환산해 잼): 머리 지름 8.4, 몸통 11.2, 위팔·아래팔 7.0, 허벅지 8.0, 정강이 5.6
 LEN = dict(head_t=8.4, spine=11.2, elb=7.0, wri=7.0, kne=8.0, ank=5.6)
-# ID 범위: 앱 파일처럼 장·오브젝트·점 ID가 서로 겹치지 않게(11-02 v2 편집에서 연결 대상 점 ID가 오브젝트 ID와 같은
-# 이음(목·팔꿈치)만 떨어졌다 — 원인 가설, 앱 확인 전).
+# ID: 앱 파일처럼 오브젝트 ID는 모든 장에서 같고, 점 ID는 장마다 새로 쓴다(실제 여러 장 파일 304개 모두 이웃 장끼리 점 ID 공유 0).
+# 11-02: 점 ID를 모든 장에서 같게 쓴 v2–v4는 앱 편집에서 조각이 떨어졌고, 1장짜리(T2)만 정상이었다.
 FR0, AO0, PT0 = 5000, 1560000, 9680000
 AO_STYLE = ('Color="-16777216" LayerId="0" ThicknessScale="{th}" ObjectScale="1.0" '
             'GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0"')
@@ -128,8 +128,9 @@ def frame_xml(n, J, to_pct, thick='1.0'):
         out.append(f'<AO ID="{AO0 + oid}" TypeId="{typ}" DrawOrder="{AO0 + oid}" ' + AO_STYLE.format(th=thick) + '>')
         for i, (pid, name, fl, acs) in enumerate(pts):
             x, y = to_pct(J[name])
-            out.append(f'<AP ID="{PT0 + pid}" Flags="{fl}" Index="{i}" X="{x:.4f}" Y="{y:.4f}">'
-                       + ''.join(f'<AC ConnPtId="{PT0 + c}"/>' for c in acs) + '</AP>')
+            base = PT0 + n * 100   # 점 ID는 장마다 새로(앱 파일 규칙), 오브젝트 ID는 모든 장에서 같음
+            out.append(f'<AP ID="{base + pid}" Flags="{fl}" Index="{i}" X="{x:.4f}" Y="{y:.4f}">'
+                       + ''.join(f'<AC ConnPtId="{base + c}"/>' for c in acs) + '</AP>')
         out.append('</AO>')
     out.append('</Frame>')
     return ''.join(out)
@@ -143,7 +144,7 @@ def build(pose, start, end, crop_y=0.0, h=None, name='stickman', thick='1.0', fo
         raise SystemExit('구간 안에 사람이 없는 장이 있다 — 구간을 바꿀 것')
     kps = clean([r['kp'] for r in res])
     S = scales(kps)
-    if const:   # 11-02: 앱 스틱맨 파일은 조각 길이가 장마다 같다(실제 4개 중앙 변화 0%). 우리 v2·v3는 75–90% 변해 여러 장에서 편집 연결이 깨졌다(추정).
+    if const:   # 앱 스틱맨 파일은 조각 길이가 장마다 거의 같다(실제 4개 중앙 변화 0%). 편집 연결과는 무관(11-02 v4 확인).
         S = np.full(len(S), float(np.median(S)))
     to_pct = lambda p: (100 * p[0] / W, 100 * (p[1] - crop_y) / H)  # noqa: E731  화면 % (가로 폭·세로 높이 기준)
     F = foreshorten(kps, S) if fore else [None] * len(kps)
@@ -151,8 +152,7 @@ def build(pose, start, end, crop_y=0.0, h=None, name='stickman', thick='1.0', fo
     for i, kp in enumerate(kps):
         J, prev = joints(kp, S[i], prev, F[i])
         frames.append(frame_xml(i, J, to_pct, thick))
-    # 앱이 내보내는 형식 그대로(머리글·한 줄). 11-02 사용자 앱 시험: v3 첫 장만(T2)은 편집 연결 정상, 같은 형식의 93장(T3)은
-    # 조각이 떨어짐 → 형식이 아니라 여러 장일 때의 문제(원인 시험 중). 형식은 앱과 맞춰 둔다.
+    # 앱이 내보내는 형식 그대로(머리글·한 줄).
     xml = ('<?xml version="1.0" encoding="UTF-8" ?>'
            f'<Sequence Name="{name}" HeightWidthRatio="{H / W:.4f}" RatioX="16" RatioY="9" FrameCount="{len(frames)}" BackgroundColor="-1">'
            + ''.join(frames) + '</Sequence>')
@@ -168,8 +168,8 @@ def main():
     ap.add_argument('--crop-y', type=float, default=0.0, help='위 검은 띠 화소(16:9 화면 시작 행)')
     ap.add_argument('--h', type=float, default=0, help='16:9 화면 높이 화소(0이면 영상 높이)')
     ap.add_argument('--name', default='stickman')
-    ap.add_argument('--fore', action='store_true', help='원근 단축 켜기(조각 길이가 장마다 바뀜 — 앱 편집 연결이 깨질 수 있음)')
-    ap.add_argument('--var-scale', action='store_true', help='몸 크기를 장마다 바꿈(같은 이유로 기본 끔)')
+    ap.add_argument('--fore', action='store_true', help='원근 단축 켜기(조각 길이가 장마다 바뀜)')
+    ap.add_argument('--var-scale', action='store_true', help='몸 크기를 장마다 바꿈(원근 따라 작아짐)')
     ap.add_argument('--thick', default='1.0', help='선 굵기 배율(앱 기본 스틱맨 1.0)')
     a = ap.parse_args()
     pose = json.load(open(a.pose, encoding='utf-8'))
