@@ -1,4 +1,4 @@
-# 인수인계 프롬프트 (2026-11-03 — 1단계 2회차 + 스틱맨 시제품 1 사용자 판정 대기)
+# 인수인계 프롬프트 (2026-11-03 — 스틱맨 인물 겹침 다리 버그 GPT 토론 시작 + 1단계 2회차 결과 확인)
 
 https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. **모든 답을 한국어로만 쓴다.**
 
@@ -9,9 +9,10 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. **모든 답을
 
 **읽기 순서:**
 1. AGENTS.md
-2. HANDOFF.md: 현재 우선순위, 바로 할 일, 결정 대기, 이번 세션 실수
-3. docs/ANIME-TO-STICKMAN-DEBATE-2026-11-02.md: 맨 끝 '8차 — Claude 답'과 '사용자 판정·지시 기록'만 먼저 읽는다
-4. GPT 8차 답: `docs/GPT-ANIME-TO-STICKMAN-ROUND8-2026-11-02.md`. GPT가 지정 브랜치에 저장했다. 없으면 사용자에게 묻는다.
+2. HANDOFF.md: 현재 우선순위, 바로 할 일, 결정 대기
+3. docs/STICKMAN-OVERLAP-BUGS-2026-11-03.md: 이번 작업의 출발 문서(사용자 지시, 근거 표, 가설)
+4. GPT 1차 답 `docs/GPT-STICKMAN-OVERLAP-ROUND1-2026-11-03.md`. 없으면 사용자에게 묻는다(사용자가 새 GPT 세션에 docs/GPT-PROMPT-STICKMAN-OVERLAP-FRESH-2026-11-03.md를 넣는다).
+5. docs/STICKMAN-CLIP-1032-1271-2026-11-03.md: 지금까지의 처리와 리뷰 경과
 
 필요할 때만 더 읽는다: docs/STICKMAN-LABEL-SPEC-2026-11-02.md, docs/history/PROJECT-HISTORY-2026-11-01-02.md, docs/STAGE2-GENERATOR-DESIGN-2026-11-02.md.
 
@@ -24,9 +25,12 @@ https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. **모든 답을
     4. 1회차와 같은 조건의 판정끼리 비교해 보고한다. 판정 시트(입력 | AI SFA | 정답)도 보고, 숫자보다 그림을 먼저 보여 준다.
   - 3회차는 사용자 허락 뒤에 한다.
 - **2단계(애니 인물 → 스틱맨):**
-  - 진행 방식 전환은 확정이다(11-03 사용자·GPT 동의). 토론은 결정이 필요할 때만 하고, GPT는 결과물을 검토한다.
-  - 시제품 1 → 2 → 2b → 3 경과는 HANDOFF '바로 할 일 2'에 있다. 시제품 3(B, 키포즈 보간)은 '부드러워졌다'는 판정을 받았다. 현행은 시제품 4(A 1500–1523, docs/STICKMAN-PROTO4-A1500-1523-2026-11-03.md)다. 성공 판정이 나면 기본 스틱맨 변환, 실루엣 깎기, 곡선 몸통의 세 작업을 한다. **사용자 판정을 기다린다.** 판정 전에는 새 설계 토론이나 추가 시제품을 만들지 않는다.
-  - SFA 규칙: 점 ID는 장마다 새로, 오브젝트 ID는 장끼리 유지, (24, 24).
+  - 기준은 기본 스틱맨·직선 몸통이다(곡선·실루엣 보류). 도구는 `tools/stickman_clip.py`(여러 인물·컷), `tools/rtmw_to_stickman_2d_v2.py`, `tools/stickman_variants.py`.
+  - 지금 할 일: 인물 겹침 구간의 다리 버그(빨강 1217·1222·1227과 비슷한 것)를 GPT와 토론 형식으로 찾고 고친다(사용자 11-03 지시).
+    - GPT 1차 답을 읽고 docs/STICKMAN-OVERLAP-DEBATE-2026-11-03.md에 Claude 1차 답을 쓴다.
+    - 측정으로 가를 것은 직접 측정하고, 고칠 것은 구현해 비교 영상으로 보여 준다. 눈 판정·방향 결정은 사용자에게 묻는다.
+  - 토론에 답할 때마다 GPT 답장 프롬프트를 `docs/GPT-PROMPT-*.md`로 저장하고 복사할 블록으로 준다.
+  - SFA 규칙: 점 ID는 장마다 새로, 오브젝트 ID는 장끼리 유지, (24, 24). 화면 틀 밖 좌표 허용.
 - **GPU:** 사용자 지시 없이 실행하지 않는다. 스틱맨 쪽 GPU 일은 Colab에서 한다(Claude가 노트북을 만들고 사용자가 실행).
 
 ## 새 컨테이너 준비

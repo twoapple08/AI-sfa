@@ -26,6 +26,12 @@
      - 마지막 기록은 판정 조건이 바뀌어 같은 조건의 비교가 2회 미만이다. **추세를 말할 수 없다.**
    - 마지막 판정 시트(입력 | AI SFA | 정답 SFA): 물체 위치·종류는 대체로 맞추기 시작했지만, 스틱맨 팔다리 엉킴·십자 → 선처럼 모양은 아직 틀리다(Claude 눈).
    - **2회차 제안:** `python tools/kaggle_seq_remote.py push --prebuilt --gpu-ok --minutes 600 --plan-minutes 900 --extra "--gen-minutes 120"`. `--fresh`는 붙이지 않는다. GPU 실행은 사용자 허락 뒤에 한다.
+2. **스틱맨: 인물 겹침 다리 버그를 새 세션에서 GPT와 토론으로 찾고 고친다(11-03 사용자 지시).**
+   - 출발 문서: docs/STICKMAN-OVERLAP-BUGS-2026-11-03.md. 토론 기록: docs/STICKMAN-OVERLAP-DEBATE-2026-11-03.md
+   - 순서: ① 사용자가 새 GPT 세션에 docs/GPT-PROMPT-STICKMAN-OVERLAP-FRESH-2026-11-03.md를 넣는다. ② GPT 1차 답(docs/GPT-STICKMAN-OVERLAP-ROUND1-2026-11-03.md)이 오면 새 Claude 세션이 읽고 1차 답을 쓴다.
+   - 표시된 3곳: 빨강 1217(무릎), 1222·1227(뻗은 발차기). 근거는 Drive `stickman_proto_2026-11-03/overlap_bugs/`에 있다.
+   - 가설(검증 전): RTMW 겹침 검출 오류(1223–1226 사람 3명·상자 쪼개짐), 고정 길이 부족, 키 고르기가 틀린 키에 끌림, 색 선택 한계.
+   - 기준 상태: 커밋 5797ebc(화면 끝 반쪽 관측까지 반영). 이 구간 이전 경과는 아래 항목에 있다.
 2. **스틱맨: 두 인물 10초 구간(1032–1271, 컷 3개) 완료 → 사용자 판정 대기(11-03).** GPT 5차 검토(다리별 무릎 앞쪽)를 반영했다(`leg_facing`, 시제품 6 `*_basic6`). docs/STICKMAN-CLIP-1032-1271-2026-11-03.md, `tools/stickman_clip.py`. 기준은 기본 스틱맨 직선 몸통이다(곡선·실루엣은 보류).
    - 이전 경과: 시제품 4 "느낌 있어"(성공) → 변형 작업
    - 변형 1 기본 스틱맨: 사용자 리뷰(잔떨림, 거꾸로 꺾인 무릎)를 반영해 시제품 5(`*_basic5`)를 만들었고 재판정을 기다린다.
