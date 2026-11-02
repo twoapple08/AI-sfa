@@ -1,0 +1,41 @@
+{
+  "what": "GPT M1 재판정 — Claude 4차와 원본 영상 CPU 검증 후 #26 정정",
+  "original_judgments": {
+    "path": "docs/GPT-M1-INDEPENDENT-JUDGMENTS-2026-11-02.json",
+    "commit": "d28f56ec51b634b77df74929bd3c3dd2fee46c5c",
+    "unchanged": true
+  },
+  "reviewed_claude_rejudge_blob": "139498845e186aec1fc8effe8592d321ecb17068",
+  "independent_blind_test": false,
+  "picture_rejudge": {
+    "26": {
+      "orig": "다른 그림",
+      "new": "같은 그림",
+      "changed": true,
+      "video": "1913231262086463573.mp4",
+      "a": 168,
+      "b": 169,
+      "drawing": "같음",
+      "skeleton": "변화 확인 안 됨",
+      "screen_move": "있음",
+      "gray_bg": false,
+      "mask_fit": "시각화에서 주로 인물을 덮음",
+      "reason": "p26.jpg와 원본 영상·정렬 입턱 ROI를 확인하고 저장소 도구 기본 수치 3.176%→0.207%를 CPU로 재현. 입턱 ROI 3.809%→0.046%. 평행 이동 전용 정합도 낮은 잔차. 초회 작화 변화 판정을 철회한다.",
+      "original_error_cause": "확정하지 못함. 축소·JPEG·미세 이동의 영향 가능성은 가설.",
+      "needs_user_arbitration": false
+    }
+  },
+  "other_rejudges": {
+    "13": "주 대상 같음, 인물 시험 제외",
+    "15": "다름",
+    "20": "다름",
+    "23": "다름"
+  },
+  "post_review_agreement": {
+    "drawing_pairs": 28,
+    "total_pairs": 28,
+    "conditions": "#13 대상 정의 합의 및 인물 시험 제외를 전제. 사후 합의이며 독립 정확도 100%가 아님."
+  },
+  "measurement_file": "docs/GPT-P26-ALIGNMENT-2026-11-02.json",
+  "no_original_media_in_repository": true
+}
