@@ -37,7 +37,7 @@ class PoseToStickman(unittest.TestCase):
                          [46, 55], [54, 55], [45, 70], [55, 70], [44, 85], [56, 85]], float) * [8.54, 4.8]
         res = [dict(kp=np.c_[base + rng.normal(0, 2, base.shape), np.full(17, 0.9)].tolist()) for _ in range(10)]
         res[3]['kp'][9][2] = 0.05   # 낮은 신뢰 점은 보간
-        xml, _ = P.build(dict(W=854, H=480, res=res), 0, 9)
+        xml, _ = P.build(dict(W=854, H=480, res=res), 0, 9, fore=False)
         root = ET.fromstring(xml.split('\n', 1)[1])
         r = float(root.get('HeightWidthRatio'))
         frs = root.findall('Frame')
@@ -57,6 +57,18 @@ class PoseToStickman(unittest.TestCase):
                     acs[p.get('ID')].add(frozenset(c.get('ConnPtId') for c in p.findall('AC')))
         self.assertTrue(all(len(v) == 1 for v in own.values()))
         self.assertTrue(all(len(v) == 1 for v in acs.values()))
+        fr0 = {f.get('ID') for f in frs}
+        self.assertFalse(set(own) & {i for v in own.values() for i in v} or fr0 & set(own))  # 장·오브젝트·점 ID 범위가 겹치지 않음
+        # 원근 단축: 짧게 보이는 팔(화면 쪽)은 짧게 그린다
+        res2 = [dict(kp=[list(k) for k in r['kp']]) for r in res]
+        for q in res2:
+            q['kp'][7][:2] = [(a + b) / 2 for a, b in zip(q['kp'][5][:2], q['kp'][7][:2])]   # 왼 위팔을 절반으로
+        xml2, _ = P.build(dict(W=854, H=480, res=res2), 0, 9)
+        f2 = ET.fromstring(xml2.split('\n', 1)[1]).findall('Frame')
+        full = np.array(seg_len(frs[5], r))
+        short = np.array(seg_len(f2[5], r))
+        k = [i for i, (oid, _, pts) in enumerate(P.BODY) if pts[0][1] == 'elb_l'][0]
+        self.assertLess(short[k] / short[1], 0.75 * full[k] / full[1])                       # 위팔/몸통 비가 줄어듦
 
 
 if __name__ == '__main__':
