@@ -1,0 +1,271 @@
+{
+  "purpose": "판정후에열기 두 파일을 열기 전에 고정한 GPT 28쌍 판정",
+  "branch": "claude/new-session-gknz4t",
+  "debate_blob_read": "4bf4d3e283c638900b5fd6b85974568d809ba1e1",
+  "blinding": {
+    "pair_key_opened": false,
+    "claude_pair_labels_opened": false,
+    "claude_aggregate_seen": true,
+    "limitation": "사용자 지시대로 Claude 3차 본문을 먼저 읽었으므로 범주별 집계는 이미 보았다. 쌍별 라벨·범주/프레임 표는 미열람. 완전 블라인드가 아닌 쌍별 사전 판정이다."
+  },
+  "criteria": {
+    "drawing": "보이는 대상의 내부 작화·윤곽 비교. 인물에서는 단순 화면 이동과 독립적인 배경·이펙트 변화는 제외하고, 머리카락·얼굴 작화 변화는 포함한다. 인물이 식별되지 않는 행은 보이는 주요 대상의 그림으로 이진 판정하되 human_comparison_valid=false로 표시해 인물 정지 성능 집계에서 제외한다.",
+    "gray_background_colored_person": "두 장에서 대체로 무채색 회색 배경 위 색 인물이 식별되는가. true라도 이펙트 혼입·인물 크기 등 실제 HSV 마스크 적합성을 보증하지 않는다.",
+    "limits": "원본 영상이 아닌 430px 폭 JPG 시트와 그 단순 확대를 보았다. 두 장 사이 중간 프레임은 확인하지 않았다. 낮은 확신을 별도 표시했다."
+  },
+  "source_folder": "AI-sfa/02_분석자료/stickman_debate_2026-11-02/m1_validation/",
+  "rows": [
+    {
+      "id": 1,
+      "sheet": "sheet1.jpg",
+      "drawing": "같은 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "발·정강이 윤곽이 유지됨",
+      "confidence": "높음"
+    },
+    {
+      "id": 2,
+      "sheet": "sheet1.jpg",
+      "drawing": "같은 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "인물 얼굴·손 윤곽 유지. 강한 자홍 이펙트 혼입",
+      "confidence": "중간"
+    },
+    {
+      "id": 3,
+      "sheet": "sheet1.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "몸통·팔·다리 자세가 바뀜",
+      "confidence": "높음"
+    },
+    {
+      "id": 4,
+      "sheet": "sheet1.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": false,
+      "note": "색 배경 위 스미어·녹색 효과의 형상 변화. 인물 작화 판정에는 부적합",
+      "confidence": "높음"
+    },
+    {
+      "id": 5,
+      "sheet": "sheet1.jpg",
+      "drawing": "같은 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "회색 배경의 붉은 손·팔 클로즈업 윤곽 유지",
+      "confidence": "중간"
+    },
+    {
+      "id": 6,
+      "sheet": "sheet1.jpg",
+      "drawing": "같은 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": true,
+      "note": "치아·입 윤곽이 대체로 유지. 회색 배경 장면 아님",
+      "confidence": "중간"
+    },
+    {
+      "id": 7,
+      "sheet": "sheet1.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": false,
+      "note": "건물과 광선·폭발 효과가 주 대상. 식별 가능한 인물 없음",
+      "confidence": "높음"
+    },
+    {
+      "id": 8,
+      "sheet": "sheet2.jpg",
+      "drawing": "같은 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "붉은 인물과 파란 인물의 자세·주요 윤곽 유지",
+      "confidence": "높음"
+    },
+    {
+      "id": 9,
+      "sheet": "sheet2.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": true,
+      "note": "팔·몸의 자세와 실루엣 변화. 갈색 배경",
+      "confidence": "높음"
+    },
+    {
+      "id": 10,
+      "sheet": "sheet2.jpg",
+      "drawing": "같은 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": true,
+      "note": "인물·망토 윤곽 유지. 붉고 어두운 배경",
+      "confidence": "중간"
+    },
+    {
+      "id": 11,
+      "sheet": "sheet2.jpg",
+      "drawing": "같은 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "큰 파란 인물과 뒤 붉은 인물의 자세 유지",
+      "confidence": "높음"
+    },
+    {
+      "id": 12,
+      "sheet": "sheet2.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": true,
+      "note": "팔·상체 자세가 바뀜. 유색 배경·붉은 효과",
+      "confidence": "높음"
+    },
+    {
+      "id": 13,
+      "sheet": "sheet2.jpg",
+      "drawing": "같은 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": false,
+      "note": "중앙 녹색 구조물의 주요 형상 유지, 주변 효과 변화. 식별 가능한 인물 없음",
+      "confidence": "중간"
+    },
+    {
+      "id": 14,
+      "sheet": "sheet2.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": false,
+      "note": "유색 배경의 녹색 스미어·효과 형상 변화. 인물 식별 불가",
+      "confidence": "높음"
+    },
+    {
+      "id": 15,
+      "sheet": "sheet3.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": true,
+      "note": "뒤 인물의 머리카락·옷 윤곽 변화. 앞 손은 유사. 파란 하늘 배경",
+      "confidence": "중간"
+    },
+    {
+      "id": 16,
+      "sheet": "sheet3.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "붉은 인물의 팔·목·몸 자세가 바뀜",
+      "confidence": "높음"
+    },
+    {
+      "id": 17,
+      "sheet": "sheet3.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "회색 공간 좌상단의 작은 파란 인물로 보이는 형상이 변함. 파편·그림자도 변화, 대상 식별 불확실",
+      "confidence": "낮음"
+    },
+    {
+      "id": 18,
+      "sheet": "sheet3.jpg",
+      "drawing": "같은 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": true,
+      "note": "달리는 인물의 팔다리·망토 윤곽 유지. 유색 배경",
+      "confidence": "중간"
+    },
+    {
+      "id": 19,
+      "sheet": "sheet3.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "붉은 인물과 공중 파란 인물의 자세 변화",
+      "confidence": "높음"
+    },
+    {
+      "id": 20,
+      "sheet": "sheet3.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": true,
+      "note": "두 인물의 팔·상체와 옷 윤곽이 바뀜. 주황 실내 배경",
+      "confidence": "높음"
+    },
+    {
+      "id": 21,
+      "sheet": "sheet3.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": false,
+      "note": "흑백 건물과 녹색 효과가 주 대상. 식별 가능한 색 인물 없음",
+      "confidence": "높음"
+    },
+    {
+      "id": 22,
+      "sheet": "sheet4.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "회색 배경 상단의 파란 인물 일부 윤곽 변화. 인물이 작고 잘려 있어 확신 제한",
+      "confidence": "중간"
+    },
+    {
+      "id": 23,
+      "sheet": "sheet4.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "파란 인물의 얼굴·굽힌 팔·몸통 윤곽 변화. 파편만의 변화로 보기 어려움",
+      "confidence": "중간"
+    },
+    {
+      "id": 24,
+      "sheet": "sheet4.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": true,
+      "note": "머리카락·손가락·얼굴의 가시 영역 변화. 주황 배경",
+      "confidence": "높음"
+    },
+    {
+      "id": 25,
+      "sheet": "sheet4.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": true,
+      "note": "실루엣 다리·옷 윤곽 변화. 유색 배경·어두운 인물",
+      "confidence": "높음"
+    },
+    {
+      "id": 26,
+      "sheet": "sheet4.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": false,
+      "human_comparison_valid": true,
+      "note": "몸 자세는 유사하지만 입·턱 작화가 다름. 파란 배경",
+      "confidence": "중간"
+    },
+    {
+      "id": 27,
+      "sheet": "sheet4.jpg",
+      "drawing": "같은 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "붉은 주먹·파란 손·상체의 주요 윤곽 유지",
+      "confidence": "높음"
+    },
+    {
+      "id": 28,
+      "sheet": "sheet4.jpg",
+      "drawing": "다른 그림",
+      "gray_background_colored_person": true,
+      "human_comparison_valid": true,
+      "note": "머리카락과 몸·팔의 형태가 바뀜",
+      "confidence": "높음"
+    }
+  ]
+}
