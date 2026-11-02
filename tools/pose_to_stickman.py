@@ -135,7 +135,7 @@ def frame_xml(n, J, to_pct, thick='1.0'):
     return ''.join(out)
 
 
-def build(pose, start, end, crop_y=0.0, h=None, name='stickman', thick='1.0', fore=True):
+def build(pose, start, end, crop_y=0.0, h=None, name='stickman', thick='1.0', fore=False, const=True):
     W = pose['W']
     H = h or pose['H']
     res = pose['res'][start:end + 1]
@@ -143,6 +143,8 @@ def build(pose, start, end, crop_y=0.0, h=None, name='stickman', thick='1.0', fo
         raise SystemExit('구간 안에 사람이 없는 장이 있다 — 구간을 바꿀 것')
     kps = clean([r['kp'] for r in res])
     S = scales(kps)
+    if const:   # 11-02: 앱 스틱맨 파일은 조각 길이가 장마다 같다(실제 4개 중앙 변화 0%). 우리 v2·v3는 75–90% 변해 여러 장에서 편집 연결이 깨졌다(추정).
+        S = np.full(len(S), float(np.median(S)))
     to_pct = lambda p: (100 * p[0] / W, 100 * (p[1] - crop_y) / H)  # noqa: E731  화면 % (가로 폭·세로 높이 기준)
     F = foreshorten(kps, S) if fore else [None] * len(kps)
     frames, prev = [], None
@@ -166,11 +168,12 @@ def main():
     ap.add_argument('--crop-y', type=float, default=0.0, help='위 검은 띠 화소(16:9 화면 시작 행)')
     ap.add_argument('--h', type=float, default=0, help='16:9 화면 높이 화소(0이면 영상 높이)')
     ap.add_argument('--name', default='stickman')
-    ap.add_argument('--no-fore', action='store_true', help='원근 단축 끄기(팔다리 길이 항상 틀 그대로)')
+    ap.add_argument('--fore', action='store_true', help='원근 단축 켜기(조각 길이가 장마다 바뀜 — 앱 편집 연결이 깨질 수 있음)')
+    ap.add_argument('--var-scale', action='store_true', help='몸 크기를 장마다 바꿈(같은 이유로 기본 끔)')
     ap.add_argument('--thick', default='1.0', help='선 굵기 배율(앱 기본 스틱맨 1.0)')
     a = ap.parse_args()
     pose = json.load(open(a.pose, encoding='utf-8'))
-    xml, _ = build(pose, a.start, a.end, a.crop_y, a.h or None, a.name, a.thick, not a.no_fore)
+    xml, _ = build(pose, a.start, a.end, a.crop_y, a.h or None, a.name, a.thick, a.fore, not a.var_scale)
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as z:
         z.writestr(a.name + '.xml', xml)
     print('SFA', a.out, '장', a.end - a.start + 1)
