@@ -9,6 +9,8 @@
   시제품 1의 '배율도 풀기'는 L90 팔다리에 끌려 몸통이 35/35장 짧아졌다.
 - 떨림: 전 장을 한꺼번에 풀고, 이웃 장 사이 각도 차(주기적)·골반 이동(몸통 단위)에 벌점 λ를 준다.
   애니의 2·3장 정지가 부드러운 이동으로 바뀔 수 있다(정지 유지 여부는 사용자 판정 대기 항목).
+- --keys(시제품 3, 11-03): λ를 줘도 떨림이 남았다(사용자). 원인은 원본의 3컷 작화(새 그림 307·310·…·334, 그 사이 정지)다.
+  원본 그림 하나를 키포즈 하나로 풀고(같은 그림 장의 관측 평균), 그 구간 가운데 시각에 놓은 뒤 사이 장을 PCHIP으로 잇는다.
 - 각도 사전: 관측 없는 뼈·장에만 이웃 장 관측 각도 보간값 쪽 0.01(시간 항이 있으므로 거의 영향 없음).
 - 목·머리: 목 = 어깨 중점에서 몸통 방향으로 Ln, 머리 원 = 그 위 지름 D. 기본 Ln 0.17, D 0.5(몸통 단위).
   근거: B 300–334 RTMW에서 어깨 중점 → 귀 중점이 몸통의 0.417(10–90% 0.376–0.443) → 머리 중심(Ln + D/2 = 0.42)을 귀 높이에 둠.
@@ -231,8 +233,59 @@ def sfa_xml(J, W, H, crop_y, name, body_th):
             + ''.join(frames) + '</Sequence>')
 
 
+def drawing_segments(K, W, tor, thr=0.04):
+    """RTMW 관측으로 '같은 그림' 구간을 나눈다. 이웃 장 사이 유효 관절 이동의 중앙값/몸통 > thr이면 새 그림.
+    (B 300–334 실측: 정지 장 0.007–0.016, 새 그림 장 0.07 이상. 확인 경계 328·331과 대조할 것.)"""
+    T = len(K)
+    starts = [0]
+    for t in range(1, T):
+        m = (W[t, 5:17] > 0) & (W[t - 1, 5:17] > 0)
+        d = np.linalg.norm(K[t, 5:17, :2] - K[t - 1, 5:17, :2], axis=1)[m] / tor[t]
+        if len(d) and np.median(d) > thr:
+            starts.append(t)
+    return [(s, (starts[i + 1] - 1) if i + 1 < len(starts) else T - 1) for i, s in enumerate(starts)]
+
+
+def pchip_wrap(xk, yk, x):
+    """키 시각 xk의 값 yk(각도는 미리 풀어 둠)를 PCHIP으로 잇는다(넘침 없음). 범위 밖은 끝값 유지."""
+    from scipy.interpolate import PchipInterpolator
+    if len(xk) == 1:
+        return np.repeat(yk[:1], len(x), 0)
+    xc = np.clip(x, xk[0], xk[-1])
+    return PchipInterpolator(xk, yk, axis=0)(xc)
+
+
+def keypose_fit(K, W, L, S, tor, thr=0.04, lam_key=0.3):
+    """원본 그림 하나 = 키포즈 하나. 같은 그림 구간의 관측을 평균해 키포즈를 풀고, 구간 가운데 시각에 놓은 뒤
+    그 사이 장은 PCHIP으로 이어 24장 모두 움직이게 한다(3컷 작화의 끊김 → 부드러운 이동)."""
+    segs = drawing_segments(K, W, tor, thr)
+    Kk, Wk, Sk, ck = [], [], [], []
+    for s, e in segs:
+        w = W[s:e + 1]
+        cnt = w.sum(0)
+        k = np.zeros((17, 3))
+        k[:, :2] = (K[s:e + 1, :, :2] * w[..., None]).sum(0) / np.maximum(cnt, 1)[:, None]
+        k[:, 2] = K[s:e + 1, :, 2].mean(0)
+        Kk.append(k)
+        Wk.append((cnt > 0).astype(float))
+        Sk.append(S[s:e + 1].mean())
+        ck.append((s + e) / 2)
+    Kk, Wk, Sk, ck = np.array(Kk), np.array(Wk), np.array(Sk), np.array(ck)
+    Jk, Xk, rms_k, unobs_k, sol = fit_all(Kk, Wk, L, Sk, lam_key)
+    th = np.unwrap(Xk[:, :11], axis=0)
+    tt = np.arange(len(K), dtype=float)
+    th_all = pchip_wrap(ck, th, tt)
+    t_all = pchip_wrap(ck, Xk[:, 11:], tt)
+    J = forward(th_all, t_all, S, L)
+    P, Wt = obs_arrays(K, W)
+    M = np.stack([J[n] for n in NODES], 1)
+    err = np.linalg.norm(M - P, axis=2) / S[:, None]
+    rms = [float(np.sqrt(np.mean(e[w > 0] ** 2))) if (w > 0).any() else None for e, w in zip(err, Wt)]
+    return J, rms, segs, rms_k, unobs_k, sol
+
+
 def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, symmetric=True, lam=1.0,
-        neck_len=0.17, head_d=0.5):
+        neck_len=0.17, head_d=0.5, keys=False, key_thr=0.04, lam_key=0.3):
     K = pick_target(R, frames, video, color)
     if any(k is None for k in K):
         raise SystemExit('구간 안에 대상이 없는 장이 있다')
@@ -244,16 +297,24 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
             W[t, j] = 0
     L, n_cal, tor = calib(K, W, q, symmetric)
     S = smooth(tor)
-    J, X, rms, unobs, sol = fit_all(K, W, L, S, lam)
+    segs = None
+    if keys:
+        J, rms, segs, rms_k, unobs, sol = keypose_fit(K, W, L, S, tor, key_thr, lam_key)
+        unobs_frames = [((frames[segs[k][0]], frames[segs[k][1]]), DIRS[i]) for k, i in zip(*np.nonzero(unobs))]
+    else:
+        J, X, rms, unobs, sol = fit_all(K, W, L, S, lam)
+        unobs_frames = [(frames[t], DIRS[i]) for t, i in zip(*np.nonzero(unobs))]
     J = with_head(J, S, neck_len, head_d)
     rep = {
-        'model': '중점 11방향, 몸통 기준 배율, 전 장 동시 풀이', 'lam': lam, 'quantile': q, 'symmetric': symmetric,
+        'model': '중점 11방향, 몸통 기준 배율, ' + ('키포즈(원본 그림 하나 = 키 하나) + PCHIP 보간' if keys else '전 장 동시 풀이'),
+        'lam': lam_key if keys else lam, 'quantile': q, 'symmetric': symmetric,
+        'keypose_segments': [(frames[s], frames[e]) for s, e in segs] if segs else None, 'key_thr': key_thr if keys else None,
         'neck_len': neck_len, 'head_d': head_d, 'L_torso_units': {k: round(v, 3) for k, v in L.items()},
         'calib_samples': n_cal, 'scale_obs_torso_px': [round(float(v), 1) for v in tor],
         'scale_smoothed': [round(float(v), 1) for v in S],
         'rms_resid_torso': [None if v is None else round(v, 4) for v in rms],
         'accel_median_torso': {'fit': round(float(np.median(accel(J, S))), 4)},
-        'unobserved_dir_frames': [(frames[t], DIRS[i]) for t, i in zip(*np.nonzero(unobs))],
+        'unobserved_dir_frames': unobs_frames,
         'optimizer': {'status': int(sol.status), 'nfev': int(sol.nfev), 'cost': round(float(sol.cost), 5)},
     }
     return J, S, rep, K, W
@@ -273,6 +334,9 @@ def main():
     ap.add_argument('--quantile', type=float, default=90)
     ap.add_argument('--no-symmetric', action='store_true')
     ap.add_argument('--lam', type=float, default=1.0, help='이웃 장 변화 벌점(0이면 매 장 독립과 같음)')
+    ap.add_argument('--keys', action='store_true', help='원본 그림 하나 = 키포즈 하나로 풀고 사이 장을 PCHIP으로 잇기')
+    ap.add_argument('--key-thr', type=float, default=0.04, help='새 그림 판정: 이웃 장 관절 이동 중앙값/몸통')
+    ap.add_argument('--lam-key', type=float, default=0.3, help='키포즈끼리 변화 벌점')
     ap.add_argument('--neck', type=float, default=0.17)
     ap.add_argument('--head', type=float, default=0.5)
     ap.add_argument('--body-thick', type=float, default=1.0, help='몸 조각 굵기 배율(기본 1.0 = 앱 기본)')
@@ -288,7 +352,7 @@ def main():
     R = load_rtmw(a.rtmw)
     frames = list(range(a.start, a.end + 1))
     J, S, rep, _, _ = run(R, frames, parse_drop(a.drop), a.min_score, a.video, a.target_color, a.quantile,
-                          not a.no_symmetric, a.lam, a.neck, a.head)
+                          not a.no_symmetric, a.lam, a.neck, a.head, a.keys, a.key_thr, a.lam_key)
     body_th = (a.body_thick * (100 * S * rep['L_torso_units']['torso'] / Wv) / 11.2 if a.thick_by_size
                else np.full(len(frames), a.body_thick))
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as z:
@@ -300,7 +364,7 @@ def main():
         json.dump([{k: [round(float(v[n, 0]), 2), round(float(v[n, 1]), 2)] for k, v in J.items()} for n in range(len(frames))],
                   open(a.joints, 'w'), ensure_ascii=False)
     r = [v for v in rep['rms_resid_torso'] if v is not None]
-    print('SFA', os.path.basename(a.out), '장', len(frames), 'λ', a.lam, '잔차 RMS/몸통 중앙·최대', round(float(np.median(r)), 4),
+    print('SFA', os.path.basename(a.out), '장', len(frames), 'λ', rep['lam'], '잔차 RMS/몸통 중앙·최대', round(float(np.median(r)), 4),
           round(float(max(r)), 4), '가속도 중앙', rep['accel_median_torso']['fit'], '굵기', round(float(body_th[0]), 2), '→',
           round(float(body_th[-1]), 2), '풀이', rep['optimizer'])
 

@@ -49,6 +49,25 @@ class TestV2(unittest.TestCase):
         a2 = np.median(m.accel(m.fit_all(K, np.ones((self.T, 17)), L, self.S, lam=2.0)[0], self.S))
         self.assertLess(a2, a0)
 
+    def test_keypose_on_threes(self):
+        # 3컷 작화 흉내: 3장마다 새 포즈, 그 사이 정지 → 그림 구간 3장씩 찾고, 출력은 장마다 움직인다(계단 없음)
+        T = 15
+        th = np.repeat(self.th[:5], 3, 0)
+        t = np.repeat(self.t[:5], 3, 0)
+        S = np.full(T, 150.0)
+        J = m.forward(th, t, S, L)
+        K = kp_from(J, T)
+        W = np.ones((T, 17))
+        tor = np.full(T, 150.0)
+        self.assertEqual(m.drawing_segments(K, W, tor), [(0, 2), (3, 5), (6, 8), (9, 11), (12, 14)])
+        Jk, rms, segs, _, _, _ = m.keypose_fit(K, W, L, S, tor, lam_key=0.0)
+        # 키 시각(구간 가운데)에서는 원래 포즈와 같다
+        for c in (4, 7, 10):
+            self.assertLess(np.abs(Jk['wri_l'][c] - J['wri_l'][c]).max(), 1e-3)
+        # 가운데 구간에서 장마다 움직인다
+        step = np.linalg.norm(np.diff(Jk['wri_l'][1:14], axis=0), axis=1)
+        self.assertTrue((step > 1e-6).all())
+
     def test_sfa_structure(self):
         J = m.with_head(m.forward(self.th, self.t, self.S, L), self.S, 0.17, 0.5)
         root = ET.fromstring(m.sfa_xml(J, 1152, 648, 63, 'x', np.full(self.T, 3.0)).split('?>', 1)[1])
