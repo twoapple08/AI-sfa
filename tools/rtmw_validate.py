@@ -1,11 +1,16 @@
 """기존 RTMW-x 결과(jsonl.gz, 장마다 {'f', 'p':[{'b':상자, 'k':133점 [x,y,점수]}]})를 영상과 대조해 검증한다.
 
 검사(GPT 4차 합의 순서 1–4단계의 CPU 부분):
-1. 133점 의미: COCO-WholeBody 순서 가정(0–16 몸, 17–19 왼발, 20–22 오른발, 91–111 왼손, 112–132 오른손)을
-   '손목 옆에 같은 쪽 손 뿌리가 있는가', '발목 옆에 같은 쪽 발이 있는가'로 자체 일관성 확인.
-2. 장 번호 대응: 결과가 1명인 장에서 몸 중심과 영상 색 마스크 무게중심의 거리를 오프셋 −2..+2로 비교.
-3. 대상 대응(A 구간): 상자 안 파랑/빨강 채도 픽셀 수로 색 인물을 배정하고 장 사이 루트 이동을 잰다.
+1. 133점 의미: COCO-WholeBody 순서 가정(0–16 몸, 17–19 왼발, 20–22 오른발, 91–111 왼손, 112–132 오른손)의
+   '상대 대응 일관성' = 한 인물 결과에서 (같은쪽 거리합) < (교차 거리합)인 비율. 절대 근접도·점수 문턱이 없고,
+   몸·손 좌우가 함께 뒤집혀도 통과한다 → 관절 정답률·좌우 정확도가 아니다(GPT 5차 지적).
+2. 장 번호 대응(보조 근거): 모든 오프셋에서 결과가 1명인 '공통 장 집합'에서 상체·엉덩이 평균 중심과 색 마스크
+   무게중심의 거리를 비교하고 표본 수를 함께 낸다. 1차 근거는 파일 해시·장 번호·디코딩 규칙이다.
+3. 대상 대응: 상자 안 파랑/빨강 채도 픽셀 비율로 색 인물을 배정한다(배정 성공 ≠ 신원 정확도).
+   이동은 두 가지로 낸다: ① 어깨2·엉덩이2 평균 중심 이동/몸통, ② 엉덩이 중점(11·12 평균) 이동/몸통.
+   몸통 = 어깨 중점–엉덩이 중점 거리(파생점, 앱의 목–골반과 같지 않다).
 4. 좌우 바뀜 후보: 인접 장에서 좌우를 맞바꾼 쪽이 관절 이동이 절반 이하로 작으면 후보로 센다(확정 아님).
+   지속적인 뒤바뀜·가림 오검출·가까운 교차 사지는 잡지 못한다. 점수(1 초과 값 있음)는 확률이 아니다.
 
 사용: python tools/rtmw_validate.py 결과.jsonl.gz 영상.mp4 [--range a b]... [--target-color blue|red]
 """
@@ -34,8 +39,8 @@ def mapping_check(R):
             ok_hand += (d(LW, 91) + d(RW, 112)) < (d(LW, 112) + d(RW, 91))
             n_foot += 1
             ok_foot += (d(LA, 19) + d(RA, 22)) < (d(LA, 22) + d(RA, 19))
-    return {'손 같은쪽 일관': round(ok_hand / max(1, n_hand), 4), '발 같은쪽 일관': round(ok_foot / max(1, n_foot), 4),
-            '인물 결과 수': n_hand}
+    return {'손 상대 대응 일관': [ok_hand, n_hand, round(ok_hand / max(1, n_hand), 4)],
+            '발 상대 대응 일관': [ok_foot, n_foot, round(ok_foot / max(1, n_foot), 4)]}
 
 def color_masks(fr):
     hsv = cv2.cvtColor(fr, cv2.COLOR_BGR2HSV)
@@ -59,7 +64,7 @@ def main():
         target = args[args.index('--target-color') + 1]
     R = load(res_path)
     out = {'장 수(결과 파일)': len(R), '장 번호 연속': sorted(R) == list(range(min(R), max(R) + 1))}
-    out['133점 의미'] = mapping_check(R)
+    out['133점 순서 가정의 상대 대응 일관성(정답률 아님)'] = mapping_check(R)
 
     cap = cv2.VideoCapture(vid)
     nvid = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)); W = cap.get(cv2.CAP_PROP_FRAME_WIDTH); H = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -75,12 +80,12 @@ def main():
         sat, _, _ = color_masks(cv2.resize(fr, (int(W // 4), int(H // 4))))
         ys, xs = np.nonzero(sat)
         if len(xs) > 50: cents[idx] = np.array([xs.mean() * 4, ys.mean() * 4])
+    common = [f for f in cents if all(len(R.get(f + o, [])) == 1 for o in range(-2, 3))]
     off_err = {}
     for off in range(-2, 3):
-        e = [np.hypot(*(body_center(R[f + off][0][1]) - c)) for f, c in cents.items()
-             if len(R.get(f + off, [])) == 1 and len(R.get(f, [])) == 1]
+        e = [np.hypot(*(body_center(R[f + off][0][1]) - cents[f])) for f in common]
         off_err[off] = round(float(np.median(e)), 1) if e else None
-    out['장 번호 오프셋별 몸중심-마스크중심 거리 중앙값(px)'] = off_err
+    out['장 번호 오프셋별 상체·엉덩이 평균중심-색마스크중심 거리 중앙값(px), 공통 장 집합'] = {'표본 장 수': len(common), '거리': off_err}
 
     # 3·4. 구간별 대상 대응·좌우 바뀜 후보
     for a, b in ranges:
@@ -99,20 +104,22 @@ def main():
                     best = (share, k)
             seq.append((f, None if best is None else best[1]))
         got = [s for s in seq if s[1] is not None]
-        jumps, swaps = [], []
+        jumps, hipj, swaps = [], [], []
         for (f1, k1), (f2, k2) in zip(seq, seq[1:]):
             if k1 is None or k2 is None: continue
             torso = np.hypot(*(k1[[5, 6], :2].mean(0) - k1[[11, 12], :2].mean(0))) or 1
             jumps.append(np.hypot(*(body_center(k2) - body_center(k1))) / torso)
+            hipj.append(np.hypot(*(k2[[11, 12], :2].mean(0) - k1[[11, 12], :2].mean(0))) / torso)
             for Lj, Rj, name in ((L_ARM, R_ARM, '팔'), (L_LEG, R_LEG, '다리')):
                 same = np.linalg.norm(k1[Lj, :2] - k2[Lj, :2]) + np.linalg.norm(k1[Rj, :2] - k2[Rj, :2])
                 sw = np.linalg.norm(k1[Lj, :2] - k2[Rj, :2]) + np.linalg.norm(k1[Rj, :2] - k2[Lj, :2])
                 if sw < 0.5 * same:
                     swaps.append((f1, f2, name))
         out[f'구간 {a}-{b}'] = {'대상 배정된 장': f'{len(got)}/{len(seq)}',
-                               '루트 이동/몸통 중앙·최대': [round(float(np.median(jumps)), 3), round(float(max(jumps)), 3)] if jumps else None,
+                               '상체·엉덩이 평균중심 이동/몸통 중앙·최대': [round(float(np.median(jumps)), 3), round(float(max(jumps)), 3)] if jumps else None,
+                               '엉덩이 중점 이동/몸통 중앙·최대': [round(float(np.median(hipj)), 3), round(float(max(hipj)), 3)] if hipj else None,
                                '좌우 바뀜 후보(장쌍, 부위)': swaps}
-    print(json.dumps(out, ensure_ascii=False, indent=1))
+    print(json.dumps(out, ensure_ascii=False, indent=1, default=lambda o: o.item() if hasattr(o, "item") else str(o)))
 
 if __name__ == '__main__':
     main()
