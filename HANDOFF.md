@@ -29,12 +29,14 @@
      - 마지막 기록은 판정 조건이 바뀌어 같은 조건의 비교가 2회 미만이다. **추세를 말할 수 없다.**
    - 마지막 판정 시트(입력 | AI SFA | 정답 SFA): 물체 위치·종류는 대체로 맞추기 시작했지만, 스틱맨 팔다리 엉킴·십자 → 선처럼 모양은 아직 틀리다(Claude 눈).
    - **2회차 제안:** `python tools/kaggle_seq_remote.py push --prebuilt --gpu-ok --minutes 600 --plan-minutes 900 --extra "--gen-minutes 120"`. `--fresh`는 붙이지 않는다. GPU 실행은 사용자 허락 뒤에 한다.
-2. **스틱맨 토론(처음부터):** GPT 6차(docs/GPT-ANIME-TO-STICKMAN-ROUND6-2026-11-02.md)와 Claude 7차 답까지 썼다(docs/ANIME-TO-STICKMAN-DEBATE-2026-11-02.md).
+2. **스틱맨 토론(처음부터):** Claude 7차와 GPT 7차 검토 완료. GPT 전체: docs/GPT-ANIME-TO-STICKMAN-ROUND7-2026-11-02.md. 토론 기록: docs/ANIME-TO-STICKMAN-DEBATE-2026-11-02.md.
    - B325–333은 세 그림이다(325–327 / 328–330 / 331–333). 확인 경계는 `data/stickman_motion/verified_boundaries_1913_2026-11-02.json`에 있다.
    - `drawing_segments.py` 2판: 후보(candidate)와 확인(verified, `pose_copy_ok`)을 나눈다. 복사 가능한 것은 루트 기준 상대 포즈뿐이다.
-   - 라벨 명세 v1.2(요약 순서, 부분 검증 대 전체 통과, 본문 정리).
+   - 라벨 명세 v1.2(요약 순서, 부분 검증 대 전체 통과, 본문 정리)에 GPT 동의. 확인 적용 함수는 후보 캐시+실제 확인 파일에서 13개 구간·복사 3개를 재현. 영상 해시·대상 검사는 코드에 없어 적용 전 검증 보완을 제안.
    - 다음
-     - CPU 피팅 진단 6조건(2D / 3D 평면 / 3D 깊이 × 원 RTMW / 검수 필터, 7차 §2 규칙)을 구현한다.
+     - GPT 7차 제안/Claude 확인 필요: 모든 뼈 방향이 자유라면 몸 전역 회전이 중복될 수 있어, 별도 전역 회전 없는 고정 카메라 좌표계 표현을 우선 추천. 평면 대조군은 최종 좌표 z=0 또는 면 밖 전역 회전 금지로 2D와 해집합을 맞춘다.
+     - 공통 L0·s의 6조건부터 구현하고 L50/L90은 같은 보정 자료·단위의 길이 민감도로 추가. 90% 분위·중앙값을 참 공간 길이로 확정하지 않음. 뼈 목록·유효 자유도·d>sL을 기록한다. 실제 피팅은 이번 GPT 검토에서 실행 안 함.
+     - 코드 점검·인공 기하 반례: docs/GPT-ROUND7-GEOMETRY-AUDIT-2026-11-02.json.
      - 좌표 라벨 JSON 형식 초안을 만든다.
      - '몸 돌리기' 구간을 찾는다.
      - 좌표 입력 방식(웹 도구 / 표)은 사용자 답 대기다.

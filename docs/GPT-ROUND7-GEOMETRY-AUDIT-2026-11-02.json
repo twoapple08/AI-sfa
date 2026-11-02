@@ -1,0 +1,126 @@
+{
+  "kind": "코드 확인과 인공 기하 반례. 실제 애니 피팅 품질 실험이 아님.",
+  "verified_application": {
+    "candidate_count": 11,
+    "refined_count": 13,
+    "pose_copy_ok": [
+      [
+        325,
+        327
+      ],
+      [
+        328,
+        330
+      ],
+      [
+        331,
+        333
+      ]
+    ],
+    "metadata_wrong_input_produces_same_output": true,
+    "meaning": "검토한 apply_verified는 video_sha256·target을 검사하지 않는다. 실제로 다른 원본 영상을 투입한 실험이 아니라, 메타데이터만 바꾼 확인 파일을 같은 후보에 메모리에서 적용한 코드 점검이다. 원본 근거 파일은 수정하지 않았다."
+  },
+  "plane_control_counterexample": {
+    "local_all_z_zero": true,
+    "global_rotation": "Ry(60deg)",
+    "unit_bones": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ]
+    ],
+    "projected_lengths": [
+      0.5000000000000001,
+      1
+    ],
+    "world_z": [
+      0,
+      -0.8660254037844386,
+      0
+    ],
+    "meaning": "로컬 z=0이어도 전역 회전이 면 밖으로 기울면 투영 단축이 비등방으로 생겨, 균등 배율만 있는 2D 고정 길이 모델의 대조군과 달라진다.",
+    "original_local_points": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ]
+    ]
+  },
+  "global_rotation_gauge_example": {
+    "R": "Ry(30deg)",
+    "Q": "Rz(37deg)",
+    "changed_local_coordinates": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0.7986355100472928,
+        -0.6018150231520483,
+        0
+      ],
+      [
+        0.6018150231520483,
+        0.7986355100472928,
+        0
+      ]
+    ],
+    "R_prime_formula": "R @ Q",
+    "X_prime_formula": "Q.T @ X",
+    "max_abs_world_position_difference": 5.551115123125783e-17,
+    "meaning": "모든 로컬 뼈 방향이 자유로우면 전역 회전을 반대 로컬 회전으로 보상할 수 있다. 실제 모델의 뼈 목록·기준 프레임을 정하기 전 명목 파라미터를 유효 자유도로 세면 안 된다.",
+    "original_local_points": [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0
+      ]
+    ]
+  },
+  "length_quantile_counterexample": {
+    "true_length": 1,
+    "fixed_scale": 1,
+    "valid_projected_lengths": [
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.85
+    ],
+    "median": 0.7,
+    "q90": 0.83,
+    "q90_is_true_length": false,
+    "meaning": "배율이 고정된 이상적인 약원근에서도 완전히 펼쳐 보이는 시점이 없으면 90% 분위가 실제 길이에 도달하지 않는다."
+  },
+  "source_commit": "619a3f2130080501dc201d4865d1677e99dcd6c6",
+  "source_blobs": {
+    "drawing_segments": "afba097f67e33a6dc22d837dd6692da7a2eb4537",
+    "verified_boundaries": "65ee75633182b57897e9015d87d4b18b95b5ee79"
+  }
+}
