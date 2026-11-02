@@ -18,8 +18,9 @@
 - 토론은 논증거리가 없어질 때까지(사용자 10-31). GPT는 GitHub·Drive 직접 접근.
 
 ## 바로 할 일
-1. **Kaggle 자료 판 10 만드는 중**(11-02, f731e51, CPU 약 2시간): 단어장에 레이어 투명도(LOPAC)를 넣어 토큰 번호가 밀렸고, 조합 장의 10%에 레이어 투명도 늘리기를 넣었다. 끝나면 `data-check`. 판 9(정합성 0)는 옛 단어장이라 더 쓰지 않는다. 판정 목록은 같은 46장, 해시만 갱신(`hash_update`).
-2. **사용자 지시를 받고** GPU: ① 속도 측정 회차(40–60분, 실행표 docs/GPU-SPEEDTEST-RUNBOOK-2026-11-01.md) → ② 실측한 학습 외 시간으로 계획(학습 진행 분)을 정함 → ③ 본 학습. 회차마다 `python tools/seq_trend.py log.jsonl`로 추세를 보여 드린다. 계획 정책: docs/GPT-RESPONSE-VERIFY-ROUND2-FLOWTEST-2026-11-01.md §5.
+1. **Kaggle 자료 판 10 완료**(f731e51, CPU 148분, 판정 자료 5.5분 포함): `data-check` — sd·sd1920·sd1280·sd854·sc 모두 100화소 넘는 어긋남 0(최대 85).
+2. **GPU 속도 측정 실행 중**(사용자 지시 11-02, 커널 판 5, 00:35 UTC 시작, 실행표 명령 그대로): 끝나면 pull → 실측표·계획 계산 → 사용자 보고.
+3. GPU: ① 속도 측정 회차(진행 중, 실행표 docs/GPU-SPEEDTEST-RUNBOOK-2026-11-01.md) → ② 실측한 학습 외 시간으로 계획(학습 진행 분)을 정함 → ③ 본 학습. 회차마다 `python tools/seq_trend.py log.jsonl`로 추세를 보여 드린다. 계획 정책: docs/GPT-RESPONSE-VERIFY-ROUND2-FLOWTEST-2026-11-01.md §5.
 3. GPT에 응답 문서 재검토 요청(docs/GPT-RESPONSE-CODE-REVIEW-2026-11-01.md).
 4. 측정(GPU 뒤): 길이별 생성 시간·마지막 평가 예상 대 실제, 메모리(rss_gb), 실제 장 노출, 묶음 검출 오탐(M-01–M-04).
 
