@@ -98,7 +98,9 @@ def raw_dirs(K, W):
     idx = np.arange(T)
     for i in range(11):
         g = ~np.isnan(A[:, i])
-        prior[:, i] = np.interp(idx, idx[g], np.unwrap(A[g, i])) if g.any() else (-np.pi / 2 if DIRS[i] == 'torso' else np.pi / 2)
+        # 구간 내내 관측이 없으면 기본 방향: 몸통 위, 가로선(골반·어깨) 수평, 팔다리 아래(11-03: 가로선 기본값이 세로였다)
+        default = -np.pi / 2 if DIRS[i] == 'torso' else (0.0 if DIRS[i].endswith('span') else np.pi / 2)
+        prior[:, i] = np.interp(idx, idx[g], np.unwrap(A[g, i])) if g.any() else default
     return A, prior
 
 
@@ -445,9 +447,16 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
 
 
 def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=0.5, keys=False, key_thr=None,
-             lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True):
-    """대상 관측 K(장×점×3)와 가중 W(장×점)에서 풀이. 관측이 없는 장은 W 행 전체를 0으로 두면 이웃 키로 잇는다."""
+             lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True, L_fallback=None, min_cal=15):
+    """대상 관측 K(장×점×3)와 가중 W(장×점)에서 풀이. 관측이 없는 장은 W 행 전체를 0으로 두면 이웃 키로 잇는다.
+    L_fallback: 이 구간 표본이 min_cal장 미만인 뼈에 쓸 길이(같은 인물의 여러 컷을 모은 리그, 11-03 가까운 화면 다리)."""
     L, n_cal, tor = calib(K, W, q, symmetric)
+    L_from_fallback = []
+    if L_fallback:
+        for d, n in n_cal.items():
+            if n < min_cal and d in L_fallback:
+                L[d] = L_fallback[d]
+                L_from_fallback.append(d)
     S = smooth(tor)
     segs = None
     if keys:
@@ -467,7 +476,7 @@ def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=
         'lam': lam_key if keys else lam, 'quantile': q, 'symmetric': symmetric,
         'keypose_segments': [(frames[s], frames[e]) for s, e in segs] if segs else None, 'key_thr': round(keypose_fit.last_thr, 4) if keys else None,
         'neck_len': neck_len, 'head_d': head_d, 'L_torso_units': {k: round(v, 3) for k, v in L.items()},
-        'calib_samples': n_cal, 'scale_obs_torso_px': [round(float(v), 1) for v in tor],
+        'calib_samples': n_cal, 'L_from_fallback': L_from_fallback, 'scale_obs_torso_px': [round(float(v), 1) for v in tor],
         'scale_smoothed': [round(float(v), 1) for v in S],
         'rms_resid_torso': [None if v is None else round(v, 4) for v in rms],
         'accel_median_torso': {'fit': round(float(np.median(accel(J, S))), 4)},

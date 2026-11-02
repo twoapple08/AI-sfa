@@ -31,5 +31,21 @@ class TestClipFrame(unittest.TestCase):
         self.assertFalse(ids_by_frame[0] & ids_by_frame[1])   # 점 ID는 장마다 새로
 
 
+class TestBorder(unittest.TestCase):
+    def test_border_and_chain(self):
+        # 가까운 화면: 무릎이 화면 아래 끝(719)에 몰림 → 무릎·발목 모두 빠진다. 손목만 끝이면 손목만
+        K = np.zeros((1, 23, 3))
+        K[0, :, :2] = [500, 400]
+        K[0, 5, :2], K[0, 6, :2] = [450, 330], [550, 330]
+        K[0, 11, :2], K[0, 12, :2] = [470, 620], [530, 620]
+        K[0, 13, :2], K[0, 15, :2] = [470, 718], [460, 690]     # 왼무릎 끝, 왼발목은 안쪽이지만 사슬로 빠짐
+        K[0, 9, :2] = [3, 400]                                   # 왼손목만 왼쪽 끝
+        bm = sc.border_mask(K, 1152, 720, 63)[0]
+        self.assertTrue(bm[13] and bm[15])
+        self.assertFalse(bm[14] or bm[16] or bm[11])
+        self.assertTrue(bm[9])
+        self.assertFalse(bm[7])
+
+
 if __name__ == '__main__':
     unittest.main()

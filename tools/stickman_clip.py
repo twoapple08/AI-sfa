@@ -23,7 +23,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from rtmw_to_stickman_2d import load_rtmw, pick_target  # noqa: E402
-from rtmw_to_stickman_2d_v2 import run_core  # noqa: E402
+from rtmw_to_stickman_2d_v2 import run_core, calib  # noqa: E402
 from stickman_variants import basic_joints  # noqa: E402
 from pose_to_stickman import BODY  # noqa: E402
 
@@ -46,9 +46,32 @@ def color_area(video, frames, color):
     return np.array(out)
 
 
-def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=1.5):
-    """한 컷·한 인물. 반환: (관절 dict 또는 None, 있음 마스크, 표시할 장 목록, 보고)."""
-    K = pick_target(R, frames, video, color, strict=True)
+CHAIN_DOWN = {11: (13, 15), 12: (14, 16), 13: (15,), 14: (16,), 5: (7, 9), 6: (8, 10), 7: (9,), 8: (10,)}
+
+
+def border_mask(K, img_w, img_h, top, frac=0.06, min_px=8.0):
+    """화면 가장자리 관절(가까운 화면에서 화면 밖 다리를 RTMW가 아래 끝에 몰아 찍는다, 11-03 실측: 1136–1233 무릎 y 707–723, 점수 3.9).
+    가장자리에서 max(min_px, frac × 관측 몸통) 안이면 True(4%로는 y 700–707 발목이 남아 6%로 넓힘)."""
+    tor = np.linalg.norm((K[:, 5, :2] + K[:, 6, :2]) / 2 - (K[:, 11, :2] + K[:, 12, :2]) / 2, axis=1)
+    m = np.maximum(min_px, frac * tor)[:, None]
+    x, y = K[:, :, 0], K[:, :, 1]
+    bm = (x <= m) | (x >= img_w - 1 - m) | (y <= top + m) | (y >= img_h - 1 - m)
+    # 사슬 규칙: 관절이 화면 밖이면 그 아래쪽(손목·발목 쪽) 관절도 관측에서 뺀다
+    # (11-03: 무릎이 빠진 뒤 화면 끝 근처에 남은 발목이 다리를 옆으로 끌었다)
+    for j, kids in CHAIN_DOWN.items():
+        for k in kids:
+            bm[:, k] |= bm[:, j]
+    return bm
+
+
+def pick_shot(R, video, frames, color):
+    return pick_target(R, frames, video, color, strict=True)
+
+
+def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=1.5, img=None, L_fallback=None, K=None):
+    """한 컷·한 인물. 반환: (관절 dict 또는 None, 있음 마스크, 보고). img = (폭, 높이, 화면 위 끝 y)."""
+    if K is None:
+        K = pick_shot(R, video, frames, color)
     obs = np.array([k is not None for k in K])
     rep = {'observed_frames': int(obs.sum())}
     area = color_area(video, frames, color)
@@ -64,8 +87,15 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
     Kf = np.array(Kf)
     W = (Kf[:, :, 2] >= min_score).astype(float)
     W[~obs[i0:i1 + 1]] = 0
+    n_border = 0
+    if img is not None:
+        bm = border_mask(Kf, *img)
+        n_border = int((bm[:, 5:17] & (W[:, 5:17] > 0)).sum())
+        W[bm] = 0
     sub = frames[i0:i1 + 1]
-    J, S, r, _, _ = run_core(Kf, W, sub, q=50, symmetric=True, keys=True)
+    J, S, r, _, _ = run_core(Kf, W, sub, q=50, symmetric=True, keys=True, L_fallback=L_fallback)
+    rep['border_joints_dropped'] = n_border
+    rep['L_from_fallback'] = r['L_from_fallback']
     B, info = basic_joints(J, S, facing=r['facing_leg'])
     present = np.zeros(len(frames), bool)
     present[i0:i1 + 1] = True
@@ -95,7 +125,7 @@ def person_aos(n, slot, Jn, to_pct, color):
     return ''.join(out)
 
 
-def build(R, video, start, end, cuts, colors):
+def build(R, video, start, end, cuts, colors, img=None):
     frames = list(range(start, end + 1))
     bounds = [start] + [c for c in sorted(cuts) if start < c <= end] + [end + 1]
     shots = [(bounds[i], bounds[i + 1] - 1) for i in range(len(bounds) - 1)]
@@ -103,9 +133,20 @@ def build(R, video, start, end, cuts, colors):
     rep = {'shots': shots, 'people': {c: [] for c in colors}}
     for c in colors:
         Jall = None
+        # 인물 리그: 모든 컷의 관측을 모아 뼈 길이를 잰다(가장자리 점 제외). 컷 안 표본이 적은 뼈는 이 값을 쓴다.
+        picks = {(s, e): pick_shot(R, video, list(range(s, e + 1)), c) for s, e in shots}
+        allK = [k for v in picks.values() for k in v if k is not None]
+        L_rig = None
+        if len(allK) >= 4:
+            AK = np.array(allK)
+            AW = (AK[:, :, 2] >= 1.5).astype(float)
+            if img is not None:
+                AW[border_mask(AK, *img)] = 0
+            L_rig, n_rig, _ = calib(AK, AW, 50, True)
+            rep.setdefault('person_rig', {})[c] = {'L': {k: round(v, 3) for k, v in L_rig.items()}, 'samples': n_rig}
         for s, e in shots:
             sub = list(range(s, e + 1))
-            J, pres, r = person_in_shot(R, video, sub, c)
+            J, pres, r = person_in_shot(R, video, sub, c, img=img, L_fallback=L_rig, K=picks[(s, e)])
             r['shot'] = [s, e]
             rep['people'][c].append(r)
             if J is None:
@@ -139,7 +180,9 @@ def main():
     H = Wv * 9 / 16
     to_pct = lambda p: (100 * p[0] / Wv, 100 * (p[1] - a.crop_y) / H)  # noqa: E731
     R = load_rtmw(a.rtmw)
-    frames, people, rep = build(R, a.video, a.start, a.end, a.cuts, a.colors)
+    cap = cv2.VideoCapture(a.video)
+    img = (cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT), a.crop_y)
+    frames, people, rep = build(R, a.video, a.start, a.end, a.cuts, a.colors, img)
     xml_frames, jout = [], []
     for n in range(len(frames)):
         parts = [f'<Frame BackgroundColor="-1" ID="{FR0 + n}" Position="{n}"><LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false"/>']
