@@ -430,7 +430,7 @@ def pchip_wrap(xk, yk, x):
     return PchipInterpolator(xk, yk, axis=0)(xc)
 
 
-def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05, key_sigma=(0.06, 0.05), half=None):
+def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05, key_sigma=(0.06, 0.05), half=None, side_rule='any'):
     """원본 그림 하나 = 키포즈 하나. 같은 그림 구간의 관측을 평균해 키포즈를 풀고, 구간 가운데 시각에 놓은 뒤
     그 사이 장은 PCHIP으로 이어 24장 모두 움직이게 한다(3컷 작화의 끊김 → 부드러운 이동).
     - 키끼리 벌점 기본 0.05(A 1500–1523: 그림 하나에 몸통 1.5배 이상 이동·몸 돌리기가 있어 0.3에서 잔차 0.5 이상).
@@ -453,7 +453,15 @@ def keypose_fit(K, W, L, S, tor, thr=None, lam_key=0.05, key_sigma=(0.06, 0.05),
         Wk.append((cnt > 0).astype(float))
         Wak.append((cnta > 0).astype(float))
         sg = side[s:e + 1]
-        sdk.append(np.array([np.bincount(c[c > 0]).argmax() if (c > 0).any() else 0 for c in sg.T]))
+        sd_key = np.array([np.bincount(c[c > 0]).argmax() if (c > 0).any() else 0 for c in sg.T])
+        if side_rule == 'valid':
+            # (b) 겹침 토론 1·2차: 그 축이 '유효하게' 관측된 장(side 0이고 Wax 축 > 0, 결측·점수 탈락·사슬 제거 제외)이
+            # 키 안에 하나라도 있으면 그 관절의 끝 조건을 걸지 않는다(1223–1225 오른발목: 화면 안 y 관측과 아래 끝 조건 충돌).
+            for j in np.flatnonzero(sd_key):
+                ax = 1 if sd_key[j] in (1, 2) else 0
+                if ((sg[:, j] == 0) & (wa[:, j, ax] > 0)).any():
+                    sd_key[j] = 0
+        sdk.append(sd_key)
         Sk.append(S[s:e + 1].mean())
         ck.append((s + e) / 2)
     Kk, Wk, Sk, ck = np.array(Kk), np.array(Wk), np.array(Sk), np.array(ck)
@@ -495,7 +503,7 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
 
 
 def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=0.5, keys=False, key_thr=None,
-             lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True, L_fallback=None, min_cal=15, half=None):
+             lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True, L_fallback=None, min_cal=15, half=None, side_rule='any'):
     """대상 관측 K(장×점×3)와 가중 W(장×점)에서 풀이. 관측이 없는 장은 W 행 전체를 0으로 두면 이웃 키로 잇는다.
     L_fallback: 이 구간 표본이 min_cal장 미만인 뼈에 쓸 길이(같은 인물의 여러 컷을 모은 리그, 11-03 가까운 화면 다리)."""
     L, n_cal, tor = calib(K, W, q, symmetric)
@@ -508,7 +516,7 @@ def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=
     S = smooth(tor)
     segs = None
     if keys:
-        J, rms, segs, rms_k, unobs, sol = keypose_fit(K, W, L, S, tor, key_thr, lam_key, key_sigma, half)
+        J, rms, segs, rms_k, unobs, sol = keypose_fit(K, W, L, S, tor, key_thr, lam_key, key_sigma, half, side_rule)
         unobs_frames = [((frames[segs[k][0]], frames[segs[k][1]]), DIRS[i]) for k, i in zip(*np.nonzero(unobs))]
     else:
         J, X, rms, unobs, sol = fit_all(K, W, L, S, lam, half=half)

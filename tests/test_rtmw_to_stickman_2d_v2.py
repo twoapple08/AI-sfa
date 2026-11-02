@@ -124,6 +124,27 @@ class TestV2(unittest.TestCase):
         self.assertEqual(list(f['l']), [1, -1])
         self.assertEqual(list(f['r']), [-1, -1])
 
+    def test_side_rule_valid_drops_conflicting_bound(self):
+        # 같은 그림 3장: 1장만 오른발목이 아래 끝(side 1, y 버림), 2장은 화면 안 y 관측 → valid 규칙이면 끝 조건을 걸지 않는다
+        T = 3
+        th = np.repeat(self.th[:1], T, 0)
+        t = np.repeat(self.t[:1], T, 0)
+        S = np.full(T, 150.0)
+        J = m.forward(th, t, S, L)
+        K = kp_from(J, T)
+        W = np.ones((T, 17))
+        Wax = np.ones((T, 17, 2))
+        side = np.zeros((T, 17), int)
+        side[0, 16] = 1
+        Wax[0, 16, 1] = 0
+        ymax = float(J['ank_r'][0, 1]) + 100.0          # 화면 아래 끝이 실제 발목보다 100px 아래 → any 규칙이면 발목이 끝 밖으로 끌려 내려간다
+        half = (Wax, side, (-1e4, 1e4, -1e4, ymax))
+        tor = np.full(T, 150.0)
+        Ja = m.keypose_fit(K, W, L, S, tor, thr=0.04, lam_key=0.0, key_sigma=None, half=half, side_rule='any')[0]
+        Jv = m.keypose_fit(K, W, L, S, tor, thr=0.04, lam_key=0.0, key_sigma=None, half=half, side_rule='valid')[0]
+        self.assertLess(abs(Jv['ank_r'][1, 1] - J['ank_r'][1, 1]), 2.0)
+        self.assertGreater(abs(Ja['ank_r'][1, 1] - J['ank_r'][1, 1]), abs(Jv['ank_r'][1, 1] - J['ank_r'][1, 1]))
+
     def test_sfa_structure(self):
         J = m.with_head(m.forward(self.th, self.t, self.S, L), self.S, 0.17, 0.5)
         root = ET.fromstring(m.sfa_xml(J, 1152, 648, 63, 'x', np.full(self.T, 3.0)).split('?>', 1)[1])

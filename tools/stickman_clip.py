@@ -83,8 +83,12 @@ def border_mask(K, img_w, img_h, top, frac=0.06, min_px=8.0):
     return border_info(K, img_w, img_h, top, frac, min_px)[0]
 
 
+SELECT = {'mode': 'density', 'side_rule': 'any', 'log': None}
+
+
 def pick_shot(R, video, frames, color):
-    return pick_target(R, frames, video, color, strict=True)
+    log = SELECT['log'].setdefault(color, []) if SELECT['log'] is not None else None
+    return pick_target(R, frames, video, color, strict=True, select=SELECT['mode'], log=log)
 
 
 def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=1.5, img=None, L_fallback=None, K=None):
@@ -116,7 +120,8 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
     else:
         half = None
     sub = frames[i0:i1 + 1]
-    J, S, r, _, _ = run_core(Kf, W, sub, q=50, symmetric=True, keys=True, L_fallback=L_fallback, half=half)
+    J, S, r, _, _ = run_core(Kf, W, sub, q=50, symmetric=True, keys=True, L_fallback=L_fallback, half=half,
+                             side_rule=SELECT['side_rule'])
     rep['border_joints_dropped'] = n_border
     rep['L_from_fallback'] = r['L_from_fallback']
     B, info = basic_joints(J, S, facing=r['facing_leg'])
@@ -209,6 +214,8 @@ def main():
     ap.add_argument('--name', default='stickman_clip')
     ap.add_argument('--report')
     ap.add_argument('--joints')
+    ap.add_argument('--select', choices=['density', 'coverage'], default='density', help='인물 검출 고르기: density(기존) / coverage((a) 재선택)')
+    ap.add_argument('--side-rule', choices=['any', 'valid'], default='any', help='키 끝 조건: any(기존) / valid((b) 유효 축 관측이 있으면 끔)')
     ap.add_argument('--thick-ref', nargs=2, metavar='장:색:굵기', help='거리 굵기 기준 두 점(클립 장 번호 0부터), 예: 40:blue:1.0 120:red:5.0')
     a = ap.parse_args()
     import cv2
@@ -216,6 +223,7 @@ def main():
     H = Wv * 9 / 16
     to_pct = lambda p: (100 * p[0] / Wv, 100 * (p[1] - a.crop_y) / H)  # noqa: E731
     R = load_rtmw(a.rtmw)
+    SELECT.update(mode=a.select, side_rule=a.side_rule, log={})
     cap = cv2.VideoCapture(a.video)
     img = (cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT), a.crop_y)
     frames, people, rep = build(R, a.video, a.start, a.end, a.cuts, a.colors, img)
@@ -250,7 +258,8 @@ def main():
            + ''.join(xml_frames) + '</Sequence>')
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as z:
         z.writestr(a.name + '.xml', xml)
-    rep.update(frames=[a.start, a.end], cuts=a.cuts, colors=a.colors,
+    rep.update(frames=[a.start, a.end], cuts=a.cuts, colors=a.colors, select=a.select, side_rule=a.side_rule,
+               select_log={c: [x for x in v if x[1] != 'same'] for c, v in SELECT['log'].items()},
                present_frames={c: int(people[c]['present'].sum()) for c in a.colors})
     if a.report:
         json.dump(rep, open(a.report, 'w', encoding='utf-8'), ensure_ascii=False, indent=1, default=lambda o: o.item() if hasattr(o, 'item') else str(o))

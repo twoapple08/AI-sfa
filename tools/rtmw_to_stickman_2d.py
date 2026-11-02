@@ -49,7 +49,7 @@ def load_rtmw(path):
     return R
 
 
-def pick_target(R, frames, video=None, color='blue', strict=False, min_share=0.03):
+def pick_target(R, frames, video=None, color='blue', strict=False, min_share=0.03, select='density', log=None):
     """장마다 사람 하나. 한 명이면 그대로, 여럿이면 상자 안 대상 색 비율(tools/rtmw_validate.py와 같은 마스크)로 고른다.
     strict=True: 사람 수와 상관없이 상자 안 대상 색 비율이 다른 색보다 크고 min_share 이상인 사람만 고르고, 없으면 None
     (두 인물 구간에서 한 명만 잡힌 장이 다른 색 인물일 수 있다, 11-03)."""
@@ -72,6 +72,44 @@ def pick_target(R, frames, video=None, color='blue', strict=False, min_share=0.0
         _, blue, red = color_masks(fr)
         m, o = (blue, red) if color == 'blue' else (red, blue)
         share = lambda p, mm: mm[max(0, int(p[0][1])):int(p[0][3]), max(0, int(p[0][0])):int(p[0][2])].mean()  # noqa: E731
+        if select == 'coverage':
+            # (a) 재선택(겹침 토론 1·2차 합의, 11-03): 밀도는 통과 조건으로만 쓴다.
+            # 통과: 상자 안 대상색 ≥ min_share, 대상색 > 다른 색, 몸통 4점(양어깨·양엉덩이) 중 절반 이상이 대상색 위.
+            # (1162 빨강 p1처럼 두 인물을 섞은 큰 상자는 어깨·엉덩이가 다른 인물 위에 있어 빠진다.)
+            # 선택: 화면의 대상색 화소 포함률 최대(1223–1226 빨강 p1처럼 뻗은 다리까지 담은 검출).
+            # 1위와 2% 안이면 앞 장 몸통 중심에 가까운 쪽.
+            tot = max(float(m.sum()), 1.0)
+
+            def own(p):
+                k, n = p[1], 0
+                ok_ = 0
+                for j in (5, 6, 11, 12):
+                    if k[j, 2] < 1.5:
+                        continue
+                    x, y = int(np.clip(k[j, 0], 0, m.shape[1] - 1)), int(np.clip(k[j, 1], 0, m.shape[0] - 1))
+                    win = (slice(max(0, y - 4), y + 5), slice(max(0, x - 4), x + 5))
+                    n += 1
+                    ok_ += m[win].mean() >= 0.3 and m[win].mean() > o[win].mean()
+                return ok_ / n if n else 0.0
+
+            cands = [p for p in ps if share(p, m) >= min_share and share(p, m) > share(p, o) and own(p) >= 0.5]
+            if not cands:
+                out.append(None)
+                if log is not None:
+                    log.append((f, 'none', [round(share(p, m), 3) for p in ps]))
+                continue
+            cov = lambda p: m[max(0, int(p[0][1])):int(p[0][3]), max(0, int(p[0][0])):int(p[0][2])].sum() / tot  # noqa: E731
+            cands.sort(key=cov, reverse=True)
+            best = cands[0]
+            prev = next((q for q in reversed(out) if q is not None), None)
+            if prev is not None and len(cands) > 1 and cov(cands[0]) - cov(cands[1]) < 0.02:
+                c0 = prev[[5, 6, 11, 12], :2].mean(0)
+                best = min(cands[:2], key=lambda p: np.linalg.norm(p[1][[5, 6, 11, 12], :2].mean(0) - c0))
+            if log is not None:
+                dens = max(ps, key=lambda p: share(p, m))
+                log.append((f, 'changed' if best is not dens else 'same', [round(cov(p), 3) for p in cands]))
+            out.append(best[1])
+            continue
         best = max(ps, key=lambda p: share(p, m))
         if strict and not (share(best, m) >= min_share and share(best, m) > share(best, o)):
             out.append(None)
