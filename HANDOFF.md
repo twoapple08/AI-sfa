@@ -20,7 +20,7 @@
 ## 바로 할 일
 1. **Kaggle 자료 판 10 완료**(f731e51, CPU 148분, 판정 자료 5.5분 포함): `data-check` — sd·sd1920·sd1280·sd854·sc 모두 100화소 넘는 어긋남 0(최대 85).
 2. **GPU 속도 측정 완료**(11-02, rc 0, 66분): 실측표는 docs/GPU-SPEEDTEST-RUNBOOK-2026-11-01.md 끝. 자료 읽기 합 28.5분, 약 95걸음/분, 마지막 평가 24분(학습 전 최악), GPU 9.9/15GB. **다음: 사용자에게 본 학습 예산 결정 받기**(계획 = 예산 − 학습 외 시간).
-2-1. **본 학습 1회차 실행 중**(사용자 11-02 '20시간', 커널 판 6, 02:0x UTC 시작): `push --prebuilt --gpu-ok --fresh --minutes 600 --plan-minutes 900 --extra "--final-reserve-min 30 --gen-minutes 120"`. 계획 900분(학습 진행) 고정 = 2회차 × 600분 − 학습 외 시간(자료 읽기 약 41분·마지막 평가 2회·중간 평가 약 14%) 여유 있게. 끝나면 pull → `save-ckpt` → 추세 표(`seq_trend.py`) 보고 → 2회차는 `--fresh` 없이 같은 계획. 마지막 평가가 길어도: 마감은 회차 시작+597분, Kaggle 강제 종료 720분 → 2시간 여유, 학습 상태는 판정 전에 저장.
+2-1. **본 학습 1회차 실행 중**(사용자 11-02 '20시간', 커널 판 6, 05:10 UTC 시작): `push --prebuilt --gpu-ok --fresh --minutes 600 --plan-minutes 900 --extra "--final-reserve-min 30 --gen-minutes 120"`. 계획 900분(학습 진행) 고정 = 2회차 × 600분 − 학습 외 시간(자료 읽기 약 41분·마지막 평가 2회·중간 평가 약 14%) 여유 있게. 끝나면 pull → `save-ckpt` → 추세 표(`seq_trend.py`) 보고 → 2회차는 `--fresh` 없이 같은 계획. 마지막 평가가 길어도: 마감은 회차 시작+597분, Kaggle 강제 종료 720분 → 2시간 여유, 학습 상태는 판정 전에 저장.
 3. GPU: ① 속도 측정 회차(진행 중, 실행표 docs/GPU-SPEEDTEST-RUNBOOK-2026-11-01.md) → ② 실측한 학습 외 시간으로 계획(학습 진행 분)을 정함 → ③ 본 학습. 회차마다 `python tools/seq_trend.py log.jsonl`로 추세를 보여 드린다. 계획 정책: docs/GPT-RESPONSE-VERIFY-ROUND2-FLOWTEST-2026-11-01.md §5.
 3. GPT에 응답 문서 재검토 요청(docs/GPT-RESPONSE-CODE-REVIEW-2026-11-01.md).
 4. 측정(GPU 뒤): 길이별 생성 시간·마지막 평가 예상 대 실제, 메모리(rss_gb), 실제 장 노출, 묶음 검출 오탐(M-01–M-04).
