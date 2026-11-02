@@ -78,5 +78,14 @@ class TestHalfObs(unittest.TestCase):
         self.assertAlmostEqual(np.linalg.norm(J['ank_l'][0] - J['kne_l'][0]), before)
 
 
+class TestThickness(unittest.TestCase):
+    def test_passes_both_refs(self):
+        th, k = sc.distance_thickness([73.3, 376.4, 36.65, 1000.0], [(73.3, 1.0), (376.4, 5.0)])
+        self.assertAlmostEqual(th[0], 1.0, places=6)
+        self.assertAlmostEqual(th[1], 5.0, places=6)
+        self.assertTrue(0.4 < th[2] < 0.6)        # 절반 크기(두 배 먼 거리) → 약 절반 굵기
+        self.assertAlmostEqual(k, np.log(5) / np.log(376.4 / 73.3))
+
+
 if __name__ == '__main__':
     unittest.main()

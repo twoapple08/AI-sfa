@@ -29,7 +29,7 @@ from pose_to_stickman import BODY  # noqa: E402
 
 LINE_COLOR = {'blue': -16776961, 'red': -65536}   # ARGB 0xFF0000FF, 0xFFFF0000
 FR0, AO0, PT0 = 5000, 4560000, 5680000
-STYLE = ('Color="{c}" LayerId="0" ThicknessScale="1.0" ObjectScale="1.0" '
+STYLE = ('Color="{c}" LayerId="0" ThicknessScale="{th}" ObjectScale="1.0" '
          'GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0"')
 
 
@@ -131,21 +131,33 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
     full = {k: np.full((len(frames), 2), np.nan) for k in B}
     for k, v in B.items():
         full[k][i0:i1 + 1] = v
+    full['_S'] = np.full((len(frames), 2), np.nan)       # 장별 몸통 배율(px, 두 열 같음) — 거리 굵기용
+    full['_S'][i0:i1 + 1] = np.repeat(np.asarray(S, float)[:, None], 2, 1)
     return full, present, rep
 
 
-def person_aos(n, slot, Jn, to_pct, color):
+def person_aos(n, slot, Jn, to_pct, color, thick=1.0):
     base = PT0 + n * 1000 + slot * 100
     out = []
     for oid, typ, pts in BODY:
         out.append(f'<AO ID="{AO0 + slot * 100 + oid}" TypeId="{typ}" DrawOrder="{AO0 + slot * 100 + oid}" '
-                   + STYLE.format(c=LINE_COLOR.get(color, -16777216)) + '>')
+                   + STYLE.format(c=LINE_COLOR.get(color, -16777216), th=f'{thick:.3f}') + '>')
         for i, (pid, name, fl, acs) in enumerate(pts):
             x, y = to_pct(Jn[name])
             out.append(f'<AP ID="{base + pid}" Flags="{fl}" Index="{i}" X="{x:.4f}" Y="{y:.4f}">'
                        + ''.join(f'<AC ConnPtId="{base + c}"/>' for c in acs) + '</AP>')
         out.append('</AO>')
     return ''.join(out)
+
+
+def distance_thickness(S, refs, t_min=0.2, t_max=20.0):
+    """카메라(뷰어)와의 거리에 따른 선 굵기(11-03 사용자): 화면 속 인물 크기(몸통 배율 S, px)가 거리에 반비례하므로
+    굵기 = t1 × (S / S1)^k. 기준 두 점 (S1, t1), (S2, t2)를 정확히 지나도록 k = ln(t2/t1) / ln(S2/S1).
+    사용자 기준: 1032–1271 클립의 40장 파랑 = 1.0(지금 굵기), 120장 빨강 = 5.0(500%). 실측 S 73.3 대 376.4(비 5.14) → k ≈ 0.98
+    (거의 S에 정비례 = 원근 규칙과 같다)."""
+    (S1, t1), (S2, t2) = refs
+    k = np.log(t2 / t1) / np.log(S2 / S1)
+    return np.clip(t1 * (np.asarray(S, float) / S1) ** k, t_min, t_max), float(k)
 
 
 def build(R, video, start, end, cuts, colors, img=None):
@@ -197,6 +209,7 @@ def main():
     ap.add_argument('--name', default='stickman_clip')
     ap.add_argument('--report')
     ap.add_argument('--joints')
+    ap.add_argument('--thick-ref', nargs=2, metavar='장:색:굵기', help='거리 굵기 기준 두 점(클립 장 번호 0부터), 예: 40:blue:1.0 120:red:5.0')
     a = ap.parse_args()
     import cv2
     Wv = cv2.VideoCapture(a.video).get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -206,6 +219,17 @@ def main():
     cap = cv2.VideoCapture(a.video)
     img = (cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT), a.crop_y)
     frames, people, rep = build(R, a.video, a.start, a.end, a.cuts, a.colors, img)
+    thick = {c: np.ones(len(frames)) for c in a.colors}
+    if a.thick_ref:
+        pts = []
+        for item in a.thick_ref:
+            n_, c_, t_ = item.split(':')
+            pts.append((float(people[c_]['J']['_S'][int(n_), 0]), float(t_)))
+        for c in a.colors:
+            if people[c]['J'] is not None:
+                thick[c], k = distance_thickness(people[c]['J']['_S'][:, 0], pts)
+        rep['thickness'] = {'refs': [[a.thick_ref[i], round(pts[i][0], 1)] for i in range(2)], 'k': round(k, 4),
+                            'range': {c: [round(float(np.nanmin(thick[c])), 3), round(float(np.nanmax(thick[c])), 3)] for c in a.colors}}
     xml_frames, jout = [], []
     for n in range(len(frames)):
         parts = [f'<Frame BackgroundColor="-1" ID="{FR0 + n}" Position="{n}"><LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false"/>']
@@ -215,8 +239,8 @@ def main():
             if P['J'] is None or not P['present'][n]:
                 jn[c] = None
                 continue
-            Jn = {k: v[n] for k, v in P['J'].items()}
-            parts.append(person_aos(n, slot, Jn, to_pct, c))
+            Jn = {k: v[n] for k, v in P['J'].items() if not k.startswith('_')}
+            parts.append(person_aos(n, slot, Jn, to_pct, c, float(np.nan_to_num(thick[c][n], nan=1.0))))
             jn[c] = {k: [round(float(v[0]), 2), round(float(v[1]), 2)] for k, v in Jn.items()}
         parts.append('</Frame>')
         xml_frames.append(''.join(parts))
