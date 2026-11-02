@@ -54,7 +54,8 @@ def basic_joints(J, S, head_d=HEAD_TEMPLATE, facing=None):
     knee_fixed = []
     if facing is not None:   # 허벅지 뿌리를 골반 가운데로 옮기면 거의 곧은 다리가 반대로 꺾일 수 있다(B 326–334, 11-03) → 다시 검사
         from rtmw_to_stickman_2d_v2 import fix_knees
-        knee_fixed = fix_knees(out, np.asarray(facing), (('pelvis', 'kne_l', 'ank_l'), ('pelvis', 'kne_r', 'ank_r')))
+        fc = {k: np.asarray(v) for k, v in facing.items()} if isinstance(facing, dict) else np.asarray(facing)
+        knee_fixed = fix_knees(out, fc, (('pelvis', 'kne_l', 'ank_l'), ('pelvis', 'kne_r', 'ank_r')))
     u = unit(neck - pel)
     tor = np.linalg.norm(neck - pel, axis=1)
     out['head_t'] = neck + u * (tor * head_d)[:, None]
@@ -170,7 +171,7 @@ def main():
     J, S, rep = load(a.joints, a.report)
     W, H = a.width, a.width * 9 / 16
     to_pct = lambda p: (100 * p[0] / W, 100 * (p[1] - a.crop_y) / H)  # noqa: E731
-    B, info = basic_joints(J, S, a.head, rep.get('facing'))
+    B, info = basic_joints(J, S, a.head, rep.get('facing_leg') or rep.get('facing'))
     T = len(S)
     if a.mode == 'basic':
         frames = [basic_frame_xml(n, {k: v[n] for k, v in B.items()}, to_pct) for n in range(T)]

@@ -114,6 +114,16 @@ class TestV2(unittest.TestCase):
         self.assertEqual(list(g[:10]), [-1] * 10)          # 2장 튄 +는 지운다
         self.assertEqual(list(g[-5:]), [1] * 5)            # 5장 이어진 +는 남긴다
 
+    def test_leg_facing_conflict(self):
+        # A1519 같은 경우: 왼발 +, 오른발 − → 다리마다 자기 발. 한쪽이 불분명하면 다른 발을 따른다
+        K = np.zeros((2, 23, 3))
+        K[:, :, 2] = 5
+        K[0, 17, 0], K[0, 19, 0], K[0, 20, 0], K[0, 22, 0] = 25, 0, -49, 0
+        K[1, 17, 0], K[1, 19, 0], K[1, 20, 0], K[1, 22, 0] = 1, 0, -30, 0
+        f = m.leg_facing(K, np.ones((2, 23)), np.array([100.0, 100.0]))
+        self.assertEqual(list(f['l']), [1, -1])
+        self.assertEqual(list(f['r']), [-1, -1])
+
     def test_sfa_structure(self):
         J = m.with_head(m.forward(self.th, self.t, self.S, L), self.S, 0.17, 0.5)
         root = ET.fromstring(m.sfa_xml(J, 1152, 648, 63, 'x', np.full(self.T, 3.0)).split('?>', 1)[1])

@@ -66,7 +66,7 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
     W[~obs[i0:i1 + 1]] = 0
     sub = frames[i0:i1 + 1]
     J, S, r, _, _ = run_core(Kf, W, sub, q=50, symmetric=True, keys=True)
-    B, info = basic_joints(J, S, facing=r['facing'])
+    B, info = basic_joints(J, S, facing=r['facing_leg'])
     present = np.zeros(len(frames), bool)
     present[i0:i1 + 1] = True
     outside = [frames[t] for t in range(len(frames)) if not present[t] and area[t] >= area_min]

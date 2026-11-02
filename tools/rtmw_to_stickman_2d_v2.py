@@ -282,7 +282,8 @@ def drawing_segments(K, W, tor, thr=0.04):
 def smooth_keys(xk, yk, sigma, x):
     """sigma: 수 하나 또는 키마다 배열(위치는 px 그대로 두고 sigma = 몸통 단위 × 키 배율)."""
     """키 값을 그대로 잇지 않고, 키 흔들림 크기 sigma 안에서 매끄러운 3차 스플라인으로 맞춰 키 값을 고른 뒤 PCHIP으로 x에서 잇는다(열마다).
-    UnivariateSpline s = 키 수 × sigma²(잔차 제곱합 허용치). 키가 4개 미만이면 PCHIP으로 잇는다. 범위 밖은 끝값 유지.
+    UnivariateSpline s = 키 수 × sigma²: 키 값 조정의 '가중 RMS'가 sigma 정도라는 뜻이고, 키마다 최대 sigma 이내라는 보장은 아니다
+    (GPT 5차 검토: 실제 최대 각도 변화 B 0.129, A 0.138 rad). 키가 4개 미만이면 PCHIP으로 잇는다. 범위 밖은 끝값 유지.
     (11-03: B 걷기에서 키 2차 차분이 1차 차분과 같아(골반 0.110 대 0.109 몸통) 떨림으로 보였다. 큰 동작(A)은 sigma보다 훨씬 커서 거의 남는다.)"""
     from scipy.interpolate import UnivariateSpline
     yk = np.asarray(yk, float)
@@ -307,6 +308,23 @@ def frame_facing(K, W, tor, min_frac=0.05):
         v = [K[t, toe, 0] - K[t, heel, 0] for toe, heel in ((17, 19), (20, 22)) if W[t, toe] > 0 and W[t, heel] > 0]
         if v and abs(np.mean(v)) >= min_frac * tor[t]:
             out[t] = np.sign(np.mean(v))
+    return out
+
+
+def leg_facing(K, W, tor, min_frac=0.05):
+    """다리마다 앞쪽: 자기 발(엄지발가락 x − 뒤꿈치 x)이 확실하면 그 부호, 아니면 다른 발이 확실할 때 그 부호, 둘 다 아니면 0.
+    (GPT 5차 검토 11-03: A1519·1522는 두 발이 반대 방향이라 평균을 양쪽 무릎에 강제하면 안 된다.)"""
+    T = len(K)
+    out = {'l': np.zeros(T), 'r': np.zeros(T)}
+    if K.shape[1] < 23:
+        return out
+    feet = {'l': (17, 19), 'r': (20, 22)}
+    own = {}
+    for s, (toe, heel) in feet.items():
+        v = np.where((W[:, toe] > 0) & (W[:, heel] > 0), K[:, toe, 0] - K[:, heel, 0], 0.0)
+        own[s] = np.where(np.abs(v) >= min_frac * tor, np.sign(v), 0.0)
+    for s, o in (('l', 'r'), ('r', 'l')):
+        out[s] = np.where(own[s] != 0, own[s], own[o])
     return out
 
 
@@ -342,14 +360,16 @@ def stable_facing(f, min_run=4):
 
 def fix_knees(J, facing, roots=(('hip_l', 'kne_l', 'ank_l'), ('hip_r', 'kne_r', 'ank_r'))):
     """무릎이 앞쪽(발끝 방향)과 반대로 꺾였으면 뿌리–발목 선을 기준으로 무릎을 대칭으로 옮긴다(길이 유지).
+    facing: 배열 하나(양 다리 공통) 또는 {'l': 배열, 'r': 배열}(다리마다, 무릎 이름 끝 글자로 고른다).
     화면 좌표(y 아래)에서 앞쪽이 +x이면 정상 꺾임은 cross(허벅지, 정강이) > 0. facing 0인 장은 건드리지 않는다.
     반환: 고친 (장, 다리) 목록."""
     fixed = []
     for root, kn, an in roots:
+        fc = np.asarray(facing[kn[-1]] if isinstance(facing, dict) else facing, float)
         R_, K_, A_ = J[root], J[kn].copy(), J[an]
         th, sh = K_ - R_, A_ - K_
         cr = th[:, 0] * sh[:, 1] - th[:, 1] * sh[:, 0]
-        bad = (facing != 0) & (cr * facing < 0)
+        bad = (fc != 0) & (cr * fc < 0)
         d = A_ - R_
         p = K_ - R_
         proj = (p * d).sum(1, keepdims=True) / np.maximum((d * d).sum(1, keepdims=True), 1e-9) * d
@@ -438,7 +458,9 @@ def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=
         unobs_frames = [(frames[t], DIRS[i]) for t, i in zip(*np.nonzero(unobs))]
     facing_raw = frame_facing(K, W, tor)
     facing = stable_facing(facing_raw)
-    knee_fixed = fix_knees(J, facing) if knee_fix else []
+    legs_raw = leg_facing(K, W, tor)
+    legs = {s: stable_facing(v) for s, v in legs_raw.items()}
+    knee_fixed = fix_knees(J, legs) if knee_fix else []
     J = with_head(J, S, neck_len, head_d)
     rep = {
         'model': '중점 11방향, 몸통 기준 배율, ' + ('키포즈(원본 그림 하나 = 키 하나) + PCHIP 보간' if keys else '전 장 동시 풀이'),
@@ -450,7 +472,8 @@ def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=
         'rms_resid_torso': [None if v is None else round(v, 4) for v in rms],
         'accel_median_torso': {'fit': round(float(np.median(accel(J, S))), 4)},
         'unobserved_dir_frames': unobs_frames,
-        'facing': [int(x) for x in facing], 'facing_raw': [int(x) for x in facing_raw], 'knee_fixed': [(frames[t], k) for t, k in knee_fixed],
+        'facing': [int(x) for x in facing], 'facing_raw': [int(x) for x in facing_raw],
+        'facing_leg': {k: [int(x) for x in v] for k, v in legs.items()}, 'knee_fixed': [(frames[t], k) for t, k in knee_fixed],
         'key_sigma': list(key_sigma) if (keys and key_sigma) else None,
         'optimizer': {'status': int(sol.status), 'nfev': int(sol.nfev), 'cost': round(float(sol.cost), 5)},
     }
