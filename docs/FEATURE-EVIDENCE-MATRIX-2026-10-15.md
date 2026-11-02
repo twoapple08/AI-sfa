@@ -24,8 +24,6 @@
 | 수동 트위닝 잇기 | 05 다른ID 두 원의 링크 후 중간 원 복구, 축소 영상에서 해당 한 장 차이 | 기존 AOT의 링크 유형/점순서/충돌 검사 근거 | 뒤key정렬·자연ID충돌·TypeId/동위치Index검사 확인; UI 전체·역방향·복합FR 실제 결과 미완 |
 | 레이어 위·아래 이동·병합·삭제·추가 | 이 표에서 실제 앱 검증 완료로 세지 않음 | UI→메모리/sequence DB 교환·cache 제거; 병합기존순서슬롯재배정/삭제기반참조·fill정리/전체frame정의추가/history초기화 | 실제 앱 결과·DB 실패 rollback·동적 정렬 대상의 전체 해석 |
 | 내보내기·FPS | 기존 01–05 출력의 길이/프레임수 관찰 | (T 트위닝,P 재생) timeline, Dart Picture→Java 인코더, 별도재생Frame/Picture/Image버퍼·clock 연결 | 모든 FPS 조합·renderer backend·완전한 픽셀 동일성 |
-| 편집 보조(줌/팬·회전 스냅·축 고정·어니언·빈공간 색) | 이 표에서 실제 앱 검증 완료로 세지 않음 | 옵션 팝업 callback→필드·Plus gate, 어니언 0..5장·색/알파·글로우 여부, 축 고정 좌표식, 보기 회전45° 스냅, 설정 저장/복원 기본값 | BackgroundPicker 내부·어니언 색 합성·실제 화면 결과 |
-| 프레임별 배경색 | 이 표에서 실제 앱 검증 완료로 세지 않음 | picker 불투명색·실시간 미리보기/취소 복원, frame_background UPSERT, 녹화 Picture 배경 drawRect | undo 복원 여부·인코더 pixel |
 
 실제 표본은 [01–03 결과](PRIORITY-V2-RESULTS-2026-10-14.md), [04–05 결과](UI-04-05-RESULTS-2026-10-15.md)를 따른다. 이전 보고서 말미의 당시 ‘다음 작업’은 최신 체크포인트보다 우선하지 않는다.
 
@@ -57,7 +55,3 @@ PC는 사용자20:26 보고로 현재 사용 불가다. 서버 cache는 정상�
 2026-10-16 추가: [ROOT-COPY-DB-BRANCHES](AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)에서 root prefix(절반이상) 재사용/새root/source rebase시도/targetbase 범위·점ID예약 schema·같은/다른sequence AO DB복사 정상분기를49선택명령으로 보충했다. 실제복사/실패보장·전체UI coverage는 별개다.
 
 2026-10-27 추가: [MODIFY-COLOR-GLOW-APPLY](AOT-MODIFY-COLOR-GLOW-APPLY-TRACE-2026-10-27.md)에서 상세 패널 색상·글로우 탭의 초기화(첫 AO, 글로우 두께≤0→20)·휠/알파/hex/견본/되돌리기 setter·HSV↔ARGB 변환·ApplyOnlyColor/Glow의 대상 전체 덮어쓰기·최근색/프리셋 저장을 234선택명령으로 연결했다. UI 라벨 강도=GlowRadius, 범위=GlowThickness. 실제 화면 색·휠 터치식·비정상 입력은 별개다.
-
-2026-11-02 추가: [FRAME-OPTIONS-POPUP](AOT-FRAME-OPTIONS-POPUP-TRACE-2026-11-02.md)에서 프레임 편집 옵션 팝업의 12개 callback, Plus gate(이전/다음 장수·컬러 모드), 어니언 목록/색/알파/글로우, 축 고정 `_applyAxisFix`, 보기 회전 스냅(0.55° 진입/0.96° 해제, 45° 배수), 편집 설정 key와 복원 기본값을 171선택명령으로 연결했다. 정적 정상 경로이며 실제 화면 결과가 아니다.
-
-2026-11-02 추가: [FRAME-BACKGROUND-PICKER](AOT-FRAME-BACKGROUND-PICKER-TRACE-2026-11-02.md)에서 프레임 배경색 picker의 시작색·불투명 hex·실시간 미리보기·취소 복원·확인 시 frame_background UPSERT와 녹화 RecordPicture 배경 채우기를 67선택명령+dispatch 1개로 연결했다.

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "date_kst": "2026-11-02",
-  "source_commit": "e58c993a7b3e8292b78ed6760c4947f174416d4c",
+  "date_kst": "2026-10-27",
+  "source_commit": "afc4be303b3e7b0099fc0f8d7cc62bd469adb50e",
   "purpose": "기존 보고서의 기능별 근거 색인; 새 AOT 또는 runtime 검증 아님",
   "exhaustive_feature_inventory": false,
   "all_solo_analysis_complete": false,
@@ -278,48 +278,6 @@
       "remaining": [
         "원시 DB helper 전체 수명·실패/비정상 입력 보장",
         "전체 UI·실제 DB 실패/동시 실행"
-      ],
-      "complete": false
-    },
-    {
-      "id": "editor-aids",
-      "title_ko": "편집 보조: 줌/팬·회전 스냅·축 고정·어니언 스킨·빈공간 색",
-      "evidence_reports": [
-        "docs/AOT-FRAME-OPTIONS-POPUP-TRACE-2026-11-02.md"
-      ],
-      "existing_runtime_samples": [],
-      "static_scope": [
-        "PopupFrameOptionsLayout 12개 callback→state/activity 필드·Plus gate(이전/다음 장수·컬러모드)",
-        "어니언 장수0..5(t×5 round)·먼frame부터 목록·이전/다음 색(회색 또는 파랑/빨강)·거리별 알파·글로우 플래그=그룹 glow 그리기 여부",
-        "축 고정 static 모드0/1/2 상호배타·_touchDownPoint 기준 좌표 고정",
-        "보기 회전 스냅 45° 배수·진입0.55°/해제0.96°·두 손가락 줌/팬 gate",
-        "편집 설정 key 저장/복원 기본값과 Plus 아닌 경우 고정값"
-      ],
-      "remaining": [
-        "BackgroundPicker 내부·Premium 안내 내용·AnchorSize/점 표시 UI",
-        "어니언 색 합성 방식·빈공간 색 그리기 위치",
-        "실제 화면/pixel·비정상 입력"
-      ],
-      "complete": false
-    },
-    {
-      "id": "frame-background",
-      "title_ko": "프레임별 배경색",
-      "evidence_reports": [
-        "docs/AOT-FRAME-BACKGROUND-PICKER-TRACE-2026-11-02.md",
-        "docs/AOT-FRAME-OPTIONS-POPUP-TRACE-2026-11-02.md",
-        "docs/AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md"
-      ],
-      "existing_runtime_samples": [],
-      "static_scope": [
-        "frame ID 키 map·기본색(없으면 흰색) 조회",
-        "picker 불투명 색(hex 6자리만)·실시간 미리보기·취소 시 시작색 복원",
-        "확인 시 frame_background UPSERT·map 갱신·history 항목 호출",
-        "재생/녹화 RecordPicture의 clip 후 배경 drawRect→Frame.Draw"
-      ],
-      "remaining": [
-        "history undo 시 배경 복원 여부·점 색 용도",
-        "실제 화면/인코더 pixel"
       ],
       "complete": false
     }
