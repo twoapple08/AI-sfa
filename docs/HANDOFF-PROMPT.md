@@ -1,32 +1,54 @@
-# 인수인계 프롬프트 (2026-11-02 저녁 — 1단계 본 학습 1회차 실행 중 + 2단계 '애니 → 스틱맨' 방법 재토론)
+# 인수인계 프롬프트 (2026-11-03 새벽 — 1단계 2회차 실행 중 + 스틱맨 GPT 8차 받기 → 2D 시제품)
 
-https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. 작업 브랜치는 `claude/new-session-gknz4t`다. 시작할 때 fetch해서 이 브랜치의 최신 상태로 맞춘다. 시스템이 다른 브랜치를 배정하면 같은 HEAD를 그 브랜치에도 푸시한다. **모든 답을 한국어로만 쓴다.**
+https://github.com/twoapple08/AI-sfa 작업을 이어서 한다. **모든 답을 한국어로만 쓴다.**
 
-**읽기 순서:** AGENTS.md → HANDOFF.md(현재 우선순위·바로 할 일·결정 대기·이번 세션 실수) → docs/ANIME-TO-STICKMAN-DEBATE-2026-11-02.md(스틱맨 토론 기록 — 처음부터 다시, 옛 v1–v5는 중단) → 필요할 때 docs/STAGE2-GENERATOR-DESIGN-2026-11-02.md(2단계 설계), docs/history/PROJECT-HISTORY-2026-11-01-02.md(최근 이틀 경과), docs/PROJECT-HISTORY-2026-10-31.md(전체 역사), docs/GPU-SPEEDTEST-RUNBOOK-2026-11-01.md(GPU 실측), docs/JUDGE-CRITERIA-FINAL-2026-10-31.md(판정 기준).
+**브랜치:** 작업은 `claude/new-session-gknz4t`에만 있다. main은 옛 단계라 읽지 않고, 아무것도 올리지 않는다. 시작하면 먼저 다음을 한다.
+1. `git fetch origin claude/new-session-gknz4t`
+2. `git checkout -B <시스템이 배정한 브랜치> origin/claude/new-session-gknz4t`
+3. `git log --oneline -1`로 HEAD를 확인한다. 커밋할 때는 같은 HEAD를 배정 브랜치와 `claude/new-session-gknz4t` 둘 다에 푸시한다.
 
-## 목표
-- **최종:** 태그·자연어·스토리보드를 받아 .sfa 애니메이션을 만드는 창작 AI. 개인용이다. 실행 위치는 임시로 서버 GPU로 정했다(AGENTS.md '최종 목표').
-- **1단계:** 영상 → SFA 변환 AI. 모델이 영상 한 장을 보고 SFA 오브젝트 문장을 직접 쓴다. 1판 본 학습이 Kaggle에서 실행 중이다.
-- **2단계:** 실제 애니를 SFA로 변환한 자료로 생성기를 학습시킨다.
-  - 인물은 스틱맨으로 바꾼다(앱 기본 스틱맨, 편집 가능해야 함).
-  - 이펙트와 배경은 1단계 변환기로 옮긴다.
-  - 캐릭터 디자인을 입힐 수 있어야 한다.
+**읽기 순서:**
+1. AGENTS.md
+2. HANDOFF.md: 현재 우선순위, 바로 할 일, 결정 대기, 이번 세션 실수
+3. docs/ANIME-TO-STICKMAN-DEBATE-2026-11-02.md: 맨 끝 '8차 — Claude 답'과 '사용자 판정·지시 기록'만 먼저 읽는다
+4. GPT 8차 답: `docs/GPT-ANIME-TO-STICKMAN-ROUND8-2026-11-02.md`. GPT가 지정 브랜치에 저장했다. 없으면 사용자에게 묻는다.
 
-## 지금 위치(11-02 저녁)
-- Kaggle `aisfa-seq-train` 판 6이 실행 중이다. 예상 종료는 15:10–15:40 UTC다.
-  - 끝나면: pull → save-ckpt → seq_trend로 보고 → 2회차 제안(`--fresh` 없이).
-  - **사용자 지시 없이 GPU 실행 금지.**
-- 애니 → 스틱맨은 **진짜 처음부터** 다시 한다(11-02 밤 사용자). 옛 변환 v1–v5는 중단했다. GPT와 토론·의논 형식으로 하고, 3D 배제는 뺐다. Claude·GPT 모두 외부 도구 제약이 없다. 새 GPT 프롬프트는 docs/GPT-PROMPT-ANIME-TO-STICKMAN-FRESH-2026-11-02.md에 있다. Claude 1차 의견은 토론 기록에 있다.
+필요할 때만 더 읽는다: docs/STICKMAN-LABEL-SPEC-2026-11-02.md, docs/history/PROJECT-HISTORY-2026-11-01-02.md, docs/STAGE2-GENERATOR-DESIGN-2026-11-02.md.
+
+## 지금 위치
+- **1단계(영상 → SFA 변환 AI):** Kaggle `aisfa-seq-train` 판 7(2회차, 이어하기)을 11-02 15:47 UTC에 시작했다. 예상 종료는 01:00–01:45 UTC다.
+  - 끝나면 다음 순서로 한다.
+    1. `python tools/kaggle_seq_remote.py pull 폴더`
+    2. `save-ckpt 폴더`
+    3. `python tools/seq_trend.py 폴더/log.jsonl`
+    4. 1회차와 같은 조건의 판정끼리 비교해 보고한다. 판정 시트(입력 | AI SFA | 정답)도 보고, 숫자보다 그림을 먼저 보여 준다.
+  - 3회차는 사용자 허락 뒤에 한다.
+- **2단계(애니 인물 → 스틱맨):**
+  - 토론이 길어져 진행 방식을 바꾸자고 제안했다. 토론은 결정이 필요할 때만 하고, 구현 세부는 바로 만들어 결과물로 검토받는다.
+  - 사용자는 이 제안 뒤 "8차는 새 세션에서 받을 수 있도록"이라고 답했다. **시작할 때 방식 전환을 한 줄로 확인받는다.**
+  - GPT 8차 답은 읽고 짧게(9차) 반영한다. 새 측정이나 긴 반박 라운드는 열지 않는다.
+  - 그다음 2D 시제품을 만든다.
+    - 입력: 기존 RTMW-x 결과 + 원본 영상(nian41 1913).
+    - 구간: B 300–334, A 1500–1523(파란 인물).
+    - 출력: 스틱맨 SFA와 원본 옆 비교 영상. 정지 유지 / 매 장 / 원본 카메라 비교판을 함께 만든다.
+    - 사용자에게 보여 주고 연출 결정(원본 충실 대 재연출, 원근 단축, 2·3장 정지 유지)을 받는다.
+  - SFA 규칙: 점 ID는 장마다 새로, 오브젝트 ID는 장끼리 유지, (24, 24).
+- **GPU:** 사용자 지시 없이 실행하지 않는다. 스틱맨 쪽 GPU 일은 Colab에서 한다(Claude가 노트북을 만들고 사용자가 실행).
+
+## 새 컨테이너 준비
+- 다음을 설치한다.
+  - pip: `opencv-python-headless numpy scipy skia-python kaggle`
+  - CPU torch·torchvision: `--index-url https://download.pytorch.org/whl/cpu`
+  - apt: `rclone libegl1 libgl1`
+- scratchpad 자료는 사라진다. Drive에서 다시 받는다.
+  - 원본: `gdrive:AI-sfa/01_원본영상/nian41/x_self_posts/1913231262086463573.mp4`
+  - RTMW: `gdrive:AI-sfa/02_분석자료/포즈_RTMW/nian41/1913231262086463573.jsonl.gz`
+  - 해시는 HANDOFF.md에 있다.
 
 ## 사용자와 일하는 방식(핵심)
 - 먼저 답하고, 계획(무엇·왜·얼마나)을 말한 뒤 작업한다.
-- **사용자 녹화와 화면은 꼼꼼히 확인한다.** 구분이 안 되면 단정하지 말고 묻는다.
-- 사용자에게 시험을 부탁하기 전에, 가진 실제 파일 전수 조사로 가를 수 있는지 먼저 본다. 이미 결론이 난 것을 다시 시험하게 하지 않는다.
-- 규칙을 세울 때는 반례와 반대쪽 경우를 실제 자료로 센다(AGENTS.md).
-- GPT 토론
-  - 사용자가 중계한다.
-  - 근거로 동의하거나 반대하고, 측정으로 가를 수 있으면 잰다.
-  - 합의가 안 되면 쟁점·근거·볼 그림을 정리해 사용자 판정을 받는다.
-  - GPT가 효율이 좋은 일은 GPT 프롬프트(docs/GPT-PROMPT-*.md)로 넘긴다.
-- 원본 영상·추출 프레임·가중치·앱 녹화는 저장소에 넣지 않는다(Drive만). 토큰·키 출력 금지.
+- 근거 범위 안에서만 말한다. 측정·시각 판독·가설을 구분한다. 지난 세션에서 근거 없는 단정 때문에 정정 라운드가 여러 번 생겼다.
+- 그림 판정은 원본 크기와 차이 지도로 한다. 작은 시트로 단정하지 않는다.
+- GPT 답은 저장소 docs에 전문이 온다. 사용자에게 줄 GPT 전달 문구는 **한 개만**, 짧게 준다.
+- 원본 영상·추출 프레임·가중치·앱 녹화는 저장소에 넣지 않는다(Drive만). 토큰·키를 출력하지 않는다.
 - 애니메이터별 범위 규칙은 최신 기록으로 고정돼 있다. 다시 해석하지 않는다.
