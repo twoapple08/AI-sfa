@@ -107,6 +107,13 @@ class TestV2(unittest.TestCase):
         yf = m.smooth_keys(xk, fast[:, None], 0.06, xk)[:, 0]
         self.assertLess(np.abs(yf - fast).max(), 0.2)
 
+    def test_stable_facing(self):
+        f = np.array([-1, -1, -1, -1, 1, 1, -1, -1, -1, -1, 0, 0, 1, 1, 1, 1, 1])
+        g = m.stable_facing(f, min_run=4)
+        self.assertTrue((g != 0).all())
+        self.assertEqual(list(g[:10]), [-1] * 10)          # 2장 튄 +는 지운다
+        self.assertEqual(list(g[-5:]), [1] * 5)            # 5장 이어진 +는 남긴다
+
     def test_sfa_structure(self):
         J = m.with_head(m.forward(self.th, self.t, self.S, L), self.S, 0.17, 0.5)
         root = ET.fromstring(m.sfa_xml(J, 1152, 648, 63, 'x', np.full(self.T, 3.0)).split('?>', 1)[1])

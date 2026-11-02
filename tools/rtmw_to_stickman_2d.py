@@ -49,8 +49,10 @@ def load_rtmw(path):
     return R
 
 
-def pick_target(R, frames, video=None, color='blue'):
-    """장마다 사람 하나. 한 명이면 그대로, 여럿이면 상자 안 대상 색 비율(tools/rtmw_validate.py와 같은 마스크)로 고른다."""
+def pick_target(R, frames, video=None, color='blue', strict=False, min_share=0.03):
+    """장마다 사람 하나. 한 명이면 그대로, 여럿이면 상자 안 대상 색 비율(tools/rtmw_validate.py와 같은 마스크)로 고른다.
+    strict=True: 사람 수와 상관없이 상자 안 대상 색 비율이 다른 색보다 크고 min_share 이상인 사람만 고르고, 없으면 None
+    (두 인물 구간에서 한 명만 잡힌 장이 다른 색 인물일 수 있다, 11-03)."""
     cap = None
     out = []
     for f in frames:
@@ -58,7 +60,7 @@ def pick_target(R, frames, video=None, color='blue'):
         if not ps:
             out.append(None)
             continue
-        if len(ps) == 1:
+        if len(ps) == 1 and not strict:
             out.append(ps[0][1])
             continue
         import cv2
@@ -68,8 +70,12 @@ def pick_target(R, frames, video=None, color='blue'):
         cap.set(cv2.CAP_PROP_POS_FRAMES, f)
         ok, fr = cap.read()
         _, blue, red = color_masks(fr)
-        m = blue if color == 'blue' else red
-        best = max(ps, key=lambda p: m[max(0, int(p[0][1])):int(p[0][3]), max(0, int(p[0][0])):int(p[0][2])].mean())
+        m, o = (blue, red) if color == 'blue' else (red, blue)
+        share = lambda p, mm: mm[max(0, int(p[0][1])):int(p[0][3]), max(0, int(p[0][0])):int(p[0][2])].mean()  # noqa: E731
+        best = max(ps, key=lambda p: share(p, m))
+        if strict and not (share(best, m) >= min_share and share(best, m) > share(best, o)):
+            out.append(None)
+            continue
         out.append(best[1])
     return out
 

@@ -310,6 +310,36 @@ def frame_facing(K, W, tor, min_frac=0.05):
     return out
 
 
+def stable_facing(f, min_run=4):
+    """앞쪽 열을 안정화한다: 0(불분명)은 앞뒤 확실한 값으로 채우고, min_run장 미만으로 튄 구간은 이웃 값으로 바꾼다.
+    (11-03: 넓은 화면 격투 1032–1135에서 발이 작아 앞쪽이 2–4장마다 뒤집혀 무릎이 깜빡였다.)"""
+    f = np.asarray(f, float).copy()
+    nz = np.flatnonzero(f)
+    if len(nz) == 0:
+        return f
+    for t in range(len(f)):
+        if f[t] == 0:
+            f[t] = f[nz[np.argmin(np.abs(nz - t))]]
+    changed = True
+    while changed:
+        changed = False
+        runs, s = [], 0
+        for t in range(1, len(f) + 1):
+            if t == len(f) or f[t] != f[s]:
+                runs.append((s, t - 1))
+                s = t
+        if len(runs) <= 1:
+            break
+        i = min(range(len(runs)), key=lambda k: runs[k][1] - runs[k][0])
+        a, b = runs[i]
+        if b - a + 1 >= min_run:
+            break
+        nb = runs[i - 1] if i > 0 else runs[i + 1]
+        f[a:b + 1] = f[nb[0]]
+        changed = True
+    return f
+
+
 def fix_knees(J, facing, roots=(('hip_l', 'kne_l', 'ank_l'), ('hip_r', 'kne_r', 'ank_r'))):
     """무릎이 앞쪽(발끝 방향)과 반대로 꺾였으면 뿌리–발목 선을 기준으로 무릎을 대칭으로 옮긴다(길이 유지).
     화면 좌표(y 아래)에서 앞쪽이 +x이면 정상 꺾임은 cross(허벅지, 정강이) > 0. facing 0인 장은 건드리지 않는다.
@@ -391,6 +421,12 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
     for t, f in enumerate(frames):
         for j in drop.get(f, set()):
             W[t, j] = 0
+    return run_core(K, W, frames, q, symmetric, lam, neck_len, head_d, keys, key_thr, lam_key, key_sigma, knee_fix)
+
+
+def run_core(K, W, frames, q=90, symmetric=True, lam=1.0, neck_len=0.17, head_d=0.5, keys=False, key_thr=None,
+             lam_key=0.05, key_sigma=(0.06, 0.05), knee_fix=True):
+    """대상 관측 K(장×점×3)와 가중 W(장×점)에서 풀이. 관측이 없는 장은 W 행 전체를 0으로 두면 이웃 키로 잇는다."""
     L, n_cal, tor = calib(K, W, q, symmetric)
     S = smooth(tor)
     segs = None
@@ -400,7 +436,8 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
     else:
         J, X, rms, unobs, sol = fit_all(K, W, L, S, lam)
         unobs_frames = [(frames[t], DIRS[i]) for t, i in zip(*np.nonzero(unobs))]
-    facing = frame_facing(K, W, tor)
+    facing_raw = frame_facing(K, W, tor)
+    facing = stable_facing(facing_raw)
     knee_fixed = fix_knees(J, facing) if knee_fix else []
     J = with_head(J, S, neck_len, head_d)
     rep = {
@@ -413,7 +450,7 @@ def run(R, frames, drop=None, min_score=1.5, video=None, color='blue', q=90, sym
         'rms_resid_torso': [None if v is None else round(v, 4) for v in rms],
         'accel_median_torso': {'fit': round(float(np.median(accel(J, S))), 4)},
         'unobserved_dir_frames': unobs_frames,
-        'facing': [int(x) for x in facing], 'knee_fixed': [(frames[t], k) for t, k in knee_fixed],
+        'facing': [int(x) for x in facing], 'facing_raw': [int(x) for x in facing_raw], 'knee_fixed': [(frames[t], k) for t, k in knee_fixed],
         'key_sigma': list(key_sigma) if (keys and key_sigma) else None,
         'optimizer': {'status': int(sol.status), 'nfev': int(sol.nfev), 'cost': round(float(sol.cost), 5)},
     }
