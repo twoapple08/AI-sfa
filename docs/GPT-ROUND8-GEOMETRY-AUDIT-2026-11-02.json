@@ -1,0 +1,243 @@
+{
+  "kind": "인공 기하 검산·코드 점검. 실제 애니 피팅 실험 아님.",
+  "check_verified_cases": [
+    {
+      "case": "valid",
+      "accepted": true
+    },
+    {
+      "case": "wrong_sha",
+      "accepted": false,
+      "message": "영상 SHA-256 불일치"
+    },
+    {
+      "case": "wrong_color",
+      "accepted": false,
+      "message": "대상 색 불일치(red ≠ blue)"
+    },
+    {
+      "case": "missing_target_color",
+      "accepted": true
+    },
+    {
+      "case": "missing_frame_index",
+      "accepted": true
+    },
+    {
+      "case": "ambiguous_frame_string",
+      "accepted": true
+    },
+    {
+      "case": "conflicting_boundary",
+      "accepted": false,
+      "message": "경계이면서 비경계: [328]"
+    },
+    {
+      "case": "nonadjacent_same_pair",
+      "accepted": false,
+      "message": "같음 쌍이 인접 쌍이 아님: [325, 327]"
+    },
+    {
+      "case": "same_pair_crosses_boundary",
+      "accepted": false,
+      "message": "같음 쌍인데 뒤 장이 새 그림 첫 장: [327, 328]"
+    }
+  ],
+  "independent_hubs_counterexample": {
+    "root": [
+      0,
+      0,
+      0
+    ],
+    "left_hip": [
+      1,
+      0,
+      0
+    ],
+    "right_hip": [
+      0,
+      1,
+      0
+    ],
+    "hip_midpoint": [
+      0.5,
+      0.5,
+      0
+    ],
+    "meaning": "13개 독립 방향이 허용하는 예지만 루트=엉덩이 중점 조건을 위반한다."
+  },
+  "variable_counts": {
+    "independent_13_hubs": {
+      "3d": 28,
+      "plane_or_2d": 15
+    },
+    "exact_hip_shoulder_midpoints": {
+      "independent_vectors": 11,
+      "3d": 24,
+      "plane_or_2d": 13
+    },
+    "assumptions": "양의 고정 길이, 배율 고정, 머리 항 끔. 중점 모델은 좌우 반폭 길이를 묶고 두 방향을 반대로 둔다. 다른 관절 제약 없음."
+  },
+  "full_observation_midpoint_example": {
+    "raw_nonzero_depth_sign_combinations": 2048,
+    "global_depth_mirror_classes": 1024,
+    "max_projected_position_difference": 0,
+    "max_midpoint_constraint_error": 1.3877787807814457e-17,
+    "meaning": "이 장난감의 모든 독립 깊이 성분이 0이 아니고 모든 몸 관절 xy가 알려진 경우의 2^11 구성. 일반 실제 데이터의 해 개수 아님.",
+    "base_vectors": [
+      [
+        0.45,
+        0.05,
+        0.31
+      ],
+      [
+        0.05,
+        -0.9,
+        0.27
+      ],
+      [
+        0.6,
+        0.03,
+        0.19
+      ],
+      [
+        -0.55,
+        0.2,
+        0.23
+      ],
+      [
+        -0.32,
+        0.45,
+        0.17
+      ],
+      [
+        0.54,
+        0.21,
+        0.21
+      ],
+      [
+        0.3,
+        0.4,
+        0.29
+      ],
+      [
+        -0.2,
+        0.75,
+        0.25
+      ],
+      [
+        -0.08,
+        0.72,
+        0.33
+      ],
+      [
+        0.18,
+        0.77,
+        0.22
+      ],
+      [
+        0.1,
+        0.69,
+        0.26
+      ]
+    ],
+    "base_vector_names": [
+      "pelvis_full_span",
+      "root_to_shoulder_mid",
+      "shoulder_full_span",
+      "L_upper_arm",
+      "L_forearm",
+      "R_upper_arm",
+      "R_forearm",
+      "L_thigh",
+      "L_shin",
+      "R_thigh",
+      "R_shin"
+    ],
+    "construction": "root=0; neck=T; hips=±H/2; shoulders=T±S/2; arm/leg children are parent+edge vector. Each vector depth is independently multiplied by ±1."
+  },
+  "missing_wrist_example": {
+    "excluded_point": "left_wrist",
+    "sampled_distinct_wrist_positions": 100,
+    "max_other_observed_xy_difference": 0,
+    "varying_bone_depth_sign": "positive throughout",
+    "meaning": "같은 깊이 부호 패턴 안에도 연속적인 동등해가 있다. 손목 관측을 끈 필터판은 이산 모호성만 남는다고 말할 수 없다."
+  },
+  "head_direction_only_example": [
+    {
+      "polar": 0.2,
+      "projected_angle": 0.4,
+      "u_z": 0.9800665778412416
+    },
+    {
+      "polar": 0.4,
+      "projected_angle": 0.4,
+      "u_z": 0.9210609940028851
+    },
+    {
+      "polar": 0.6,
+      "projected_angle": 0.4,
+      "u_z": 0.8253356149096783
+    },
+    {
+      "polar": 0.8,
+      "projected_angle": 0.4,
+      "u_z": 0.6967067093471654
+    },
+    {
+      "polar": 1,
+      "projected_angle": 0.39999999999999997,
+      "u_z": 0.5403023058681398
+    }
+  ],
+  "head_mean_subset_example": {
+    "fixed_three_landmarks": [
+      [
+        1,
+        0
+      ],
+      [
+        -1,
+        0
+      ],
+      [
+        0,
+        1
+      ]
+    ],
+    "all_three_mean": [
+      0,
+      0.3333333333333333
+    ],
+    "nose_only_mean": [
+      1,
+      0
+    ],
+    "meaning": "보이는 점의 부분집합 평균을 같은 머리점으로 쓰면 실제 머리가 안 움직여도 기준점이 바뀔 수 있다."
+  },
+  "source_commit": "2a2e3af58f80f7248298ce1d093ae318bcf14719",
+  "source_blobs": {
+    "drawing_segments": "406f55eda8805d3059470aaa4b5737824cc82f30",
+    "verified_boundaries": "b17dd954100ff99cde3792ea041ecd9dca279565"
+  },
+  "numpy_version": "2.3.5",
+  "valid_file_application": {
+    "refined_segments": 13,
+    "pose_copy_ok": [
+      [
+        325,
+        327
+      ],
+      [
+        328,
+        330
+      ],
+      [
+        331,
+        333
+      ]
+    ],
+    "scope": "확인 적용 함수와 GPT 6 후보 캐시를 사용. 원본 전체 재처리 아님."
+  },
+  "source_debate_blob": "44ebcf61a2970c84d2c284ad47e16e148946dbc6"
+}
