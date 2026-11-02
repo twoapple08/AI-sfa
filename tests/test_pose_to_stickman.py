@@ -1,19 +1,37 @@
-"""포즈 → 스틱맨 SFA(2단계 인물 갈래): 관절점·파란점·ID 불변 조건."""
+"""포즈 → 앱 기본 스틱맨 SFA(2단계 인물 갈래): 앱 틀과 같은 구조·길이 비율·ID 불변 조건."""
 import collections
+import math
 import os
 import sys
 import unittest
 import xml.etree.ElementTree as ET
+import zipfile
 
 import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tools'))
+ROOT = os.path.join(os.path.dirname(__file__), '..')
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+
+
+def topo(frame):
+    """오브젝트 순서대로 (TypeId, [(Flags, 연결 상대의 (오브젝트 순번, Index))])."""
+    aos = frame.findall('AO')
+    where = {p.get('ID'): (k, p.get('Index')) for k, a in enumerate(aos) for p in a.findall('AP')}
+    return [(a.get('TypeId'), [(p.get('Flags'), sorted(where[c.get('ConnPtId')] for c in p.findall('AC'))) for p in a.findall('AP')])
+            for a in aos]
+
+
+def seg_len(frame, r):
+    return [math.hypot(float(p1.get('X')) - float(p0.get('X')), (float(p1.get('Y')) - float(p0.get('Y'))) * r)
+            for p0, p1 in (a.findall('AP') for a in frame.findall('AO'))]
 
 
 class PoseToStickman(unittest.TestCase):
     def test_structure(self):
         import pose_to_stickman as P
         import sfa_tokens as K
+        z = zipfile.ZipFile(os.path.join(ROOT, 'data', 'app_templates', 'stickman_default.sfa'))
+        app = ET.fromstring(z.read(z.namelist()[0])).find('Frame')
         rng = np.random.default_rng(0)
         base = np.array([[50, 20], [48, 18], [52, 18], [46, 19], [54, 19], [44, 30], [56, 30], [40, 40], [60, 40], [38, 50], [62, 50],
                          [46, 55], [54, 55], [45, 70], [55, 70], [44, 85], [56, 85]], float) * [8.54, 4.8]
@@ -21,16 +39,18 @@ class PoseToStickman(unittest.TestCase):
         res[3]['kp'][9][2] = 0.05   # 낮은 신뢰 점은 보간
         xml, _ = P.build(dict(W=854, H=480, res=res), 0, 9)
         root = ET.fromstring(xml.split('\n', 1)[1])
+        r = float(root.get('HeightWidthRatio'))
         frs = root.findall('Frame')
         self.assertEqual(len(frs), 10)
+        app_len = np.array(seg_len(app, 0.5625))
         own, acs = collections.defaultdict(set), collections.defaultdict(set)
         for fr in frs:
+            self.assertEqual(topo(fr), topo(app))                                  # 앱 기본 스틱맨과 같은 구조
+            L = np.array(seg_len(fr, r))
+            np.testing.assert_allclose(L / L.sum(), app_len / app_len.sum(), atol=1e-3)  # 길이 비율 고정
             aos = fr.findall('AO')
             find = K.link_groups(aos, True)
             self.assertEqual(len({find(a.get('ID')) for a in aos}), 1)          # 스틱맨 하나 = 무리 하나
-            flags = [int(p.get('Flags')) for p in fr.iter('AP')]
-            self.assertEqual(flags.count(3), 1)                                    # 파란점 하나
-            self.assertEqual(flags.count(33), 5)                                   # 관절점: 목·팔꿈치 2·무릎 2
             for a in aos:
                 for p in a.findall('AP'):
                     own[p.get('ID')].add(a.get('ID'))

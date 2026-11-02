@@ -1,11 +1,7 @@
-"""2D 포즈(COCO 17점) → 관절점 있는 스틱맨 SFA(24/24). 2단계 '인물 → 스틱맨' 갈래(docs/STAGE2-GENERATOR-DESIGN-2026-11-02.md §1).
+"""2D 포즈(COCO 17점) → 앱 기본 스틱맨 SFA(24/24). 2단계 '인물 → 스틱맨' 갈래(docs/STAGE2-GENERATOR-DESIGN-2026-11-02.md §1).
 
-구조(실제 스틱맨 SFA의 점 값·연결 방식을 따름 — 막고라 관절 스틱맨 관찰, 11-02):
-- 몸통 T: 시작점 = 목(관절점 33), 끝점 = 골반(파란점 3, 뿌리)
-- 위팔: 시작 = 팔꿈치(관절점 33), 끝 = 목에 붙음(5 ↔ 몸통 33)  /  아래팔: 시작 = 손목(9), 끝 = 팔꿈치(5 ↔ 위팔 33)
-- 허벅지: 시작 = 무릎(33), 끝 = 골반(8 ↔ 몸통 3)  /  정강이: 시작 = 발목(9), 끝 = 무릎(5 ↔ 허벅지 33)
-- 머리: 원(TypeId 2), 지름 양끝 = 목 쪽(5 ↔ 몸통 33) · 정수리 쪽(9)
-- 점·오브젝트 ID는 모든 장에서 같고 연결(AC)도 모든 장에서 같다(앱 불변 조건, AGENTS.md). 무리(스틱맨 하나)마다 파란점 하나(사용자 11-02).
+구조: 앱 기본 스틱맨 틀(BODY 주석)을 그대로 쓰고 점 위치만 포즈 방향 × 틀 길이로 옮긴다(팔다리 비율 고정).
+머리는 몸통 방향을 따른다(얼굴 점은 애니에서 떨려 머리가 흔들렸다, 11-02 사용자). 무리 하나·파란점 하나, ID·연결은 모든 장에서 같다.
 
 사용: python tools/pose_to_stickman.py pose.json 출력.sfa --start 298 --end 390 [--crop-y 27 --h 480] [--name 이름]
 pose.json = {W, H, res: [장마다 None 또는 {kp: 17×[x,y,score]}]} (YOLO11-pose 추론 결과, 큰 사람 하나)
@@ -37,58 +33,92 @@ def clean(kps, min_score=0.3):
     return sm
 
 
-def joints(kp):
-    """COCO 17점 → 스틱맨 관절(화소 좌표)."""
-    m = lambda i, k: (kp[i, :2] + kp[k, :2]) / 2  # noqa: E731
-    neck, pelvis = m(LSHO, RSHO), m(LHIP, RHIP)
-    face = [kp[i, :2] for i in (NOSE, LEYE, REYE, LEAR, REAR) if kp[i, 2] >= 0.3] or [kp[NOSE, :2]]
-    head_c = np.mean(face, 0)
-    up = head_c - neck
-    L = max(np.linalg.norm(up), 1e-3)
-    r = max(0.55 * L, 0.18 * np.linalg.norm(neck - pelvis))
-    head_bottom = neck + up / L * max(L - r, 0.2 * L)
-    head_top = head_bottom + up / L * 2 * r
-    return dict(neck=neck, pelvis=pelvis, lelb=kp[LELB, :2], lwri=kp[LWRI, :2], relb=kp[RELB, :2], rwri=kp[RWRI, :2],
-                lkne=kp[LKNE, :2], lank=kp[LANK, :2], rkne=kp[RKNE, :2], rank=kp[RANK, :2], hb=head_bottom, ht=head_top)
-
-
-# 오브젝트: (AO ID, TypeId, [(점 ID, 관절 이름, Flags, [연결 상대 점 ID])])
+# 앱 기본 스틱맨 틀(11-02 사용자가 준 앱 기본 스틱맨 data/app_templates/stickman_default.sfa를 그대로 옮김 — 10조각, 관절점 없음).
+# Flags: 3 = 골반(파란점, 뿌리), 4 = 부모 점에 붙는 끝, 2 = 뿌리(골반)에 붙는 끝, 5 = 그 밖의 끝. 머리 원의 아래 끝(5)은 목에 붙음.
+# 화면 왼쪽 팔다리(틀 X 45.8)를 인물의 오른쪽(r)으로 둔다(정면 기준).
+# (AO ID, TypeId, [(점 ID, 이름, Flags, [연결 점 ID]) Index0, Index1])
 BODY = [
-    (1, '1', [(10, 'neck', 33, [21, 41, 101]), (11, 'pelvis', 3, [61, 81])]),            # 몸통
-    (2, '1', [(20, 'lelb', 33, [31]), (21, 'neck', 5, [10])]),                             # 왼 위팔
-    (3, '1', [(30, 'lwri', 9, []), (31, 'lelb', 5, [20])]),                                # 왼 아래팔
-    (4, '1', [(40, 'relb', 33, [51]), (41, 'neck', 5, [10])]),                             # 오른 위팔
-    (5, '1', [(50, 'rwri', 9, []), (51, 'relb', 5, [40])]),                                # 오른 아래팔
-    (6, '1', [(60, 'lkne', 33, [71]), (61, 'pelvis', 8, [11])]),                           # 왼 허벅지
-    (7, '1', [(70, 'lank', 9, []), (71, 'lkne', 5, [60])]),                                # 왼 정강이
-    (8, '1', [(80, 'rkne', 33, [91]), (81, 'pelvis', 8, [11])]),                           # 오른 허벅지
-    (9, '1', [(90, 'rank', 9, []), (91, 'rkne', 5, [80])]),                                # 오른 정강이
-    (10, '2', [(101, 'hb', 5, [10]), (102, 'ht', 9, [])]),                                 # 머리(원)
+    (1, '2', [(1, 'head_t', 5, []), (2, 'neck', 5, [3])]),           # 머리(원, 지름 = 목 → 정수리)
+    (2, '1', [(3, 'neck', 4, [2, 6, 10]), (4, 'pelvis', 3, [13, 17])]),  # 몸통(뿌리)
+    (3, '1', [(5, 'elb_r', 5, [8]), (6, 'neck', 4, [3])]),           # 오른 위팔
+    (4, '1', [(7, 'wri_r', 5, []), (8, 'elb_r', 4, [5])]),           # 오른 아래팔
+    (5, '1', [(9, 'elb_l', 5, [12]), (10, 'neck', 4, [3])]),         # 왼 위팔
+    (6, '1', [(11, 'wri_l', 5, []), (12, 'elb_l', 4, [9])]),         # 왼 아래팔
+    (7, '1', [(13, 'pelvis', 2, [4]), (14, 'kne_r', 5, [15])]),      # 오른 허벅지
+    (8, '1', [(15, 'kne_r', 4, [14]), (16, 'ank_r', 5, [])]),        # 오른 정강이
+    (9, '1', [(17, 'pelvis', 2, [4]), (18, 'kne_l', 5, [19])]),      # 왼 허벅지
+    (10, '1', [(19, 'kne_l', 4, [18]), (20, 'ank_l', 5, [])]),       # 왼 정강이
 ]
+# 틀 길이(가로 % 단위, 세로는 × 0.5625로 환산해 잼): 머리 지름 8.4, 몸통 11.2, 위팔·아래팔 7.0, 허벅지 8.0, 정강이 5.6
+LEN = dict(head_t=8.4, spine=11.2, elb=7.0, wri=7.0, kne=8.0, ank=5.6)
+AO_STYLE = ('Color="-16777216" LayerId="0" ThicknessScale="{th}" ObjectScale="1.0" '
+            'GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0"')
 
 
-def frame_xml(n, J, to_pct, color='-16777216', thick='2.0'):
+def unit(v, prev):
+    n = np.linalg.norm(v)
+    return v / n if n > 1e-6 else prev
+
+
+def scales(kps):
+    """장마다 몸 크기(화소 / 틀 단위): 몸통·위팔·아래팔·허벅지·정강이 비의 중앙값, 9장 이동 평균(원근으로 커지고 작아짐은 따라감)."""
+    out = []
+    for kp in kps:
+        neck, pel = (kp[LSHO, :2] + kp[RSHO, :2]) / 2, (kp[LHIP, :2] + kp[RHIP, :2]) / 2
+        r = [np.linalg.norm(neck - pel) / LEN['spine']]
+        for a, b, L in ((LSHO, LELB, LEN['elb']), (RSHO, RELB, LEN['elb']), (LELB, LWRI, LEN['wri']), (RELB, RWRI, LEN['wri']),
+                        (LHIP, LKNE, LEN['kne']), (RHIP, RKNE, LEN['kne']), (LKNE, LANK, LEN['ank']), (RKNE, RANK, LEN['ank'])):
+            r.append(np.linalg.norm(kp[a, :2] - kp[b, :2]) / L)
+        out.append(np.median(r))
+    out = np.array(out)
+    return np.array([out[max(0, t - 4):t + 5].mean() for t in range(len(out))])
+
+
+def joints(kp, s, prev=None):
+    """포즈 → 틀 길이 고정 관절 위치(화소). 방향만 포즈에서 가져온다. 머리는 몸통 방향을 따른다(얼굴 점 떨림 무시)."""
+    prev = prev or {}
+    neck, pel = (kp[LSHO, :2] + kp[RSHO, :2]) / 2, (kp[LHIP, :2] + kp[RHIP, :2]) / 2
+    d = {}
+    J = {'pelvis': pel}
+    u = unit(neck - pel, prev.get('spine', np.array([0.0, -1.0])))
+    d['spine'] = u
+    J['neck'] = pel + u * LEN['spine'] * s
+    J['head_t'] = J['neck'] + u * LEN['head_t'] * s
+    for side, sho, elb, wri, hip, kne, ank in (('l', LSHO, LELB, LWRI, LHIP, LKNE, LANK), ('r', RSHO, RELB, RWRI, RHIP, RKNE, RANK)):
+        for part, base, a, b in (('elb', 'neck', sho, elb), ('wri', f'elb_{side}', elb, wri),
+                                 ('kne', 'pelvis', hip, kne), ('ank', f'kne_{side}', kne, ank)):
+            name = f'{part}_{side}'
+            v = unit(kp[b, :2] - kp[a, :2], prev.get(name, np.array([0.0, 1.0])))
+            d[name] = v
+            J[name] = J[base] + v * LEN[part] * s
+    return J, d
+
+
+def frame_xml(n, J, to_pct, thick='1.0'):
     out = [f'<Frame BackgroundColor="-1" ID="{n + 1}" Position="{n}"><LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false"/>']
     for oid, typ, pts in BODY:
-        out.append(f'<AO ID="{oid}" TypeId="{typ}" Color="{color}" LayerId="0" DrawOrder="{oid}" ThicknessScale="{thick}" ObjectScale="1.0" '
-                   'GlowRadius="0" GlowThickness="0" GlowColor="-1" GlowAlpha="0">')
-        for k, (pid, name, fl, acs) in enumerate(pts):
+        out.append(f'<AO ID="{oid}" TypeId="{typ}" DrawOrder="{oid}" ' + AO_STYLE.format(th=thick) + '>')
+        for i, (pid, name, fl, acs) in enumerate(pts):
             x, y = to_pct(J[name])
-            out.append(f'<AP ID="{pid}" Flags="{fl}" Index="{k}" X="{x:.4f}" Y="{y:.4f}">' + ''.join(f'<AC ConnPtId="{c}"/>' for c in acs) + '</AP>')
+            out.append(f'<AP ID="{pid}" Flags="{fl}" Index="{i}" X="{x:.4f}" Y="{y:.4f}">' + ''.join(f'<AC ConnPtId="{c}"/>' for c in acs) + '</AP>')
         out.append('</AO>')
     out.append('</Frame>')
     return ''.join(out)
 
 
-def build(pose, start, end, crop_y=0.0, h=None, name='stickman'):
+def build(pose, start, end, crop_y=0.0, h=None, name='stickman', thick='1.0'):
     W = pose['W']
     H = h or pose['H']
     res = pose['res'][start:end + 1]
     if any(r is None for r in res):
         raise SystemExit('구간 안에 사람이 없는 장이 있다 — 구간을 바꿀 것')
     kps = clean([r['kp'] for r in res])
+    S = scales(kps)
     to_pct = lambda p: (100 * p[0] / W, 100 * (p[1] - crop_y) / H)  # noqa: E731  화면 % (가로 폭·세로 높이 기준)
-    frames = [frame_xml(i, joints(kp), to_pct) for i, kp in enumerate(kps)]
+    frames, prev = [], None
+    for i, kp in enumerate(kps):
+        J, prev = joints(kp, S[i], prev)
+        frames.append(frame_xml(i, J, to_pct, thick))
     xml = ("<?xml version='1.0' encoding='utf-8'?>\n"
            f'<Sequence Name="{name}" HeightWidthRatio="{H / W:.4f}" RatioX="16" RatioY="9" FrameCount="{len(frames)}" BackgroundColor="-1">\n'
            + '\n'.join(frames) + '\n</Sequence>\n')
@@ -104,9 +134,10 @@ def main():
     ap.add_argument('--crop-y', type=float, default=0.0, help='위 검은 띠 화소(16:9 화면 시작 행)')
     ap.add_argument('--h', type=float, default=0, help='16:9 화면 높이 화소(0이면 영상 높이)')
     ap.add_argument('--name', default='stickman')
+    ap.add_argument('--thick', default='1.0', help='선 굵기 배율(앱 기본 스틱맨 1.0)')
     a = ap.parse_args()
     pose = json.load(open(a.pose, encoding='utf-8'))
-    xml, _ = build(pose, a.start, a.end, a.crop_y, a.h or None, a.name)
+    xml, _ = build(pose, a.start, a.end, a.crop_y, a.h or None, a.name, a.thick)
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as z:
         z.writestr(a.name + '.xml', xml)
     print('SFA', a.out, '장', a.end - a.start + 1)
