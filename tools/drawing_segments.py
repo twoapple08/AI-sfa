@@ -68,10 +68,11 @@ def check_verified(ver, video_sha256=None, color=None):
     if video_sha256 is not None and ver.get('video_sha256') != video_sha256:
         errs.append('영상 SHA-256 불일치')
     tgt = ver.get('target_color')
-    if color is not None and tgt is not None and tgt != color:
-        errs.append(f'대상 색 불일치({tgt} ≠ {color})')
-    if ver.get('frame_index') and '0부터' not in ver['frame_index']:
-        errs.append('장 번호 규칙이 0부터 디코딩 순서가 아님')
+    if color is not None and tgt != color:   # GPT 8차: 대상 색을 검사하는 호출에서는 필드가 없어도 거부
+        errs.append(f'대상 색 불일치 또는 누락({tgt} ≠ {color})')
+    # GPT 8차: 장 번호 규칙은 설명 문자열이 아니라 기계 판독 필드로 검사한다(누락도 거부).
+    if ver.get('frame_index_base') != 0 or ver.get('frame_order') != 'decode':
+        errs.append('장 번호 규칙 필드(frame_index_base: 0, frame_order: decode) 누락 또는 불일치')
     b, nb = set(ver.get('boundaries', [])), set(ver.get('not_boundaries', []))
     if b & nb:
         errs.append(f'경계이면서 비경계: {sorted(b & nb)}')

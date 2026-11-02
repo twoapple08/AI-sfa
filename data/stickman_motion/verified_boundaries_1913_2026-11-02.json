@@ -2,6 +2,8 @@
  "video": "nian41/x_self_posts/1913231262086463573.mp4",
  "video_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
  "frame_index": "0부터 시작하는 디코딩 순서",
+ "frame_index_base": 0,
+ "frame_order": "decode",
  "target": "파란 인물",
  "source": "GPT 6차 원본 판독(325–333 9장 전부, docs/GPT-B325-333-REVIEW-2026-11-02.json) + Claude 7차 원본 확인(325·327·328·330·331·333 대상 영역, 비독립)",
  "boundaries": [
