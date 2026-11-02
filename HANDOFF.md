@@ -1,4 +1,4 @@
-# AI-sfa 현행 인수인계 — 2026-10-27
+# AI-sfa 현행 인수인계 — 2026-11-02
 
 ## 목표·사용자 지시
 
@@ -18,6 +18,7 @@
 
 사용자 PC는 현재 없고 폰 학교 Wi-Fi는 제약이 있다. 서버 cache는 한때 소실됐지만 **현재는 도구/AOT 복구 및 비공개 백업 완료**다. 과거의 ‘cache 없음/설치 검토 거절’을 현행 차단으로 재사용하지 않는다.
 
+- **2026-11-02 컨테이너:** 같은 `/root/sfa-cache/extracted`가 있었고 manifest 803 hash가 모두 일치해 그대로 재사용했다(재추출/설치 없음). repo는 `/home/user/AI-sfa`. 새 비공개 검사 `checks/validate_frame_options_popup.py`(171명령)는 풀린 폴더에만 있고 cache.zip에는 없다. 기존 `checks/window.py`는 `evidence/`를 스크립트 폴더 기준으로 찾으므로 root를 고정한 복사본으로 실행한다.
 - **2026-10-27 컨테이너:** `/workspace/scratch` 경로는 없다. 대신 환경이 제공한 `/root/sfa-cache/cache.zip`이 `/root/sfa-cache/extracted`로 풀려 있었고 `CACHE-MANIFEST.json` 803개 파일 sha256이 모두 일치했다. 이것을 현행 private root로 썼다. repo는 `/home/user/ai-sfa`. 재추출/재설치는 하지 않았다.
 - 디코더: `PYTHONPATH=<root>/python LD_LIBRARY_PATH=<root>/python/capstone/lib python3 -I`. 검사 스크립트는 `<root>/checks/*.py`(root=스크립트 상위 폴더). 새 `checks/validate_modify_color_glow.py`는 이 컨테이너의 풀린 폴더에만 있고 제공 cache.zip에는 없다. 결과는 공개 audit JSON에 보존했으므로 재검증이 필요할 때만 다시 만든다.
 - 과거 경로(참고): repo `/workspace/scratch/5a16c98ed7ee/AI-sfa-publish`, private root `/workspace/scratch/5a16c98ed7ee/private-recovery`. 경로가 다르면 위 manifest 대조부터 한다.
@@ -29,13 +30,14 @@
 
 ## 읽기 순서와 최신 성과
 
-AGENTS → 이 문서 → [MODIFY-COLOR-GLOW-APPLY](docs/AOT-MODIFY-COLOR-GLOW-APPLY-TRACE-2026-10-27.md) → 필요 시 [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md). 필요한 보고서만 읽는다. [기능표](docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md)/[근거 색인](docs/FEATURE-CONTRACT-INDEX-2026-10-16.json)은 전체 기능 목록 완성을 뜻하지 않는다. 종전 상세 handoff는 [역사](docs/history/HANDOFF-2026-10-16-before-restored-analysis.md)에 보존했다.
+AGENTS → 이 문서 → [FRAME-OPTIONS-POPUP](docs/AOT-FRAME-OPTIONS-POPUP-TRACE-2026-11-02.md) → 필요 시 [MODIFY-COLOR-GLOW-APPLY](docs/AOT-MODIFY-COLOR-GLOW-APPLY-TRACE-2026-10-27.md)/ [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md). 필요한 보고서만 읽는다. [기능표](docs/FEATURE-EVIDENCE-MATRIX-2026-10-15.md)/[근거 색인](docs/FEATURE-CONTRACT-INDEX-2026-10-16.json)은 전체 기능 목록 완성을 뜻하지 않는다. 종전 상세 handoff는 [역사](docs/history/HANDOFF-2026-10-16-before-restored-analysis.md)에 보존했다.
 
 | 새 보고서 | 닫은 정상 정적 범위 |
 |---|---|
 | [UNUSED-AO-FAST-HASH](docs/AOT-UNUSED-AO-FAST-HASH-TRACE-2026-10-16.md) | unused 후보 C에서 다른 비root frame 실제 점 A와 가상 기반 잔존 R을 제외해 삭제. 화면 layer 가시성 아님. FastHash는 Position/FR색+segment수/AO ID·색·DrawOrder/점round(xy×10000)·Flags를 순서대로fold. 자체 hash cache 없음/전체 상태 동등성 아님. 73명령 대조. |
 | [TIMELINE-FRAME-COMMANDS](docs/AOT-TIMELINE-FRAME-COMMANDS-TRACE-2026-10-16.md) | 실제 sequence-action layout callback→insert/paste 전후위치·clipboard deep snapshot/별도배경·같은/다른sequence 복사·ID/연결/group/fill map·정렬/DB/preview. 마지막frame 삭제 시 새frame0 생성.146명령. |
 | [MODIFY-COLOR-GLOW-APPLY](docs/AOT-MODIFY-COLOR-GLOW-APPLY-TRACE-2026-10-27.md) | 상세 패널 색상/글로우 탭: 첫 AO로 초기화(글로우 두께≤0→20)·원래색 보관, 휠/알파/hex/견본/되돌리기 setter와 pending, hex 6자리=불투명/8자리=ARGB·FormatException(cid0xfe9)만 무시, HSV↔ARGB 식, ApplyOnlyColor=대상 전체 Color 덮어쓰기, ApplyOnlyGlow=반경·색·알파·두께 4필드 일괄 기록, 최근색7/프리셋16. UI 라벨 강도=GlowRadius·범위=GlowThickness.234명령. |
+| [FRAME-OPTIONS-POPUP](docs/AOT-FRAME-OPTIONS-POPUP-TRACE-2026-11-02.md) | 프레임 편집 옵션 팝업 12 callback→필드. Plus(`isPlusOn` static0xc08) 아니면 이전/다음 장수·컬러모드 변경 대신 팝업 닫고 Premium 안내. 어니언 0..5장(t×5 round)·먼frame부터·회색 max(200−50d,30) 또는 파랑/빨강 max(60−20d,20)·글로우 토글=어니언 그룹glow 여부. 축 고정 static모드0/1/2 상호배타·`_touchDownPoint` 기준 x/y 고정. 두 손가락 줌/팬 gate·보기 회전 45° 스냅(진입0.55°/해제0.96°). 설정 key 저장/복원 기본값(비Plus 1/0/false). 171명령. |
 | [DISPATCH-TARGETS](docs/AOT-DISPATCH-TARGETS-TRACE-2026-10-16.md) | 실제 table로 cid90/91/92의+85e4는first 확인. 상세변형fallback=첫AO의첫점,Adopt layer fallback=목록첫layer,merge/copy목록getter도first(정상목록계열). cid92+bc49 removeLast/+9780 last/+8cb1 iterator.6mapping+16명령 확인. |
 
 상세 변형 fallback/Adopt getter가 미확정이라는 이전 항목은 위 목록 계열에서 해소됐으므로 같은 탐색을 반복하지 않는다. 다른 수신 클래스까지 일반화하지 않는다. 모든 audit는 제한된 명령/metadata 대조이지 전체 의미·앱 동작·pixel 증명이 아니며 표본 중복 합산 금지.
@@ -48,7 +50,7 @@ AGENTS → 이 문서 → [MODIFY-COLOR-GLOW-APPLY](docs/AOT-MODIFY-COLOR-GLOW-A
 
 추가로 [ROOT-COPY-DB-BRANCHES](docs/AOT-ROOT-COPY-DB-BRANCHES-TRACE-2026-10-16.md)(49명령)를 확인했다. source base의 원점 ID/AO rank 연속prefix p가 2(N−p)≤N이면 그 root를 p개만재사용,아니면새root생성→조건부source rebase시도→targetbase삽입. ID예약은 AUTOINCREMENT schema에따라sqlite_sequence상향 vs가상base꼬리정리. 같은sequence AO ID유지/다른sequence새ID/DB점·상세복사 상위단계확인. 정상분기를다시미수행으로세지않는다.
 
-1. frame copy의 상위·ID/연결/group/fill·rootprefix/예약schema·AO DB복사 정상 경로는 확인했다. 원시 DB helper 전체 수명/실패 원자성·비정상 입력을 이 결과만으로 완료 처리하지 않는다. 해당 질문에 실제 필요한 새 branch가 있을 때만 추가한다. 다음 기능 단계는 기존 기능표에 아직 직접 연결하지 않은 실제 UI callback을 구체적으로 식별해 coverage를 보충하는 것이다. 완료한 정상copy/root 경로와 색상/글로우 apply 경로를 다시 따라가지 않는다. 2026-10-27 class명 대조에서 문서에 아직 연결되지 않은 창작 UI 후보는 `PopupFrameOptionsLayout`(slider/color 설정)·`PopupCustomOptionsLayout`·`EditCustomFigureActivity/Layout`(점/snap toggle)·`SelectFigureDialog`/`FigureDefinition`·`ViewerSettingsDialog`·`VideoSettingsDialogLayout`·`DialogCreateProjectLayout`(비율/slider)·`BackgroundPickerDialog`다. 이 중 하나를 골라 실제 callback→저장 필드만 좁게 연결한다. class명 미언급은 미분석의 근거일 뿐 기능 부재/미수행 확정이 아니다(기존 보고서는 주소·함수명 위주).
+1. frame copy의 상위·ID/연결/group/fill·rootprefix/예약schema·AO DB복사 정상 경로는 확인했다. 원시 DB helper 전체 수명/실패 원자성·비정상 입력을 이 결과만으로 완료 처리하지 않는다. 해당 질문에 실제 필요한 새 branch가 있을 때만 추가한다. 다음 기능 단계는 기존 기능표에 아직 직접 연결하지 않은 실제 UI callback을 구체적으로 식별해 coverage를 보충하는 것이다. 완료한 정상copy/root 경로와 색상/글로우 apply 경로를 다시 따라가지 않는다. 2026-10-27 class명 대조에서 문서에 아직 연결되지 않은 창작 UI 후보는 ~~`PopupFrameOptionsLayout`~~(2026-11-02 FRAME-OPTIONS-POPUP으로 완료, 재분석 금지)·`PopupCustomOptionsLayout`·`EditCustomFigureActivity/Layout`(점/snap toggle)·`SelectFigureDialog`/`FigureDefinition`·`ViewerSettingsDialog`·`VideoSettingsDialogLayout`·`DialogCreateProjectLayout`(비율/slider)·`BackgroundPickerDialog`다. 이 중 하나를 골라 실제 callback→저장 필드만 좁게 연결한다. class명 미언급은 미분석의 근거일 뿐 기능 부재/미수행 확정이 아니다(기존 보고서는 주소·함수명 위주).
 2. 일반 AO 앞뒤/별도 lock toggle UI는 여전히 미식별. 같은 이름/PP검색과 생성 DrawOrder 추적 반복 금지. 새 구체 caller가 있을 때만 확인. 전체 UI coverage는 미완.
 3. codec malformed/overflow, 전체 객체 수명·동시 DB 변경·오류 원자성 보장은 정상 정적 경로와 별도 미완이다. 정적 미수행을 실물에서만 가능한 항목으로 바꾸지 않는다.
 4. 실제 렌더/backend pixel·곡선/링/그룹 합성·기기codec/색/전체UI 결과는 아직 미완. 원본을 사용할 실행 환경에 실제 접근이 필요하다. 원본앱/사용자자료를 변경하거나 license 우회로 해결하지 않는다.
@@ -57,4 +59,4 @@ AGENTS → 이 문서 → [MODIFY-COLOR-GLOW-APPLY](docs/AOT-MODIFY-COLOR-GLOW-A
 
 주소창 기본0x200/약128명령, 긴 SQL/PP는 먼저 개수·길이 확인. rawtree/도우미/fullmetadata 출력 금지. float32/64·Smi·분기 실제 명령 우선, 공유 Flutter getterannotation에 속지 않는다. 새metadata를 얻으면 같은 정상경로 재덤프 대신 새근거만 대조한다.
 
-2026-10-27 변경도 보고서·집계·지침뿐이다. cache manifest 803 hash와 새 선택명령234+stub tag 검사, JSON/링크 검사만 수행했다. 기존 unit/probe 재실행 없음. 코드 변경시에만 필요한 검사 `python -m unittest discover -s tests -v`. 주간 잔여량 조회 불가. 인수인계가 필요하면 최신 프롬프트를 제공하며 자율진행·서버복구 허용·반복방지 정정 유지.
+2026-11-02 변경도 보고서·audit·색인/기능표·인계 문서뿐이다. cache manifest 803 hash, 새 선택명령171(+dispatch 5 mapping) 검사, JSON/링크 검사만 수행했고 기존 unit/probe는 재실행하지 않았다. 2026-10-27 변경도 보고서·집계·지침뿐이다. cache manifest 803 hash와 새 선택명령234+stub tag 검사, JSON/링크 검사만 수행했다. 기존 unit/probe 재실행 없음. 코드 변경시에만 필요한 검사 `python -m unittest discover -s tests -v`. 주간 잔여량 조회 불가. 인수인계가 필요하면 최신 프롬프트를 제공하며 자율진행·서버복구 허용·반복방지 정정 유지.
