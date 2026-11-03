@@ -1,0 +1,705 @@
+{
+ "evidence": "CPU 기하·SFA 전체 검사. 실제 앱 편집은 미검증.",
+ "frames": 240,
+ "appearances": 467,
+ "moved": {
+  "blue": 47,
+  "red": 24
+ },
+ "moved_over_1px": {
+  "blue": 34,
+  "red": 19
+ },
+ "max_shift_px": 27.41654827108609,
+ "max_after_gap_px": 0.0005684053260814892,
+ "max_head_diameter_rounding_error_px": 3.019806626980426e-13,
+ "body_and_limb_coordinate_changes": 0,
+ "unique_points": 10274,
+ "connections_checked": 9340,
+ "objects_per_actor": 11,
+ "head_fill_count": 467,
+ "graph_connected": true,
+ "unchanged_ids_flags_links_styles_except_bridge_color": true,
+ "transparent_bridges": 467,
+ "method": "승인 A안. d>r일 때만 머리 중심을 몸통 허브로 d-r 최소 이동. 원 지름·이미 겹친 숙임·몸통·팔다리 유지. 내부 연결 객체11은 유지하되 투명하게 하여 윤곽에도 비치지 않음.",
+ "rows": [
+  {
+   "frame": 1046,
+   "color": "blue",
+   "shift_px": 3.139409230778241,
+   "before_gap_px": 3.1394092307782415,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1047,
+   "color": "blue",
+   "shift_px": 4.3449905907908715,
+   "before_gap_px": 4.3449905907908715,
+   "after_gap_px": 0.00019083961567645247,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1051,
+   "color": "blue",
+   "shift_px": 2.999245535376147,
+   "before_gap_px": 2.999245535376147,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1057,
+   "color": "blue",
+   "shift_px": 0.5616076777980155,
+   "before_gap_px": 0.5616076777980155,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1058,
+   "color": "blue",
+   "shift_px": 12.962435476897214,
+   "before_gap_px": 12.962435476897216,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1059,
+   "color": "blue",
+   "shift_px": 8.391969923752281,
+   "before_gap_px": 8.391969923752281,
+   "after_gap_px": 0.00023220724161987505,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1060,
+   "color": "blue",
+   "shift_px": 2.6178591643194546,
+   "before_gap_px": 2.6178591643194515,
+   "after_gap_px": 0.00016103885815610397,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1061,
+   "color": "blue",
+   "shift_px": 1.0575317328405343,
+   "before_gap_px": 1.0575317328405411,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1062,
+   "color": "blue",
+   "shift_px": 27.41654827108609,
+   "before_gap_px": 27.41654827108609,
+   "after_gap_px": 1.793605328970216e-05,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1063,
+   "color": "blue",
+   "shift_px": 16.00764292069324,
+   "before_gap_px": 16.00764292069324,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1064,
+   "color": "red",
+   "shift_px": 1.5512301844128797,
+   "before_gap_px": 1.5512301844128729,
+   "after_gap_px": 1.9502341501720366e-06,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1065,
+   "color": "red",
+   "shift_px": 12.219989861811635,
+   "before_gap_px": 12.21998986181164,
+   "after_gap_px": 0.0002143705236221649,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1066,
+   "color": "red",
+   "shift_px": 6.525577333600899,
+   "before_gap_px": 6.525577333600893,
+   "after_gap_px": 0.00013360316220456525,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1067,
+   "color": "blue",
+   "shift_px": 2.2665454161145604,
+   "before_gap_px": 2.266545416114564,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1074,
+   "color": "blue",
+   "shift_px": 3.075721415404921,
+   "before_gap_px": 3.075721415404921,
+   "after_gap_px": 7.649604670945109e-05,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1075,
+   "color": "blue",
+   "shift_px": 4.2639037673512235,
+   "before_gap_px": 4.263903767351231,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1076,
+   "color": "blue",
+   "shift_px": 0.7326488882212311,
+   "before_gap_px": 0.7326488882212345,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1096,
+   "color": "red",
+   "shift_px": 2.7059175299305807,
+   "before_gap_px": 2.7059175299305807,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1099,
+   "color": "blue",
+   "shift_px": 1.7864029530921426,
+   "before_gap_px": 1.7864029530921428,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1100,
+   "color": "blue",
+   "shift_px": 7.78018837282296,
+   "before_gap_px": 7.780188372822963,
+   "after_gap_px": 0.0001767608682143873,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1101,
+   "color": "blue",
+   "shift_px": 6.166494677636334,
+   "before_gap_px": 6.166494677636333,
+   "after_gap_px": 0.00019862043589746747,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1102,
+   "color": "blue",
+   "shift_px": 6.507812327739087,
+   "before_gap_px": 6.507812327739087,
+   "after_gap_px": 0.0003495448838677362,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1103,
+   "color": "blue",
+   "shift_px": 4.065387871554995,
+   "before_gap_px": 4.065387871554995,
+   "after_gap_px": 0.00010132102110915753,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1104,
+   "color": "blue",
+   "shift_px": 1.1640048634417557,
+   "before_gap_px": 1.1640048634417557,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1104,
+   "color": "red",
+   "shift_px": 2.892043670576619,
+   "before_gap_px": 2.8920436705766157,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1105,
+   "color": "blue",
+   "shift_px": 3.900746161223513,
+   "before_gap_px": 3.900746161223511,
+   "after_gap_px": 0.00014580094594762727,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1106,
+   "color": "blue",
+   "shift_px": 0.7971886742888047,
+   "before_gap_px": 0.7971886742888081,
+   "after_gap_px": 0.00023684550516378522,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1109,
+   "color": "red",
+   "shift_px": 0.8640230334476051,
+   "before_gap_px": 0.8640230334476016,
+   "after_gap_px": 0.00024229806602349413,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1110,
+   "color": "blue",
+   "shift_px": 0.9240419485800757,
+   "before_gap_px": 0.9240419485800757,
+   "after_gap_px": 0.0001512071415206151,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1111,
+   "color": "blue",
+   "shift_px": 2.0185862509031725,
+   "before_gap_px": 2.018586250903173,
+   "after_gap_px": 0.00047774304406544843,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1112,
+   "color": "blue",
+   "shift_px": 0.06687509408875059,
+   "before_gap_px": 0.06687509408875059,
+   "after_gap_px": 0.00048526456125586037,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1114,
+   "color": "blue",
+   "shift_px": 0.16560826422341893,
+   "before_gap_px": 0.1656082642234189,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1114,
+   "color": "red",
+   "shift_px": 7.423802704475531,
+   "before_gap_px": 7.423802704475531,
+   "after_gap_px": 0.0003096704478142698,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1115,
+   "color": "blue",
+   "shift_px": 3.2766690919366113,
+   "before_gap_px": 3.2766690919366113,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1115,
+   "color": "red",
+   "shift_px": 4.268602192594818,
+   "before_gap_px": 4.268602192594818,
+   "after_gap_px": 0.00020701850507975905,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1116,
+   "color": "blue",
+   "shift_px": 5.258899442204189,
+   "before_gap_px": 5.258899442204193,
+   "after_gap_px": 4.921011868930236e-05,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1116,
+   "color": "red",
+   "shift_px": 10.40675154867333,
+   "before_gap_px": 10.406751548673334,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1117,
+   "color": "blue",
+   "shift_px": 2.8294411141182927,
+   "before_gap_px": 2.8294411141182927,
+   "after_gap_px": 0.0002115540842702046,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1117,
+   "color": "red",
+   "shift_px": 2.9179161433180965,
+   "before_gap_px": 2.917916143318097,
+   "after_gap_px": 6.42777631210123e-05,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1118,
+   "color": "red",
+   "shift_px": 0.425087406355269,
+   "before_gap_px": 0.425087406355269,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1124,
+   "color": "red",
+   "shift_px": 3.60547050581933,
+   "before_gap_px": 3.60547050581933,
+   "after_gap_px": 0.00026266812795583405,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1126,
+   "color": "red",
+   "shift_px": 2.2797236914980914,
+   "before_gap_px": 2.2797236914980914,
+   "after_gap_px": 1.9836268879913632e-05,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1161,
+   "color": "red",
+   "shift_px": 9.079632968788246,
+   "before_gap_px": 9.07963296878826,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1198,
+   "color": "blue",
+   "shift_px": 2.8786024984682115,
+   "before_gap_px": 2.8786024984682115,
+   "after_gap_px": 0.00042121445599718754,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1199,
+   "color": "red",
+   "shift_px": 3.472118257594559,
+   "before_gap_px": 3.472118257594559,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1210,
+   "color": "blue",
+   "shift_px": 0.2684371235927756,
+   "before_gap_px": 0.2684371235927756,
+   "after_gap_px": 0.00016514019363000898,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1212,
+   "color": "blue",
+   "shift_px": 4.632706920263132,
+   "before_gap_px": 4.632706920263132,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1212,
+   "color": "red",
+   "shift_px": 1.556402729840329,
+   "before_gap_px": 1.5564027298403147,
+   "after_gap_px": 0.0004097745249680429,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1213,
+   "color": "red",
+   "shift_px": 9.628376002821966,
+   "before_gap_px": 9.628376002821966,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1214,
+   "color": "red",
+   "shift_px": 1.6472492182052034,
+   "before_gap_px": 1.6472492182052036,
+   "after_gap_px": 0.0002101262127780501,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1215,
+   "color": "red",
+   "shift_px": 2.537002370251429,
+   "before_gap_px": 2.537002370251429,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1237,
+   "color": "blue",
+   "shift_px": 1.0009342517021125,
+   "before_gap_px": 1.0009342517021125,
+   "after_gap_px": 0.00014177128121772853,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1238,
+   "color": "blue",
+   "shift_px": 1.1449062060280164,
+   "before_gap_px": 1.1449062060280166,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1238,
+   "color": "red",
+   "shift_px": 1.2673107243223356,
+   "before_gap_px": 1.2673107243223356,
+   "after_gap_px": 0.0001086441423776563,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1239,
+   "color": "blue",
+   "shift_px": 1.736602058770833,
+   "before_gap_px": 1.736602058770833,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1239,
+   "color": "red",
+   "shift_px": 1.6031183037383945,
+   "before_gap_px": 1.6031183037383947,
+   "after_gap_px": 0.0005684053260814892,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1240,
+   "color": "blue",
+   "shift_px": 2.93413583396462,
+   "before_gap_px": 2.9341358339646195,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1241,
+   "color": "blue",
+   "shift_px": 2.6332703467685987,
+   "before_gap_px": 2.633270346768599,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1242,
+   "color": "blue",
+   "shift_px": 1.2930435904498923,
+   "before_gap_px": 1.2930435904498925,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1253,
+   "color": "blue",
+   "shift_px": 0.4247142995243571,
+   "before_gap_px": 0.42471429952435713,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1254,
+   "color": "blue",
+   "shift_px": 1.5378810947198698,
+   "before_gap_px": 1.5378810947198698,
+   "after_gap_px": 2.7610522018051142e-05,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1255,
+   "color": "blue",
+   "shift_px": 1.1538189195901276,
+   "before_gap_px": 1.1538189195901278,
+   "after_gap_px": 0.00014287412536084787,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1255,
+   "color": "red",
+   "shift_px": 0.1633617817262554,
+   "before_gap_px": 0.16336178172625715,
+   "after_gap_px": 4.0978934720214966e-05,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1256,
+   "color": "blue",
+   "shift_px": 0.2647055446687432,
+   "before_gap_px": 0.2647055446687432,
+   "after_gap_px": 0.00020167875018906045,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1256,
+   "color": "red",
+   "shift_px": 0.1786091354120405,
+   "before_gap_px": 0.1786091354120405,
+   "after_gap_px": 0.00019784338868511497,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1257,
+   "color": "blue",
+   "shift_px": 0.9064747954306113,
+   "before_gap_px": 0.9064747954306096,
+   "after_gap_px": 9.28374890989403e-05,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1258,
+   "color": "blue",
+   "shift_px": 1.40158799117531,
+   "before_gap_px": 1.40158799117531,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1265,
+   "color": "red",
+   "shift_px": 0.2614467943142138,
+   "before_gap_px": 0.2614467943142138,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1268,
+   "color": "blue",
+   "shift_px": 0.15305028713883215,
+   "before_gap_px": 0.15305028713883218,
+   "after_gap_px": 0.0,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1269,
+   "color": "blue",
+   "shift_px": 0.689817603296934,
+   "before_gap_px": 0.6898176032969339,
+   "after_gap_px": 0.00015233366936584503,
+   "overlap_kept": false
+  },
+  {
+   "frame": 1270,
+   "color": "blue",
+   "shift_px": 0.24966158733907484,
+   "before_gap_px": 0.24966158733907484,
+   "after_gap_px": 0.0002788531411592743,
+   "overlap_kept": false
+  }
+ ],
+ "serializer_exact_replay_appearances": 467,
+ "bridge_visibility_render_test": {
+  "reference": "보조선 객체11과 해당 AC 참조를 제거한 반례 그림",
+  "frames_checked": 240,
+  "frames_with_any_aa_difference": 0,
+  "max_changed_pixels": 0,
+  "max_channel_difference": 0,
+  "total_pixels_difference_over_8": 0,
+  "rows": []
+ },
+ "head_only_temporal_check": {
+  "description": "새 머리 이동으로 인한 변화만 확인. 컷 경계·인물 등장/퇴장 제외. 일반 전 부위 튐 점검 아님. 임의 합격선 없음.",
+  "comparisons": 461,
+  "before_p95_px": 71.24675434557712,
+  "after_p95_px": 71.76597403579683,
+  "before_max_per_radius": 4.534756923423526,
+  "after_max_per_radius": 4.534756923423526,
+  "largest_increases": [
+   {
+    "frame": 1214,
+    "color": "red",
+    "before_px": 21.626996583220695,
+    "after_px": 29.53742470959338,
+    "increase_px": 7.910428126372686,
+    "before_per_radius": 0.20015935803718743,
+    "after_per_radius": 0.2733709207006091
+   },
+   {
+    "frame": 1162,
+    "color": "red",
+    "before_px": 57.13907062667937,
+    "after_px": 64.99918061366432,
+    "increase_px": 7.860109986984952,
+    "before_per_radius": 0.4548909264220795,
+    "after_per_radius": 0.5174661954025581
+   },
+   {
+    "frame": 1067,
+    "color": "red",
+    "before_px": 25.913098884600313,
+    "after_px": 32.23313066446064,
+    "increase_px": 6.320031779860326,
+    "before_per_radius": 0.6647086549086798,
+    "after_per_radius": 0.8268266571622672
+   },
+   {
+    "frame": 1114,
+    "color": "red",
+    "before_px": 4.608511464677471,
+    "after_px": 10.733473545520301,
+    "increase_px": 6.12496208084283,
+    "before_per_radius": 0.31743269384126466,
+    "after_per_radius": 0.7393179875851542
+   },
+   {
+    "frame": 1066,
+    "color": "red",
+    "before_px": 12.41641185322136,
+    "after_px": 17.93486045597904,
+    "increase_px": 5.518448602757681,
+    "before_per_radius": 0.3233399609035034,
+    "after_per_radius": 0.4670477386864003
+   },
+   {
+    "frame": 1059,
+    "color": "blue",
+    "before_px": 31.502231477934085,
+    "after_px": 36.2580475802249,
+    "increase_px": 4.755816102290812,
+    "before_per_radius": 1.819898378294845,
+    "after_per_radius": 2.0946440583934143
+   },
+   {
+    "frame": 1125,
+    "color": "red",
+    "before_px": 3.1214284834709023,
+    "after_px": 6.708000310078691,
+    "increase_px": 3.5865718266077886,
+    "before_per_radius": 0.18002259618392558,
+    "after_per_radius": 0.38687147164113483
+   },
+   {
+    "frame": 1100,
+    "color": "blue",
+    "before_px": 14.043983639081857,
+    "after_px": 17.553488036431297,
+    "increase_px": 3.50950439734944,
+    "before_per_radius": 0.9931397978671999,
+    "after_per_radius": 1.2413192729627387
+   },
+   {
+    "frame": 1062,
+    "color": "blue",
+    "before_px": 80.45217664241044,
+    "after_px": 83.57887876790147,
+    "increase_px": 3.126702125491036,
+    "before_per_radius": 4.217804464026245,
+    "after_per_radius": 4.381725674526154
+   },
+   {
+    "frame": 1199,
+    "color": "red",
+    "before_px": 68.67437093209661,
+    "after_px": 71.76597403579683,
+    "increase_px": 3.0916031037002227,
+    "before_per_radius": 0.6297033885673998,
+    "after_per_radius": 0.6580515616060791
+   }
+  ]
+ }
+}

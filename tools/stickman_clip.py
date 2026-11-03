@@ -161,15 +161,22 @@ def person_aos(n, slot, Jn, to_pct, color, thick=1.0):
     base = PT0 + n * 1000 + slot * 100
     out = []
     moving_head = 'head_b' in Jn
+    if moving_head:
+        from stickman_projection import constrain_head_contact
+        # 캐시 좌표를 쓰는 호출에도 A안을 적용하되 입력·몸통·팔다리는 바꾸지 않는다.
+        Jn = dict(Jn)
+        Jn['head_t'], Jn['head_b'], _ = constrain_head_contact(Jn['neck'], Jn['head_t'], Jn['head_b'])
     body = sorted(BODY, key=lambda v: v[0] == 1)  # 머리는 앞에 그린다. 앱은 물리 순서, 렌더러는 DrawOrder를 사용한다.
     if moving_head:
         body = body[:-1] + [(11, '1', [(21, 'neck', 4, [3]), (22, 'head_b', 4, [2])])] + body[-1:]
     for oid, typ, pts in body:
         order = 50 if oid == 1 else oid
+        # 내부 연결은 편집망에만 남긴다. 흰 원 가장자리의 안티앨리어싱에도 비치지 않게 한다.
+        line_color = 0 if moving_head and oid == 11 else LINE_COLOR.get(color, -16777216)
         out.append(f'<AO ID="{AO0 + slot * 100 + oid}" TypeId="{typ}" DrawOrder="{AO0 + slot * 100 + order}" '
-                   + STYLE.format(c=LINE_COLOR.get(color, -16777216), th=f'{thick:.3f}') + '>')
-        # 독립 머리까지 이어지는 목선. 원 내부는 뒤에 그리는 흰 머리가 가린다.
-        # 투명하게 두면 편집 연결망은 이어져도 화면에서 머리가 떠 보인다.
+                   + STYLE.format(c=line_color, th=f'{thick:.3f}') + '>')
+        # 원 내부의 편집용 연결선. A안의 접촉 제약으로 긴 목 가지가 밖에 드러나지 않는다.
+        # 원의 두 지름 끝점과 몸통 허브가 다른 겹침 자세에서도 단일 연결망을 유지한다.
         for i, (pid, name, fl, acs) in enumerate(pts):
             if moving_head:
                 if oid == 1 and pid == 2:

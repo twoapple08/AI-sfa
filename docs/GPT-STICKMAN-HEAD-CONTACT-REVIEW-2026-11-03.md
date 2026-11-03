@@ -1,5 +1,7 @@
 # 머리·몸통 접합 방식 재검토 — 2026-11-03
 
+후속: 사용자가 A안을 선택했고 구현·파일 검증을 마쳤다. 최신 결과는 `docs/GPT-STICKMAN-HEAD-CONTACT-A-2026-11-03.md`. 아래는 선택 전 검토 기록이며, 현재 A/B 선택 대기가 아니다.
+
 - [원래 화소 크기의 비교 시트](https://drive.google.com/file/d/1dKKDBYPXSRVfARMnLmcwLWhL5maxCO54/view): 원본 → 현재 목선 → A 머리 최소 이동 → B 몸통 위끝 이동. 각 칸480×360, 원본1152×720에서 확대 없이 발췌.
 - [계산·재현 스크립트 폴더](https://drive.google.com/drive/folders/1b7d2-6EXY6XDfMpuj1lduJz0KqfGeSns).
 

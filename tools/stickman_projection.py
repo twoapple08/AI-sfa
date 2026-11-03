@@ -8,6 +8,21 @@ def interpolate(x, y, t):
     return np.full(len(t), y[0]) if len(x) == 1 else PchipInterpolator(x, y)(np.clip(t, x[0], x[-1]))
 
 
+def constrain_head_contact(neck, head_t, head_b):
+    """머리 원이 허브를 덮도록 중심만 최소 이동한다(사용자 A안).
+
+    이미 겹친 고개 숙임과 원 지름·몸통·팔은 유지한다. 단일 점과 장별 배열 모두 지원한다.
+    원 내부의 편집용 연결선은 별개이며, 이 함수가 점 공유 접합으로 바꾸지는 않는다.
+    """
+    neck, head_t, head_b = (np.asarray(p, dtype=float) for p in (neck, head_t, head_b))
+    center = (head_t + head_b) / 2
+    radius = np.linalg.norm(head_t - head_b, axis=-1, keepdims=True) / 2
+    offset = neck - center
+    distance = np.linalg.norm(offset, axis=-1, keepdims=True)
+    shift = offset * (np.maximum(distance - radius, 0) / np.maximum(distance, 1e-12))
+    return head_t + shift, head_b + shift, shift
+
+
 def projected_joints(K, W, half, frames, segments, fallback, S):
     """완전/반쪽 관측의 키 평균 보정량을 보간한다. 결측 축에 새 관측을 만들지 않는다.
 
@@ -87,5 +102,9 @@ def projected_joints(K, W, half, frames, segments, fallback, S):
         face_keys.append(len(times))
     out['head_t'] = center + u * diameter[:, None] / 2
     out['head_b'] = center - u * diameter[:, None] / 2
+    out['head_t'], out['head_b'], shift = constrain_head_contact(out['neck'], out['head_t'], out['head_b'])
+    moved = np.linalg.norm(shift, axis=-1)
     return out, {'axis_observations': log, 'face_observed_keys': face_keys,
+                 'head_contact': {'method': '사용자 A안: 머리 중심만 최소 이동, 기존 겹침 유지',
+                                  'moved_frames': int((moved > 1e-7).sum()), 'max_shift_px': float(moved.max())},
                  'method': '관측 키별 화면 좌표·투영 길이 보존, 직선 사슬의 허브 보정, 결측 축 기존 풀이'}

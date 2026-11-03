@@ -1,7 +1,7 @@
 import sys,os,unittest,xml.etree.ElementTree as E
 import numpy as np
 sys.path.insert(0,os.path.join(os.path.dirname(__file__),'..','tools'))
-from stickman_projection import projected_joints
+from stickman_projection import projected_joints, constrain_head_contact
 from rtmw_to_stickman_2d import OBS
 import stickman_clip as sc
 class TestProjection(unittest.TestCase):
@@ -29,7 +29,8 @@ class TestProjection(unittest.TestCase):
   self.assertEqual(sum(x.get('Flags')=='3' for x in pts.values()),1)
   self.assertEqual(fr.find('FR').get('Color'),'-1')
   self.assertEqual(fr.findall('AO')[-1].get('TypeId'),'2')
-  self.assertEqual(len([a for a in fr.findall('AO') if a.get('Color')=='0']),0)
+  hidden=[a for a in fr.findall('AO') if a.get('Color')=='0']
+  self.assertEqual([int(a.get('ID'))-sc.AO0 for a in hidden],[11])
 
  def test_white_head_occludes_body_stroke(self):
   from sfa_render import render_frame
@@ -41,14 +42,30 @@ class TestProjection(unittest.TestCase):
   np.testing.assert_array_equal(im[110,100],[255,255,255])
   self.assertLess(int(im[150,100,1]),100)  # 원 밖 몸통은 빨강으로 남는다.
 
- def test_separated_head_has_visible_neck_without_changing_circle(self):
+ def test_separated_head_moves_minimally_and_keeps_diameter(self):
   from sfa_render import render_frame
   names={n for _,_,pts in sc.BODY for _,n,_,_ in pts}
   J={n:np.array([20.,20.]) for n in names}
   J.update(neck=np.array([50.,70.]),pelvis=np.array([50.,90.]),head_t=np.array([50.,30.]),head_b=np.array([50.,50.]))
   root=E.fromstring('<Sequence HeightWidthRatio="1"><Frame BackgroundColor="-1"><LayerDef ID="0"/>'+sc.person_aos(0,0,J,lambda p:p,'red')+'</Frame></Sequence>')
   im=render_frame(root,root.find('Frame'),200,200)
-  self.assertLess(int(im[120,100,1]),100)  # 이전 투명선에서는 머리와 목 사이가 흰색으로 비었다.
-  np.testing.assert_array_equal(im[80,100],[255,255,255])
+  np.testing.assert_array_equal(im[120,100],[255,255,255])  # 머리 중심이60으로 내려와 긴 목선을 덮는다.
+  np.testing.assert_array_equal(im[80,100],[255,255,255])  # 이전 머리 위치는 비워진다.
   head=root.find('Frame').findall('AO')[-1]
-  self.assertEqual([(p.get('X'),p.get('Y')) for p in head.findall('AP')],[('50.0000','30.0000'),('50.0000','50.0000')])
+  self.assertEqual([(p.get('X'),p.get('Y')) for p in head.findall('AP')],[('50.0000','50.0000'),('50.0000','70.0000')])
+  np.testing.assert_array_equal(J['head_t'],[50.,30.])  # 호출자가 가진 원좌표는 수정하지 않는다.
+  pts={p.get('ID'):p for p in root.iter('AP')}
+  for p in pts.values():
+   for ac in p.findall('AC'):
+    q=pts[ac.get('ConnPtId')]
+    self.assertEqual((p.get('X'),p.get('Y')),(q.get('X'),q.get('Y')))
+
+ def test_contact_keeps_bowed_head_and_is_continuous_at_boundary(self):
+  neck=np.array([[0.,0.],[0.,0.],[0.,0.]])
+  center=np.array([[0.,-3.],[10.-1e-6,0.],[10.+1e-6,0.]])
+  a,b=center+[0.,-10.],center+[0.,10.]
+  top,bottom,shift=constrain_head_contact(neck,a,b)
+  np.testing.assert_array_equal(top[0],a[0]);np.testing.assert_array_equal(bottom[0],b[0])
+  np.testing.assert_allclose(np.linalg.norm(top-bottom,axis=1),20.)
+  np.testing.assert_allclose(shift[2],[-1e-6,0.],atol=1e-12)
+  self.assertLess(np.linalg.norm((top[1]+bottom[1])/2-(top[2]+bottom[2])/2),2e-6)
