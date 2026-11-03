@@ -168,8 +168,8 @@ def person_aos(n, slot, Jn, to_pct, color, thick=1.0):
         order = 50 if oid == 1 else oid
         out.append(f'<AO ID="{AO0 + slot * 100 + oid}" TypeId="{typ}" DrawOrder="{AO0 + slot * 100 + order}" '
                    + STYLE.format(c=LINE_COLOR.get(color, -16777216), th=f'{thick:.3f}') + '>')
-        if oid == 11:
-            out[-1] = out[-1].replace(f'Color="{LINE_COLOR.get(color, -16777216)}"', 'Color="0"')
+        # 독립 머리까지 이어지는 목선. 원 내부는 뒤에 그리는 흰 머리가 가린다.
+        # 투명하게 두면 편집 연결망은 이어져도 화면에서 머리가 떠 보인다.
         for i, (pid, name, fl, acs) in enumerate(pts):
             if moving_head:
                 if oid == 1 and pid == 2:

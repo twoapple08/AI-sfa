@@ -1,0 +1,339 @@
+{
+ "근거": "CPU 계산·SFA 파일 검사. 원과 몸통 허브 사이의 빈 거리이며 파일 연결 해제를 뜻하지 않는다.",
+ "changed_neck_objects": 467,
+ "point_geometry_difference_px": 0,
+ "head_diameter_difference_px": 0,
+ "gap_over_1px": {
+  "blue": 34,
+  "red": 19
+ },
+ "max_gap_px": 27.417,
+ "rows": [
+  {
+   "frame": 1046,
+   "color": "blue",
+   "old_empty_gap_px": 3.139,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1047,
+   "color": "blue",
+   "old_empty_gap_px": 4.345,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1051,
+   "color": "blue",
+   "old_empty_gap_px": 2.999,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1058,
+   "color": "blue",
+   "old_empty_gap_px": 12.962,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1059,
+   "color": "blue",
+   "old_empty_gap_px": 8.392,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1060,
+   "color": "blue",
+   "old_empty_gap_px": 2.618,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1061,
+   "color": "blue",
+   "old_empty_gap_px": 1.058,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1062,
+   "color": "blue",
+   "old_empty_gap_px": 27.417,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1063,
+   "color": "blue",
+   "old_empty_gap_px": 16.008,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1064,
+   "color": "red",
+   "old_empty_gap_px": 1.551,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1065,
+   "color": "red",
+   "old_empty_gap_px": 12.22,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1066,
+   "color": "red",
+   "old_empty_gap_px": 6.526,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1067,
+   "color": "blue",
+   "old_empty_gap_px": 2.267,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1074,
+   "color": "blue",
+   "old_empty_gap_px": 3.076,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1075,
+   "color": "blue",
+   "old_empty_gap_px": 4.264,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1096,
+   "color": "red",
+   "old_empty_gap_px": 2.706,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1099,
+   "color": "blue",
+   "old_empty_gap_px": 1.786,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1100,
+   "color": "blue",
+   "old_empty_gap_px": 7.78,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1101,
+   "color": "blue",
+   "old_empty_gap_px": 6.166,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1102,
+   "color": "blue",
+   "old_empty_gap_px": 6.508,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1103,
+   "color": "blue",
+   "old_empty_gap_px": 4.065,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1104,
+   "color": "blue",
+   "old_empty_gap_px": 1.164,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1104,
+   "color": "red",
+   "old_empty_gap_px": 2.892,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1105,
+   "color": "blue",
+   "old_empty_gap_px": 3.901,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1111,
+   "color": "blue",
+   "old_empty_gap_px": 2.019,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1114,
+   "color": "red",
+   "old_empty_gap_px": 7.424,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1115,
+   "color": "blue",
+   "old_empty_gap_px": 3.277,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1115,
+   "color": "red",
+   "old_empty_gap_px": 4.269,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1116,
+   "color": "blue",
+   "old_empty_gap_px": 5.259,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1116,
+   "color": "red",
+   "old_empty_gap_px": 10.407,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1117,
+   "color": "blue",
+   "old_empty_gap_px": 2.829,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1117,
+   "color": "red",
+   "old_empty_gap_px": 2.918,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1124,
+   "color": "red",
+   "old_empty_gap_px": 3.605,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1126,
+   "color": "red",
+   "old_empty_gap_px": 2.28,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1161,
+   "color": "red",
+   "old_empty_gap_px": 9.08,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1198,
+   "color": "blue",
+   "old_empty_gap_px": 2.879,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1199,
+   "color": "red",
+   "old_empty_gap_px": 3.472,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1212,
+   "color": "blue",
+   "old_empty_gap_px": 4.633,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1212,
+   "color": "red",
+   "old_empty_gap_px": 1.556,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1213,
+   "color": "red",
+   "old_empty_gap_px": 9.628,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1214,
+   "color": "red",
+   "old_empty_gap_px": 1.647,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1215,
+   "color": "red",
+   "old_empty_gap_px": 2.537,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1237,
+   "color": "blue",
+   "old_empty_gap_px": 1.001,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1238,
+   "color": "blue",
+   "old_empty_gap_px": 1.145,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1238,
+   "color": "red",
+   "old_empty_gap_px": 1.267,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1239,
+   "color": "blue",
+   "old_empty_gap_px": 1.737,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1239,
+   "color": "red",
+   "old_empty_gap_px": 1.603,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1240,
+   "color": "blue",
+   "old_empty_gap_px": 2.934,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1241,
+   "color": "blue",
+   "old_empty_gap_px": 2.633,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1242,
+   "color": "blue",
+   "old_empty_gap_px": 1.293,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1254,
+   "color": "blue",
+   "old_empty_gap_px": 1.538,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1255,
+   "color": "blue",
+   "old_empty_gap_px": 1.154,
+   "neck_object_visible": true
+  },
+  {
+   "frame": 1258,
+   "color": "blue",
+   "old_empty_gap_px": 1.402,
+   "neck_object_visible": true
+  }
+ ],
+ "검증": {
+  "frames": 240,
+  "person_appearances": 467,
+  "white_head_fills": 467,
+  "connections": 9340,
+  "geometry_changes": 0,
+  "additional_confirmed_structural_bugs": 0
+ }
+}

@@ -29,7 +29,7 @@ class TestProjection(unittest.TestCase):
   self.assertEqual(sum(x.get('Flags')=='3' for x in pts.values()),1)
   self.assertEqual(fr.find('FR').get('Color'),'-1')
   self.assertEqual(fr.findall('AO')[-1].get('TypeId'),'2')
-  self.assertEqual(len([a for a in fr.findall('AO') if a.get('Color')=='0']),1)
+  self.assertEqual(len([a for a in fr.findall('AO') if a.get('Color')=='0']),0)
 
  def test_white_head_occludes_body_stroke(self):
   from sfa_render import render_frame
@@ -40,3 +40,15 @@ class TestProjection(unittest.TestCase):
   im=render_frame(root,root.find('Frame'),200,200)
   np.testing.assert_array_equal(im[110,100],[255,255,255])
   self.assertLess(int(im[150,100,1]),100)  # 원 밖 몸통은 빨강으로 남는다.
+
+ def test_separated_head_has_visible_neck_without_changing_circle(self):
+  from sfa_render import render_frame
+  names={n for _,_,pts in sc.BODY for _,n,_,_ in pts}
+  J={n:np.array([20.,20.]) for n in names}
+  J.update(neck=np.array([50.,70.]),pelvis=np.array([50.,90.]),head_t=np.array([50.,30.]),head_b=np.array([50.,50.]))
+  root=E.fromstring('<Sequence HeightWidthRatio="1"><Frame BackgroundColor="-1"><LayerDef ID="0"/>'+sc.person_aos(0,0,J,lambda p:p,'red')+'</Frame></Sequence>')
+  im=render_frame(root,root.find('Frame'),200,200)
+  self.assertLess(int(im[120,100,1]),100)  # 이전 투명선에서는 머리와 목 사이가 흰색으로 비었다.
+  np.testing.assert_array_equal(im[80,100],[255,255,255])
+  head=root.find('Frame').findall('AO')[-1]
+  self.assertEqual([(p.get('X'),p.get('Y')) for p in head.findall('AP')],[('50.0000','30.0000'),('50.0000','50.0000')])
