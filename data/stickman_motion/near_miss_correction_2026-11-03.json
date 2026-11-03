@@ -1,0 +1,94 @@
+{
+  "changed_frames": [
+    1047,
+    1048,
+    1049,
+    1050
+  ],
+  "changed_player_frames": [
+    16,
+    17,
+    18,
+    19
+  ],
+  "other_frames_identical": 236,
+  "red_actor_identical_all_frames": true,
+  "blue_wrist_restored_to_precontact": true,
+  "gaps": [
+    {
+      "frame": 1047,
+      "player_frame": 16,
+      "wrist_ankle_center_gap_px": 65.08247798651952
+    },
+    {
+      "frame": 1048,
+      "player_frame": 17,
+      "wrist_ankle_center_gap_px": 54.30194327449936
+    },
+    {
+      "frame": 1049,
+      "player_frame": 18,
+      "wrist_ankle_center_gap_px": 70.99528258564206
+    },
+    {
+      "frame": 1050,
+      "player_frame": 19,
+      "wrist_ankle_center_gap_px": 175.1816862578962
+    }
+  ],
+  "actual_sfa_audit": {
+    "frames": 240,
+    "appearances": 469,
+    "unique_points": 10318,
+    "connections": 9380,
+    "white_head_fills": 467,
+    "objects_per_actor": 11,
+    "all_graphs_connected": true,
+    "contacts": [
+      {
+        "id": "wide_kick_block",
+        "frames": [
+          1126,
+          1127
+        ],
+        "max_gap_px": 0.0
+      },
+      {
+        "id": "precut_kick_block",
+        "frames": [
+          1134,
+          1135
+        ],
+        "max_gap_px": 0.0
+      },
+      {
+        "id": "downward_hand_block",
+        "frames": [
+          1207,
+          1208
+        ],
+        "max_gap_px": 0.0005995731814898935
+      },
+      {
+        "id": "two_hand_ankle_catch",
+        "frames": [
+          1223,
+          1227
+        ],
+        "max_gap_px": 0.0
+      },
+      {
+        "id": "hand_block_late",
+        "frames": [
+          1230,
+          1231
+        ],
+        "max_gap_px": 0.0002510776772036839
+      }
+    ],
+    "max_contact_gap_px": 0.0005995731814898935,
+    "max_head_contact_gap_px": 0.0006108050853157465
+  },
+  "reason": "사용자 확인:1048–1049는 근접 회피이며 비접촉. 잘못 추가한 early_kick_block과 앞뒤 완화 영향 제거.",
+  "rig_and_generator_changed": false
+}

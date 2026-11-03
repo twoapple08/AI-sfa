@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "rig": "stickman-2d-11-v1",
-  "description": "nian41 1913231262086463573: 원본 눈 판독에 따른 접촉·부분 다리 보완. 관절 해부학 정답 확정 아님.",
+  "description": "nian41 1913231262086463573: 원본 눈 판독에 따른 접촉·부분 다리 보완. 관절 해부학 정답 확정 아님. 사용자 확인:1048–1049(재생17–18장)는 근접 회피이며 접촉하지 않는다. 접촉 제약을 적용하지 않는다.",
   "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
   "start": 1032,
   "end": 1271,
@@ -83,22 +83,6 @@
     }
   ],
   "contacts": [
-    {
-      "id": "early_kick_block",
-      "start": 1048,
-      "end": 1049,
-      "feather": 2,
-      "members": [
-        [
-          "blue",
-          "wri_r"
-        ]
-      ],
-      "target": [
-        "red",
-        "ank_r"
-      ]
-    },
     {
       "id": "wide_kick_block",
       "start": 1126,
