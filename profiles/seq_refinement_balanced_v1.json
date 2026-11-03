@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "id": "seq-refinement-balanced-v1",
+  "modes": ["token-v1", "balanced-v1"],
+  "steps_per_arm": 500,
+  "max_train_minutes_per_arm": 20,
+  "max_batch": 4,
+  "tok_budget": 4096,
+  "lr": 0.00001,
+  "val_n": 64,
+  "seed": 20261103,
+  "objective_weights": {
+    "token-v1": [0.0, 0.0, 0.0],
+    "balanced-v1": [0.2, 0.2, 0.1]
+  },
+  "scope": "동일 2회차 가중치·자료·묶음 순서·업데이트 수의 비교용 보정. 공식 판정/합격선/생성 정책은 변경하지 않는다.",
+  "limits": "저장 모델의 2048 문맥은 유지한다. 긴 이펙트·배경의 누락을 해결했다고 세지 않는다. 새 가중치의 그림 확인 전 개선을 선언하지 않는다."
+}

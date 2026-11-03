@@ -223,9 +223,9 @@ def sine_table(v, d):
     return out if out.shape[1] == d else torch.cat([out, torch.zeros(len(out), d - out.shape[1])], -1)
 
 
-def loss_fn(logits, tgt, fld):
+def token_loss(logits, tgt, fld):
     """다음 토큰 채점. 수 칸(좌표·T·굵기·색)은 정확한 칸 50% + 이웃 ±2칸 분포 50%(그 칸의 합법 범위 안에서만, 무게 다시 맞춤).
-    돌려줌: 평균 손실, 맞힘 비율, 토큰 수(검증을 토큰 수로 가중 합산하려고)."""
+    돌려줌: 토큰별 손실, PAD 제외 마스크. 기존 학습/검증과 비교용 목적함수가 공유한다."""
     logp = F.log_softmax(logits.float(), -1)
     mask = tgt != K.TOK['PAD']
     exact = -logp.gather(-1, tgt[..., None])[..., 0]
@@ -241,6 +241,12 @@ def loss_fn(logits, tgt, fld):
         wsum = wsum + w * ok
     soft = soft / wsum.clamp_min(1e-6)
     per = torch.where(soft_on, 0.5 * exact + 0.5 * soft, exact)
+    return per, mask
+
+
+def loss_fn(logits, tgt, fld):
+    """기존 토큰 평균 손실·맞힘·토큰 수. 기존 판정/학습의 기본 동작은 유지한다."""
+    per, mask = token_loss(logits, tgt, fld)
     m = mask.float()
     n = m.sum()
     acc = ((logits.argmax(-1) == tgt) & mask).float().sum() / n
