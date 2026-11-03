@@ -23,7 +23,10 @@ def rig_layout_fingerprint():
                    points=[dict(id=int(p.get('ID'))-PT0, flags=p.get('Flags'), index=p.get('Index'),
                                 links=sorted(int(c.get('ConnPtId'))-PT0 for c in p.findall('AC'))) for p in a.findall('AP')])
               for a in frame.findall('AO')]
-    return hashlib.sha256(json.dumps(dict(objects=layout, fills=[f.get('Color') for f in frame.findall('FR')]),
+    fills = [dict(color=f.get('Color'), segments=[dict(kind=s.get('Kind'), object=int(s.get('ObjId'))-AO0,
+                  contour=s.get('Contour', '0'), edge_fields=sorted(k for k in ('StartPtId', 'EndPtId', 'StartT', 'EndT') if k in s.attrib))
+                  for s in f.findall('FS')]) for f in frame.findall('FR')]
+    return hashlib.sha256(json.dumps(dict(objects=layout, fills=fills),
                                      sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
 

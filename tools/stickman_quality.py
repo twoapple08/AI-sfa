@@ -157,6 +157,13 @@ def audit(root, scene, colors=('blue', 'red'), width=1152, crop_y=63, top=24):
             fills += len(own_fills)
             if len(own_fills) != int(head_visible) or any(fill.get('Color') != '-1' for fill in own_fills):
                 fail(f'{color} 흰 머리 채움 오류')
+            for fill in own_fills:
+                segs = fill.findall('FS')
+                if (len(segs) != 1 or segs[0].get('Kind') != '1'
+                        or segs[0].get('ObjId') != str(sc.AO0 + slot * 100 + 1)
+                        or segs[0].get('Contour', '0') != '0'
+                        or any(k in segs[0].attrib for k in ('StartPtId', 'EndPtId', 'StartT', 'EndT'))):
+                    fail(f'{color} 머리 원 전체 채움 저장 형식 오류')
             if head_visible:
                 center = (pose['head_t'] + pose['head_b']) / 2
                 radius = np.linalg.norm(pose['head_t'] - pose['head_b']) / 2

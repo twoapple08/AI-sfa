@@ -86,3 +86,8 @@ python tools/stickman_finalize.py /비공개/frozen_projection_before_scene.sfa 
 ## 가까운 팔다리의 선택 면 표시층
 
 사용자가 부위별 선 굵기의 이음 경계를 지적해 가까운 다리는 같은 스틱맨 모양의 연속 면으로 시험했다. `docs/GPT-STICKMAN-LIMB-SURFACE-TRIAL-2026-11-03.md`와 `scenes/nian41_1032-1271_limb_surface_trial.json`을 따른다. `stickman_limb_surface.py`는 고정 뼈대 위에 선택 표시층을 추가하며, 기본11객체를 최종 전체 객체 수라고 부르지 않는다. 현재는 거의 직선인 두 마디 사슬만 지원한다. 품질 검사는 `stickman_quality.py --surface 설정.json`으로 면 포함 연결망과 표시층을 벗긴 기존 뼈대를 함께 검사한다. 원본 깊이 자동 인식/앱 편집 추종까지 검증된 것으로 세지 않는다.
+
+
+## 실제 앱 채움 누락 수정·저장 형식 revision2
+
+2026-11-03 사용자 녹화에서 머리 채움 누락 확인. `docs/GPT-STICKMAN-HEAD-FILL-APP-FIX-2026-11-03.md`를 먼저 따른다. 머리 원 채움은 FS Kind1로 명시하고 edge의 점/T를 섞지 않는다. 고정11객체·포즈·AC는 유지하며 프로필의 저장 형식 revision2/지문만 갱신했다. 예전 서버 픽셀·흰색 존재 검사 통과를 앱 호환 확인으로 확대하지 않는다. 새 추출/최종화는 수정된 직렬화기를 쓰고,옛 전달 파일은 `stickman_head_fill.py`로 FS만 고친 뒤 검사한다. 근경 면이 있는 파일에는 `--surface`를 유지한다. 실제 Stick Fighter의 수정본 재확인은 대기다.

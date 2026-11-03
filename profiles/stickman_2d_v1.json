@@ -100,5 +100,7 @@
       "visible": false
     }
   ],
-  "layout_sha256": "428751727157eae4cceadb96491f56b5d9526fca0b6a51b4b6eabcc6ce34fd8e"
+  "layout_sha256": "6eef4a5a2f9812f75287131d01794a252a107146b10368c5ec894324ebaf143a",
+  "serialization_revision": 2,
+  "head_fill_encoding": "FS Kind=1, ObjId=머리 원, Contour=0; edge 필드 없음"
 }

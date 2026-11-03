@@ -448,14 +448,15 @@ class MainActivity : Activity() {
         renderThread?.interrupt(); renderThread = null
         cache?.close()
         tl = Timeline(d.frameCount, tween, play)
-        val fc = FrameCache(d, tl, File(cacheDir, "frames_${cacheKey}_1280_${tl.key}"), 1280)
+        val fc = FrameCache(d, tl, File(cacheDir, "frames_v11_${cacheKey}_1280_${tl.key}"), 1280)
         val j = (pos * tl.count).toInt().coerceIn(0, tl.count - 1)
         fc.prefetchFrom(j)
         cache = fc
         fpsBtn.text = "$tween, $play"
         val how = if (tl.interp) "보간 ${tl.fps}fps · 원본 ${d.frameCount}프레임 → ${tl.count}프레임" else "보간 없음 · ${tl.fps}fps"
         info.text = "${d.frameCount}프레임 · ${"%.1f".format(d.frameCount.toDouble() / play)}초 ($how)\n" +
-            "1920×${(1920 * d.ratio).roundToInt()} · 오브젝트 ${"%,d".format(d.objCount)}개\n$loadMsg"
+            "1920×${(1920 * d.ratio).roundToInt()} · 오브젝트 ${"%,d".format(d.objCount)}개\n$loadMsg" +
+            if (d.invalidFillSegments > 0) "\n채움 경계 오류 ${d.invalidFillSegments}개 · 해당 윤곽은 표시하지 않음" else ""
         seek.max = maxOf(tl.count - 1, 0); seek.progress = j
         wanted.set(j); updateLabels(j); startRenderLoop(); kick()
         saveThumb(fc, cacheKey)

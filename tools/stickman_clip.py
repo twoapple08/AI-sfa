@@ -197,7 +197,8 @@ def person_aos(n, slot, Jn, to_pct, color, thick=1.0, visible_segments=None):
                        + ''.join(f'<AC ConnPtId="{base + c}"/>' for c in acs) + '</AP>')
         out.append('</AO>')
     if visible_segments is None or 1 in visible_segments:
-        out.append(f'<FR ID="{7800000 + n * 10 + slot}" Color="-1"><FS ObjId="{AO0 + slot * 100 + 1}" StartT="0" EndT="1" Contour="0"/></FR>')
+        # 원 전체 채움은 Kind=1이다. 종류 없는 edge를 뷰어가 원으로 보완해도 앱 호환 근거가 되지 않는다.
+        out.append(f'<FR ID="{7800000 + n * 10 + slot}" Color="-1"><FS Kind="1" ObjId="{AO0 + slot * 100 + 1}" Contour="0"/></FR>')
     return ''.join(out)
 
 

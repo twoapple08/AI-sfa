@@ -123,6 +123,7 @@ class FrameRenderer(private val doc: SfaDoc) {
         val s0 = doc.flSegStart[fl]
         for (k in s0 until s0 + doc.flSegCount[fl]) {
             if (doc.sCont[k] != cont) continue
+            if (!doc.sValid[k]) return false
             val o = doc.sObj[k]; if (o < 0) continue
             var t0 = segT0(k); var t1 = segT1(k)
             if (doc.oType[o].toInt() == 3) {
@@ -278,7 +279,7 @@ class FrameRenderer(private val doc: SfaDoc) {
             for (k in d.flSegStart[fl] until d.flSegStart[fl] + d.flSegCount[fl]) {
                 if (d.sCont[k] != 0) continue
                 outer++
-                val o = d.sObj[k]; if (o < 0 || d.oId[o] !in paired) return false
+                val o = d.sObj[k]; if (!d.sValid[k] || o < 0 || d.oId[o] !in paired) return false
             }
             return outer > 0
         }
@@ -286,7 +287,8 @@ class FrameRenderer(private val doc: SfaDoc) {
             val b = StringBuilder()
             for (k in d.flSegStart[fl] until d.flSegStart[fl] + d.flSegCount[fl]) {
                 val o = d.sObj[k]
-                b.append(d.sCont[k]).append(':').append(if (o < 0) "*" else d.oId[o].toString())
+                b.append(d.sCont[k]).append(':').append(d.sKind[k]).append(':').append(d.sValid[k])
+                    .append(':').append(if (o < 0) "*" else d.oId[o].toString())
                 if (withT) b.append(':').append(d.sT0[k]).append(':').append(d.sT1[k])
                 b.append(';')
             }

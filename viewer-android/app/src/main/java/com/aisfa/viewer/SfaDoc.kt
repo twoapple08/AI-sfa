@@ -42,6 +42,8 @@ class SfaDoc {
     var flColor = IntArray(0); var flSegStart = IntArray(0); var flSegCount = IntArray(0)
     var segCount = 0
     var sObj = IntArray(0); var sT0 = FloatArray(0); var sT1 = FloatArray(0); var sCont = IntArray(0)
+    var sKind = ByteArray(0); var sValid = BooleanArray(0)
+    val invalidFillSegments: Int get() = sValid.count { !it }
 
     fun write(out: OutputStream) {
         val d = DataOutputStream(out.buffered(1 shl 16))
@@ -57,12 +59,13 @@ class SfaDoc {
         d.writeInt(ptCount); wF(d, px, ptCount); wF(d, py, ptCount); wI(d, pIdx, ptCount)
         d.writeInt(fillCount); wI(d, flColor, fillCount); wI(d, flSegStart, fillCount); wI(d, flSegCount, fillCount)
         d.writeInt(segCount); wI(d, sObj, segCount); wF(d, sT0, segCount); wF(d, sT1, segCount); wI(d, sCont, segCount)
+        d.write(sKind, 0, segCount); for (i in 0 until segCount) d.writeBoolean(sValid[i])
         d.flush()
     }
 
     companion object {
         const val MAGIC = 0x53464131 // "SFA1"
-        const val VERSION = 3
+        const val VERSION = 4 // v1.1: 채움 종류/유효성 없는 옛 캐시는 원본에서 다시 읽는다
 
         private fun wI(d: DataOutputStream, a: IntArray, n: Int) { for (i in 0 until n) d.writeInt(a[i]) }
         private fun wF(d: DataOutputStream, a: FloatArray, n: Int) { for (i in 0 until n) d.writeFloat(a[i]) }
@@ -86,6 +89,7 @@ class SfaDoc {
             val p = d.readInt(); s.ptCount = p; s.px = rF(d, p); s.py = rF(d, p); s.pIdx = rI(d, p)
             val f = d.readInt(); s.fillCount = f; s.flColor = rI(d, f); s.flSegStart = rI(d, f); s.flSegCount = rI(d, f)
             val g = d.readInt(); s.segCount = g; s.sObj = rI(d, g); s.sT0 = rF(d, g); s.sT1 = rF(d, g); s.sCont = rI(d, g)
+            s.sKind = ByteArray(g).also { d.readFully(it) }; s.sValid = BooleanArray(g) { d.readBoolean() }
             return s
         }
     }

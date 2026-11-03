@@ -35,6 +35,8 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
     private val px = GF(); private val py = GF(); private val pIdx = GI()
     private val flColor = GI(); private val flSS = GI(); private val flSC = GI()
     private val sObjRaw = GI(); private val sCont = GI(); private val sT0 = GF(); private val sT1 = GF()
+    private val sKind = GB(); private val sValid = GB()
+    private val pendingStartPt = ArrayList<Long>(); private val pendingEndPt = ArrayList<Long>()
 
     // 프레임 안 임시
     private val aoIdToLocal = HashMap<Long, Int>()
@@ -68,6 +70,7 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
         s.ptCount = px.n; s.px = px.trim(); s.py = py.trim(); s.pIdx = pIdx.trim()
         s.fillCount = flColor.n; s.flColor = flColor.trim(); s.flSegStart = flSS.trim(); s.flSegCount = flSC.trim()
         s.segCount = sT0.n; s.sObj = sObjRaw.trim(); s.sT0 = sT0.trim(); s.sT1 = sT1.trim(); s.sCont = sCont.trim()
+        s.sKind = sKind.trim(); s.sValid = BooleanArray(sValid.n) { sValid.a[it].toInt() != 0 }
         return s
     }
 
@@ -124,7 +127,12 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
                     val objId = attrs.long("ObjId", -1)
                     sObjRaw.add(0); sCont.add(attrs.int("Contour", 0))
                     pendingSegObj.add(objId)
-                    sT0.add(attrs.float("StartT", 0f)); sT1.add(attrs.float("EndT", 1f))
+                    sT0.add(attrs.str("StartT")?.let { parseF(it) ?: Float.NaN } ?: 0f)
+                    sT1.add(attrs.str("EndT")?.let { parseF(it) ?: Float.NaN } ?: 1f)
+                    // 종류 누락을 원 전체 채움으로 보완하지 않는다. 점 참조는 장 끝에 소유 객체까지 확인한다.
+                    val kind = attrs.int("Kind", -1)
+                    sKind.add(if (kind == 0 || kind == 1) kind.toByte() else (-1).toByte()); sValid.add(0)
+                    pendingStartPt.add(attrs.long("StartPtId", -1)); pendingEndPt.add(attrs.long("EndPtId", -1))
                     flSC.a[flColor.n - 1]++
                 }
             }
@@ -138,9 +146,36 @@ class SfaParser(private val progress: (Long) -> Unit = {}) {
         // 채우기 경계의 ObjId → 전역 오브젝트 번호(없으면 -1)
         for (k in pendingSegObj.indices) {
             val loc = aoIdToLocal[pendingSegObj[k]]
-            sObjRaw.a[frameSeg0 + k] = if (loc == null) -1 else frameObj0 + loc
+            val seg = frameSeg0 + k
+            val obj = if (loc == null) -1 else frameObj0 + loc
+            sObjRaw.a[seg] = obj
+            if (obj < 0) continue
+            val type = oType.a[obj].toInt(); val count = oPC.a[obj].toInt()
+            val valid = when (sKind.a[seg].toInt()) {
+                1 -> type == 2 && count >= 2
+                0 -> {
+                    val t0 = sT0.a[seg]; val t1 = sT1.a[seg]
+                    val start = pendingStartPt[k]; val end = pendingEndPt[k]
+                    (type in 1..3 && count >= if (type == 3) 3 else 2) &&
+                        t0.isFinite() && t1.isFinite() && kotlin.math.abs(t1 - t0) > 1e-6f &&
+                        (start < 0 || apIdToLocal[start] == loc) && (end < 0 || apIdToLocal[end] == loc)
+                }
+                else -> false
+            }
+            sValid.a[seg] = if (valid) 1 else 0
+            if (sKind.a[seg].toInt() == 1) { sT0.a[seg] = 0f; sT1.a[seg] = 1f }
         }
-        pendingSegObj.clear()
+        pendingSegObj.clear(); pendingStartPt.clear(); pendingEndPt.clear()
+        // AOT-FILL-PATH: 윤곽 하나가 부적합하면 그 윤곽 전체를 생략한다. 원 전체 조각은 단독이어야 한다.
+        for (fl in frameFill0 until flColor.n) {
+            val groups = (flSS.a[fl] until flSS.a[fl] + flSC.a[fl]).groupBy { sCont.a[it] }
+            for ((contour, segments) in groups) {
+                if (contour < 0 || segments.any { sValid.a[it].toInt() == 0 } ||
+                    (segments.size > 1 && segments.any { sKind.a[it].toInt() == 1 })) {
+                    for (seg in segments) sValid.a[seg] = 0
+                }
+            }
+        }
         // 연결 그룹(union-find): AC가 가리키는 점의 주인 오브젝트와 묶는다
         val parent = IntArray(n) { it }
         fun find(x0: Int): Int { var x = x0; while (parent[x] != x) { parent[x] = parent[parent[x]]; x = parent[x] }; return x }
