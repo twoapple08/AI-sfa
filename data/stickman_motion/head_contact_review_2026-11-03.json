@@ -1,0 +1,443 @@
+{
+  "evidence": "CPU 기하 계산·정적 렌더. 실제 앱 편집·동영상·새 SFA 검증 아님. 후보는 미채택.",
+  "actor_appearances": 467,
+  "gap_over_1px": {
+    "blue": 34,
+    "red": 19
+  },
+  "any_positive_gap": {
+    "blue": 47,
+    "red": 24
+  },
+  "max_minimum_shift_px": 27.416548271085965,
+  "max_visible_bridge_centerline_px": 44.814293630621926,
+  "trial_A": "d>r일 때만 머리 중심을 목 허브 쪽으로 d-r 이동. 몸·팔다리·머리 지름은 고정. d<=r인 숙임·겹침은 그대로.",
+  "trial_B": "d>r일 때만 몸통 위끝과 양팔 시작 허브를 원 경계까지 이동. 머리 중심·지름 고정. 팔 위팔·몸통 각도와 길이 변함.",
+  "formula": "d=|머리중심-목허브|, r=머리반지름. 추가로 보이는 목선 없이 맞닿으려면 d<=r. 최소 이동량 max(0,d-r).",
+  "rows": [
+    {
+      "frame": 1046,
+      "color": "blue",
+      "head_radius_px": 36.078693724823445,
+      "hub_center_distance_px": 39.218102955601815,
+      "minimum_contact_shift_px": 3.1394092307783694,
+      "visible_bridge_centerline_px": 4.560413533227442
+    },
+    {
+      "frame": 1047,
+      "color": "blue",
+      "head_radius_px": 35.54511904779074,
+      "hub_center_distance_px": 39.890109638581585,
+      "minimum_contact_shift_px": 4.344990590790843,
+      "visible_bridge_centerline_px": 5.235022289195366
+    },
+    {
+      "frame": 1051,
+      "color": "blue",
+      "head_radius_px": 33.477813942437756,
+      "hub_center_distance_px": 36.47705947781389,
+      "minimum_contact_shift_px": 2.999245535376133,
+      "visible_bridge_centerline_px": 8.648770879918544
+    },
+    {
+      "frame": 1058,
+      "color": "blue",
+      "head_radius_px": 17.984721000330044,
+      "hub_center_distance_px": 30.94715647722726,
+      "minimum_contact_shift_px": 12.962435476897216,
+      "visible_bridge_centerline_px": 15.843287932266241
+    },
+    {
+      "frame": 1059,
+      "color": "blue",
+      "head_radius_px": 16.63504882159828,
+      "hub_center_distance_px": 25.02701874535047,
+      "minimum_contact_shift_px": 8.391969923752193,
+      "visible_bridge_centerline_px": 11.269398119193644
+    },
+    {
+      "frame": 1060,
+      "color": "blue",
+      "head_radius_px": 16.63512773565964,
+      "hub_center_distance_px": 19.252986899979152,
+      "minimum_contact_shift_px": 2.617859164319512,
+      "visible_bridge_centerline_px": 6.306948675951703
+    },
+    {
+      "frame": 1061,
+      "color": "blue",
+      "head_radius_px": 18.143571623550198,
+      "hub_center_distance_px": 19.201103356390767,
+      "minimum_contact_shift_px": 1.0575317328405696,
+      "visible_bridge_centerline_px": 5.366968303785628
+    },
+    {
+      "frame": 1062,
+      "color": "blue",
+      "head_radius_px": 20.005269712547275,
+      "hub_center_distance_px": 47.42181798363324,
+      "minimum_contact_shift_px": 27.416548271085965,
+      "visible_bridge_centerline_px": 30.24401137234319
+    },
+    {
+      "frame": 1063,
+      "color": "blue",
+      "head_radius_px": 21.894224827070374,
+      "hub_center_distance_px": 37.90186774776376,
+      "minimum_contact_shift_px": 16.007642920693385,
+      "visible_bridge_centerline_px": 28.6915338326196
+    },
+    {
+      "frame": 1064,
+      "color": "red",
+      "head_radius_px": 37.52499424704107,
+      "hub_center_distance_px": 39.076224431453944,
+      "minimum_contact_shift_px": 1.5512301844128729,
+      "visible_bridge_centerline_px": 6.928032031260848
+    },
+    {
+      "frame": 1065,
+      "color": "red",
+      "head_radius_px": 38.10878947086683,
+      "hub_center_distance_px": 50.32877933267842,
+      "minimum_contact_shift_px": 12.219989861811591,
+      "visible_bridge_centerline_px": 13.775893395789543
+    },
+    {
+      "frame": 1066,
+      "color": "red",
+      "head_radius_px": 38.692183836152736,
+      "hub_center_distance_px": 45.21776116975358,
+      "minimum_contact_shift_px": 6.525577333600843,
+      "visible_bridge_centerline_px": 7.25826072563828
+    },
+    {
+      "frame": 1067,
+      "color": "blue",
+      "head_radius_px": 24.938672077702584,
+      "hub_center_distance_px": 27.205217493817297,
+      "minimum_contact_shift_px": 2.266545416114713,
+      "visible_bridge_centerline_px": 3.5284707583033414
+    },
+    {
+      "frame": 1074,
+      "color": "blue",
+      "head_radius_px": 28.62992877934362,
+      "hub_center_distance_px": 31.705650194748614,
+      "minimum_contact_shift_px": 3.0757214154049954,
+      "visible_bridge_centerline_px": 7.426111469392329
+    },
+    {
+      "frame": 1075,
+      "color": "blue",
+      "head_radius_px": 28.638622103314663,
+      "hub_center_distance_px": 32.90252587066596,
+      "minimum_contact_shift_px": 4.263903767351298,
+      "visible_bridge_centerline_px": 4.564744975882953
+    },
+    {
+      "frame": 1096,
+      "color": "red",
+      "head_radius_px": 26.637121134998388,
+      "hub_center_distance_px": 29.34303866492898,
+      "minimum_contact_shift_px": 2.7059175299305913,
+      "visible_bridge_centerline_px": 5.311074032860733
+    },
+    {
+      "frame": 1099,
+      "color": "blue",
+      "head_radius_px": 14.788843509502694,
+      "hub_center_distance_px": 16.575246462594748,
+      "minimum_contact_shift_px": 1.786402953092054,
+      "visible_bridge_centerline_px": 3.5478296463290295
+    },
+    {
+      "frame": 1100,
+      "color": "blue",
+      "head_radius_px": 13.493143919138813,
+      "hub_center_distance_px": 21.273332291961697,
+      "minimum_contact_shift_px": 7.7801883728228844,
+      "visible_bridge_centerline_px": 15.919055138339974
+    },
+    {
+      "frame": 1101,
+      "color": "blue",
+      "head_radius_px": 12.804433497081515,
+      "hub_center_distance_px": 18.970928174717923,
+      "minimum_contact_shift_px": 6.166494677636408,
+      "visible_bridge_centerline_px": 11.058928490104707
+    },
+    {
+      "frame": 1102,
+      "color": "blue",
+      "head_radius_px": 12.413028542820635,
+      "hub_center_distance_px": 18.920840870559697,
+      "minimum_contact_shift_px": 6.507812327739062,
+      "visible_bridge_centerline_px": 6.514285067275525
+    },
+    {
+      "frame": 1103,
+      "color": "blue",
+      "head_radius_px": 12.412823195807773,
+      "hub_center_distance_px": 16.478211067362867,
+      "minimum_contact_shift_px": 4.065387871555094,
+      "visible_bridge_centerline_px": 7.933346197932937
+    },
+    {
+      "frame": 1104,
+      "color": "blue",
+      "head_radius_px": 13.36561139260962,
+      "hub_center_distance_px": 14.529616256051368,
+      "minimum_contact_shift_px": 1.1640048634417468,
+      "visible_bridge_centerline_px": 3.222311619923718
+    },
+    {
+      "frame": 1104,
+      "color": "red",
+      "head_radius_px": 20.285920909251345,
+      "hub_center_distance_px": 23.177964579828057,
+      "minimum_contact_shift_px": 2.8920436705767116,
+      "visible_bridge_centerline_px": 3.6995931168279177
+    },
+    {
+      "frame": 1105,
+      "color": "blue",
+      "head_radius_px": 14.516881805604392,
+      "hub_center_distance_px": 18.417627966827972,
+      "minimum_contact_shift_px": 3.90074616122358,
+      "visible_bridge_centerline_px": 5.420379630459937
+    },
+    {
+      "frame": 1111,
+      "color": "blue",
+      "head_radius_px": 17.308442402046456,
+      "hub_center_distance_px": 19.327028652949643,
+      "minimum_contact_shift_px": 2.018586250903187,
+      "visible_bridge_centerline_px": 5.139625338569338
+    },
+    {
+      "frame": 1114,
+      "color": "red",
+      "head_radius_px": 14.284835624169302,
+      "hub_center_distance_px": 21.708638328644714,
+      "minimum_contact_shift_px": 7.423802704475412,
+      "visible_bridge_centerline_px": 11.747632482030651
+    },
+    {
+      "frame": 1115,
+      "color": "blue",
+      "head_radius_px": 16.452984868486343,
+      "hub_center_distance_px": 19.729653960422933,
+      "minimum_contact_shift_px": 3.27666909193659,
+      "visible_bridge_centerline_px": 9.490121699407707
+    },
+    {
+      "frame": 1115,
+      "color": "red",
+      "head_radius_px": 14.201785156397788,
+      "hub_center_distance_px": 18.470387348992507,
+      "minimum_contact_shift_px": 4.268602192594718,
+      "visible_bridge_centerline_px": 4.699083796642859
+    },
+    {
+      "frame": 1116,
+      "color": "blue",
+      "head_radius_px": 16.4534207871234,
+      "hub_center_distance_px": 21.71232022932749,
+      "minimum_contact_shift_px": 5.25889944220409,
+      "visible_bridge_centerline_px": 11.42787443583531
+    },
+    {
+      "frame": 1116,
+      "color": "red",
+      "head_radius_px": 14.375455867757374,
+      "hub_center_distance_px": 24.782207416430676,
+      "minimum_contact_shift_px": 10.406751548673302,
+      "visible_bridge_centerline_px": 12.802453593717757
+    },
+    {
+      "frame": 1117,
+      "color": "blue",
+      "head_radius_px": 16.497303464050137,
+      "hub_center_distance_px": 19.32674457816835,
+      "minimum_contact_shift_px": 2.829441114118211,
+      "visible_bridge_centerline_px": 9.194878081384202
+    },
+    {
+      "frame": 1117,
+      "color": "red",
+      "head_radius_px": 14.550231501148849,
+      "hub_center_distance_px": 17.468147644466935,
+      "minimum_contact_shift_px": 2.9179161433180862,
+      "visible_bridge_centerline_px": 4.260066427425682
+    },
+    {
+      "frame": 1124,
+      "color": "red",
+      "head_radius_px": 17.200798110678008,
+      "hub_center_distance_px": 20.80626861649741,
+      "minimum_contact_shift_px": 3.605470505819401,
+      "visible_bridge_centerline_px": 4.9007537035816275
+    },
+    {
+      "frame": 1126,
+      "color": "red",
+      "head_radius_px": 17.52123347120286,
+      "hub_center_distance_px": 19.800957162701025,
+      "minimum_contact_shift_px": 2.279723691498166,
+      "visible_bridge_centerline_px": 2.9372901586599434
+    },
+    {
+      "frame": 1161,
+      "color": "red",
+      "head_radius_px": 127.68371612817573,
+      "hub_center_distance_px": 136.76334909696385,
+      "minimum_contact_shift_px": 9.079632968788118,
+      "visible_bridge_centerline_px": 24.167114281040995
+    },
+    {
+      "frame": 1198,
+      "color": "blue",
+      "head_radius_px": 106.44009318953215,
+      "hub_center_distance_px": 109.31869568800039,
+      "minimum_contact_shift_px": 2.87860249846824,
+      "visible_bridge_centerline_px": 24.54197364106655
+    },
+    {
+      "frame": 1199,
+      "color": "red",
+      "head_radius_px": 109.14260410501694,
+      "hub_center_distance_px": 112.61472236261162,
+      "minimum_contact_shift_px": 3.4721182575946727,
+      "visible_bridge_centerline_px": 7.5696158232319934
+    },
+    {
+      "frame": 1212,
+      "color": "blue",
+      "head_radius_px": 105.86768556478253,
+      "hub_center_distance_px": 110.50039248504564,
+      "minimum_contact_shift_px": 4.632706920263104,
+      "visible_bridge_centerline_px": 12.526138241457112
+    },
+    {
+      "frame": 1212,
+      "color": "red",
+      "head_radius_px": 109.47734884165568,
+      "hub_center_distance_px": 111.03375157149608,
+      "minimum_contact_shift_px": 1.5564027298404,
+      "visible_bridge_centerline_px": 12.87099280939653
+    },
+    {
+      "frame": 1213,
+      "color": "red",
+      "head_radius_px": 109.26638417378358,
+      "hub_center_distance_px": 118.89476017660556,
+      "minimum_contact_shift_px": 9.62837600282198,
+      "visible_bridge_centerline_px": 44.814293630621926
+    },
+    {
+      "frame": 1214,
+      "color": "red",
+      "head_radius_px": 106.83139706712781,
+      "hub_center_distance_px": 108.47864628533299,
+      "minimum_contact_shift_px": 1.6472492182051752,
+      "visible_bridge_centerline_px": 12.887900627168143
+    },
+    {
+      "frame": 1215,
+      "color": "red",
+      "head_radius_px": 103.44674487487175,
+      "hub_center_distance_px": 105.98374724512318,
+      "minimum_contact_shift_px": 2.537002370251429,
+      "visible_bridge_centerline_px": 5.302709382362176
+    },
+    {
+      "frame": 1237,
+      "color": "blue",
+      "head_radius_px": 8.324731869861521,
+      "hub_center_distance_px": 9.325666121563637,
+      "minimum_contact_shift_px": 1.000934251702116,
+      "visible_bridge_centerline_px": 3.930780331005634
+    },
+    {
+      "frame": 1238,
+      "color": "blue",
+      "head_radius_px": 8.324654230683226,
+      "hub_center_distance_px": 9.469560436711282,
+      "minimum_contact_shift_px": 1.1449062060280557,
+      "visible_bridge_centerline_px": 2.6790517336101494
+    },
+    {
+      "frame": 1238,
+      "color": "red",
+      "head_radius_px": 8.562118474616913,
+      "hub_center_distance_px": 9.829429198939238,
+      "minimum_contact_shift_px": 1.267310724322325,
+      "visible_bridge_centerline_px": 4.0102530471949205
+    },
+    {
+      "frame": 1239,
+      "color": "blue",
+      "head_radius_px": 8.324655915163808,
+      "hub_center_distance_px": 10.06125797393475,
+      "minimum_contact_shift_px": 1.7366020587709414,
+      "visible_bridge_centerline_px": 2.904453042710938
+    },
+    {
+      "frame": 1239,
+      "color": "red",
+      "head_radius_px": 8.656180493352958,
+      "hub_center_distance_px": 10.259298797091338,
+      "minimum_contact_shift_px": 1.6031183037383805,
+      "visible_bridge_centerline_px": 3.150596084409076
+    },
+    {
+      "frame": 1240,
+      "color": "blue",
+      "head_radius_px": 8.324627715092106,
+      "hub_center_distance_px": 11.258763549056697,
+      "minimum_contact_shift_px": 2.934135833964591,
+      "visible_bridge_centerline_px": 4.984210221961378
+    },
+    {
+      "frame": 1241,
+      "color": "blue",
+      "head_radius_px": 8.324585364714322,
+      "hub_center_distance_px": 10.957855711482939,
+      "minimum_contact_shift_px": 2.633270346768617,
+      "visible_bridge_centerline_px": 5.017482613422734
+    },
+    {
+      "frame": 1242,
+      "color": "blue",
+      "head_radius_px": 8.324588427863047,
+      "hub_center_distance_px": 9.617632018313062,
+      "minimum_contact_shift_px": 1.293043590450015,
+      "visible_bridge_centerline_px": 3.8260086225937227
+    },
+    {
+      "frame": 1254,
+      "color": "blue",
+      "head_radius_px": 8.733668815821195,
+      "hub_center_distance_px": 10.271549910541072,
+      "minimum_contact_shift_px": 1.5378810947198769,
+      "visible_bridge_centerline_px": 5.2357754179206095
+    },
+    {
+      "frame": 1255,
+      "color": "blue",
+      "head_radius_px": 8.859515894765368,
+      "hub_center_distance_px": 10.013334814355495,
+      "minimum_contact_shift_px": 1.1538189195901278,
+      "visible_bridge_centerline_px": 1.242645486526223
+    },
+    {
+      "frame": 1258,
+      "color": "blue",
+      "head_radius_px": 9.144570739865271,
+      "hub_center_distance_px": 10.546158731040576,
+      "minimum_contact_shift_px": 1.4015879911753046,
+      "visible_bridge_centerline_px": 1.401639578276778
+    }
+  ]
+}

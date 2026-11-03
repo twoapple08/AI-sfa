@@ -1,0 +1,656 @@
+{
+  "evidence": "CPU float32, 폭640, 방향0, 고정 앞 표본. 공식 GPU 판정 재현·승격 아님.",
+  "checkpoint_sha256": "636145f296d0434adaefb6cc9908f6ef1e3be4023bbacced811e198d7c67854e",
+  "maxlen": 2048,
+  "gpu_sheet_comparison": [
+    {
+      "index": 0,
+      "identical": true,
+      "mean_rgb_difference": 0.0,
+      "changed_pixel_fraction": 0.0
+    },
+    {
+      "index": 1,
+      "identical": true,
+      "mean_rgb_difference": 0.0,
+      "changed_pixel_fraction": 0.0
+    },
+    {
+      "index": 2,
+      "identical": false,
+      "mean_rgb_difference": 1.703070987654321,
+      "changed_pixel_fraction": 0.07275462962962963
+    },
+    {
+      "index": 3,
+      "identical": false,
+      "mean_rgb_difference": 75.99648662551441,
+      "changed_pixel_fraction": 1.0
+    },
+    {
+      "index": 4,
+      "identical": false,
+      "mean_rgb_difference": 0.5125694444444444,
+      "changed_pixel_fraction": 0.01345679012345679
+    },
+    {
+      "index": 5,
+      "identical": false,
+      "mean_rgb_difference": 3.55641975308642,
+      "changed_pixel_fraction": 0.04077932098765432
+    }
+  ],
+  "cache_full_control": [
+    {
+      "position": 6,
+      "full_chosen": "LAYER",
+      "cache_chosen": "LAYER",
+      "full_eos_probability": 1.4556960969969168e-08,
+      "cache_eos_probability": 1.455707199227163e-08,
+      "absolute_difference": 1.1102230246251565e-13
+    },
+    {
+      "position": 1058,
+      "full_chosen": "CIRC",
+      "cache_chosen": "CIRC",
+      "full_eos_probability": 0.007317957002669573,
+      "cache_eos_probability": 0.007318006828427315,
+      "absolute_difference": 4.98257577419281e-08
+    },
+    {
+      "position": 1985,
+      "full_chosen": "LINK",
+      "cache_chosen": "LINK",
+      "full_eos_probability": 0.017097020521759987,
+      "cache_eos_probability": 0.017097003757953644,
+      "absolute_difference": 1.6763806343078613e-08
+    }
+  ],
+  "checkpoint_step": 78709,
+  "official_unfinished_classification": {
+    "evidence": "최종 로그 judge_end는 4방향184개 전체이고 eos120·forced64만 있다. 공식2방향92개는 이 부분집합이며 unfinished34이므로 34개 모두 forced에 해당. 개별34개 토큰·ID는 원출력에 없음.",
+    "official_samples": 92,
+    "official_unfinished": 34,
+    "official_forced": 34,
+    "four_direction_samples": 184,
+    "four_direction_eos": 120,
+    "four_direction_forced": 64,
+    "limit": 0,
+    "oom": 0,
+    "empty": 0,
+    "syntax_exception_recorded": false
+  },
+  "samples": [
+    {
+      "index": 0,
+      "file": "묶음1_Sfa__zip/Connecting_line.sfa",
+      "position": 0,
+      "direction": 0,
+      "reason": "eos",
+      "tokens": 213,
+      "target_tokens": 32,
+      "strict_grammar": true,
+      "teacher_target_end": {
+        "eos_probability": 2.0557490643113852e-07,
+        "eos_rank": 6,
+        "chosen": "LINE"
+      },
+      "prefixes": [
+        {
+          "position": 51,
+          "objects": 4,
+          "target_objects": 2,
+          "match": 0,
+          "partial": 1.0954569529463332
+        },
+        {
+          "position": 104,
+          "objects": 8,
+          "target_objects": 2,
+          "match": 1,
+          "partial": 12.713852163136707
+        },
+        {
+          "position": 161,
+          "objects": 13,
+          "target_objects": 2,
+          "match": 1,
+          "partial": 7.823909023468743
+        },
+        {
+          "position": 212,
+          "objects": 13,
+          "target_objects": 2,
+          "match": 1,
+          "partial": 7.823909023468743
+        }
+      ],
+      "early_prefixes": [
+        {
+          "label": "첫 1객체",
+          "position": 21,
+          "objects": 1,
+          "target_objects": 2,
+          "match": 0,
+          "partial": 1.219244265195335
+        },
+        {
+          "label": "첫 2객체",
+          "position": 31,
+          "objects": 2,
+          "target_objects": 2,
+          "match": 0,
+          "partial": 2.037085267079303
+        },
+        {
+          "label": "첫 4객체",
+          "position": 51,
+          "objects": 4,
+          "target_objects": 2,
+          "match": 0,
+          "partial": 1.0954569529463332
+        },
+        {
+          "label": "첫 8객체",
+          "position": 104,
+          "objects": 8,
+          "target_objects": 2,
+          "match": 1,
+          "partial": 12.713852163136707
+        },
+        {
+          "label": "정답 길이 부근",
+          "position": 31,
+          "objects": 2,
+          "target_objects": 2,
+          "match": 0,
+          "partial": 2.037085267079303
+        }
+      ],
+      "last_eos_decision": {
+        "position": 212,
+        "chosen": "EOS",
+        "eos_probability": 0.9999914169311523,
+        "eos_rank": 1,
+        "chosen_probability": 0.9999914169311523
+      },
+      "reference_generation_verified": true
+    },
+    {
+      "index": 1,
+      "file": "묶음1_Sfa__zip/Dudu_SPECTRUM.sfa",
+      "position": 0,
+      "direction": 0,
+      "reason": "eos",
+      "tokens": 284,
+      "target_tokens": 112,
+      "strict_grammar": true,
+      "teacher_target_end": {
+        "eos_probability": 0.00108282919973135,
+        "eos_rank": 5,
+        "chosen": "LAYER"
+      },
+      "prefixes": [
+        {
+          "position": 72,
+          "objects": 5,
+          "target_objects": 10,
+          "match": 1,
+          "partial": 9.756200239699178
+        },
+        {
+          "position": 142,
+          "objects": 12,
+          "target_objects": 10,
+          "match": 5,
+          "partial": 41.9276123667973
+        },
+        {
+          "position": 214,
+          "objects": 17,
+          "target_objects": 10,
+          "match": 5,
+          "partial": 29.595961670680442
+        },
+        {
+          "position": 283,
+          "objects": 19,
+          "target_objects": 10,
+          "match": 5,
+          "partial": 26.48059728429303
+        }
+      ],
+      "early_prefixes": [
+        {
+          "label": "첫 1객체",
+          "position": 24,
+          "objects": 1,
+          "target_objects": 10,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 2객체",
+          "position": 39,
+          "objects": 2,
+          "target_objects": 10,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 4객체",
+          "position": 67,
+          "objects": 4,
+          "target_objects": 10,
+          "match": 1,
+          "partial": 9.756200239699178
+        },
+        {
+          "label": "첫 8객체",
+          "position": 107,
+          "objects": 8,
+          "target_objects": 10,
+          "match": 3,
+          "partial": 30.836911105626974
+        },
+        {
+          "label": "정답 길이 부근",
+          "position": 112,
+          "objects": 9,
+          "target_objects": 10,
+          "match": 3,
+          "partial": 30.836911105626974
+        }
+      ],
+      "last_eos_decision": {
+        "position": 283,
+        "chosen": "EOS",
+        "eos_probability": 0.9999251365661621,
+        "eos_rank": 1,
+        "chosen_probability": 0.9999251365661621
+      },
+      "reference_generation_verified": false
+    },
+    {
+      "index": 2,
+      "file": "묶음1_Sfa__zip/Hjll_SPECTRUM.sfa",
+      "position": 23,
+      "direction": 0,
+      "reason": "eos",
+      "tokens": 402,
+      "target_tokens": 81,
+      "strict_grammar": true,
+      "teacher_target_end": {
+        "eos_probability": 0.0004545779956970364,
+        "eos_rank": 5,
+        "chosen": "CURVE"
+      },
+      "prefixes": [
+        {
+          "position": 101,
+          "objects": 3,
+          "target_objects": 3,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "position": 202,
+          "objects": 7,
+          "target_objects": 3,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "position": 303,
+          "objects": 13,
+          "target_objects": 3,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "position": 401,
+          "objects": 17,
+          "target_objects": 3,
+          "match": 0,
+          "partial": 0.0
+        }
+      ],
+      "early_prefixes": [
+        {
+          "label": "첫 1객체",
+          "position": 42,
+          "objects": 1,
+          "target_objects": 3,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 2객체",
+          "position": 71,
+          "objects": 2,
+          "target_objects": 3,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 4객체",
+          "position": 117,
+          "objects": 4,
+          "target_objects": 3,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 8객체",
+          "position": 222,
+          "objects": 8,
+          "target_objects": 3,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "정답 길이 부근",
+          "position": 81,
+          "objects": 3,
+          "target_objects": 3,
+          "match": 0,
+          "partial": 0.0
+        }
+      ],
+      "last_eos_decision": {
+        "position": 401,
+        "chosen": "EOS",
+        "eos_probability": 0.7398017644882202,
+        "eos_rank": 1,
+        "chosen_probability": 0.7398017644882202
+      },
+      "reference_generation_verified": false
+    },
+    {
+      "index": 3,
+      "file": "묶음1_Sfa__zip/Kllll_SPECTRUM.sfa",
+      "position": 41,
+      "direction": 0,
+      "reason": "eos",
+      "tokens": 603,
+      "target_tokens": 22,
+      "strict_grammar": true,
+      "teacher_target_end": {
+        "eos_probability": 8.30162605325313e-07,
+        "eos_rank": 6,
+        "chosen": "LINE"
+      },
+      "prefixes": [
+        {
+          "position": 151,
+          "objects": 13,
+          "target_objects": 1,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "position": 300,
+          "objects": 19,
+          "target_objects": 1,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "position": 455,
+          "objects": 24,
+          "target_objects": 1,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "position": 602,
+          "objects": 24,
+          "target_objects": 1,
+          "match": 0,
+          "partial": 0.0
+        }
+      ],
+      "early_prefixes": [
+        {
+          "label": "첫 1객체",
+          "position": 21,
+          "objects": 1,
+          "target_objects": 1,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 2객체",
+          "position": 31,
+          "objects": 2,
+          "target_objects": 1,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 4객체",
+          "position": 53,
+          "objects": 4,
+          "target_objects": 1,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 8객체",
+          "position": 93,
+          "objects": 8,
+          "target_objects": 1,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "정답 길이 부근",
+          "position": 21,
+          "objects": 1,
+          "target_objects": 1,
+          "match": 0,
+          "partial": 0.0
+        }
+      ],
+      "last_eos_decision": {
+        "position": 602,
+        "chosen": "EOS",
+        "eos_probability": 0.8343085050582886,
+        "eos_rank": 1,
+        "chosen_probability": 0.8343085050582886
+      },
+      "reference_generation_verified": false
+    },
+    {
+      "index": 4,
+      "file": "묶음1_Sfa__zip/Rider_Coord_Fix_Part15_Pivot.sfa",
+      "position": 3,
+      "direction": 0,
+      "reason": "eos",
+      "tokens": 369,
+      "target_tokens": 920,
+      "strict_grammar": true,
+      "teacher_target_end": {
+        "eos_probability": 0.03651176020503044,
+        "eos_rank": 2,
+        "chosen": "LINE"
+      },
+      "prefixes": [
+        {
+          "position": 87,
+          "objects": 7,
+          "target_objects": 57,
+          "match": 2,
+          "partial": 5.8961965786335435
+        },
+        {
+          "position": 185,
+          "objects": 14,
+          "target_objects": 57,
+          "match": 9,
+          "partial": 17.287243505627384
+        },
+        {
+          "position": 277,
+          "objects": 21,
+          "target_objects": 57,
+          "match": 15,
+          "partial": 26.290480436655166
+        },
+        {
+          "position": 368,
+          "objects": 26,
+          "target_objects": 57,
+          "match": 18,
+          "partial": 33.32737265895737
+        }
+      ],
+      "early_prefixes": [
+        {
+          "label": "첫 1객체",
+          "position": 21,
+          "objects": 1,
+          "target_objects": 57,
+          "match": 0,
+          "partial": 0.2797936981395204
+        },
+        {
+          "label": "첫 2객체",
+          "position": 31,
+          "objects": 2,
+          "target_objects": 57,
+          "match": 0,
+          "partial": 0.5613658354236564
+        },
+        {
+          "label": "첫 4객체",
+          "position": 51,
+          "objects": 4,
+          "target_objects": 57,
+          "match": 0,
+          "partial": 1.6121745520266235
+        },
+        {
+          "label": "첫 8객체",
+          "position": 108,
+          "objects": 8,
+          "target_objects": 57,
+          "match": 3,
+          "partial": 7.4866946759038475
+        },
+        {
+          "label": "정답 길이 부근",
+          "position": 368,
+          "objects": 26,
+          "target_objects": 57,
+          "match": 18,
+          "partial": 33.32737265895737
+        }
+      ],
+      "last_eos_decision": {
+        "position": 368,
+        "chosen": "EOS",
+        "eos_probability": 0.4256296157836914,
+        "eos_rank": 1,
+        "chosen_probability": 0.4256296157836914
+      },
+      "reference_generation_verified": false
+    },
+    {
+      "index": 5,
+      "file": "묶음1_Sfa__zip/StickFigureNew.sfa",
+      "position": 0,
+      "direction": 0,
+      "reason": "forced",
+      "tokens": 1986,
+      "target_tokens": 182,
+      "strict_grammar": true,
+      "teacher_target_end": {
+        "eos_probability": 0.22008942067623138,
+        "eos_rank": 2,
+        "chosen": "LINE"
+      },
+      "prefixes": [
+        {
+          "position": 494,
+          "objects": 43,
+          "target_objects": 14,
+          "match": 2,
+          "partial": 6.347918567661505
+        },
+        {
+          "position": 993,
+          "objects": 105,
+          "target_objects": 14,
+          "match": 2,
+          "partial": 2.599623794375664
+        },
+        {
+          "position": 1491,
+          "objects": 170,
+          "target_objects": 14,
+          "match": 2,
+          "partial": 1.6056499906437927
+        },
+        {
+          "position": 1985,
+          "objects": 231,
+          "target_objects": 14,
+          "match": 2,
+          "partial": 1.1816471792616654
+        }
+      ],
+      "early_prefixes": [
+        {
+          "label": "첫 1객체",
+          "position": 24,
+          "objects": 1,
+          "target_objects": 14,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 2객체",
+          "position": 40,
+          "objects": 2,
+          "target_objects": 14,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 4객체",
+          "position": 63,
+          "objects": 4,
+          "target_objects": 14,
+          "match": 0,
+          "partial": 0.0
+        },
+        {
+          "label": "첫 8객체",
+          "position": 103,
+          "objects": 8,
+          "target_objects": 14,
+          "match": 0,
+          "partial": 5.709426227770736
+        },
+        {
+          "label": "정답 길이 부근",
+          "position": 182,
+          "objects": 17,
+          "target_objects": 14,
+          "match": 2,
+          "partial": 15.89656448619591
+        }
+      ],
+      "last_eos_decision": {
+        "position": 1985,
+        "chosen": "LINK",
+        "eos_probability": 0.017097003757953644,
+        "eos_rank": 4,
+        "chosen_probability": 0.5473460555076599
+      },
+      "reference_generation_verified": false
+    }
+  ],
+  "reference_generation_first_sample_identical": true
+}
