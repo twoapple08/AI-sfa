@@ -63,11 +63,23 @@ def decode(root, colors, width, crop_y):
     return poses, styles
 
 
-def audit(root, scene, colors=('blue', 'red'), width=1152, crop_y=63, top=24):
+def audit(root, scene, colors=('blue', 'red'), width=1152, crop_y=63, top=24, visibility_plan=None):
     """위반은 errors, 수치로 선별한 미확정 움직임은 review_candidates로 분리한다."""
     errors, seen, object_types = [], set(), {}
     poses, styles = decode(root, colors, width, crop_y)
     frames = root.findall('Frame')
+    planned = {}
+    for event in visibility_plan or []:
+        actor, start, end = event['actor'], event['start'], event['end']
+        visible = event['visible_segments']
+        if (actor not in colors or not scene['start'] <= start <= end <= scene['end']
+                or len(set(visible)) != len(visible) or not set(visible).issubset(range(1, 11))):
+            errors.append('자동 표시 계획의 인물/범위/조각 오류')
+            continue
+        for frame in range(start, end+1):
+            if (frame, actor) in planned:
+                errors.append(f'{frame}: {actor} 자동 표시 계획 중복')
+            planned[frame, actor] = sorted(visible)
     expected_count = scene['end'] - scene['start'] + 1
     if len(frames) != expected_count or int(root.get('FrameCount')) != len(frames):
         errors.append('장 수가 장면/Sequence와 다르다')
@@ -90,12 +102,16 @@ def audit(root, scene, colors=('blue', 'red'), width=1152, crop_y=63, top=24):
         for slot, color in enumerate(colors):
             pose = poses[i][color]
             if pose is None:
+                if ((f, color) in planned or any(part['actor'] == color and part['start'] <= f <= part['end']
+                                               for part in scene.get('partials', []))):
+                    fail(f'{color} 표시하기로 한 부분 인물 누락')
                 continue
             counts[color] += 1
             expected_visible = list(range(1, 11))
             for partial in scene.get('partials', []):
                 if partial['actor'] == color and partial['start'] <= f <= partial['end']:
                     expected_visible = sorted(partial['visible_segments'])
+            expected_visible = planned.get((f, color), expected_visible)
             if sorted(pose.get('_visible_segments', range(1, 11))) != expected_visible:
                 fail(f'{color} 장면에 없는 조각 숨김/표시')
             appearances += 1
@@ -224,6 +240,7 @@ def audit(root, scene, colors=('blue', 'red'), width=1152, crop_y=63, top=24):
     return dict(schema=1, rig=scene['rig'], frames=len(frames), appearances=appearances,
                 appearances_by_actor=counts, unique_points=len(seen), connections=links, white_heads=fills,
                 errors=errors, contacts=contact_results, review_candidates=candidates[:top],
+                visibility_plan_frames=len(planned),
                 overlap_candidates=overlap_candidates,
                 candidate_policy='컷·부분 인물 제외, 몸통 대비 상대 가속도 순위. 실제 빠른 동작과 오류를 구별하지 않으며 자동 보정/합격선이 아니다.'), poses, styles
 
@@ -237,16 +254,24 @@ def main():
     parser.add_argument('--colors', nargs='+', default=['blue', 'red'])
     parser.add_argument('--top', type=int, default=24)
     parser.add_argument('--surface', help='선택 면 표시층 설정. 면을 포함한 전체 연결망과 기존 뼈대를 함께 검사한다')
+    parser.add_argument('--visibility-plan', help='자동 부분 구도 표시 계획 JSON. 표시 선택만 대조하며 포즈 정답/눈 합격은 검사하지 않는다')
     parser.add_argument('--report', required=True)
     args = parser.parse_args()
     scene, rig = load_scene(args.scene)
+    plan = None
+    if args.visibility_plan:
+        data = json.loads(Path(args.visibility_plan).read_text())
+        if (data.get('schema') != 1 or data.get('start') != scene['start'] or data.get('end') != scene['end']
+                or data.get('source_sha256') != scene.get('source_sha256')):
+            parser.error('자동 표시 계획과 장면의 원본/범위가 다르다')
+        plan = data['events']
     if args.surface:
         from stickman_limb_surface import audit_surface
         style = json.loads(Path(args.surface).read_text(encoding='utf-8'))
-        report, _ = audit_surface(read_sfa(args.sfa), scene, style, args.width, args.crop_y, args.colors)
+        report, _ = audit_surface(read_sfa(args.sfa), scene, style, args.width, args.crop_y, args.colors, visibility_plan=plan)
         report['surface_style_sha256'] = digest(args.surface)
     else:
-        report, _, _ = audit(read_sfa(args.sfa), scene, args.colors, args.width, args.crop_y, args.top)
+        report, _, _ = audit(read_sfa(args.sfa), scene, args.colors, args.width, args.crop_y, args.top, visibility_plan=plan)
     report.update(sfa_sha256=digest(args.sfa), settings=rig)
     Path(args.report).write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(f"{report['frames']}장 검사: 구조·접촉 위반 {len(report['errors'])}건, 눈 판독 후보 {len(report['review_candidates'])}건")

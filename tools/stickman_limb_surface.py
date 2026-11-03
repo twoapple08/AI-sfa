@@ -152,7 +152,7 @@ def apply_surface(root, scene, style, width, crop_y, colors=('blue', 'red')):
     return result, records
 
 
-def audit_surface(root, scene, style, width, crop_y, colors=('blue', 'red')):
+def audit_surface(root, scene, style, width, crop_y, colors=('blue', 'red'), visibility_plan=None):
     """면을 벗긴 기존 뼈대 검사 + 실제 면 포함 전체 연결망 + 면 재생성 일치 검사."""
     base = copy.deepcopy(root)
     frames = base.findall('Frame')
@@ -174,7 +174,7 @@ def audit_surface(root, scene, style, width, crop_y, colors=('blue', 'red')):
         for a in frame.findall('AO'):
             if int(a.get('ID')) in {AO0+slot*100+v for v in CHAINS[chain_index]}:
                 a.set('Color', str(LINE_COLOR[actor]))
-    report, _, _ = audit(base, scene, colors, width, crop_y)
+    report, _, _ = audit(base, scene, colors, width, crop_y, visibility_plan=visibility_plan)
     rebuilt, records = apply_surface(base, scene, style, width, crop_y, colors)
     errors = report['errors']
     if ET.tostring(rebuilt) != ET.tostring(root):

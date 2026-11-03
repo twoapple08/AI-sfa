@@ -105,23 +105,25 @@ def video_segments(video, frames, K, W, color, pose_segments, key_starts=()):
     return segments_from_matches(frames, pose_segments, matches, key_starts)
 
 
-def align_limb_pairs(K, weights, spans, scale, allow_parts=('arm', 'leg')):
+def align_limb_pairs(K, weights, spans, scale, allow_parts=('arm', 'leg'), preserve_short_gaps=False):
     """완전 관측 사슬만 2D 가지로 추적한다. 해부학적 좌우 복구라는 뜻은 아니다.
 
     키의 첫 관측을 이전 키와 맞추고, 같은 그림 안에서는 첫 관측과 맞춰 평균 전 교환을 막는다.
-    가림·반쪽 관측이면 추적을 끊는다. 팔/다리 전체를 교환해 사슬을 섞지 않는다.
+    가림·반쪽 관측은 교환하지 않되 짧은 가림 뒤의 관측에 이전 기준을 유지한다.
+    팔/다리 전체를 교환해 사슬을 섞지 않는다.
     """
     K, weights = K.copy(), weights.copy()
     events = []
     for label, left, right in [('arm', [5, 7, 9], [6, 8, 10]), ('leg', [11, 13, 15], [12, 14, 16])]:
         if label not in allow_parts:
             continue
-        prior = None
+        prior, gap = None, 0
         for a, b in spans:
             anchor, values, first_valid = prior, [], True
             for t in range(a, b + 1):
                 if not (weights[t, left + right] > 0).all():
-                    anchor, prior, values, first_valid = None, None, [], True
+                    if not preserve_short_gaps:
+                        anchor, prior, values, first_valid = None, None, [], True
                     continue
                 hub = (K[t, left[0], :2] + K[t, right[0], :2]) / 2
                 vector = (K[t, [left[1:], right[1:]], :2] - hub) / max(float(scale[t]), 1e-6)
@@ -138,5 +140,12 @@ def align_limb_pairs(K, weights, spans, scale, allow_parts=('arm', 'leg')):
                     anchor = vector
                     first_valid = False
                 values.append(vector)
-            prior = np.mean(values, axis=0) if values and (weights[b, left + right] > 0).all() else None
+            if not preserve_short_gaps:
+                prior = np.mean(values, axis=0) if values and (weights[b, left + right] > 0).all() else None
+            elif values:
+                prior, gap = np.median(values, axis=0), 0
+            else:
+                gap += 1
+                if gap > 2:
+                    prior = None
     return K, weights, events

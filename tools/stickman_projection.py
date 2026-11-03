@@ -42,7 +42,8 @@ def guard_hidden_chains(joints, half):
     return changes
 
 
-def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=False, track_pairs=True):
+def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=False, track_pairs=True,
+                     key_motion_v2=False, rebase_arms=False):
     """완전/반쪽 관측의 키 평균 보정량을 보간한다. 결측 축에 새 관측을 만들지 않는다.
 
     어깨·골반은 중점 허브로 합치되 팔꿈치·손목·무릎·발목의 화면 위치를 보존한다.
@@ -64,16 +65,32 @@ def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=Fals
             for axis, codes in ((0, (3, 4)), (1, (1, 2))):
                 if np.isin(side[:, j], codes).any():
                     protected.add((name, axis))
-        # 반쪽 관측을 가진 사슬은 기존 좌우 이름·추정 축을 함께 보존한다.
-        allowed_parts = [part for part, js in [('arm', [5, 6, 7, 8, 9, 10]), ('leg', [11, 12, 13, 14, 15, 16])]
-                         if not (side[:, js] > 0).any()]
+        # protected는 진단 목록이다. 한 장의 반쪽 관측으로 컷 전체의 보정/추적을 끄지 않는다.
+        if not key_motion_v2:
+            allowed_parts = [part for part, js in [('arm', [5, 6, 7, 8, 9, 10]), ('leg', [11, 12, 13, 14, 15, 16])]
+                             if not (side[:, js] > 0).any()]
     if direct_keys and track_pairs:
         from stickman_image_keys import align_limb_pairs
-        K, wax, pair_events = align_limb_pairs(K, wax, spans, S, allowed_parts)
+        K, wax, pair_events = align_limb_pairs(K, wax, spans, S, allowed_parts, preserve_short_gaps=key_motion_v2)
+    rejected = np.zeros(K.shape[:2], bool)
+    duplicate_events = []
+    if direct_keys and key_motion_v2:
+        from stickman_key_motion import axis_from_keys, keyed_medians, reject_duplicate_chains
+        wax, rejected, duplicate_events = reject_duplicate_chains(K, wax, spans, S)
+        if track_pairs:
+            K, wax, second_pass = align_limb_pairs(K, wax, spans, S, allowed_parts, preserve_short_gaps=True)
+            pair_events += second_pass
     J = {n: v.copy() for n, v in fallback.items()}
     log = []
     for name, j in OBS.items():
         for axis in (0, 1):
+            if direct_keys and key_motion_v2:
+                J[name][:, axis], inferred = axis_from_keys(K[:, j, axis], wax[:, j, axis], fallback[name][:, axis], spans,
+                    half[1][:, j] if half is not None else None, half[2] if half is not None else None,
+                    axis, rejected[:, j])
+                log.append({'joint': name, 'axis': axis, 'inferred_keys': inferred,
+                            'observed_keys': sum(bool(wax[a:b+1, j, axis].sum()) for a,b in spans)})
+                continue
             use_direct = direct_keys and (name, axis) not in protected
             times, deltas = [], []
             for a, b in spans:
@@ -98,6 +115,11 @@ def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=Fals
     # 허브 중점은 완전히 관측된 경우에만 원본 중점으로 옮긴다.
     for hub, a, b in [('neck', 'sho_l', 'sho_r'), ('pel', 'hip_l', 'hip_r')]:
         for axis in (0, 1):
+            if direct_keys and key_motion_v2:
+                paired = np.minimum(wax[:, OBS[a], axis], wax[:, OBS[b], axis])
+                observed = (K[:, OBS[a], axis]+K[:, OBS[b], axis])/2
+                J[hub][:, axis], _ = axis_from_keys(observed, paired, keyed_medians(fallback[hub], spans)[:, axis], spans)
+                continue
             valid = (wax[:, OBS[a], axis] > 0) & (wax[:, OBS[b], axis] > 0)
             # 같은 보정량을 양 끝 평균으로 계산하되 관측이 없는 축은 기존 허브를 유지한다.
             correction = ((J[a] + J[b]) / 2 - fallback[hub])[:, axis]
@@ -116,6 +138,7 @@ def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=Fals
                     inside = (tt >= np.floor(times[0])) & (tt <= np.ceil(times[-1]))
                     J[hub][inside, axis] = interpolate(times, values, tt)[inside]
     out = {'neck': J['neck'], 'pelvis': J['pel']}
+    arm_rebase = []
     for side in ('l', 'r'):
         for root, mid, end, hub in [('sho', 'elb', 'wri', 'neck'), ('hip', 'kne', 'ank', 'pelvis')]:
             out[f'{mid}_{side}'] = J[f'{mid}_{side}'].copy()
@@ -125,10 +148,17 @@ def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=Fals
             second = np.linalg.norm(c - b, axis=1)
             straightness = np.linalg.norm(c - a, axis=1) / np.maximum(first + second, 1e-6)
             # 중점 허브로 옮기면서 직선이 꺾이는 것을 막는다. 관측 없는 사슬에는 적용하지 않는다.
-            valid = (W[:, [OBS[f'{root}_{side}'], OBS[f'{mid}_{side}'], OBS[f'{end}_{side}']]] > 0).all(1)
+            js = [OBS[f'{root}_{side}'], OBS[f'{mid}_{side}'], OBS[f'{end}_{side}']]
+            valid = (wax[:, js] > 0).all((1, 2)) if key_motion_v2 else (W[:, js] > 0).all(1)
             weight = np.clip((straightness - 0.98) / 0.02, 0, 1) * valid
             target = out[hub] + (c - out[hub]) * (first / np.maximum(first + second, 1e-6))[:, None]
             out[f'{mid}_{side}'] += weight[:, None] * (target - b)
+            if root == 'sho' and direct_keys and key_motion_v2 and rebase_arms:
+                from stickman_key_motion import projected_arm_lengths
+                out[f'{mid}_{side}'], arm_report = projected_arm_lengths(K, wax, spans, out[hub],
+                    out[f'{mid}_{side}'], out[f'{end}_{side}'],
+                    [OBS[f'{root}_{side}'], OBS[f'{mid}_{side}'], OBS[f'{end}_{side}']])
+                arm_rebase.append(dict(side=side, **arm_report))
     hidden_chain_changes = guard_hidden_chains(out, half)
     # 원은 크기를 유지하며 중심만 움직인다. 얼굴은 확률이 아닌 점수로 유효성을 확인한다.
     u = out['neck'] - out['pelvis']
@@ -161,9 +191,12 @@ def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=Fals
     return out, {'axis_observations': log, 'face_observed_keys': face_keys,
                  'hidden_chain_changes': [dict(frame=frames[e['index']], **e) for e in hidden_chain_changes],
                  'direct_observation_keys': direct_keys,
+                 'key_motion_revision': 2 if key_motion_v2 else 1,
+                 'projected_arm_rebase': arm_rebase,
                  'protected_edge_axes': [{'joint': n, 'axis': a} for n, a in sorted(protected)],
                  'pair_tracking_allowed_parts': allowed_parts if direct_keys and track_pairs else [],
                  'pair_tracking': [dict(frame=frames[e['index']], **e) for e in pair_events],
+                 'duplicate_observations_rejected': [dict(frame=frames[e['index']], **e) for e in duplicate_events],
                  'head_contact': {'method': '사용자 A안: 머리 중심만 최소 이동, 기존 겹침 유지',
                                   'moved_frames': int((moved > 1e-7).sum()), 'max_shift_px': float(moved.max())},
                  'method': '관측 키별 화면 좌표·투영 길이 보존, 직선 사슬의 허브 보정, 결측 축 기존 풀이'}

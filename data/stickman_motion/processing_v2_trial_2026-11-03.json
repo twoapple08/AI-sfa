@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "status": "미완성 선택 시험·학습 승인 아님",
+  "rig": "stickman-2d-11-v1",
+  "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "start": 432,
+  "end": 1871,
+  "fps": [
+    24,
+    24
+  ],
+  "sfa_sha256": "0de56473dc93f7d1063e8e4638179a60bc372fc5d8b26e31ecc47481e652ac85",
+  "counts": {
+    "Frame": 1440,
+    "AO": 22323,
+    "AP": 44666,
+    "AC": 40604,
+    "FR": 2004,
+    "FS": 2022
+  },
+  "structural_errors": 0,
+  "visibility_plan_frames": 229,
+  "semantic_view_tags": 2,
+  "new_manual_coordinates": 0,
+  "missing_running_frames_before": 13,
+  "missing_running_frames_after": 0,
+  "user_running_recovery": "다리는 괜찮음,원본834–846 긍정 확인",
+  "arm_review": "별도 사용자 눈 판정 대기",
+  "arm_control": {
+    "scope": [
+      834,
+      869
+    ],
+    "actor": "red",
+    "left_elbow_changed_frames": 9,
+    "right_elbow_changed_frames": 8,
+    "left_infeasible_frames": 9,
+    "right_infeasible_frames": 8,
+    "frame852_left_before_px": 233.80617992711402,
+    "frame852_left_after_px": 194.79085306715922,
+    "wrist_shift_px": 0,
+    "changed_frames": [
+      847,
+      848,
+      849,
+      850,
+      852,
+      853,
+      854,
+      855,
+      856,
+      857,
+      858,
+      861,
+      864,
+      865,
+      869
+    ],
+    "accepted_running_frames_preserved": 13,
+    "other_frames_preserved": 1425
+  },
+  "baseline_regression": {
+    "actor_cuts": 47,
+    "max_pixel_change": 0
+  },
+  "tests": {
+    "python_unittest": 265,
+    "exit_code": 0,
+    "real_cli_running_frames": 13,
+    "real_cli_arm_interval_frames": 23
+  },
+  "processing_split_boundaries": [
+    1032,
+    1272
+  ],
+  "source_cut_unification_pending": true,
+  "training_approved": false,
+  "app_edit_verified": false,
+  "remaining_examples": [
+    601,
+    759,
+    1326,
+    1608
+  ],
+  "drive_folder_id": "1ua4oIK92k16FUn0NIB2wj1bgCIqVtKHL",
+  "latest_sfa_drive_id": "1mHjTzdV-nHXGdtLp5Ap6ofZ7zMKMhbfw",
+  "arm_video_drive_id": "1O9tYhZrbeQf1Y5L7D-hyJa1uXf0FlFes",
+  "report": "docs/GPT-STICKMAN-GENERIC-V2-2026-11-03.md"
+}

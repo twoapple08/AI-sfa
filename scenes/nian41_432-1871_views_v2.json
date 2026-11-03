@@ -1,0 +1,19 @@
+{
+  "schema": 1,
+  "status": "미승인 시험·자동 구도 분류 아님",
+  "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "start": 432,
+  "end": 1871,
+  "crop_y": 63,
+  "views": [
+    {
+      "kind": "running_shins_top",
+      "actor": "red",
+      "start": 834,
+      "end": 846,
+      "shot": [834, 869],
+      "reference_frame": 847,
+      "evidence": "사용자 재생405장 제보 및 원본 크기 판독: 스미어를 동반한 달리기, 위에서 들어오는 종아리가 번갈아 보임. 장별 좌표는 영상 CPU 측정. 굵기는 같은 컷847장 차용이며 거리 정답 아님."
+    }
+  ]
+}

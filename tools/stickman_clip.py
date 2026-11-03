@@ -38,11 +38,18 @@ def color_area(video, frames, color):
     from rtmw_validate import color_masks
     cap = cv2.VideoCapture(video)
     out = []
+    next_frame = None
     for f in frames:
-        cap.set(cv2.CAP_PROP_POS_FRAMES, f)
+        if f != next_frame:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, f)
         ok, im = cap.read()
+        if not ok:
+            cap.release()
+            raise ValueError(f'원영상 {f}장을 읽을 수 없다')
+        next_frame = f + 1
         _, b, r = color_masks(im)
         out.append(float((b if color == 'blue' else r).mean()))
+    cap.release()
     return np.array(out)
 
 
@@ -120,10 +127,17 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
     else:
         half = None
     sub = frames[i0:i1 + 1]
-    J, S, r, _, _ = run_core(Kf, W, sub, q=SELECT['q'], symmetric=True, keys=True, L_fallback=L_fallback, half=half,
-                             side_rule=SELECT['side_rule'], scale_smooth=SELECT['scale_smooth'], resym=SELECT['resym'],
-                             key_sigma=SELECT['key_sigma'],
-                             key_starts=[f for f in SELECT['key_starts'].get(color, []) if f in sub])
+    from stickman_fit_cache import cached_fit
+    core_args = dict(q=SELECT['q'], symmetric=True, keys=True, L_fallback=L_fallback,
+                     side_rule=SELECT['side_rule'], scale_smooth=SELECT['scale_smooth'], resym=SELECT['resym'],
+                     key_sigma=SELECT['key_sigma'], key_starts=[f for f in SELECT['key_starts'].get(color, []) if f in sub])
+    arrays = dict(K=Kf, W=W)
+    if half is not None:
+        arrays.update(wax=half[0], side=half[1])
+    J, S, r, fit_cache = cached_fit(SELECT.get('fit_cache'), arrays,
+        dict(core_args, frames=sub, bounds=half[2] if half is not None else None),
+        lambda: run_core(Kf, W, sub, half=half, **core_args))
+    rep['fit_cache'] = fit_cache
     rep['border_joints_dropped'] = n_border
     rep['L_from_fallback'] = r['L_from_fallback']
     B, info = basic_joints(J, S, facing=r['facing_leg'])
@@ -136,7 +150,22 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
                                                       [f for f in SELECT['key_starts'].get(color, []) if f in sub])
             rep['image_keys'] = {'decisions': matches, 'fit_segments_unchanged': r['keypose_segments'],
                                  'method': '원본 템플릿 정합·미확정은 기존 경계, 완전 관측 사슬2D대응·키 좌표 직접 보간'}
-        B, rep['projection'] = projected_joints(Kf, W, half, sub, output_segments, J, S, direct_keys=SELECT['image_keys'])
+            if SELECT.get('key_motion_v2'):
+                from stickman_key_motion import keyed_medians
+                spans = [(sub.index(a), sub.index(b)) for a,b in output_segments]
+                S = keyed_medians(S, spans)
+                rep['image_keys']['scale_method'] = '같은 그림 키의 척도 중간값→좌표와 같은 키 시각으로 보간'
+        B, rep['projection'] = projected_joints(Kf, W, half, sub, output_segments, J, S,
+            direct_keys=SELECT['image_keys'], key_motion_v2=SELECT.get('key_motion_v2', False),
+            rebase_arms=SELECT.get('projected_arm_lengths', False))
+    visibility = None
+    body_views = [view for view in SELECT.get('body_views', [])
+                  if view['actor'] == color and view['start'] <= sub[-1] and view['end'] >= sub[0]]
+    if SELECT.get('face_evidence') is not None or body_views:
+        from stickman_view_recovery import recover_views
+        B, S, visibility, rep['view_recovery'] = recover_views(
+            video, sub, Kf, B, S, output_segments, color, half[2], SELECT.get('face_evidence'),
+            obs[i0:i1+1], body_views)
     present = np.zeros(len(frames), bool)
     present[i0:i1 + 1] = True
     outside = [frames[t] for t in range(len(frames)) if not present[t] and area[t] >= area_min]
@@ -161,6 +190,9 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
         full[k][i0:i1 + 1] = v
     full['_S'] = np.full((len(frames), 2), np.nan)       # 장별 몸통 배율(px, 두 열 같음) — 거리 굵기용
     full['_S'][i0:i1 + 1] = np.repeat(np.asarray(S, float)[:, None], 2, 1)
+    if visibility is not None:
+        full['_visibility'] = np.zeros((len(frames), 10), bool)
+        full['_visibility'][i0:i1 + 1] = visibility
     return full, present, rep
 
 
@@ -239,9 +271,11 @@ def build(R, video, start, end, cuts, colors, img=None):
             if J is None:
                 continue
             if Jall is None:
-                Jall = {k: np.full((len(frames), 2), np.nan) for k in J}
+                Jall = {}
             o = s - start
             for k in J:
+                if k not in Jall:
+                    Jall[k] = np.full((len(frames), *J[k].shape[1:]), np.nan)
                 Jall[k][o:o + len(sub)] = J[k]
             people[c]['present'][o:o + len(sub)] |= pres
         people[c]['J'] = Jall
@@ -270,6 +304,11 @@ def main():
     ap.add_argument('--key-start', nargs='*', default=[], metavar='색:장', help='원본 대조용 키 시작 장 추가. 예: blue:1038 blue:1088. 자동 경계는 유지하며 기본값은 추가 없음')
     ap.add_argument('--projection', action='store_true', help='관측 가능한 키별 2D 길이와 머리 위치 보존(사용자 비교판)')
     ap.add_argument('--image-keys', action='store_true', help='--projection에서 원본 무늬로 키 분리·완전 관측 가지 대응·키 좌표 직접 보간(비교용)')
+    ap.add_argument('--fit-cache', help='CPU 보정 전 피팅 캐시 폴더. 입력/코드 해시가 같을 때만 재사용')
+    ap.add_argument('--key-motion-v2', action='store_true', help='미승인 공통 처리 시험: 같은 키 척도/지역적 가림/짧은 가림 뒤 가지 대응')
+    ap.add_argument('--projected-arm-lengths', action='store_true', help='미승인 시험: 원본 키마다 잰2D 팔 길이로 팔꿈치 재배치,손목/몸통 유지')
+    ap.add_argument('--body-views', help='위몸이 틀 밖인 구도 태그 JSON. 좌표가 아닌 관측 범위 데이터,미승인 시험')
+    ap.add_argument('--face-evidence', help='CPU 독립 얼굴 관측 JSON. 확대/부분 인물 복구 선택 시험,원영상 지문 대조')
     ap.add_argument('--scene', help='고정 뼈대용 장면 JSON: 접촉·보완 관측·부분 인물. --projection 필요')
     ap.add_argument('--thick-ref', nargs=2, metavar='장:색:굵기', help='거리 굵기 기준 두 점(클립 장 번호 0부터), 예: 40:blue:1.0 120:red:5.0')
     a = ap.parse_args()
@@ -293,14 +332,65 @@ def main():
     if a.image_keys and not a.projection:
         ap.error('--image-keys는 --projection과 함께 사용한다')
     SELECT['image_keys'] = a.image_keys
+    SELECT['fit_cache'] = a.fit_cache
+    if a.key_motion_v2 and not a.image_keys:
+        ap.error('--key-motion-v2는 --projection --image-keys와 함께 사용한다')
+    SELECT['key_motion_v2'] = a.key_motion_v2
+    if (a.projected_arm_lengths or a.body_views) and not a.key_motion_v2:
+        ap.error('팔 길이/부분 구도 시험은 --key-motion-v2와 함께 사용한다')
+    SELECT['projected_arm_lengths'] = a.projected_arm_lengths
+    SELECT['body_views'] = []
+    if a.body_views:
+        from stickman_face_evidence import digest
+        with open(a.body_views) as source:
+            config = json.load(source)
+        if (config.get('schema') != 1 or config.get('source_sha256') != digest(a.video)
+                or config.get('crop_y') != a.crop_y or not config['start'] <= a.start <= a.end <= config['end']):
+            ap.error('부분 구도 태그와 원본/범위/화면 위 끝이 다르다')
+        owned = set()
+        for view in config['views']:
+            if (view['kind'] != 'lower_body_top' or view['actor'] not in a.colors
+                    or not config['start'] <= view['start'] <= view['end'] <= config['end']
+                    or any(view['start'] < cut <= view['end'] for cut in a.cuts)):
+                ap.error('부분 구도 태그의 종류/인물/범위/컷 오류')
+            for f in range(view['start'], view['end']+1):
+                if (f, view['actor']) in owned:
+                    ap.error('부분 구도 태그가 중복된다')
+                owned.add((f, view['actor']))
+        SELECT['body_views'] = config['views']
+    SELECT['face_evidence'] = None
+    if a.face_evidence:
+        if not a.key_motion_v2:
+            ap.error('--face-evidence는 --key-motion-v2와 함께 쓰는 미승인 시험이다')
+        from stickman_face_evidence import load_evidence
+        source = cv2.VideoCapture(a.video)
+        SELECT['face_evidence'] = load_evidence(a.face_evidence, a.video, range(a.start, a.end+1),
+            int(source.get(cv2.CAP_PROP_FRAME_WIDTH)), int(source.get(cv2.CAP_PROP_FRAME_HEIGHT)))
+        source.release()
     if a.scene and not a.projection:
         ap.error('--scene은 --projection과 함께 사용한다')
     cap = cv2.VideoCapture(a.video)
     img = (cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT), a.crop_y)
     frames, people, rep = build(R, a.video, a.start, a.end, a.cuts, a.colors, img)
+    rep['processing'] = dict(revision='2-experimental' if a.key_motion_v2 else '1', fixed_rig='stickman-2d-11-v1',
+        image_key_coordinates=bool(a.image_keys), image_key_scale=bool(a.key_motion_v2),
+        local_axis_censoring=bool(a.key_motion_v2), view_recovery=bool(a.face_evidence),
+        projected_arm_lengths=bool(a.projected_arm_lengths), body_view_tags=len(SELECT['body_views']),
+        automatic_quality_approval=False)
     poses = [{c: ({k: v[n].copy() for k, v in people[c]['J'].items() if not k.startswith('_')}
                   if people[c]['J'] is not None and people[c]['present'][n] else None)
               for c in a.colors} for n in range(len(frames))]
+    if a.face_evidence or a.body_views:
+        for n, pose in enumerate(poses):
+            for c, j in pose.items():
+                visibility = people[c]['J'].get('_visibility') if people[c]['J'] is not None else None
+                if j is not None and visibility is not None and np.isfinite(visibility[n]).all():
+                    j['_visible_segments'] = (np.flatnonzero(visibility[n]) + 1).tolist()
+    if a.body_views:
+        rep['body_views'] = dict(config_sha256=digest(a.body_views), tags=SELECT['body_views'], manual_coordinates=0)
+    if a.face_evidence:
+        rep['face_evidence'] = {k: SELECT['face_evidence'][k] for k in
+            ('schema', 'source_sha256', 'model_sha256', 'threshold', 'backend')}
     if a.scene:
         from stickman_scene import load_scene, apply_scene
         scene, rig = load_scene(a.scene)
