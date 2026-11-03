@@ -23,6 +23,25 @@ def constrain_head_contact(neck, head_t, head_b):
     return head_t + shift, head_b + shift, shift
 
 
+def guard_hidden_chains(joints, half):
+    """부모 마디가 틀 밖이고 자식 관측을 완전히 버렸다면, 추정 자식이 안쪽으로 접혀 나오지 않게 한다."""
+    if half is None:
+        return []
+    wax, side, _ = half
+    changes = []
+    for parent, child in [('elb_l', 'wri_l'), ('elb_r', 'wri_r'), ('kne_l', 'ank_l'), ('kne_r', 'ank_r')]:
+        p, c = OBS[parent], OBS[child]
+        unobserved = ~(wax[:, c] > 0).any(1)
+        for code, axis, sign in ((1, 1, 1), (2, 1, -1), (3, 0, -1), (4, 0, 1)):
+            hidden = unobserved & (side[:, p] == code)
+            delta = joints[child][:, axis] - joints[parent][:, axis]
+            bad = hidden & (sign * delta < 0)
+            joints[child][bad, axis] = joints[parent][bad, axis] + sign * np.abs(delta[bad])
+            changes.extend({'index': int(t), 'joint': child, 'axis': axis, 'reason': '틀 밖 부모의 완전 결측 자식'}
+                           for t in np.flatnonzero(bad))
+    return changes
+
+
 def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=False, track_pairs=True):
     """완전/반쪽 관측의 키 평균 보정량을 보간한다. 결측 축에 새 관측을 만들지 않는다.
 
@@ -110,6 +129,7 @@ def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=Fals
             weight = np.clip((straightness - 0.98) / 0.02, 0, 1) * valid
             target = out[hub] + (c - out[hub]) * (first / np.maximum(first + second, 1e-6))[:, None]
             out[f'{mid}_{side}'] += weight[:, None] * (target - b)
+    hidden_chain_changes = guard_hidden_chains(out, half)
     # 원은 크기를 유지하며 중심만 움직인다. 얼굴은 확률이 아닌 점수로 유효성을 확인한다.
     u = out['neck'] - out['pelvis']
     u /= np.maximum(np.linalg.norm(u, axis=1, keepdims=True), 1e-6)
@@ -139,6 +159,7 @@ def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=Fals
     out['head_t'], out['head_b'], shift = constrain_head_contact(out['neck'], out['head_t'], out['head_b'])
     moved = np.linalg.norm(shift, axis=-1)
     return out, {'axis_observations': log, 'face_observed_keys': face_keys,
+                 'hidden_chain_changes': [dict(frame=frames[e['index']], **e) for e in hidden_chain_changes],
                  'direct_observation_keys': direct_keys,
                  'protected_edge_axes': [{'joint': n, 'axis': a} for n, a in sorted(protected)],
                  'pair_tracking_allowed_parts': allowed_parts if direct_keys and track_pairs else [],

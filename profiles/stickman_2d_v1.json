@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "id": "stickman-2d-11-v1",
+  "base_layout_sha256": "69d5083dd3bb8565cf2595dff8b9b4148de9c10c8c70af33b1d1b46225f3c4b7",
+  "description": "직선 몸통·내부 투명 머리 연결·흰 머리. 장면은 접촉/관측/가시성 데이터로 바꾸고 이 틀은 바꾸지 않는다.",
+  "point_ids": "장마다 새로",
+  "object_ids": "인물별 장간 유지",
+  "fps": [
+    24,
+    24
+  ],
+  "objects": [
+    {
+      "id": 1,
+      "type": "2",
+      "points": [
+        "head_t",
+        "head_b"
+      ]
+    },
+    {
+      "id": 2,
+      "type": "1",
+      "points": [
+        "neck",
+        "pelvis"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "1",
+      "points": [
+        "elb_r",
+        "neck"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "1",
+      "points": [
+        "wri_r",
+        "elb_r"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "1",
+      "points": [
+        "elb_l",
+        "neck"
+      ]
+    },
+    {
+      "id": 6,
+      "type": "1",
+      "points": [
+        "wri_l",
+        "elb_l"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "1",
+      "points": [
+        "pelvis",
+        "kne_r"
+      ]
+    },
+    {
+      "id": 8,
+      "type": "1",
+      "points": [
+        "kne_r",
+        "ank_r"
+      ]
+    },
+    {
+      "id": 9,
+      "type": "1",
+      "points": [
+        "pelvis",
+        "kne_l"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "1",
+      "points": [
+        "kne_l",
+        "ank_l"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "1",
+      "points": [
+        "neck",
+        "head_b"
+      ],
+      "visible": false
+    }
+  ],
+  "layout_sha256": "428751727157eae4cceadb96491f56b5d9526fca0b6a51b4b6eabcc6ce34fd8e"
+}

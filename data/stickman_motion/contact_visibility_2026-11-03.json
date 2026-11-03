@@ -1,0 +1,417 @@
+{
+ "rig": {
+  "id": "stickman-2d-11-v1",
+  "profile_sha256": "9e7cd777652c4eb321db6ffb737b4366764b36e46a4e27c4110c3b6620781fa6",
+  "scene_sha256": "90a77d28808492013245e94167c73df01bcb895956b091e0a12868229642d26f"
+ },
+ "baseline": "motion_candidate.sfa / 67f1a9f",
+ "hidden_chain_changes": [
+  {
+   "frame": 1171,
+   "color": "blue",
+   "joint": "wri_l",
+   "axis": 0,
+   "before_axis_px": 1140.7311359999999,
+   "after_axis_px": 1212.97536
+  },
+  {
+   "frame": 1224,
+   "color": "blue",
+   "joint": "ank_r",
+   "axis": 1,
+   "before_axis_px": 731.581128,
+   "after_axis_px": 976.127256
+  },
+  {
+   "frame": 1225,
+   "color": "blue",
+   "joint": "ank_r",
+   "axis": 1,
+   "before_axis_px": 656.884872,
+   "after_axis_px": 1041.3160560000001
+  },
+  {
+   "frame": 1204,
+   "color": "red",
+   "joint": "wri_r",
+   "axis": 0,
+   "before_axis_px": 69.480576,
+   "after_axis_px": -18.179712000000006
+  },
+  {
+   "frame": 1208,
+   "color": "red",
+   "joint": "ank_l",
+   "axis": 1,
+   "before_axis_px": 852.166152,
+   "after_axis_px": 878.8378320000002
+  },
+  {
+   "frame": 1209,
+   "color": "red",
+   "joint": "ank_l",
+   "axis": 1,
+   "before_axis_px": 754.847568,
+   "after_axis_px": 980.1519840000002
+  },
+  {
+   "frame": 1210,
+   "color": "red",
+   "joint": "ank_l",
+   "axis": 1,
+   "before_axis_px": 690.260112,
+   "after_axis_px": 1051.5538080000001
+  },
+  {
+   "frame": 1211,
+   "color": "red",
+   "joint": "ank_l",
+   "axis": 1,
+   "before_axis_px": 660.54672,
+   "after_axis_px": 1086.62616
+  },
+  {
+   "frame": 1212,
+   "color": "red",
+   "joint": "ank_l",
+   "axis": 1,
+   "before_axis_px": 658.4400720000001,
+   "after_axis_px": 1088.3232719999999
+  },
+  {
+   "frame": 1215,
+   "color": "red",
+   "joint": "ank_l",
+   "axis": 1,
+   "before_axis_px": 717.7210560000001,
+   "after_axis_px": 862.6980959999999
+  },
+  {
+   "frame": 1216,
+   "color": "red",
+   "joint": "ank_l",
+   "axis": 1,
+   "before_axis_px": 755.029656,
+   "after_axis_px": 758.7660240000001
+  },
+  {
+   "frame": 1149,
+   "color": "red",
+   "joint": "ank_r",
+   "axis": 1,
+   "before_axis_px": 1172.066904,
+   "after_axis_px": 1318.5045360000001
+  },
+  {
+   "frame": 1167,
+   "color": "red",
+   "joint": "ank_r",
+   "axis": 1,
+   "before_axis_px": 1069.7976,
+   "after_axis_px": 1078.8022079999998
+  },
+  {
+   "frame": 1168,
+   "color": "red",
+   "joint": "ank_r",
+   "axis": 1,
+   "before_axis_px": 1066.0541040000003,
+   "after_axis_px": 1072.6014959999998
+  },
+  {
+   "frame": 1211,
+   "color": "red",
+   "joint": "ank_r",
+   "axis": 1,
+   "before_axis_px": 810.858096,
+   "after_axis_px": 846.109296
+  }
+ ],
+ "scene": {
+  "partials": [
+   {
+    "frame": 1137,
+    "actor": "red",
+    "visible_segments": [
+     7,
+     8
+    ]
+   },
+   {
+    "frame": 1138,
+    "actor": "red",
+    "visible_segments": [
+     7,
+     8
+    ]
+   }
+  ],
+  "tracks": [
+   {
+    "frame": 1125,
+    "actor": "red",
+    "weight": 0.5
+   },
+   {
+    "frame": 1126,
+    "actor": "red",
+    "weight": 1.0
+   },
+   {
+    "frame": 1127,
+    "actor": "red",
+    "weight": 1.0
+   },
+   {
+    "frame": 1128,
+    "actor": "red",
+    "weight": 0.5
+   }
+  ],
+  "contacts": [
+   {
+    "id": "early_kick_block",
+    "frame": 1047,
+    "weight": 0.5,
+    "before_max_px": 65.08247798651952,
+    "after_max_px": 32.54123899325981
+   },
+   {
+    "id": "early_kick_block",
+    "frame": 1048,
+    "weight": 1.0,
+    "before_max_px": 54.30194327449936,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "early_kick_block",
+    "frame": 1049,
+    "weight": 1.0,
+    "before_max_px": 70.99528258564206,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "early_kick_block",
+    "frame": 1050,
+    "weight": 0.5,
+    "before_max_px": 175.1816862578962,
+    "after_max_px": 87.5908431289481
+   },
+   {
+    "id": "wide_kick_block",
+    "frame": 1125,
+    "weight": 0.5,
+    "before_max_px": 112.53081231021002,
+    "after_max_px": 56.265406155105005
+   },
+   {
+    "id": "wide_kick_block",
+    "frame": 1126,
+    "weight": 1.0,
+    "before_max_px": 101.2604265583131,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "wide_kick_block",
+    "frame": 1127,
+    "weight": 1.0,
+    "before_max_px": 98.31889025066951,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "wide_kick_block",
+    "frame": 1128,
+    "weight": 0.5,
+    "before_max_px": 105.35161966922465,
+    "after_max_px": 52.6758098346123
+   },
+   {
+    "id": "precut_kick_block",
+    "frame": 1133,
+    "weight": 0.5,
+    "before_max_px": 51.89327419256846,
+    "after_max_px": 25.946637096284253
+   },
+   {
+    "id": "precut_kick_block",
+    "frame": 1134,
+    "weight": 1.0,
+    "before_max_px": 27.250486926978777,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "precut_kick_block",
+    "frame": 1135,
+    "weight": 1.0,
+    "before_max_px": 17.465975313637024,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "downward_hand_block",
+    "frame": 1206,
+    "weight": 0.5,
+    "before_max_px": 224.8209191975099,
+    "after_max_px": 112.41045959875495
+   },
+   {
+    "id": "downward_hand_block",
+    "frame": 1207,
+    "weight": 1.0,
+    "before_max_px": 110.07510400023287,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "downward_hand_block",
+    "frame": 1208,
+    "weight": 1.0,
+    "before_max_px": 88.17584523410298,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "downward_hand_block",
+    "frame": 1209,
+    "weight": 0.5,
+    "before_max_px": 327.2798620483028,
+    "after_max_px": 163.63993102415137
+   },
+   {
+    "id": "two_hand_ankle_catch",
+    "frame": 1222,
+    "weight": 0.5,
+    "before_max_px": 189.07774921613486,
+    "after_max_px": 94.53887460806737
+   },
+   {
+    "id": "two_hand_ankle_catch",
+    "frame": 1223,
+    "weight": 1.0,
+    "before_max_px": 121.28852332676358,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "two_hand_ankle_catch",
+    "frame": 1224,
+    "weight": 1.0,
+    "before_max_px": 135.36991705782532,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "two_hand_ankle_catch",
+    "frame": 1225,
+    "weight": 1.0,
+    "before_max_px": 103.28208875310762,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "two_hand_ankle_catch",
+    "frame": 1226,
+    "weight": 1.0,
+    "before_max_px": 126.92200717349924,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "two_hand_ankle_catch",
+    "frame": 1227,
+    "weight": 1.0,
+    "before_max_px": 181.64731099418577,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "two_hand_ankle_catch",
+    "frame": 1228,
+    "weight": 0.5,
+    "before_max_px": 165.17161988357051,
+    "after_max_px": 82.58580994178521
+   },
+   {
+    "id": "hand_block_late",
+    "frame": 1229,
+    "weight": 0.5,
+    "before_max_px": 260.1641204257527,
+    "after_max_px": 130.08206021287629
+   },
+   {
+    "id": "hand_block_late",
+    "frame": 1230,
+    "weight": 1.0,
+    "before_max_px": 154.43201244485735,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "hand_block_late",
+    "frame": 1231,
+    "weight": 1.0,
+    "before_max_px": 153.24188631877215,
+    "after_max_px": 0.0
+   },
+   {
+    "id": "hand_block_late",
+    "frame": 1232,
+    "weight": 0.5,
+    "before_max_px": 267.2244108480171,
+    "after_max_px": 133.61220542400855
+   }
+  ]
+ },
+ "actual_sfa_audit": {
+  "frames": 240,
+  "appearances": 469,
+  "unique_points": 10318,
+  "connections": 9380,
+  "white_head_fills": 467,
+  "objects_per_actor": 11,
+  "all_graphs_connected": true,
+  "contacts": [
+   {
+    "id": "early_kick_block",
+    "frames": [
+     1048,
+     1049
+    ],
+    "max_gap_px": 0.0
+   },
+   {
+    "id": "wide_kick_block",
+    "frames": [
+     1126,
+     1127
+    ],
+    "max_gap_px": 0.0
+   },
+   {
+    "id": "precut_kick_block",
+    "frames": [
+     1134,
+     1135
+    ],
+    "max_gap_px": 0.0
+   },
+   {
+    "id": "downward_hand_block",
+    "frames": [
+     1207,
+     1208
+    ],
+    "max_gap_px": 0.0005995731814898935
+   },
+   {
+    "id": "two_hand_ankle_catch",
+    "frames": [
+     1223,
+     1227
+    ],
+    "max_gap_px": 0.0
+   },
+   {
+    "id": "hand_block_late",
+    "frames": [
+     1230,
+     1231
+    ],
+    "max_gap_px": 0.0002510776772036839
+   }
+  ],
+  "max_contact_gap_px": 0.0005995731814898935,
+  "max_head_contact_gap_px": 0.0006108050853157465
+ }
+}

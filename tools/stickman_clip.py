@@ -164,7 +164,7 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
     return full, present, rep
 
 
-def person_aos(n, slot, Jn, to_pct, color, thick=1.0):
+def person_aos(n, slot, Jn, to_pct, color, thick=1.0, visible_segments=None):
     base = PT0 + n * 1000 + slot * 100
     out = []
     moving_head = 'head_b' in Jn
@@ -180,6 +180,8 @@ def person_aos(n, slot, Jn, to_pct, color, thick=1.0):
         order = 50 if oid == 1 else oid
         # 내부 연결은 편집망에만 남긴다. 흰 원 가장자리의 안티앨리어싱에도 비치지 않게 한다.
         line_color = 0 if moving_head and oid == 11 else LINE_COLOR.get(color, -16777216)
+        if visible_segments is not None and oid not in visible_segments:
+            line_color = 0
         out.append(f'<AO ID="{AO0 + slot * 100 + oid}" TypeId="{typ}" DrawOrder="{AO0 + slot * 100 + order}" '
                    + STYLE.format(c=line_color, th=f'{thick:.3f}') + '>')
         # 원 내부의 편집용 연결선. A안의 접촉 제약으로 긴 목 가지가 밖에 드러나지 않는다.
@@ -194,7 +196,8 @@ def person_aos(n, slot, Jn, to_pct, color, thick=1.0):
             out.append(f'<AP ID="{base + pid}" Flags="{fl}" Index="{i}" X="{x:.4f}" Y="{y:.4f}">'
                        + ''.join(f'<AC ConnPtId="{base + c}"/>' for c in acs) + '</AP>')
         out.append('</AO>')
-    out.append(f'<FR ID="{7800000 + n * 10 + slot}" Color="-1"><FS ObjId="{AO0 + slot * 100 + 1}" StartT="0" EndT="1" Contour="0"/></FR>')
+    if visible_segments is None or 1 in visible_segments:
+        out.append(f'<FR ID="{7800000 + n * 10 + slot}" Color="-1"><FS ObjId="{AO0 + slot * 100 + 1}" StartT="0" EndT="1" Contour="0"/></FR>')
     return ''.join(out)
 
 
@@ -266,6 +269,7 @@ def main():
     ap.add_argument('--key-start', nargs='*', default=[], metavar='색:장', help='원본 대조용 키 시작 장 추가. 예: blue:1038 blue:1088. 자동 경계는 유지하며 기본값은 추가 없음')
     ap.add_argument('--projection', action='store_true', help='관측 가능한 키별 2D 길이와 머리 위치 보존(사용자 비교판)')
     ap.add_argument('--image-keys', action='store_true', help='--projection에서 원본 무늬로 키 분리·완전 관측 가지 대응·키 좌표 직접 보간(비교용)')
+    ap.add_argument('--scene', help='고정 뼈대용 장면 JSON: 접촉·보완 관측·부분 인물. --projection 필요')
     ap.add_argument('--thick-ref', nargs=2, metavar='장:색:굵기', help='거리 굵기 기준 두 점(클립 장 번호 0부터), 예: 40:blue:1.0 120:red:5.0')
     a = ap.parse_args()
     key_starts = {}
@@ -288,9 +292,26 @@ def main():
     if a.image_keys and not a.projection:
         ap.error('--image-keys는 --projection과 함께 사용한다')
     SELECT['image_keys'] = a.image_keys
+    if a.scene and not a.projection:
+        ap.error('--scene은 --projection과 함께 사용한다')
     cap = cv2.VideoCapture(a.video)
     img = (cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT), a.crop_y)
     frames, people, rep = build(R, a.video, a.start, a.end, a.cuts, a.colors, img)
+    poses = [{c: ({k: v[n].copy() for k, v in people[c]['J'].items() if not k.startswith('_')}
+                  if people[c]['J'] is not None and people[c]['present'][n] else None)
+              for c in a.colors} for n in range(len(frames))]
+    if a.scene:
+        from stickman_scene import load_scene, apply_scene
+        scene, rig = load_scene(a.scene)
+        if sorted(scene.get('cuts', [])) != sorted(a.cuts):
+            ap.error('장면 JSON과 --cuts가 다르다')
+        if scene.get('source_sha256'):
+            import hashlib
+            with open(a.video, 'rb') as source:
+                if hashlib.file_digest(source, 'sha256').hexdigest() != scene['source_sha256']:
+                    ap.error('장면 JSON의 원본 영상 해시가 다르다')
+        poses, scene_report = apply_scene(poses, frames, scene)
+        rep['scene'] = dict(rig=rig, **scene_report)
     thick = {c: np.ones(len(frames)) for c in a.colors}
     if a.thick_ref:
         pts = []
@@ -307,13 +328,19 @@ def main():
         parts = [f'<Frame BackgroundColor="-1" ID="{FR0 + n}" Position="{n}"><LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false"/>']
         jn = {}
         for slot, c in enumerate(a.colors):
-            P = people[c]
-            if P['J'] is None or not P['present'][n]:
+            Jn = poses[n][c]
+            if Jn is None:
                 jn[c] = None
                 continue
-            Jn = {k: v[n] for k, v in P['J'].items() if not k.startswith('_')}
-            parts.append(person_aos(n, slot, Jn, to_pct, c, float(np.nan_to_num(thick[c][n], nan=1.0))))
-            jn[c] = {k: [round(float(v[0]), 2), round(float(v[1]), 2)] for k, v in Jn.items()}
+            th = thick[c][n]
+            if not np.isfinite(th):
+                same_shot = np.array([sum(f >= cut for cut in a.cuts) == sum(frames[n] >= cut for cut in a.cuts) for f in frames])
+                valid = np.flatnonzero(np.isfinite(thick[c]) & same_shot)
+                th = thick[c][min(valid, key=lambda t: abs(t - n))] if len(valid) else 1.
+            parts.append(person_aos(n, slot, Jn, to_pct, c, float(th), Jn.get('_visible_segments')))
+            jn[c] = {k: [round(float(v[0]), 2), round(float(v[1]), 2)] for k, v in Jn.items() if not k.startswith('_')}
+            if '_visible_segments' in Jn:
+                jn[c]['_visible_segments'] = list(Jn['_visible_segments'])
         parts.append('</Frame>')
         xml_frames.append(''.join(parts))
         jout.append(jn)
@@ -325,7 +352,7 @@ def main():
     rep.update(frames=[a.start, a.end], cuts=a.cuts, colors=a.colors, select=a.select, side_rule=a.side_rule,
                key_starts_requested=key_starts, projection=a.projection, image_keys=a.image_keys,
                select_log={c: [x for x in v if x[1] != 'same'] for c, v in SELECT['log'].items()},
-               present_frames={c: int(people[c]['present'].sum()) for c in a.colors})
+               present_frames={c: sum(row[c] is not None for row in poses) for c in a.colors})
     if a.report:
         json.dump(rep, open(a.report, 'w', encoding='utf-8'), ensure_ascii=False, indent=1, default=lambda o: o.item() if hasattr(o, 'item') else str(o))
     if a.joints:

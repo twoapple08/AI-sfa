@@ -1,0 +1,225 @@
+{
+  "schema": 1,
+  "rig": "stickman-2d-11-v1",
+  "description": "nian41 1913231262086463573: 원본 눈 판독에 따른 접촉·부분 다리 보완. 관절 해부학 정답 확정 아님.",
+  "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "start": 1032,
+  "end": 1271,
+  "cuts": [
+    1136,
+    1234
+  ],
+  "partials": [
+    {
+      "actor": "red",
+      "start": 1137,
+      "end": 1138,
+      "visible_segments": [
+        7,
+        8
+      ],
+      "evidence": "원본 눈 판독:1137 신발 바닥·1138 길게 번진 발차기. 골반·무릎의 화면 밖 위치는 추론이며 원관절 관측 아님.",
+      "keys": {
+        "1137": {
+          "pelvis": [
+            1650,
+            180
+          ],
+          "kne_r": [
+            1350,
+            180
+          ],
+          "ank_r": [
+            900,
+            210
+          ]
+        },
+        "1138": {
+          "pelvis": [
+            1450,
+            750
+          ],
+          "kne_r": [
+            850,
+            450
+          ],
+          "ank_r": [
+            130,
+            290
+          ]
+        }
+      }
+    }
+  ],
+  "tracks": [
+    {
+      "actor": "red",
+      "start": 1126,
+      "end": 1127,
+      "feather": 2,
+      "evidence": "원본 눈 판독: 지지하는 다리. RTMW 두 다리 사슬 혼입 보완.",
+      "keys": {
+        "1126": {
+          "kne_l": [
+            430,
+            440
+          ],
+          "ank_l": [
+            430,
+            480
+          ]
+        },
+        "1127": {
+          "kne_l": [
+            433,
+            440
+          ],
+          "ank_l": [
+            433,
+            480
+          ]
+        }
+      }
+    }
+  ],
+  "contacts": [
+    {
+      "id": "early_kick_block",
+      "start": 1048,
+      "end": 1049,
+      "feather": 2,
+      "members": [
+        [
+          "blue",
+          "wri_r"
+        ]
+      ],
+      "target": [
+        "red",
+        "ank_r"
+      ]
+    },
+    {
+      "id": "wide_kick_block",
+      "start": 1126,
+      "end": 1127,
+      "feather": 2,
+      "members": [
+        [
+          "red",
+          "ank_r"
+        ]
+      ],
+      "target": [
+        "blue",
+        "wri_r"
+      ],
+      "straighten": [
+        {
+          "actor": "red",
+          "root": "pelvis",
+          "mid": "kne_r",
+          "end": "ank_r",
+          "fraction": 0.5
+        }
+      ]
+    },
+    {
+      "id": "precut_kick_block",
+      "start": 1134,
+      "end": 1135,
+      "feather": 2,
+      "members": [
+        [
+          "blue",
+          "wri_r"
+        ]
+      ],
+      "target": [
+        "red",
+        "ank_r"
+      ]
+    },
+    {
+      "id": "downward_hand_block",
+      "start": 1207,
+      "end": 1208,
+      "feather": 2,
+      "members": [
+        [
+          "red",
+          "wri_l"
+        ],
+        [
+          "blue",
+          "ank_r"
+        ]
+      ],
+      "anchor_keys": {
+        "1207": [
+          550,
+          480
+        ],
+        "1208": [
+          553,
+          480
+        ]
+      },
+      "straighten": [
+        {
+          "actor": "blue",
+          "root": "pelvis",
+          "mid": "kne_r",
+          "end": "ank_r",
+          "fraction": 0.5
+        }
+      ]
+    },
+    {
+      "id": "two_hand_ankle_catch",
+      "start": 1223,
+      "end": 1227,
+      "feather": 2,
+      "members": [
+        [
+          "blue",
+          "wri_l"
+        ],
+        [
+          "blue",
+          "wri_r"
+        ]
+      ],
+      "target": [
+        "red",
+        "ank_r"
+      ]
+    },
+    {
+      "id": "hand_block_late",
+      "start": 1230,
+      "end": 1231,
+      "feather": 2,
+      "members": [
+        [
+          "blue",
+          "wri_r"
+        ],
+        [
+          "red",
+          "wri_r"
+        ]
+      ],
+      "anchor_keys": {
+        "1230": [
+          520,
+          360
+        ],
+        "1231": [
+          520,
+          360
+        ]
+      }
+    }
+  ]
+}
