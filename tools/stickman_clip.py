@@ -83,7 +83,7 @@ def border_mask(K, img_w, img_h, top, frac=0.06, min_px=8.0):
     return border_info(K, img_w, img_h, top, frac, min_px)[0]
 
 
-SELECT = {'mode': 'density', 'side_rule': 'any', 'log': None, 'q': 50, 'scale_smooth': (9, 5), 'resym': False, 'key_sigma': (0.06, 0.05), 'key_starts': {}}
+SELECT = {'mode': 'density', 'side_rule': 'any', 'log': None, 'q': 50, 'scale_smooth': (9, 5), 'resym': False, 'key_sigma': (0.06, 0.05), 'key_starts': {}, 'projection': False}
 
 
 def pick_shot(R, video, frames, color):
@@ -127,6 +127,9 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
     rep['border_joints_dropped'] = n_border
     rep['L_from_fallback'] = r['L_from_fallback']
     B, info = basic_joints(J, S, facing=r['facing_leg'])
+    if SELECT['projection']:
+        from stickman_projection import projected_joints
+        B, rep['projection'] = projected_joints(Kf, W, half, sub, r['keypose_segments'], J, S)
     present = np.zeros(len(frames), bool)
     present[i0:i1 + 1] = True
     outside = [frames[t] for t in range(len(frames)) if not present[t] and area[t] >= area_min]
@@ -136,6 +139,16 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
                rms_resid_torso_median=float(np.median([v for v in r['rms_resid_torso'] if v is not None])),
                knee_fixed=r['knee_fixed'] + [(sub[t], k) for t, k in info['knee_fixed_frames']],
                L_torso_units=r['L_torso_units'])
+    if SELECT['projection']:
+        # 기존 고정 길이 풀이의 잔차를 새 출력의 잔차로 보고하지 않는다.
+        rep['fixed_fit_rms_resid_torso_median'] = rep.pop('rms_resid_torso_median')
+        from rtmw_to_stickman_2d import OBS
+        names = [name for name in B if name in OBS]
+        weights = half[0][:, [OBS[name] for name in names]] if half is not None else np.repeat(W[:, [OBS[name] for name in names], None], 2, axis=2)
+        delta = (np.stack([B[name] for name in names], 1) - Kf[:, [OBS[name] for name in names], :2]) / np.asarray(S)[:, None, None]
+        count = weights.sum((1, 2))
+        error = np.sqrt((delta ** 2 * weights).sum((1, 2)) / np.maximum(count, 1))
+        rep['projection_endpoint_axis_rms_torso_median'] = float(np.median(error[count > 0])) if (count > 0).any() else None
     full = {k: np.full((len(frames), 2), np.nan) for k in B}
     for k, v in B.items():
         full[k][i0:i1 + 1] = v
@@ -147,14 +160,27 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
 def person_aos(n, slot, Jn, to_pct, color, thick=1.0):
     base = PT0 + n * 1000 + slot * 100
     out = []
-    for oid, typ, pts in BODY:
-        out.append(f'<AO ID="{AO0 + slot * 100 + oid}" TypeId="{typ}" DrawOrder="{AO0 + slot * 100 + oid}" '
+    moving_head = 'head_b' in Jn
+    body = sorted(BODY, key=lambda v: v[0] == 1)  # 머리는 앞에 그린다. 앱은 물리 순서, 렌더러는 DrawOrder를 사용한다.
+    if moving_head:
+        body = body[:-1] + [(11, '1', [(21, 'neck', 4, [3]), (22, 'head_b', 4, [2])])] + body[-1:]
+    for oid, typ, pts in body:
+        order = 50 if oid == 1 else oid
+        out.append(f'<AO ID="{AO0 + slot * 100 + oid}" TypeId="{typ}" DrawOrder="{AO0 + slot * 100 + order}" '
                    + STYLE.format(c=LINE_COLOR.get(color, -16777216), th=f'{thick:.3f}') + '>')
+        if oid == 11:
+            out[-1] = out[-1].replace(f'Color="{LINE_COLOR.get(color, -16777216)}"', 'Color="0"')
         for i, (pid, name, fl, acs) in enumerate(pts):
+            if moving_head:
+                if oid == 1 and pid == 2:
+                    name, acs = 'head_b', [22]
+                elif pid == 3:
+                    acs = [v for v in acs if v != 2] + [21]
             x, y = to_pct(Jn[name])
             out.append(f'<AP ID="{base + pid}" Flags="{fl}" Index="{i}" X="{x:.4f}" Y="{y:.4f}">'
                        + ''.join(f'<AC ConnPtId="{base + c}"/>' for c in acs) + '</AP>')
         out.append('</AO>')
+    out.append(f'<FR ID="{7800000 + n * 10 + slot}" Color="-1"><FS ObjId="{AO0 + slot * 100 + 1}" StartT="0" EndT="1" Contour="0"/></FR>')
     return ''.join(out)
 
 
@@ -224,6 +250,7 @@ def main():
     ap.add_argument('--resym', action='store_true', help='(c) 리그 빌린 뒤 좌우 대칭 다시 맞춤')
     ap.add_argument('--key-sigma', type=float, nargs=2, default=[0.06, 0.05], help='키 흔들림 깎기(0 0이면 끔)')
     ap.add_argument('--key-start', nargs='*', default=[], metavar='색:장', help='원본 대조용 키 시작 장 추가. 예: blue:1038 blue:1088. 자동 경계는 유지하며 기본값은 추가 없음')
+    ap.add_argument('--projection', action='store_true', help='관측 가능한 키별 2D 길이와 머리 위치 보존(사용자 비교판)')
     ap.add_argument('--thick-ref', nargs=2, metavar='장:색:굵기', help='거리 굵기 기준 두 점(클립 장 번호 0부터), 예: 40:blue:1.0 120:red:5.0')
     a = ap.parse_args()
     key_starts = {}
@@ -242,6 +269,7 @@ def main():
     to_pct = lambda p: (100 * p[0] / Wv, 100 * (p[1] - a.crop_y) / H)  # noqa: E731
     R = load_rtmw(a.rtmw)
     SELECT.update(mode=a.select, side_rule=a.side_rule, log={}, q=a.quantile, scale_smooth=tuple(a.scale_smooth), resym=a.resym, key_sigma=tuple(a.key_sigma) if any(a.key_sigma) else None, key_starts=key_starts)
+    SELECT['projection'] = a.projection
     cap = cv2.VideoCapture(a.video)
     img = (cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT), a.crop_y)
     frames, people, rep = build(R, a.video, a.start, a.end, a.cuts, a.colors, img)
@@ -277,7 +305,7 @@ def main():
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as z:
         z.writestr(a.name + '.xml', xml)
     rep.update(frames=[a.start, a.end], cuts=a.cuts, colors=a.colors, select=a.select, side_rule=a.side_rule,
-               key_starts_requested=key_starts,
+               key_starts_requested=key_starts, projection=a.projection,
                select_log={c: [x for x in v if x[1] != 'same'] for c, v in SELECT['log'].items()},
                present_frames={c: int(people[c]['present'].sum()) for c in a.colors})
     if a.report:

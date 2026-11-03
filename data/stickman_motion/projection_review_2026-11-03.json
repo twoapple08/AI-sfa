@@ -1,0 +1,689 @@
+{
+ "근거": "CPU 계산. 원본 RTMW 완전 관측 사슬의 투영 직선도이며 해부학 정답 판정 아님. 보간 중간 장의 변화 포함.",
+ "요약": {
+  "blue": {
+   "fully_observed_straight_samples": 193,
+   "old_bent_below_090": 26,
+   "new_bent_below_090": 9,
+   "old_straight_median": 0.9892,
+   "new_straight_median": 0.9999
+  },
+  "red": {
+   "fully_observed_straight_samples": 233,
+   "old_bent_below_090": 25,
+   "new_bent_below_090": 11,
+   "old_straight_median": 0.988,
+   "new_straight_median": 0.9999
+  }
+ },
+ "연결검사수": 9340,
+ "남은_직선관측_접힘후보": [
+  {
+   "frame": 1076,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 0.997,
+   "old_straight": 0.6974,
+   "new_straight": 0.6259,
+   "old_reach_ratio": 1.1613,
+   "new_reach_ratio": 1.0256,
+   "key_segment": [
+    1076,
+    1081
+   ],
+   "key_mean_straight": 0.8169,
+   "stage_group": "키 평균부터 접힘"
+  },
+  {
+   "frame": 1077,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 0.9912,
+   "old_straight": 0.701,
+   "new_straight": 0.6681,
+   "old_reach_ratio": 1.116,
+   "new_reach_ratio": 0.7518,
+   "key_segment": [
+    1076,
+    1081
+   ],
+   "key_mean_straight": 0.8169,
+   "stage_group": "키 평균부터 접힘"
+  },
+  {
+   "frame": 1083,
+   "color": "blue",
+   "part": "팔_l",
+   "source_straight": 0.9842,
+   "old_straight": 0.6158,
+   "new_straight": 0.8096,
+   "old_reach_ratio": 1.2259,
+   "new_reach_ratio": 1.09,
+   "key_segment": [
+    1082,
+    1083
+   ],
+   "key_mean_straight": 0.984,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1088,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 0.9998,
+   "old_straight": 0.3025,
+   "new_straight": 0.7377,
+   "old_reach_ratio": 1.2509,
+   "new_reach_ratio": 1.1192,
+   "key_segment": [
+    1088,
+    1089
+   ],
+   "key_mean_straight": 1.0,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1093,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 0.9813,
+   "old_straight": 0.2627,
+   "new_straight": 0.3204,
+   "old_reach_ratio": 0.6856,
+   "new_reach_ratio": 0.3654,
+   "key_segment": [
+    1092,
+    1093
+   ],
+   "key_mean_straight": 0.986,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1117,
+   "color": "blue",
+   "part": "팔_l",
+   "source_straight": 0.9861,
+   "old_straight": 0.8753,
+   "new_straight": 0.8832,
+   "old_reach_ratio": 0.8247,
+   "new_reach_ratio": 0.4789,
+   "key_segment": [
+    1116,
+    1117
+   ],
+   "key_mean_straight": 0.9899,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1226,
+   "color": "blue",
+   "part": "팔_l",
+   "source_straight": 0.9839,
+   "old_straight": 0.3819,
+   "new_straight": 0.7114,
+   "old_reach_ratio": 1.1192,
+   "new_reach_ratio": 1.2143,
+   "key_segment": [
+    1226,
+    1229
+   ],
+   "key_mean_straight": 0.9367,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1227,
+   "color": "blue",
+   "part": "팔_l",
+   "source_straight": 0.9845,
+   "old_straight": 0.3373,
+   "new_straight": 0.821,
+   "old_reach_ratio": 0.9609,
+   "new_reach_ratio": 1.1437,
+   "key_segment": [
+    1226,
+    1229
+   ],
+   "key_mean_straight": 0.9367,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1229,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 1.0,
+   "old_straight": 0.7214,
+   "new_straight": 0.8916,
+   "old_reach_ratio": 1.5168,
+   "new_reach_ratio": 1.7225,
+   "key_segment": [
+    1226,
+    1229
+   ],
+   "key_mean_straight": 0.6451,
+   "stage_group": "키 평균부터 접힘"
+  },
+  {
+   "frame": 1033,
+   "color": "red",
+   "part": "팔_r",
+   "source_straight": 0.9942,
+   "old_straight": 0.5559,
+   "new_straight": 0.7115,
+   "old_reach_ratio": 0.6449,
+   "new_reach_ratio": 0.7209,
+   "key_segment": [
+    1032,
+    1033
+   ],
+   "key_mean_straight": 0.9465,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1071,
+   "color": "red",
+   "part": "팔_l",
+   "source_straight": 0.9914,
+   "old_straight": 0.8806,
+   "new_straight": 0.8709,
+   "old_reach_ratio": 0.9697,
+   "new_reach_ratio": 0.782,
+   "key_segment": [
+    1070,
+    1071
+   ],
+   "key_mean_straight": 0.9907,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1075,
+   "color": "red",
+   "part": "다리_r",
+   "source_straight": 0.999,
+   "old_straight": 0.5125,
+   "new_straight": 0.8447,
+   "old_reach_ratio": 1.2242,
+   "new_reach_ratio": 0.5456,
+   "key_segment": [
+    1074,
+    1075
+   ],
+   "key_mean_straight": 0.9993,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1168,
+   "color": "red",
+   "part": "팔_l",
+   "source_straight": 0.9999,
+   "old_straight": 0.804,
+   "new_straight": 0.894,
+   "old_reach_ratio": 1.4466,
+   "new_reach_ratio": 1.2602,
+   "key_segment": [
+    1167,
+    1168
+   ],
+   "key_mean_straight": 0.9998,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1189,
+   "color": "red",
+   "part": "팔_r",
+   "source_straight": 0.9991,
+   "old_straight": 0.7935,
+   "new_straight": 0.8025,
+   "old_reach_ratio": 1.0959,
+   "new_reach_ratio": 0.7736,
+   "key_segment": [
+    1189,
+    1191
+   ],
+   "key_mean_straight": 0.9982,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1201,
+   "color": "red",
+   "part": "팔_r",
+   "source_straight": 0.9896,
+   "old_straight": 0.9024,
+   "new_straight": 0.8706,
+   "old_reach_ratio": 0.87,
+   "new_reach_ratio": 0.6881,
+   "key_segment": [
+    1200,
+    1201
+   ],
+   "key_mean_straight": 0.9889,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  },
+  {
+   "frame": 1235,
+   "color": "red",
+   "part": "다리_r",
+   "source_straight": 0.9998,
+   "old_straight": 0.8507,
+   "new_straight": 0.897,
+   "old_reach_ratio": 0.7311,
+   "new_reach_ratio": 0.8099,
+   "key_segment": [
+    1235,
+    1238
+   ],
+   "key_mean_straight": 0.8513,
+   "stage_group": "키 평균부터 접힘"
+  },
+  {
+   "frame": 1237,
+   "color": "red",
+   "part": "팔_l",
+   "source_straight": 1.0,
+   "old_straight": 0.9289,
+   "new_straight": 0.8409,
+   "old_reach_ratio": 1.285,
+   "new_reach_ratio": 1.0216,
+   "key_segment": [
+    1235,
+    1238
+   ],
+   "key_mean_straight": 0.814,
+   "stage_group": "키 평균부터 접힘"
+  },
+  {
+   "frame": 1238,
+   "color": "red",
+   "part": "팔_l",
+   "source_straight": 1.0,
+   "old_straight": 0.9755,
+   "new_straight": 0.7445,
+   "old_reach_ratio": 1.3555,
+   "new_reach_ratio": 0.9507,
+   "key_segment": [
+    1235,
+    1238
+   ],
+   "key_mean_straight": 0.814,
+   "stage_group": "키 평균부터 접힘"
+  },
+  {
+   "frame": 1248,
+   "color": "red",
+   "part": "팔_r",
+   "source_straight": 1.0,
+   "old_straight": 0.8472,
+   "new_straight": 0.8093,
+   "old_reach_ratio": 0.9615,
+   "new_reach_ratio": 0.912,
+   "key_segment": [
+    1241,
+    1248
+   ],
+   "key_mean_straight": 0.8559,
+   "stage_group": "키 평균부터 접힘"
+  },
+  {
+   "frame": 1253,
+   "color": "red",
+   "part": "팔_l",
+   "source_straight": 0.9886,
+   "old_straight": 0.5688,
+   "new_straight": 0.7324,
+   "old_reach_ratio": 1.1933,
+   "new_reach_ratio": 1.1332,
+   "key_segment": [
+    1253,
+    1254
+   ],
+   "key_mean_straight": 0.9845,
+   "stage_group": "키 중간 시각 보간·허브 처리 추적 필요"
+  }
+ ],
+ "개선후보": [
+  {
+   "frame": 1036,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 0.9987,
+   "old_straight": 0.7331,
+   "new_straight": 0.9823,
+   "old_reach_ratio": 0.8361,
+   "new_reach_ratio": 1.2151
+  },
+  {
+   "frame": 1037,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 0.9983,
+   "old_straight": 0.8852,
+   "new_straight": 0.9436,
+   "old_reach_ratio": 0.9994,
+   "new_reach_ratio": 1.265
+  },
+  {
+   "frame": 1060,
+   "color": "blue",
+   "part": "다리_r",
+   "source_straight": 0.9809,
+   "old_straight": 0.891,
+   "new_straight": 0.9375,
+   "old_reach_ratio": 1.6064,
+   "new_reach_ratio": 1.3965
+  },
+  {
+   "frame": 1089,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 0.9998,
+   "old_straight": 0.7138,
+   "new_straight": 1.0,
+   "old_reach_ratio": 2.8354,
+   "new_reach_ratio": 2.6624
+  },
+  {
+   "frame": 1092,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 0.9901,
+   "old_straight": 0.8675,
+   "new_straight": 0.9985,
+   "old_reach_ratio": 2.2372,
+   "new_reach_ratio": 1.7213
+  },
+  {
+   "frame": 1181,
+   "color": "blue",
+   "part": "팔_l",
+   "source_straight": 0.9991,
+   "old_straight": 0.8971,
+   "new_straight": 0.9997,
+   "old_reach_ratio": 1.8817,
+   "new_reach_ratio": 1.6329
+  },
+  {
+   "frame": 1183,
+   "color": "blue",
+   "part": "팔_l",
+   "source_straight": 0.9986,
+   "old_straight": 0.8893,
+   "new_straight": 1.0,
+   "old_reach_ratio": 1.7813,
+   "new_reach_ratio": 1.6426
+  },
+  {
+   "frame": 1184,
+   "color": "blue",
+   "part": "팔_l",
+   "source_straight": 0.9979,
+   "old_straight": 0.794,
+   "new_straight": 0.9297,
+   "old_reach_ratio": 1.5928,
+   "new_reach_ratio": 1.4619
+  },
+  {
+   "frame": 1190,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 0.9987,
+   "old_straight": 0.8682,
+   "new_straight": 1.0,
+   "old_reach_ratio": 1.8022,
+   "new_reach_ratio": 1.3171
+  },
+  {
+   "frame": 1191,
+   "color": "blue",
+   "part": "팔_r",
+   "source_straight": 1.0,
+   "old_straight": 0.8431,
+   "new_straight": 0.9887,
+   "old_reach_ratio": 1.7262,
+   "new_reach_ratio": 1.2303
+  },
+  {
+   "frame": 1207,
+   "color": "blue",
+   "part": "다리_r",
+   "source_straight": 0.985,
+   "old_straight": 0.8924,
+   "new_straight": 0.999,
+   "old_reach_ratio": 1.4316,
+   "new_reach_ratio": 1.2375
+  },
+  {
+   "frame": 1208,
+   "color": "blue",
+   "part": "다리_r",
+   "source_straight": 0.9853,
+   "old_straight": 0.779,
+   "new_straight": 0.9101,
+   "old_reach_ratio": 1.291,
+   "new_reach_ratio": 1.1207
+  },
+  {
+   "frame": 1251,
+   "color": "blue",
+   "part": "팔_l",
+   "source_straight": 0.9873,
+   "old_straight": 0.7613,
+   "new_straight": 0.9967,
+   "old_reach_ratio": 0.8517,
+   "new_reach_ratio": 1.3188
+  },
+  {
+   "frame": 1252,
+   "color": "blue",
+   "part": "팔_l",
+   "source_straight": 0.9869,
+   "old_straight": 0.7287,
+   "new_straight": 0.9942,
+   "old_reach_ratio": 0.8337,
+   "new_reach_ratio": 1.1938
+  },
+  {
+   "frame": 1254,
+   "color": "blue",
+   "part": "팔_l",
+   "source_straight": 0.9966,
+   "old_straight": 0.6212,
+   "new_straight": 0.9998,
+   "old_reach_ratio": 0.5796,
+   "new_reach_ratio": 1.1468
+  },
+  {
+   "frame": 1254,
+   "color": "blue",
+   "part": "다리_l",
+   "source_straight": 0.9998,
+   "old_straight": 0.8928,
+   "new_straight": 1.0,
+   "old_reach_ratio": 1.0433,
+   "new_reach_ratio": 1.1802
+  },
+  {
+   "frame": 1254,
+   "color": "blue",
+   "part": "다리_r",
+   "source_straight": 0.9976,
+   "old_straight": 0.8399,
+   "new_straight": 0.9983,
+   "old_reach_ratio": 0.9013,
+   "new_reach_ratio": 1.1682
+  },
+  {
+   "frame": 1038,
+   "color": "red",
+   "part": "다리_r",
+   "source_straight": 0.9998,
+   "old_straight": 0.8484,
+   "new_straight": 0.9873,
+   "old_reach_ratio": 1.4565,
+   "new_reach_ratio": 1.1293
+  },
+  {
+   "frame": 1074,
+   "color": "red",
+   "part": "팔_l",
+   "source_straight": 0.9909,
+   "old_straight": 0.8718,
+   "new_straight": 1.0,
+   "old_reach_ratio": 1.2328,
+   "new_reach_ratio": 0.72
+  },
+  {
+   "frame": 1075,
+   "color": "red",
+   "part": "팔_l",
+   "source_straight": 0.9893,
+   "old_straight": 0.6604,
+   "new_straight": 0.989,
+   "old_reach_ratio": 0.9125,
+   "new_reach_ratio": 0.6196
+  },
+  {
+   "frame": 1096,
+   "color": "red",
+   "part": "팔_r",
+   "source_straight": 0.9989,
+   "old_straight": 0.7564,
+   "new_straight": 0.9838,
+   "old_reach_ratio": 1.0217,
+   "new_reach_ratio": 1.0454
+  },
+  {
+   "frame": 1096,
+   "color": "red",
+   "part": "다리_r",
+   "source_straight": 0.9907,
+   "old_straight": 0.87,
+   "new_straight": 0.9829,
+   "old_reach_ratio": 1.1573,
+   "new_reach_ratio": 1.0824
+  },
+  {
+   "frame": 1097,
+   "color": "red",
+   "part": "다리_r",
+   "source_straight": 0.9844,
+   "old_straight": 0.879,
+   "new_straight": 1.0,
+   "old_reach_ratio": 1.0808,
+   "new_reach_ratio": 1.0387
+  },
+  {
+   "frame": 1134,
+   "color": "red",
+   "part": "다리_r",
+   "source_straight": 0.9972,
+   "old_straight": 0.817,
+   "new_straight": 0.9057,
+   "old_reach_ratio": 1.1707,
+   "new_reach_ratio": 1.0856
+  },
+  {
+   "frame": 1152,
+   "color": "red",
+   "part": "팔_l",
+   "source_straight": 0.9882,
+   "old_straight": 0.6723,
+   "new_straight": 0.9999,
+   "old_reach_ratio": 1.1413,
+   "new_reach_ratio": 1.0639
+  },
+  {
+   "frame": 1154,
+   "color": "red",
+   "part": "팔_l",
+   "source_straight": 0.9812,
+   "old_straight": 0.8287,
+   "new_straight": 0.9995,
+   "old_reach_ratio": 1.3594,
+   "new_reach_ratio": 1.1894
+  },
+  {
+   "frame": 1161,
+   "color": "red",
+   "part": "팔_r",
+   "source_straight": 0.9928,
+   "old_straight": 0.6402,
+   "new_straight": 0.9998,
+   "old_reach_ratio": 2.2801,
+   "new_reach_ratio": 1.9262
+  },
+  {
+   "frame": 1169,
+   "color": "red",
+   "part": "팔_r",
+   "source_straight": 0.992,
+   "old_straight": 0.8186,
+   "new_straight": 0.998,
+   "old_reach_ratio": 1.6497,
+   "new_reach_ratio": 1.469
+  },
+  {
+   "frame": 1170,
+   "color": "red",
+   "part": "팔_r",
+   "source_straight": 0.9938,
+   "old_straight": 0.7242,
+   "new_straight": 0.9879,
+   "old_reach_ratio": 1.4847,
+   "new_reach_ratio": 1.6003
+  },
+  {
+   "frame": 1226,
+   "color": "red",
+   "part": "팔_r",
+   "source_straight": 0.9993,
+   "old_straight": 0.8939,
+   "new_straight": 0.9995,
+   "old_reach_ratio": 1.3224,
+   "new_reach_ratio": 0.8616
+  },
+  {
+   "frame": 1254,
+   "color": "red",
+   "part": "팔_r",
+   "source_straight": 0.9876,
+   "old_straight": 0.7971,
+   "new_straight": 0.9125,
+   "old_reach_ratio": 1.9619,
+   "new_reach_ratio": 1.99
+  },
+  {
+   "frame": 1255,
+   "color": "red",
+   "part": "다리_l",
+   "source_straight": 0.9985,
+   "old_straight": 0.8576,
+   "new_straight": 0.9949,
+   "old_reach_ratio": 1.4383,
+   "new_reach_ratio": 1.0163
+  },
+  {
+   "frame": 1256,
+   "color": "red",
+   "part": "다리_l",
+   "source_straight": 0.9985,
+   "old_straight": 0.8858,
+   "new_straight": 1.0,
+   "old_reach_ratio": 1.489,
+   "new_reach_ratio": 1.0508
+  },
+  {
+   "frame": 1257,
+   "color": "red",
+   "part": "다리_l",
+   "source_straight": 0.9986,
+   "old_straight": 0.8935,
+   "new_straight": 0.9999,
+   "old_reach_ratio": 1.4119,
+   "new_reach_ratio": 0.9795
+  }
+ ],
+ "남은후보_단계분류": {
+  "키 평균부터 접힘": 7,
+  "키 중간 시각 보간·허브 처리 추적 필요": 13
+ },
+ "검증": "전체 200개 시험 OK. 실제 SFA 240장 점 ID·연결점 일치·단일 연결망·인물별 파란점 하나 통과. 앱 편집 미검증."
+}
