@@ -1,0 +1,50 @@
+{
+  "changed_frames": [
+    1116,
+    1117,
+    1137,
+    1138
+  ],
+  "changed_player_frames": [
+    85,
+    86,
+    106,
+    107
+  ],
+  "other_frames_identical": 236,
+  "blue_actor_identical_all_frames": true,
+  "changes": [
+    {
+      "frame": 1116,
+      "player_frame": 85,
+      "changed_joints": [
+        "kne_l",
+        "ank_l"
+      ]
+    },
+    {
+      "frame": 1117,
+      "player_frame": 86,
+      "changed_joints": [
+        "kne_l",
+        "ank_l"
+      ]
+    },
+    {
+      "frame": 1137,
+      "player_frame": 106,
+      "changed_joints": [
+        "kne_r"
+      ]
+    },
+    {
+      "frame": 1138,
+      "player_frame": 107,
+      "changed_joints": [
+        "kne_r"
+      ]
+    }
+  ],
+  "rig_and_generator_changed": false,
+  "occluded_endpoint_is_inferred_not_contact_evidence": true
+}

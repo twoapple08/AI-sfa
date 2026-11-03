@@ -7,6 +7,7 @@
 - GPT 작업·커밋: `docs/GPT-TAKEOVER-LOG-2026-11-03.md`.
 
 ## 현재 우선순위·바로 할 일
+0. **빠른 다리·이펙트 가림 추가 정정 완료, 사용자 확인 대기:** `docs/GPT-STICKMAN-SWEEP-EFFECT-CORRECTION-2026-11-03.md`. 최신 SFA는 Drive `straight_sweep_corrected_2026-11-03/straight_sweep_effect_fixed.sfa`. 재생106–107(원본1137–1138)은 추론 무릎만 직선화, 재생85–86(1116–1117)은 이펙트로 양 다리 관측이 한쪽에 몰린 것을 차는 다리 키로 보완. 가려진 끝점은 추론이며 접촉 정답이 아니다. 장면 JSON만 변경, 다른236장 XML·파랑 전체·고정 뼈대/코드 동일. 전체214개 OK, 실제 SFA 구조 검사 통과. 판정 전 추가 시제품을 만들지 않는다.
 1. **머리 접촉 A안 채택·앱 확인 완료:** 사용자 A 선택에 따라 머리만 최소 이동했다. `docs/GPT-STICKMAN-HEAD-CONTACT-A-2026-11-03.md`, Drive `stickman_proto_2026-11-03/head_contact_A_2026-11-03/`. 최신 SFA `head_contact_A_1032-1271.sfa`와 비교 영상·반속·240장 시트 제공.
    - 467회 등장 중 파랑47·빨강24회 이동, 최대27.4165px. 머리 지름·몸통·팔다리 변화0, 이미 겹친 숙임 유지. 이전 실제 전달 SFA를 최소 수정했고 새 직렬화 코드와467회 전부 일치.
    - **직접 점 공유로 바꾼 파일은 아니다.** 머리 원 내부의 몸통 허브를 같은 원 경계 점에 붙이면 숙임·크기·몸통 유지가 불가능하다. 내부 연결 객체11은 투명하게 유지, 화면의 긴 목선은 제거. 객체11·해당AC를 제거한 반례 그림과240장 렌더 완전 일치.
@@ -18,17 +19,17 @@
 3. **근접 회피 접촉 오판 정정 완료:** 사용자 피드백으로 직전 후보를 수정했다. `docs/GPT-STICKMAN-CONTACT-VISIBILITY-2026-11-03.md`, Drive `scene_contact_visibility_v1_2026-11-03/`. 이후 사용자가18/240장의 근접 회피 오판을 지적했다. 최신 결과는 `docs/GPT-STICKMAN-NEAR-MISS-CORRECTION-2026-11-03.md`, Drive `near_miss_corrected_2026-11-03/near_miss_corrected.sfa`다.
    - 194/240(1225) 파랑 발목 튐: 부모 무릎이 틀 밖이고 자식 관측을 버렸지만 side0인 발목이 다시 안으로 접혀 나옴. 공통 `guard_hidden_chains`로 전 구간15건 복구. 유효한 빠른 차기는 보존.
    - 초기 접촉6구간 중1048–49는 사용자 확인 비접촉 회피로 철회. 현재5구간13장(1126–27·1134–35·1207–08·1223–27·1230–31). 실제 저장 좌표 최대 잔차0.000600px. 105장 부근1137–38 빨강 다리는 전신 검출 누락으로 빠져 부분 인물로 복구. 화면 밖 몸 위치는 추론, 관절 정답으로 승격하지 않음.
-   - **새 장면마다 뼈대 코드를 수정하지 않는다.** `profiles/stickman_2d_v1.json`을 고정하고 `scenes/*.json`/`--scene`으로 접촉·보완 관측·가시 조각을 적용한다. `docs/STICKMAN-SCENE-CONFIG.md`. 실제 장면 예시에는14개의 소량 수동/추론 키 좌표만 있으며 전체 원관절이 아니다.
+   - **새 장면마다 뼈대 코드를 수정하지 않는다.** `profiles/stickman_2d_v1.json`을 고정하고 `scenes/*.json`/`--scene`으로 접촉·보완 관측·가시 조각을 적용한다. `docs/STICKMAN-SCENE-CONFIG.md`. 실제 장면 예시에는18개의 소량 수동/추론 키 좌표만 있으며 전체 원관절이 아니다.
    - 기존 후보를 입력으로 통제 보정. 몸통 구조·머리 규칙은 유지. 실제240장·469회·고유점10,318·AC9,380·단일 인물망 검사 및 전체214개 시험 OK. 새 SFA의 접촉·부분 다리·앱 편집은 사용자 대기. 회피 정정은 장면 JSON만 변경했다. 원본1047–1050(재생16–19)만 수정,236장 XML·빨강 전체·뼈대 코드/프로필은 동일. **결과 판정 전 추가 시제품을 만들지 않는다.**
 4. **이전 근거:** 투영 보정 `docs/GPT-STICKMAN-PROJECTION-2026-11-03.md`, 목선 표시 `docs/GPT-STICKMAN-NECK-FIX-2026-11-03.md`, A/B 검토 `docs/GPT-STICKMAN-HEAD-CONTACT-REVIEW-2026-11-03.md`. 투영판의 사용자 긍정 평가와 전체 장 합격은 다르다.
    - 남은 접힘20건(키 평균7·보간/허브13), 새 빨강 팔1201·1237–1238 및 기존 한계는 A안으로 고쳤다고 세지 않는다. 이전 후보23장·키 경계는 `docs/GPT-STICKMAN-CANDIDATE-REVIEW-2026-11-03.md`.
    - 기본 고정 리그는 `--select coverage --side-rule valid`, 거리 굵기 포함 `clip1032-1271_final/`은 옛 비교 기준이다. 저장본과 현 환경 재계산의 최대81.445px 차이 원인은 미확정이므로 같은 환경 비교와 저장본 비교를 구분한다.
 
 ## 사용자 결정 대기
-- 사용자가 이전 보정판을 대체로 긍정 평가했으나18장 회피가 접촉으로 바뀌었다고 지적했다. 해당 제약을 뺀 near_miss_corrected.sfa 확인 대기. 다른 보정은236장 XML 동일로 유지했다.
+- 사용자가 회피 정정판은 106장 부근의 굽은 다리를 제외하고 괜찮다고 확인했고, 이후1116 이펙트 가림을 추가 지적했다. 두 항목을 합친 straight_sweep_effect_fixed.sfa의 재생85–86·106–107 확인 대기다. 다른236장 XML·파랑 전체는 직전판과 동일하다.
 - A안 접합·숙임·앱 편집은 사용자가 모두 정상 확인했다. 내부11번 투명 연결이 남는 구조는 그대로다. 직접 점 공유/기본10객체라고 부르지 않는다.
 - Kaggle 종료 학습·반복 생성 개선 방향 및 추가 학습 여부. CPU 진단은 완료, 3회차는 미실행이다.
-- 기존 한계: 1217 무릎·1207–1208 손목·1137 골반 판정 불가·빨강1137–1138 잔상 장 비움. resym 선택 옵션. 옛 한계를 새 투영판에서 해결됐다고 자동 승격하지 않는다.
+- 기존 한계: 1217 무릎·1207–1208 손목·1137 골반 판정 불가·빨강1137–1138은 부분 다리로 보완했으나 화면 밖 골반은 추론. resym 선택 옵션. 옛 한계를 새 투영판에서 해결됐다고 자동 승격하지 않는다.
 - 새 인물·여캐 요청 시 `docs/STICKMAN-PROTO4-A1500-1523-2026-11-03.md`의 비율 메모를 따라 비율표·관절 확인 그림부터 보여 준다. 직선 몸통·거리 굵기·부드러운 보간은 확정, 곡선·실루엣·3D는 쓰지 않는다.
 
 ## 확정 규칙·보호
@@ -41,7 +42,7 @@
 - 커밋 전 루트에서 `python -m unittest discover -s tests` 전체 통과 확인. 시험과 커밋은 별도 명령. 실패하면 커밋하지 않는다.
 
 ## 환경·검증
-- 저장소 `/workspace/AI-sfa`, CPU 작업. 비공개 캐시 `/workspace/ai-sfa-private/`에 원본·RTMW·목선 수정 결과·seq_run1·seq_run2·seq_compare·seq_diag·head_contact_review·head_contact_a·motion_audit·contact_review·near_miss_fix가 있다. 세션 소실 시 Drive와 Kaggle에서 필요한 것만 복구한다.
+- 저장소 `/workspace/AI-sfa`, CPU 작업. 비공개 캐시 `/workspace/ai-sfa-private/`에 원본·RTMW·목선 수정 결과·seq_run1·seq_run2·seq_compare·seq_diag·head_contact_review·head_contact_a·motion_audit·contact_review·near_miss_fix·straight_sweep_fix가 있다. 세션 소실 시 Drive와 Kaggle에서 필요한 것만 복구한다.
 - 원본: Drive `AI-sfa/01_원본영상/nian41/x_self_posts/1913231262086463573.mp4`, 1152×720·4216장·24fps.
   SHA-256 `5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da`.
 - RTMW: Drive `AI-sfa/02_분석자료/포즈_RTMW/nian41/1913231262086463573.jsonl.gz`.
