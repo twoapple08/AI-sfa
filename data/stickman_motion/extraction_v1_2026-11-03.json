@@ -1,0 +1,43 @@
+{
+  "schema": 1,
+  "technology": "stickman-extraction-v1",
+  "rig": "stickman-2d-11-v1",
+  "scene": "scenes/nian41_1032-1271.json",
+  "width": 1152,
+  "crop_y": 63,
+  "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "frozen_input": {
+    "drive_id": "12y54difat1XWa7g-rq3m9CG21fq1hMSY",
+    "sha256": "d7c6da5416afea02da6435259e8a3355c7a49466c7f99d0541c3542f60ce2006"
+  },
+  "legacy_hidden_observations": {
+    "drive_id": "1nQqbkXj-YGIyWnHNYu_uEE6KNAgHAKiN",
+    "sha256": "dcd3f0d37af65a0c76429d97d243077f6c60785df27535f2fe40c1c934c8a921",
+    "rows": 194,
+    "applied_changes": 15
+  },
+  "approved_output": {
+    "drive_id": "16nka_NA_p3j72Y7Jz6Pg-TAMyb88_v8o",
+    "sha256": "e70af99ede211264cb7d318ec8f6e6f50c9725dd1be44741629eced36eb251aa",
+    "frames_xml_sha256": "87ca2a2cc6cd82b7973e75ea4a763baed94bda980474aacc6c74910795ed7468"
+  },
+  "review": {
+    "folder_id": "1bRYrrGi6wNz4UEIl3uaqFbvgHd3N2TO-",
+    "sheets_zip_id": "1lI56HC1Pj4g_ggqVColTZruF03KCuTVN",
+    "audit_id": "1kOrttAHXdIhQfclbgy9ftuDszzjTY8C6",
+    "overview_frames": 240,
+    "native_context_frames": 30,
+    "errors": [],
+    "overlap_candidates": 0,
+    "motion_candidates": 24,
+    "reproduced_identical_frames": 240,
+    "tests_passed": 219
+  },
+  "remaining_review": [
+    "1056–1057 같은 그림 관측 불일치/파랑 손목 변화",
+    "1114–1115 타격 전 빨강 다리의 잘못된 관측/짧은 출력",
+    "1234–1235 컷 초반 파랑 전신 검출 누락",
+    "1217 잔상 무릎·1137 화면 밖 골반 미확정"
+  ],
+  "scope": "사용자 확인판·재사용 절차. 새 영상 전체 자동 정답을 보장하지 않으며 가림/접촉은 판독·장면 데이터가 필요하다."
+}
