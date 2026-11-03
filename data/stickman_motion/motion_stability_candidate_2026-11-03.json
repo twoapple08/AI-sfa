@@ -1,0 +1,369 @@
+{
+ "evidence": "CPU 비교. 정규화된 형상 변화량은 동작 자체도 포함하며 품질 합격선이 아니다. 팔다리는 좌우 교환을 허용한 최소 거리로 비교.",
+ "metrics": {
+  "A": {
+   "다리": {
+    "triples": 455,
+    "relative_accel_p95": 0.3969164082921867,
+    "relative_accel_median": 0.09447745048778396,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.4216638267953081,
+    "held_relative_step_median": 0.11604598958362713
+   },
+   "팔": {
+    "triples": 455,
+    "relative_accel_p95": 0.42893431980429475,
+    "relative_accel_median": 0.12589768306455135,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.413148495846545,
+    "held_relative_step_median": 0.16460981893230375
+   },
+   "머리": {
+    "triples": 455,
+    "relative_accel_p95": 0.09927946475692688,
+    "relative_accel_median": 0.021137426911733606,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.11420066221827312,
+    "held_relative_step_median": 0.03275425229755306
+   },
+   "몸통": {
+    "triples": 455,
+    "relative_accel_p95": 0.15925395061190037,
+    "relative_accel_median": 0.026530984605587036,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.19614162065857702,
+    "held_relative_step_median": 0.041087631406124474
+   }
+  },
+  "image_keys": {
+   "다리": {
+    "triples": 455,
+    "relative_accel_p95": 0.3436208201175177,
+    "relative_accel_median": 0.09481604095537971,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.3947060344706248,
+    "held_relative_step_median": 0.12621188297105496
+   },
+   "팔": {
+    "triples": 455,
+    "relative_accel_p95": 0.39450675535268503,
+    "relative_accel_median": 0.12661336832640066,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.4256492262082274,
+    "held_relative_step_median": 0.1670832024102965
+   },
+   "머리": {
+    "triples": 455,
+    "relative_accel_p95": 0.12400247037654914,
+    "relative_accel_median": 0.02167602863992088,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.14870238416225195,
+    "held_relative_step_median": 0.03456559104963656
+   },
+   "몸통": {
+    "triples": 455,
+    "relative_accel_p95": 0.1436509463893065,
+    "relative_accel_median": 0.027443689804507357,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.19606164197789833,
+    "held_relative_step_median": 0.041953191060127855
+   }
+  },
+  "direct_keys": {
+   "다리": {
+    "triples": 455,
+    "relative_accel_p95": 0.2692781063542575,
+    "relative_accel_median": 0.07118782153524143,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.3757931230768857,
+    "held_relative_step_median": 0.10942053141831569
+   },
+   "팔": {
+    "triples": 455,
+    "relative_accel_p95": 0.3204687760785203,
+    "relative_accel_median": 0.09771161889972266,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.3528167445834497,
+    "held_relative_step_median": 0.15286393551824115
+   },
+   "머리": {
+    "triples": 455,
+    "relative_accel_p95": 0.08109458049533425,
+    "relative_accel_median": 0.01636924843094563,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.0924719789579952,
+    "held_relative_step_median": 0.026484428379044068
+   },
+   "몸통": {
+    "triples": 455,
+    "relative_accel_p95": 0.12023232301349157,
+    "relative_accel_median": 0.025699530447573733,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.21536195567979932,
+    "held_relative_step_median": 0.0480526017717039
+   }
+  },
+  "motion": {
+   "다리": {
+    "triples": 455,
+    "relative_accel_p95": 0.2621347510039448,
+    "relative_accel_median": 0.07065236538114339,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.36021086250343304,
+    "held_relative_step_median": 0.10507076599009407
+   },
+   "팔": {
+    "triples": 455,
+    "relative_accel_p95": 0.2801121903874556,
+    "relative_accel_median": 0.09517861903230589,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.3104926759433461,
+    "held_relative_step_median": 0.13247148194332914
+   },
+   "머리": {
+    "triples": 455,
+    "relative_accel_p95": 0.08109458049533425,
+    "relative_accel_median": 0.01636924843094563,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.0924719789579952,
+    "held_relative_step_median": 0.026484428379044068
+   },
+   "몸통": {
+    "triples": 455,
+    "relative_accel_p95": 0.12023232301349157,
+    "relative_accel_median": 0.025699530447573733,
+    "held_pairs": 191,
+    "held_relative_step_p95": 0.21536195567979932,
+    "held_relative_step_median": 0.0480526017717039
+   }
+  }
+ },
+ "changed_key_boundaries": [
+  {
+   "color": "blue",
+   "frame": 1053,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9915640950202942,
+   "mae": 0.015984571264866843
+  },
+  {
+   "color": "blue",
+   "frame": 1055,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9540823101997375,
+   "mae": 0.033028907630807916
+  },
+  {
+   "color": "blue",
+   "frame": 1057,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9521190524101257,
+   "mae": 0.03645981603200251
+  },
+  {
+   "color": "blue",
+   "frame": 1059,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9570674896240234,
+   "mae": 0.03124268814708737
+  },
+  {
+   "color": "blue",
+   "frame": 1061,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9531580209732056,
+   "mae": 0.03862860656786394
+  },
+  {
+   "color": "blue",
+   "frame": 1063,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9744102954864502,
+   "mae": 0.028822944478009434
+  },
+  {
+   "color": "blue",
+   "frame": 1114,
+   "old_boundary": false,
+   "new_boundary": true,
+   "reason": "다른 그림 정합",
+   "ncc": 0.2681087851524353,
+   "mae": 0.2111740165014041
+  },
+  {
+   "color": "blue",
+   "frame": 1117,
+   "old_boundary": false,
+   "new_boundary": true,
+   "reason": "다른 그림 정합",
+   "ncc": 0.4699550271034241,
+   "mae": 0.18115189779252786
+  },
+  {
+   "color": "blue",
+   "frame": 1129,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9852427244186401,
+   "mae": 0.026372061039925676
+  },
+  {
+   "color": "blue",
+   "frame": 1158,
+   "old_boundary": false,
+   "new_boundary": true,
+   "reason": "다른 그림 정합",
+   "ncc": 0.2524053454399109,
+   "mae": 0.19679683929054742
+  },
+  {
+   "color": "blue",
+   "frame": 1199,
+   "old_boundary": false,
+   "new_boundary": true,
+   "reason": "다른 그림 정합",
+   "ncc": 0.5745242238044739,
+   "mae": 0.09206621372887033
+  },
+  {
+   "color": "blue",
+   "frame": 1201,
+   "old_boundary": false,
+   "new_boundary": true,
+   "reason": "다른 그림 정합",
+   "ncc": 0.5940835475921631,
+   "mae": 0.08816181453244268
+  },
+  {
+   "color": "blue",
+   "frame": 1233,
+   "old_boundary": false,
+   "new_boundary": true,
+   "reason": "다른 그림 정합",
+   "ncc": 0.4758504033088684,
+   "mae": 0.11389619850437833
+  },
+  {
+   "color": "blue",
+   "frame": 1240,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9127495884895325,
+   "mae": 0.02943337655703564
+  },
+  {
+   "color": "red",
+   "frame": 1053,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9930096864700317,
+   "mae": 0.01305282225128342
+  },
+  {
+   "color": "red",
+   "frame": 1055,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9660677909851074,
+   "mae": 0.029652270471707973
+  },
+  {
+   "color": "red",
+   "frame": 1057,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9643220901489258,
+   "mae": 0.03162426305613495
+  },
+  {
+   "color": "red",
+   "frame": 1059,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9661373496055603,
+   "mae": 0.029506169936133687
+  },
+  {
+   "color": "red",
+   "frame": 1061,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9532116055488586,
+   "mae": 0.03148731840487432
+  },
+  {
+   "color": "red",
+   "frame": 1063,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9698576331138611,
+   "mae": 0.024843488579034925
+  },
+  {
+   "color": "red",
+   "frame": 1125,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9731727838516235,
+   "mae": 0.03400107557013833
+  },
+  {
+   "color": "red",
+   "frame": 1127,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9718707799911499,
+   "mae": 0.03155225518275166
+  },
+  {
+   "color": "red",
+   "frame": 1235,
+   "old_boundary": true,
+   "new_boundary": false,
+   "reason": "같은 그림 정합",
+   "ncc": 0.9969165325164795,
+   "mae": 0.003824978267168937
+  }
+ ],
+ "old_key_count": 241,
+ "new_key_count": 230,
+ "pair_tracking_events": 132,
+ "side_violations": {
+  "before": 9,
+  "after": 9,
+  "new": []
+ },
+ "default_mode_regression_max_px": 0.0,
+ "structure": {
+  "frames": 240,
+  "appearances": 467,
+  "unique_point_ids": 10274,
+  "connections": 9340,
+  "white_heads": 467,
+  "objects_per_actor": 11,
+  "max_head_gap_px": 0.0006902271554576345,
+  "max_head_diameter_change_vs_rounded_cache_px": 0.01187847475021897
+ }
+}

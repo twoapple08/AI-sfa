@@ -23,21 +23,39 @@ def constrain_head_contact(neck, head_t, head_b):
     return head_t + shift, head_b + shift, shift
 
 
-def projected_joints(K, W, half, frames, segments, fallback, S):
+def projected_joints(K, W, half, frames, segments, fallback, S, direct_keys=False, track_pairs=True):
     """완전/반쪽 관측의 키 평균 보정량을 보간한다. 결측 축에 새 관측을 만들지 않는다.
 
     어깨·골반은 중점 허브로 합치되 팔꿈치·손목·무릎·발목의 화면 위치를 보존한다.
     거의 직선인 관측 사슬은 새 허브를 지나는 직선 위에 중간점을 배치한다.
     원시 관측이 틀린 곳을 고치는 모델은 아니다. 그런 곳은 별도 검토가 필요하다.
+    direct_keys=True는 선택 모드다. 관측 키 좌표를 직접 잇되 틀 밖 축은 기존 잔차 방식으로
+    보호하고, 완전 관측 사슬만2D 가지로 대응한다. 고정 리그의 관측 불가 축을 끌어들이지 않는다.
     """
     T = len(K)
     tt = np.arange(T)
     wax = half[0] if half is not None else np.repeat(W[..., None], 2, axis=2)
     spans = [(frames.index(a), frames.index(b)) for a, b in segments]
+    pair_events = []
+    protected = set()
+    allowed_parts = ['arm', 'leg']
+    if direct_keys and half is not None:
+        side = half[1]
+        for name, j in OBS.items():
+            for axis, codes in ((0, (3, 4)), (1, (1, 2))):
+                if np.isin(side[:, j], codes).any():
+                    protected.add((name, axis))
+        # 반쪽 관측을 가진 사슬은 기존 좌우 이름·추정 축을 함께 보존한다.
+        allowed_parts = [part for part, js in [('arm', [5, 6, 7, 8, 9, 10]), ('leg', [11, 12, 13, 14, 15, 16])]
+                         if not (side[:, js] > 0).any()]
+    if direct_keys and track_pairs:
+        from stickman_image_keys import align_limb_pairs
+        K, wax, pair_events = align_limb_pairs(K, wax, spans, S, allowed_parts)
     J = {n: v.copy() for n, v in fallback.items()}
     log = []
     for name, j in OBS.items():
         for axis in (0, 1):
+            use_direct = direct_keys and (name, axis) not in protected
             times, deltas = [], []
             for a, b in spans:
                 weights = wax[a:b + 1, j, axis]
@@ -47,12 +65,16 @@ def projected_joints(K, W, half, frames, segments, fallback, S):
                 obs = np.average(K[a:b + 1, j, axis], weights=weights)
                 reference = np.interp(center, tt, fallback[name][:, axis])
                 times.append(center)
-                deltas.append(obs - reference)
+                deltas.append(obs if use_direct else obs - reference)
             if times:
                 # 유효 키 사이만 보정한다. 관측 범위 밖은 기존 추정으로 남긴다.
                 delta = interpolate(times, deltas, tt)
-                delta[(tt < np.floor(times[0])) | (tt > np.ceil(times[-1]))] = 0
-                J[name][:, axis] += delta
+                valid_range = (tt >= np.floor(times[0])) & (tt <= np.ceil(times[-1]))
+                if use_direct:
+                    J[name][valid_range, axis] = delta[valid_range]
+                else:
+                    delta[~valid_range] = 0
+                    J[name][:, axis] += delta
             log.append({'joint': name, 'axis': axis, 'observed_keys': len(times)})
     # 허브 중점은 완전히 관측된 경우에만 원본 중점으로 옮긴다.
     for hub, a, b in [('neck', 'sho_l', 'sho_r'), ('pel', 'hip_l', 'hip_r')]:
@@ -62,6 +84,18 @@ def projected_joints(K, W, half, frames, segments, fallback, S):
             correction = ((J[a] + J[b]) / 2 - fallback[hub])[:, axis]
             if valid.any():
                 J[hub][:, axis] += correction
+            if direct_keys and (a, axis) not in protected and (b, axis) not in protected:
+                times, values = [], []
+                for start, end in spans:
+                    paired = np.minimum(wax[start:end + 1, OBS[a], axis], wax[start:end + 1, OBS[b], axis])
+                    if paired.sum() > 0:
+                        midpoint = (K[start:end + 1, OBS[a], axis] + K[start:end + 1, OBS[b], axis]) / 2
+                        times.append((start + end) / 2)
+                        values.append(np.average(midpoint, weights=paired))
+                if times:
+                    # 양쪽을 따로 PCHIP한 뒤 평균하면 좌우 이름 교환만으로도 허브가 흔들릴 수 있다.
+                    inside = (tt >= np.floor(times[0])) & (tt <= np.ceil(times[-1]))
+                    J[hub][inside, axis] = interpolate(times, values, tt)[inside]
     out = {'neck': J['neck'], 'pelvis': J['pel']}
     for side in ('l', 'r'):
         for root, mid, end, hub in [('sho', 'elb', 'wri', 'neck'), ('hip', 'kne', 'ank', 'pelvis')]:
@@ -105,6 +139,10 @@ def projected_joints(K, W, half, frames, segments, fallback, S):
     out['head_t'], out['head_b'], shift = constrain_head_contact(out['neck'], out['head_t'], out['head_b'])
     moved = np.linalg.norm(shift, axis=-1)
     return out, {'axis_observations': log, 'face_observed_keys': face_keys,
+                 'direct_observation_keys': direct_keys,
+                 'protected_edge_axes': [{'joint': n, 'axis': a} for n, a in sorted(protected)],
+                 'pair_tracking_allowed_parts': allowed_parts if direct_keys and track_pairs else [],
+                 'pair_tracking': [dict(frame=frames[e['index']], **e) for e in pair_events],
                  'head_contact': {'method': '사용자 A안: 머리 중심만 최소 이동, 기존 겹침 유지',
                                   'moved_frames': int((moved > 1e-7).sum()), 'max_shift_px': float(moved.max())},
                  'method': '관측 키별 화면 좌표·투영 길이 보존, 직선 사슬의 허브 보정, 결측 축 기존 풀이'}

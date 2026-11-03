@@ -83,7 +83,7 @@ def border_mask(K, img_w, img_h, top, frac=0.06, min_px=8.0):
     return border_info(K, img_w, img_h, top, frac, min_px)[0]
 
 
-SELECT = {'mode': 'density', 'side_rule': 'any', 'log': None, 'q': 50, 'scale_smooth': (9, 5), 'resym': False, 'key_sigma': (0.06, 0.05), 'key_starts': {}, 'projection': False}
+SELECT = {'mode': 'density', 'side_rule': 'any', 'log': None, 'q': 50, 'scale_smooth': (9, 5), 'resym': False, 'key_sigma': (0.06, 0.05), 'key_starts': {}, 'projection': False, 'image_keys': False}
 
 
 def pick_shot(R, video, frames, color):
@@ -127,14 +127,21 @@ def person_in_shot(R, video, frames, color, min_obs=4, area_min=0.01, min_score=
     rep['border_joints_dropped'] = n_border
     rep['L_from_fallback'] = r['L_from_fallback']
     B, info = basic_joints(J, S, facing=r['facing_leg'])
+    output_segments = r['keypose_segments']
     if SELECT['projection']:
         from stickman_projection import projected_joints
-        B, rep['projection'] = projected_joints(Kf, W, half, sub, r['keypose_segments'], J, S)
+        if SELECT['image_keys']:
+            from stickman_image_keys import video_segments
+            output_segments, matches = video_segments(video, sub, Kf, W, color, r['keypose_segments'],
+                                                      [f for f in SELECT['key_starts'].get(color, []) if f in sub])
+            rep['image_keys'] = {'decisions': matches, 'fit_segments_unchanged': r['keypose_segments'],
+                                 'method': '원본 템플릿 정합·미확정은 기존 경계, 완전 관측 사슬2D대응·키 좌표 직접 보간'}
+        B, rep['projection'] = projected_joints(Kf, W, half, sub, output_segments, J, S, direct_keys=SELECT['image_keys'])
     present = np.zeros(len(frames), bool)
     present[i0:i1 + 1] = True
     outside = [frames[t] for t in range(len(frames)) if not present[t] and area[t] >= area_min]
     rep.update(range=[frames[i0], frames[i1]], filled_gaps=[frames[t] for t in range(i0, i1 + 1) if not obs[t]],
-               present_unobserved=outside, keypose_segments=r['keypose_segments'], key_thr=r['key_thr'],
+               present_unobserved=outside, keypose_segments=output_segments, key_thr=r['key_thr'],
                key_starts_added=r['key_starts_added'],
                rms_resid_torso_median=float(np.median([v for v in r['rms_resid_torso'] if v is not None])),
                knee_fixed=r['knee_fixed'] + [(sub[t], k) for t, k in info['knee_fixed_frames']],
@@ -258,6 +265,7 @@ def main():
     ap.add_argument('--key-sigma', type=float, nargs=2, default=[0.06, 0.05], help='키 흔들림 깎기(0 0이면 끔)')
     ap.add_argument('--key-start', nargs='*', default=[], metavar='색:장', help='원본 대조용 키 시작 장 추가. 예: blue:1038 blue:1088. 자동 경계는 유지하며 기본값은 추가 없음')
     ap.add_argument('--projection', action='store_true', help='관측 가능한 키별 2D 길이와 머리 위치 보존(사용자 비교판)')
+    ap.add_argument('--image-keys', action='store_true', help='--projection에서 원본 무늬로 키 분리·완전 관측 가지 대응·키 좌표 직접 보간(비교용)')
     ap.add_argument('--thick-ref', nargs=2, metavar='장:색:굵기', help='거리 굵기 기준 두 점(클립 장 번호 0부터), 예: 40:blue:1.0 120:red:5.0')
     a = ap.parse_args()
     key_starts = {}
@@ -277,6 +285,9 @@ def main():
     R = load_rtmw(a.rtmw)
     SELECT.update(mode=a.select, side_rule=a.side_rule, log={}, q=a.quantile, scale_smooth=tuple(a.scale_smooth), resym=a.resym, key_sigma=tuple(a.key_sigma) if any(a.key_sigma) else None, key_starts=key_starts)
     SELECT['projection'] = a.projection
+    if a.image_keys and not a.projection:
+        ap.error('--image-keys는 --projection과 함께 사용한다')
+    SELECT['image_keys'] = a.image_keys
     cap = cv2.VideoCapture(a.video)
     img = (cap.get(cv2.CAP_PROP_FRAME_WIDTH), cap.get(cv2.CAP_PROP_FRAME_HEIGHT), a.crop_y)
     frames, people, rep = build(R, a.video, a.start, a.end, a.cuts, a.colors, img)
@@ -312,7 +323,7 @@ def main():
     with zipfile.ZipFile(a.out, 'w', zipfile.ZIP_DEFLATED) as z:
         z.writestr(a.name + '.xml', xml)
     rep.update(frames=[a.start, a.end], cuts=a.cuts, colors=a.colors, select=a.select, side_rule=a.side_rule,
-               key_starts_requested=key_starts, projection=a.projection,
+               key_starts_requested=key_starts, projection=a.projection, image_keys=a.image_keys,
                select_log={c: [x for x in v if x[1] != 'same'] for c, v in SELECT['log'].items()},
                present_frames={c: int(people[c]['present'].sum()) for c in a.colors})
     if a.report:
