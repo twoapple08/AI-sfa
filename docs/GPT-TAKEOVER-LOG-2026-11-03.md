@@ -80,3 +80,4 @@
 - A/B 그림은11번 이음 객체를 유지하는 위치 검토다. 직접 점 공유 접합이나 앱 편집 구조를 해결한 새 SFA가 아니다. tools/stickman_clip.py·stickman_projection.py 변경 없음. 긴 목선 방식을 최종 확정하지 않으며 판정 후 실제 구조/접촉/앱 편집을 별개로 검증한다.
 - Drive seq/run2_2026-11-03/cpu_generation_diagnosis_2026-11-03/ 및 stickman_proto_2026-11-03/head_contact_review_2026-11-03/에 그림·상세 수치·재현 스크립트 보관. docs/GPT-STICKMAN-HEAD-CONTACT-REVIEW-2026-11-03.md·소량 거리표·HANDOFF 갱신. 검증·커밋 SHA는 저장 확인 후 아래에 기록한다.
 - 최종 코드 구문 검사·루트 전체201개 시험 OK·종료 코드0. 원래 학습/판정 코드·스틱맨 생성 코드·기존 보호 JSON은 수정하지 않았다. 테스트와 별도 명령으로 커밋한다.
+- 구현·진단 보고·소량 통계·인수인계 커밋: `11b306edb82b3be14943ebc4d874ab58e003a406`. 최종 코드로 전체201개 OK 확인 후 저장했다. 사용자 머리 접촉 A/B 판정과 실제 구조 구현은 남겨 두었다.
