@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "range": [
+    432,
+    1871
+  ],
+  "fps": [
+    24,
+    24
+  ],
+  "seconds": 60,
+  "central_source_range": [
+    1032,
+    1271
+  ],
+  "central_player_range": [
+    601,
+    840
+  ],
+  "central_identical_render_frames": 240,
+  "summary": {
+    "sha256": "c55eb9ef2669b60252792c99267ccbe13186c14a2ee94c94362a6b08946f19ba",
+    "frames": 1440,
+    "cuts": 35,
+    "empty_frames": 81,
+    "heads": 1938,
+    "objects": 22492,
+    "points": 45134,
+    "fills": 1953,
+    "partial_appearances": 189,
+    "errors": []
+  },
+  "approved_for_training": false,
+  "source_pipeline_commit": "c9dd9e9ea5b377299b24b1e06b788e484f88ad7a",
+  "drive_folder_id": "1TPok_yomGAsNmI7icZu9nvPR_mtBMelz",
+  "sfa_drive_id": "1krk9k-ubV6sBeaDFABsHOD_gO5y1C3th",
+  "video_drive_id": "16yFiUOdjA1-YceNoxju1iEaKwJujpqNb",
+  "reproduction_zip_drive_id": "1C3qPYGXmRTUallkGTH3dkjg_sJPlPAEH",
+  "validation": {
+    "python_tests": 240,
+    "android_actual_file_tests": 2,
+    "android_rendered_samples": 9,
+    "structural_errors": 0,
+    "central_pixel_identical_frames": 240
+  }
+}
