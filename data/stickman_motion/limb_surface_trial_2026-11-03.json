@@ -1,0 +1,71 @@
+{
+  "difference_audit": {
+    "changed_frames": [
+      1137,
+      1138
+    ],
+    "changed_player_frames": [
+      106,
+      107
+    ],
+    "unchanged_frames": 238,
+    "base_restored_identical_frames": 240,
+    "coordinates_and_existing_links_preserved": true
+  },
+  "frames": 240,
+  "appearances": 471,
+  "unique_points": 10362,
+  "connections": 9420,
+  "white_heads": 469,
+  "surface_records": [
+    {
+      "frame": 1137,
+      "player_frame": 106,
+      "actor": "red",
+      "segments": [
+        7,
+        8
+      ],
+      "radii_px": [
+        14.3,
+        21.45,
+        28.6
+      ],
+      "added_objects": 13,
+      "added_points": 36,
+      "added_fills": 1
+    },
+    {
+      "frame": 1138,
+      "player_frame": 107,
+      "actor": "red",
+      "segments": [
+        7,
+        8
+      ],
+      "radii_px": [
+        34.3,
+        30.0,
+        25.7
+      ],
+      "added_objects": 13,
+      "added_points": 36,
+      "added_fills": 1
+    }
+  ],
+  "full_unique_points": 10434,
+  "full_objects": 5207,
+  "full_fills": 471,
+  "errors": [],
+  "input_sha256": "45eea3f58d00c2bf5b075bad9586414c63e5043b3ff86137c8fff62ac63e7244",
+  "style_sha256": "e76bf6ceb767286e5951587b9217abb296aeff559aea18c274ed2c636018f285",
+  "output_sha256": "79c2ce8d8c4641bd7b387708f0b3e236e079f8fdfd193b05130a47d689c2e068",
+  "schema": 1,
+  "representation": "filled-limb-v1",
+  "drive_sfa_id": "1_uJhQ3skgbs_uROWaQKD_c-i4wqsktuG",
+  "drive_video_id": "1hgiiHGpFlsA7wXGPvAQJ3SpGH95RPICI",
+  "drive_sheet_id": "1fXvhMJ6Jxe-91QI7jfgwfYD0Uzwaj7gv",
+  "base_rig_unchanged": true,
+  "app_edit_verification": "미실행·사용자 확인 필요",
+  "radius_basis": "2D 겉보기 크기와 사용자 제안에 따른 시험값. 실제 카메라 거리 복원 아님"
+}

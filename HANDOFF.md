@@ -7,7 +7,7 @@
 - GPT 작업·커밋: `docs/GPT-TAKEOVER-LOG-2026-11-03.md`.
 
 ## 현재 우선순위·바로 할 일
-0. **검토 발견사항 실제 수정 완료·GPT 계속 담당:** 사용자는 Claude로 돌아가는 것이 아니며 스킬은 향후 준비라고 정정. 직전 보고의 손목1056–57·빨강 다리1114–15·파랑 누락1234–35를 실제 장면 설정으로 수정했다.1234–35는 빨강도 파랑 위치로 섞여 양쪽을 함께 분리. 최신 후보는 Drive `final_review_findings_fixed_2026-11-03/review_findings_fixed_1032-1271.sfa`, `docs/GPT-STICKMAN-REVIEW-FINDINGS-FIX-2026-11-03.md`.6장만 변경·나머지234장 XML 동일·고정 뼈대/코드 변경0. 실제240장471회·연결 검사0건·전체219개 OK. 새 영상/시트/SFA 전달, 사용자 눈 판정 대기. 기술 v1/스킬은 그대로 재사용하되 실제 수정 결과와 문서 정리를 구분한다.
+0. **부위별 굵기→가까운 다리 연속 면 시험 완료:** 사용자가106–107장 빨강 다리의 부위 굵기를 요청한 뒤, 이음 경계를 지적하며 스틱맨 모양 그대로 면으로 처리하자고 제안. `docs/GPT-STICKMAN-LIMB-SURFACE-TRIAL-2026-11-03.md`, Drive `part_thickness_trial_2026-11-03/limb_surface_trial_1032-1271.sfa`가 최신 시험판. 두 장만 면 표시층 추가,238장 동일. 면을 벗기면 원래240장 뼈대와 완전 일치. 해당 인물은 기본11+면13객체이며 뼈대 프로필은 유지. 면 포함 연결/접촉 검사0건, 전체227개 OK. 앱 재생·편집·관절 이동 추종은 사용자 확인 대기. 일반 품질 검사에는 `--surface` 설정을 함께 준다. GPT 전담 계속, Claude 스킬은 사전 준비.
 1. **머리 접촉 A안 채택·앱 확인 완료:** 사용자 A 선택에 따라 머리만 최소 이동했다. `docs/GPT-STICKMAN-HEAD-CONTACT-A-2026-11-03.md`, Drive `stickman_proto_2026-11-03/head_contact_A_2026-11-03/`. 최신 SFA `head_contact_A_1032-1271.sfa`와 비교 영상·반속·240장 시트 제공.
    - 467회 등장 중 파랑47·빨강24회 이동, 최대27.4165px. 머리 지름·몸통·팔다리 변화0, 이미 겹친 숙임 유지. 이전 실제 전달 SFA를 최소 수정했고 새 직렬화 코드와467회 전부 일치.
    - **직접 점 공유로 바꾼 파일은 아니다.** 머리 원 내부의 몸통 허브를 같은 원 경계 점에 붙이면 숙임·크기·몸통 유지가 불가능하다. 내부 연결 객체11은 투명하게 유지, 화면의 긴 목선은 제거. 객체11·해당AC를 제거한 반례 그림과240장 렌더 완전 일치.
@@ -26,7 +26,7 @@
    - 기본 고정 리그는 `--select coverage --side-rule valid`, 거리 굵기 포함 `clip1032-1271_final/`은 옛 비교 기준이다. 저장본과 현 환경 재계산의 최대81.445px 차이 원인은 미확정이므로 같은 환경 비교와 저장본 비교를 구분한다.
 
 ## 사용자 결정 대기
-- 추가 질문 확인: 재생106–107 빨강 다리는 ThicknessScale5.224로116장 빨강 값을 차용했다. 다리 자체 거리/부위별 원근 굵기를 직접 추정한 값은 아니다. 기존 인물 크기 기반 굵기의 한계이며 임의로 바꾸지 않았다.
+- 연속 면 시험판의106–107장 모양·굵기와 앱 편집/관절 이동 추종 확인 대기. 이전5.224 차용 굵기 대신 근경 표시 폭을 시험했으나 실제 거리 복원으로 세지 않는다. 기본판은 직전 review_findings_fixed를 유지한다.
 - 최신 review_findings_fixed_1032-1271.sfa의 재생25–26·83–84·203–204장 눈 판정 대기. 이전판에서 사용자 “크게 튀는 건 없어 보임” 확인은 받았으나, 이후 검토에서 찾은 오류를 실제 수정하라는 정정까지 반영한 상태다. GPT 전담 계속, Claude 스킬은 사전 준비다.
 - A안 접합·숙임·앱 편집은 사용자가 모두 정상 확인했다. 내부11번 투명 연결이 남는 구조는 그대로다. 직접 점 공유/기본10객체라고 부르지 않는다.
 - Kaggle 종료 학습·반복 생성 개선 방향 및 추가 학습 여부. CPU 진단은 완료, 3회차는 미실행이다.
@@ -43,11 +43,11 @@
 - 커밋 전 루트에서 `python -m unittest discover -s tests` 전체 통과 확인. 시험과 커밋은 별도 명령. 실패하면 커밋하지 않는다.
 
 ## 환경·검증
-- 저장소 `/workspace/AI-sfa`, CPU 작업. 비공개 캐시 `/workspace/ai-sfa-private/`에 원본·RTMW·목선 수정 결과·seq_run1·seq_run2·seq_compare·seq_diag·head_contact_review·head_contact_a·motion_audit·contact_review·near_miss_fix·straight_sweep_fix·final_review·review_fixes가 있다. 세션 소실 시 Drive와 Kaggle에서 필요한 것만 복구한다.
+- 저장소 `/workspace/AI-sfa`, CPU 작업. 비공개 캐시 `/workspace/ai-sfa-private/`에 원본·RTMW·목선 수정 결과·seq_run1·seq_run2·seq_compare·seq_diag·head_contact_review·head_contact_a·motion_audit·contact_review·near_miss_fix·straight_sweep_fix·final_review·review_fixes·part_thickness가 있다. 세션 소실 시 Drive와 Kaggle에서 필요한 것만 복구한다.
 - 원본: Drive `AI-sfa/01_원본영상/nian41/x_self_posts/1913231262086463573.mp4`, 1152×720·4216장·24fps.
   SHA-256 `5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da`.
 - RTMW: Drive `AI-sfa/02_분석자료/포즈_RTMW/nian41/1913231262086463573.jsonl.gz`.
   SHA-256 `6c7905164776c20838d6ca58c05d9fb5dcd9a47a2b47d7669d02433701167d0a`.
-- GitHub·Drive 연결 정상. 새 환경에서 Kaggle 인증 반영·상태 조회 성공(11-03 08:52 KST). 현재 전체 219개 시험 OK·종료 코드0. Kaggle 결과·이어하기 자료 수령/보존 완료.
-- 수정 후 **전체 219개 시험 통과**, 240장 SFA ID·인물별11객체(내부 투명 연결1개 포함)·인물별 파란점·연결망 검사 통과. 기존 부분 인물2회는 다리만 보이며, 검출 누락 전신2회 복구로 흰 머리 채움은469회다. 영상 24fps·240장·10초 확인. 앱 편집·실시간 영상 재생 판정은 수행하지 않았다.
+- GitHub·Drive 연결 정상. 새 환경에서 Kaggle 인증 반영·상태 조회 성공(11-03 08:52 KST). 현재 전체 227개 시험 OK·종료 코드0. Kaggle 결과·이어하기 자료 수령/보존 완료.
+- 수정 후 **전체 227개 시험 통과**, 240장 SFA ID·인물별11객체(내부 투명 연결1개 포함)·인물별 파란점·연결망 검사 통과. 기존 부분 인물2회는 다리만 보이며, 검출 누락 전신2회 복구로 흰 머리 채움은469회다. 영상 24fps·240장·10초 확인. 앱 편집·실시간 영상 재생 판정은 수행하지 않았다.
 - Claude 복귀 시 GPT 로그와 기간 커밋부터 검토한다. 마지막 SHA와 짧은 전달 문구를 사용자에게 준다.

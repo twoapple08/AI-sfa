@@ -229,10 +229,17 @@ def main():
     parser.add_argument('--crop-y', type=float, default=0)
     parser.add_argument('--colors', nargs='+', default=['blue', 'red'])
     parser.add_argument('--top', type=int, default=24)
+    parser.add_argument('--surface', help='선택 면 표시층 설정. 면을 포함한 전체 연결망과 기존 뼈대를 함께 검사한다')
     parser.add_argument('--report', required=True)
     args = parser.parse_args()
     scene, rig = load_scene(args.scene)
-    report, _, _ = audit(read_sfa(args.sfa), scene, args.colors, args.width, args.crop_y, args.top)
+    if args.surface:
+        from stickman_limb_surface import audit_surface
+        style = json.loads(Path(args.surface).read_text(encoding='utf-8'))
+        report, _ = audit_surface(read_sfa(args.sfa), scene, style, args.width, args.crop_y, args.colors)
+        report['surface_style_sha256'] = digest(args.surface)
+    else:
+        report, _, _ = audit(read_sfa(args.sfa), scene, args.colors, args.width, args.crop_y, args.top)
     report.update(sfa_sha256=digest(args.sfa), settings=rig)
     Path(args.report).write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print(f"{report['frames']}장 검사: 구조·접촉 위반 {len(report['errors'])}건, 눈 판독 후보 {len(report['review_candidates'])}건")

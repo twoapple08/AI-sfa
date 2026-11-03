@@ -82,3 +82,7 @@ python tools/stickman_finalize.py /비공개/frozen_projection_before_scene.sfa 
 사용자 정정에 따라 실제 수정까지 진행한 최신 후보는 `docs/GPT-STICKMAN-REVIEW-FINDINGS-FIX-2026-11-03.md`를 따른다. 이전 기준판 재현 명세의 장면 JSON은 `dc743da` 커밋에 고정되어 있다. 현재 scenes JSON은 후속 수정본이므로 이전 출력과의240장 동일성 주장을 그대로 적용하지 않는다. GPT 전담은 계속되며 스킬은 향후 Claude 복귀 준비다.
 
 부분 인물에 거리/굵기 관측이 없으면 같은 컷의 가장 가까운 기존 인물 굵기를 차용한다. 예: 재생106–107 빨강 다리5.224는116장 빨강에서 빌린 값이다. 인물 화면 크기 기반 굵기와 다리 자체의 거리·부위별 원근 굵기는 구분한다.
+
+## 가까운 팔다리의 선택 면 표시층
+
+사용자가 부위별 선 굵기의 이음 경계를 지적해 가까운 다리는 같은 스틱맨 모양의 연속 면으로 시험했다. `docs/GPT-STICKMAN-LIMB-SURFACE-TRIAL-2026-11-03.md`와 `scenes/nian41_1032-1271_limb_surface_trial.json`을 따른다. `stickman_limb_surface.py`는 고정 뼈대 위에 선택 표시층을 추가하며, 기본11객체를 최종 전체 객체 수라고 부르지 않는다. 현재는 거의 직선인 두 마디 사슬만 지원한다. 품질 검사는 `stickman_quality.py --surface 설정.json`으로 면 포함 연결망과 표시층을 벗긴 기존 뼈대를 함께 검사한다. 원본 깊이 자동 인식/앱 편집 추종까지 검증된 것으로 세지 않는다.

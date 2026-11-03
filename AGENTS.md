@@ -181,3 +181,5 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 - **2D 뼈대 추출 기술 v1 정착(11-03 사용자):** 추출·가림·튐·접촉 작업은 `docs/STICKMAN-EXTRACTION-V1.md`와 `.claude/skills/stickman-extraction/SKILL.md` 절차를 재사용한다. 고정 뼈대/장면 데이터를 분리하고 `stickman_finalize.py`·`stickman_quality.py`로 재현/검사한다. 자동 기능과 원본 판독/추론 보완을 구분하며 현재 기준판의 남은 관측 잔차는 최종 검토 보고서를 따른다.
 
 - **11-03 사용자 정정:** Claude용 스킬 준비는 담당 이관 지시가 아니다. GPT가 계속 맡는다. 최종 검토에서 찾은 수정 가능한 오류는 목록만 남기고 종료하지 말고 실제 수정·검증·비교 결과까지 제공한다. 눈 판정이 필요한 미확정 사항은 근거와 함께 사용자에게 제시한다.
+
+- **근경 팔다리 면 시험(11-03 사용자):** 부위별 선 굵기의 이음 경계를 없애기 위해 아주 가까운 다리는 기존 스틱맨 모양의 연속 면으로 처리하는 시험을 허용했다. 기본 뼈대는 보존하고 선택 면 표시층을 더한다. 최종 전체 객체 수·추가 연결을 명시하며 `stickman_quality.py --surface`로 검증한다. 현재 범위는 docs/GPT-STICKMAN-LIMB-SURFACE-TRIAL-2026-11-03.md. 전체 사람 실루엣/곡선 몸통으로 확대하지 않는다.
