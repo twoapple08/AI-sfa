@@ -1,5 +1,7 @@
 # 투영 길이·고개 숙임·흰 머리 비교판 — 2026-11-03
 
+> 후속 사용자 판정: 동작은 크게 좋아졌으나 머리 분리처럼 보이는 현상 발생. 투명 연결선을 목선으로 표시한 수정은 `docs/GPT-STICKMAN-NECK-FIX-2026-11-03.md`를 따른다. 아래는 최초 투영판 기록이다.
+
 ## 결과물과 현재 판정
 
 - [비교 영상](https://drive.google.com/file/d/1i8Ujjit0C6ICr_N8jonbxwZZ-cpDTJbq/view), [반속](https://drive.google.com/file/d/1u9FTFA2t7RcW-H3V5OS9Y07GtdppdRch/view): 원본 → Drive 기존 기준판 → 새 보정판.
