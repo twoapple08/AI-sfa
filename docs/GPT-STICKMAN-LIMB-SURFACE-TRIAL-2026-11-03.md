@@ -48,3 +48,7 @@ python tools/stickman_quality.py /비공개/면시험.sfa \
 선 방식은 `tools/stickman_part_thickness.py`와 `scenes/nian41_1032-1271_part_thickness_trial.json`에 비교 도구/설정으로 남겼다. 큰 굵기 차이의 이음 경계가 보여 이번에는 면 방식을 후보로 제시했다. 고정 뼈대에 장 번호 예외를 넣지 않았다.
 
 해시·소량 통계는 `data/stickman_motion/limb_surface_trial_2026-11-03.json`. 비공개 캐시는 `/workspace/ai-sfa-private/part_thickness/`. 원본/전체 관절/결과 SFA는 저장소에 넣지 않았다. GPU·학습·3D는 실행하지 않았다.
+
+## 사용자 확인 갱신
+
+2026-11-03 사용자가 결과에 “오 좋네”라고 응답했다. 연속 면의 모양에 대한 긍정 확인으로 기록한다. 앱 편집/관절 이동 시 면 추종을 시험했다고 명시한 답은 아니므로 그 항목은 미확인으로 유지한다. Claude용 자료는 계속 갱신하며 담당 이관 지시는 아니다.
