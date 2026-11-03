@@ -179,3 +179,5 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 - **새 장면 뼈대 재사용(11-03 사용자 정정):** 새 장면마다 완성된 뼈대의 구조·코드를 다시 수정해야 하는 방식으로 작업하지 않는다. 고정 프로필 `profiles/stickman_2d_v1.json`을 유지하고, 접촉·보완 관측·부분 가시성은 `scenes/*.json`의 장면 데이터로 적용한다. 사용법은 docs/STICKMAN-SCENE-CONFIG.md. 새 장면 수용과 실제 공통 구조 결함 수정은 구분하고, 후자는 버전·근거·회귀 검증을 기록한다.
 
 - **2D 뼈대 추출 기술 v1 정착(11-03 사용자):** 추출·가림·튐·접촉 작업은 `docs/STICKMAN-EXTRACTION-V1.md`와 `.claude/skills/stickman-extraction/SKILL.md` 절차를 재사용한다. 고정 뼈대/장면 데이터를 분리하고 `stickman_finalize.py`·`stickman_quality.py`로 재현/검사한다. 자동 기능과 원본 판독/추론 보완을 구분하며 현재 기준판의 남은 관측 잔차는 최종 검토 보고서를 따른다.
+
+- **11-03 사용자 정정:** Claude용 스킬 준비는 담당 이관 지시가 아니다. GPT가 계속 맡는다. 최종 검토에서 찾은 수정 가능한 오류는 목록만 남기고 종료하지 말고 실제 수정·검증·비교 결과까지 제공한다. 눈 판정이 필요한 미확정 사항은 근거와 함께 사용자에게 제시한다.

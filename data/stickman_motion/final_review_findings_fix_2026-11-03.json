@@ -1,0 +1,102 @@
+{
+  "changed_frames": [
+    1056,
+    1057,
+    1114,
+    1115,
+    1234,
+    1235
+  ],
+  "changed_player_frames": [
+    25,
+    26,
+    83,
+    84,
+    203,
+    204
+  ],
+  "unchanged_frames": 234,
+  "changes": [
+    {
+      "frame": 1056,
+      "player_frame": 25,
+      "actors": [
+        "blue"
+      ]
+    },
+    {
+      "frame": 1057,
+      "player_frame": 26,
+      "actors": [
+        "blue"
+      ]
+    },
+    {
+      "frame": 1114,
+      "player_frame": 83,
+      "actors": [
+        "red"
+      ]
+    },
+    {
+      "frame": 1115,
+      "player_frame": 84,
+      "actors": [
+        "red"
+      ]
+    },
+    {
+      "frame": 1234,
+      "player_frame": 203,
+      "actors": [
+        "blue",
+        "red"
+      ]
+    },
+    {
+      "frame": 1235,
+      "player_frame": 204,
+      "actors": [
+        "blue",
+        "red"
+      ]
+    }
+  ],
+  "rig_and_generator_changed": false,
+  "schema": 1,
+  "scene_sha256": "739377c33370fa7d4fb6154012bb36b9db01ec1bac5cb26680713509808000d3",
+  "output_sha256": "45eea3f58d00c2bf5b075bad9586414c63e5043b3ff86137c8fff62ac63e7244",
+  "drive_sfa_id": "1zmcCxof4c0UP2aP9zlr3mEgezEOgXtCW",
+  "drive_video_id": "1R5jlu6ShhMIZVao00vpooPqmBEMeAFUc",
+  "actual_sfa_audit": {
+    "frames": 240,
+    "appearances": 471,
+    "unique_points": 10362,
+    "connections": 9420,
+    "white_heads": 469,
+    "errors": [],
+    "contacts": [
+      {
+        "id": "wide_kick_block",
+        "max_gap_px": 0.0
+      },
+      {
+        "id": "precut_kick_block",
+        "max_gap_px": 0.0
+      },
+      {
+        "id": "downward_hand_block",
+        "max_gap_px": 0.0005995731814898935
+      },
+      {
+        "id": "two_hand_ankle_catch",
+        "max_gap_px": 0.0
+      },
+      {
+        "id": "hand_block_late",
+        "max_gap_px": 0.0002510776772036839
+      }
+    ]
+  },
+  "tests_passed": 219
+}

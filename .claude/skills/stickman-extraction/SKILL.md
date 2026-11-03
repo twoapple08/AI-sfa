@@ -10,7 +10,7 @@ description: AI-sfa의 애니 인물→2D 스틱맨 SFA 추출·가림 보완·�
 ## 시작
 
 1. `AGENTS.md`, `HANDOFF.md`를 읽고 지정 브랜치 `claude/new-session-gknz4t`와 작업 트리를 확인한다. main은 읽거나 쓰지 않는다.
-2. `docs/STICKMAN-EXTRACTION-V1.md`를 읽는다. 현재 기준판·최종 검토·재현 해시는 `docs/GPT-STICKMAN-FINAL-REVIEW-2026-11-03.md`와 `data/stickman_motion/extraction_v1_2026-11-03.json`에 있다.
+2. `docs/STICKMAN-EXTRACTION-V1.md`를 읽는다. 현행 수정 보고 `docs/GPT-STICKMAN-REVIEW-FINDINGS-FIX-2026-11-03.md`를 먼저 확인한다. 이전 기준판·최종 검토·재현 해시는 `docs/GPT-STICKMAN-FINAL-REVIEW-2026-11-03.md`와 `data/stickman_motion/extraction_v1_2026-11-03.json`에 있다.
 3. 원본·관측·승인된 보정 전 SFA가 캐시에 있는지 먼저 확인하고, 없을 때만 Drive에서 복구한다. 해시를 대조한다. 원본/전체 관절/가중치/앱 녹화를 저장소에 넣지 않는다.
 
 ## 고정할 것과 바꿀 것
@@ -36,3 +36,5 @@ description: AI-sfa의 애니 인물→2D 스틱맨 SFA 추출·가림 보완·�
 - 현재 승인 기준판은 1032–1271 최신 파일이다. 첫 추출부터 임의 영상까지 무수정 자동 완성됐다고 확대하지 않는다.
 - GPU·학습·Kaggle 3회차는 별도 사용자 허락 전 실행하지 않는다. 기존 판정 JSON과 애니메이터별 학습 범위는 고치지 않는다.
 - 실제 공통 결함 수정은 장면 수용과 구분한다. 뼈대 구조가 바뀔 때만 프로필 버전과 회귀를 갱신하며, 장면 좌표 수정으로 버전을 올리지 않는다.
+
+- 사용자 정정: 이 스킬 작성은 Claude 복귀 준비이며 현재 GPT 전담을 끝내는 지시가 아니다. 검토에서 확인한 수정 가능한 오류는 기록만 하고 종료하지 말고 실제 수정·검증·비교 결과까지 만든다. 겹친 인물 하나가 누락되면 남은 인물의 좌표 혼입도 함께 점검한다. 컷 초반 누락 전신을 보완할 때는 필요한12점을 명시해 다른 컷 좌표를 물려받지 않게 한다.
