@@ -120,3 +120,10 @@ kaggle kernels output twoapple08/aisfa-seq-refine-ab-v1 -p /workspace/ai-sfa-pri
 - 한계: 다시 계산하는 forward가 dropout 난수를 더 소비하므로 두 분기의 난수 흐름은 넘침 횟수만큼 달라질 수 있다. 기록된 넘침 수로 확인한다.
 - 시험: 새 `tests/test_seq_refine_scaler.py` 5개(넘침→같은 묶음 1회 업데이트, 넘침 없음, 배율 없는 비유한 중단, 비유한 손실 중단, 지속 넘침 상한). 전체 313시험 OK·exit0.
 - **재실행(version3 push)은 하지 않았다.** 사용자 승인 대기. 계정 GPU 잔여 시간도 조회하지 않았다(11-03 시작 전 10.74시간 남음 기록, v1 약8분·v2 약10분 + 준비시간 소비).
+
+
+## 2026-11-04 21:17 KST — 사용자 승인 version3 실행
+
+- 사용자 "카글 버전 3을 일단 실행해보자". 같은 비공개 커널 `aisfa-seq-refine-ab-v1` version3 push 성공, 상태 RUNNING 확인.
+- 바뀐 것은 코드 커밋 `ea8424b50d6175095a3ace41a7f4690772cc4aa9`(배율 넘침 처리)뿐이다. 부모 SHA 636145f2…·자료 커밋 f731e51…·각500업데이트·순수 최대20분·lr·seed·공식 커널/가중치 변경0. 준비 입력은 비공개 scratch(kernel.py/kernel-metadata.json).
+- RUNNING은 시작 확인일 뿐 업데이트·완료·개선 확인이 아니다. 결과는 아래 후속 기록을 따른다. 3회차 장기 학습·추가 GPU 실행은 하지 않는다.
