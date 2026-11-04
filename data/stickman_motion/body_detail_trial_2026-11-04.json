@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "status": "근경 신체 외곽 선택 시험·사용자/실제앱/학습 승인 대기",
+  "status": "사용자 의도보다 상세하여 보류·미채택",
   "representation": "body-detail-curves-v1",
   "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
   "implementation_commit": "16e4acaa49eca9ed964dc278ca75f376972658d0",
@@ -26,5 +26,7 @@
   "sfa_drive_id": "1ab7E4pdMt4RJgP_iLiyuGSsMjie-FqTv",
   "video_drive_id": "1-_zumq_ZOaaH1AZ0GKvQk2CbNZSuKDmQ",
   "repro_drive_id": "1GmTiUFI6WYpBECBRfmtDfiwCFmo8k5Q6",
-  "report": "docs/STICKMAN-BODY-DETAIL-TRIAL-2026-11-04.md"
+  "report": "docs/STICKMAN-BODY-DETAIL-TRIAL-2026-11-04.md",
+  "user_shape_approved": false,
+  "replacement_requirement": "스틱맨 선에 손가락/발바닥 가지 추가,몸통 투영 길이·너비 조정;단순형 구현 미완료"
 }

@@ -1,3 +1,4 @@
+<!-- 최신 사용자 정정: 상세 면 시험은 보류. 단순 스틱맨 손가락/발바닥 막대/몸통 투영 길이·너비 조정이 현재 목표. HANDOFF.md 0번 우선. -->
 <!-- 2026-11-04 최신 진입: HANDOFF.md의0번과 docs/STICKMAN-BODY-DETAIL-TRIAL-2026-11-04.md를 우선 읽는다. 평소 뼈대/선택 표시층을 분리하고 사용자 모양·실제앱 판정 대기 상태를 유지한다. 구현16e4aca,재현Drive1GmTiUFI6WYpBECBRfmtDfiwCFmo8k5Q6. -->
 
 # AI-sfa 작업 재개 — 2026-11-03 추출 기술 v1·최종 검토 완료
