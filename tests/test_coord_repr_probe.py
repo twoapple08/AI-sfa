@@ -20,12 +20,12 @@ class TestCoordReprProbe(unittest.TestCase):
     def test_both_representations_round_trip_to_same_quantized_lines(self):
         P = self.P
         lines = [(10.0, 20.0, 80.0, 70.0, 1), (33.3, 5.5, 90.1, 94.9, 2)]
-        for mode in ('flat', 'two', 'flat1k'):
+        for mode in ('flat', 'two', 'flat1k', 'ptr', 'two_w'):
             got = P.decode(P.encode(lines, mode), mode)
             self.assertEqual(len(got), 2)
             for g, t in zip(got, lines):
                 for a, b in zip(g, t[:4]):
-                    self.assertAlmostEqual(a, b, delta=100 / (P.SINGLE.get(mode, P.Q) - 1))
+                    self.assertAlmostEqual(a, b, delta=100 / P.GH / P.PF if mode == 'ptr' else 100 / (P.SINGLE.get(mode, P.Q) - 1))
 
     def test_two_level_uses_same_total_resolution(self):
         self.assertEqual(self.P.COARSE * self.P.FINE, self.P.Q)
@@ -39,6 +39,16 @@ class TestCoordReprProbe(unittest.TestCase):
         self.assertEqual((open_f[0], open_f[-1]), (P.SPECIAL + P.COARSE, P.SPECIAL + P.COARSE + P.FINE - 1))
         ends = [i for i, v in enumerate(P.grammar_masks('flat', None)) if not math.isinf(v)]
         self.assertEqual(ends, [P.EOS, P.LINE])
+
+    def test_ptr_model_memory_matches_grid_and_generates(self):
+        P = self.P
+        net = P.Net('ptr').eval()
+        img = torch.from_numpy(P.render([(10, 20, 80, 70, 2)])).float()[None] / 255
+        self.assertEqual(net.memory(img[None]).shape[1], P.NCELL)
+        toks = P.generate(net, img)
+        self.assertEqual(toks[0], P.BOS)
+        tok = torch.tensor([P.encode([(10, 20, 80, 70, 2)], 'ptr')])
+        self.assertEqual(net(img[None], tok).shape[-1], P.vocab('ptr'))
 
     def test_endpoint_error_ignores_endpoint_order(self):
         e = self.P.endpoint_error_px((10, 10, 50, 50), (50, 50, 10, 10))

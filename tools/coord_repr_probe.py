@@ -6,6 +6,9 @@
 - flat: 8192칸 한 토큰. 손실 = 정확한 칸 50% + 이웃 ±2칸 50%(seq_train.token_loss와 같은 방식)
 - two: 거친 128칸 → 세부 64칸 두 토큰(128×64=8192). 손실 = 보통 교차 엔트로피
 - flat1k: 1024칸 한 토큰(칸 8배 큼, 문장 길이 그대로). 손실은 flat과 같은 정확50%+이웃±2칸50%
+- two_w: two + 거친 칸이 같은 축 앞 좌표와 다른 정답 자리의 손실을 3배(앞 좌표 베끼기 지름길 억제, 11-05)
+- ptr: 점 하나 = 그림 특징 격자 칸을 가리키는 토큰(디코더 상태와 칸 특징의 내적이 점수) + 칸 안 세부 x·y(각 64).
+  입력 쪽에서도 가리킨 칸의 특징을 더한다. 그림을 보지 않고는 칸을 고를 수 없게 묶는 구조(11-05)
 
 과제: 160×90 그림의 직선 1~3개 끝점을 적는다. 그림은 매 묶음 새로 만든다(외우기 아님).
 선 순서는 정해진 규칙(왼쪽 끝 먼저, 선은 시작 x 순)이다. 실제 SFA/학습 자료와 무관한 진단 도구이며
@@ -32,8 +35,27 @@ Q1K = 1024
 SINGLE = {'flat': Q, 'flat1k': Q1K}   # 한 토큰 표현의 칸 수
 
 
+GW, GH = 40, 23          # 인코더 특징 격자(160×90 → 보폭4)
+NCELL, PF = GW * GH, 64
+
+
 def vocab(mode):
+    if mode == 'ptr':
+        return SPECIAL + NCELL + 2 * PF
     return SPECIAL + (SINGLE[mode] if mode in SINGLE else COARSE + FINE)
+
+
+def cell_of(x, y):
+    gx = min(GW - 1, max(0, int(x / 100 * GW)))
+    gy = min(GH - 1, max(0, int(y / 100 * GH)))
+    fx = min(PF - 1, max(0, int((x / 100 * GW - gx) * PF)))
+    fy = min(PF - 1, max(0, int((y / 100 * GH - gy) * PF)))
+    return gy * GW + gx, fx, fy
+
+
+def point_of(cell, fx, fy):
+    gy, gx = divmod(cell, GW)
+    return (gx + (fx + 0.5) / PF) / GW * 100, (gy + (fy + 0.5) / PF) / GH * 100
 
 
 def sample(rng, n_max=3):
@@ -70,6 +92,11 @@ def encode(lines, mode):
     toks = [BOS]
     for x0, y0, x1, y1, _ in lines:
         toks.append(LINE)
+        if mode == 'ptr':
+            for x, y in ((x0, y0), (x1, y1)):
+                c, fx, fy = cell_of(x, y)
+                toks += [SPECIAL + c, SPECIAL + NCELL + fx, SPECIAL + NCELL + PF + fy]
+            continue
         for v in (x0, y0, x1, y1):
             if mode in SINGLE:
                 toks.append(SPECIAL + quant(v, SINGLE[mode]))
@@ -83,10 +110,13 @@ def grammar_masks(mode, prefix_len_after_line):
     """LINE 뒤 몇 번째 토큰인지로 허용 토큰 범위를 정한다."""
     V = vocab(mode)
     m = torch.full((V,), float('-inf'))
-    per = 4 if mode in SINGLE else 8
+    per = 4 if mode in SINGLE else 6 if mode == 'ptr' else 8
     k = prefix_len_after_line
     if k is None or k == per:          # 선 시작 전/끝난 뒤: LINE 또는 EOS
         m[LINE] = m[EOS] = 0
+    elif mode == 'ptr':
+        lo = (SPECIAL, SPECIAL + NCELL, SPECIAL + NCELL + PF)[k % 3]
+        m[lo:lo + (NCELL if k % 3 == 0 else PF)] = 0
     elif mode in SINGLE:
         m[SPECIAL:SPECIAL + SINGLE[mode]] = 0
     elif k % 2 == 0:
@@ -111,6 +141,10 @@ class Net(nn.Module):
         self.dec = nn.TransformerDecoder(layer, layers)
         self.norm = nn.LayerNorm(d)
         self.head = nn.Linear(d, vocab(mode))
+        if mode == 'ptr':
+            self.pq = nn.Linear(d, d)
+            self.pk = nn.Linear(d, d)
+            self.cell_in = nn.Linear(d, d)   # 가리킨 칸의 그림 특징을 입력 토큰에 더한다
 
     def memory(self, img):
         f = self.enc(img)
@@ -118,11 +152,29 @@ class Net(nn.Module):
         pe = self.row.weight[:h, None] + self.col.weight[None, :w]
         return f.flatten(2).transpose(1, 2) + pe.reshape(h * w, C)[None]
 
+    def embed(self, tok, mem):
+        x = self.emb(tok) + self.pos.weight[:tok.shape[1]][None]
+        if self.mode == 'ptr':
+            assert mem.shape[1] == NCELL, mem.shape
+            is_c = (tok >= SPECIAL) & (tok < SPECIAL + NCELL)
+            idx = (tok - SPECIAL).clamp(0, NCELL - 1)
+            feat = torch.gather(mem, 1, idx[..., None].expand(-1, -1, mem.shape[-1]))
+            x = x + self.cell_in(feat) * is_c[..., None]
+        return x
+
+    def logits(self, h, mem):
+        lg = self.head(h)
+        if self.mode == 'ptr':
+            ptr = self.pq(h) @ self.pk(mem).transpose(1, 2) / math.sqrt(h.shape[-1])
+            lg = torch.cat([lg[..., :SPECIAL], ptr, lg[..., SPECIAL + NCELL:]], -1)
+        return lg
+
     def forward(self, img, tok):
         T = tok.shape[1]
-        x = self.emb(tok) + self.pos.weight[:T][None]
+        mem = self.memory(img)
         causal = torch.triu(torch.full((T, T), float('-inf')), 1)
-        return self.head(self.norm(self.dec(x, self.memory(img), tgt_mask=causal, tgt_is_causal=True)))
+        h = self.norm(self.dec(self.embed(tok, mem), mem, tgt_mask=causal, tgt_is_causal=True))
+        return self.logits(h, mem)
 
 
 def batch(rng, n, mode):
@@ -149,6 +201,16 @@ def loss_fn(logits, tgt, mask, mode):
         soft = -logp.gather(-1, nb).mean(-1)
         exact = torch.where(is_num, 0.5 * exact + 0.5 * soft, exact)
     m = mask.float()
+    if mode == 'two_w':
+        # 거친 칸(C) 정답이 같은 축 바로 앞 좌표의 C와 다르면 3배(같은 줄의 C 순서에서 2칸 앞 = 같은 축)
+        w = torch.ones_like(m)
+        isc = (tgt >= SPECIAL) & (tgt < SPECIAL + COARSE)
+        for b in range(tgt.shape[0]):
+            pos = isc[b].nonzero()[:, 0].tolist()
+            for a, c in zip(pos, pos[2:]):
+                if tgt[b, c] != tgt[b, a]:
+                    w[b, c] = 3.0
+        m = m * w
     return (exact * m).sum() / m.sum()
 
 
@@ -159,9 +221,9 @@ def generate(net, img, maxlen=40):
     mem = net.memory(img[None])
     while len(toks) < maxlen:
         T = len(toks)
-        x = net.emb(torch.tensor(toks)[None]) + net.pos.weight[:T][None]
+        x = net.embed(torch.tensor(toks)[None], mem)
         causal = torch.triu(torch.full((T, T), float('-inf')), 1)
-        lg = net.head(net.norm(net.dec(x, mem, tgt_mask=causal, tgt_is_causal=True)))[0, -1]
+        lg = net.logits(net.norm(net.dec(x, mem, tgt_mask=causal, tgt_is_causal=True)), mem)[0, -1]
         t = int((lg + grammar_masks(mode, k)).argmax())
         toks.append(t)
         if t == EOS:
@@ -177,6 +239,12 @@ def decode(toks, mode):
         t = toks[i]
         if t == LINE:
             vals = []
+        elif t >= SPECIAL and mode == 'ptr':
+            if t < SPECIAL + NCELL and i + 2 < len(toks):
+                vals += list(point_of(t - SPECIAL, toks[i + 1] - SPECIAL - NCELL, toks[i + 2] - SPECIAL - NCELL - PF))
+                i += 2
+                if len(vals) == 4:
+                    lines.append(tuple(vals))
         elif t >= SPECIAL:
             if mode in SINGLE:
                 vals.append(dequant(t - SPECIAL, SINGLE[mode]))
@@ -200,7 +268,8 @@ def endpoint_error_px(a, b):
 def evaluate(net, n, seed):
     from scipy.optimize import linear_sum_assignment
     rng = np.random.default_rng(seed)
-    errs, count_ok = [], 0
+    errs, count_ok, ratios = [], 0, []
+    ln = lambda l: math.hypot((l[0] - l[2]) * 19.2, (l[1] - l[3]) * 10.8)   # noqa: E731
     net.eval()
     for _ in range(n):
         truth = sample(rng)
@@ -211,11 +280,14 @@ def evaluate(net, n, seed):
             cost = np.array([[endpoint_error_px(t, p) for p in pred] for t in truth])
             r, c = linear_sum_assignment(cost)
             errs += cost[r, c].tolist()
+            ratios += [ln(pred[j]) / ln(truth[i]) for i, j in zip(r, c) if ln(truth[i]) > 100]
         errs += [1e4] * (len(truth) - min(len(truth), len(pred)))   # 못 그린 선
     net.train()
     e = np.array(errs)
     return dict(lines=len(e), median_px=float(np.median(e)), within20=float(np.mean(e <= 20)),
-                within50=float(np.mean(e <= 50)), count_correct=count_ok / n)
+                within50=float(np.mean(e <= 50)), count_correct=count_ok / n,
+                collapsed=float(np.mean(np.array(ratios) < 0.3)) if ratios else None,
+                length_ratio_median=float(np.median(ratios)) if ratios else None)
 
 
 def run(mode, steps, bs, seed, eval_n, eval_every):
