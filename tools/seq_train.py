@@ -359,9 +359,33 @@ class Cache:
 
 
 @torch.no_grad()
-def generate(net, img, hwr, maxlen=None, temp=0.0, reason=False):
+def mass_pick(lg, al, big_mass=False, coord_window=0):
+    """선택 기능(2026-11-04 진단): 수 자리에서 확률 합으로 고른다. 기본값(False, 0)이면 기존 argmax와 같다.
+    big_mass: BIG 한 토큰을 범위 안 수 전체 확률 합과 비교해, 합이 크면 BIG을 고르지 않는다.
+    coord_window: 좌표 자리에서 ±창 칸 확률 합이 가장 큰 곳을 찾고 그 창 안의 최고 칸을 고른다.
+    근거: 0.025% 초미세 칸에 확률이 흩어져 BIG 하나가 탐욕 선택을 이기던 문제(docs/SEQ-CONVERTER-DIAGNOSIS-2026-11-04.md)."""
+    specs, lo, hi, field = al
+    big = K.TOK['BIG']
+    if big_mass and big in specs and hi >= lo:
+        p = F.softmax(lg, -1)
+        if p[big] < p[K.OFF + lo:K.OFF + hi + 1].sum():
+            lg = lg.clone()
+            lg[big] = float('-inf')
+    t = int(lg.argmax())
+    if coord_window and field == 'coord' and t >= K.OFF and hi - lo > 4 * coord_window:
+        a0, b0 = K.OFF + lo, K.OFF + hi + 1
+        p = F.softmax(lg, -1)[a0:b0]
+        sm = F.avg_pool1d(p[None, None], 2 * coord_window + 1, 1, coord_window, count_include_pad=False)[0, 0]
+        c = int(sm.argmax())
+        a, b = max(0, c - coord_window), min(len(p), c + coord_window + 1)
+        t = a0 + a + int(p[a:b].argmax())
+    return t
+
+
+def generate(net, img, hwr, maxlen=None, temp=0.0, reason=False, big_mass=False, coord_window=0):
     """문법 강제 생성(한 장, KV 캐시). 돌려주는 끝냄은 '스스로 끝냄'만 참(GPT 1라운드 ⑤: 한도 64단어 전 강제 끝냄도 참이던 것).
-    reason=True면 (토큰, 끝냄, 사유) — 사유 'eos'(스스로)·'forced'(한도 가까이 강제)·'limit'(한도에서 끊김)."""
+    reason=True면 (토큰, 끝냄, 사유) — 사유 'eos'(스스로)·'forced'(한도 가까이 강제)·'limit'(한도에서 끊김).
+    big_mass/coord_window: 탐욕 생성의 수 선택 보정(mass_pick). 기본은 꺼짐이라 기존 결과와 같다."""
     dev = img.device
     maxlen = maxlen or net.maxlen
     mem = net.memory(img[None], torch.tensor([hwr], dtype=torch.float32, device=dev))
@@ -380,7 +404,7 @@ def generate(net, img, hwr, maxlen=None, temp=0.0, reason=False):
             forced = int(lg.argmax()) != TOK_EOS   # 모델이 원래도 끝내려 했으면 강제가 아니다
             lg = torch.full_like(lg, float('-inf'))
             lg[TOK_EOS] = 0
-        t = int(torch.multinomial(F.softmax(lg / temp, -1), 1)) if temp > 0 else int(lg.argmax())
+        t = int(torch.multinomial(F.softmax(lg / temp, -1), 1)) if temp > 0 else mass_pick(lg, al, big_mass, coord_window)
         toks.append(t)
         flds.append(K.FID[al[3]] if t >= K.OFF else K.FID['spec'])
         try:
