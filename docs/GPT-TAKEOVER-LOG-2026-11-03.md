@@ -382,3 +382,10 @@ face715–721 극근경은 모델이눈을전신으로오인해표시추론키�
 ### 인계 저장·휴대 묶음 실제 재현
 
 인계 구현 `3ec48fe77da6ad389ff430563d3a1d313644b5d8` 저장/지정브랜치push완료. Drive휴대묶음18AougwWq2h7sMc9DDaVL22rRzf4Gl6iN,목록1LFAK6ck7Dfd8mkSPYcdBQyVRQn6oNOf-,신규자안내1uBMTzLq2eW4WYvq_gJeLJuRzlHWGZ0mb,세션전체1uSITVyF7gQXUWVXa6f4ASBxO4U3Y_FKb,Claude프롬프트1G8kUpZoNDzrbpXDnTWh8Xwmr01PCR12K. 실제 휴대ZIP을새폴더에풀어내부파일지문을검증하고그안의코드/프로필/입력만사용해다시재생성,11고정판단/XML f2141adf…일치·exit0 확인. 전체308시험통과를재사용하며후속은전달문서/색인추가만한다. 최종전달은docs/HANDOFF-DELIVERY-2026-11-04.md와스킬data/handoff_delivery.json,배포ZIP최종소스커밋/바이트/SHA는Drive파일목록에기록한다. 완료후지정브랜치원격/작업트리도확인한다.
+
+## 2026-11-04 KST — Claude 인수: 환경 복원·Kaggle version2 ERROR 원인 수정
+
+- 지정 브랜치 df7e297에서 시작. 새 컨테이너라 private-data 없음 → Drive 링크 공유 파일 13종을 받아 `restore_data.py --import-path`로 복원, 13종 전부 verified/필수 ready. rclone 설정은 drive.file 범위라 GPT 업로드 폴더 목록은 보이지 않고, 링크 공유 파일 직접 다운로드만 가능(인증 값 미출력).
+- CPU 시험 환경(torch cpu/opencv/skia/libEGL) 설치 후 기준 308시험 OK·exit0. 최신 재현을 새 폴더에서 실행, XML f2141adf… 일치·11결정·exit0.
+- Kaggle `aisfa-seq-refine-ab-v1` version2: ERROR. 부모 그림은 생성(글꼴 수정 유효), token-v1 업데이트 루프에서 fp16 배율 넘침을 치명 처리해 중단. `scaled_update()`로 수정, 새 시험5개, 전체313 OK·exit0. 재실행 안 함(승인 대기). 상세는 GPT-SEQ-OBJECTIVE-REFINEMENT 마지막 절.
+- 재현 지문이 seq_refine.py를 포함하므로 이 커밋 뒤 최신 재현은 8cad3d7/df7e297 worktree에서 실행한다고 HANDOFF에 기록.

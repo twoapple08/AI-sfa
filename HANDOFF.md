@@ -10,7 +10,7 @@
 ## 현재 우선순위
 
 1. **최신 사용자 제보 수정 SFA의 눈·앱 확인 대기.** docs/STICKMAN-DISPLAY-MOTION-FIX-2026-11-04.md. 최신 SFA [1ypI8kpPl-B_D_PjCC9MybVVpoitORGGp](https://drive.google.com/file/d/1ypI8kpPl-B_D_PjCC9MybVVpoitORGGp/view), 정지 비교 [상체/구겨짐](https://drive.google.com/file/d/1qWoDEGD6KT7Dc90qhAQVJAyzr01WE_n-/view) / [폭/앞뒤/누락팔](https://drive.google.com/file/d/1F-OwsBDeTnz0nlFFhcITX1l9sqINMmzT/view). 영상 제작 생략/SFA 중심 선호 유지.
-2. **Kaggle version2 후속 모니터링은 Claude 담당.** 마지막 관측 2026-11-04 12:13 KST RUNNING, twoapple08/aisfa-seq-refine-ab-v1. 완료/실제500업데이트/비교 결과 미확인. 이번 인계 준비에서 상태를 새로 조회하지 않았다. 상태/출력만 확인하고 임의 재실행/3회차 금지. docs/GPT-SEQ-OBJECTIVE-REFINEMENT-2026-11-03.md를 따른다.
+2. **Kaggle A/B version2는 ERROR(2026-11-04 Claude 확인).** 부모 그림8장은 생성됐지만 token-v1 분기가 50업데이트 전 fp16 배율 넘침을 치명 오류로 처리해 중단. 비교 결과/업데이트/comparable 없음. `seq_refine.py`의 넘침 처리(같은 묶음 재계산·업데이트 수 동일 유지)를 수정·시험했다. **재실행은 사용자 승인 대기**, GPU 잔여시간 미조회. 진단 출력 Drive `AI-sfa/02_분석자료/seq/refine_ab_v2_error_2026-11-04/`. 상세 docs/GPT-SEQ-OBJECTIVE-REFINEMENT-2026-11-03.md 마지막 절.
 3. 최신 수정판의5겹침/24수치 후보 중 미확정 부분을 실제 원본과 대조한다. 실제 교차·빠른 동작도 포함하므로 자동삭제/평활 금지. 새 제보가 있으면 원본/재생 장번호부터 맞춘다.
 4. 새 영상 일반화는 보정 안 한 입력에 공통 처리만 적용한 첫 결과를 고정해 검증한다. 지금 개발자료/보존판단 재현을 일반화 성공으로 세지 않는다.
 
@@ -41,4 +41,5 @@
 - 사용자 확인: 과거10초 A안 접합/숙임/앱편집 정상,근경면 모양 긍정,405다리/축소팔 개선 긍정. 최신1분 전장·새면의 앱편집·새영상 일반화·모바일1.1 실제폰은 별도 미확인.
 - 모바일1.1(11) APK [1wfJrOYh08UG9w1qdnR65lGFT_8R5tPHS](https://drive.google.com/file/d/1wfJrOYh08UG9w1qdnR65lGFT_8R5tPHS/view). 기존1.0과서명다름/최근FPS캐시초기화. 서명키는 인계묶음에없음. docs/SFA-VIEWER-1.1-2026-11-03.md 참조.
 - Kaggle 본2회차78709는 위치통과/미완료34/92로전체미통과. 승인 A/B는같은부모/각500update/각최대20분. v1글꼴실패→승인수정v2실행. 추가30h는다른계정추후연결 약속이며 현재자원/잔여시간 미확인.
+- **재현 주의(11-04 Claude):** latest/replay.zip의229지문은 `tools/seq_refine.py` 등 공개 도구 전체를 포함한다. 이후 도구 커밋이 있으면 현재 HEAD에서는 지문이 달라지므로 `git worktree add <새폴더> 8cad3d7`(또는 df7e297)에서 재현한다. 해시 검사를 끄지 않는다. 이 환경에서 df7e297 코드로 XML f2141adf… 일치/11결정/exit0 재확인.
 - 커밋 전 루트 전체 unittest의OK/exit0을따로확인,시험파이프와커밋연결금지. 보호판정JSON/작가학습범위재해석금지. HANDOFF/로그/SHA를갱신한다.

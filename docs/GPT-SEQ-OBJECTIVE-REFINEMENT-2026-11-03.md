@@ -108,3 +108,15 @@ kaggle kernels output twoapple08/aisfa-seq-refine-ab-v1 -p /workspace/ai-sfa-pri
 - 글꼴 수정 구현 `a4c5fc48425bbf3559634ae73797a366d168d2f3`. 루트 `python -m unittest discover -s tests` 전체267개·27.687초 OK·exit0 확인 후 별도 커밋/푸시.
 - 사용자 재실행 승인으로 동일 비공개 커널 version2 push 성공,상태 RUNNING 확인. 준비 입력 `/workspace/ai-sfa-private/seq_refinement/kaggle_job_font_fix/`. 부모/자료SHA와 기존 각500회·순수 최대20분씩 조건 유지,공식 커널/가중치 변경0.
 - RUNNING은 초기 준비를 포함하며 실제 업데이트/완료/품질 개선은 미확인. 현재 GPU 잔여 시간 별도 조회 없음. 후속 모니터링은 기존 Claude 담당 지시 유지,자동 추가 재실행 없음.
+
+
+## 2026-11-04 20:4x KST — Claude 모니터링: version2도 학습 중 ERROR, 원인 수정(재실행 안 함)
+
+- 읽기 전용 `kaggle kernels status` → `KernelWorkerStatus.ERROR`. 출력만 받아 Drive `AI-sfa/02_분석자료/seq/refine_ab_v2_error_2026-11-04/`(24파일)에 보존. `refinement_run.json`: 코드 a4c5fc4·부모SHA 636145f2…·rc1·wall 582.13초.
+- 글꼴 수정은 효과가 있었다: 부모 그림 8장(`comparison/parent/probe_00–07`, `probes.json`)은 생성됐다. 부모 진단: 검증6장 중 2장(1·3)은 한도 직전 강제 종료(1990/1985토큰), 나머지는 eos. 부분점수 0.0(검증6), 학습 기능 표본 4.9/41.1. 공식 판정이 아니다.
+- 실패 지점: `seq_refine.py` 첫 분기 `token-v1`의 업데이트 루프 `비교 중 비유한 기울기` 예외. `train.jsonl`이 없으므로 50업데이트 이전, `results.json`/`token-v1.pt` 없음. **A/B 비교 결과 없음, 업데이트 수 미달, comparable 아님.**
+- 원인(코드 대조): T4는 fp16이라 `GradScaler`(새로 만든 배율 65536)가 켜진다. fp16 배율 넘침은 정상 동작이며 공식 `seq_train.py`는 step을 건너뛰고 배율만 줄인다(I-01/R-01 주석). 비교 코드는 이 넘침을 치명 오류로 처리했다. 정확히 몇 번째 업데이트였는지는 로그에 없어 '초기 배율 넘침'은 가장 유력한 원인으로 남긴다(실제 NaN 가능성은 아래 수정이 계속 중단으로 처리).
+- 수정: `scaled_update()` 분리. 배율이 켜진 경로의 넘침은 업데이트로 세지 않고 `scaler.update()`로 배율만 줄인 뒤 **같은 묶음을 다시 계산**한다(묶음 순서·업데이트 수 500을 두 분기에서 동일 유지). 배율 없는 경로(bf16/CPU)의 비유한 기울기, 배율이 줄지 않는 비유한 노름, 비유한 손실, 같은 묶음의 넘침 24회 초과는 여전히 중단. 분기별 `scale_overflows`와 현재 배율을 `train.jsonl`/`results.json`에 기록. 계획(500업데이트·20분·lr·seed·부모·자료) 변경 0.
+- 한계: 다시 계산하는 forward가 dropout 난수를 더 소비하므로 두 분기의 난수 흐름은 넘침 횟수만큼 달라질 수 있다. 기록된 넘침 수로 확인한다.
+- 시험: 새 `tests/test_seq_refine_scaler.py` 5개(넘침→같은 묶음 1회 업데이트, 넘침 없음, 배율 없는 비유한 중단, 비유한 손실 중단, 지속 넘침 상한). 전체 313시험 OK·exit0.
+- **재실행(version3 push)은 하지 않았다.** 사용자 승인 대기. 계정 GPU 잔여 시간도 조회하지 않았다(11-03 시작 전 10.74시간 남음 기록, v1 약8분·v2 약10분 + 준비시간 소비).

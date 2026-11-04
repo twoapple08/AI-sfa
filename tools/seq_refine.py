@@ -153,6 +153,42 @@ def evaluate(net, ds, batches, device):
     return dict(token_loss=total/count, token_accuracy=correct/count, tokens=int(count))
 
 
+MAX_SCALE_RETRIES = 24
+
+
+def scaled_update(net, optimizer, scaler, run_batch, max_retries=MAX_SCALE_RETRIES):
+    """한 묶음을 한 번의 실제 업데이트로 반영한다.
+
+    fp16 GradScaler의 배율 넘침(초기 65536 배율 등)은 공식 학습처럼 업데이트로 세지 않고 배율만 줄인다.
+    두 분기의 묶음 순서/업데이트 수를 같게 두기 위해 묶음을 버리지 않고 같은 묶음을 줄어든 배율로 다시 계산한다.
+    배율이 없는 경로(bf16/CPU)나 배율이 줄지 않는 비유한 기울기는 실제 수치 문제이므로 중단한다.
+    반환: (loss, parts, 넘침으로 다시 계산한 횟수)
+    """
+    overflows = 0
+    while True:
+        optimizer.zero_grad(set_to_none=True)
+        loss, parts = run_batch()
+        if not torch.isfinite(loss):
+            raise RuntimeError('비교 중 비유한 손실: 자동 건너뛰기로 분기 업데이트 수를 달리하지 않는다')
+        scaler.scale(loss).backward()
+        scaler.unscale_(optimizer)
+        norm = torch.nn.utils.clip_grad_norm_(net.parameters(), 1.)
+        if torch.isfinite(norm):
+            scaler.step(optimizer)
+            scaler.update()
+            return loss, parts, overflows
+        if not scaler.is_enabled():
+            raise RuntimeError('비교 중 비유한 기울기(배율 없는 경로): 양쪽을 같은 조건으로 다시 준비해야 한다')
+        before = scaler.get_scale()
+        scaler.update()   # unscale_가 기록한 넘침으로 배율만 줄인다. step(optimizer)는 부르지 않는다
+        optimizer.zero_grad(set_to_none=True)
+        if not scaler.get_scale() < before:
+            raise RuntimeError('비교 중 비유한 기울기: 배율 넘침이 아닌데 노름이 비유한이다')
+        overflows += 1
+        if overflows > max_retries:
+            raise RuntimeError(f'비교 중 배율 넘침이 {max_retries}회를 넘었다: 같은 묶음이 계속 넘친다')
+
+
 def train_pair(checkpoint, data, val, out, record):
     if not torch.cuda.is_available():
         raise RuntimeError('--run-gpu에는 사용 가능한 CUDA GPU가 필요하다')
@@ -193,30 +229,25 @@ def train_pair(checkpoint, data, val, out, record):
         initial = evaluate(net, validation, val_batches, device)
         if not results:
             generate_probes(net, train, validation, probes, out, 'parent', device)
-        steps, train_seconds = 0, 0.
+        steps, train_seconds, overflows = 0, 0., 0
         for step, batch in enumerate(batches):
             if train_seconds >= plan['max_train_minutes_per_arm']*60:
                 break
             begin = time.monotonic()
             image, tokens, fields, ratio = (x.to(device) for x in train.batch(batch))
-            optimizer.zero_grad(set_to_none=True)
-            with torch.autocast('cuda', dtype=dtype):
-                logits = net(image, tokens[:, :-1], fields[:, :-1], ratio)
-                loss, parts = objective(logits, tokens[:, 1:], fields[:, 1:], [train.tok[i] for i in batch], mode)
-            if not torch.isfinite(loss):
-                raise RuntimeError('비교 중 비유한 손실: 자동 건너뛰기로 분기 업데이트 수를 달리하지 않는다')
-            scaler.scale(loss).backward()
-            scaler.unscale_(optimizer)
-            norm = torch.nn.utils.clip_grad_norm_(net.parameters(), 1.)
-            if not torch.isfinite(norm):
-                raise RuntimeError('비교 중 비유한 기울기: 양쪽을 같은 조건으로 다시 준비해야 한다')
-            scaler.step(optimizer)
-            scaler.update()
+
+            def run_batch():
+                with torch.autocast('cuda', dtype=dtype):
+                    logits = net(image, tokens[:, :-1], fields[:, :-1], ratio)
+                    return objective(logits, tokens[:, 1:], fields[:, 1:], [train.tok[i] for i in batch], mode)
+            loss, parts, retried = scaled_update(net, optimizer, scaler, run_batch)
+            overflows += retried
             torch.cuda.synchronize()
             train_seconds += time.monotonic()-begin
             steps += 1
             if steps % 50 == 0 or steps == len(batches):
                 row = dict(mode=mode, step=steps, train_seconds=train_seconds, objective=float(loss),
+                           scale_overflows=overflows, scale=float(scaler.get_scale()) if scaler.is_enabled() else None,
                            **{k: float(v) for k, v in parts.items()})
                 with Path(out, 'train.jsonl').open('a', encoding='utf-8') as fh:
                     fh.write(json.dumps(row, ensure_ascii=False)+'\n')
@@ -227,10 +258,11 @@ def train_pair(checkpoint, data, val, out, record):
         child_cfg['refinement'] = dict(mode=mode, plan=plan, parent_sha256=record['parent_sha256'], parent_step=record['parent_step'], official=False)
         torch.save(dict(model=net.state_dict(), cfg=child_cfg, step=steps, parent_step=record['parent_step']), Path(out, mode+'.pt'))
         generate_probes(net, train, validation, probes, out, mode, device)
-        results.append(dict(mode=mode, updates=steps, train_seconds=train_seconds, initial=initial, final=final, complete=steps == len(batches)))
+        results.append(dict(mode=mode, updates=steps, train_seconds=train_seconds, scale_overflows=overflows,
+                            initial=initial, final=final, complete=steps == len(batches)))
         Path(out, 'results.json').write_text(json.dumps(dict(official=False, arms=results,
             comparable=len(results) == 2 and all(r['complete'] for r in results)), ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
-        del net, optimizer, logits, loss, parts
+        del net, optimizer, loss, parts
         torch.cuda.empty_cache()
     if not all(r['complete'] for r in results):
         raise RuntimeError('예산 안에서 같은 업데이트 수를 완료하지 못했으므로 비교 미완료다')
