@@ -24,6 +24,8 @@ def bridge_occlusions(poses, frames, events, cuts=()):
         left, right = poses[index[start-1]].get(actor), poses[index[end+1]].get(actor)
         if left is None or right is None:
             raise ValueError('양끝에 같은 인물의 확인 포즈가 필요하다')
+        hidden=event.get('hidden_intervals',[])
+        if any(not start<=a<=b<=end for a,b in hidden):raise ValueError('숨김 범위는 가림 구간 안이어야 한다')
         for f in range(start, end+1):
             if (f, actor) in occupied:
                 raise ValueError('같은 인물의 가림 구간 중복')
@@ -51,6 +53,7 @@ def bridge_occlusions(poses, frames, events, cuts=()):
             else:
                 for node in nodes:
                     row[node] = target[node]
+            if any(a<=f<=b for a,b in hidden):result[index[f]][actor]['_visible_segments']=[]
             report.append(dict(frame=f, actor=actor, nodes=sorted(nodes),
                                reason='명시 가림,양끝2D방향/길이 보간;숨은 자세 추론'))
     return result, report

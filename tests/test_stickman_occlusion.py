@@ -38,3 +38,11 @@ class TestOcclusion(unittest.TestCase):
         out,_=bridge_occlusions(rows,[10,11,12],[])
         for a,b in zip(rows,out):
             for node in a['red']:np.testing.assert_array_equal(a['red'][node],b['red'][node])
+
+    def test_confirmed_full_occlusion_hides_drawing_but_preserves_motion_controls(self):
+        rows=[{'red':self.pose()} for _ in range(4)]
+        event=dict(actor='red',start=11,end=12,hidden_intervals=[[11,11]],evidence='전경 완전가림')
+        out,_=bridge_occlusions(rows,[10,11,12,13],[event])
+        self.assertEqual(out[1]['red']['_visible_segments'],[])
+        self.assertNotIn('_visible_segments',out[2]['red'])
+        np.testing.assert_array_equal(out[1]['red']['neck'],rows[1]['red']['neck'])

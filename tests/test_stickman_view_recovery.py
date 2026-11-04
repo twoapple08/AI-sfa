@@ -71,6 +71,19 @@ class TestViewRecovery(unittest.TestCase):
         self.assertIsNotNone(match_face([dict(box=[250, 150, 100, 100], score=.9)], k, own, other))
         self.assertIsNone(match_face([dict(box=[250, 150, 100, 100], score=.9)], k, other, own))
         self.assertIsNone(match_face([dict(box=[250, 150, 100, 100], score=.4)], k, own, other))
+        self.assertIsNotNone(match_face([dict(box=[250,150,100,100],score=.4)],k,own,other,.3))
+        self.assertIsNone(match_face([dict(box=[250,150,100,100],score=.4)],k,other,own,.3))
+
+    def test_face_view_does_not_show_a_floating_forearm_with_an_uncertain_inside_parent(self):
+        k,j,scale,spans,faces,support,bounds=self.inputs()
+        k[0,[5,6],1]=680;k[0,[11,12],1]=714;faces[0]=[320,360,480]
+        k[0,7,:2]=[250,710];k[0,9,:2]=[200,600]
+        _,_,visible,_=recover_key_views(k,j,scale,spans,faces,support,bounds)
+        self.assertFalse(visible[0,5])
+        # 관측 부모가 실제로 화면 밖인 가시 전완은 남긴다.
+        k[0,7,1]=800
+        _,_,visible,_=recover_key_views(k,j,scale,spans,faces,support,bounds)
+        self.assertTrue(visible[0,5])
 
     def test_missing_face_alone_never_erases_a_person(self):
         args = self.inputs()

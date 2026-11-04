@@ -8,7 +8,7 @@ import numpy as np
 from scipy.interpolate import PchipInterpolator
 
 
-def match_face(rows, keypoints, own, other):
+def match_face(rows, keypoints, own, other, minimum_score=.6):
     """다른 곳의 얼굴/병 무늬를 대상 머리의 증거로 쓰지 않는다."""
     points = keypoints[:5]
     points = points[points[:, 2] >= 1.5, :2]
@@ -19,7 +19,7 @@ def match_face(rows, keypoints, own, other):
     for row in rows:
         # 보조 모델의 약한 얼굴 후보를 머리 확대의 근거로 승격하지 않는다.
         # 낮은 점수의 진짜 얼굴도 있으므로 이 문턱은 인물 존재/삭제 판정에는 쓰지 않는다.
-        if row['score'] < .6:
+        if row['score'] < minimum_score:
             continue
         x, y, w, h = row['box']
         face_center = np.array([x+w/2, y+h/2])
@@ -37,7 +37,7 @@ def match_face(rows, keypoints, own, other):
     return np.array(min(candidates, key=lambda t: t[0])[1]) if candidates else None
 
 
-def image_support(video, frames, K, color, faces):
+def image_support(video, frames, K, color, faces, face_score_floor=.6):
     from rtmw_validate import color_masks
     cap = cv2.VideoCapture(video)
     support = np.zeros(K.shape[:2])
@@ -52,7 +52,7 @@ def image_support(video, frames, K, color, faces):
         next_frame = f + 1
         _, blue, red = color_masks(image)
         own, other = (blue, red) if color == 'blue' else (red, blue)
-        face = match_face((faces or {}).get('frames', {}).get(str(f), []), K[t], own, other)
+        face = match_face((faces or {}).get('frames', {}).get(str(f), []), K[t], own, other, face_score_floor)
         if face is not None:
             matched[t] = face
         for j, point in enumerate(K[t]):
@@ -226,6 +226,12 @@ def recover_key_views(K, joints, scale, spans, matched, support, bounds, observe
                     x, y = raw[j, :2]
                     valid = (raw[j, 2] >= 1.5 and evidence[j] >= .05
                              and left+margin < x < right-margin and top+margin < y < bottom-margin)
+                    if j == wrist:
+                        parent=raw[elbow]
+                        parent_inside=(left+margin<parent[0]<right-margin and top+margin<parent[1]<bottom-margin
+                                       and parent[2]>=1.5 and evidence[elbow]>=.05)
+                        parent_outside=(parent[0]<left or parent[0]>right or parent[1]<top or parent[1]>bottom)
+                        valid = valid and (parent_inside or parent_outside)
                     if valid:
                         pose[name] = raw[j, :2].copy()
                         visibility[oid-1] = True
@@ -346,8 +352,9 @@ def recover_key_views(K, joints, scale, spans, matched, support, bounds, observe
     return result, scale, visible, report
 
 
-def recover_views(video, frames, K, joints, scale, segments, color, bounds, faces, observed=None, body_views=None):
-    support, matched = image_support(video, frames, K, color, faces)
+def recover_views(video, frames, K, joints, scale, segments, color, bounds, faces, observed=None, body_views=None, face_score_floor=.6):
+    if not 0<=face_score_floor<=1:raise ValueError('얼굴 점수 기준 범위 오류')
+    support, matched = image_support(video, frames, K, color, faces, face_score_floor)
     forced = np.array([any(view['actor'] == color and view['start'] <= f <= view['end']
                           for view in body_views or []) for f in frames])
     boundaries = {a for a, _ in segments} | {frames[0]}
@@ -361,5 +368,6 @@ def recover_views(video, frames, K, joints, scale, segments, color, bounds, face
         a, b = segments[event.pop('key')]
         event.update(start=a, end=b)
     return output, scale, visible, dict(events=report,
+        face_score_floor=face_score_floor,
         independent_face_frames=int(np.isfinite(matched).all(1).sum()),
         method='선택 시험: 독립 얼굴/색 지지+잘림 형태; 가짜 얼굴/전신 미확정은 검토 목록에 유지')
