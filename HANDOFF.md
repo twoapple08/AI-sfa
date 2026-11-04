@@ -7,14 +7,12 @@
 - GPT 작업·커밋: `docs/GPT-TAKEOVER-LOG-2026-11-03.md`.
 
 ## 현재 우선순위·바로 할 일
-0. **최우선: 단순 손가락·발바닥 구현 결과 사용자/앱 판정.** 기준만 저장하고 멈췄다는 지적 후 실제 코드/시험/SFA/영상까지 생성했다. `docs/STICKMAN-SIMPLE-PARTS-2026-11-04.md`를 먼저 읽는다. 최신SFA `108nTrrZxB9JSQ-ApUq5PZBtChBkfwM4m`,반속비교 `1ezxcGl4Y4I3vNn4qh_TdeSHiGMjbK3ug`. 고정11+선부속16=27객체,추가면0.601–629/1604–1620의46장만변경·1394장동일,이전팔/차기/가림 보존.284시험OK·exit0/실제연결망·부속제거 후 뼈대·면·접촉 검사 통과. **위치 입력은 손4/몸5 수동표시키와 보간/추론이며 자동 인식 성공 아님.**1612는 아래로 뻗은 손,근경 전부를 다리라고 해석한 옛 구간명은 정답 재사용 금지. 상세면 시험은 보류 유지. **바로 할 일:** 새 단순형 모양·실제앱 판정 반영→원본컷통합/전체1분 잔여오류/자동관측개선. 캐시 ai-sfa-private/simple_parts_20261104/.
-   - 구현 `16e4acaa49eca9ed964dc278ca75f376972658d0`,재현zip `1GmTiUFI6WYpBECBRfmtDfiwCFmo8k5Q6`.175개 파일/약7.94MB와 파일SHA검사 보존. 원본/전체RTMW는 기존Drive에서복원. 캐시 `ai-sfa-private/clip60_remaining_20261104/`. 동일 피팅 재실행 금지.
-   - 사용자405=원본836,834–846 검출누락13장을 구도 태그/CPU측정으로 복구,새 손 입력 좌표0. 사용자 다리 긍정 확인. 축소 팔 과장도 키별2D길이/팔꿈치 조정으로 전반 개선 확인했으나419앞팔 누락을 추가 지적했다.
-   - **419=원본850 수정:** 부분 구도에서 양팔을 일괄 숨기던 공통 원인을 고침. 세 관측점이 모두 경계 안·점수/색 지지가 유효한 팔만 보존,불확실 뒷팔은 숨김. 직전 팔1차판 대비850 한 장만 XML변경,다른1,439장/승인 다리13장 동일.
-   - **최신:** SFA `1hFjMSZqODvqtKmKY3aWPc3brEr5ISFd7`,반속 `15k8G74GBvOh_PaojHFllI9eGHH7XNWsZ`,원본 시트 `1RvJvAB3KnFSlSH8As2vGgbG8_rtmNKnn`. Drive폴더 `1ua4oIK92k16FUn0NIB2wj1bgCIqVtKHL`. SFA SHA `8ec795cf1d07f5bf13a64415416dad164874bd2ec8fe289f8f4a6cfe10f44835`. 전체비교 `13KIcqMQwl2ILWAQbQ2D7d0TvuNiFlkGi`는419앞팔 복구 전 팔1차판 이력이다.
-   - 전체266개 OK·exit0,전체1440장 구조/연결/머리/기존접촉 오류0. 기본v1 좌표47실제인물컷 차이0px. 실제폰 앱 편집/전 장 눈 합격은 미확인. `--key-motion-v2`와 추가 팔/구도/얼굴 옵션은 선택 시험이다.
-   - 캐시 `ai-sfa-private/clip60_generic_repair/`: 53피팅·47선택관측,보정전후SFA/보고/표시계획,`recover_saved.py --reuse-selected`,`recover_front_arm.py`,`reproject_arm_cut.py`,`assemble_review.py`,렌더/회귀 스크립트. 원본/전체RTMW는 기존Drive,재현 묶음/지문은 위Drive폴더. 같은 입력의10분 CPU피팅을 반복하지 않는다. 구현 `416df06c72244bfa977eb3303b64281e6f1a25c6`,재현zip `1PYbrefbXSwrVdxe3Wnn49UeQYixtXMX-`. 상세는 전담 로그.
-   - **바로 할 일:** 사용자 계속 작업 지시에 따라759팔중복·1326근경차기·601손 전신오인·1608부분다리의 공통 원인 점검. 원본723파랑/880빨강 상체를 지운 옛 라벨 재사용 금지.1032/1272는원본컷아닌실험분할로,최종연속판은원본컷으로합쳐재검증. GPU/학습/Kaggle조회는 실행하지 않는다.
+0. **최우선: 실제 단순 손가락·발바닥 구현의 사용자/앱 판정.** 상세 면은 사용자 의도보다 과해 보류·미채택. 기준만 저장하고 멈췄다는 지적 후 실제 코드/SFA/비교까지 생성했다. `docs/STICKMAN-SIMPLE-PARTS-2026-11-04.md`를 먼저 읽는다.
+   - 최신SFA `108nTrrZxB9JSQ-ApUq5PZBtChBkfwM4m`,반속 `1ezxcGl4Y4I3vNn4qh_TdeSHiGMjbK3ug`,손시트 `1SwKzlkbxRKy8DR2VZTxrb1tRAbMp97Lr`,몸시트 `16BKTAex8cKquurJSbSoSnbIGLzeibXnQ`. SHA `af08423470904c59b675924c27378bba4aff82166faeeffe2d92594d140cebab`.
+   - 고정11+손바닥/손가락/발바닥16직선=27객체,새 면0.601–629/1604–1620의46장만 변경/1394장 XML동일. 기존10초/405다리/419앞팔·팔분리·직선차기·전경가림 수정 보존. 전체284시험OK·exit0,실제망과 제거 후 뼈대·면·접촉 검사 통과. 실제폰/포즈 합격은 미확인.
+   - **위치 입력은 손4/몸5 수동 표시 키+보간/추론.** 자동 손가락/발목 추출이나 임의 영상 일반화 성공 아님.1612 아래로 뻗은 것은 손,구간 전체를 다리라고 쓴 옛 이름을 정답 재사용 금지. 상세 외곽 면/외곽 세선화 잔가지 초안은 미채택이다.
+   - 구현 `86cdeb0e180cf99646674d93c666c5338608262d`,재현zip `1J09L8EWLRXGPXiXRNDRbeVt3_jrEl-VH`(186파일/약9.07MB/SHA검사),캐시 `ai-sfa-private/simple_parts_20261104/`. 원본/전체RTMW는 기존Drive에서복원. 기존 `clip60_generic_repair`의53피팅/47선택관측도 묶음에 보존,같은 입력 재피팅 금지. 스킬만이 아니라 코드/프로필/장면/입력 자료가 필요하다.
+   - **바로 할 일:** 새 단순형 모양·실제앱 판정 반영→원본컷 통합/전체1분 잔여오류/자동 관측 개선.1032/1272는 원본컷아닌실험분할이다. 원본723파랑/880빨강 상체를 지운 옛 라벨 재사용 금지. 기존v1/승인파일을 미완성 시험판으로 교체하지 않는다. GPU/학습/Kaggle추가조회는 이번 작업에서 실행하지 않았다.
 
 1. **머리 채움 실제 앱 누락 수정·모바일 뷰어 v1.1 배포 완료.** 사용자 녹화에서 공통 누락 확인. `docs/GPT-STICKMAN-HEAD-FILL-APP-FIX-2026-11-03.md`, `docs/SFA-VIEWER-1.1-2026-11-03.md`를 읽는다. 머리 FS의 Kind 누락을 원 전체 Kind1로 수정,모든 AO/좌표/AC/근경 면은 그대로. 최신 주 SFA Drive `1o3cTOMY9X9keVJczwIJqBuYbXZU5Erb_`,SHA `6e820c62ff58c80fd9cf9dfce1116419a43c8c23ebe30f31e4bd37cb2ef93c4a`. 흰 머리469·근경 면2 유지. 저장 형식 revision2/지문만 갱신,장면 데이터 변경0.
    - 모바일만1.1/11로 수정해 Drive `07_도구/SFA뷰어/SfaViewer-1.1.apk`(`1wfJrOYh08UG9w1qdnR65lGFT_8R5tPHS`)에 업로드/목록 확인. Kind·점 참조·윤곽 검사/오류 표시·캐시 갱신. 모바일9개+Python240개 시험 OK,APK 서명/정렬 검증. 기존1.0과 서명이 달라 기존뷰어 삭제후 설치 필요(최근목록/FPS/캐시 초기화). 서명키는 비공개 로컬만 보존,공유 Drive에 없음.

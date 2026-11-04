@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "status": "단순 부속 선택 시험·사용자/실제앱/학습 승인 대기",
+  "implementation_commit": "86cdeb0e180cf99646674d93c666c5338608262d",
+  "representation": "simple-parts-v1",
+  "base_objects": 11,
+  "extra_objects": 16,
+  "added_fills": 0,
+  "changed_frames": 46,
+  "unchanged_frames": 1394,
+  "counts": {
+    "Frame": 1440,
+    "AO": 23070,
+    "AP": 46160,
+    "AC": 42096,
+    "FR": 1965,
+    "FS": 1983
+  },
+  "manual_hand_keys": 4,
+  "manual_body_keys": 5,
+  "automatic_anatomy_extraction": false,
+  "app_verified": false,
+  "training_approved": false,
+  "python_tests": 284,
+  "test_exit_code": 0,
+  "sfa_sha256": "af08423470904c59b675924c27378bba4aff82166faeeffe2d92594d140cebab",
+  "sfa_drive_id": "108nTrrZxB9JSQ-ApUq5PZBtChBkfwM4m",
+  "video_drive_id": "1ezxcGl4Y4I3vNn4qh_TdeSHiGMjbK3ug",
+  "repro_drive_id": "1J09L8EWLRXGPXiXRNDRbeVt3_jrEl-VH",
+  "report": "docs/STICKMAN-SIMPLE-PARTS-2026-11-04.md"
+}

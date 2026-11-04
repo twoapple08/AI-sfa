@@ -23,3 +23,6 @@
 비공개 캐시 `/workspace/ai-sfa-private/simple_parts_20261104/`: build.py·render.py·authored_keys.json·records.json·visibility.json·quality.json·입출력SFA·시험·회귀. 재현 시 기존 캐시/원본 지문을 쓰고 재피팅하지 않는다. 스킬 파일만으로 자료 없이 추출할 수 있다는 뜻이 아니다.
 
 최신SFA SHA `af08423470904c59b675924c27378bba4aff82166faeeffe2d92594d140cebab`. 사용자 단순화 모양/앱 편집 확인과 전체1분 원본 대조·원본컷 통합·자동 관측 개선·학습 승인은 남는다. 일반화가 완료됐다고 보고하지 않는다.
+
+
+구현 커밋 `86cdeb0e180cf99646674d93c666c5338608262d` 저장/푸시 완료. [단순형 재현 묶음](https://drive.google.com/file/d/1J09L8EWLRXGPXiXRNDRbeVt3_jrEl-VH/view)은186개 파일/약9.07MB와 SHA manifest를 포함한다. ZIP/파일별SHA검사 통과. 원본 영상·전체RTMW·가중치·토큰은 제외하며 기존Drive에서 복원한다. 보류한 상세면 결과는 이력으로만 포함하고 활성 결과는 simple-parts-v1이다.

@@ -299,3 +299,6 @@
 - 손4/몸5 원본 눈 판독 수동 표시 키·보간/추론으로 근경46장 시험,자동 추출로 세지 않음.1612 아래로 뻗은 부위가 손임을 확인,옛 전체구간 ‘다리’ 명칭 정정. 외곽 세선화의 잔가지 초안은 채택하지 않음.
 - 굵기 단위 과장 초안을 바로잡고 실제10px 렌더가8–12px인지 시험 추가. 전체284시험 OK·25.217초·exit0,실제망/부속제거 후 뼈대·면·기존접촉 오류0.46장만 변경/1394장 XML동일. SFA SHAaf08423470904c59b675924c27378bba4aff82166faeeffe2d92594d140cebab. 실제폰/사용자 눈 판정 대기.
 - Drive 최신SFA108nTrrZxB9JSQ-ApUq5PZBtChBkfwM4m,비교1ezxcGl4Y4I3vNn4qh_TdeSHiGMjbK3ug,원본손시트1SwKzlkbxRKy8DR2VZTxrb1tRAbMp97Lr,몸시트16BKTAex8cKquurJSbSoSnbIGLzeibXnQ. 보고·HANDOFF·스킬 갱신. 구현SHA/재현입력은 저장 후 아래 기록.
+
+
+구현 커밋 `86cdeb0e180cf99646674d93c666c5338608262d` 저장/푸시 완료. [단순형 재현 묶음](https://drive.google.com/file/d/1J09L8EWLRXGPXiXRNDRbeVt3_jrEl-VH/view)은186개 파일/약9.07MB와 SHA manifest를 포함한다. ZIP/파일별SHA검사 통과. 원본 영상·전체RTMW·가중치·토큰은 제외하며 기존Drive에서 복원한다. 보류한 상세면 결과는 이력으로만 포함하고 활성 결과는 simple-parts-v1이다.
