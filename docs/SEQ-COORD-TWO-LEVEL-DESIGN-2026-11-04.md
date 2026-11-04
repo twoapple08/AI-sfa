@@ -118,3 +118,7 @@ ptr이 모든 지표에서 앞섬(seed1 확인 실행 중). 단 붕괴가 남아
 - `seq_train`: `Net(coord3=)` — CELL 점수 = `pq(h)·pk(mem)`/√d, 입력 CELL 토큰에 `cell_in(mem[칸])` 더함, `Cache`도 같은 식(시험: 캐시=전체 계산 1e-3 안). `Data(coord3=)`, `generate`(grammar3·merge, 합친 길이 셈), `coord_errors`(칸 중심 거리), `load`/설정/인수 `--coord3`(특징 격자 45×80 필요 = in_w 640·stride 8). `seq_objective`가 coord3 문법과 CELL 범위를 종료 비교의 계속 후보에 포함.
 - 시험 `tests/test_seq_coord3.py` 5개 + 기존 시험 기록 형식 1곳 수정. 전체 OK·exit0. CPU 흐름: `--coord3 --objective balanced-v1 --maxlen 3072` 실제 자료 3분 학습·저장·불러오기·생성 오류0.
 - 다음(제안): Kaggle 장기 비교 — `--coord3 --objective balanced-v1 --maxlen 3072`, 약3시간. GPU 실행은 사용자 확인 뒤.
+
+## Kaggle 장기 실행 — 2026-11-05 07:28 KST(사용자 "올려봐")
+
+`aisfa-seq-coord3-obj` version1 push·RUNNING. 코드 f4ac6a2, `--fresh --prebuilt --prebuilt-any-code --no-stages --minutes 215 --plan-minutes 180 --extra "--coord3 --objective balanced-v1 --maxlen 3072"`, T4, 인코더 이어 쓰기. 공식 커널 변경0. 판정: 학습 60분 시점 기록을 coord2 60분(aisfa-seq-coord2-ab-two)과 비교, 이어 180분 끝 결과·그림 시트. GPU 약3.5시간 예상.
