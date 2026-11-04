@@ -59,6 +59,15 @@ def probe_indices(train, validation):
     return probes
 
 
+def probe_font():
+    """진단 글꼴 부재가 학습 비교를 중단시키지 않도록 기본 글꼴로 대체한다."""
+    from PIL import ImageFont
+    try:
+        return ImageFont.truetype('DejaVuSans.ttf', 16)
+    except OSError:
+        return ImageFont.load_default()
+
+
 @torch.inference_mode()
 def generate_probes(net, train, validation, probes, out, mode, device):
     import xml.etree.ElementTree as ET
@@ -70,7 +79,7 @@ def generate_probes(net, train, validation, probes, out, mode, device):
     output = Path(out)/mode
     output.mkdir(exist_ok=True)
     records, sheets = [], []
-    font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 16)
+    font = probe_font()
     saved = dict(R.PARAMS)
     R.PARAMS.update(pad=0., thick_mul=640/1920)
     try:

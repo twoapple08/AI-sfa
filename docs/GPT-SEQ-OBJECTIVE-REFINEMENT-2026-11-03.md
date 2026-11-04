@@ -96,3 +96,8 @@ kaggle kernels output twoapple08/aisfa-seq-refine-ab-v1 -p /workspace/ai-sfa-pri
 - `refinement_console.txt`에서 `seq_refine.py:73`, `ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',16)`가 `OSError: cannot open resource`로 실패했다. Kaggle에 이 고정 글꼴 경로가 없다. GPU 메모리 부족/시간 소진으로 판정하지 않는다.
 - 파일/코드 대조: `train_pair`는 기준 모델 평가와 `generate_probes(...,'parent',...)` 이후에 업데이트 루프에 진입한다. 이 그림 생성에서 실패했으므로 기존/보정 각500회 학습은 시작하지 못했다. `comparison/run.json`은 계획/고정입력 기록이며 완료 증거가 아니다. `comparison/results.json`도 출력되지 않았다.
 - 기존 공식2회차 가중치/커널은 변경하지 않았다. 개선 비교 결과는 없으며,새 학습 성공으로 세지 않는다. 글꼴 로딩의 대체 경로/기본 글꼴 처리를 넣고 없는 환경에서 그림 생성을 검증하는 것이 다음 수정이다. 이번에는 상태 조회·진단 수령만 했고 코드 수정/재실행/추가GPU/학습은 하지 않았다. 현재 잔여 GPU 시간도 조회하지 않았다.
+
+
+## 2026-11-04 KST — 사용자 승인 재실행 준비
+
+사용자가 “수정해서 실행”을 명시 승인했다. 진단 그림의 고정 시스템 글꼴 경로를 제거하고 이름 검색 실패 시 Pillow 기본 글꼴로 대체한다. 시스템 글꼴이 없는 환경을 모의하여 비교 라벨이 실제로 그려지는 회귀 시험을 추가했다. 출제 자료/부모 가중치/목적함수/각500업데이트·순수 최대20분 조건은 유지한다. 전체 시험 통과와 지정 브랜치 저장 뒤 해당 코드SHA를 고정하여 같은 비공개 비교 커널의 새 판을 실행한다. 실행 응답/상태는 아래 후속 기록을 따른다.
