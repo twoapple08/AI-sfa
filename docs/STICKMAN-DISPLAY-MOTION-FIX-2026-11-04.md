@@ -62,3 +62,14 @@ python tools/stickman_replay.py display_motion_fixed_replay_20261104.zip --desti
 ```
 
 코드/입력지문이맞는저장소에서새폴더로실행한다.새자료는기존개발클립이므로held_out=false/training_ready=false.원본스미어의실제좌우/가린마디,실제앱재열기/편집,사용자최종눈판정은여전히별도다.후속사례메타는 `data/stickman_motion/generalization_cases/nian41_feedback_2026-11-04.json`.
+
+
+## 2026-11-04 Claude 후속 — 남은 후보 원본 대조와 869장 왼다리 수정
+
+- 최신 SFA(1ypI8…)의 품질 검사를 이 환경에서 다시 계산해 인계 값과 같은 5겹침/24가속 후보를 확인했다. 원본 크기 겹침 시트로 대조(원본 눈 판독, Claude).
+- **확정 오류·수정:** 원본869/재생438 파랑(누워서 오른다리만 든 자세). 왼무릎(718,510)은 맞지만 왼발목이 오른발목 옆 빈 공중(706.8,420.7)으로 복제돼 '두 다리를 다 든' 모양이었다. 발목만 바닥 발(707,552)로 옮겼다. 발목 위치는 원본 눈 판독이며 측정 관측이 아니다. 팔 두 개가 겹친 것(이 장 겹침 후보 원인)은 반대팔이 몸 뒤에 가린 것으로 보고 유지.
+- 변경 범위: XML 대조로 869장 파랑 10번 객체(왼정강이) 하나만 바뀜, 나머지1439장/객체ID/점ID 동일. 품질 검사 오류0, 후보 수는 그대로(5/24, 869 겹침 후보는 팔 겹침이 남아서).
+- 나머지 겹침 후보 판독: 727 파랑 팔(펀치 중 양팔이 얼굴 앞), 1571 빨강 팔(맞으며 양손을 얼굴 앞), 1812–1813 파랑 다리(기둥 뒤 옆모습 서 있기)는 실제 겹침으로 보고 유지. 가속 후보는 1318–1326·915–918·1291–1292·1115–1118·1055–1058·886장을 대조했고 실제 빠른 차기·구르기·회전과 일치해 수정하지 않았다. 나머지 가속 후보(1399·1576–1582·877·863·1236·1148·1440)는 이번에 보지 않았다.
+- 모호(수정 안 함, 추론): 1572 빨강 근접 얼굴의 오른손목은 아래 손 위치보다 약간 오른쪽, 1574 빨강 팔 숨김. 사용자 눈 판정 대상.
+- 수정판 SFA [1Ba4WVy8NzRHIfjqxh4BsMLDQN6boIAeJ](https://drive.google.com/file/d/1Ba4WVy8NzRHIfjqxh4BsMLDQN6boIAeJ/view) 774,242바이트 SHA256 `ec8f67cf6837e1f1a10608f8bedb5ec5192b07201e5b4b87f126f9a039453f57`, XML `7c6f311b4184522f90608d1900a7fe7b0ca67ab90c1504f057576ff002e27571`. 전후 비교 [1BuvKt7jFa01r_hqvLV6mFzbVdJE7hsdg](https://drive.google.com/file/d/1BuvKt7jFa01r_hqvLV6mFzbVdJE7hsdg/view). 재현 묶음 [1Kn2utrinBXfYGoHJpFCt2nw1RDKCE53O](https://drive.google.com/file/d/1Kn2utrinBXfYGoHJpFCt2nw1RDKCE53O/view)(SHA `cc3b7e68…`, 코드 지문 ea8424b, 바뀐 입력 resolved_edits.json 한 행 추가), 새 폴더 재현 XML 일치·11결정·exit0. Drive 폴더 `AI-sfa/02_분석자료/stickman_fix869_2026-11-04/`.
+- 이전 1ypI8…는 비교 이력으로 보존. 새 파일의 실제 앱 열기/사용자 승인은 미확인.

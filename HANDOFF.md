@@ -11,7 +11,7 @@
 
 1. **최신 사용자 제보 수정 SFA의 눈·앱 확인 대기.** docs/STICKMAN-DISPLAY-MOTION-FIX-2026-11-04.md. 최신 SFA [1ypI8kpPl-B_D_PjCC9MybVVpoitORGGp](https://drive.google.com/file/d/1ypI8kpPl-B_D_PjCC9MybVVpoitORGGp/view), 정지 비교 [상체/구겨짐](https://drive.google.com/file/d/1qWoDEGD6KT7Dc90qhAQVJAyzr01WE_n-/view) / [폭/앞뒤/누락팔](https://drive.google.com/file/d/1F-OwsBDeTnz0nlFFhcITX1l9sqINMmzT/view). 영상 제작 생략/SFA 중심 선호 유지.
 2. **Kaggle A/B version2는 ERROR(2026-11-04 Claude 확인).** 부모 그림8장은 생성됐지만 token-v1 분기가 50업데이트 전 fp16 배율 넘침을 치명 오류로 처리해 중단. 비교 결과/업데이트/comparable 없음. `seq_refine.py`의 넘침 처리(같은 묶음 재계산·업데이트 수 동일 유지)를 수정·시험했다. **재실행은 사용자 승인 대기**, GPU 잔여시간 미조회. 진단 출력 Drive `AI-sfa/02_분석자료/seq/refine_ab_v2_error_2026-11-04/`. 상세 docs/GPT-SEQ-OBJECTIVE-REFINEMENT-2026-11-03.md 마지막 절.
-3. 최신 수정판의5겹침/24수치 후보 중 미확정 부분을 실제 원본과 대조한다. 실제 교차·빠른 동작도 포함하므로 자동삭제/평활 금지. 새 제보가 있으면 원본/재생 장번호부터 맞춘다.
+3. **(11-04 Claude)** 5겹침 전부와 가속 후보 일부를 원본 대조, **869장 파랑 왼발목 공중 복제 오류를 수정**한 새 SFA [1Ba4WVy8NzRHIfjqxh4BsMLDQN6boIAeJ](https://drive.google.com/file/d/1Ba4WVy8NzRHIfjqxh4BsMLDQN6boIAeJ/view)(XML 7c6f311b…, 재현 1Kn2utrinBXfYGoHJpFCt2nw1RDKCE53O). 남은 가속 후보1399·1576–1582·877·863·1236·1148·1440과 모호한1572/1574는 미확정. 상세 docs/STICKMAN-DISPLAY-MOTION-FIX-2026-11-04.md 마지막 절. 이전 문구: 최신 수정판의5겹침/24수치 후보 중 미확정 부분을 실제 원본과 대조한다. 실제 교차·빠른 동작도 포함하므로 자동삭제/평활 금지. 새 제보가 있으면 원본/재생 장번호부터 맞춘다.
 4. 새 영상 일반화는 보정 안 한 입력에 공통 처리만 적용한 첫 결과를 고정해 검증한다. 지금 개발자료/보존판단 재현을 일반화 성공으로 세지 않는다.
 
 ## 최신 기준과 바로 할 일

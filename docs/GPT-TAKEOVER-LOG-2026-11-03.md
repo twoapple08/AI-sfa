@@ -389,3 +389,4 @@ face715–721 극근경은 모델이눈을전신으로오인해표시추론키�
 - CPU 시험 환경(torch cpu/opencv/skia/libEGL) 설치 후 기준 308시험 OK·exit0. 최신 재현을 새 폴더에서 실행, XML f2141adf… 일치·11결정·exit0.
 - Kaggle `aisfa-seq-refine-ab-v1` version2: ERROR. 부모 그림은 생성(글꼴 수정 유효), token-v1 업데이트 루프에서 fp16 배율 넘침을 치명 처리해 중단. `scaled_update()`로 수정, 새 시험5개, 전체313 OK·exit0. 재실행 안 함(승인 대기). 상세는 GPT-SEQ-OBJECTIVE-REFINEMENT 마지막 절.
 - 재현 지문이 seq_refine.py를 포함하므로 이 커밋 뒤 최신 재현은 8cad3d7/df7e297 worktree에서 실행한다고 HANDOFF에 기록.
+- 후보 원본 대조: 5겹침 중4개는 실제 겹침 유지, 869 파랑 왼발목 공중 복제를 원본 판독으로 수정(파일 변경은 869장 객체1개). 새 SFA 1Ba4WVy8…(SHA ec8f67cf…/XML 7c6f311b…), 재현 1Kn2utri…(ea8424b 코드 지문, 새 폴더 XML 일치·exit0). 공개 코드 변경 없음(비공개 입력 resolved_edits.json 한 행).
