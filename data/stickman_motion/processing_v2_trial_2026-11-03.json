@@ -98,5 +98,7 @@
     "unchanged_frames": 1439,
     "accepted_running_frames_unchanged": 13,
     "baseline_sha256": "0de56473dc93f7d1063e8e4638179a60bc372fc5d8b26e31ecc47481e652ac85"
-  }
+  },
+  "implementation_commit": "416df06c72244bfa977eb3303b64281e6f1a25c6",
+  "repro_drive_id": "1PYbrefbXSwrVdxe3Wnn49UeQYixtXMX-"
 }
