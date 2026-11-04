@@ -7,7 +7,7 @@
 - GPT 작업·커밋: `docs/GPT-TAKEOVER-LOG-2026-11-03.md`.
 
 ## 현재 우선순위·바로 할 일
-0. **최우선: 사용자가 미완성 SFA 작업 계속 지시.** 기존419앞팔은 판정 대기지만 다른 오류를 계속 수정하라고 명시. 전경 가림 구겨짐 추가 제보→원본1339–1342 기둥 가림 확인/교정,비교영상 `1e4jPo-7Py-O-ggqLgmhmjZsrFzAd_ifu`,시트 `1FcMwMz4dTsh0eLnjCDr2PW2HVAlai3nO`,새미완성SFA `1LiakF_T_knvYhuUaDJuKGX7_M_MThHG8`. 같은컷 양끝의2D방향/길이 보간은 추론,자동가림분류 아님.270시험OK·exit0/구조오류0,네장만XML변경·1436장보존. 현재601/759/1326/1608 처리 중. 자세한 근거/이력은 `docs/GPT-STICKMAN-GENERIC-V2-2026-11-03.md` 끝.
+0. **최우선: 미완성 SFA 후속 작업 계속.** 최신 보고 `docs/STICKMAN-PARTIAL-RECOVERY-2026-11-04.md`. 팔737–784 분리·차기1326–1328 복구·가림1339–1342 보완. 최신 SFA `1V1nO1-6wCqHXSNTYicb6QRU_RnSBqXrl`,반속 `1n3uUb6JANdXCp8zVB5ySDRgU6czSMk6L`,팔시트 `1ORQErYk5j-UTjNtpjotZoDsw8TVFTxt9`,차기시트 `14iHVt22L8Cm4QSe0ERwtONhUGo20HKVv`. 55장만 XML변경/1385장 동일.274시험 OK·exit0/면 포함 구조오류0. 사용자 새 눈판정/실제폰 검증 대기,학습 승인 아님.601손 표현 범위 질문 대기,1604–1620 여러 부분 인물과 컷 통합 미해결. 스킬은 처리/조건/재현 자료를 갱신했으며 스킬만으로 입력 없이 실행할 수 있다는 뜻이 아니다.
    - 사용자405=원본836,834–846 검출누락13장을 구도 태그/CPU측정으로 복구,새 손 입력 좌표0. 사용자 다리 긍정 확인. 축소 팔 과장도 키별2D길이/팔꿈치 조정으로 전반 개선 확인했으나419앞팔 누락을 추가 지적했다.
    - **419=원본850 수정:** 부분 구도에서 양팔을 일괄 숨기던 공통 원인을 고침. 세 관측점이 모두 경계 안·점수/색 지지가 유효한 팔만 보존,불확실 뒷팔은 숨김. 직전 팔1차판 대비850 한 장만 XML변경,다른1,439장/승인 다리13장 동일.
    - **최신:** SFA `1hFjMSZqODvqtKmKY3aWPc3brEr5ISFd7`,반속 `15k8G74GBvOh_PaojHFllI9eGHH7XNWsZ`,원본 시트 `1RvJvAB3KnFSlSH8As2vGgbG8_rtmNKnn`. Drive폴더 `1ua4oIK92k16FUn0NIB2wj1bgCIqVtKHL`. SFA SHA `8ec795cf1d07f5bf13a64415416dad164874bd2ec8fe289f8f4a6cfe10f44835`. 전체비교 `13KIcqMQwl2ILWAQbQ2D7d0TvuNiFlkGi`는419앞팔 복구 전 팔1차판 이력이다.
