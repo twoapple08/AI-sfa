@@ -93,7 +93,9 @@ def push(a):
     src = worker_src(cfg)
     d = tempfile.mkdtemp(prefix='kseq_')
     open(os.path.join(d, 'kernel.py'), 'w', encoding='utf-8').write(src)
-    kname = KERNEL + ('-smoke' if a.smoke else '')
+    kname = getattr(a, 'kernel_name', '') or KERNEL + ('-smoke' if a.smoke else '')
+    if kname == KERNEL and getattr(a, 'kernel_name', ''):
+        raise SystemExit('--kernel-name은 공식 커널과 다른 이름이어야 한다')
     meta = kernel_meta(u, kname, not a.cpu)
     if a.accel and not a.cpu:
         meta['machine_shape'] = a.accel
@@ -139,6 +141,8 @@ def push_data(a):
 
 
 def kname_of(a):
+    if getattr(a, 'kernel_name', ''):
+        return a.kernel_name
     return (DATA_KERNEL if getattr(a, 'data', False) else KERNEL) + ('-smoke' if getattr(a, 'smoke', False) else '')
 
 
@@ -240,6 +244,7 @@ def main():
     p.add_argument('--accel', default='NvidiaTeslaT4', help='machine_shape(빈 값이면 기본 GPU)')
     p.add_argument('--fresh', action='store_true', help='이어하기 자료를 붙이지 않고 처음부터')
     p.add_argument('--smoke', action='store_true', help='흐름 확인(작은 자료·모델 몇 분, 별도 커널 aisfa-seq-train-smoke)')
+    p.add_argument('--kernel-name', default='', help='비교 실험용 별도 커널 이름(공식 aisfa-seq-train 기록을 건드리지 않게, 예 aisfa-seq-coord2-ab)')
     p.add_argument('--cpu', action='store_true', help='GPU 끄고(주간 GPU 시간을 쓰지 않음)')
     p.add_argument('--gpu-ok', action='store_true', help='사용자가 GPU 실행을 지시했음(없으면 GPU push를 거부)')
     p.add_argument('--ckpt', default=CKPT, help='이어하기 자료 이름')
