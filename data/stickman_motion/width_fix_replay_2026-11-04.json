@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "status": "손발끝 부속 제거/폭 수정 시험·고정입력 재현 검증,포즈/앱/학습 승인은 별도",
+  "implementation_commit": "dea13677bb36e45d6e5aaf6df0914e3db5286d6e",
+  "python_tests": 292,
+  "test_exit_code": 0,
+  "digits_enabled": false,
+  "sole_length_enabled": false,
+  "locked_decisions_verified": 7,
+  "manual_interpolation_verified_frames": 46,
+  "xml_identical": true,
+  "xml_sha256": "1f8509910c63a736cdae67933f1f0dbe054d43bb667fb2336f6c356dccb98759",
+  "decision_input_sha256": "c1cd4788ded06caccfc09fca1572edb6d3fcb24180952f03a3b63d56c18f39f9",
+  "sfa_drive_id": "1LDRb9bHEQk1EMPg7bYxos_wlxjlpup-r",
+  "repro_drive_id": "16HzUYldzaihjFrbVajCM4iMEEDFas3Y9",
+  "replay_proof_drive_id": "1QT-5uoZheyLrg1mVqVmyQW8KOp6ryQ7j",
+  "app_verified": false,
+  "training_approved": false,
+  "replay_scope": "보존한 중간입력·수동판정·추론값부터 최종SFA.새 원본 자동판단 재검증 아님"
+}

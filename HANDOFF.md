@@ -8,9 +8,10 @@
 
 ## 현재 우선순위·바로 할 일
 0. **최우선: 부속 제거·폭 오류 수정본과 기존 구간 재현.** 사용자 손가락/발가락/발길이 묘사 중단,근경 단순 면은 유지. 고정50px 폭 대체가 멀어진 부위를 크게 만든 원인 확인/제거. `docs/STICKMAN-WIDTH-FIX-REPLAY-2026-11-04.md`를 먼저 읽는다.
-   - 최신SFA1LDRb9bHEQk1EMPg7bYxos_wlxjlpup-r,비교1tIkfJVdntahKN1NL6cj-cavCJyYbQEUX. 기본11+근경면최대108=119객체,손/발 부속0.290시험OK·exit0/전체망·면제거 후 XML/기존면·접촉 검사0.46장만변경/1394장동일,기존 승인구간/팔·차기·가림 보존.
+   - 최신SFA1LDRb9bHEQk1EMPg7bYxos_wlxjlpup-r,비교1tIkfJVdntahKN1NL6cj-cavCJyYbQEUX. 기본11+근경면최대108=119객체,손/발 부속0.292시험OK·exit0/전체망·면제거 후 XML/기존면·접촉 검사0.46장만변경/1394장동일,기존 승인구간/팔·차기·가림 보존.
    - 폭 키는 수동 표시 척도 추론. 손4/몸5 수동포즈 키도 포함,자동 거리/포즈 복원 성공 아님.1616→1620 같은 부위 폭은0.675배,원본 전체면적 단조조건으로 쓰지 않는다. 실제앱/전체포즈/학습 미승인.
    - **Claude 재현:** 스킬+지정코드/프로필/보존입력·표시키가 함께 필요. stickman_replay.py로 새 폴더/결과삭제 후 재생성/XML SHA 대조. 실제 검증/구현SHA/묶음위치는 전담로그에 저장한다. 캐시 ai-sfa-private/no_digits_20261104/. 재피팅 금지.
+   - **독립 재현 완료:** 구현dea13677bb36e45d6e5aaf6df0914e3db5286d6e,필수묶음16HzUYldzaihjFrbVajCM4iMEEDFas3Y9(14파일/1.18MB). 보정키 보간46장 재계산/7종결정입력지문 확인,새폴더결과삭제후생성exit0·XML동일. 증거JSON1QT-5uoZheyLrg1mVqVmyQW8KOp6ryQ7j. 스킬은 같은 자료를 불러오는 경로를 따른다.
    - **바로 할 일:** 수정본 사용자/실제앱 판정 반영→원본컷통합/전체1분 잔여오류/자동 관측 개선.1032/1272는실험분할.1612 아래 부위는 손이다. GPU/학습/Kaggle추가조회 없음.
 
 1. **머리 채움 실제 앱 누락 수정·모바일 뷰어 v1.1 배포 완료.** 사용자 녹화에서 공통 누락 확인. `docs/GPT-STICKMAN-HEAD-FILL-APP-FIX-2026-11-03.md`, `docs/SFA-VIEWER-1.1-2026-11-03.md`를 읽는다. 머리 FS의 Kind 누락을 원 전체 Kind1로 수정,모든 AO/좌표/AC/근경 면은 그대로. 최신 주 SFA Drive `1o3cTOMY9X9keVJczwIJqBuYbXZU5Erb_`,SHA `6e820c62ff58c80fd9cf9dfce1116419a43c8c23ebe30f31e4bd37cb2ef93c4a`. 흰 머리469·근경 면2 유지. 저장 형식 revision2/지문만 갱신,장면 데이터 변경0.
