@@ -87,3 +87,12 @@ kaggle kernels output twoapple08/aisfa-seq-refine-ab-v1 -p /workspace/ai-sfa-pri
 먼저 `refinement_run.json`의 rc/오류, `refinement_console.txt`, `pinned_inputs.json`을 확인한다. 이어 `comparison/results.json`의 두 분기500업데이트·complete/comparable, `run.json`의 자료/순서 해시, `train.jsonl`을 확인한다. 실패·시간 초과·업데이트 수 불일치는 성공 비교로 세지 않는다. 출력이 없는 경우에도 자동 재실행하지 않는다.
 
 그림은 `comparison/parent/`, `comparison/token-v1/`, `comparison/balanced-v1/`의 `probe_*.png`/`probes_native.png` 및 `probes.json`을 같은 번호끼리 대조한다. 각 단일 시트는 입력/해당 모델/정답 순이다. 기능별 학습 표본과 검증 표본을 구분하고, 종료만 좋아져 그림을 덜 그리거나 배경·이펙트가 빠진 경우 개선으로 세지 않는다. 새 pt/그림/상세 진단은 Drive `AI-sfa/02_분석자료/seq/run2_2026-11-03/objective_refinement_2026-11-03/`에 보존한다. 합격선·기존 판정 JSON을 고치지 않는다. 장기3회차나 추가 실행은 별도 사용자 허락이 필요하다.
+
+
+## 2026-11-04 KST — 사용자 요청 상태 조회: 학습 전 ERROR
+
+- 읽기 전용 `kaggle kernels status twoapple08/aisfa-seq-refine-ab-v1` 결과 `KernelWorkerStatus.ERROR`.
+- 진단 파일만 선택 다운로드. 비공개 위치 `/workspace/ai-sfa-private/seq_refinement/kaggle_output_check_20261104/`. `refinement_run.json`: rc1,wall_seconds461.28920912742615(작업 내부 약7분41초,설치 등을 포함한 전체 GPU 사용 시간으로 해석하지 않는다).
+- `refinement_console.txt`에서 `seq_refine.py:73`, `ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',16)`가 `OSError: cannot open resource`로 실패했다. Kaggle에 이 고정 글꼴 경로가 없다. GPU 메모리 부족/시간 소진으로 판정하지 않는다.
+- 파일/코드 대조: `train_pair`는 기준 모델 평가와 `generate_probes(...,'parent',...)` 이후에 업데이트 루프에 진입한다. 이 그림 생성에서 실패했으므로 기존/보정 각500회 학습은 시작하지 못했다. `comparison/run.json`은 계획/고정입력 기록이며 완료 증거가 아니다. `comparison/results.json`도 출력되지 않았다.
+- 기존 공식2회차 가중치/커널은 변경하지 않았다. 개선 비교 결과는 없으며,새 학습 성공으로 세지 않는다. 글꼴 로딩의 대체 경로/기본 글꼴 처리를 넣고 없는 환경에서 그림 생성을 검증하는 것이 다음 수정이다. 이번에는 상태 조회·진단 수령만 했고 코드 수정/재실행/추가GPU/학습은 하지 않았다. 현재 잔여 GPU 시간도 조회하지 않았다.

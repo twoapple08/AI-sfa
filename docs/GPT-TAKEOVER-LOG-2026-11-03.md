@@ -232,3 +232,9 @@
 - Drive 최신 SFA `1hFjMSZqODvqtKmKY3aWPc3brEr5ISFd7`,반속 `15k8G74GBvOh_PaojHFllI9eGHH7XNWsZ`,시트 `1RvJvAB3KnFSlSH8As2vGgbG8_rtmNKnn`. SFA SHA `8ec795cf1d07f5bf13a64415416dad164874bd2ec8fe289f8f4a6cfe10f44835`. 전체영상은 앞팔보존 전 이력으로 명시. HANDOFF/보고/집계/구도근거/스킬 갱신. 전체1분의601/759/1326/1608 오류는 남으며 학습 승인 아님. GPU/학습/Kaggle조회0. 구현SHA/재현zip은 저장 뒤 아래 기록.
 
 - 419앞팔 구현 저장/푸시 완료: `416df06c72244bfa977eb3303b64281e6f1a25c6`. 재현 묶음 Drive `1PYbrefbXSwrVdxe3Wnn49UeQYixtXMX-`,146개 자료와 manifest/README,약5.6MB. 파일별 SHA/ZIP 검사 통과. 동결 입력·최신/직전 SFA·회귀/시험 로그·재생성 스크립트 보존,원본 영상/전체 RTMW/가중치/토큰 제외. 사용자 앞팔 판정 대기.
+
+
+## 2026-11-04 KST — Kaggle 상태 확인 요청
+
+- 사용자 요청으로 보정 비교 커널만 읽기 전용 조회,ERROR 확인. 진단 JSON/콘솔/로그만 비공개 다운로드. 고정 DejaVuSans 글꼴 경로 누락으로 기준 그림 생성 중 rc1·내부461.289초 종료. 코드 순서 대조로 두 분기 업데이트 루프 진입 전 실패 확인,완료 비교 결과 없음.
+- HANDOFF/보정 보고에 실패·다음 글꼴 환경 의존 수정·로컬진단 경로 기록. 코드/기존 공식가중치/커널 변경0,재실행/추가GPU/학습0. 최신 코드의 전체266개 OK·exit0 검증은 그대로이며 이번 변경은 문서만이다. 현재 GPU 잔여 시간은 확인하지 않았다.
