@@ -251,7 +251,85 @@ def to_target(img_t, img_n, person_t, person_n):
     return (Hm, n_in) if Hm is not None and n_in >= 60 else (None, n_in)
 
 
-COL = {'h': (40, 40, 200), 'v': (40, 160, 40), 'r': (200, 60, 40), 'o': (150, 150, 150)}
+def ray_point_at(vp, phi, x=None, y=None):
+    c, s_ = math.cos(phi), math.sin(phi)
+    if x is not None:
+        if abs(c) < 1e-6: return None
+        t = (x - vp[0]) / c
+        return (x, vp[1] + t * s_) if t > 0 else None
+    if abs(s_) < 1e-6: return None
+    t = (y - vp[1]) / s_
+    return (vp[0] + t * c, y) if t > 0 else None
+
+
+def ray_to_border(vp, phi, r0):
+    c, s_ = math.cos(phi), math.sin(phi)
+    ts = [t for t in ((0 - vp[0]) / c if abs(c) > 1e-9 else None, (W - 1 - vp[0]) / c if abs(c) > 1e-9 else None,
+                      (0 - vp[1]) / s_ if abs(s_) > 1e-9 else None, (H - 1 - vp[1]) / s_ if abs(s_) > 1e-9 else None) if t is not None and t > 0]
+    t1 = min(ts) if ts else r0
+    return (vp[0] + r0 * c, vp[1] + r0 * s_), (vp[0] + t1 * c, vp[1] + t1 * s_)
+
+
+def layout(lines, vp):
+    """방 틀(위에서 아래로): 소실점 → 네 경계선(바닥·천장 × 왼·오른 벽) → 높이 비 → 기둥 완성 → 보·바닥 가로선 늘리기."""
+    vx, vy = vp
+    rad = []
+    for a, b, k in lines:
+        if k != 'r': continue
+        mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+        r0, r1 = math.hypot(a[0] - vx, a[1] - vy), math.hypot(b[0] - vx, b[1] - vy)
+        rad.append((math.degrees(math.atan2(my - vy, mx - vx)), math.hypot(b[0] - a[0], b[1] - a[1]), min(r0, r1)))
+    quad = {'floor_left': (90, 180), 'floor_right': (0, 90), 'ceil_left': (-180, -90), 'ceil_right': (-90, 0)}
+    rays = {}
+    for name, (lo, hi) in quad.items():
+        cand = [r for r in rad if lo < r[0] < hi and r[1] >= 40]
+        if not cand: continue
+        hist = {}
+        for ph, L, _ in cand: hist[int(ph // 2)] = hist.get(int(ph // 2), 0) + L
+        b = max(hist, key=hist.get)
+        sel = [r for r in cand if abs(r[0] - (b * 2 + 1)) <= 3]
+        if sum(r[1] for r in sel) < 80: continue
+        phi = float(np.average([r[0] for r in sel], weights=[r[1] for r in sel]))
+        rays[name] = (math.radians(phi), min(r[2] for r in sel))
+    ratios = []
+    for side, xb in (('left', 0.0), ('right', W - 1.0)):
+        if f'floor_{side}' in rays and f'ceil_{side}' in rays:
+            pf = ray_point_at(vp, rays[f'floor_{side}'][0], x=xb); pc = ray_point_at(vp, rays[f'ceil_{side}'][0], x=xb)
+            if pf and pc and pf[1] > vy > pc[1]: ratios.append((pf[1] - vy) / (vy - pc[1]))
+    ratio = float(np.mean(ratios)) if ratios else None
+    out = []
+    for name, (phi, r0) in rays.items():
+        a, b = ray_to_border(vp, phi, r0); out.append((a, b, 'room'))
+    for a, b, k in lines:
+        if k == 'v':
+            y0, y1 = sorted((a[1], b[1])); x = (a[0] + b[0]) / 2
+            if ratio and y0 < vy + 20 and y1 > vy - 20 and (y1 - y0) > 25:
+                bot = max(y1, vy + ratio * (vy - y0)); top = min(y0, vy - (y1 - vy) / ratio)
+                out.append(((x, max(0, top)), (x, min(H - 1, bot)), 'pillar')); continue
+            out.append((a, b, 'detail'))
+        elif k == 'h':
+            y = (a[1] + b[1]) / 2; x0, x1 = sorted((a[0], b[0]))
+            side = 'ceil' if y < vy else 'floor'
+            pl = ray_point_at(vp, rays[f'{side}_left'][0], y=y) if f'{side}_left' in rays else None
+            pr = ray_point_at(vp, rays[f'{side}_right'][0], y=y) if f'{side}_right' in rays else None
+            if pl and pr and pl[0] - 15 <= x0 and x1 <= pr[0] + 15 and (x1 - x0) >= 60:
+                out.append(((max(0, pl[0]), y), (min(W - 1, pr[0]), y), 'beam' if side == 'ceil' else 'floorx', x1 - x0)); continue
+            out.append((a, b, 'detail'))
+        else:
+            out.append((a, b, 'detail'))
+    # 늘린 가로선끼리 8px 안이면 원래 더 길었던 하나만(빛·그림자 경계가 줄무늬로 쌓이지 않게)
+    ext = sorted([l for l in out if len(l) == 4], key=lambda l: -l[3]); keep = []
+    for l in ext:
+        if all(l[2] != q[2] or abs(l[0][1] - q[0][1]) > 8 for q in keep): keep.append(l)
+    out = [l for l in out if len(l) == 3] + [l[:3] for l in keep]
+    return out, dict(rays=sorted(rays), ratio=None if ratio is None else round(ratio, 2), beams=sum(l[2] == 'beam' for l in keep), floor_lines=sum(l[2] == 'floorx' for l in keep))
+
+
+COL = {'h': (40, 40, 200), 'v': (40, 160, 40), 'r': (200, 60, 40), 'o': (150, 150, 150),
+       'room': (0, 0, 255), 'pillar': (0, 150, 0), 'beam': (200, 0, 200), 'floorx': (0, 140, 255), 'detail': (120, 120, 120)}
+LAYER_OF = {'room': 0, 'pillar': 1, 'beam': 2, 'floorx': 3, 'detail': 4, 'h': 4, 'v': 4, 'r': 4, 'o': 5}
+LAYER_NAMES = ((0, 'background.room'), (1, 'background.pillar'), (2, 'background.ceiling_beam'), (3, 'background.floor_line'),
+               (4, 'background.detail'), (5, 'object.other'), (6, 'actor.stickman'))
 rows, stats = [], []
 seq = ET.Element('Sequence', dict(Name='sfa_slice_perspective_v1', HeightWidthRatio='0.5625', RatioX='16', RatioY='9', FrameCount=str(len(FRAMES)), BackgroundColor='-1'))
 rng = np.random.default_rng(0)
@@ -289,35 +367,37 @@ for pos, f in enumerate(FRAMES):
         lines, grown = extend(lines, ev); st['grown_px'] = int(grown)
         lines, st['corners'] = corners(lines)
         lines = [l for l in lines if math.hypot(l[0][0] - l[1][0], l[0][1] - l[1][1]) >= MIN_OUT]
+    if os.environ.get('PL_LAYOUT') == '1' and vp:
+        lines, lay = layout(lines, vp[0]); st.update(lay)
     stats.append(dict(frame=f, neighbours=used, segs=len(segs), vp=None if vp is None else [[round(v[0]), round(v[1])] for v in vp], vp_share=round(vp_score, 2), **st, out=len(lines), other=len(other)))
     # 그림: 원본 / LSD 선분 / 스냅 결과(색=방향) + 스틱맨
     c1 = np.full_like(img, 255)
     for s in segs: cv2.line(c1, (int(s[0]), int(s[1])), (int(s[2]), int(s[3])), (60, 60, 60), 1, cv2.LINE_AA)
     c2 = np.full_like(img, 255)
     for (a, b, k) in lines + other:
-        cv2.line(c2, tuple(map(int, a)), tuple(map(int, b)), COL[k], 1 if k == 'o' else 2, cv2.LINE_AA)
+        cv2.line(c2, tuple(map(int, a)), tuple(map(int, b)), COL[k], 3 if k == 'room' else 1 if k in ('o', 'detail') else 2, cv2.LINE_AA)
     for v in (vp or []):
         if 0 <= v[0] < W and 0 <= v[1] < H: cv2.circle(c2, (int(v[0]), int(v[1])), 6, (0, 0, 255), 2)
     sk = np.zeros_like(img)
     fr = ET.SubElement(seq, 'Frame', dict(BackgroundColor='4294967295', ID=str(pos + 1), Position=str(pos)))
-    for lid, nm in ((0, 'background'), (1, 'object.other'), (2, 'actor.stickman')):
+    for lid, nm in LAYER_NAMES:
         ET.SubElement(fr, 'LayerDef', dict(ID=str(lid), Name=nm, Visible='true', Locked='false'))
     oid, pid = 1, 1 + pos * 100000
     for (a, b, k) in lines + other:
-        ao = ET.SubElement(fr, 'AO', dict(ID=str(oid), TypeId='1', Color=str(-12566464 if k != 'o' else -7829368), LayerId='0' if k != 'o' else '1',
+        ao = ET.SubElement(fr, 'AO', dict(ID=str(oid), TypeId='1', Color=str(-12566464 if k not in ('o', 'detail') else -7829368), LayerId=str(LAYER_OF[k]),
                                           DrawOrder=str(oid), ThicknessScale='0.35', ObjectScale='1.0', GlowRadius='0', GlowThickness='0', GlowColor='4294967295', GlowAlpha='0'))
         for i, (px_, py_) in enumerate((a, b)):
             ET.SubElement(ao, 'AP', dict(ID=str(pid), Flags=('9', '8')[i], Index=str(i), X=f'{px_ / W * 100:.3f}', Y=f'{py_ / H * 100:.3f}')); pid += 1
         oid += 1
     m = {}
     for ao in sroot.findall('Frame')[f - 432].findall('AO'):
-        ao = copy.deepcopy(ao); ao.set('LayerId', '2')
+        ao = copy.deepcopy(ao); ao.set('LayerId', '6')
         for ap in ao.iter('AP'): m[ap.get('ID')] = str(pid); ap.set('ID', str(pid)); pid += 1
         fr.append(ao)
     for ac in fr.iter('AC'): ac.set('ConnPtId', m.get(ac.get('ConnPtId'), ac.get('ConnPtId')))
     R.PARAMS.update(pad=0.0, thick_mul=1.0)
     rend = cv2.cvtColor(R.render_frame(seq, fr, W, H)[..., :3].astype(np.uint8), cv2.COLOR_RGB2BGR)
-    cv2.putText(c2, f'{len(lines)} lines  bridge{st.get("bridged", 0)} corner{st.get("corners", 0)}', (6, 28), 0, 0.8, (0, 0, 255), 2)
+    cv2.putText(c2, f'{len(lines)} lines  rays{len(st.get("rays", []))} ratio{st.get("ratio")}', (6, 28), 0, 0.8, (0, 0, 255), 2)
     rows.append(np.hstack([img, c1, c2, rend]))
 with zipfile.ZipFile(SP + f'/slice/lineart/sfa_slice_perspective{TAG}.sfa', 'w', zipfile.ZIP_DEFLATED) as zf:
     zf.writestr('sfa_slice_perspective.xml', ET.tostring(seq, encoding='utf-8', xml_declaration=True))
