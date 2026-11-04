@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "id": "simple-parts-v2",
+  "base_rig": "stickman-2d-11-v1",
+  "fingers_per_hand": 5,
+  "edges": [
+    [
+      "wri_l",
+      "palm_l"
+    ],
+    [
+      "palm_l",
+      "finger_l_0_mid"
+    ],
+    [
+      "finger_l_0_mid",
+      "finger_l_0_tip"
+    ],
+    [
+      "palm_l",
+      "finger_l_1_mid"
+    ],
+    [
+      "finger_l_1_mid",
+      "finger_l_1_tip"
+    ],
+    [
+      "palm_l",
+      "finger_l_2_mid"
+    ],
+    [
+      "finger_l_2_mid",
+      "finger_l_2_tip"
+    ],
+    [
+      "palm_l",
+      "finger_l_3_mid"
+    ],
+    [
+      "finger_l_3_mid",
+      "finger_l_3_tip"
+    ],
+    [
+      "palm_l",
+      "finger_l_4_mid"
+    ],
+    [
+      "finger_l_4_mid",
+      "finger_l_4_tip"
+    ],
+    [
+      "wri_r",
+      "palm_r"
+    ],
+    [
+      "palm_r",
+      "finger_r_0_mid"
+    ],
+    [
+      "finger_r_0_mid",
+      "finger_r_0_tip"
+    ],
+    [
+      "palm_r",
+      "finger_r_1_mid"
+    ],
+    [
+      "finger_r_1_mid",
+      "finger_r_1_tip"
+    ],
+    [
+      "palm_r",
+      "finger_r_2_mid"
+    ],
+    [
+      "finger_r_2_mid",
+      "finger_r_2_tip"
+    ],
+    [
+      "palm_r",
+      "finger_r_3_mid"
+    ],
+    [
+      "finger_r_3_mid",
+      "finger_r_3_tip"
+    ],
+    [
+      "palm_r",
+      "finger_r_4_mid"
+    ],
+    [
+      "finger_r_4_mid",
+      "finger_r_4_tip"
+    ],
+    [
+      "ank_l",
+      "toe_l"
+    ],
+    [
+      "ank_r",
+      "toe_r"
+    ]
+  ],
+  "core_extra_objects": 24,
+  "near_representation": "tapered-parts-v1",
+  "status": "다섯 손가락·근경 연속면 시험,사용자/앱 판정 대기"
+}

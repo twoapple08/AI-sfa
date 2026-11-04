@@ -1,3 +1,4 @@
+<!-- 최신: 근경 연속면을 유지하고 손가락5개. docs/STICKMAN-NEAR-FIVE-FINGERS-2026-11-04.md/HANDOFF0번 우선. 면삭제/3손가락판은 미채택. -->
 <!-- 최신 실제 구현: docs/STICKMAN-SIMPLE-PARTS-2026-11-04.md/고정11+직선부속16. 상세면은 보류. 수동표시키 포함 단순형 사용자/앱 판정 대기. -->
 <!-- 최신 사용자 정정: 상세 면 시험은 보류. 단순 스틱맨 손가락/발바닥 막대/몸통 투영 길이·너비 조정이 현재 목표. HANDOFF.md 0번 우선. -->
 <!-- 2026-11-04 최신 진입: HANDOFF.md의0번과 docs/STICKMAN-BODY-DETAIL-TRIAL-2026-11-04.md를 우선 읽는다. 평소 뼈대/선택 표시층을 분리하고 사용자 모양·실제앱 판정 대기 상태를 유지한다. 구현16e4aca,재현Drive1GmTiUFI6WYpBECBRfmtDfiwCFmo8k5Q6. -->

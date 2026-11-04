@@ -302,3 +302,8 @@
 
 
 구현 커밋 `86cdeb0e180cf99646674d93c666c5338608262d` 저장/푸시 완료. [단순형 재현 묶음](https://drive.google.com/file/d/1J09L8EWLRXGPXiXRNDRbeVt3_jrEl-VH/view)은186개 파일/약9.07MB와 SHA manifest를 포함한다. ZIP/파일별SHA검사 통과. 원본 영상·전체RTMW·가중치·토큰은 제외하며 기존Drive에서 복원한다. 보류한 상세면 결과는 이력으로만 포함하고 활성 결과는 simple-parts-v1이다.
+
+
+## 2026-11-04 — 근경 면 복원·다섯 손가락 정정
+
+사용자 단순화를 면 삭제/3손가락으로 잘못 적용한 것을 지적. 근경 연속 면과 다섯 손가락을 함께 구현. v2부속24·중심선 기반 원근 면,원본 외곽 추적 아님. 기존 수동키/추론 및 색 단면 폭 측정 한계 명시.286시험OK·28.291초·exit0,공유마디 면 연결/폭 렌더 시험·부적절 반지름 거부·실제망/채움·면제거 XML1440장 일치. 손50회5끝점/면 대조,기준판 대비46장만변경/1394장동일. 인물당최대431객체,실제폰 미확인. 최신SFA1QPqYeJxQglw2v7ZPliWyhFMtfCWjF1SN/비교1cxbSJX2tDvq6VtgZ-F_bjt18bWxlX25y,상세보고 docs/STICKMAN-NEAR-FIVE-FINGERS-2026-11-04.md. 스킬/AGENTS/HANDOFF 정정. 구현SHA/재현은 저장 후 기록.
