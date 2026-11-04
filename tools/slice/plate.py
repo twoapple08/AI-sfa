@@ -53,8 +53,10 @@ for f in off: off[f] = off[f] + (ox, oy)
 print('판 크기', PW, PH, '이동 범위 x', round(min(xs), 1), round(max(xs), 1), 'y', round(min(ys), 1), round(max(ys), 1),
       '대응 최소', min(l[3] for l in log), '배율 범위', min(l[4] for l in log), max(l[4] for l in log))
 
-# 2) 인물 뺀 픽셀의 중앙값으로 판(움직이는 파편도 중앙값에서 대부분 빠짐)
-use = frames[::2]
+# 2) 인물 뺀 픽셀의 중앙값으로 판. 기준은 '부서지기 전' 상태(11-05 사용자): PLATE_UNTIL 장까지만 쓴다.
+#    부서진 벽·떨어진 파편은 판이 아니라 그 장부터 생기는 요소 트랙으로 다룬다.
+UNTIL = int(os.environ.get('PLATE_UNTIL', F1))
+use = [f for f in frames if f <= UNTIL][::2]
 stack = np.full((len(use), PH, PW, 3), np.nan, np.float32)
 for i, f in enumerate(use):
     M = np.float32([[1, 0, off[f][0]], [0, 1, off[f][1]]])
@@ -62,12 +64,20 @@ for i, f in enumerate(use):
     v = cv2.warpAffine((1 - pms[f]).astype(np.uint8), M, (PW, PH), flags=cv2.INTER_NEAREST, borderValue=0)
     w[v == 0] = np.nan
     stack[i] = w
-plate = np.nanmedian(stack, 0)
+# 인물이 오래 머문 자리의 그림자는 중앙값에 남는다. 그림자는 배경보다 어두우므로 밝기 순 상위 백분위(PLATE_PCT, 기본 75)로 고른다.
+PCT = float(os.environ.get('PLATE_PCT', 75))
+lum = np.nanmean(stack, 3)
+cnt = np.sum(~np.isnan(lum), 0)
+rank = np.argsort(np.where(np.isnan(lum), np.inf, lum), 0)          # 밝기 오름차순, 빈칸은 뒤로
+k = np.clip(np.round((cnt - 1) * PCT / 100).astype(int), 0, None)
+idx = np.take_along_axis(rank, k[None], 0)[0]
+plate = np.take_along_axis(stack, idx[None, ..., None].repeat(3, -1), 0)[0]
+plate[cnt == 0] = np.nan
 hole = np.isnan(plate[..., 0])
 plate = np.nan_to_num(plate, nan=0).astype(np.uint8)
 plate = cv2.inpaint(plate, hole.astype(np.uint8), 5, cv2.INPAINT_TELEA) if hole.any() else plate
 cv2.imwrite(SP + '/slice/plate/plate.png', plate)
-print('판 빈칸 비율', round(float(hole.mean()), 4))
+print('판 사용 장', use[0], '~', use[-1], len(use), '장, 빈칸 비율', round(float(hole.mean()), 4))
 
 # 3) 판 위에서 투시도 선 한 번
 PL.W, PL.H = PW, PH
@@ -86,6 +96,9 @@ lines, grown = PL.extend(lines, ev)
 lines, nc = PL.corners(lines)
 lines = [l for l in lines if math.hypot(l[0][0] - l[1][0], l[0][1] - l[1][1]) >= PL.MIN_OUT]
 lines, lay = PL.layout(lines, vp[0])
+# 바닥의 가로 띠는 창으로 든 빛·그림자 경계일 뿐 구조가 아니다(11-05 사용자) → 구조선에서 뺀다(명암은 나중 채색 단계).
+if os.environ.get('PLATE_FLOOR', '0') != '1':
+    lines = [l for l in lines if l[2] != 'floorx']; lay['floor_lines'] = 0
 other = [o for o in other if math.hypot(o[0][0] - o[1][0], o[0][1] - o[1][1]) >= 60]
 allines = lines + other
 print('판 소실점', [[round(v[0]), round(v[1])] for v in vp], '선', len(lines), '기타', len(other), lay)
@@ -125,6 +138,6 @@ for pos, f in enumerate(OUTF):
 with zipfile.ZipFile(SP + '/slice/plate/sfa_slice_plate_v1.sfa', 'w', zipfile.ZIP_DEFLATED) as zf:
     zf.writestr('sfa_slice_plate_v1.xml', ET.tostring(seq, encoding='utf-8', xml_declaration=True))
 cv2.imwrite(SP + '/slice/plate/plate_frames.png', cv2.resize(np.vstack(rows), None, fx=0.4, fy=0.4))
-json.dump(dict(plate=[PW, PH], offsets={str(k): [round(float(v[0]), 2), round(float(v[1]), 2)] for k, v in off.items()}, pair_log=log,
+json.dump(dict(plate=[PW, PH], plate_until=UNTIL, plate_pct=PCT, offsets={str(k): [round(float(v[0]), 2), round(float(v[1]), 2)] for k, v in off.items()}, pair_log=log,
                vp=[[float(v[0]), float(v[1])] for v in vp], layout=lay, lines=len(allines)), open(SP + '/slice/plate/plate_meta.json', 'w'), ensure_ascii=False, indent=1)
 print('출력 장', OUTF, '배경 객체', len(allines), '(모든 장 같은 ID)')
