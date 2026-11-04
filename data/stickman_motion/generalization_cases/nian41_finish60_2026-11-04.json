@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "id": "nian41_finish60_2026-11-04",
+  "purpose": "기존9사례의후속 개발사례/공통원인·회귀 입력 보존",
+  "previous_case_index": "nian41_clip432-1871_2026-11-04.json",
+  "split": "development_known_clip",
+  "held_out": false,
+  "training_ready": false,
+  "new_video_generalization_verified": false,
+  "implementation_commit": "a8a0e3f92c470afcf1f875a47c8013e82ba2bceb",
+  "clip_range": [
+    432,
+    1871
+  ],
+  "frames": 1440,
+  "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "data_archive_drive_id": "1_UNY4jU5bkuv2biK4QRuIEfWZXu9a2Uj",
+  "fixed_replay_drive_id": "1IhDCQbyzi91Dry7O1L9RbIsRHCSXx_jM",
+  "sfa_drive_id": "1vyzDwb-pY0sXYTs5PlrFZeanou7RFLer",
+  "learning_scope_rules_changed": false,
+  "cases": [
+    {
+      "id": "censored_shoulder_visible_forearm",
+      "frames": [
+        [
+          823,
+          825
+        ],
+        [
+          1381,
+          1386
+        ],
+        [
+          1396,
+          1397
+        ]
+      ],
+      "symptom": "어깨가 위경계에 몰리며 실제 보이는 두 팔점까지 숨김",
+      "method": "명시 구도+두 안쪽/유효/인물색 지지 팔점 보존",
+      "manual_input": "공통 조건,구도 범위는 원본 판독",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "partial_limb_without_full_detection",
+      "frames": [
+        [
+          630,
+          631
+        ],
+        [
+          872,
+          889
+        ],
+        [
+          993,
+          993
+        ],
+        [
+          1005,
+          1005
+        ],
+        [
+          1279,
+          1279
+        ],
+        [
+          1294,
+          1300
+        ],
+        [
+          1572,
+          1574
+        ],
+        [
+          1601,
+          1603
+        ]
+      ],
+      "symptom": "부분 신체/스미어만 남으면 검출부재로 누락하거나 전신 생성",
+      "method": "부분 제어/선택 조각·연속면,회전 색축 측정/표시키",
+      "manual_input": "원관측/CPU 측정과 숨은 마디/실제좌우/폭 추론 분리",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "impact_color_is_not_person",
+      "frames": [
+        [
+          885,
+          885
+        ]
+      ],
+      "symptom": "붉은 타격 이펙트를 빨강 전신으로 오인",
+      "method": "원본에서 가림 확인,표시 숨김/제어 보존",
+      "manual_input": "인물색 픽셀 수만으로 복구하지 않음",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "floor_ankle_wrong_observation",
+      "frames": [
+        [
+          915,
+          916
+        ]
+      ],
+      "symptom": "고점수 발목이 실제 다리 대신 반대쪽 바닥에 찍힘",
+      "method": "원본 보이는 두 다리 표시키로 보완",
+      "manual_input": "실제 해부학 좌우는 추론",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "foreground_occlusion_bridge",
+      "frames": [
+        [
+          856,
+          858
+        ],
+        [
+          1811,
+          1830
+        ]
+      ],
+      "symptom": "전경 가림 때 관절 관측 붕괴/인체 구겨짐",
+      "method": "같은컷 양끝 부모벡터 보간,완전가림1817–1825만 표시숨김",
+      "manual_input": "완전가림 원본/색0 확인,숨은 자세는 추론",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "experimental_split_same_drawing",
+      "frames": [
+        [
+          1271,
+          1273
+        ]
+      ],
+      "symptom": "원본 같은 그림인데 실험분할1272에서 발목41px이동",
+      "method": "영상 위상이동과 출력이동 대조,같은컷 키보간",
+      "manual_input": "1032 실제 포즈 변화는 보존,전체 재피팅 아님",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "continuous_partial_near_width",
+      "frames": [
+        [
+          823,
+          825
+        ],
+        [
+          1367,
+          1368
+        ],
+        [
+          1379,
+          1386
+        ],
+        [
+          1394,
+          1397
+        ],
+        [
+          1601,
+          1603
+        ]
+      ],
+      "symptom": "근경 가지 중간에서 가는 선/두꺼운 면 이음",
+      "method": "공유마디 반지름/표시폭 키로 단순 연속면",
+      "manual_input": "색내접거리 측정/명시 수동 폭 추론 구분,3D거리복원 아님",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    }
+  ]
+}

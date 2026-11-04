@@ -36,3 +36,20 @@
 새 고정 재현 묶음은 이전 보존 뼈대/9개 표시키로46장 폭 보간을 다시 계산한 뒤,이번에 확정한3단계 포즈·가시성·폭 입력을 적용한다.새 폴더에서 기존 출력 삭제 후 XML 대조로 확인한다.이 단계는 **보존 중간입력→결과**이며 원본 영상에서 새로운 판단을 자동생성하는 검증이 아니다.구현 SHA/Drive 링크/실제 재현 증거는 저장 후 아래에 기록한다.
 
 사용 재생 기준은24fps,1,440장=60초이며 (24,24) 선호를 유지한다.SFA의 미확정 FPS 저장 속성을 새로 만들지 않았다.
+
+
+## 저장 완료·확인한 재현
+
+- 구현 커밋: `a8a0e3f92c470afcf1f875a47c8013e82ba2bceb`(지정 브랜치 저장/푸시).
+- [1분 SFA](https://drive.google.com/file/d/1vyzDwb-pY0sXYTs5PlrFZeanou7RFLer/view),794,377바이트.파일 SHA256 `1642d8cc8b64c477dfbbad26b44f1ba1cc5511048ab2336b29daee0cfecf5333`.인물당 최대119객체(11기본+선택 면).
+- [고정 재현 묶음](https://drive.google.com/file/d/1IhDCQbyzi91Dry7O1L9RbIsRHCSXx_jM/view):12개 입력파일+manifest,코드/프로필228개 지문.
+- [실제 재현 증거](https://drive.google.com/file/d/1Gop9Xy7_JIm0Kp9trdo4W044aGbw6LLL/view):새 폴더 `replay_finish60_verified_20261104_final`에서 기존 출력 없는 상태로 생성,11종 결정입력 검증,exit0·XML 완전일치.최종 XML SHA256 `46c6532af71e93c7eedddc7ee3bee7c778050fe8c3917fac195c0a1db3f2d2f3`.
+- [개발사례/진단 보존 묶음](https://drive.google.com/file/d/1_UNY4jU5bkuv2biK4QRuIEfWZXu9a2Uj/view):174개파일+manifest,24,523,057바이트.SHA256 `311f0f5b61d9a05b596fdacdf1d003384f49d4075ee4edf37e27d6d5506dbb30`.ZIP/파일별SHA 대조 통과.원본115장 발췌/중간 시트/단계별SFA/코드/관측·수동·추론/검사/필수재현 보존.중간pass/candidates/overview는 진단 이력이며 최신 SFA와 구분한다.원본영상·전체RTMW는 중복 저장하지 않고 기존Drive 지문으로 연결한다.
+
+지정 구현의 도구/프로필 지문이 일치하는 저장소 루트에서:
+
+```bash
+python tools/stickman_replay.py finish60_fixed_replay_20261104.zip --destination 새_재현폴더
+```
+
+새 폴더를 쓰며 기존 결과를 삭제하고 재생성하는 실행기다.묶음의 보정 입력/코드 지문이 다르면 검사를 해제하지 않는다.재현하는 것은 보존한 중간 뼈대·확정한 판단이며,새 영상의 원본 판독을 대신하지 않는다.이 클립은 개발자료이고 `held_out=false`, `training_ready=false`다.후속 사례 색인은 `data/stickman_motion/generalization_cases/nian41_finish60_2026-11-04.json`에 있다.
