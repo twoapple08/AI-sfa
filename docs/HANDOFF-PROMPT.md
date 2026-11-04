@@ -1,3 +1,4 @@
+<!-- 최신: 손/발 부속0·근경면 유지·50px폭대체 제거. docs/STICKMAN-WIDTH-FIX-REPLAY-2026-11-04.md/HANDOFF0번 우선. 고정자료+stickman_replay로 기존구간 재현. -->
 <!-- 최신: 근경 연속면을 유지하고 손가락5개. docs/STICKMAN-NEAR-FIVE-FINGERS-2026-11-04.md/HANDOFF0번 우선. 면삭제/3손가락판은 미채택. -->
 <!-- 최신 실제 구현: docs/STICKMAN-SIMPLE-PARTS-2026-11-04.md/고정11+직선부속16. 상세면은 보류. 수동표시키 포함 단순형 사용자/앱 판정 대기. -->
 <!-- 최신 사용자 정정: 상세 면 시험은 보류. 단순 스틱맨 손가락/발바닥 막대/몸통 투영 길이·너비 조정이 현재 목표. HANDOFF.md 0번 우선. -->

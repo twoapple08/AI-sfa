@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "id": "near-width-reference-v1",
+  "digits_enabled": false,
+  "sole_length_enabled": false,
+  "hand_keys": {
+    "601": 46.0,
+    "608": 60.0,
+    "620": 49.0,
+    "629": 42.0
+  },
+  "body_keys": {
+    "1604": 120.0,
+    "1608": 110.0,
+    "1612": 100.0,
+    "1616": 40.0,
+    "1620": 27.0
+  },
+  "joint_factors": {
+    "neck": 0.75,
+    "pelvis": 1.0,
+    "elbow": 0.55,
+    "wrist": 0.42,
+    "knee": 0.6,
+    "ankle": 0.45
+  },
+  "evidence": "원본 크기 눈 판독의 표시 척도 추론.자동 거리/해부학적 폭 측정 아님",
+  "missing_reference_policy": "외삽/고정50px 대체 금지·실패 처리"
+}
