@@ -7,6 +7,7 @@
 - GPT 작업·커밋: `docs/GPT-TAKEOVER-LOG-2026-11-03.md`.
 
 ## 현재 우선순위·바로 할 일
+- **일반화 개선용 현재 클립 자료 보존 완료:** 개발사례묶음1SaU05lYnojutccID8aQyC3obx1_L9ZFD(16.57MB),증상/원인/보정/사용자판정9사례. docs/STICKMAN-GENERALIZATION-DATA-2026-11-04.md와data/stickman_motion/generalization_cases/ 색인 참조. 알려진개발클립으로분류,held-out/학습정답/새영상일반화합격으로세지않는다.
 0. **최우선: 부속 제거·폭 오류 수정본과 기존 구간 재현.** 사용자 손가락/발가락/발길이 묘사 중단,근경 단순 면은 유지. 고정50px 폭 대체가 멀어진 부위를 크게 만든 원인 확인/제거. `docs/STICKMAN-WIDTH-FIX-REPLAY-2026-11-04.md`를 먼저 읽는다.
    - 최신SFA1LDRb9bHEQk1EMPg7bYxos_wlxjlpup-r,비교1tIkfJVdntahKN1NL6cj-cavCJyYbQEUX. 기본11+근경면최대108=119객체,손/발 부속0.292시험OK·exit0/전체망·면제거 후 XML/기존면·접촉 검사0.46장만변경/1394장동일,기존 승인구간/팔·차기·가림 보존.
    - 폭 키는 수동 표시 척도 추론. 손4/몸5 수동포즈 키도 포함,자동 거리/포즈 복원 성공 아님.1616→1620 같은 부위 폭은0.675배,원본 전체면적 단조조건으로 쓰지 않는다. 실제앱/전체포즈/학습 미승인.

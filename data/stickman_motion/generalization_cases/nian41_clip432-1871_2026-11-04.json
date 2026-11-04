@@ -1,0 +1,171 @@
+{
+  "schema": 1,
+  "id": "nian41_1913231262086463573_clip432-1871_dev",
+  "purpose": "일반화 개선을 위한 실패/보완 사례·회귀 자료",
+  "split": "development_known_clip",
+  "held_out": false,
+  "training_ready": false,
+  "new_video_generalization_verified": false,
+  "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "clip_range": [
+    432,
+    1871
+  ],
+  "frames": 1440,
+  "fps": [
+    24,
+    24
+  ],
+  "implementation_commit": "dea13677bb36e45d6e5aaf6df0914e3db5286d6e",
+  "data_archive_drive_id": "1LkJb49DTWzuNRfrMAyYgWTFHvLMAEhrr",
+  "fixed_replay_drive_id": "16HzUYldzaihjFrbVajCM4iMEEDFas3Y9",
+  "learning_scope_rules_changed": false,
+  "cases": [
+    {
+      "id": "partial_running_shins",
+      "frames": [
+        834,
+        846
+      ],
+      "symptom": "인물 검출 누락으로 보이는 종아리13장이 사라짐",
+      "cause": "전신 검출 부재를 부분 인물 부재처럼 처리",
+      "method": "명시 구도 태그+인물색 축/신발 쪽 측정",
+      "manual_input": "구도 태그·차용 척도,숨은 점/실제좌우는 추론",
+      "user_review": "해당 다리 복구에 긍정 확인",
+      "generalizable_hypothesis": "전신 미검출과 가시 부위 부재를 구분",
+      "limits": "자동 구도 분류 아님",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "zoom_arm_length",
+      "frames": [
+        847,
+        869
+      ],
+      "symptom": "축소 전환에서 팔 과장·보이는 앞팔 삭제",
+      "cause": "부분 구도 일괄 숨김/중앙허브 병합에 따른 투영 길이 증가",
+      "method": "키별2D길이·팔꿈치 조정/세점 지지 팔 개별 보존",
+      "manual_input": "구도 태그",
+      "user_review": "축소 팔 전반 긍정,419장 앞팔 추가 수정의 별도 확정 없음",
+      "generalizable_hypothesis": "길이 고정 대신 관측 투영 길이,부위별 관측 복귀",
+      "limits": "한 허브 제약 불가능한 경우 남음",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "duplicate_guard_arm",
+      "frames": [
+        737,
+        784
+      ],
+      "symptom": "양팔 관측이 뻗은 한 팔로 몰려 막는 팔이 소실",
+      "cause": "라벨 교환/중복 관측·키 평균",
+      "method": "명시 화면 영역별 관측 수집·그림키 대표값/보간",
+      "manual_input": "영역 태그와2D가지 대응,미관측 보간 추론",
+      "user_review": "현재 구간 출력의 확정 판정 대기",
+      "generalizable_hypothesis": "양가지 중복과 단일 끝 접촉을 구분",
+      "limits": "실제 팔 교차 구도에 임의 적용 금지",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "straight_smear_kick",
+      "frames": [
+        1326,
+        1328
+      ],
+      "symptom": "차는 다리 관측이 지지 다리로 중복돼 차기가 소실",
+      "cause": "전신 관측만으로 스미어의 가시 축을 표현하지 못함",
+      "method": "명시 직선 구도의 인물색 중심축 측정",
+      "manual_input": "구도/허브·끝점 발목 해석·중간무릎 추론",
+      "user_review": "출력 확정 판정 대기",
+      "generalizable_hypothesis": "직선 동작의 색 축과 불확실한 관절을 분리",
+      "limits": "1324–1325는 굽은 준비 자세라 직선 처리 제외",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "foreground_occlusion_collapse",
+      "frames": [
+        1339,
+        1342
+      ],
+      "symptom": "검은 전경 기둥 가림 때 인물 뼈대가 몸중심으로 구겨짐",
+      "cause": "가림 속 잘못된 관측을 포즈로 유지",
+      "method": "동일 컷의 양끝 마디 방향/길이 보간",
+      "manual_input": "가림 구간/양끝 확인,숨은 동작은 추론",
+      "user_review": "현상 제보·구간은 원본 눈 확인,출력 확정 판정 대기",
+      "generalizable_hypothesis": "관측 실패와 실제 몸 접힘을 구분",
+      "limits": "컷 경계/양끝 없는 구간은 적용 거부",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "hand_only_false_full_body",
+      "frames": [
+        601,
+        629
+      ],
+      "symptom": "손/전완 확대를 전신으로 잘못 인식",
+      "cause": "신체 일부를 전신 모델에 맞춤",
+      "method": "현재는 전완만 표시하고 손가락/발길이 부속 제거,근경면 유지",
+      "manual_input": "손4 표시키/보간·숨은 연결/폭 척도 추론",
+      "user_review": "상세 외곽/3손가락/5손가락 후속안 모두 최신 요구에서 제외,현재 출력 판정 대기",
+      "generalizable_hypothesis": "확대 부위의 의미와 전신 존재를 별도 판정",
+      "limits": "현재 수동 보완을 자동 인식 정답으로 쓰지 않음",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "cropped_mixed_body_parts",
+      "frames": [
+        1604,
+        1620
+      ],
+      "symptom": "근경 여러 부위를 가짜 전신/부분 다리로 잘못 처리",
+      "cause": "부분 관측 부족·부위 해석 오류",
+      "method": "몸5 표시키/부분 가시성·기본 뼈대/근경면",
+      "manual_input": "포즈/가시성/숨은 점/폭 추론",
+      "user_review": "1612 아래로 뻗은 부위는 손으로 원본 눈 확인,현재 전체 출력 판정 대기",
+      "generalizable_hypothesis": "구간 이름을 모든 부위의 의미 라벨로 쓰지 않음",
+      "limits": "옛 구간 전체 다리 라벨은 사용 금지",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "receding_width_fallback",
+      "frames": [
+        1616,
+        1620
+      ],
+      "symptom": "멀어지는 부위가 오히려 두꺼워짐",
+      "cause": "1616의18끝점 중15개/1620의18중9개에 고정50px 대체,색 단면 혼입",
+      "method": "고정 대체 제거·명시한 표시척도 키 보간·근거 없으면 거부",
+      "manual_input": "폭 척도는 눈 판독 표시 추론",
+      "user_review": "문제 제보 확인,최신 수정본 판정 대기",
+      "generalizable_hypothesis": "불확실한 폭을 큰 상수로 채우지 않음",
+      "limits": "자동 거리 측정 성공이 아니며1616→1620의같은부위 폭0.675배는 표시 설정",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "id": "near_miss_not_contact",
+      "frames": [
+        1048,
+        1049
+      ],
+      "symptom": "근접 회피를 접촉으로 강제",
+      "cause": "가까운 뼈대를 실제 접촉으로 오판",
+      "method": "접촉 지정 철회·원래 회피 간격 복원",
+      "manual_input": "사용자 원본 판정",
+      "user_review": "회피/비접촉 사용자 확인",
+      "generalizable_hypothesis": "거리 임계만으로 접촉을 확정하지 않음",
+      "limits": "이 사건의 비접촉을 다른 장면의 라벨로 확장하지 않음",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    }
+  ],
+  "case_archive_drive_id": "1SaU05lYnojutccID8aQyC3obx1_L9ZFD",
+  "case_archive_sha256": "2c1f4857c41760ce7e62c1ad65f99714ddbbfa4b08d48a6bbcc12b1b3c2464ee"
+}

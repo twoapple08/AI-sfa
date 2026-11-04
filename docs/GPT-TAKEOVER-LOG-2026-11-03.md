@@ -326,3 +326,8 @@
 
 - 폭 수정/부속 제거/재현기 e1fd8ced800c931e5147a364cd4ab39240376b54,수동보정·추론 결정입력 고정 dea13677bb36e45d6e5aaf6df0914e3db5286d6e 저장/푸시. 최종292시험OK·25.428초·exit0. 상대폴더 재현과 묶음에 든 예전출력 삭제 후 새생성 반례도 검증.
 - 실제 독립폴더 replay_locked_verified_20261104_interpolation에서 손4/몸5키 보간46장 재계산/7종결정입력 지문 확인→exit0·XML SHA1f8509910c63a736cdae67933f1f0dbe054d43bb667fb2336f6c356dccb98759 완전일치. 필수묶음16HzUYldzaihjFrbVajCM4iMEEDFas3Y9(14파일/1.18MB)/증거JSON1QT-5uoZheyLrg1mVqVmyQW8KOp6ryQ7j 업로드. 고정중간관측·보정 입력부터 최종SFA 재현이며 원본에서 새판단을 자동생성한 검증은 아님. 원본/전체RTMW/가중치/토큰 미포함. 코드·자료를 못복원했을 때 검사해제/새눈판정을 같은재현으로 보고하지 않도록 스킬/보고/인계에 명시.
+
+
+## 2026-11-04 — 현재 클립 자료를 일반화 개선용 개발 사례로 보존
+
+사용자가 현재클립 데이터를 저장하고 일반화용인지 확인. 순수보존본17파일/16.56MB(1LkJb49DTWzuNRfrMAyYgWTFHvLMAEhrr)과9사례색인을포함한개발사례묶음16.57MB(1SaU05lYnojutccID8aQyC3obx1_L9ZFD) 업로드. 최신SFA/영상/시트/고정입력·선택관측·피팅/수동키·추론·가림/접촉/폭/실험이력/시험·재현증거 보존,원본/전체RTMW는기존Drive지문연결. ZIP/파일SHA검사완료. 공개에는프레임범위/증상·원인·처리·수동입력·판정·한계9종메타만기록. development_known_clip·held_out=false·training_ready=false로분리,기존구간재현을새영상일반화성공으로세지않음. 코드/보호판정JSON/학습규칙변경0,GPU/학습0. 최신292시험통과기존코드그대로,이번에는메타/문서만변경.
