@@ -1,0 +1,76 @@
+{
+  "schema": 1,
+  "id": "simple-parts-v1",
+  "base_rig": "stickman-2d-11-v1",
+  "status": "단순 부속 선택 시험·사용자/실제앱 검증 대기",
+  "edges": [
+    [
+      "wri_l",
+      "palm_l"
+    ],
+    [
+      "palm_l",
+      "finger_l_0_mid"
+    ],
+    [
+      "finger_l_0_mid",
+      "finger_l_0_tip"
+    ],
+    [
+      "palm_l",
+      "finger_l_1_mid"
+    ],
+    [
+      "finger_l_1_mid",
+      "finger_l_1_tip"
+    ],
+    [
+      "palm_l",
+      "finger_l_2_mid"
+    ],
+    [
+      "finger_l_2_mid",
+      "finger_l_2_tip"
+    ],
+    [
+      "wri_r",
+      "palm_r"
+    ],
+    [
+      "palm_r",
+      "finger_r_0_mid"
+    ],
+    [
+      "finger_r_0_mid",
+      "finger_r_0_tip"
+    ],
+    [
+      "palm_r",
+      "finger_r_1_mid"
+    ],
+    [
+      "finger_r_1_mid",
+      "finger_r_1_tip"
+    ],
+    [
+      "palm_r",
+      "finger_r_2_mid"
+    ],
+    [
+      "finger_r_2_mid",
+      "finger_r_2_tip"
+    ],
+    [
+      "ank_l",
+      "toe_l"
+    ],
+    [
+      "ank_r",
+      "toe_r"
+    ]
+  ],
+  "object_type": 1,
+  "additional_objects": 16,
+  "coordinate_input": "원본 관측 또는 근거를 명시한2D 표시 키. 자동 추출과 수동/추론을 구분",
+  "fills_added": 0
+}
