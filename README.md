@@ -1,104 +1,18 @@
 # AI-sfa
 
-자연어로 지시한 동작을 Stick Fighter에서 편집할 수 있는 `.sfa` 애니메이션으로 만드는 프로젝트입니다.
+자연어·태그·스토리보드로 Stick Fighter에서 편집할 수 있는 `.sfa` 애니메이션을 만드는 프로젝트입니다. 현재 **사람 모션 추출기와 그림→SFA 변환 AI를 개발·검증 중**입니다. APK/파일 형식 분석, 학습 실험, 모바일 뷰어도 진행했습니다. 임의의 영상 전체를 자동 완성하거나 새 영상 일반화가 확인된 단계는 아닙니다.
 
-현재는 **샘플 기반 파일 도구와 호환성 시험 단계**입니다. AI 모델 연결·자료 학습·앱과 동일한 트위닝은 아직 구현하지 않았습니다. APK는 아직 분석하지 않았습니다.
+**처음 참여하면 [신규 참여자 인수인계](docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md)부터 보세요.** 작업 전에는 [AGENTS.md](AGENTS.md) 전체와 [HANDOFF.md](HANDOFF.md)를 읽습니다. 저장소는 **claude/new-session-gknz4t만** 사용하며 main은 읽거나 쓰지 않습니다.
 
-## 첫 버전에서 할 수 있는 일
+- [이번 세션 전체 경과·채택/미채택·미완](docs/SESSION-COMPLETE-HANDOFF-2026-11-04.md)
+- [Claude에게 보낼 프롬프트](docs/CLAUDE-RESTART-PROMPT-2026-11-04.md)
+- [추출 스킬과 최신 데이터 입구](.claude/skills/stickman-extraction/START-HERE.md)
+- [최신 1분 제보 수정판·정지 비교·재현 증거](docs/STICKMAN-DISPLAY-MOTION-FIX-2026-11-04.md)
+- [GPT 전담 상세 변경·검증·커밋 기록](docs/GPT-TAKEOVER-LOG-2026-11-03.md)
+- [Drive 인계 폴더](https://drive.google.com/drive/folders/1UQ9rJ3H-VYc7l1kAqVDNjebe8b-2baKK)
 
-- ZIP 안의 XML로 구성된 `.sfa` 읽기와 요약
-- 프레임 수·좌표·레이어·연결 참조 검사
-- 알 수 없는 XML 요소/속성을 유지하면서 다시 저장
-- 기본 스틱맨의 48프레임 팔 흔들기 시험 파일 생성
-- 설치 없이 브라우저에서 보는 HTML 미리보기
+사람 추출은 RTMW 2D 관절/그림키/장면 판단을 사용합니다. 사물·배경·이펙트는 별도 변환기 대상입니다. 스킬에 실제 개발자료를 연결·복원할 수 있지만, 수동 보정/추론을 자동 정답으로 학습시키지 않습니다. 알려진 한 영상의24개 사례는 일반화 개선용 개발 자료입니다.
 
-Python 표준 라이브러리만 사용합니다. API 키나 유료 API 호출이 필요하지 않습니다.
+원본 영상·전체 관절·원본 발췌·SFA/비교 결과·가중치·앱 녹화·자격증명은 저장소에 넣지 않습니다. 실제 자료는 Drive와 Git 제외인 스킬 private-data/에 있습니다. 새 환경에서는 스킬의 manifest/복원 도구를 사용합니다. 전체 시험은 루트에서 python -m unittest discover -s tests이며 커밋 전 성공을 별도로 확인합니다. GPU/새 학습은 별도 사용자 허락이 필요합니다.
 
-## Termux에서 시작
-
-```bash
-pkg update
-pkg install python git
-termux-setup-storage
-git clone https://github.com/twoapple08/AI-sfa.git
-cd AI-sfa
-python sfa.py validate examples/wave_test.sfa
-```
-
-이미 저장소를 받았다면 해당 폴더에서 `git pull`로 업데이트합니다.
-
-**먼저 앱 호환성을 시험하세요.** 휴대폰 브라우저에서 저장소의 `examples/wave_test.sfa`를 다운로드하거나, Termux에서 아래처럼 복사한 뒤 Stick Fighter의 가져오기 기능으로 열어 보세요.
-
-```bash
-cp examples/wave_test.sfa ~/storage/downloads/AI_sfa_wave_test.sfa
-```
-
-이 파일은 48개의 실제 프레임을 포함합니다. 원본 재생속도 24FPS로 설정하면 약 2초의 팔 흔들기가 목표입니다. 우선 트위닝도 24로 설정해 파일 자체를 확인하세요. **앱에서 직접 열기 검증은 아직 남아 있습니다.**
-
-## 파일 분석과 저장
-
-예시 입력 경로를 실제 다운로드 파일명으로 바꿔 주세요.
-
-```bash
-python sfa.py inspect ~/storage/downloads/01_base.sfa
-python sfa.py validate ~/storage/downloads/01_base.sfa
-python sfa.py roundtrip ~/storage/downloads/01_base.sfa ~/storage/downloads/roundtrip_test.sfa
-python sfa.py wave ~/storage/downloads/01_base.sfa ~/storage/downloads/my_wave.sfa --frames 48
-python sfa.py preview examples/wave_test.sfa ~/storage/downloads/wave_preview.html --playback-fps 24 --tween-fps 48
-```
-
-출력 파일이 이미 있거나 입력과 같으면 중단합니다. 다른 출력 이름을 사용하세요.
-`wave`는 제공된 원형 그대로의 기본 스틱맨만 지원합니다. 임의의 커스텀 캐릭터에는 사용할 수 없습니다.
-
-생성한 HTML은 파일 앱에서 브라우저로 열 수 있습니다. 또는 저장소에서 아래 명령으로 서버를 열고 휴대폰 브라우저로 `http://127.0.0.1:8000/examples/wave_preview.html`에 접속하세요. 종료는 Ctrl+C입니다.
-
-```bash
-python -m http.server 8000 --bind 127.0.0.1
-```
-
-## FPS 두 가지의 의미
-
-사용자가 설명한 현재 앱의 동작을 기준으로 합니다.
-
-| 설정 | 의미 |
-|---|---|
-| 재생속도 FPS | 초당 재생할 원본 애니메이션 프레임 수 |
-| 트위닝 강도 FPS | 보간 후 실제로 보여 주는 목표 초당 프레임 수 |
-
-24/24이면 추가 트위닝이 없고, 재생 24 / 트위닝 48이면 중간 예측 프레임이 생성됩니다.
-제공된 XML에서는 이 두 설정을 저장하는 항목을 찾지 못했습니다. 임의의 FPS 필드를 `.sfa`에 추가하지 않으며, 가져온 뒤 앱에서 설정해야 합니다. 설정의 실제 저장 위치는 미확인입니다.
-
-HTML 미리보기의 `--tween-fps`는 목표값을 표시할 뿐입니다. **현재 HTML은 원본 프레임만 재생하며 트위닝을 계산하지 않습니다.**
-
-## 범위와 남은 검증
-
-- 커스텀 제작 편집기는 우선 범위에서 제외합니다. 기존 캐릭터를 사용할 때 필요한 연결·채우기 데이터는 보존합니다.
-- 미리보기는 구조 확인용입니다. 원/곡선 렌더링은 샘플에서 추론했으며 채우기·글로우·정확한 굵기와 겹침 순서는 완전 재현하지 않습니다.
-- `validate` 성공은 구조 검사 통과입니다. 앱에서 열림·외형·재생 일치를 보장하지 않습니다.
-- 동일 도형의 AO ID가 프레임 사이 유지되는 것은 관찰했으나, 앱이 이를 트위닝에 쓰는 정확한 규칙은 아직 모릅니다.
-- 자료 수집은 모델의 영구 학습과 다릅니다. 후속 단계에서 동작 명령 형식, 자료 검색, 생성 결과 평가를 만든 뒤 학습 필요성을 판단합니다.
-
-형식 근거와 불확실성은 [docs/FORMAT.md](docs/FORMAT.md)에 정리했습니다. 나무위키는 근거로 사용하지 않습니다.
-
-## 검사
-
-```bash
-python -m unittest discover -s tests -v
-```
-
-## 기능별 시험 v1과 이어서 작업하기
-
-**현재 우선순위는 Stick Fighter 전체 기능 분석과 검증입니다. 자료 수집·학습은 뒤로 미룹니다.**
-
-[기능별 시험 안내](docs/FEATURE-PROBE-GUIDE.md)를 먼저 읽어 주세요. `examples/probes_v1/feature_probes_v1.sfa`는 16개 기능을 2초씩 보여 주는 768프레임 합본입니다. 가져온 뒤 **(트위닝, 재생)=(24,24)**로 직접 맞춰 주세요. 앱 검증 전 시험 파일이며 모든 기능을 다룬 완료본이 아닙니다.
-
-- [합본 SFA](examples/probes_v1/feature_probes_v1.sfa)
-- [개별 시험 포함 ZIP](examples/probes_v1/feature_probes_v1.zip)
-- [전체 기능 분석표](docs/FEATURE-COVERAGE.md)
-- [인수인계 문서](HANDOFF.md)
-- [새 대화용 프롬프트](docs/HANDOFF-PROMPT.md)
-
-```bash
-python build_feature_probes.py
-python -m unittest discover -s tests -v
-```
+초기 파일 도구 sfa.py도 남아 있습니다. 오래된 시작 안내는 [이전 README](docs/history/README-BEFORE-ONBOARDING-2026-11-04.md)에 보존했습니다. 그 문서의 ‘학습/앱 분석 미구현’은 당시 상태이며 현재 설명이 아닙니다.

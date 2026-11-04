@@ -2,6 +2,8 @@
 
 Read HANDOFF.md first for current scope and evidence. Keep it current at meaningful checkpoints.
 
+- **신규 참여자 인계(2026-11-04 사용자 요청):** `docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md`, `docs/SESSION-COMPLETE-HANDOFF-2026-11-04.md`, `.claude/skills/stickman-extraction/START-HERE.md`에 목적·전체세션·현행결정·재현·최신개발자료를 모았다. 원본/좌표/결과는 스킬 `private-data/`에 실제로 두되 Git 제외/Drive 보존한다. 24사례는같은영상의개발자료로 held_out=false/training_ready=false이며새영상일반화/자동정답으로승격하지않는다. 과거스킬원문은 references/HISTORICAL-SKILL-THROUGH-2026-11-04.md,현행결정은새SKILL.md를따른다. 상세권한·작가범위는이문서의전체규칙을그대로적용한다.
+
 - User-facing communication and project guides: Korean.
 - **GPT→Claude 전달(2026-11-02 사용자 상시 요청):** Claude에게 전달할 GPT 토론 답변은 요약하지 않은 전체를 `docs/` 문서로 현재 지정 브랜치에 저장하고, 저장 확인 뒤 사용자에게 GitHub 링크와 복사할 전달 문구를 함께 준다. 현재 지정 브랜치는 `claude/new-session-gknz4t`이며 main에 쓰지 않는다. 이후 사용자가 브랜치나 전달 방식을 바꾸면 새 지시를 따른다.
 - **Claude→GPT 답장 프롬프트(2026-11-03 사용자 상시 요청):** GPT 토론에 답(차수 답·보완)을 쓸 때마다 GPT에게 보낼 답장 프롬프트를 함께 만들어 `docs/GPT-PROMPT-*.md`에 저장하고 사용자에게 복사할 블록으로 준다. GPT는 GitHub 저장소와 Google Drive를 직접 볼 수 있으므로, 내용을 붙이지 말고 브랜치·파일 경로·Drive 경로로 가리킨다. 사용자가 새 GPT 세션용이라고 하면 프로젝트·브랜치·읽을 순서·지킬 것·저장 위치까지 담아 그것만으로 시작할 수 있게 쓴다(예: docs/GPT-PROMPT-ANIME-TO-STICKMAN-ROUND9-FRESH-2026-11-03.md).

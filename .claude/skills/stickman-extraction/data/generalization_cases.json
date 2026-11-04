@@ -1,0 +1,500 @@
+{
+  "schema": 1,
+  "purpose": "일반화 개선용 개발 사례. 자동 정답/held-out 아님",
+  "case_count": 24,
+  "independent_videos": 1,
+  "held_out": false,
+  "training_ready": false,
+  "cases": [
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_clip432-1871_2026-11-04.json",
+      "dataset_id": "nian41_1913231262086463573_clip432-1871_dev",
+      "id": "partial_running_shins",
+      "frames": [
+        834,
+        846
+      ],
+      "symptom": "인물 검출 누락으로 보이는 종아리13장이 사라짐",
+      "cause": "전신 검출 부재를 부분 인물 부재처럼 처리",
+      "method": "명시 구도 태그+인물색 축/신발 쪽 측정",
+      "manual_input": "구도 태그·차용 척도,숨은 점/실제좌우는 추론",
+      "user_review": "해당 다리 복구에 긍정 확인",
+      "generalizable_hypothesis": "전신 미검출과 가시 부위 부재를 구분",
+      "limits": "자동 구도 분류 아님",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_clip432-1871_2026-11-04.json",
+      "dataset_id": "nian41_1913231262086463573_clip432-1871_dev",
+      "id": "zoom_arm_length",
+      "frames": [
+        847,
+        869
+      ],
+      "symptom": "축소 전환에서 팔 과장·보이는 앞팔 삭제",
+      "cause": "부분 구도 일괄 숨김/중앙허브 병합에 따른 투영 길이 증가",
+      "method": "키별2D길이·팔꿈치 조정/세점 지지 팔 개별 보존",
+      "manual_input": "구도 태그",
+      "user_review": "축소 팔 전반 긍정,419장 앞팔 추가 수정의 별도 확정 없음",
+      "generalizable_hypothesis": "길이 고정 대신 관측 투영 길이,부위별 관측 복귀",
+      "limits": "한 허브 제약 불가능한 경우 남음",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_clip432-1871_2026-11-04.json",
+      "dataset_id": "nian41_1913231262086463573_clip432-1871_dev",
+      "id": "duplicate_guard_arm",
+      "frames": [
+        737,
+        784
+      ],
+      "symptom": "양팔 관측이 뻗은 한 팔로 몰려 막는 팔이 소실",
+      "cause": "라벨 교환/중복 관측·키 평균",
+      "method": "명시 화면 영역별 관측 수집·그림키 대표값/보간",
+      "manual_input": "영역 태그와2D가지 대응,미관측 보간 추론",
+      "user_review": "현재 구간 출력의 확정 판정 대기",
+      "generalizable_hypothesis": "양가지 중복과 단일 끝 접촉을 구분",
+      "limits": "실제 팔 교차 구도에 임의 적용 금지",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_clip432-1871_2026-11-04.json",
+      "dataset_id": "nian41_1913231262086463573_clip432-1871_dev",
+      "id": "straight_smear_kick",
+      "frames": [
+        1326,
+        1328
+      ],
+      "symptom": "차는 다리 관측이 지지 다리로 중복돼 차기가 소실",
+      "cause": "전신 관측만으로 스미어의 가시 축을 표현하지 못함",
+      "method": "명시 직선 구도의 인물색 중심축 측정",
+      "manual_input": "구도/허브·끝점 발목 해석·중간무릎 추론",
+      "user_review": "출력 확정 판정 대기",
+      "generalizable_hypothesis": "직선 동작의 색 축과 불확실한 관절을 분리",
+      "limits": "1324–1325는 굽은 준비 자세라 직선 처리 제외",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_clip432-1871_2026-11-04.json",
+      "dataset_id": "nian41_1913231262086463573_clip432-1871_dev",
+      "id": "foreground_occlusion_collapse",
+      "frames": [
+        1339,
+        1342
+      ],
+      "symptom": "검은 전경 기둥 가림 때 인물 뼈대가 몸중심으로 구겨짐",
+      "cause": "가림 속 잘못된 관측을 포즈로 유지",
+      "method": "동일 컷의 양끝 마디 방향/길이 보간",
+      "manual_input": "가림 구간/양끝 확인,숨은 동작은 추론",
+      "user_review": "현상 제보·구간은 원본 눈 확인,출력 확정 판정 대기",
+      "generalizable_hypothesis": "관측 실패와 실제 몸 접힘을 구분",
+      "limits": "컷 경계/양끝 없는 구간은 적용 거부",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_clip432-1871_2026-11-04.json",
+      "dataset_id": "nian41_1913231262086463573_clip432-1871_dev",
+      "id": "hand_only_false_full_body",
+      "frames": [
+        601,
+        629
+      ],
+      "symptom": "손/전완 확대를 전신으로 잘못 인식",
+      "cause": "신체 일부를 전신 모델에 맞춤",
+      "method": "현재는 전완만 표시하고 손가락/발길이 부속 제거,근경면 유지",
+      "manual_input": "손4 표시키/보간·숨은 연결/폭 척도 추론",
+      "user_review": "상세 외곽/3손가락/5손가락 후속안 모두 최신 요구에서 제외,현재 출력 판정 대기",
+      "generalizable_hypothesis": "확대 부위의 의미와 전신 존재를 별도 판정",
+      "limits": "현재 수동 보완을 자동 인식 정답으로 쓰지 않음",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_clip432-1871_2026-11-04.json",
+      "dataset_id": "nian41_1913231262086463573_clip432-1871_dev",
+      "id": "cropped_mixed_body_parts",
+      "frames": [
+        1604,
+        1620
+      ],
+      "symptom": "근경 여러 부위를 가짜 전신/부분 다리로 잘못 처리",
+      "cause": "부분 관측 부족·부위 해석 오류",
+      "method": "몸5 표시키/부분 가시성·기본 뼈대/근경면",
+      "manual_input": "포즈/가시성/숨은 점/폭 추론",
+      "user_review": "1612 아래로 뻗은 부위는 손으로 원본 눈 확인,현재 전체 출력 판정 대기",
+      "generalizable_hypothesis": "구간 이름을 모든 부위의 의미 라벨로 쓰지 않음",
+      "limits": "옛 구간 전체 다리 라벨은 사용 금지",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_clip432-1871_2026-11-04.json",
+      "dataset_id": "nian41_1913231262086463573_clip432-1871_dev",
+      "id": "receding_width_fallback",
+      "frames": [
+        1616,
+        1620
+      ],
+      "symptom": "멀어지는 부위가 오히려 두꺼워짐",
+      "cause": "1616의18끝점 중15개/1620의18중9개에 고정50px 대체,색 단면 혼입",
+      "method": "고정 대체 제거·명시한 표시척도 키 보간·근거 없으면 거부",
+      "manual_input": "폭 척도는 눈 판독 표시 추론",
+      "user_review": "문제 제보 확인,최신 수정본 판정 대기",
+      "generalizable_hypothesis": "불확실한 폭을 큰 상수로 채우지 않음",
+      "limits": "자동 거리 측정 성공이 아니며1616→1620의같은부위 폭0.675배는 표시 설정",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_clip432-1871_2026-11-04.json",
+      "dataset_id": "nian41_1913231262086463573_clip432-1871_dev",
+      "id": "near_miss_not_contact",
+      "frames": [
+        1048,
+        1049
+      ],
+      "symptom": "근접 회피를 접촉으로 강제",
+      "cause": "가까운 뼈대를 실제 접촉으로 오판",
+      "method": "접촉 지정 철회·원래 회피 간격 복원",
+      "manual_input": "사용자 원본 판정",
+      "user_review": "회피/비접촉 사용자 확인",
+      "generalizable_hypothesis": "거리 임계만으로 접촉을 확정하지 않음",
+      "limits": "이 사건의 비접촉을 다른 장면의 라벨로 확장하지 않음",
+      "split": "development_known_clip",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_feedback_2026-11-04.json",
+      "dataset_id": "nian41_feedback_2026-11-04",
+      "id": "display_width_basis",
+      "frames": [
+        [
+          823,
+          825
+        ],
+        [
+          1367,
+          1368
+        ],
+        [
+          1381,
+          1386
+        ],
+        [
+          1396,
+          1397
+        ],
+        [
+          1601,
+          1601
+        ]
+      ],
+      "symptom": "옷폭에가까운표시반지름과일반선거리척도혼용",
+      "method": "분명한몸구도14회동일척도,극근경한부위지역폭은보존",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_feedback_2026-11-04.json",
+      "dataset_id": "nian41_feedback_2026-11-04",
+      "id": "actor_draw_order",
+      "frames": [
+        [
+          1294,
+          1300
+        ],
+        [
+          1394,
+          1404
+        ],
+        [
+          1572,
+          1574
+        ]
+      ],
+      "symptom": "색슬롯고정앞뒤로전경팔다리가뒤에그려짐",
+      "method": "명시순서를머리/채움/면/물리순서에함께적용",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_feedback_2026-11-04.json",
+      "dataset_id": "nian41_feedback_2026-11-04",
+      "id": "cropped_false_legs",
+      "frames": [
+        [
+          506,
+          580
+        ],
+        [
+          737,
+          784
+        ],
+        [
+          600,
+          600
+        ]
+      ],
+      "symptom": "화면밖다리추정이상체안으로접힘",
+      "method": "구도별가시성/부분제어보완",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_feedback_2026-11-04.json",
+      "dataset_id": "nian41_feedback_2026-11-04",
+      "id": "landing_pelvis",
+      "frames": [
+        [
+          942,
+          952
+        ]
+      ],
+      "symptom": "가린골반을허벅지에잡아접힌다리가꼬임",
+      "method": "원본대조골반/양다리표시키,숨은마디추론",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_feedback_2026-11-04.json",
+      "dataset_id": "nian41_feedback_2026-11-04",
+      "id": "shared_root_object_mismatch",
+      "frames": [
+        [
+          737,
+          784
+        ]
+      ],
+      "symptom": "팔끝은정상이나몸통/머리키가병쪽관측에끌림",
+      "method": "8채택키48장보간,최대몸통이동346.93→16.73px/팔끝변경0",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_feedback_2026-11-04.json",
+      "dataset_id": "nian41_feedback_2026-11-04",
+      "id": "duplicate_front_arm",
+      "frames": [
+        [
+          1575,
+          1575
+        ]
+      ],
+      "symptom": "재생1144의앞팔/뒷팔동일좌표",
+      "method": "원본전경팔복구,틀밖팔꿈치/손목추론",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_feedback_2026-11-04.json",
+      "dataset_id": "nian41_feedback_2026-11-04",
+      "id": "color_does_not_mean_body_part",
+      "frames": [
+        [
+          1381,
+          1382
+        ]
+      ],
+      "symptom": "다리위색지지점을팔로확정",
+      "method": "원본에서확인한한쪽팔만보존",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_feedback_2026-11-04.json",
+      "dataset_id": "nian41_feedback_2026-11-04",
+      "id": "one_fill_per_limb",
+      "frames": [
+        [
+          1381,
+          1386
+        ]
+      ],
+      "symptom": "각뼈캡슐의마디경계/팔AP끝점폭해석",
+      "method": "두마디한경계/채움·접선연속·공유폭·951게인1.5에서축소끝1.0",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_finish60_2026-11-04.json",
+      "dataset_id": "nian41_finish60_2026-11-04",
+      "id": "censored_shoulder_visible_forearm",
+      "frames": [
+        [
+          823,
+          825
+        ],
+        [
+          1381,
+          1386
+        ],
+        [
+          1396,
+          1397
+        ]
+      ],
+      "symptom": "어깨가 위경계에 몰리며 실제 보이는 두 팔점까지 숨김",
+      "method": "명시 구도+두 안쪽/유효/인물색 지지 팔점 보존",
+      "manual_input": "공통 조건,구도 범위는 원본 판독",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_finish60_2026-11-04.json",
+      "dataset_id": "nian41_finish60_2026-11-04",
+      "id": "partial_limb_without_full_detection",
+      "frames": [
+        [
+          630,
+          631
+        ],
+        [
+          872,
+          889
+        ],
+        [
+          993,
+          993
+        ],
+        [
+          1005,
+          1005
+        ],
+        [
+          1279,
+          1279
+        ],
+        [
+          1294,
+          1300
+        ],
+        [
+          1572,
+          1574
+        ],
+        [
+          1601,
+          1603
+        ]
+      ],
+      "symptom": "부분 신체/스미어만 남으면 검출부재로 누락하거나 전신 생성",
+      "method": "부분 제어/선택 조각·연속면,회전 색축 측정/표시키",
+      "manual_input": "원관측/CPU 측정과 숨은 마디/실제좌우/폭 추론 분리",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_finish60_2026-11-04.json",
+      "dataset_id": "nian41_finish60_2026-11-04",
+      "id": "impact_color_is_not_person",
+      "frames": [
+        [
+          885,
+          885
+        ]
+      ],
+      "symptom": "붉은 타격 이펙트를 빨강 전신으로 오인",
+      "method": "원본에서 가림 확인,표시 숨김/제어 보존",
+      "manual_input": "인물색 픽셀 수만으로 복구하지 않음",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_finish60_2026-11-04.json",
+      "dataset_id": "nian41_finish60_2026-11-04",
+      "id": "floor_ankle_wrong_observation",
+      "frames": [
+        [
+          915,
+          916
+        ]
+      ],
+      "symptom": "고점수 발목이 실제 다리 대신 반대쪽 바닥에 찍힘",
+      "method": "원본 보이는 두 다리 표시키로 보완",
+      "manual_input": "실제 해부학 좌우는 추론",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_finish60_2026-11-04.json",
+      "dataset_id": "nian41_finish60_2026-11-04",
+      "id": "foreground_occlusion_bridge",
+      "frames": [
+        [
+          856,
+          858
+        ],
+        [
+          1811,
+          1830
+        ]
+      ],
+      "symptom": "전경 가림 때 관절 관측 붕괴/인체 구겨짐",
+      "method": "같은컷 양끝 부모벡터 보간,완전가림1817–1825만 표시숨김",
+      "manual_input": "완전가림 원본/색0 확인,숨은 자세는 추론",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_finish60_2026-11-04.json",
+      "dataset_id": "nian41_finish60_2026-11-04",
+      "id": "experimental_split_same_drawing",
+      "frames": [
+        [
+          1271,
+          1273
+        ]
+      ],
+      "symptom": "원본 같은 그림인데 실험분할1272에서 발목41px이동",
+      "method": "영상 위상이동과 출력이동 대조,같은컷 키보간",
+      "manual_input": "1032 실제 포즈 변화는 보존,전체 재피팅 아님",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    },
+    {
+      "source_index": "data/stickman_motion/generalization_cases/nian41_finish60_2026-11-04.json",
+      "dataset_id": "nian41_finish60_2026-11-04",
+      "id": "continuous_partial_near_width",
+      "frames": [
+        [
+          823,
+          825
+        ],
+        [
+          1367,
+          1368
+        ],
+        [
+          1379,
+          1386
+        ],
+        [
+          1394,
+          1397
+        ],
+        [
+          1601,
+          1603
+        ]
+      ],
+      "symptom": "근경 가지 중간에서 가는 선/두꺼운 면 이음",
+      "method": "공유마디 반지름/표시폭 키로 단순 연속면",
+      "manual_input": "색내접거리 측정/명시 수동 폭 추론 구분,3D거리복원 아님",
+      "user_review": "현재1분판의별도사용자판정대기",
+      "automatic_ground_truth": false
+    }
+  ]
+}

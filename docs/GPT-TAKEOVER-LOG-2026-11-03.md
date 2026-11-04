@@ -366,3 +366,15 @@ face715–721 극근경은 모델이눈을전신으로오인해표시추론키�
 
 
 - 후속공통구현bc02f162f951a16488a1d69b6873bf3d6c4c2802/마디면구현8cad3d73441877720ad4f0b865e855eeb9e60d17 지정브랜치저장/푸시.최신SFA1ypI8kpPl-B_D_PjCC9MybVVpoitORGGp(774239바이트/SHA9f0f0ce00bbcfcfe76c99969bacf4f0adf7228d51f8eeb052cb2f6bd5aa823d5),시트1qWoDEGD6KT7Dc90qhAQVJAyzr01WE_n-·1F-OwsBDeTnz0nlFFhcITX1l9sqINMmzT.이전불합격비교파일은보존.최신재현1xzyOVobHLMWbr-Vc7dZnQ3fcNkQ4vFli/증거14Rk0QGtCjbU6vcXX6PaCsLvRCD7_WX-E:11입력/229코드지문,새폴더기존출력삭제상태→48장몸통·머리/11장착지·폭·면·앞뒤재계산,exit0·XMLf2141adffe4d085b74660e849a853f415a65f98e8a4e1f86ba8f91430e98cc85 완전일치.개발자료1r8KY-8vESuofwe1QWS7ApKp9Efv1K7gg(68파일+manifest/8445554바이트/SHA034565ab83c3940bba56f4ff659354188b9a0b05715fd7941e0b1ad03bf1cb5e)ZIP/파일지문검증완료.신규사례색인보존,원본/전체RTMW/가중치/토큰미포함.최종304시험후공개코드변경없음.실제앱/전장눈판독/새영상일반화합격아님.
+
+## 2026-11-04 — 신규 참여자용 전체 세션 인수인계·스킬 실데이터 통합
+
+- 사용자 요청: 이 세션 전체를 포함해 프로젝트 처음 참여자에게 인계할 자료,스킬 위치에 최신 일반화 개선용 데이터,누락 요소 보완,Claude 전달 프롬프트. 토큰 갱신 뒤에도 같은 작업을 계속했다. 실제 Claude 실행/장착/담당 이관이 완료됐다고 주장하지 않는다.
+- 진입 문서: 낡은 README/HANDOFF-PROMPT/HANDOFF 원문을 docs/history/에 보존하고,README·HANDOFF·프롬프트md/txt를 현행으로 정리했다. docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md에 최종목표/임시서버방향/두부품/작가범위권위/파일구조/복원·검증/모바일뷰어/Kaggle/미완을 정리,docs/SESSION-COMPLETE-HANDOFF-2026-11-04.md에 전담세션31개 흐름과 채택/반려/실수/사용자 판정 한계를 연결했다. 플랫폼 대화 원문 전체 내보내기가 아니라 저장 기록 기반 경과임을 명시했다.
+- 스킬 .claude/skills/stickman-extraction/에 START-HERE,현행 SKILL,프로젝트/현재상태/전체세션/결정/환경 references를 추가했다. 상충되는 옛 스킬은 HISTORICAL-SKILL로 그대로 보존. 손발부속0/근경연속면/기본11편집망/머리A·Kind1/실제접촉/번호대응/새영상미검증을 앞에 뒀다. AGENTS는 새 인계 입구만 추가,기존 규칙/판정JSON/작가범위는 바꾸지 않았다.
+- **실제자료:** Git제외 private-data/에13종파일(이전/1분/최신3개개발ZIP,최신SFA/재현/증거,47selected+54fit캐시,변환기감사·실행근거,사용자제보,이전2재현,원본/RTMW)을 모았다. 최신11개 고정입력과 캐시를 각각latest/inputs/·working-cache/에 풀어둠. 공개manifest는정확Drive ID/바이트/SHA/필수9종·선택4종,중첩 ZIP파일색인752항목,3색인9+7+8=24개개발사례를출처와함께통합했다. 같은영상/중첩자료/held_out=false/training_ready=false 유지.
+- Drive새인계폴더1UQ9rJ3H-VYc7l1kAqVDNjebe8b-2baKK. 새캐시묶음1T-qTldurdsEYfGL01YCFki7UdmiV4i0R(1,816,472bytes),출제감사/실행근거1DSq8os8T1TyMlnS7hOUJPvBkPmkSX7RF(342,622bytes),사용자제보현황1lHxe9jpL_JcFg8rPYnBGV2kNGKCVKhHG(126,393bytes)를 업로드/목록·크기확인했다. 기존3개개발자료 ZIP은원래Drive파일을그대로참조해중복업로드하지않는다. 원본/전체좌표/출력/프레임/키/가중치를Git에넣지않는다.
+- 첨부보존 한계: 현재남은5개스크린샷은원파일보존. 이전7개첨부 원파일은현환경에없어서부재표시,세션로그/기존Drive근거를연결했다. 없던 첨부를보존완료로세지않는다. 인증갱신은연결여부만기록하고값/서명키는휴대묶음에포함하지않는다.
+- **CPU 검증:** restore_data.py는네트워크/인증읽기/코드실행없이 SHA로복원,변조/경로탈출/링크/기존파일덮기거부. 새4시험과기존포함전체308시험OK·27.350초·exit0(/workspace/ai-sfa-private/handoff_20261104/tests_full.log). 새폴더restored_private_data로13종전부복사·지문검사통과/필수9종ready,캐시47selected/54fit를별도추출확인. 실제새폴더replay_verified에서11고정판단/229코드지문검증·XML f2141adffe4d085b74660e849a853f415a65f98e8a4e1f86ba8f91430e98cc85 일치/exit0. 새원본눈판정/실제앱/새영상일반화검증아님.
+- 이번 범위는인계/복원도구/자료보존이며 스틱맨공통생성tools/profiles/장면좌표변경0. 최신SFA/영상새생성0,GPU/학습/Kaggle상태추가조회0. 마지막Kaggle관측11-04 12:13KST RUNNING과모니터링Claude담당지시를그대로인계한다.
+- 저장전지정브랜치fetch,원격과차이0확인. 전체시험과커밋은별도명령. 최종휴대묶음/업로드/커밋SHA는아래전달기록에서연결한다.

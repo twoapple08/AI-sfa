@@ -7,3 +7,6 @@ data/sakuga/tag_types.json
 data/sakuga/artist_profiles.jsonl
 .cache_sakuga/
 examples/p5/
+
+# 스킬의 실제 원본·관절·보정·결과는 Drive 보관, Git 제외
+.claude/skills/stickman-extraction/private-data/
