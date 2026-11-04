@@ -6,25 +6,27 @@ import torch.nn.functional as F
 
 import sfa_tokens as K
 import seq_coord2 as C2
+import seq_coord3 as C3
 
 WEIGHTS = {'token-v1': (0., 0., 0.), 'balanced-v1': (.2, .2, .1)}
 APPEARANCE = [('color', 'bg'), ('thick',), ('glow',), ('obj', 'ptidx', 't')]
 
 
 @lru_cache(maxsize=1024)
-def metadata(tokens, coord2=False):
+def metadata(tokens, coord2=False, coord3=False):
     """CPU 원정답을 엄격 문법으로 읽는다. 로그잇 위치는 BOS 다음부터0이다.
     coord2: 두 단계 좌표 토큰열(seq_coord2)을 그 문법(grammar2)으로 읽는다. 종료 비교의 계속 후보도 C 토큰 범위가 된다."""
     if not tokens or tokens[0] != K.TOK['BOS'] or tokens[-1] != K.TOK['EOS'] or tokens.count(K.TOK['EOS']) != 1:
         raise ValueError('완전한 BOS…EOS 정답 하나가 필요하다')
-    grammar = C2.grammar2(strict=True) if coord2 else K.grammar(strict=True)
+    grammar = C3.grammar3(strict=True) if coord3 else C2.grammar2(strict=True) if coord2 else K.grammar(strict=True)
     allowed = next(grammar)
     stop, fields = [], []
     for i, token in enumerate(tokens):
-        specs, lo, hi, field = allowed
+        specs, lo, hi, field = allowed[:4]
+        extra = tuple(allowed[4]) if len(allowed) > 4 and allowed[4] else None   # coord3 CELL 범위
         fields.append(K.FID[field] if token >= K.OFF else K.FID['spec'])
         if i and K.TOK['EOS'] in specs:
-            stop.append((i-1, tuple(sorted(specs)), lo, hi, token == K.TOK['EOS']))
+            stop.append((i-1, tuple(sorted(specs)), lo, hi, extra, token == K.TOK['EOS']))
         try:
             allowed = grammar.send(token)
         except StopIteration:
@@ -48,12 +50,14 @@ def balanced_stop(logits, records):
     batch, length, vocab = logits.shape
     groups = {}
     for b, record in enumerate(records):
-        for pos, specs, lo, hi, positive in record[0]:
-            groups.setdefault((specs, lo, hi), []).append((b, pos, positive))
+        for pos, specs, lo, hi, extra, positive in record[0]:
+            groups.setdefault((specs, lo, hi, extra), []).append((b, pos, positive))
     losses, rows, labels = [], [], []
     flat = logits.float().reshape(-1, vocab)
-    for (specs, lo, hi), entries in groups.items():
+    for (specs, lo, hi, extra), entries in groups.items():
         ids = list(specs) + list(range(K.OFF+lo, K.OFF+hi+1)) if lo <= hi else list(specs)
+        if extra:
+            ids += list(range(K.OFF+extra[0], K.OFF+extra[1]+1))
         eos = ids.index(K.TOK['EOS'])
         if len(ids) < 2:
             raise ValueError('종료 비교에 계속 후보가 없다')
@@ -89,7 +93,8 @@ def objective(logits, tgt, fld, full_tokens, mode='balanced-v1', diagnostics=Fal
     if mode == 'token-v1' and not diagnostics:
         return base, dict(token=base, stop=zero, first_object=zero, appearance=zero)
     coord2 = logits.shape[-1] > K.VOCAB   # 두 단계 좌표 모델(어휘 C2.VOCAB2)
-    records = [metadata(tuple(int(t) for t in tokens), coord2) for tokens in full_tokens]
+    coord3 = logits.shape[-1] >= C3.VOCAB3
+    records = [metadata(tuple(int(t) for t in tokens), coord2, coord3) for tokens in full_tokens]
     if len(records) != len(tgt):
         raise ValueError('목적함수의 장 수가 다르다')
     first, appearance = [], []

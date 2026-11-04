@@ -31,6 +31,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sfa_objscore as OS  # noqa: E402
 import sfa_tokens as K  # noqa: E402
 import seq_coord2 as C2  # noqa: E402
+import seq_coord3 as C3  # noqa: E402
 import seq_judge as J  # noqa: E402
 
 # 이웃 칸 부드러운 정답을 쓰는 칸과 그 칸의 합법 범위(GPT 검토 10-30: 색 255의 이웃 256·257에 정답 확률이 새던 것).
@@ -89,7 +90,7 @@ class Data:
     """npz 전부를 메모리에. 그림은 입력 크기로 줄여 JPEG(품질 95)로 압축해 둔다(2만 장 × 640×360 원본이면 15GB → 약 1.5GB).
     이미 H.264로 압축된 장이라 JPEG 95의 추가 손실은 작다. 묶음을 만들 때 푼다."""
 
-    def __init__(self, folder, maxlen, in_w, jpeg=True, workers=None, exclude=(), coord2=False):
+    def __init__(self, folder, maxlen, in_w, jpeg=True, workers=None, exclude=(), coord2=False, coord3=False):
         self.in_w, self.in_h = in_w, in_w * 9 // 16
         self.img, self.tok, self.fld, self.meta, self.hwr = [], [], [], [], []
         paths = sorted(glob.glob(os.path.join(folder, '*.npz')))
@@ -119,10 +120,11 @@ class Data:
                 self.fld.append(fd)
                 self.meta.append(mt)
                 self.hwr.append(hr)
-        if coord2:   # 두 단계 좌표(seq_coord2): 저장 자료를 불러올 때 바꾼다. 길어진 장이 한도를 넘으면 뺀다(수를 기록)
+        if coord2 or coord3:   # 두 단계 좌표(seq_coord2)/격자 포인터(seq_coord3): 불러올 때 바꾼다. 길어진 장이 한도를 넘으면 뺀다
             keep = []
+            conv = C3.to_three if coord3 else C2.to_two
             for i, (tk, fd) in enumerate(zip(self.tok, self.fld)):
-                t2, f2 = C2.to_two(tk, fd)
+                t2, f2 = conv(tk, fd)
                 if len(t2) <= maxlen:
                     self.tok[i], self.fld[i] = t2, f2
                     keep.append(i)
@@ -152,7 +154,7 @@ class Data:
 
 class Net(nn.Module):
     def __init__(self, d=384, layers=6, heads=6, maxlen=2048, backbone='resnet34', pretrained=True, stride=16, sine=False, grid=None,
-                 coord2=False):
+                 coord2=False, coord3=False):
         super().__init__()
         # 그림 칸 고정(10-31 해상도 단계): 1080·720·480 입력도 끝까지 그 해상도로 읽고 마지막 특징만 이 칸 수로 모은다 →
         # 글자 쪽 메모리는 해상도와 무관, 같은 칸 = 같은 화면 위치(단계가 바뀌어도 위치 칸의 뜻이 같다). None이면 예전처럼 입력 크기 그대로
@@ -173,8 +175,9 @@ class Net(nn.Module):
         self.row = nn.Embedding(128, d)
         self.col = nn.Embedding(128, d)
         # coord2(11-04): 좌표를 거친 칸+세부 칸 두 토큰으로(seq_coord2). 어휘 뒤에 C·F 토큰을 붙인다
-        self.coord2 = coord2
-        self.vocab = C2.VOCAB2 if coord2 else K.VOCAB
+        self.coord2 = coord2 or coord3
+        self.coord3 = coord3   # 격자 포인터(seq_coord3): CELL 토큰 점수 = 디코더 상태 · 그림 특징 격자 칸
+        self.vocab = C3.VOCAB3 if coord3 else C2.VOCAB2 if coord2 else K.VOCAB
         self.emb = nn.Embedding(self.vocab, d)
         self.fld_emb = nn.Embedding(len(K.FIELDS), d)   # 입력 토큰의 칸 종류(같은 수라도 좌표·색 구분)
         self.pos = nn.Embedding(maxlen + 1, d)
@@ -182,6 +185,12 @@ class Net(nn.Module):
         self.dec = nn.TransformerDecoder(layer, layers)
         self.norm = nn.LayerNorm(d)
         self.head = nn.Linear(d, self.vocab)
+        if coord3:
+            if tuple(grid or ()) != (C3.GY, C3.GX):
+                raise ValueError(f'coord3은 특징 격자 {C3.GY}×{C3.GX}가 필요하다(지금 {grid})')
+            self.pq = nn.Linear(d, d)
+            self.pk = nn.Linear(d, d)
+            self.cell_in = nn.Linear(d, d)
         self.maxlen = maxlen
         self.grad_ckpt = False
         # 고정 sin 위치 신호(10-30 이동 시험 뒤): ① 그림 칸마다 화면 위치(가로·세로 0–1) ② 수 토큰마다 값(0–8191) —
@@ -208,9 +217,26 @@ class Net(nn.Module):
         r = self.ratio(torch.log(hwr.view(-1, 1) / 0.5625))[:, None, :]
         return f.flatten(2).transpose(1, 2) + pe.reshape(H * W, C)[None] + r
 
+    def cell_feat(self, mem, tok):
+        """coord3: 입력 CELL 토큰에 가리킨 칸의 그림 특징을 더한다(아니면 0)."""
+        is_c = (tok >= C3.CELL0) & (tok < C3.FX0)
+        idx = (tok - C3.CELL0).clamp(0, C3.NCELL - 1)
+        f = torch.gather(mem.expand(tok.shape[0], -1, -1), 1, idx[..., None].expand(-1, -1, mem.shape[-1]))
+        return self.cell_in(f) * is_c[..., None]
+
+    def out_logits(self, h, mem):
+        """정규화된 디코더 상태 → 어휘 점수. coord3은 CELL 구간을 칸 특징과의 내적으로 바꾼다."""
+        lg = self.head(h)
+        if self.coord3:
+            ptr = self.pq(h) @ self.pk(mem).transpose(1, 2) / math.sqrt(h.shape[-1])
+            lg = torch.cat([lg[..., :C3.CELL0], ptr.to(lg.dtype), lg[..., C3.FX0:]], -1)
+        return lg
+
     def step(self, mem, tok, fld):
         T = tok.shape[1]
         x = self.emb(tok) + self.fld_emb(fld) + self.pos.weight[:T][None]
+        if self.coord3:
+            x = x + self.cell_feat(mem, tok)
         if self.sine:
             num = (tok >= K.OFF) & (tok < K.VOCAB)
             x = x + self.val_pe[(tok - K.OFF).clamp(0, K.NUM - 1)] * num[..., None]
@@ -223,7 +249,7 @@ class Net(nn.Module):
                 h = checkpoint(ly, h, mem, tgt_mask=causal, tgt_key_padding_mask=pad, tgt_is_causal=True, use_reentrant=False)
         else:
             h = self.dec(x, mem, tgt_mask=causal, tgt_key_padding_mask=pad, tgt_is_causal=True)
-        return self.head(self.norm(h))
+        return self.out_logits(self.norm(h), mem)
 
     def forward(self, img, tok, fld, hwr):
         return self.step(self.memory(img, hwr), tok, fld)
@@ -319,8 +345,10 @@ def field_report(hn, prefix=''):
 
 
 def allowed_mask(al, dev, vocab=None):
-    specs, lo, hi, _ = al
+    specs, lo, hi = al[:3]
     m = torch.full((vocab or K.VOCAB,), float('-inf'), device=dev)
+    if len(al) > 4 and al[4]:   # coord3 x 자리: 같은 자리에서 함께 허용하는 둘째 범위(CELL)
+        m[K.OFF + al[4][0]:K.OFF + al[4][1] + 1] = 0
     for s in specs:
         m[s] = 0
     if hi >= lo:
@@ -341,6 +369,7 @@ class Cache:
             self.mkv.append((F.linear(mem, W[d:2 * d], b[d:2 * d]), F.linear(mem, W[2 * d:], b[2 * d:])))
             self.kv.append(None)
         self.t = 0
+        self.mem = mem
 
     @staticmethod
     def _attn(mha, q_in, k, v):
@@ -358,6 +387,8 @@ class Cache:
         x = net.emb.weight[tok][None, None] + net.fld_emb.weight[fld][None, None] + net.pos.weight[self.t][None, None]
         if net.sine and K.OFF <= tok < K.VOCAB:
             x = x + net.val_pe[tok - K.OFF][None, None]
+        if getattr(net, 'coord3', False) and C3.CELL0 <= tok < C3.FX0:
+            x = x + net.cell_in(self.mem[:, tok - C3.CELL0][:, None])
         self.t += 1
         for li, ly in enumerate(net.dec.layers):
             W, b = ly.self_attn.in_proj_weight, ly.self_attn.in_proj_bias
@@ -370,14 +401,14 @@ class Cache:
             x = x + self._attn(ly.self_attn, y, k, v)
             x = x + self._attn(ly.multihead_attn, ly.norm2(x), *self.mkv[li])
             x = x + ly.linear2(ly.activation(ly.linear1(ly.norm3(x))))
-        return net.head(net.norm(x))[0, 0]
+        return net.out_logits(net.norm(x), self.mem)[0, 0]
 
 
 @torch.no_grad()
 def answer_tokens(tok):
     """자료의 정답 토큰열을 기존 토큰 공간으로(coord2 자료면 C·F를 합친다). 기존 자료는 그대로."""
     tok = [int(t) for t in tok]
-    return C2.merge(tok) if any(t >= K.VOCAB for t in tok) else tok
+    return C3.merge(tok) if any(t >= K.VOCAB for t in tok) else tok   # C3.merge는 C·F도 합친다
 
 
 def coord_errors(lg, tk, fd, coord2=False):
@@ -396,6 +427,16 @@ def coord_errors(lg, tk, fd, coord2=False):
                 out.append(abs(c_[j] - v) * C2.FINE * K.XSTEP)
             else:
                 out.append(abs(f_[j + 1] - t[j + 1]) * K.XSTEP)
+    if lg.shape[-1] >= C3.VOCAB3:   # coord3: CELL 자리 — 칸이 틀리면 칸 중심 거리(가로 % 기준), 맞으면 칸 안 x 세부 차
+        pc3 = (lg[..., C3.CELL0:C3.FX0].argmax(-1) + C3.CELL0)[0].tolist()
+        px3 = (lg[..., C3.FX0:C3.FY0].argmax(-1) + C3.FX0)[0].tolist()
+        for j, v in enumerate(t):
+            if C3.CELL0 <= v < C3.FX0 and j + 1 < len(t):
+                if pc3[j] != v:
+                    (pj, pi), (tj, ti) = divmod(pc3[j] - C3.CELL0, C3.GX), divmod(v - C3.CELL0, C3.GX)
+                    out.append(math.hypot((pi - ti) * 100 / C3.GX, (pj - tj) * 100 / C3.GY * 0.5625))
+                else:
+                    out.append(abs(px3[j + 1] - t[j + 1]) * K.XSTEP)
     return out
 
 
@@ -404,7 +445,7 @@ def mass_pick(lg, al, big_mass=False, coord_window=0):
     big_mass: BIG 한 토큰을 범위 안 수 전체 확률 합과 비교해, 합이 크면 BIG을 고르지 않는다.
     coord_window: 좌표 자리에서 ±창 칸 확률 합이 가장 큰 곳을 찾고 그 창 안의 최고 칸을 고른다.
     근거: 0.025% 초미세 칸에 확률이 흩어져 BIG 하나가 탐욕 선택을 이기던 문제(docs/SEQ-CONVERTER-DIAGNOSIS-2026-11-04.md)."""
-    specs, lo, hi, field = al
+    specs, lo, hi, field = al[:4]
     big = K.TOK['BIG']
     if big_mass and big in specs and hi >= lo:
         p = F.softmax(lg, -1)
@@ -431,20 +472,21 @@ def generate(net, img, hwr, maxlen=None, temp=0.0, reason=False, big_mass=False,
     dev = img.device
     maxlen = maxlen or net.maxlen
     two = getattr(net, 'coord2', False)
+    three = getattr(net, 'coord3', False)
     vocab = getattr(net, 'vocab', K.VOCAB)
     if two:
         coord_window = 0   # 좌표 자리가 C(128칸)·F(64칸)로 나뉘어 창 선택이 필요 없다
     inner_cap = net.maxlen if two else maxlen
     mem = net.memory(img[None], torch.tensor([hwr], dtype=torch.float32, device=dev))
     cache = Cache(net, mem)
-    g = C2.grammar2() if two else K.grammar()
+    g = C3.grammar3() if three else C2.grammar2() if two else K.grammar()
     al = next(g)
     toks, flds = [], []
     merged = 0   # 합친 토큰 수(C 토큰은 다음 F와 하나)
     forced = False
 
     def out(done, why):
-        res = C2.merge(toks) if two else toks
+        res = C3.merge(toks) if three else C2.merge(toks) if two else toks
         return (res, done, why) if reason else (res, done)
     while merged < maxlen and len(toks) < inner_cap:
         if toks:
@@ -459,7 +501,7 @@ def generate(net, img, hwr, maxlen=None, temp=0.0, reason=False, big_mass=False,
         t = int(torch.multinomial(F.softmax(lg / temp, -1), 1)) if temp > 0 else mass_pick(lg, al, big_mass, coord_window)
         toks.append(t)
         flds.append(K.FID[al[3]] if t >= K.OFF else K.FID['spec'])
-        merged += not (C2.C0 <= t < C2.F0)
+        merged += 0 if (C2.C0 <= t < C2.F0 or C3.CELL0 <= t < C3.FY0) else 2 if C3.FY0 <= t < C3.VOCAB3 else 1   # CELL·FX·FY = x·y 두 토큰
         try:
             al = g.send(t)
         except StopIteration:
@@ -586,6 +628,8 @@ def train(a):
                grid=feat_grid(a.in_w, a.stride))
     if a.coord2:
         cfg['coord2'] = True
+    if a.coord3:
+        cfg['coord3'] = True
     stage_dirs = [x for x in a.stages.split(',') if x] if a.stages else []
     if stage_dirs:   # 해상도 단계(사용자 10-29·10-31 복원): 깨끗한 1080부터 720·480을 거쳐 기본 입력(360)으로 — 화질 나쁜 애니 자료도 깔끔하게 옮기는 실력
         frac = [float(v) for v in a.stage_frac.split(',')]
@@ -618,10 +662,11 @@ def train(a):
             print(f"계획을 {st['plan_min']:.0f}분으로 늘림(이번 실행 {a.minutes:.0f}분, 학습률은 늘어난 계획의 코사인 위치에서)", flush=True)
     t0 = time.time()
     c2 = cfg.get('coord2', False)
-    va = Data(a.val, cfg['maxlen'], cfg['in_w'], exclude=holdout_exclude(), coord2=c2)
+    c3 = cfg.get('coord3', False)
+    va = Data(a.val, cfg['maxlen'], cfg['in_w'], exclude=holdout_exclude(), coord2=c2, coord3=c3)
     if va.excluded or va.excluded_frames:
         print(f'새 작품 시험에서 뺀 것: 파일 묶음 {len(va.excluded)}개·장 {va.excluded_frames}개(학습 파일과 같은 그림, data/holdout_exclude.json)', flush=True)
-    sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w'], coord2=c2) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
+    sv = Data(a.shift_val, cfg['maxlen'], cfg['in_w'], coord2=c2, coord3=c3) if a.shift_val else None   # 위치 시험(학습 파일 + 학습에 없던 고정 이동)
     js = J.JudgeSet(a.judge, cfg['in_w']) if a.judge else None   # 판정 장치(11-01): 평가 목록 고정 장 × 이동 4방향
     js_reduced = False
     if js is not None:   # 공식 자격 = 저장소 고정 평가 목록과 같은 자료(GPT 코드 검토 I-06: 판·어휘만 보고, 다른·축소 자료도 '전체 목록'으로 공식이 될 수 있었다)
@@ -666,7 +711,7 @@ def train(a):
     def stage_set(i):
         if i not in sets:
             t1 = time.time()
-            sets[i] = Data(stage_dirs[i] if i < len(stage_dirs) else a.data, cfg['maxlen'], widths[i], coord2=c2)
+            sets[i] = Data(stage_dirs[i] if i < len(stage_dirs) else a.data, cfg['maxlen'], widths[i], coord2=c2, coord3=c3)
             print(f'단계 자료 {widths[i]}폭 {len(sets[i])}장 {sets[i].ntok}토큰 ({time.time() - t1:.0f}초)', flush=True)
             tm_load[0] += time.time() - t1
             if not len(sets[i]):
@@ -678,7 +723,8 @@ def train(a):
         return min(a.max_batch, max(1, int(st['px'] * 1e6 // (w * (w * 9 // 16)))))
     print(f'시험 자료 {len(va)}장 ({time.time() - t0:.0f}초) · 학습 자료는 단계마다 필요할 때 읽음', flush=True)
     net = Net(cfg['d'], cfg['layers'], cfg['heads'], cfg['maxlen'], cfg['backbone'], pretrained=not saved, stride=cfg.get('stride', 16),
-              sine=cfg.get('sine', False), grid=cfg.get('grid'), coord2=cfg.get('coord2', False)).to(dev)
+              sine=cfg.get('sine', False), grid=cfg.get('grid'), coord2=cfg.get('coord2', False),
+              coord3=cfg.get('coord3', False)).to(dev)
     opt = torch.optim.AdamW(net.parameters(), lr=a.lr, weight_decay=0.01)
     net.grad_ckpt = bool(st.get('grad_ckpt'))
     if a.init_encoder and not saved:   # 이전 픽셀 지도 모델 인코더에서 출발(새로 시작할 때만, 이어하기는 저장본 그대로)
@@ -727,7 +773,7 @@ def train(a):
     v_batches = make_batches_fixed(va, a.max_batch, a.tok_budget, v_idx)
     vk, vk_batches = None, {}
     if a.val_kind:   # 실제·조합 고정 검증 자료(같은 해상도 640, 정답 길이 셋으로 나눔)
-        vk = Data(a.val_kind, cfg['maxlen'], cfg['in_w'], coord2=c2)
+        vk = Data(a.val_kind, cfg['maxlen'], cfg['in_w'], coord2=c2, coord3=c3)
         kinds = ['real' if kind_of(vk, k).startswith('real') else 'comp' for k in range(len(vk))]
         L = np.array([len(t) for t in vk.tok])
         q1, q2 = np.quantile(L, [1 / 3, 2 / 3]) if len(L) else (0, 0)
@@ -1346,7 +1392,7 @@ def load(path, dev='cpu'):
     s = torch.load(path, map_location=dev, weights_only=False)
     c = s['cfg']
     net = Net(c['d'], c['layers'], c['heads'], c['maxlen'], c['backbone'], pretrained=False, stride=c.get('stride', 16), sine=c.get('sine', False),
-              grid=c.get('grid'), coord2=c.get('coord2', False))
+              grid=c.get('grid'), coord2=c.get('coord2', False), coord3=c.get('coord3', False))
     net.load_state_dict(s['model'])
     return net.eval().to(dev), c
 
@@ -1359,7 +1405,7 @@ def draw(a):
     import sfa_render as R
     dev = 'cuda' if torch.cuda.is_available() else 'cpu'
     net, c = load(a.ckpt, dev)
-    ds = Data(a.data, c['maxlen'], c['in_w'], coord2=c.get('coord2', False))
+    ds = Data(a.data, c['maxlen'], c['in_w'], coord2=c.get('coord2', False), coord3=c.get('coord3', False))
     rng = random.Random(a.seed)
     pick = rng.sample(range(len(ds)), min(a.n, len(ds)))
     R.PARAMS['pad'] = 0.0
@@ -1452,6 +1498,7 @@ def main():
     t.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(게임 실행 중이면 멈추거나 천천히)')
     t.add_argument('--sine', action='store_true', help='고정 sin 위치 신호(그림 칸 위치 + 수 토큰 값)')
     t.add_argument('--objective', default='token-v1', choices=('token-v1', 'balanced-v1'), help='학습 목적함수. balanced-v1 = 종료 균형·첫 객체·외형 보조 손실(seq_objective)')
+    t.add_argument('--coord3', action='store_true', help='격자 포인터 좌표(화면 안 점 = 특징 격자 칸+칸 안 세부, 나머지 coord2). stride 8·in_w 640 필요, maxlen 3072 권장')
     t.add_argument('--coord2', action='store_true', help='두 단계 좌표 표현(거친128+세부64, docs/SEQ-COORD-TWO-LEVEL-DESIGN-2026-11-04.md). maxlen은 3072 권장')
     t.add_argument('--stages', default='', help='해상도 단계 자료 폴더(쉼표, 높은 해상도부터: 1920,1280,854폭 seq_data --video). 마지막 단계는 data(기본 입력)')
     t.add_argument('--stage-frac', default='0.2,0.25,0.25,0.3', help='단계별 학습 시간 비율(고해상도들 + 기본, 합 1)')

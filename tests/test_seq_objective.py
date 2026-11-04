@@ -55,7 +55,7 @@ class TestSeqObjective(unittest.TestCase):
         tokens = target()
         tgt, fld = tensors(tokens)
         record = metadata(tuple(tokens))
-        negative = next(p for p, _, _, _, label in record[0] if not label)
+        negative = next(p for p, *_, label in record[0] if not label)
         logits = torch.zeros(1, tgt.shape[1], K.VOCAB, requires_grad=True)
         with torch.no_grad():
             logits[0, negative, K.TOK['EOS']] = 10
