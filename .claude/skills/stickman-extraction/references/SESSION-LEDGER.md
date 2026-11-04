@@ -451,3 +451,7 @@ face715–721 극근경은 모델이눈을전신으로오인해표시추론키�
 - **CPU 검증:** restore_data.py는네트워크/인증읽기/코드실행없이 SHA로복원,변조/경로탈출/링크/기존파일덮기거부. 새4시험과기존포함전체308시험OK·27.350초·exit0(/workspace/ai-sfa-private/handoff_20261104/tests_full.log). 새폴더restored_private_data로13종전부복사·지문검사통과/필수9종ready,캐시47selected/54fit를별도추출확인. 실제새폴더replay_verified에서11고정판단/229코드지문검증·XML f2141adffe4d085b74660e849a853f415a65f98e8a4e1f86ba8f91430e98cc85 일치/exit0. 새원본눈판정/실제앱/새영상일반화검증아님.
 - 이번 범위는인계/복원도구/자료보존이며 스틱맨공통생성tools/profiles/장면좌표변경0. 최신SFA/영상새생성0,GPU/학습/Kaggle상태추가조회0. 마지막Kaggle관측11-04 12:13KST RUNNING과모니터링Claude담당지시를그대로인계한다.
 - 저장전지정브랜치fetch,원격과차이0확인. 전체시험과커밋은별도명령. 최종휴대묶음/업로드/커밋SHA는아래전달기록에서연결한다.
+
+### 인계 저장·휴대 묶음 실제 재현
+
+인계 구현 `3ec48fe77da6ad389ff430563d3a1d313644b5d8` 저장/지정브랜치push완료. Drive휴대묶음18AougwWq2h7sMc9DDaVL22rRzf4Gl6iN,목록1LFAK6ck7Dfd8mkSPYcdBQyVRQn6oNOf-,신규자안내1uBMTzLq2eW4WYvq_gJeLJuRzlHWGZ0mb,세션전체1uSITVyF7gQXUWVXa6f4ASBxO4U3Y_FKb,Claude프롬프트1G8kUpZoNDzrbpXDnTWh8Xwmr01PCR12K. 실제 휴대ZIP을새폴더에풀어내부파일지문을검증하고그안의코드/프로필/입력만사용해다시재생성,11고정판단/XML f2141adf…일치·exit0 확인. 전체308시험통과를재사용하며후속은전달문서/색인추가만한다. 최종전달은docs/HANDOFF-DELIVERY-2026-11-04.md와스킬data/handoff_delivery.json,배포ZIP최종소스커밋/바이트/SHA는Drive파일목록에기록한다. 완료후지정브랜치원격/작업트리도확인한다.

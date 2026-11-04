@@ -29,3 +29,5 @@ python tools/stickman_replay.py .claude/skills/stickman-extraction/private-data/
 ```
 
 필수9종이 빠지면 복원 검사 exit2와 필요한 Drive ID가 나온다. 원본 전체 영상/RTMW와 이전2종 재현은 선택 항목이며 최신 고정 재현에 필수가 아니다. 자료/코드 해시 불일치나 사용자 눈 판정 대기를 완료로 바꾸지 않는다. Claude가 이 스킬을 발견하려면 지정 브랜치 저장소가 있어야 하며 외부 Claude 계정에 자동 장착되는 방식은 아니다.
+
+최종전달물/검증기록은 docs/HANDOFF-DELIVERY-2026-11-04.md와data/handoff_delivery.json. 휴대묶음에서만꺼낸코드/입력의실제재생성도XML일치를확인했다.

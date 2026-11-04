@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "date": "2026-11-04",
+  "branch": "claude/new-session-gknz4t",
+  "handoff_implementation_commit": "3ec48fe77da6ad389ff430563d3a1d313644b5d8",
+  "folder_drive_id": "1UQ9rJ3H-VYc7l1kAqVDNjebe8b-2baKK",
+  "portable_bundle_drive_id": "18AougwWq2h7sMc9DDaVL22rRzf4Gl6iN",
+  "delivery_manifest_drive_id": "1LFAK6ck7Dfd8mkSPYcdBQyVRQn6oNOf-",
+  "onboarding_drive_id": "1uBMTzLq2eW4WYvq_gJeLJuRzlHWGZ0mb",
+  "session_drive_id": "1uSITVyF7gQXUWVXa6f4ASBxO4U3Y_FKb",
+  "claude_prompt_drive_id": "1G8kUpZoNDzrbpXDnTWh8Xwmr01PCR12K",
+  "tests": {
+    "count": 308,
+    "seconds": 27.35,
+    "exit_code": 0
+  },
+  "restore": {
+    "artifacts_verified": 13,
+    "required": 9,
+    "selected_npz": 47,
+    "fit_npz": 54
+  },
+  "portable_replay": {
+    "xml_identical": true,
+    "locked_decisions_verified": 11,
+    "xml_sha256": "f2141adffe4d085b74660e849a853f415a65f98e8a4e1f86ba8f91430e98cc85"
+  },
+  "note": "완성휴대묶음의최종소스커밋/바이트/SHA는Drive delivery_manifest에기록. 이파일안에자신의커밋이나포함ZIP지문을순환참조하지않는다. 새영상일반화/실제앱승인아님."
+}

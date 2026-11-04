@@ -30,6 +30,8 @@
 
 ## 데이터·스킬과 인계 준비
 
+- **인계 전달물:** docs/HANDOFF-DELIVERY-2026-11-04.md. 문서/스킬/실행입력 휴대 묶음과Claude프롬프트를Drive에보존,휴대묶음코드만으로도최종XML일치확인. 인계구현3ec48fe77da6ad389ff430563d3a1d313644b5d8.
+
 - 스킬 .claude/skills/stickman-extraction/에 현재규칙/프로젝트전체/세션전체/실데이터 manifest/24개사례/복원도구를 모았다. 실제파일은 Git 제외 private-data/에 두고 Drive 보존한다. 원본/전체좌표/SFA/프레임/가중치/앱녹화/키를 Git에 넣지 않는다.
 - 3개자료집9+7+8=24항목,같은한영상/중첩구간의 개발자료다. held_out=false/training_ready=false. 일반화 개선/회귀용이며 자동학습정답/새영상 일반화 성공 아님.
 - latest/replay.zip은11고정입력/229코드프로필지문. 보존 중간뼈대→최종 XML 재현 검증. 새원본에서 수동판정 자동생성한 성공 아님. 복원도구는 import/지문검사/입력추출만 하며 학습/코드실행 안 함.
