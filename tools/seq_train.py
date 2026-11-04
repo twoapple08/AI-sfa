@@ -1129,6 +1129,9 @@ def train(a):
             with torch.autocast(dev, dtype=dt, enabled=amp):
                 lg = net(img, tok[:, :-1], fld[:, :-1], hwr)
             loss, acc, _ = loss_fn(lg, tok[:, 1:], fld[:, 1:])
+            if a.objective != 'token-v1':   # 종료·첫 객체·외형 보조 손실(seq_objective, 11-05). 기록용 맞힘(acc)은 기존 손실 기준 그대로
+                from seq_objective import objective
+                loss, _parts = objective(lg, tok[:, 1:], fld[:, 1:], [ds.tok[x] for x in b], a.objective)
             fh = field_hits(lg.detach(), tok[:, 1:], fld[:, 1:])
             if not torch.isfinite(loss):
                 skipped += 1
@@ -1448,6 +1451,7 @@ def main():
     t.add_argument('--sheet-n', type=int, default=6, help='판정 때마다 저장하는 고정 그림 시트 장 수(평가 목록 앞에서부터, 골라 보여 주지 않음)')
     t.add_argument('--yield', dest='yield_', action='store_true', help='양보 모드(게임 실행 중이면 멈추거나 천천히)')
     t.add_argument('--sine', action='store_true', help='고정 sin 위치 신호(그림 칸 위치 + 수 토큰 값)')
+    t.add_argument('--objective', default='token-v1', choices=('token-v1', 'balanced-v1'), help='학습 목적함수. balanced-v1 = 종료 균형·첫 객체·외형 보조 손실(seq_objective)')
     t.add_argument('--coord2', action='store_true', help='두 단계 좌표 표현(거친128+세부64, docs/SEQ-COORD-TWO-LEVEL-DESIGN-2026-11-04.md). maxlen은 3072 권장')
     t.add_argument('--stages', default='', help='해상도 단계 자료 폴더(쉼표, 높은 해상도부터: 1920,1280,854폭 seq_data --video). 마지막 단계는 data(기본 입력)')
     t.add_argument('--stage-frac', default='0.2,0.25,0.25,0.3', help='단계별 학습 시간 비율(고해상도들 + 기본, 합 1)')

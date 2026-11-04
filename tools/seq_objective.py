@@ -5,17 +5,19 @@ import torch
 import torch.nn.functional as F
 
 import sfa_tokens as K
+import seq_coord2 as C2
 
 WEIGHTS = {'token-v1': (0., 0., 0.), 'balanced-v1': (.2, .2, .1)}
 APPEARANCE = [('color', 'bg'), ('thick',), ('glow',), ('obj', 'ptidx', 't')]
 
 
 @lru_cache(maxsize=1024)
-def metadata(tokens):
-    """CPU 원정답을 엄격 문법으로 읽는다. 로그잇 위치는 BOS 다음부터0이다."""
+def metadata(tokens, coord2=False):
+    """CPU 원정답을 엄격 문법으로 읽는다. 로그잇 위치는 BOS 다음부터0이다.
+    coord2: 두 단계 좌표 토큰열(seq_coord2)을 그 문법(grammar2)으로 읽는다. 종료 비교의 계속 후보도 C 토큰 범위가 된다."""
     if not tokens or tokens[0] != K.TOK['BOS'] or tokens[-1] != K.TOK['EOS'] or tokens.count(K.TOK['EOS']) != 1:
         raise ValueError('완전한 BOS…EOS 정답 하나가 필요하다')
-    grammar = K.grammar(strict=True)
+    grammar = C2.grammar2(strict=True) if coord2 else K.grammar(strict=True)
     allowed = next(grammar)
     stop, fields = [], []
     for i, token in enumerate(tokens):
@@ -86,7 +88,8 @@ def objective(logits, tgt, fld, full_tokens, mode='balanced-v1', diagnostics=Fal
     zero = base*0
     if mode == 'token-v1' and not diagnostics:
         return base, dict(token=base, stop=zero, first_object=zero, appearance=zero)
-    records = [metadata(tuple(int(t) for t in tokens)) for tokens in full_tokens]
+    coord2 = logits.shape[-1] > K.VOCAB   # 두 단계 좌표 모델(어휘 C2.VOCAB2)
+    records = [metadata(tuple(int(t) for t in tokens), coord2) for tokens in full_tokens]
     if len(records) != len(tgt):
         raise ValueError('목적함수의 장 수가 다르다')
     first, appearance = [], []

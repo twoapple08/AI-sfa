@@ -77,7 +77,7 @@ class TestCoord2(unittest.TestCase):
         K = self.K
         lo, hi = 70, 200                               # 거친 칸 1..3, 경계 칸에서 세부 범위 제한
 
-        def inner():
+        def inner(strict=False):
             yield (frozenset(), lo, hi, 'coord')
 
         orig = K.grammar
@@ -118,6 +118,25 @@ class TestCoord2(unittest.TestCase):
         self.assertEqual(len(two), 2)
         self.assertEqual(T.answer_tokens(two.tok[0]), plain.tok[0].tolist())
         self.assertEqual((len(tight), tight.coord2_dropped), (0, 2))
+
+    def test_balanced_objective_runs_on_coord2_tokens(self):
+        import seq_objective as O
+        T, C2, K = self.T, self.C2, self.K
+        rows = [C2.to_two(*self.encoded(x)) for x in ('70.0', '400.0')]
+        L = max(len(t) for t, _ in rows)
+        tok = torch.full((2, L), K.TOK['PAD'], dtype=torch.long)
+        fld = torch.zeros((2, L), dtype=torch.long)
+        for i, (t, f) in enumerate(rows):
+            tok[i, :len(t)] = torch.from_numpy(t)
+            fld[i, :len(f)] = torch.from_numpy(f)
+            stop, first, fields = O.metadata(tuple(int(v) for v in t), True)
+            self.assertEqual(list(fields), f.tolist())            # 두 단계 문법이 자료 변환의 칸 번호와 같다
+            self.assertEqual(sum(s[-1] for s in stop), 1)
+        lg = torch.randn(2, L - 1, C2.VOCAB2, requires_grad=True)
+        loss, parts = O.objective(lg, tok[:, 1:], fld[:, 1:], [t for t, _ in rows], 'balanced-v1')
+        self.assertTrue(torch.isfinite(loss) and float(parts['stop']) > 0)
+        loss.backward()
+        self.assertTrue(torch.isfinite(lg.grad).all())
 
     def test_generate_returns_merged_tokens_that_decode(self):
         T, K = self.T, self.K

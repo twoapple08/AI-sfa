@@ -55,10 +55,10 @@ def merge(toks):
     return out
 
 
-def grammar2():
+def grammar2(strict=False):
     """sfa_tokens.grammar()를 감싼다. 좌표 자리 하나를 C 자리 → F 자리 두 번의 물음으로 바꾼다.
     물음 형식은 원래와 같다: (허용 특수 토큰, lo, hi, field), 수 범위는 OFF 기준(allowed_mask와 같은 방식)."""
-    g = K.grammar()
+    g = K.grammar(strict=strict)
     al = next(g)
     while True:
         specs, lo, hi, field = al
