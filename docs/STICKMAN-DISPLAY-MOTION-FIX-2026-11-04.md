@@ -47,3 +47,18 @@
 팔의AP순서는(elbow,neck)/(wrist,elbow)이고 다리는(pelvis,knee)/(knee,ankle)다.이 차이를 반대로 해석하던일부표시폭도공유마디별로일치시킨다.951주변 원본1381–1382는 얇은수정안의1.5배,1383–1386은1.4→1.25→1.1→1.0으로기존축소경계에이어준다.추가게인은표시판단이며실제거리관측으로세지않는다.
 
 새연속면은별도97M객체ID영역을사용한다.기존96M의10번객체는연결선인데새경계의10번은곡선이어서ID를재사용하면장간형식충돌이생기는것을실제전파일검사로확인/해결했다.새시험은마디경계위치/접선연속성,한줄기한채움/편집망복원,입력순서독립성,이웃장v1/v2형식·점ID충돌부재,팔AP끝점의공유폭을검사한다.최종304시험통과와전체파일검사0을확인했다.
+
+
+## 최종 저장과 재현 완료
+
+- 표시/앞뒤/구도 공통 구현 `bc02f162f951a16488a1d69b6873bf3d6c4c2802`,마디 연속 면/공유폭 구현 `8cad3d73441877720ad4f0b865e855eeb9e60d17`,지정 브랜치 저장/푸시.기본 프로필 변경0.
+- [최신 SFA](https://drive.google.com/file/d/1ypI8kpPl-B_D_PjCC9MybVVpoitORGGp/view),774,239바이트.SHA256 `9f0f0ce00bbcfcfe76c99969bacf4f0adf7228d51f8eeb052cb2f6bd5aa823d5`.이전1vyz…파일은비교이력으로그대로보존.
+- 정지 대조 [구겨짐/상체](https://drive.google.com/file/d/1qWoDEGD6KT7Dc90qhAQVJAyzr01WE_n-/view),[두께/앞뒤/누락팔](https://drive.google.com/file/d/1F-OwsBDeTnz0nlFFhcITX1l9sqINMmzT/view).왼쪽원본/가운데이전/오른쪽수정,원본/재생장번호를함께표시.미리보기영상생성0.
+- [고정 재현 묶음](https://drive.google.com/file/d/1xzyOVobHLMWbr-Vc7dZnQ3fcNkQ4vFli/view),11종입력/결정과229개코드·프로필지문.[재현 증거](https://drive.google.com/file/d/14Rk0QGtCjbU6vcXX6PaCsLvRCD7_WX-E/view):새폴더 `replay_display_motion_joined_verified_20261104`에서48장몸통/머리·11장착지키/공유폭·면/앞뒤순서재계산,exit0·XML SHA256 `f2141adffe4d085b74660e849a853f415a65f98e8a4e1f86ba8f91430e98cc85` 완전일치.고정판단 입력부터이며 새원본 자동판독 아님.
+- [개발자료 보존 묶음](https://drive.google.com/file/d/1r8KY-8vESuofwe1QWS7ApKp9Efv1K7gg/view),68파일+manifest,8,445,554바이트.SHA256 `034565ab83c3940bba56f4ff659354188b9a0b05715fd7941e0b1ad03bf1cb5e`,ZIP/파일지문대조통과.원본발췌/제보대조·기본뼈대/수동·CPU판단/최종SFA/검사/재현보존,원본영상/전체RTMW는기존Drive지문연결.미채택trial파일은이력이며최종생성기에적용하지않는다.
+
+```bash
+python tools/stickman_replay.py display_motion_fixed_replay_20261104.zip --destination 새_재현폴더
+```
+
+코드/입력지문이맞는저장소에서새폴더로실행한다.새자료는기존개발클립이므로held_out=false/training_ready=false.원본스미어의실제좌우/가린마디,실제앱재열기/편집,사용자최종눈판정은여전히별도다.후속사례메타는 `data/stickman_motion/generalization_cases/nian41_feedback_2026-11-04.json`.

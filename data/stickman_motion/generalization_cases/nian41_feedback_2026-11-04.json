@@ -1,0 +1,164 @@
+{
+  "schema": 1,
+  "id": "nian41_feedback_2026-11-04",
+  "split": "development_known_clip",
+  "held_out": false,
+  "training_ready": false,
+  "new_video_generalization_verified": false,
+  "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "implementation_commit": "8cad3d73441877720ad4f0b865e855eeb9e60d17",
+  "clip_range": [
+    432,
+    1871
+  ],
+  "data_archive_drive_id": "1r8KY-8vESuofwe1QWS7ApKp9Efv1K7gg",
+  "fixed_replay_drive_id": "1xzyOVobHLMWbr-Vc7dZnQ3fcNkQ4vFli",
+  "sfa_drive_id": "1ypI8kpPl-B_D_PjCC9MybVVpoitORGGp",
+  "learning_scope_rules_changed": false,
+  "cases": [
+    {
+      "id": "display_width_basis",
+      "frames": [
+        [
+          823,
+          825
+        ],
+        [
+          1367,
+          1368
+        ],
+        [
+          1381,
+          1386
+        ],
+        [
+          1396,
+          1397
+        ],
+        [
+          1601,
+          1601
+        ]
+      ],
+      "symptom": "옷폭에가까운표시반지름과일반선거리척도혼용",
+      "method": "분명한몸구도14회동일척도,극근경한부위지역폭은보존",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "id": "actor_draw_order",
+      "frames": [
+        [
+          1294,
+          1300
+        ],
+        [
+          1394,
+          1404
+        ],
+        [
+          1572,
+          1574
+        ]
+      ],
+      "symptom": "색슬롯고정앞뒤로전경팔다리가뒤에그려짐",
+      "method": "명시순서를머리/채움/면/물리순서에함께적용",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "id": "cropped_false_legs",
+      "frames": [
+        [
+          506,
+          580
+        ],
+        [
+          737,
+          784
+        ],
+        [
+          600,
+          600
+        ]
+      ],
+      "symptom": "화면밖다리추정이상체안으로접힘",
+      "method": "구도별가시성/부분제어보완",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "id": "landing_pelvis",
+      "frames": [
+        [
+          942,
+          952
+        ]
+      ],
+      "symptom": "가린골반을허벅지에잡아접힌다리가꼬임",
+      "method": "원본대조골반/양다리표시키,숨은마디추론",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "id": "shared_root_object_mismatch",
+      "frames": [
+        [
+          737,
+          784
+        ]
+      ],
+      "symptom": "팔끝은정상이나몸통/머리키가병쪽관측에끌림",
+      "method": "8채택키48장보간,최대몸통이동346.93→16.73px/팔끝변경0",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "id": "duplicate_front_arm",
+      "frames": [
+        [
+          1575,
+          1575
+        ]
+      ],
+      "symptom": "재생1144의앞팔/뒷팔동일좌표",
+      "method": "원본전경팔복구,틀밖팔꿈치/손목추론",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "id": "color_does_not_mean_body_part",
+      "frames": [
+        [
+          1381,
+          1382
+        ]
+      ],
+      "symptom": "다리위색지지점을팔로확정",
+      "method": "원본에서확인한한쪽팔만보존",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    },
+    {
+      "id": "one_fill_per_limb",
+      "frames": [
+        [
+          1381,
+          1386
+        ]
+      ],
+      "symptom": "각뼈캡슐의마디경계/팔AP끝점폭해석",
+      "method": "두마디한경계/채움·접선연속·공유폭·951게인1.5에서축소끝1.0",
+      "user_review": "사용자오류제보반영후수정판판정대기",
+      "automatic_ground_truth": false,
+      "limits": "원본눈/CPU/수동/추론은비공개자료에구분.새영상일반화/학습정답승인아님"
+    }
+  ]
+}
