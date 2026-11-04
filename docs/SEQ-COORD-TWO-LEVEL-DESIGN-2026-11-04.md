@@ -42,3 +42,12 @@ A/B는 CPU 소규모 시험에서 먼저 겨룬다(`tools/coord_repr_probe.py --
 2. CPU 소규모: flat vs two vs flat1k 3안 비교.
 3. A(또는 B) 채택 시 sfa_tokens/seq_train 변경 + 회귀 시험 + CPU 짧은 학습으로 동작 확인.
 4. 사용자 승인 뒤 Kaggle 소규모(예: 1~2시간) 비교: 현행 vs 새 표현, 같은 자료·시간, 픽셀 오차/렌더 비교로 판정.
+
+
+## 구현(2026-11-05) — 선택 기능 `--coord2`
+
+- `tools/seq_coord2.py`: `to_two`(자료 변환), `merge`(합치기), `grammar2`(기존 문법을 감싸 좌표 자리를 C→F 두 물음으로; 경계 칸에서 세부 범위 제한, BIG·다른 분야는 그대로). C=K.VOCAB+c, F=K.VOCAB+128+f, 어휘 8404.
+- `tools/seq_train.py`: `Net(coord2=)` 어휘 크기, `Data(coord2=)` 불러올 때 변환·한도 초과 장 제외(`coord2_dropped`), `token_loss`는 새 토큰에 이웃 칸 손실을 쓰지 않음, `allowed_mask(vocab=)`, `generate`는 안에서 두 단계로 고르고 **기존 토큰열로 합쳐 돌려줌**(판정·채점·디코딩은 기존 공간 그대로), `coord_errors`/`answer_tokens`로 채점 보정, `load`/학습 설정에 `coord2` 저장, 인수 `--coord2`. 기본(끔)일 때 기존 동작과 같다.
+- 시험 `tests/test_seq_coord2.py` 7개(왕복·BIG 보존·문법이 변환 정답을 정확히 받아들임·경계 세부 범위·손실·자료 변환/제외·작은 모델 생성이 합친 토큰을 냄). 전체 시험 OK·exit0.
+- CPU 흐름 시험: 실제 학습 자료(sd 페인트9파일)·검증(sv)으로 `train --coord2 --maxlen 3072`, 작은 모델 3분 — 학습·검증·생성 채점·저장·마무리 오류0, 저장본 불러오기·생성 정상. 성능 판단용이 아니다.
+- 남은 일: Kaggle 작업자(`kaggle_seq_worker.py`)에 `--coord2`/`--maxlen 3072`를 넘기는 비교 커널 준비 → 사용자 승인 뒤 실행. BIG 세 자리의 두 단계화는 보류.
