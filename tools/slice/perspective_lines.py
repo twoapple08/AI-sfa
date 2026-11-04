@@ -3,14 +3,15 @@
 비공개 scratch(원본에서 딴 그림). 결과: 비교 시트, SFA(직선 객체, 라벨 레이어), 통계."""
 import math, os, sys, zipfile, copy, xml.etree.ElementTree as ET
 import cv2, numpy as np, torch
-sys.path.insert(0, '/home/user/AI-sfa/tools'); sys.path.insert(0, sys.argv[1] + '/scripts')
+sys.path.insert(0, '/home/user/AI-sfa/tools'); sys.path.insert(0, (sys.argv[1] if __name__ == '__main__' else os.environ['PL_SP']) + '/scripts')
 from controlnet_aux.lineart import Generator
 import sfa_render as R
 from slice_mask import person_mask
 
-SP = sys.argv[1]
-FRAMES = [int(v) for v in sys.argv[2].split(',')]
-TAG = sys.argv[3] if len(sys.argv) > 3 else ''
+_MAIN = __name__ == '__main__'
+SP = sys.argv[1] if _MAIN else os.environ['PL_SP']
+FRAMES = [int(v) for v in sys.argv[2].split(',')] if _MAIN else []
+TAG = (sys.argv[3] if len(sys.argv) > 3 else '') if _MAIN else ''
 W, H = 960, 540
 AX_DEG, VP_DEG = 4.0, 2.5          # 수평·수직 판정 / 소실점 방향 판정 허용 각
 MIN_SEG, MIN_OUT = 12, int(os.environ.get('PL_MIN', 30))           # LSD 선분 최소 길이 / 최종 선 최소 길이(px)
@@ -330,76 +331,81 @@ COL = {'h': (40, 40, 200), 'v': (40, 160, 40), 'r': (200, 60, 40), 'o': (150, 15
 LAYER_OF = {'room': 0, 'pillar': 1, 'beam': 2, 'floorx': 3, 'detail': 4, 'h': 4, 'v': 4, 'r': 4, 'o': 5}
 LAYER_NAMES = ((0, 'background.room'), (1, 'background.pillar'), (2, 'background.ceiling_beam'), (3, 'background.floor_line'),
                (4, 'background.detail'), (5, 'object.other'), (6, 'actor.stickman'))
-rows, stats = [], []
-seq = ET.Element('Sequence', dict(Name='sfa_slice_perspective_v1', HeightWidthRatio='0.5625', RatioX='16', RatioY='9', FrameCount=str(len(FRAMES)), BackgroundColor='-1'))
-rng = np.random.default_rng(0)
-for pos, f in enumerate(FRAMES):
-    raw, person = person_for(f)
-    B.set(1, f + 7); _, im = B.read(); img = cv2.resize(im, (W, H), interpolation=cv2.INTER_AREA)
-    la, segs = lineart_segs(img, person)
-    used = []
-    for dlt in [int(v) for v in os.environ.get('PL_MULTI', '').split(',') if v]:   # 같은 컷 이웃 장의 선분 모으기
-        _, pn = person_for(f + dlt)
-        B.set(1, f + dlt + 7); okn, imn = B.read()
-        if not okn: continue
-        imn = cv2.resize(imn, (W, H), interpolation=cv2.INTER_AREA)
-        Hm, n_in = to_target(img, imn, person, pn)
-        if Hm is None: used.append((dlt, n_in, 0)); continue
-        _, sn = lineart_segs(imn, pn)
-        pts = np.float32([[s[0], s[1]] for s in sn] + [[s[2], s[3]] for s in sn]).reshape(-1, 1, 2)
-        tp = cv2.perspectiveTransform(pts, Hm).reshape(-1, 2); n = len(sn)
-        add = [(tp[i][0], tp[i][1], tp[n + i][0], tp[n + i][1]) for i in range(n)]
-        add = [s_ for s_ in add if person[int(np.clip((s_[1] + s_[3]) / 2, 0, H - 1)), int(np.clip((s_[0] + s_[2]) / 2, 0, W - 1))] == 0 or True]
-        segs += add; used.append((dlt, n_in, len(add)))
-    vp1, sc1 = estimate_vp(segs, rng)
-    vp, vp_score = ([vp1], sc1) if vp1 is not None else (None, 0)
-    if vp1 is not None:   # 둘째 소실점: 첫 소실점을 따르지 않는 선분으로 다시
-        rest = [s_ for s_ in segs if is_axis(s_) or dir_to_vp(s_, vp1) >= VP_DEG]
-        vp2, sc2 = estimate_vp(rest, rng)
-        if vp2 is not None and sc2 > 0.25 and math.hypot(vp2[0] - vp1[0], vp2[1] - vp1[1]) > 80:
-            vp.append(vp2)
-    lines, other, st = snap(segs, vp)
-    if os.environ.get('PL_REFINE', '1') == '1':
-        gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (3, 3), 0)
-        ev = (cv2.Canny(gray, 25, 70) > 0) | (la < 200)
-        ev = cv2.dilate(ev.astype(np.uint8), np.ones((3, 3), np.uint8)) & (1 - person)
-        lines, st['bridged'] = bridge(lines, cv2.dilate(person, np.ones((9, 9), np.uint8)))
-        lines, grown = extend(lines, ev); st['grown_px'] = int(grown)
-        lines, st['corners'] = corners(lines)
-        lines = [l for l in lines if math.hypot(l[0][0] - l[1][0], l[0][1] - l[1][1]) >= MIN_OUT]
-    if os.environ.get('PL_LAYOUT') == '1' and vp:
-        lines, lay = layout(lines, vp[0]); st.update(lay)
-    stats.append(dict(frame=f, neighbours=used, segs=len(segs), vp=None if vp is None else [[round(v[0]), round(v[1])] for v in vp], vp_share=round(vp_score, 2), **st, out=len(lines), other=len(other)))
-    # 그림: 원본 / LSD 선분 / 스냅 결과(색=방향) + 스틱맨
-    c1 = np.full_like(img, 255)
-    for s in segs: cv2.line(c1, (int(s[0]), int(s[1])), (int(s[2]), int(s[3])), (60, 60, 60), 1, cv2.LINE_AA)
-    c2 = np.full_like(img, 255)
-    for (a, b, k) in lines + other:
-        cv2.line(c2, tuple(map(int, a)), tuple(map(int, b)), COL[k], 3 if k == 'room' else 1 if k in ('o', 'detail') else 2, cv2.LINE_AA)
-    for v in (vp or []):
-        if 0 <= v[0] < W and 0 <= v[1] < H: cv2.circle(c2, (int(v[0]), int(v[1])), 6, (0, 0, 255), 2)
-    sk = np.zeros_like(img)
-    fr = ET.SubElement(seq, 'Frame', dict(BackgroundColor='4294967295', ID=str(pos + 1), Position=str(pos)))
-    for lid, nm in LAYER_NAMES:
-        ET.SubElement(fr, 'LayerDef', dict(ID=str(lid), Name=nm, Visible='true', Locked='false'))
-    oid, pid = 1, 1 + pos * 100000
-    for (a, b, k) in lines + other:
-        ao = ET.SubElement(fr, 'AO', dict(ID=str(oid), TypeId='1', Color=str(-12566464 if k not in ('o', 'detail') else -7829368), LayerId=str(LAYER_OF[k]),
-                                          DrawOrder=str(oid), ThicknessScale='0.35', ObjectScale='1.0', GlowRadius='0', GlowThickness='0', GlowColor='4294967295', GlowAlpha='0'))
-        for i, (px_, py_) in enumerate((a, b)):
-            ET.SubElement(ao, 'AP', dict(ID=str(pid), Flags=('9', '8')[i], Index=str(i), X=f'{px_ / W * 100:.3f}', Y=f'{py_ / H * 100:.3f}')); pid += 1
-        oid += 1
-    m = {}
-    for ao in sroot.findall('Frame')[f - 432].findall('AO'):
-        ao = copy.deepcopy(ao); ao.set('LayerId', '6')
-        for ap in ao.iter('AP'): m[ap.get('ID')] = str(pid); ap.set('ID', str(pid)); pid += 1
-        fr.append(ao)
-    for ac in fr.iter('AC'): ac.set('ConnPtId', m.get(ac.get('ConnPtId'), ac.get('ConnPtId')))
-    R.PARAMS.update(pad=0.0, thick_mul=1.0)
-    rend = cv2.cvtColor(R.render_frame(seq, fr, W, H)[..., :3].astype(np.uint8), cv2.COLOR_RGB2BGR)
-    cv2.putText(c2, f'{len(lines)} lines  rays{len(st.get("rays", []))} ratio{st.get("ratio")}', (6, 28), 0, 0.8, (0, 0, 255), 2)
-    rows.append(np.hstack([img, c1, c2, rend]))
-with zipfile.ZipFile(SP + f'/slice/lineart/sfa_slice_perspective{TAG}.sfa', 'w', zipfile.ZIP_DEFLATED) as zf:
-    zf.writestr('sfa_slice_perspective.xml', ET.tostring(seq, encoding='utf-8', xml_declaration=True))
-cv2.imwrite(SP + f'/slice/lineart/perspective{TAG}.png', cv2.resize(np.vstack(rows), None, fx=0.4, fy=0.4))
-for s in stats: print(s)
+def main():
+    rows, stats = [], []
+    seq = ET.Element('Sequence', dict(Name='sfa_slice_perspective_v1', HeightWidthRatio='0.5625', RatioX='16', RatioY='9', FrameCount=str(len(FRAMES)), BackgroundColor='-1'))
+    rng = np.random.default_rng(0)
+    for pos, f in enumerate(FRAMES):
+        raw, person = person_for(f)
+        B.set(1, f + 7); _, im = B.read(); img = cv2.resize(im, (W, H), interpolation=cv2.INTER_AREA)
+        la, segs = lineart_segs(img, person)
+        used = []
+        for dlt in [int(v) for v in os.environ.get('PL_MULTI', '').split(',') if v]:   # 같은 컷 이웃 장의 선분 모으기
+            _, pn = person_for(f + dlt)
+            B.set(1, f + dlt + 7); okn, imn = B.read()
+            if not okn: continue
+            imn = cv2.resize(imn, (W, H), interpolation=cv2.INTER_AREA)
+            Hm, n_in = to_target(img, imn, person, pn)
+            if Hm is None: used.append((dlt, n_in, 0)); continue
+            _, sn = lineart_segs(imn, pn)
+            pts = np.float32([[s[0], s[1]] for s in sn] + [[s[2], s[3]] for s in sn]).reshape(-1, 1, 2)
+            tp = cv2.perspectiveTransform(pts, Hm).reshape(-1, 2); n = len(sn)
+            add = [(tp[i][0], tp[i][1], tp[n + i][0], tp[n + i][1]) for i in range(n)]
+            add = [s_ for s_ in add if person[int(np.clip((s_[1] + s_[3]) / 2, 0, H - 1)), int(np.clip((s_[0] + s_[2]) / 2, 0, W - 1))] == 0 or True]
+            segs += add; used.append((dlt, n_in, len(add)))
+        vp1, sc1 = estimate_vp(segs, rng)
+        vp, vp_score = ([vp1], sc1) if vp1 is not None else (None, 0)
+        if vp1 is not None:   # 둘째 소실점: 첫 소실점을 따르지 않는 선분으로 다시
+            rest = [s_ for s_ in segs if is_axis(s_) or dir_to_vp(s_, vp1) >= VP_DEG]
+            vp2, sc2 = estimate_vp(rest, rng)
+            if vp2 is not None and sc2 > 0.25 and math.hypot(vp2[0] - vp1[0], vp2[1] - vp1[1]) > 80:
+                vp.append(vp2)
+        lines, other, st = snap(segs, vp)
+        if os.environ.get('PL_REFINE', '1') == '1':
+            gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (3, 3), 0)
+            ev = (cv2.Canny(gray, 25, 70) > 0) | (la < 200)
+            ev = cv2.dilate(ev.astype(np.uint8), np.ones((3, 3), np.uint8)) & (1 - person)
+            lines, st['bridged'] = bridge(lines, cv2.dilate(person, np.ones((9, 9), np.uint8)))
+            lines, grown = extend(lines, ev); st['grown_px'] = int(grown)
+            lines, st['corners'] = corners(lines)
+            lines = [l for l in lines if math.hypot(l[0][0] - l[1][0], l[0][1] - l[1][1]) >= MIN_OUT]
+        if os.environ.get('PL_LAYOUT') == '1' and vp:
+            lines, lay = layout(lines, vp[0]); st.update(lay)
+        stats.append(dict(frame=f, neighbours=used, segs=len(segs), vp=None if vp is None else [[round(v[0]), round(v[1])] for v in vp], vp_share=round(vp_score, 2), **st, out=len(lines), other=len(other)))
+        # 그림: 원본 / LSD 선분 / 스냅 결과(색=방향) + 스틱맨
+        c1 = np.full_like(img, 255)
+        for s in segs: cv2.line(c1, (int(s[0]), int(s[1])), (int(s[2]), int(s[3])), (60, 60, 60), 1, cv2.LINE_AA)
+        c2 = np.full_like(img, 255)
+        for (a, b, k) in lines + other:
+            cv2.line(c2, tuple(map(int, a)), tuple(map(int, b)), COL[k], 3 if k == 'room' else 1 if k in ('o', 'detail') else 2, cv2.LINE_AA)
+        for v in (vp or []):
+            if 0 <= v[0] < W and 0 <= v[1] < H: cv2.circle(c2, (int(v[0]), int(v[1])), 6, (0, 0, 255), 2)
+        sk = np.zeros_like(img)
+        fr = ET.SubElement(seq, 'Frame', dict(BackgroundColor='4294967295', ID=str(pos + 1), Position=str(pos)))
+        for lid, nm in LAYER_NAMES:
+            ET.SubElement(fr, 'LayerDef', dict(ID=str(lid), Name=nm, Visible='true', Locked='false'))
+        oid, pid = 1, 1 + pos * 100000
+        for (a, b, k) in lines + other:
+            ao = ET.SubElement(fr, 'AO', dict(ID=str(oid), TypeId='1', Color=str(-12566464 if k not in ('o', 'detail') else -7829368), LayerId=str(LAYER_OF[k]),
+                                              DrawOrder=str(oid), ThicknessScale='0.35', ObjectScale='1.0', GlowRadius='0', GlowThickness='0', GlowColor='4294967295', GlowAlpha='0'))
+            for i, (px_, py_) in enumerate((a, b)):
+                ET.SubElement(ao, 'AP', dict(ID=str(pid), Flags=('9', '8')[i], Index=str(i), X=f'{px_ / W * 100:.3f}', Y=f'{py_ / H * 100:.3f}')); pid += 1
+            oid += 1
+        m = {}
+        for ao in sroot.findall('Frame')[f - 432].findall('AO'):
+            ao = copy.deepcopy(ao); ao.set('LayerId', '6')
+            for ap in ao.iter('AP'): m[ap.get('ID')] = str(pid); ap.set('ID', str(pid)); pid += 1
+            fr.append(ao)
+        for ac in fr.iter('AC'): ac.set('ConnPtId', m.get(ac.get('ConnPtId'), ac.get('ConnPtId')))
+        R.PARAMS.update(pad=0.0, thick_mul=1.0)
+        rend = cv2.cvtColor(R.render_frame(seq, fr, W, H)[..., :3].astype(np.uint8), cv2.COLOR_RGB2BGR)
+        cv2.putText(c2, f'{len(lines)} lines  rays{len(st.get("rays", []))} ratio{st.get("ratio")}', (6, 28), 0, 0.8, (0, 0, 255), 2)
+        rows.append(np.hstack([img, c1, c2, rend]))
+    with zipfile.ZipFile(SP + f'/slice/lineart/sfa_slice_perspective{TAG}.sfa', 'w', zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr('sfa_slice_perspective.xml', ET.tostring(seq, encoding='utf-8', xml_declaration=True))
+    cv2.imwrite(SP + f'/slice/lineart/perspective{TAG}.png', cv2.resize(np.vstack(rows), None, fx=0.4, fy=0.4))
+    for s in stats: print(s)
+
+
+if _MAIN:
+    main()
