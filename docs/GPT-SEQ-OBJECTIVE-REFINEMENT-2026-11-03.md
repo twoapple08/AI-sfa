@@ -101,3 +101,10 @@ kaggle kernels output twoapple08/aisfa-seq-refine-ab-v1 -p /workspace/ai-sfa-pri
 ## 2026-11-04 KST — 사용자 승인 재실행 준비
 
 사용자가 “수정해서 실행”을 명시 승인했다. 진단 그림의 고정 시스템 글꼴 경로를 제거하고 이름 검색 실패 시 Pillow 기본 글꼴로 대체한다. 시스템 글꼴이 없는 환경을 모의하여 비교 라벨이 실제로 그려지는 회귀 시험을 추가했다. 출제 자료/부모 가중치/목적함수/각500업데이트·순수 최대20분 조건은 유지한다. 전체 시험 통과와 지정 브랜치 저장 뒤 해당 코드SHA를 고정하여 같은 비공개 비교 커널의 새 판을 실행한다. 실행 응답/상태는 아래 후속 기록을 따른다.
+
+
+## 2026-11-04 12:13 KST — version2 실행 확인
+
+- 글꼴 수정 구현 `a4c5fc48425bbf3559634ae73797a366d168d2f3`. 루트 `python -m unittest discover -s tests` 전체267개·27.687초 OK·exit0 확인 후 별도 커밋/푸시.
+- 사용자 재실행 승인으로 동일 비공개 커널 version2 push 성공,상태 RUNNING 확인. 준비 입력 `/workspace/ai-sfa-private/seq_refinement/kaggle_job_font_fix/`. 부모/자료SHA와 기존 각500회·순수 최대20분씩 조건 유지,공식 커널/가중치 변경0.
+- RUNNING은 초기 준비를 포함하며 실제 업데이트/완료/품질 개선은 미확인. 현재 GPU 잔여 시간 별도 조회 없음. 후속 모니터링은 기존 Claude 담당 지시 유지,자동 추가 재실행 없음.
