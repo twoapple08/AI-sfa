@@ -8,6 +8,8 @@ from slice_mask import person_mask
 spec = importlib.util.spec_from_file_location('sv', sys.argv[1] + '/scripts/slice_v0.py')
 SP = sys.argv[1]; STICK = SP + '/fix869/stickman_60s_display_motion_fix_432-1871.sfa'
 TH = float(sys.argv[2]) if len(sys.argv) > 2 else 0.35
+import os
+HYBRID = os.environ.get('LINE_HYBRID') == '1'
 g = Generator(3, 1, 3); g.load_state_dict(torch.load('/root/sfa-models/sk_model.pth', map_location='cpu')); g.eval()
 A = cv2.VideoCapture('/home/user/AI-sfa/.claude/skills/stickman-extraction/private-data/sources/video.mp4')
 B = cv2.VideoCapture(SP + '/final/final.mp4')
@@ -82,18 +84,28 @@ def label_of(ao, debris, impact):
     xi, yi = int(np.clip(x, 0, 1151)), int(np.clip(y, 0, 647))
     return 3 if impact[yi, xi] else 1 if debris[yi, xi] else 0
 
-seq_all = ET.Element('Sequence', dict(Name='sfa_slice_outline_v1', HeightWidthRatio='0.5625', RatioX='16', RatioY='9', FrameCount='4', BackgroundColor='-1'))
+seq_all = ET.Element('Sequence', dict(Name='sfa_slice_outline_v1', HeightWidthRatio='0.5625', RatioX='16', RatioY='9', FrameCount=str(len(sys.argv[3].split(',')) if len(sys.argv) > 3 else 4), BackgroundColor='-1'))
 label_stats = []
 rows, counts = [], []
-for f in (1042, 1082, 1122, 1252):
+FRAMES = [int(v) for v in sys.argv[3].split(',')] if len(sys.argv) > 3 else [1042, 1082, 1122, 1252]
+TAG = sys.argv[4] if len(sys.argv) > 4 else ''
+for f in FRAMES:
     A.set(1, f); _, raw = A.read(); raw = raw[63:711]
     pm = person_mask(raw); n, lab = cv2.connectedComponents(pm); bd = band(f, pm.shape)
     hit = np.unique(lab[(bd > 0) & (pm > 0)]); person = np.isin(lab, hit[hit > 0]).astype(np.uint8)
-    person = cv2.dilate(person, np.ones((15, 15), np.uint8))          # 완성본 인물이 원화보다 조금 큼
+    person = cv2.dilate(person, np.ones((21, 21), np.uint8))          # 완성본 인물이 원화보다 조금 큼
     B.set(1, f + 7); _, im = B.read(); img = cv2.resize(im, (960, 540), interpolation=cv2.INTER_AREA)
     x = torch.from_numpy(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)).float().permute(2, 0, 1)[None] / 255
     with torch.no_grad(): zz = g(x)[0, 0].clamp(0, 1).numpy()
     lmap = (zz * 255).astype(np.uint8)                                 # 흰 바탕 검은 선
+    if HYBRID:   # 큰 밝기 경계(창틀·기둥 윤곽 등)를 더한다: 선화 추출기가 부드러운 명암 경계를 놓치는 근접 장면 보완
+        gb = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (5, 5), 0)
+        ed = cv2.Canny(gb, 50, 130)
+        n_, lab_, st_, _ = cv2.connectedComponentsWithStats(cv2.dilate(ed, np.ones((3, 3), np.uint8)))
+        keep = np.zeros_like(ed)
+        for c_ in range(1, n_):
+            if max(st_[c_, cv2.CC_STAT_WIDTH], st_[c_, cv2.CC_STAT_HEIGHT]) >= 60: keep[(lab_ == c_) & (ed > 0)] = 255
+        lmap = np.minimum(lmap, 255 - keep)
     lmap[cv2.resize(person, (960, 540), interpolation=cv2.INTER_NEAREST) > 0] = 255
     lmap[lmap > int(255 * (1 - TH))] = 255                             # 옅은 선 버림(TH 높을수록 더 많이 남김)
     doc, _ = decompose(img, 4, 1.5, lines_only=True, line_join=True, line_map=lmap)
@@ -137,8 +149,8 @@ for f in (1042, 1082, 1122, 1252):
     nl = len(curves) + len(straight); npts = 3 * len(curves) + 2 * len(straight); counts.append((n_before, len(straight), len(curves), npts))
     cv2.putText(r, f'line {len(straight)} / curve {len(curves)} (was {n_before})', (6, 30), 0, 0.9, (0, 0, 255), 2)
     rows.append(np.hstack([img, cv2.cvtColor(lmap, cv2.COLOR_GRAY2BGR), r]))
-with zipfile.ZipFile(SP + '/slice/lineart/sfa_slice_outline_v1.sfa', 'w', zipfile.ZIP_DEFLATED) as zf:
+with zipfile.ZipFile(SP + f'/slice/lineart/sfa_slice_outline_v1{TAG}.sfa', 'w', zipfile.ZIP_DEFLATED) as zf:
     zf.writestr('sfa_slice_outline_v1.xml', ET.tostring(seq_all, encoding='utf-8', xml_declaration=True))
 print('labels', label_stats)
-cv2.imwrite(SP + f'/slice/lineart/lineart_labeled_th{TH}.png', cv2.resize(np.vstack(rows), None, fx=0.5, fy=0.5))
+cv2.imwrite(SP + f'/slice/lineart/lineart_labeled_th{TH}{TAG}.png', cv2.resize(np.vstack(rows), None, fx=0.5, fy=0.5))
 print(TH, counts)
