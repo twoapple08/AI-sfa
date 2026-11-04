@@ -19,6 +19,7 @@ IMPACT_BOX = {1082: (930, 100, 1152, 360)}
 H, W = 540, 960
 import os
 K_ = int(os.environ.get('SLICE_K', 8)); TOL_ = float(os.environ.get('SLICE_TOL', 1.0)); MIN_AREA = int(os.environ.get('SLICE_MIN_AREA', 20))
+FINAL = os.environ.get('SLICE_FINAL', ''); FINAL_OFF = int(os.environ.get('SLICE_FINAL_OFF', 7))
 LEVELS = [float(x) for x in os.environ['SLICE_LEVELS'].split(',')] if os.environ.get('SLICE_LEVELS') else None
 
 
@@ -74,15 +75,19 @@ def renumber(frame_el, start):
 def main():
     z = zipfile.ZipFile(STICK); sroot = ET.fromstring(z.read(z.namelist()[0]))
     cap = cv2.VideoCapture(VIDEO)
+    fcap = cv2.VideoCapture(FINAL) if FINAL else None
     seq = ET.Element('Sequence', dict(Name='sfa_slice_v0', HeightWidthRatio='0.5625', RatioX='16', RatioY='9',
                                       FrameCount=str(len(FRAMES)), BackgroundColor='-1'))
     wr = EC.Writer(); wr.oid = 20_000_000; wr.pid = 1
-    inter = dict(schema='sfa-intermediate-v0', clip=dict(source='nian41 비공개 원본', frames=FRAMES, crop_y=[63, 711], fps=[24, 24]),
+    inter = dict(schema='sfa-intermediate-v0', clip=dict(source='nian41 비공개 원본' + (f' / 그림=완성본 +{FINAL_OFF}장' if FINAL else ''), frames=FRAMES, crop_y=[63, 711], fps=[24, 24]),
                  layers=[dict(id=i, label=n) for i, n in LAYERS], frames=[])
     sheets, next_pid = [], 1
     for pos, f in enumerate(FRAMES):
         cap.set(cv2.CAP_PROP_POS_FRAMES, f); _, raw = cap.read(); raw = raw[63:711]
         img = cv2.resize(raw, (W, H), interpolation=cv2.INTER_AREA)
+        if FINAL:   # 완성본: 라벨·인물 영역은 원화(raw)에서, 그림은 완성본 f+오프셋에서(이 구간 +7 눈 대조)
+            fcap.set(cv2.CAP_PROP_POS_FRAMES, f + FINAL_OFF); _, fin = fcap.read()
+            img = cv2.resize(fin, (W, H), interpolation=cv2.INTER_AREA)
         ms = {k: cv2.resize(v, (W, H), interpolation=cv2.INTER_NEAREST) for k, v in masks_for(raw, f, sroot).items()}
         # 인물 자리 배경 메우기(가려진 배경은 추론): 인물을 뺀 그림으로 배경을 분해해 스틱맨 뒤에 흰 구멍이 남지 않게
         filled = cv2.inpaint(img, ms['person'], 7, cv2.INPAINT_TELEA)
