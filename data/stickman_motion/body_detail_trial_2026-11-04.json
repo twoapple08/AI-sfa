@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "status": "근경 신체 외곽 선택 시험·사용자/실제앱/학습 승인 대기",
+  "representation": "body-detail-curves-v1",
+  "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "implementation_commit": "16e4acaa49eca9ed964dc278ca75f376972658d0",
+  "sfa_sha256": "5e17d10a4f099d775e6c4ca911b6500961d805c73881a19bd9114f9cc6cdff0e",
+  "counts": {
+    "Frame": 1440,
+    "AO": 25247,
+    "AP": 53372,
+    "AC": 46560,
+    "FR": 2020,
+    "FS": 4841
+  },
+  "changed_frames": 101,
+  "unchanged_frames": 1339,
+  "detail_frames": 46,
+  "max_extra_objects": 155,
+  "base_rig_objects": 11,
+  "tests": 280,
+  "test_exit_code": 0,
+  "restores_base_xml": true,
+  "app_verified": false,
+  "training_approved": false,
+  "sfa_drive_id": "1ab7E4pdMt4RJgP_iLiyuGSsMjie-FqTv",
+  "video_drive_id": "1-_zumq_ZOaaH1AZ0GKvQk2CbNZSuKDmQ",
+  "repro_drive_id": "1GmTiUFI6WYpBECBRfmtDfiwCFmo8k5Q6",
+  "report": "docs/STICKMAN-BODY-DETAIL-TRIAL-2026-11-04.md"
+}

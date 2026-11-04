@@ -1,3 +1,5 @@
+<!-- 2026-11-04 최신 진입: HANDOFF.md의0번과 docs/STICKMAN-BODY-DETAIL-TRIAL-2026-11-04.md를 우선 읽는다. 평소 뼈대/선택 표시층을 분리하고 사용자 모양·실제앱 판정 대기 상태를 유지한다. 구현16e4aca,재현Drive1GmTiUFI6WYpBECBRfmtDfiwCFmo8k5Q6. -->
+
 # AI-sfa 작업 재개 — 2026-11-03 추출 기술 v1·최종 검토 완료
 
 현재60초 확장 실패 뒤 작업은 `HANDOFF.md` 0번과 `docs/GPT-STICKMAN-GENERIC-V2-2026-11-03.md`를 먼저 따른다.405장 다리 복구는 사용자 긍정,그 뒤 축소 팔 수정은 별도 판정 대기. 기본v1/11객체 프로필은 보존하고 미완성v2를 승인/학습자료로 승격하지 않는다. GPT 전담 계속,이 문서는 Claude 복귀 준비다.
