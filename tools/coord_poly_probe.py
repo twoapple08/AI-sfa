@@ -275,7 +275,8 @@ def main():
     p.add_argument('--eval-every', type=int, default=1000)
     p.add_argument('--out')
     a = p.parse_args()
-    torch.set_num_threads(4)
+    import os
+    torch.set_num_threads(int(os.environ.get('PROBE_THREADS', 4)))   # 여러 방식을 동시에 돌릴 때 1
     res = {m: run(m, a.steps, a.bs, a.seed, a.eval_n, a.eval_every) for m in a.modes}
     if a.out:
         with open(a.out, 'w', encoding='utf-8') as f:
