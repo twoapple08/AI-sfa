@@ -116,9 +116,15 @@ if BOX:
     assert len(ray) == 4, sorted(ray)
     xl = max(ray['floor_left'][1][0], ray['ceil_left'][1][0]); xr = min(ray['floor_right'][1][0], ray['ceil_right'][1][0])
     cn = {n: PL.ray_point_at(vp[0], ray[n][0], x=(xl if n.endswith('left') else xr)) for n in ray}
-    allines = [(cn[n], ray[n][2], 'room') for n in ray]
+    # 왼쪽 열린 공간(11-05 사용자 "왼쪽 열린 공간으로 둬", PLATE_OPEN_LEFT=1 기본): 왼벽·왼쪽 경계선 없음,
+    # 바닥·천장·안쪽 벽이 판 왼쪽 끝까지 이어진다.
+    OPEN_L = os.environ.get('PLATE_OPEN_LEFT', '1') == '1'
+    if OPEN_L:
+        ty, by = cn['ceil_right'][1], cn['floor_right'][1]
+        cn['ceil_left'], cn['floor_left'] = (0.0, ty), (0.0, by); xl = 0.0
+    allines = [(cn[n], ray[n][2], 'room') for n in ray if not (OPEN_L and n.endswith('left'))]
     allines += [(cn['ceil_left'], cn['ceil_right'], 'room'), (cn['floor_left'], cn['floor_right'], 'room'),
-                (cn['ceil_left'], cn['floor_left'], 'room'), (cn['ceil_right'], cn['floor_right'], 'room')]
+                (cn['ceil_right'], cn['floor_right'], 'room')] + ([] if OPEN_L else [(cn['ceil_left'], cn['floor_left'], 'room')])
     yy, xx = np.mgrid[0:PH, 0:PW]
     th = np.arctan2(yy - vy, xx - vx)
     A = {n: ray[n][0] for n in ray}
@@ -126,6 +132,9 @@ if BOX:
     faces[(th > A['ceil_left']) & (th < A['ceil_right'])] = 1               # 1 천장
     faces[(th >= A['ceil_right']) & (th < A['floor_right'])] = 2            # 2 오른쪽 벽
     faces[(th >= A['floor_right']) & (th < A['floor_left'])] = 0            # 0 바닥
+    if OPEN_L:   # 왼쪽: 안쪽 벽 위 = 천장, 아래 = 바닥
+        lft = (faces == 3) | ((faces != 2) & (xx < cn['ceil_right'][0]))
+        faces[lft & (yy < cn['ceil_right'][1])] = 1; faces[lft & (yy > cn['floor_right'][1])] = 0
     inside = (xx >= xl) & (xx <= xr)
     top = np.interp(xx, [xl, xr], [cn['ceil_left'][1], cn['ceil_right'][1]]); bot = np.interp(xx, [xl, xr], [cn['floor_left'][1], cn['floor_right'][1]])
     faces[inside & (yy >= top) & (yy <= bot)] = 4                            # 4 안쪽 벽
