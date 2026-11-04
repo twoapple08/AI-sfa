@@ -140,7 +140,7 @@ def snap(segs, vp):
                 for _, a, b in merge_intervals([(phi, g[1], g[2]) for g in grp], GAP):
                     lines.append(((v[0] + a * math.cos(phi), v[1] + a * math.sin(phi)), (v[0] + b * math.cos(phi), v[1] + b * math.sin(phi)), 'r'))
     lines = [l for l in lines if math.hypot(l[0][0] - l[1][0], l[0][1] - l[1][1]) >= MIN_OUT]
-    other = [((s[0], s[1]), (s[2], s[3]), 'o') for s in other if seglen(s) >= MIN_OUT + 10]
+    other = [((s[0], s[1]), (s[2], s[3]), 'o') for s in other if seglen(s) >= int(os.environ.get('PL_OTHER_MIN', MIN_OUT + 10))]
     return lines, other, dict(h=len(hor), v=len(ver), r=len(rad), o=len(other))
 
 
@@ -226,6 +226,31 @@ def corners(lines, tol=10):
     return [tuple(l) for l in lines], n_c
 
 
+def lineart_segs(img, person):
+    x = torch.from_numpy(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)).float().permute(2, 0, 1)[None] / 255
+    with torch.no_grad(): zz = g(x)[0, 0].clamp(0, 1).numpy()
+    la = (zz * 255).astype(np.uint8); la[person > 0] = 255
+    det = lsd.detect(la)[0]
+    segs = [tuple(map(float, s)) for s in (np.asarray(det).reshape(-1, 4) if det is not None else [])]
+    return la, [s for s in segs if seglen(s) >= MIN_SEG]
+
+
+orb = cv2.ORB_create(2000)
+
+
+def to_target(img_t, img_n, person_t, person_n):
+    """이웃 장 → 대상 장 호모그래피(배경 특징점만, 인물 제외). 대응이 약하면 None(컷 바뀜·큰 움직임)."""
+    gt = cv2.cvtColor(img_t, cv2.COLOR_BGR2GRAY); gn = cv2.cvtColor(img_n, cv2.COLOR_BGR2GRAY)
+    k1, d1 = orb.detectAndCompute(gn, (1 - person_n) * 255); k2, d2 = orb.detectAndCompute(gt, (1 - person_t) * 255)
+    if d1 is None or d2 is None or len(k1) < 30 or len(k2) < 30: return None, 0
+    m = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True).match(d1, d2)
+    if len(m) < 30: return None, 0
+    src = np.float32([k1[x.queryIdx].pt for x in m]); dst = np.float32([k2[x.trainIdx].pt for x in m])
+    Hm, inl = cv2.findHomography(src, dst, cv2.RANSAC, 3.0)
+    n_in = int(inl.sum()) if inl is not None else 0
+    return (Hm, n_in) if Hm is not None and n_in >= 60 else (None, n_in)
+
+
 COL = {'h': (40, 40, 200), 'v': (40, 160, 40), 'r': (200, 60, 40), 'o': (150, 150, 150)}
 rows, stats = [], []
 seq = ET.Element('Sequence', dict(Name='sfa_slice_perspective_v1', HeightWidthRatio='0.5625', RatioX='16', RatioY='9', FrameCount=str(len(FRAMES)), BackgroundColor='-1'))
@@ -233,12 +258,21 @@ rng = np.random.default_rng(0)
 for pos, f in enumerate(FRAMES):
     raw, person = person_for(f)
     B.set(1, f + 7); _, im = B.read(); img = cv2.resize(im, (W, H), interpolation=cv2.INTER_AREA)
-    x = torch.from_numpy(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)).float().permute(2, 0, 1)[None] / 255
-    with torch.no_grad(): zz = g(x)[0, 0].clamp(0, 1).numpy()
-    la = (zz * 255).astype(np.uint8); la[person > 0] = 255
-    det = lsd.detect(la)[0]
-    segs = [tuple(map(float, s)) for s in (np.asarray(det).reshape(-1, 4) if det is not None else [])]
-    segs = [s for s in segs if seglen(s) >= MIN_SEG]
+    la, segs = lineart_segs(img, person)
+    used = []
+    for dlt in [int(v) for v in os.environ.get('PL_MULTI', '').split(',') if v]:   # 같은 컷 이웃 장의 선분 모으기
+        _, pn = person_for(f + dlt)
+        B.set(1, f + dlt + 7); okn, imn = B.read()
+        if not okn: continue
+        imn = cv2.resize(imn, (W, H), interpolation=cv2.INTER_AREA)
+        Hm, n_in = to_target(img, imn, person, pn)
+        if Hm is None: used.append((dlt, n_in, 0)); continue
+        _, sn = lineart_segs(imn, pn)
+        pts = np.float32([[s[0], s[1]] for s in sn] + [[s[2], s[3]] for s in sn]).reshape(-1, 1, 2)
+        tp = cv2.perspectiveTransform(pts, Hm).reshape(-1, 2); n = len(sn)
+        add = [(tp[i][0], tp[i][1], tp[n + i][0], tp[n + i][1]) for i in range(n)]
+        add = [s_ for s_ in add if person[int(np.clip((s_[1] + s_[3]) / 2, 0, H - 1)), int(np.clip((s_[0] + s_[2]) / 2, 0, W - 1))] == 0 or True]
+        segs += add; used.append((dlt, n_in, len(add)))
     vp1, sc1 = estimate_vp(segs, rng)
     vp, vp_score = ([vp1], sc1) if vp1 is not None else (None, 0)
     if vp1 is not None:   # 둘째 소실점: 첫 소실점을 따르지 않는 선분으로 다시
@@ -255,7 +289,7 @@ for pos, f in enumerate(FRAMES):
         lines, grown = extend(lines, ev); st['grown_px'] = int(grown)
         lines, st['corners'] = corners(lines)
         lines = [l for l in lines if math.hypot(l[0][0] - l[1][0], l[0][1] - l[1][1]) >= MIN_OUT]
-    stats.append(dict(frame=f, segs=len(segs), vp=None if vp is None else [[round(v[0]), round(v[1])] for v in vp], vp_share=round(vp_score, 2), **st, out=len(lines), other=len(other)))
+    stats.append(dict(frame=f, neighbours=used, segs=len(segs), vp=None if vp is None else [[round(v[0]), round(v[1])] for v in vp], vp_share=round(vp_score, 2), **st, out=len(lines), other=len(other)))
     # 그림: 원본 / LSD 선분 / 스냅 결과(색=방향) + 스틱맨
     c1 = np.full_like(img, 255)
     for s in segs: cv2.line(c1, (int(s[0]), int(s[1])), (int(s[2]), int(s[3])), (60, 60, 60), 1, cv2.LINE_AA)
