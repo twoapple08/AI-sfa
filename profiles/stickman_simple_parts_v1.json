@@ -2,7 +2,7 @@
   "schema": 1,
   "id": "simple-parts-v1",
   "base_rig": "stickman-2d-11-v1",
-  "status": "단순 부속 선택 시험·사용자/실제앱 검증 대기",
+  "status": "미채택 이력:세손가락/근경 면 누락. v2와tapered-parts-v1 사용",
   "edges": [
     [
       "wri_l",

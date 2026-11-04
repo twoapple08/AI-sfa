@@ -10,7 +10,7 @@
 0. **최우선: 근경 연속 면·다섯 손가락 수정본 사용자/앱 판정.** 단순화를 근경 면 삭제/손가락3개로 잘못 적용했던 것을 정정. `docs/STICKMAN-NEAR-FIVE-FINGERS-2026-11-04.md`부터 읽는다. 원본 외곽/주름은 따지 않고 중심선의 원근 폭을 연속 면으로 표현한다. simple-parts-v1 가는 선·3손가락은 미채택 이력이다.
    - 최신SFA `1QPqYeJxQglw2v7ZPliWyhFMtfCWjF1SN`,비교 `1cxbSJX2tDvq6VtgZ-F_bjt18bWxlX25y`,손시트 `1tGTYGmdcYInjA5NxCQn-t23pTCFv1AGj`. SHA f100a5b333eed61436e71db778017f69f0cb0e714eb1f14e77aefbec41f3ab18.
    - 고정11+v2직선부속24=35,근경면은 가시 선당12객체 추가,인물당 최대431.286시험OK·exit0,손50회 다섯 끝점/면 저장 대조.면제거 후 중심선1440장 XML동일/부속제거 후 뼈대·면·접촉 검사 통과.46장만 변경/1394장 동일,기존 승인구간/팔·차기·가림 보존. 실제폰 미확인.
-   - 입력은 손4/몸5 수동표시키+보간/추론,폭은 색 단면 측정+유효하지 않을 때 표시 추론이다. 자동5손가락 검출 성공/원근3D복원 아님. 캐시 ai-sfa-private/near_parts_20261104/. 피팅 재실행 금지. 구현SHA/재현 묶음은 전담 로그를 따른다.
+   - 입력은 손4/몸5 수동표시키+보간/추론,폭은 색 단면 측정+유효하지 않을 때 표시 추론이다. 자동5손가락 검출 성공/원근3D복원 아님. 캐시 ai-sfa-private/near_parts_20261104/. 피팅 재실행 금지. 구현1db977108ba2cd66088ffc0e2e3754ab664fb687,재현zip1SR_pYfImg57uiCmL6SII8t9UUNUfgce2(202파일/11.11MB).
    - **바로 할 일:** 새 모양/실제앱 판정 반영→원본컷통합/전체1분 잔여오류/자동관측 개선.1032/1272는실험분할이다.1612 아래 부위는 손,옛 전체구간 다리 명칭은 정답 재사용 금지. GPU/학습/Kaggle추가조회 없음.
 
 1. **머리 채움 실제 앱 누락 수정·모바일 뷰어 v1.1 배포 완료.** 사용자 녹화에서 공통 누락 확인. `docs/GPT-STICKMAN-HEAD-FILL-APP-FIX-2026-11-03.md`, `docs/SFA-VIEWER-1.1-2026-11-03.md`를 읽는다. 머리 FS의 Kind 누락을 원 전체 Kind1로 수정,모든 AO/좌표/AC/근경 면은 그대로. 최신 주 SFA Drive `1o3cTOMY9X9keVJczwIJqBuYbXZU5Erb_`,SHA `6e820c62ff58c80fd9cf9dfce1116419a43c8c23ebe30f31e4bd37cb2ef93c4a`. 흰 머리469·근경 면2 유지. 저장 형식 revision2/지문만 갱신,장면 데이터 변경0.

@@ -22,3 +22,6 @@
 직전 팔/차기/가림 기준판 대비46장만 변경/1394장 XML 동일. 면을 제거하면 다섯 손가락 중심선 파일1440장과 XML 정확 일치. 기존10초/405다리/419앞팔 및 다른 팔/차기/전경가림 수정 보존. 원본컷 통합/전체1분 검토/자동 관측 개선/학습 승인은 남는다.
 
 비공개 캐시 `ai-sfa-private/near_parts_20261104/`. 순서 `build.py`→`surfaces.py`→`render.py`. 원본/고정 캐시 지문을 복원해 재피팅하지 않는다. 최신SFA SHA `f100a5b333eed61436e71db778017f69f0cb0e714eb1f14e77aefbec41f3ab18`.
+
+
+구현 커밋 `1db977108ba2cd66088ffc0e2e3754ab664fb687` 저장/푸시 완료. [재현 묶음](https://drive.google.com/file/d/1SR_pYfImg57uiCmL6SII8t9UUNUfgce2/view):202개 파일/약11.11MB,파일별SHA/ZIP검사 통과. 원본/전체RTMW/가중치/토큰 제외,기존Drive에서복원. 현재 활성은 simple-parts-v2+tapered-parts-v1이며 이전 세손가락/면삭제판은 이력이다.

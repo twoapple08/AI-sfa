@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "status": "단순 부속 선택 시험·사용자/실제앱/학습 승인 대기",
+  "status": "미채택: 가까운 면 누락/손가락3개로 잘못 적용. v2+연속면으로 대체",
   "implementation_commit": "86cdeb0e180cf99646674d93c666c5338608262d",
   "representation": "simple-parts-v1",
   "base_objects": 11,

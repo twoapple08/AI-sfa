@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "status": "근경 연속면·다섯 손가락 시험/사용자·실제앱 판정 대기",
+  "implementation_commit": "1db977108ba2cd66088ffc0e2e3754ab664fb687",
+  "fingers_per_hand": 5,
+  "validated_hand_appearances": 50,
+  "core_objects": 35,
+  "maximum_objects_per_actor": 431,
+  "changed_frames": 46,
+  "unchanged_frames": 1394,
+  "python_tests": 286,
+  "test_exit_code": 0,
+  "app_verified": false,
+  "training_approved": false,
+  "automatic_five_finger_detection": false,
+  "sfa_sha256": "f100a5b333eed61436e71db778017f69f0cb0e714eb1f14e77aefbec41f3ab18",
+  "sfa_drive_id": "1QPqYeJxQglw2v7ZPliWyhFMtfCWjF1SN",
+  "video_drive_id": "1cxbSJX2tDvq6VtgZ-F_bjt18bWxlX25y",
+  "repro_drive_id": "1SR_pYfImg57uiCmL6SII8t9UUNUfgce2",
+  "report": "docs/STICKMAN-NEAR-FIVE-FINGERS-2026-11-04.md"
+}

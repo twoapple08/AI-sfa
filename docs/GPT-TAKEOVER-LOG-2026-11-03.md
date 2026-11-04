@@ -307,3 +307,6 @@
 ## 2026-11-04 — 근경 면 복원·다섯 손가락 정정
 
 사용자 단순화를 면 삭제/3손가락으로 잘못 적용한 것을 지적. 근경 연속 면과 다섯 손가락을 함께 구현. v2부속24·중심선 기반 원근 면,원본 외곽 추적 아님. 기존 수동키/추론 및 색 단면 폭 측정 한계 명시.286시험OK·28.291초·exit0,공유마디 면 연결/폭 렌더 시험·부적절 반지름 거부·실제망/채움·면제거 XML1440장 일치. 손50회5끝점/면 대조,기준판 대비46장만변경/1394장동일. 인물당최대431객체,실제폰 미확인. 최신SFA1QPqYeJxQglw2v7ZPliWyhFMtfCWjF1SN/비교1cxbSJX2tDvq6VtgZ-F_bjt18bWxlX25y,상세보고 docs/STICKMAN-NEAR-FIVE-FINGERS-2026-11-04.md. 스킬/AGENTS/HANDOFF 정정. 구현SHA/재현은 저장 후 기록.
+
+
+구현 커밋 `1db977108ba2cd66088ffc0e2e3754ab664fb687` 저장/푸시 완료. [재현 묶음](https://drive.google.com/file/d/1SR_pYfImg57uiCmL6SII8t9UUNUfgce2/view):202개 파일/약11.11MB,파일별SHA/ZIP검사 통과. 원본/전체RTMW/가중치/토큰 제외,기존Drive에서복원. 현재 활성은 simple-parts-v2+tapered-parts-v1이며 이전 세손가락/면삭제판은 이력이다.
