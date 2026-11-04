@@ -144,6 +144,88 @@ def snap(segs, vp):
     return lines, other, dict(h=len(hor), v=len(ver), r=len(rad), o=len(other))
 
 
+def _u(a, b):
+    L = math.hypot(b[0] - a[0], b[1] - a[1]) or 1e-9
+    return ((b[0] - a[0]) / L, (b[1] - a[1]) / L), L
+
+
+def _ldist(p, a, b):
+    (ux, uy), _ = _u(a, b)
+    return abs((p[0] - a[0]) * uy - (p[1] - a[1]) * ux)
+
+
+def _ang(a, b):
+    return math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) % 180
+
+
+def bridge(lines, pm, max_gap=300, cover=0.6):
+    """인물에 가려 끊긴 같은 직선 위 두 조각 잇기(추론): 빈칸의 cover 이상이 인물 영역이면."""
+    n_b, changed = 0, True
+    while changed:
+        changed = False
+        for i in range(len(lines)):
+            a = lines[i]
+            for j in range(i + 1, len(lines)):
+                b = lines[j]
+                if a[2] != b[2]: continue
+                d = abs(_ang(a[0], a[1]) - _ang(b[0], b[1])); d = min(d, 180 - d)
+                if d > 1.5 or max(_ldist(b[0], a[0], a[1]), _ldist(b[1], a[0], a[1])) > 3: continue
+                p, q = min(((p, q) for p in a[:2] for q in b[:2]), key=lambda t: math.hypot(t[0][0] - t[1][0], t[0][1] - t[1][1]))
+                gap = math.hypot(p[0] - q[0], p[1] - q[1])
+                if gap > max_gap: continue
+                n = max(2, int(gap))
+                xs = np.linspace(p[0], q[0], n).astype(int).clip(0, W - 1); ys = np.linspace(p[1], q[1], n).astype(int).clip(0, H - 1)
+                if gap > GAP and pm[ys, xs].mean() < cover: continue
+                pts = [a[0], a[1], b[0], b[1]]
+                far = max(((u, v) for u in pts for v in pts), key=lambda t: math.hypot(t[0][0] - t[1][0], t[0][1] - t[1][1]))
+                lines[i] = (far[0], far[1], a[2]); lines.pop(j); changed = True; n_b += gap > GAP; break
+            if changed: break
+    return lines, n_b
+
+
+def extend(lines, ev, miss_max=8):
+    """근거(완성본 경계·선화)가 이어지는 곳까지 양 끝을 늘린다. 근거 없는 칸이 miss_max 넘게 이어지면 멈추고 그 앞에서 자른다."""
+    out, grown = [], 0
+    for a, b, k in lines:
+        (ux, uy), L = _u(a, b)
+        ends = []
+        for p, sx, sy in ((b, ux, uy), (a, -ux, -uy)):
+            x, y, last, miss, t = p[0], p[1], p, 0, 0
+            while miss <= miss_max:
+                t += 1; x, y = p[0] + sx * t, p[1] + sy * t
+                if not (0 <= x < W and 0 <= y < H): break
+                if ev[int(y), int(x)]: last, miss = (x, y), 0
+                else: miss += 1
+            ends.append(last)
+        grown += math.hypot(ends[0][0] - b[0], ends[0][1] - b[1]) + math.hypot(ends[1][0] - a[0], ends[1][1] - a[1])
+        out.append((ends[1], ends[0], k))
+    return out, grown
+
+
+def corners(lines, tol=10):
+    """선 끝이 다른(평행 아닌) 선과 tol 안에서 거의 만나면 정확히 교점으로."""
+    lines = [list(l) for l in lines]; n_c = 0
+    for i, L1 in enumerate(lines):
+        for e in (0, 1):
+            p = L1[e]; best = None
+            for j, L2 in enumerate(lines):
+                if i == j: continue
+                d = abs(_ang(L1[0], L1[1]) - _ang(L2[0], L2[1])); d = min(d, 180 - d)
+                if d < 10: continue
+                x1, y1 = L1[0]; x2, y2 = L1[1]; x3, y3 = L2[0]; x4, y4 = L2[1]
+                den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+                if abs(den) < 1e-9: continue
+                X = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / den
+                Y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / den
+                dp = math.hypot(X - p[0], Y - p[1])
+                if dp > tol: continue
+                (ux, uy), L = _u(L2[0], L2[1]); tt = (X - L2[0][0]) * ux + (Y - L2[0][1]) * uy
+                if not (-tol <= tt <= L + tol): continue
+                if best is None or dp < best[0]: best = (dp, (X, Y))
+            if best: L1[e] = best[1]; n_c += 1
+    return [tuple(l) for l in lines], n_c
+
+
 COL = {'h': (40, 40, 200), 'v': (40, 160, 40), 'r': (200, 60, 40), 'o': (150, 150, 150)}
 rows, stats = [], []
 seq = ET.Element('Sequence', dict(Name='sfa_slice_perspective_v1', HeightWidthRatio='0.5625', RatioX='16', RatioY='9', FrameCount=str(len(FRAMES)), BackgroundColor='-1'))
@@ -165,6 +247,14 @@ for pos, f in enumerate(FRAMES):
         if vp2 is not None and sc2 > 0.25 and math.hypot(vp2[0] - vp1[0], vp2[1] - vp1[1]) > 80:
             vp.append(vp2)
     lines, other, st = snap(segs, vp)
+    if os.environ.get('PL_REFINE', '1') == '1':
+        gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (3, 3), 0)
+        ev = (cv2.Canny(gray, 25, 70) > 0) | (la < 200)
+        ev = cv2.dilate(ev.astype(np.uint8), np.ones((3, 3), np.uint8)) & (1 - person)
+        lines, st['bridged'] = bridge(lines, cv2.dilate(person, np.ones((9, 9), np.uint8)))
+        lines, grown = extend(lines, ev); st['grown_px'] = int(grown)
+        lines, st['corners'] = corners(lines)
+        lines = [l for l in lines if math.hypot(l[0][0] - l[1][0], l[0][1] - l[1][1]) >= MIN_OUT]
     stats.append(dict(frame=f, segs=len(segs), vp=None if vp is None else [[round(v[0]), round(v[1])] for v in vp], vp_share=round(vp_score, 2), **st, out=len(lines), other=len(other)))
     # 그림: 원본 / LSD 선분 / 스냅 결과(색=방향) + 스틱맨
     c1 = np.full_like(img, 255)
@@ -193,7 +283,7 @@ for pos, f in enumerate(FRAMES):
     for ac in fr.iter('AC'): ac.set('ConnPtId', m.get(ac.get('ConnPtId'), ac.get('ConnPtId')))
     R.PARAMS.update(pad=0.0, thick_mul=1.0)
     rend = cv2.cvtColor(R.render_frame(seq, fr, W, H)[..., :3].astype(np.uint8), cv2.COLOR_RGB2BGR)
-    cv2.putText(c2, f'h{st["h"]} v{st["v"]} vp{st["r"]} other{st["o"]} -> {len(lines)} lines', (6, 28), 0, 0.8, (0, 0, 255), 2)
+    cv2.putText(c2, f'{len(lines)} lines  bridge{st.get("bridged", 0)} corner{st.get("corners", 0)}', (6, 28), 0, 0.8, (0, 0, 255), 2)
     rows.append(np.hstack([img, c1, c2, rend]))
 with zipfile.ZipFile(SP + f'/slice/lineart/sfa_slice_perspective{TAG}.sfa', 'w', zipfile.ZIP_DEFLATED) as zf:
     zf.writestr('sfa_slice_perspective.xml', ET.tostring(seq, encoding='utf-8', xml_declaration=True))
