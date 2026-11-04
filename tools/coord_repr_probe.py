@@ -5,6 +5,7 @@
 
 - flat: 8192칸 한 토큰. 손실 = 정확한 칸 50% + 이웃 ±2칸 50%(seq_train.token_loss와 같은 방식)
 - two: 거친 128칸 → 세부 64칸 두 토큰(128×64=8192). 손실 = 보통 교차 엔트로피
+- flat1k: 1024칸 한 토큰(칸 8배 큼, 문장 길이 그대로). 손실은 flat과 같은 정확50%+이웃±2칸50%
 
 과제: 160×90 그림의 직선 1~3개 끝점을 적는다. 그림은 매 묶음 새로 만든다(외우기 아님).
 선 순서는 정해진 규칙(왼쪽 끝 먼저, 선은 시작 x 순)이다. 실제 SFA/학습 자료와 무관한 진단 도구이며
@@ -27,8 +28,12 @@ BOS, EOS, LINE = 0, 1, 2
 SPECIAL = 3
 
 
+Q1K = 1024
+SINGLE = {'flat': Q, 'flat1k': Q1K}   # 한 토큰 표현의 칸 수
+
+
 def vocab(mode):
-    return SPECIAL + (Q if mode == 'flat' else COARSE + FINE)
+    return SPECIAL + (SINGLE[mode] if mode in SINGLE else COARSE + FINE)
 
 
 def sample(rng, n_max=3):
@@ -53,12 +58,12 @@ def render(lines):
     return im
 
 
-def quant(v):
-    return int(np.clip(round(v / 100 * (Q - 1)), 0, Q - 1))
+def quant(v, n=Q):
+    return int(np.clip(round(v / 100 * (n - 1)), 0, n - 1))
 
 
-def dequant(q):
-    return q / (Q - 1) * 100
+def dequant(q, n=Q):
+    return q / (n - 1) * 100
 
 
 def encode(lines, mode):
@@ -66,8 +71,11 @@ def encode(lines, mode):
     for x0, y0, x1, y1, _ in lines:
         toks.append(LINE)
         for v in (x0, y0, x1, y1):
-            q = quant(v)
-            toks += [SPECIAL + q] if mode == 'flat' else [SPECIAL + q // FINE, SPECIAL + COARSE + q % FINE]
+            if mode in SINGLE:
+                toks.append(SPECIAL + quant(v, SINGLE[mode]))
+            else:
+                q = quant(v)
+                toks += [SPECIAL + q // FINE, SPECIAL + COARSE + q % FINE]
     return toks + [EOS]
 
 
@@ -75,12 +83,12 @@ def grammar_masks(mode, prefix_len_after_line):
     """LINE 뒤 몇 번째 토큰인지로 허용 토큰 범위를 정한다."""
     V = vocab(mode)
     m = torch.full((V,), float('-inf'))
-    per = 4 if mode == 'flat' else 8
+    per = 4 if mode in SINGLE else 8
     k = prefix_len_after_line
     if k is None or k == per:          # 선 시작 전/끝난 뒤: LINE 또는 EOS
         m[LINE] = m[EOS] = 0
-    elif mode == 'flat':
-        m[SPECIAL:SPECIAL + Q] = 0
+    elif mode in SINGLE:
+        m[SPECIAL:SPECIAL + SINGLE[mode]] = 0
     elif k % 2 == 0:
         m[SPECIAL:SPECIAL + COARSE] = 0
     else:
@@ -133,11 +141,11 @@ def batch(rng, n, mode):
 def loss_fn(logits, tgt, mask, mode):
     logp = F.log_softmax(logits, -1)
     exact = -logp.gather(-1, tgt[..., None])[..., 0]
-    if mode == 'flat':
+    if mode in SINGLE:
         # 실제 변환기의 수 칸 손실처럼: 정확한 칸 50% + 이웃 ±2칸 분포 50%
         is_num = tgt >= SPECIAL
         off = torch.arange(-2, 3)
-        nb = (tgt[..., None] + off).clamp(SPECIAL, SPECIAL + Q - 1)
+        nb = (tgt[..., None] + off).clamp(SPECIAL, SPECIAL + SINGLE[mode] - 1)
         soft = -logp.gather(-1, nb).mean(-1)
         exact = torch.where(is_num, 0.5 * exact + 0.5 * soft, exact)
     m = mask.float()
@@ -149,7 +157,6 @@ def generate(net, img, maxlen=40):
     mode = net.mode
     toks, k = [BOS], None
     mem = net.memory(img[None])
-    per = 4 if mode == 'flat' else 8
     while len(toks) < maxlen:
         T = len(toks)
         x = net.emb(torch.tensor(toks)[None]) + net.pos.weight[:T][None]
@@ -171,8 +178,8 @@ def decode(toks, mode):
         if t == LINE:
             vals = []
         elif t >= SPECIAL:
-            if mode == 'flat':
-                vals.append(dequant(t - SPECIAL))
+            if mode in SINGLE:
+                vals.append(dequant(t - SPECIAL, SINGLE[mode]))
             elif t < SPECIAL + COARSE and i + 1 < len(toks) and toks[i + 1] >= SPECIAL + COARSE:
                 vals.append(dequant((t - SPECIAL) * FINE + toks[i + 1] - SPECIAL - COARSE))
                 i += 1

@@ -20,12 +20,12 @@ class TestCoordReprProbe(unittest.TestCase):
     def test_both_representations_round_trip_to_same_quantized_lines(self):
         P = self.P
         lines = [(10.0, 20.0, 80.0, 70.0, 1), (33.3, 5.5, 90.1, 94.9, 2)]
-        for mode in ('flat', 'two'):
+        for mode in ('flat', 'two', 'flat1k'):
             got = P.decode(P.encode(lines, mode), mode)
             self.assertEqual(len(got), 2)
             for g, t in zip(got, lines):
                 for a, b in zip(g, t[:4]):
-                    self.assertAlmostEqual(a, b, delta=100 / (P.Q - 1))
+                    self.assertAlmostEqual(a, b, delta=100 / (P.SINGLE.get(mode, P.Q) - 1))
 
     def test_two_level_uses_same_total_resolution(self):
         self.assertEqual(self.P.COARSE * self.P.FINE, self.P.Q)
