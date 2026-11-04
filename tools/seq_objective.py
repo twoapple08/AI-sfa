@@ -12,7 +12,7 @@ WEIGHTS = {'token-v1': (0., 0., 0.), 'balanced-v1': (.2, .2, .1)}
 APPEARANCE = [('color', 'bg'), ('thick',), ('glow',), ('obj', 'ptidx', 't')]
 
 
-@lru_cache(maxsize=1024)
+@lru_cache(maxsize=65536)   # 학습 자료 약4만 장을 한 번만 읽도록(장당 문법 읽기 약5ms, 11-05 측정). 수백 MB
 def metadata(tokens, coord2=False, coord3=False):
     """CPU 원정답을 엄격 문법으로 읽는다. 로그잇 위치는 BOS 다음부터0이다.
     coord2: 두 단계 좌표 토큰열(seq_coord2)을 그 문법(grammar2)으로 읽는다. 종료 비교의 계속 후보도 C 토큰 범위가 된다."""
