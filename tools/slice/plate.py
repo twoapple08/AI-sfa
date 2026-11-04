@@ -101,9 +101,42 @@ if os.environ.get('PLATE_FLOOR', '0') != '1':
     lines = [l for l in lines if l[2] != 'floorx']; lay['floor_lines'] = 0
 other = [o for o in other if math.hypot(o[0][0] - o[1][0], o[0][1] - o[1][1]) >= 60]
 allines = lines + other
+
+# 방 틀만(11-05 사용자 "천장도 면으로, 중간 기둥 같은 것도 다 빼 봐"): 네 경계선 + 안쪽 벽 사각형 = 바닥·천장·좌우 벽·안쪽 벽 5면.
+# 보·기둥·세부·기타 선은 모두 뺀다. 면 채색은 나중(확인 그림에서만 면을 색으로 구분).
+BOX = os.environ.get('PLATE_BOX', '0') == '1'
+faces = None
+if BOX:
+    vx, vy = vp[0]
+    ray = {}
+    for a, b, k in lines:
+        if k != 'room': continue
+        side = 'right' if b[0] > vx else 'left'; lvl = 'floor' if b[1] > vy else 'ceil'
+        ray[f'{lvl}_{side}'] = (math.atan2(b[1] - vy, b[0] - vx), a, b)
+    assert len(ray) == 4, sorted(ray)
+    xl = max(ray['floor_left'][1][0], ray['ceil_left'][1][0]); xr = min(ray['floor_right'][1][0], ray['ceil_right'][1][0])
+    cn = {n: PL.ray_point_at(vp[0], ray[n][0], x=(xl if n.endswith('left') else xr)) for n in ray}
+    allines = [(cn[n], ray[n][2], 'room') for n in ray]
+    allines += [(cn['ceil_left'], cn['ceil_right'], 'room'), (cn['floor_left'], cn['floor_right'], 'room'),
+                (cn['ceil_left'], cn['floor_left'], 'room'), (cn['ceil_right'], cn['floor_right'], 'room')]
+    yy, xx = np.mgrid[0:PH, 0:PW]
+    th = np.arctan2(yy - vy, xx - vx)
+    A = {n: ray[n][0] for n in ray}
+    faces = np.full((PH, PW), 3, np.uint8)                                   # 3 왼쪽 벽
+    faces[(th > A['ceil_left']) & (th < A['ceil_right'])] = 1               # 1 천장
+    faces[(th >= A['ceil_right']) & (th < A['floor_right'])] = 2            # 2 오른쪽 벽
+    faces[(th >= A['floor_right']) & (th < A['floor_left'])] = 0            # 0 바닥
+    inside = (xx >= xl) & (xx <= xr)
+    top = np.interp(xx, [xl, xr], [cn['ceil_left'][1], cn['ceil_right'][1]]); bot = np.interp(xx, [xl, xr], [cn['floor_left'][1], cn['floor_right'][1]])
+    faces[inside & (yy >= top) & (yy <= bot)] = 4                            # 4 안쪽 벽
+    lay = dict(lay, box=dict(back_wall=[round(xl), round(cn['ceil_left'][1]), round(xr), round(cn['floor_left'][1])]))
+    print('방 틀만: 선', len(allines), '안쪽 벽', lay['box'])
 print('판 소실점', [[round(v[0]), round(v[1])] for v in vp], '선', len(lines), '기타', len(other), lay)
 
 vis = np.full_like(plate, 255)
+if faces is not None:   # 면 구분 확인용 색(바닥·천장·오른벽·왼벽·안쪽 벽)
+    FC = np.array([[170, 200, 230], [200, 180, 160], [160, 200, 170], [190, 170, 200], [220, 220, 220]], np.uint8)
+    vis = FC[faces]
 for a, b, k in allines:
     cv2.line(vis, tuple(map(int, a)), tuple(map(int, b)), PL.COL[k], 3 if k == 'room' else 1 if k in ('o', 'detail') else 2, cv2.LINE_AA)
 cv2.imwrite(SP + '/slice/plate/plate_lines.png', np.vstack([plate, vis]))
