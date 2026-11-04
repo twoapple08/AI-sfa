@@ -28,13 +28,20 @@ def safe_relative(name):
 
 
 def replay(bundle,destination):
-    destination=Path(destination)
+    destination=Path(destination).resolve()
     if destination.exists():raise ValueError('기존 폴더를 덮지 않는다. 새 재현 폴더가 필요하다')
     repo=Path(__file__).resolve().parents[1]
     with zipfile.ZipFile(bundle) as z:
         for name in z.namelist():safe_relative(name)
         manifest=json.loads(z.read('manifest.json'))
         spec=manifest['replay']
+        locked=[]
+        for decision in spec.get('locked_decisions',[]):
+            name=decision['path'];safe_relative(name)
+            expected=manifest['files'].get(name)
+            if not decision.get('kind') or expected is None or expected!=decision['sha256']:
+                raise ValueError('수동 보정/추론 입력 고정 기록 불일치: '+name)
+            locked.append((name,decision['kind'],expected))
         for name,digest in spec['code_sha256'].items():
             safe_relative(name)
             if sha(repo/name)!=digest:raise ValueError('재현 코드 지문 불일치: '+name)
@@ -53,7 +60,9 @@ def replay(bundle,destination):
     if process.returncode or not output.exists():raise ValueError('재생성 실패: replay_console.txt 확인')
     actual=xml_sha(output)
     report=dict(exit_code=process.returncode,xml_sha256=actual,
-        expected_xml_sha256=spec['expected_xml_sha256'],xml_identical=actual==spec['expected_xml_sha256'])
+        expected_xml_sha256=spec['expected_xml_sha256'],xml_identical=actual==spec['expected_xml_sha256'],
+        locked_decisions_verified=len(locked),
+        decision_input_sha256=hashlib.sha256(json.dumps(locked,ensure_ascii=False).encode()).hexdigest())
     (destination/'replay_result.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
     if not report['xml_identical']:raise ValueError('재현 XML 불일치: replay_result.json 확인')
     return report
