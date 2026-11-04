@@ -4,6 +4,21 @@ import numpy as np
 from stickman_clip import AO0
 
 
+def shared_node_widths(specs,slot):
+    """AP의 실제 끝점 순서로 공유 마디 폭을 일치시킨다.팔의 점 순서는 다리와 다르다."""
+    names={2:('neck','pelvis'),3:('elb_r','neck'),4:('wri_r','elb_r'),
+           5:('elb_l','neck'),6:('wri_l','elb_l'),7:('pelvis','kne_r'),8:('kne_r','ank_r'),
+           9:('pelvis','kne_l'),10:('kne_l','ank_l')}
+    result=copy.deepcopy(specs);nodes={}
+    for s in result:
+        r=np.asarray(s['radii_px'],float)
+        if r.shape!=(2,) or not np.isfinite(r).all() or (r<=0).any():raise ValueError('공유 마디의 양수 반지름 오류')
+        roles=names[s['object_id']-AO0-slot*100]
+        for role,radius in zip(roles,s['radii_px']):nodes.setdefault(role,[]).append(float(radius))
+    for s in result:s['radii_px']=[float(np.mean(nodes[n])) for n in names[s['object_id']-AO0-slot*100]]
+    return result
+
+
 def normalize_taper_widths(specs, thickness, radius_per_thickness=2.736):
     """옷 폭을 그대로 면 반지름으로 쓰지 않고 스틱 선과 같은 표시 척도로 맞춘다.
 
@@ -38,8 +53,9 @@ def actor_slot(a,colors):
     oid=int(a.get('ID'))
     slot=(oid-AO0)//100
     if 0<=slot<len(colors):return slot
-    slot=(oid-96_000_000)//100_000
-    if 0<=slot<len(colors):return slot
+    for first in (96_000_000,97_000_000):
+        slot=(oid-first)//100_000
+        if 0<=slot<len(colors):return slot
     raise ValueError('앞뒤 표시 설정이 모르는 객체 ID')
 
 

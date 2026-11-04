@@ -2,7 +2,7 @@ import sys,copy,unittest,xml.etree.ElementTree as E
 from pathlib import Path
 import numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'tools'))
-from stickman_display import normalize_taper_widths,crop_upper_pose,apply_actor_order,restore_actor_order
+from stickman_display import normalize_taper_widths,crop_upper_pose,apply_actor_order,restore_actor_order,shared_node_widths
 from stickman_clip import person_aos,AO0
 
 
@@ -19,6 +19,11 @@ class TestDisplay(unittest.TestCase):
     def test_invalid_width_is_not_filled_by_a_constant(self):
         with self.assertRaises(ValueError):normalize_taper_widths([dict(radii_px=[0,50])],2.)
         with self.assertRaises(ValueError):normalize_taper_widths([],float('nan'))
+
+    def test_shared_arm_width_uses_actual_ap_endpoint_order(self):
+        out=shared_node_widths([dict(object_id=AO0+3,radii_px=[10,5]),dict(object_id=AO0+4,radii_px=[2,8])],0)
+        self.assertEqual(out[0]['radii_px'],[9,5]);self.assertEqual(out[1]['radii_px'],[2,9])
+        with self.assertRaises(ValueError):shared_node_widths([dict(object_id=AO0+3,radii_px=[0,5])],0)
 
     def test_explicit_upper_view_hides_false_legs_preserving_arms_head_and_direction(self):
         p=dict(neck=np.array([10.,10.]),pelvis=np.array([30.,80.]),head_t=np.array([10.,0.]),wri_l=np.array([20.,30.]))
