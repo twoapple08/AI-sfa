@@ -280,6 +280,23 @@ def recover_key_views(K, joints, scale, spans, matched, support, bounds, observe
             visibility[:] = False
             visibility[6:10] = True
             visibility[1] = pelvis_visible
+            # 위몸 일부가 잘려도 안쪽에서 실제 관측되는 팔까지 통째로 가리지 않는다.
+            # 세 점이 모두 경계 안/유효 점수/인물색 지지를 갖는 가지에만 적용한다.
+            if lower_view:
+                kept = []
+                for side, js, ids in [('l', [5, 7, 9], [5, 6]), ('r', [6, 8, 10], [3, 4])]:
+                    points = raw[js]
+                    good = ((points[:, 2] >= 1.5) & (evidence[js] >= .05)
+                            & (points[:, 0] > left+margin) & (points[:, 0] < right-margin)
+                            & (points[:, 1] > top+margin) & (points[:, 1] < bottom-margin))
+                    if good.all():
+                        kept.append(points[0, :2])
+                        pose[f'elb_{side}'], pose[f'wri_{side}'] = points[1, :2].copy(), points[2, :2].copy()
+                        visibility[np.array(ids)-1] = True
+                if kept:
+                    pose['neck'] = np.mean(kept, axis=0)
+                    pose['head_b'] = pose['neck'].copy()
+                    pose['head_t'] = pose['neck']-[0, current_size*.75]
         elif face is None:
             face_span = np.ptp(raw[:5, :2], axis=0).max()
             output_diameter = np.linalg.norm(pose['head_t']-pose['head_b'])

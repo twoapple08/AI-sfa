@@ -9,7 +9,7 @@
     24,
     24
   ],
-  "sfa_sha256": "0de56473dc93f7d1063e8e4638179a60bc372fc5d8b26e31ecc47481e652ac85",
+  "sfa_sha256": "8ec795cf1d07f5bf13a64415416dad164874bd2ec8fe289f8f4a6cfe10f44835",
   "counts": {
     "Frame": 1440,
     "AO": 22323,
@@ -25,7 +25,7 @@
   "missing_running_frames_before": 13,
   "missing_running_frames_after": 0,
   "user_running_recovery": "다리는 괜찮음,원본834–846 긍정 확인",
-  "arm_review": "별도 사용자 눈 판정 대기",
+  "arm_review": "축소 팔 전반 개선 긍정,419앞팔 복구 후 별도 사용자 눈 판정 대기",
   "arm_control": {
     "scope": [
       834,
@@ -57,14 +57,15 @@
       869
     ],
     "accepted_running_frames_preserved": 13,
-    "other_frames_preserved": 1425
+    "other_frames_preserved": 1425,
+    "comparison": "다리복구판→팔1차판(419앞팔 수정 전)"
   },
   "baseline_regression": {
     "actor_cuts": 47,
     "max_pixel_change": 0
   },
   "tests": {
-    "python_unittest": 265,
+    "python_unittest": 266,
     "exit_code": 0,
     "real_cli_running_frames": 13,
     "real_cli_arm_interval_frames": 23
@@ -83,7 +84,19 @@
     1608
   ],
   "drive_folder_id": "1ua4oIK92k16FUn0NIB2wj1bgCIqVtKHL",
-  "latest_sfa_drive_id": "1mHjTzdV-nHXGdtLp5Ap6ofZ7zMKMhbfw",
-  "arm_video_drive_id": "1O9tYhZrbeQf1Y5L7D-hyJa1uXf0FlFes",
-  "report": "docs/GPT-STICKMAN-GENERIC-V2-2026-11-03.md"
+  "latest_sfa_drive_id": "1hFjMSZqODvqtKmKY3aWPc3brEr5ISFd7",
+  "arm_video_drive_id": "15k8G74GBvOh_PaojHFllI9eGHH7XNWsZ",
+  "report": "docs/GPT-STICKMAN-GENERIC-V2-2026-11-03.md",
+  "arm_sheet_drive_id": "1RvJvAB3KnFSlSH8As2vGgbG8_rtmNKnn",
+  "front_arm_control": {
+    "changed_source_frames": [
+      850
+    ],
+    "changed_player_frames": [
+      419
+    ],
+    "unchanged_frames": 1439,
+    "accepted_running_frames_unchanged": 13,
+    "baseline_sha256": "0de56473dc93f7d1063e8e4638179a60bc372fc5d8b26e31ecc47481e652ac85"
+  }
 }

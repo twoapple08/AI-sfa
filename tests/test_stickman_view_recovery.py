@@ -133,6 +133,22 @@ class TestViewRecovery(unittest.TestCase):
         np.testing.assert_array_equal(s,scale)  # 잘린 길이를 거리/굵기로 오인하지 않는다.
         self.assertEqual(events[0]['mode'],'lower_body_top')
 
+    def test_top_crop_keeps_a_supported_front_arm_and_hides_the_censored_back_arm(self):
+        k,j,scale,spans,faces,support,bounds=self.inputs()
+        k[0,:5,1]=65
+        k[0,[5,7,9],:2]=[[250,100],[300,150],[320,110]]
+        k[0,[6,8,10],:2]=[[350,65],[400,100],[420,67]]
+        out,_,visible,_=recover_key_views(k,j,scale,spans,faces,support,bounds,
+            forced_lower=np.array([True]))
+        self.assertTrue(visible[0,[4,5]].all());self.assertFalse(visible[0,[0,2,3]].any())
+        np.testing.assert_array_equal(out['neck'],[[250,100]])
+        np.testing.assert_array_equal(out['elb_l'],[[300,150]])
+        np.testing.assert_array_equal(out['wri_l'],[[320,110]])
+        support[0,9]=0
+        _,_,visible,_=recover_key_views(k,j,scale,spans,faces,support,bounds,
+            forced_lower=np.array([True]))
+        self.assertFalse(visible[0,2:6].any())
+
     def test_evidence_rejects_source_mismatch_and_missing_frame(self):
         with tempfile.TemporaryDirectory() as d:
             video, evidence = Path(d)/'video', Path(d)/'faces.json'
