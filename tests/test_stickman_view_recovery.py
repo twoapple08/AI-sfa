@@ -175,6 +175,22 @@ class TestViewRecovery(unittest.TestCase):
             with self.assertRaises(ValueError):
                 load_evidence(evidence, video, [5], 1152, 720)
 
+    def test_explicit_top_crop_keeps_two_supported_arm_points_without_visible_shoulder(self):
+        k,j,scale,spans,faces,support,bounds=self.inputs()
+        k[0,:7,1]=65
+        k[0,[7,9],:2]=[[300,160],[350,240]]
+        out,_,visible,_=recover_key_views(k,j,scale,spans,faces,support,bounds,
+            forced_lower=np.array([True]))
+        self.assertTrue(visible[0,[4,5]].all())
+        self.assertFalse(visible[0,0])
+        self.assertLess(out['neck'][0,1],bounds[2])
+        np.testing.assert_array_equal(out['wri_l'],[[350,240]])
+        # 이펙트/배경 위의 팔꿈치로 전완을 복구하면 안 된다.
+        support[0,7]=0
+        _,_,visible,_=recover_key_views(k,j,scale,spans,faces,support,bounds,
+            forced_lower=np.array([True]))
+        self.assertFalse(visible[0,[4,5]].any())
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -299,6 +299,11 @@ def recover_key_views(K, joints, scale, spans, matched, support, bounds, observe
                         kept.append(points[0, :2])
                         pose[f'elb_{side}'], pose[f'wri_{side}'] = points[1, :2].copy(), points[2, :2].copy()
                         visibility[np.array(ids)-1] = True
+                    elif good[1:].all() and points[0, 1] <= top+margin:
+                        # 명시한 위몸 잘림에서 어깨가 경계에 몰려도,안쪽의 두 팔점이
+                        # 모두 유효하면 보이는 팔을 잃지 않는다. 목은 틀 밖 추론을 유지한다.
+                        pose[f'elb_{side}'], pose[f'wri_{side}'] = points[1, :2].copy(), points[2, :2].copy()
+                        visibility[np.array(ids)-1] = True
                 if kept:
                     pose['neck'] = np.mean(kept, axis=0)
                     pose['head_b'] = pose['neck'].copy()
