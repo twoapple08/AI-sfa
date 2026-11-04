@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "representation": "body-detail-curves-v1",
+  "rig": "stickman-2d-11-v1",
+  "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "start": 432,
+  "end": 1871,
+  "status": "근경 외곽 모양 선택 시험·사용자/앱 검증 대기",
+  "tolerance_px": 4.0,
+  "opening_kernel": 5,
+  "closing_kernel": 5,
+  "component_ratio": 0.03,
+  "edge_bounds": [
+    0,
+    1151,
+    63,
+    710
+  ],
+  "events": [
+    {
+      "actor": "red",
+      "start": 601,
+      "end": 629,
+      "part": "hand_forearm",
+      "evidence": "손가락 사이 외곽 틈·손바닥·전완이 크게 보이는 원본. 병은 제외. 손 내부 선/손가락 독립 관절 추정 없음"
+    },
+    {
+      "actor": "red",
+      "start": 1604,
+      "end": 1620,
+      "part": "cropped_body",
+      "evidence": "발/다리/손/몸 일부가 화면 경계에 걸린 근경. 부분 인물을 가짜 전신으로 묘사하지 않고 보이는 외곽을 표시. 내부 명암/소품 제외"
+    }
+  ]
+}
