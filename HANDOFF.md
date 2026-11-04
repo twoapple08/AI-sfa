@@ -7,13 +7,13 @@
 - GPT 작업·커밋: `docs/GPT-TAKEOVER-LOG-2026-11-03.md`.
 
 ## 현재 우선순위·바로 할 일
-0. **최우선: 공통v2의419장 앞팔 복구 판정 대기.** 사람만 추출,사물/스미어 외곽은 변환기. `docs/GPT-STICKMAN-GENERIC-V2-2026-11-03.md`를 읽는다. 기본v1/11객체 프로필/승인10초 보존,미완성v2를 학습 자료로 쓰지 않는다.
+0. **최우선: 사용자가 미완성 SFA 작업 계속 지시.** 기존419앞팔은 판정 대기지만 다른 오류를 계속 수정하라고 명시. 전경 가림 구겨짐 추가 제보→원본1339–1342 기둥 가림 확인/교정,비교영상 `1e4jPo-7Py-O-ggqLgmhmjZsrFzAd_ifu`,시트 `1FcMwMz4dTsh0eLnjCDr2PW2HVAlai3nO`,새미완성SFA `1LiakF_T_knvYhuUaDJuKGX7_M_MThHG8`. 같은컷 양끝의2D방향/길이 보간은 추론,자동가림분류 아님.270시험OK·exit0/구조오류0,네장만XML변경·1436장보존. 현재601/759/1326/1608 처리 중. 자세한 근거/이력은 `docs/GPT-STICKMAN-GENERIC-V2-2026-11-03.md` 끝.
    - 사용자405=원본836,834–846 검출누락13장을 구도 태그/CPU측정으로 복구,새 손 입력 좌표0. 사용자 다리 긍정 확인. 축소 팔 과장도 키별2D길이/팔꿈치 조정으로 전반 개선 확인했으나419앞팔 누락을 추가 지적했다.
    - **419=원본850 수정:** 부분 구도에서 양팔을 일괄 숨기던 공통 원인을 고침. 세 관측점이 모두 경계 안·점수/색 지지가 유효한 팔만 보존,불확실 뒷팔은 숨김. 직전 팔1차판 대비850 한 장만 XML변경,다른1,439장/승인 다리13장 동일.
    - **최신:** SFA `1hFjMSZqODvqtKmKY3aWPc3brEr5ISFd7`,반속 `15k8G74GBvOh_PaojHFllI9eGHH7XNWsZ`,원본 시트 `1RvJvAB3KnFSlSH8As2vGgbG8_rtmNKnn`. Drive폴더 `1ua4oIK92k16FUn0NIB2wj1bgCIqVtKHL`. SFA SHA `8ec795cf1d07f5bf13a64415416dad164874bd2ec8fe289f8f4a6cfe10f44835`. 전체비교 `13KIcqMQwl2ILWAQbQ2D7d0TvuNiFlkGi`는419앞팔 복구 전 팔1차판 이력이다.
    - 전체266개 OK·exit0,전체1440장 구조/연결/머리/기존접촉 오류0. 기본v1 좌표47실제인물컷 차이0px. 실제폰 앱 편집/전 장 눈 합격은 미확인. `--key-motion-v2`와 추가 팔/구도/얼굴 옵션은 선택 시험이다.
    - 캐시 `ai-sfa-private/clip60_generic_repair/`: 53피팅·47선택관측,보정전후SFA/보고/표시계획,`recover_saved.py --reuse-selected`,`recover_front_arm.py`,`reproject_arm_cut.py`,`assemble_review.py`,렌더/회귀 스크립트. 원본/전체RTMW는 기존Drive,재현 묶음/지문은 위Drive폴더. 같은 입력의10분 CPU피팅을 반복하지 않는다. 구현 `416df06c72244bfa977eb3303b64281e6f1a25c6`,재현zip `1PYbrefbXSwrVdxe3Wnn49UeQYixtXMX-`. 상세는 전담 로그.
-   - **바로 할 일:**419앞팔 사용자 판정을 먼저 반영,그전 새 시제품을 만들지 않는다. 이후759팔중복·1326근경차기·601손 전신오인·1608부분다리의 공통 원인 점검. 원본723파랑/880빨강 상체를 지운 옛 라벨 재사용 금지.1032/1272는원본컷아닌실험분할로,최종연속판은원본컷으로합쳐재검증. GPU/학습/Kaggle조회는 실행하지 않는다.
+   - **바로 할 일:** 사용자 계속 작업 지시에 따라759팔중복·1326근경차기·601손 전신오인·1608부분다리의 공통 원인 점검. 원본723파랑/880빨강 상체를 지운 옛 라벨 재사용 금지.1032/1272는원본컷아닌실험분할로,최종연속판은원본컷으로합쳐재검증. GPU/학습/Kaggle조회는 실행하지 않는다.
 
 1. **머리 채움 실제 앱 누락 수정·모바일 뷰어 v1.1 배포 완료.** 사용자 녹화에서 공통 누락 확인. `docs/GPT-STICKMAN-HEAD-FILL-APP-FIX-2026-11-03.md`, `docs/SFA-VIEWER-1.1-2026-11-03.md`를 읽는다. 머리 FS의 Kind 누락을 원 전체 Kind1로 수정,모든 AO/좌표/AC/근경 면은 그대로. 최신 주 SFA Drive `1o3cTOMY9X9keVJczwIJqBuYbXZU5Erb_`,SHA `6e820c62ff58c80fd9cf9dfce1116419a43c8c23ebe30f31e4bd37cb2ef93c4a`. 흰 머리469·근경 면2 유지. 저장 형식 revision2/지문만 갱신,장면 데이터 변경0.
    - 모바일만1.1/11로 수정해 Drive `07_도구/SFA뷰어/SfaViewer-1.1.apk`(`1wfJrOYh08UG9w1qdnR65lGFT_8R5tPHS`)에 업로드/목록 확인. Kind·점 참조·윤곽 검사/오류 표시·캐시 갱신. 모바일9개+Python240개 시험 OK,APK 서명/정렬 검증. 기존1.0과 서명이 달라 기존뷰어 삭제후 설치 필요(최근목록/FPS/캐시 초기화). 서명키는 비공개 로컬만 보존,공유 Drive에 없음.

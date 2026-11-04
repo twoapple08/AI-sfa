@@ -250,3 +250,12 @@
 - 글꼴 수정 구현 `a4c5fc48425bbf3559634ae73797a366d168d2f3`. 루트 `python -m unittest discover -s tests` 전체267개·27.687초 OK·exit0 확인 후 별도 커밋/푸시.
 - 사용자 재실행 승인으로 동일 비공개 커널 version2 push 성공,상태 RUNNING 확인. 준비 입력 `/workspace/ai-sfa-private/seq_refinement/kaggle_job_font_fix/`. 부모/자료SHA와 기존 각500회·순수 최대20분씩 조건 유지,공식 커널/가중치 변경0.
 - RUNNING은 초기 준비를 포함하며 실제 업데이트/완료/품질 개선은 미확인. 현재 GPU 잔여 시간 별도 조회 없음. 후속 모니터링은 기존 Claude 담당 지시 유지,자동 추가 재실행 없음.
+
+
+## 2026-11-04 KST — 전경 가림으로 구겨지는 공통 증상
+
+- 사용자 전경 물체가 인물을 가릴 때 뼈대가 구겨짐 추가 제보. 선택 관측47묶음 전구간에서 원관측 몸통/분포 붕괴·미검출 후보94행을 CPU 수색,원본 눈 대조로1339–1342의 검은 기둥 가림 확인. 수치 후보는 정답/전수 눈 합격이 아니다.
+- 새 공통 bridge_occlusions와 장면 occlusions 설정: 같은 컷의 양끝 관측 사이 마디의2D방향·길이를 보간한다. 좌표 직선 보간으로 반대 방향 뼈 길이가0이 되는 반례를 피하며,컷 경계/양끝 없는 구간 거부. 미지정 빠른 동작은 보존. 숨은 동작은 추론이며 자동 가림 인식 모델 아님. 고정11객체/프로필 변경0.
+- 빨강1339–1340,파랑1341–1342 교정. 실제XML 네장만 변경/나머지1436장과 승인10초·405다리·419앞팔 보존. 전체270시험 OK·26.708초·exit0,면 포함 구조/연결/채움/기존접촉 오류0. 실제폰/새 사용자 눈 판정 대기.
+- 반속비교 https://drive.google.com/file/d/1e4jPo-7Py-O-ggqLgmhmjZsrFzAd_ifu/view ,원본시트 https://drive.google.com/file/d/1FcMwMz4dTsh0eLnjCDr2PW2HVAlai3nO/view ,미완성SFA https://drive.google.com/file/d/1LiakF_T_knvYhuUaDJuKGX7_M_MThHG8/view . SFA SHA79d49b61acad521d3aa59cc71b57545a32452bc0f372bca3b1841d1dabcbe9ff. 캐시 ai-sfa-private/clip60_remaining_20261104/에 수색표/고정입력참조/수정·렌더스크립트/진단/시험 보존. 학습 승인 아님.
+- 601손 전신오인·759팔중복·1326차기·1608부분다리는 이어서 처리 중. 가림1340을 수정했다고 이 다른 문제를 완료로 세지 않는다.

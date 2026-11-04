@@ -63,3 +63,12 @@ SFA SHA-256 `8ec795cf1d07f5bf13a64415416dad164874bd2ec8fe289f8f4a6cfe10f44835`.
 
 
 구현 커밋: `416df06c72244bfa977eb3303b64281e6f1a25c6`(지정 브랜치 푸시 완료). [재현 입력·캐시·스크립트 묶음](https://drive.google.com/file/d/1PYbrefbXSwrVdxe3Wnn49UeQYixtXMX-/view)은 파일별 SHA manifest를 포함한다. 원본 영상·전체 RTMW·가중치·토큰은 포함하지 않으며 기존 Drive에서 복원한다.
+
+
+## 2026-11-04 KST — 전경 가림으로 구겨지는 공통 증상
+
+- 사용자 전경 물체가 인물을 가릴 때 뼈대가 구겨짐 추가 제보. 선택 관측47묶음 전구간에서 원관측 몸통/분포 붕괴·미검출 후보94행을 CPU 수색,원본 눈 대조로1339–1342의 검은 기둥 가림 확인. 수치 후보는 정답/전수 눈 합격이 아니다.
+- 새 공통 bridge_occlusions와 장면 occlusions 설정: 같은 컷의 양끝 관측 사이 마디의2D방향·길이를 보간한다. 좌표 직선 보간으로 반대 방향 뼈 길이가0이 되는 반례를 피하며,컷 경계/양끝 없는 구간 거부. 미지정 빠른 동작은 보존. 숨은 동작은 추론이며 자동 가림 인식 모델 아님. 고정11객체/프로필 변경0.
+- 빨강1339–1340,파랑1341–1342 교정. 실제XML 네장만 변경/나머지1436장과 승인10초·405다리·419앞팔 보존. 전체270시험 OK·26.708초·exit0,면 포함 구조/연결/채움/기존접촉 오류0. 실제폰/새 사용자 눈 판정 대기.
+- 반속비교 https://drive.google.com/file/d/1e4jPo-7Py-O-ggqLgmhmjZsrFzAd_ifu/view ,원본시트 https://drive.google.com/file/d/1FcMwMz4dTsh0eLnjCDr2PW2HVAlai3nO/view ,미완성SFA https://drive.google.com/file/d/1LiakF_T_knvYhuUaDJuKGX7_M_MThHG8/view . SFA SHA79d49b61acad521d3aa59cc71b57545a32452bc0f372bca3b1841d1dabcbe9ff. 캐시 ai-sfa-private/clip60_remaining_20261104/에 수색표/고정입력참조/수정·렌더스크립트/진단/시험 보존. 학습 승인 아님.
+- 601손 전신오인·759팔중복·1326차기·1608부분다리는 이어서 처리 중. 가림1340을 수정했다고 이 다른 문제를 완료로 세지 않는다.

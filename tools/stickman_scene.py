@@ -38,7 +38,7 @@ def load_scene(path):
     if (digest != rig['base_layout_sha256'] or rig_layout_fingerprint() != rig['layout_sha256']
             or scene.get('rig') != rig['id'] or scene.get('schema') != 1):
         raise ValueError('장면 설정과 고정 뼈대 버전이 다르다')
-    unknown = set(scene) - {'schema', 'rig', 'source_sha256', 'start', 'end', 'cuts', 'tracks', 'partials', 'contacts', 'description'}
+    unknown = set(scene) - {'schema', 'rig', 'source_sha256', 'start', 'end', 'cuts', 'tracks', 'partials', 'contacts', 'occlusions', 'description'}
     if unknown:
         raise ValueError(f'알 수 없는 장면 항목: {sorted(unknown)}')
     return scene, dict(id=rig['id'], profile_sha256=hashlib.sha256(RIG_PATH.read_bytes()).hexdigest(),
@@ -71,6 +71,8 @@ def apply_scene(poses, frames, scene):
     cuts = scene.get('cuts', [])
     result = copy.deepcopy(poses)
     report = {'partials': [], 'tracks': [], 'contacts': []}
+    from stickman_occlusion import bridge_occlusions
+    result, report['occlusions'] = bridge_occlusions(result, frames, scene.get('occlusions', []), cuts)
     for spec in [*scene.get('partials', []), *scene.get('tracks', []), *scene.get('contacts', [])]:
         if not frames[0] <= spec['start'] <= spec['end'] <= frames[-1] or any(spec['start'] < c <= spec['end'] for c in cuts):
             raise ValueError('이벤트는 처리 범위·한 컷 안에 있어야 한다')
