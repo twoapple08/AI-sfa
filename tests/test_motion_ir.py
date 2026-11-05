@@ -232,6 +232,19 @@ class CapeSimTest(unittest.TestCase):
             if mask_a > 0:
                 self.assertEqual(CS._depth_alpha(float(yaw)), 0.0, yaw)
 
+    def test_hem_stays(self):
+        """11-05 '망토 아랫선이 자꾸 사라짐'(밑단 두 끝이 같은 점이 됨): 밑단 끝은 시트 연결대로 이어진 가장자리 아래 끝과 같고, 길이가 0이 되지 않는다."""
+        import math as m
+        CS, fr = self.compile(2.0, [0.0, 0.0, 0.0])
+        info = CS.flex_info(CS.rig(CS.read_all(str(self.SHEET)))['accs'][0]['ref'])
+        for f in fr:
+            ao = {a.get('ID'): [(float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP')] for a in f.findall('AO')}
+            hem = ao[str(CS.ACC_AO0 + 500 + info['hem'])]
+            self.assertGreater(m.dist(CS.iso(hem[0]), CS.iso(hem[2])), 0.3)
+            for e in (0, 2):
+                oi, pj = info['hem_conn'][e]
+                self.assertEqual(hem[e], ao[str(CS.ACC_AO0 + 500 + oi)][pj])
+
     def test_reset_on_cut(self):
         """컷 등으로 몸통 길이의 1.2배 넘게 뛰면 처음부터(망토가 날아가지 않는다)."""
         CS, fr = self.compile(60.0, [0.0, 0.0, 0.0])

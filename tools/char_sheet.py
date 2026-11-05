@@ -46,14 +46,15 @@ def components(aos):
                 if o and o != a.get('ID'):
                     adj[a.get('ID')].add(o); adj[o].add(a.get('ID'))
     seen, out = set(), []
+    order = {a.get('ID'): i for i, a in enumerate(aos)}
     for a in aos:
         if a.get('ID') in seen: continue
         st, comp = [a.get('ID')], []
         while st:
             x = st.pop()
             if x in seen: continue
-            seen.add(x); comp.append(x); st.extend(adj[x])
-        out.append(comp)
+            seen.add(x); comp.append(x); st.extend(sorted(adj[x], key=order.get))
+        out.append(sorted(comp, key=order.get))   # 파일 순서로 고정(집합 순서는 실행마다 달라 객체 번호가 바뀌었다)
     return out
 
 
@@ -350,7 +351,14 @@ def flex_info(ref):
                         pairs.append((u, a, ea, b, eb))
     if not pairs: return None
     u, a, ea, b, eb = min(pairs)   # 목에 가장 가까운 공유 끝점 = 고정점(위)
-    return dict(edges=[(a, ea, 2 - ea), (b, eb, 2 - eb)], hem=3 - a - b)
+    h = 3 - a - b
+    hem_conn = {}
+    for e in (0, 2):
+        c = [tuple(x) for x in objs[h]['pts'][e]['conn'] if tuple(x) in ((a, 2 - ea), (b, 2 - eb))]
+        if not c: return None
+        hem_conn[e] = c[0]
+    if hem_conn[0] == hem_conn[2]: return None
+    return dict(edges=[(a, ea, 2 - ea), (b, eb, 2 - eb)], hem=h, hem_conn=hem_conn)
 
 
 def _quad(p0, c, p2, t):
@@ -395,6 +403,17 @@ def _simulate(info, P, J, state, key, n):
             for i in range(1, N):
                 X[i][0] += SIM['shape'] * (T[i][0] - X[i][0]); X[i][1] += SIM['shape'] * (T[i][1] - X[i][1])
         X[0] = list(T[0])
+    # 두 가장자리 아래 끝이 시트 밑단 폭의 절반보다 가까워지지 않게(밑단이 점으로 줄어 사라지지 않게)
+    A_, B_ = st['X'][0], st['X'][1]
+    w0 = math.dist(targets[0][-1], targets[1][-1]) * 0.5
+    for i in range(N // 2, N):
+        dx, dy = B_[i][0] - A_[i][0], B_[i][1] - A_[i][1]
+        d = math.hypot(dx, dy)
+        need = w0 * (i - N // 2 + 1) / (N - N // 2)
+        if d < need:
+            if d < 1e-9: dx, dy, d = 1.0, 0.0, 1.0
+            push = (need - d) / 2 / d
+            A_[i][0] -= dx * push; A_[i][1] -= dy * push; B_[i][0] += dx * push; B_[i][1] += dy * push
     st.update(n=n, anchor=anchor)
     state[key] = st
     out = dict(P)
@@ -404,15 +423,13 @@ def _simulate(info, P, J, state, key, n):
         c = (2 * mid[0] - (p0[0] + p2[0]) / 2, 2 * mid[1] - (p0[1] + p2[1]) / 2)
         out[(oi, top)], out[(oi, 1)], out[(oi, bot)] = pct(p0), pct(c), pct(p2)
     h = info['hem']
-    # 밑단: 두 끝을 가장자리 아래 끝에, 조절점은 두 끝이 움직인 평균만큼
-    ends = {}
-    for (oi, top, bot) in info['edges']:
-        ends[(oi, bot)] = out[(oi, bot)]
+    # 밑단: 두 끝을 시트 연결대로 이어진 가장자리 아래 끝에(11-05: '가까운 쪽'으로 붙여 두 끝이 같은 점이 되어 밑단이 사라졌다 —
+    # 480개 중 382개 길이 0), 조절점은 두 끝이 움직인 평균만큼
     hp = [P[(h, 0)], P[(h, 1)], P[(h, 2)]]
     newe = []
     for e in (0, 2):
-        q = min(ends.values(), key=lambda v: math.dist(iso(v), iso(hp[e])))
-        newe.append(q)
+        tgt = info['hem_conn'][e]
+        newe.append(out[tgt] if tgt in out else hp[e])
     dmx = ((newe[0][0] - hp[0][0]) + (newe[1][0] - hp[2][0])) / 2; dmy = ((newe[0][1] - hp[0][1]) + (newe[1][1] - hp[2][1])) / 2
     out[(h, 0)], out[(h, 2)], out[(h, 1)] = newe[0], newe[1], (hp[1][0] + dmx, hp[1][1] + dmy)
     return out
