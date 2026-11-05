@@ -418,6 +418,24 @@ def dev_thumbs(work):
     return [t for t in thumbs(v, range(0, n, 4)) if t is not None]
 
 
+def fixed_segments(work, seg_json):
+    import motion_ir as M
+    RES = dict(VIDEOS); RES.update(videos_of(work, 'yutaka_nakamura'))
+    summary = []
+    for s in json.load(open(seg_json))['segments']:
+        vid = s['video']; R = load_rtmw(f'{work}/rtmw/{vid}.jsonl.gz')
+        fr = range(s['start'], s['end'] + 1)
+        T = sorted(track(R, s['start'], s['end'] + 1), key=lambda t: -sum(f in t for f in fr))[:max(1, s.get('actors', 1))]
+        c = dict(video=vid, start=s['start'], end=s['end'] + 1, tracks=T, score=s.get('action_score', 0), animator=s.get('animator', 'nian41'))
+        W, H = RES[vid]
+        ir, q = convert(c, W, H, f'{work}/video/{vid}.mp4')
+        json.dump(ir, open(f"{work}/out/{s['name']}.json", 'w'))
+        M.save_sfa(M.compile_ir(ir, name=s['name']), f"{work}/out/{s['name']}.sfa", s['name'])
+        summary.append(dict(s, quality=q))
+        print(s['name'], flush=True)
+    json.dump(dict(segments=summary, dropped=[]), open(f'{work}/out/summary.json', 'w'), ensure_ascii=False, indent=1)
+
+
 def main():
     """사용: stage2_extract.py <작업 폴더> [N] [--fill 애니메이터 ...]
     nian41에서 먼저 고르고, N에 못 미치면 --fill 애니메이터(예: yutaka_nakamura, 사용자 11-05 "부족하면 나카무라쪽도") 후보로 채운다."""
@@ -428,6 +446,8 @@ def main():
     pos = args[:args.index('--fill')] if '--fill' in args else args
     work = pos[0]; NSEL = int(pos[1]) if len(pos) > 1 else 30
     os.makedirs(f'{work}/out', exist_ok=True)
+    if os.environ.get('STAGE2_SEGMENTS'):   # 비교용: 정해진 구간 그대로, 장별 수정 없이(검출기 자체 비교, pose_cmp_report)
+        return fixed_segments(work, os.environ['STAGE2_SEGMENTS'])
     dev = dev_thumbs(work)
     sel, dropped, RES = [], [], {}
     for animator in ['nian41'] + fill:
