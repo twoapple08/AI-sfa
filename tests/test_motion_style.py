@@ -268,3 +268,22 @@ class ExtrapolateEdit(unittest.TestCase):
         out = M.apply_edits(ir, [dict(frames=[3, 3], op='extrapolate')])
         self.assertEqual(out['actors'][0]['joints']['pelvis'][3], [30, 50])   # 10·2 + (20−10)
         self.assertEqual(out['actors'][0]['inferred'][3], list(range(1, 11)))
+
+
+class Stage5Report(unittest.TestCase):
+    def test_seam_ratio_continuous_vs_jump(self):
+        """이음매 비율: 실제로 이어진 동작을 조각낸 것은 작고, 같은 조각을 반복(끝 → 처음으로 튐)하면 크다."""
+        import motion_tokens as MT, stage5_report as RP
+        from stage3_pack import _slice
+        xs = [50 + 3 * (i % 10) for i in range(40)]
+        ir = make_ir(xs, [1] * 40)
+        a = ir['actors'][0]; J = a['joints']; N = ir['frames']
+        J['pelvis'] = [[30 + n, 50] for n in range(N)]
+        for k in J:
+            if k != 'pelvis': J[k] = [[p[0] + n, p[1]] for n, p in enumerate(J[k])]
+        J['wri_l'] = [[40 + n + 4 * ((n // 5) % 2), 45] for n in range(N)]
+        cont = [MT.encode(_slice(ir, s, e)) for s, e in ((0, 14), (14, 26), (26, 40))]
+        jump = [MT.encode(_slice(ir, 0, 14))] * 3
+        rc, rj = RP.seam_ratio(cont), RP.seam_ratio(jump)
+        self.assertTrue(rc and rj)
+        self.assertLess(max(rc), min(rj))
