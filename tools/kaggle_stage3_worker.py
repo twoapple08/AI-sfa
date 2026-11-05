@@ -41,7 +41,8 @@ res['load_s'] = round(time.time() - t0, 1)
 res['trainable_params'] = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 rows = [json.loads(l) for l in open(f'{DATA}/pairs.jsonl', encoding='utf-8')]
-def text(r): return f"글: {r['prompt']}\n동작: ", ''.join(r['tokens'])
+def head(prompt, frames=None): return (f'길이: {frames}장\n' if frames else '') + f'글: {prompt}\n동작: '
+def text(r): return head(r['prompt'], r.get('frames')), ''.join(r['tokens'])
 def batch(r):
     a, b = text(r)
     ia = tok(a, add_special_tokens=False)['input_ids']; ib = tok(b, add_special_tokens=False)['input_ids'] + [tok.eos_token_id]
@@ -74,7 +75,7 @@ prompts = ['0~1초 파랑이 몸을 낮췄다가 앞으로 달려가 오른쪽 �
            '서 있다가 뛰어올라 공중에서 몸을 돌리고 착지한다.',
            '상대의 공격을 팔로 막다가 뒤로 밀려 넘어지고 다시 일어난다.']
 for i, p in enumerate(prompts):
-    ids = tok(f'글: {p}\n동작: ', return_tensors='pt', add_special_tokens=False).input_ids.cuda()
+    ids = tok(head(p, 72), return_tensors='pt', add_special_tokens=False).input_ids.cuda()
     torch.cuda.synchronize(); tg = time.time()
     with torch.no_grad(), torch.autocast('cuda', dtype=torch.float16):
         out = model.generate(ids, max_new_tokens=950, do_sample=True, temperature=0.8, top_p=0.95,
