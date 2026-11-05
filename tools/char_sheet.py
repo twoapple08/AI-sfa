@@ -120,6 +120,27 @@ def seg_dist(p, a, b):
     return math.hypot(px - ax - t * dx, py - ay - t * dy)
 
 
+def closed_loop(objs):
+    """직선 묶음이 닫힌 고리면 [(객체 번호, 시작 점 번호, 끝 점 번호)]를 고리 순서로, 아니면 None."""
+    if not objs or any(o['type'] != '1' or len(o['pts']) != 2 for o in objs): return None
+    nxt = {}
+    for oi, o in enumerate(objs):
+        for pj, p in enumerate(o['pts']):
+            for c in p['conn']:
+                nxt.setdefault((oi, pj), set()).add(tuple(c))
+    order, cur, used = [], (0, 0), set()
+    for _ in range(len(objs)):
+        oi, pj = cur
+        if oi in used: return None
+        used.add(oi); order.append((oi, pj, 1 - pj))
+        ends = [c for c in nxt.get((oi, 1 - pj), ()) if c[0] not in used or (len(used) == len(objs) and c[0] == 0)]
+        if len(used) == len(objs):
+            return order if any(c[0] == 0 for c in nxt.get((oi, 1 - pj), ())) else None
+        if not ends: return None
+        cur = ends[0]
+    return None
+
+
 def read(path, view='정면'):
     root = load(path)
     f = root.findall('Frame')[0]
@@ -152,7 +173,9 @@ def read(path, view='정면'):
                              pts=[dict(flags=p.get('Flags'), uv=to_local((float(p.get('X')), float(p.get('Y'))), fr_),
                                        conn=[pid_index[x.get('ConnPtId')] for x in p.findall('AC') if x.get('ConnPtId') in pid_index])
                                   for p in a.findall('AP')]))
-        acc.append(dict(bone=bone, objects=objs))
+        loop = closed_loop(objs)
+        # 흰 채우기(사용자 11-05 "가면이랑 머리에 하얀색 칠 — 중요"): 머리에 붙은 닫힌 모양(가면)은 안을 흰색으로
+        acc.append(dict(bone=bone, objects=objs, fill_loop=loop if (loop and bone == 'head') else None))
     body = lines[0]
     return dict(view=view, joints=J, body_color=body.get('Color'), body_th=float(body.get('ThicknessScale')),
                 head_fill=any(fs.get('ObjId') == head.get('ID') for x in f.findall('FR') for fs in x.findall('FS')),
@@ -168,6 +191,7 @@ def accessory_xml(sheet, n, slot, J, body_th_frame):
     ratio = body_th_frame / (sheet['body_th'] or 1)
     for ai, acc in enumerate(sheet['accessories']):
         fr_ = frame_of(J, acc['bone'])
+        k0 = k
         ids = {}
         for oi, o in enumerate(acc['objects']):
             for pj, _ in enumerate(o['pts']):
@@ -182,4 +206,8 @@ def accessory_xml(sheet, n, slot, J, body_th_frame):
                          + ''.join(f'<AC ConnPtId="{ids[tuple(c)]}"/>' for c in p['conn']) + '</AP>')
             s.append('</AO>')
             out.append(''.join(s))
+        if acc.get('fill_loop'):
+            fs = ''.join(f'<FS Kind="0" ObjId="{ACC_AO0 + slot * 1000 + k0 + oi}" StartPtId="{ids[(oi, a_)]}" EndPtId="{ids[(oi, b_)]}" '
+                         f'StartT="{float(a_):.1f}" EndT="{float(b_):.1f}" />' for oi, a_, b_ in acc['fill_loop'])
+            out.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai}" Color="-1">{fs}</FR>')
     return ''.join(out)

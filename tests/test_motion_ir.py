@@ -96,6 +96,18 @@ class CharSheetTest(unittest.TestCase):
             for p, q in zip(x.findall('AP'), y.findall('AP')):
                 self.assertAlmostEqual(float(q.get('X')) - float(p.get('X')), 5.0, places=2)
                 self.assertAlmostEqual(float(q.get('Y')), float(p.get('Y')), places=2)
+        # 머리·가면 흰 채우기(사용자 11-05): 머리 Kind 1 + 가면 고리 Kind 0(선 5개, 고리 순서로 이어짐)
+        frs = fr[0].findall('FR')
+        self.assertTrue(any(x.find('FS').get('Kind') == '1' and x.get('Color') == '-1' for x in frs))
+        mask = [x for x in frs if x.find('FS').get('Kind') == '0']
+        self.assertEqual(len(mask), 1)
+        self.assertEqual(mask[0].get('Color'), '-1')
+        fs = mask[0].findall('FS')
+        self.assertEqual(len(fs), 5)
+        pos = {p.get('ID'): (round(float(p.get('X')), 3), round(float(p.get('Y')), 3)) for a in fr[0].findall('AO') for p in a.findall('AP')}
+        for x, y in zip(fs, fs[1:] + fs[:1]):          # 한 변의 끝 = 다음 변의 시작(같은 자리)
+            ex, ey = pos[x.get('EndPtId')]; sx, sy = pos[y.get('StartPtId')]
+            self.assertLess(abs(ex - sx) + abs(ey - sy), 0.01)
         body = [a for a in fr[0].findall('AO') if a.get('ID') == '4560002'][0]
         self.assertEqual(body.get('Color'), '-16777216')   # 시트 몸 색(검정)
 
