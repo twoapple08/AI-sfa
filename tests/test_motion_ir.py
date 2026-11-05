@@ -245,6 +245,24 @@ class CapeSimTest(unittest.TestCase):
                 oi, pj = info['hem_conn'][e]
                 self.assertEqual(hem[e], ao[str(CS.ACC_AO0 + 500 + oi)][pj])
 
+    def test_same_fill_color_no_underlay(self):
+        """11-05 사용자: 채우기 색이 테두리 색과 같으면 선 아래 따로 까는 작업 없이 망토 곡선에 바로 채운다."""
+        import char_sheet as CS
+        M, root = scene()
+        ir = M.extract(root)
+        rg = CS.rig(CS.read_all(str(self.SHEET)))
+        cape = rg['accs'][0]['ref']
+        self.assertEqual(cape['fill_color'], '-1')                 # 시트에 채우기가 없으면 흰색
+        cape['fill_color'] = cape['objects'][0]['color']           # 테두리와 같은 색
+        fr = M.compile_ir(ir, sheets={0: rg}).findall('Frame')[0]
+        helpers = [a for a in fr.findall('AO') if 300 <= (int(a.get('ID')) - CS.ACC_AO0) % 500 < 400]
+        self.assertEqual(helpers, [])
+        cape_fr = [x for x in fr.findall('FR') if len(x.findall('FS')) == 3]
+        self.assertEqual(len(cape_fr), 2)
+        rgb = lambda c: int(c) & 0xFFFFFF
+        self.assertEqual({rgb(x.get('Color')) for x in cape_fr}, {rgb(cape['objects'][0]['color'])})   # 채우기 = 테두리 색
+        self.assertTrue(all(int(fs.get('ObjId')) - CS.ACC_AO0 in (0, 1, 2, 500, 501, 502) for x in cape_fr for fs in x.findall('FS')))
+
     def test_reset_on_cut(self):
         """컷 등으로 몸통 길이의 1.2배 넘게 뛰면 처음부터(망토가 날아가지 않는다)."""
         CS, fr = self.compile(60.0, [0.0, 0.0, 0.0])

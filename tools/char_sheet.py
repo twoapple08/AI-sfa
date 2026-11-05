@@ -180,8 +180,11 @@ def read(path, view='정면'):
                                        conn=[pid_index[x.get('ConnPtId')] for x in p.findall('AC') if x.get('ConnPtId') in pid_index])
                                   for p in a.findall('AP')]))
         loop = closed_loop(objs)
+        # 채우기 색: 시트에서 이 묶음 객체를 가리키는 FR이 있으면 그 색, 없으면 흰색(11-05 기본)
+        ids_c = set(c)
+        fcol = next((x.get('Color') for x in f.findall('FR') if any(fs.get('ObjId') in ids_c for fs in x.findall('FS'))), '-1')
         # 흰 채우기(사용자 11-05 "가면이랑 머리에 하얀색 칠 — 중요"): 머리에 붙은 닫힌 모양(가면)은 안을 흰색으로
-        acc.append(dict(bone=bone, objects=objs, fill_loop=loop))   # 닫힌 모양(가면·망토)은 흰 채우기(사용자 11-05)
+        acc.append(dict(bone=bone, objects=objs, fill_loop=loop, fill_color=fcol))   # 닫힌 모양(가면·망토)은 채우기(기본 흰색, 사용자 11-05)
     body = lines[0]
     return dict(view=view, joints=J, body_color=body.get('Color'), body_th=float(body.get('ThicknessScale')),
                 head_fill=any(fs.get('ObjId') == head.get('ID') for x in f.findall('FR') for fs in x.findall('FS')),
@@ -330,6 +333,7 @@ def rig_xml(R_, yaw, n, slot, J, body_th_frame):
 
 
 # ---------- 흔들리는 액세서리(망토) — 11-05 사용자: "몸을 뚫고 펄럭임이 없음" ----------
+# 망토(흔들리는 액세서리) 기본 세팅 — 사용자 11-05 확정("망토라는 캐디가 들어왔을 때 지금 세팅이 기본"): 아래 값 + 밑단 2배.
 SIM = dict(n=9, gravity=0.008, damping=0.04, shape=0.008, iters=12, wind=(0.0, 0.0), reset_jump=1.2, drag=0.35, hem_width=2.0)
 # hem_width(11-05 사용자 "아래쪽 기본 너비를 2배 정도"): 목은 그대로, 아래로 갈수록 벌려 밑단에서 시트 너비의 이 배수
 # 11-05 사용자 "형태에 너무 얽매임, 훨씬 넓게 퍼지고 펄럭여도 됨": 모양 복원 0.06→0.008, 감쇠 0.08→0.04, 중력 0.012→0.008,
@@ -490,7 +494,9 @@ def rig_frame(R_, yaw, n, slot, J, body_th_frame, state):
         else:
             copies = [(front_out, 0, alpha)]
         for dest, base, al in copies:
-            if info is not None and ref.get('fill_loop'):
+            fill_col = ref.get('fill_color', '-1')
+            same = info is not None and all((int(o['color']) & 0xFFFFFFFF) == (int(fill_col) & 0xFFFFFFFF) for o in ref['objects'])
+            if info is not None and ref.get('fill_loop') and not same:
                 # 11-05 사용자: 변형되는 망토에서 페인트가 망토 선을 가림 → 장마다 그 모양을 따라 새로 만든 투명 테두리에 흰 채우기,
                 # 망토 선보다 먼저(아래) 둔다. 객체 ID는 모든 장에서 같다(앞뒤 순서 유지).
                 poly = []
@@ -507,7 +513,7 @@ def rig_frame(R_, yaw, n, slot, J, body_th_frame, state):
                                 f'<AP ID="{pb}" Flags="8" Index="1" X="{q1[0]:.4f}" Y="{q1[1]:.4f}" /></AO>')
                     hid.append((oid, pa, pb))
                 fs = ''.join(f'<FS Kind="0" ObjId="{o}" StartPtId="{pa}" EndPtId="{pb}" StartT="0.0" EndT="1.0" />' for o, pa, pb in hid)
-                dest.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai + (5 if base else 0)}" Color="{_with_alpha(-1, al)}">{fs}</FR>')
+                dest.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai + (5 if base else 0)}" Color="{_with_alpha(fill_col, al)}">{fs}</FR>')
             ids = {}
             for oi, o in enumerate(ref['objects']):
                 for pj, _ in enumerate(o['pts']):
@@ -523,9 +529,9 @@ def rig_frame(R_, yaw, n, slot, J, body_th_frame, state):
                              + ''.join(f'<AC ConnPtId="{ids[tuple(c)]}"/>' for c in p['conn']) + '</AP>')
                 s.append('</AO>')
                 dest.append(''.join(s))
-            if ref.get('fill_loop') and info is None:
+            if ref.get('fill_loop') and (info is None or same):   # 단단한 액세서리, 또는 채우기 색 = 테두리 색인 망토는 곡선에 바로
                 fs = ''.join(f'<FS Kind="0" ObjId="{ACC_AO0 + slot * 1000 + k0 + oi}" StartPtId="{ids[(oi, a_)]}" EndPtId="{ids[(oi, b_)]}" '
                              f'StartT="{0.0 if a_ == 0 else 1.0:.1f}" EndT="{0.0 if b_ == 0 else 1.0:.1f}" />' for oi, a_, b_ in ref['fill_loop'])
-                dest.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai + (5 if base else 0)}" Color="{_with_alpha(-1, al)}">{fs}</FR>')
+                dest.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai + (5 if base else 0)}" Color="{_with_alpha(ref.get("fill_color", "-1"), al)}">{fs}</FR>')
         k += len(ref['objects'])
     return ''.join(back_out), ''.join(front_out)
