@@ -7,7 +7,7 @@
 import glob, json, os, sys, time
 import numpy as np, cv2, torch
 
-DATA = glob.glob('/kaggle/input/*/meta.json')[0].rsplit('/', 1)[0]
+DATA = sorted(glob.glob('/kaggle/input/**/meta.json', recursive=True))[0].rsplit('/', 1)[0]   # 입력 경로가 /kaggle/input/datasets/<계정>/<자료>/일 수 있다
 OUT = '/kaggle/working'
 META = json.load(open(f'{DATA}/meta.json'))
 dev = 'cuda'
