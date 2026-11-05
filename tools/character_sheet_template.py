@@ -223,11 +223,11 @@ def render(seq, k, W=1600, H=900):
     return cv2.cvtColor(R.render_frame(seq, seq.findall('Frame')[k], W, H)[..., :3].astype(np.uint8), cv2.COLOR_RGB2BGR)
 
 
-def guide_png(seq_ex, path):
+def guide_png(seq_ex, path, blank=False):
     """작성 안내 그림: 1장 예시 렌더 + 설명 화살표 + 규칙 목록."""
     base = Image.fromarray(cv2.cvtColor(render(seq_ex, 0), cv2.COLOR_BGR2RGB))
     W, H = base.size
-    canvas = Image.new('RGB', (W, H + 760), 'white')
+    canvas = Image.new('RGB', (W, H + (20 if blank else 760)), 'white')
     canvas.paste(base, (0, 0))
     d = ImageDraw.Draw(canvas)
     f = lambda s: ImageFont.truetype(FONT, s, index=KR)
@@ -239,9 +239,13 @@ def guide_png(seq_ex, path):
     x2 = (top_slots()[1][0] + top_slots()[1][1]) / 2 / 100 * W
     d.line([(x2 + 60, (HEAD_Y + 20) / 100 * H), (x2 + 4, (HEAD_Y + 24) / 100 * H)], fill=red, width=3)
     d.text((x2 + 64, (HEAD_Y + 17) / 100 * H), '가운데선(몸 중심축)', fill=red, font=f(20))
-    d.text((x2 - 95, (HEAD_Y + 33) / 100 * H), '(비워 둔 칸 — 새로 그려 주세요)', fill=red, font=f(17))
+    if not blank:
+        d.text((x2 - 95, (HEAD_Y + 33) / 100 * H), '(비워 둔 칸 — 새로 그려 주세요)', fill=red, font=f(17))
+    if blank:   # 백지판(11-05 사용자): 캐릭터 없이 빨간 안내 글만, 반측면 칸 안내('비워 둔 칸')는 뺌
+        canvas.save(path)
+        return
     y = H + 20
-    d.text((30, y), '캐릭터 시트 양식 v2 — 작성 안내', fill=(0, 0, 0), font=f(40)); y += 64
+    d.text((30, y), '캐릭터 시트 양식 — 작성 안내', fill=(0, 0, 0), font=f(40)); y += 64
     rules = [
         '① 한 장에 캐릭터 디자인(스틱맨 버전)을 그립니다. 실제 몸·얼굴·옷 모습은 필요하면 설명 글에 적어 주세요.',
         '② 위 줄 다섯 칸(정면·반측면·우측·좌측·후면)은 똑바로 그립니다. 발은 발바닥선, 정수리는 정수리선에 맞춥니다.',
@@ -302,6 +306,7 @@ def main():
     ex.set('Name', 'character_sheet_v2_example')
     save(ex, os.path.join(out, 'character_sheet_v2_example.sfa'), 'character_sheet_v2_example')
     guide_png(ex, os.path.join(out, 'character_sheet_v2_guide.png'))
+    guide_png(empty, os.path.join(out, 'character_sheet_v2_blank_guide.png'), blank=True)
     for k in range(len(empty.findall('Frame'))):
         cv2.imwrite(os.path.join(out, f'render_empty_{k + 1}.png'), render(empty, k, 1280, 720))
     open(os.path.join(out, 'character_sheet_v2_설명양식.txt'), 'w', encoding='utf-8').write(DESC)
