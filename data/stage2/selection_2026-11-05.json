@@ -385,5 +385,155 @@
    "머리": 0.75
   },
   "note": "구간별 범위는 투영 길이(원근) 때문에 넓다. 선택 구간은 같음"
+ },
+ "v2_easy": {
+  "note": "사용자 11-05 추천대로: 쉬운 장면(몸통 < 화면 25%·예상 다리 ≤ 30%·팔 숨김 ≤ 10%) + 장별 원본 대조 수정. 검출기 비교 뒤 RTMW 유지",
+  "segments": [
+   {
+    "name": "n41_01_211649_1439-1490",
+    "animator": "nian41",
+    "video": "1613887377965211649",
+    "start": 1439,
+    "end": 1490,
+    "frames": 52
+   },
+   {
+    "name": "n41_02_211649_1494-1526",
+    "animator": "nian41",
+    "video": "1613887377965211649",
+    "start": 1494,
+    "end": 1526,
+    "frames": 33
+   },
+   {
+    "name": "n41_03_211649_1726-1762",
+    "animator": "nian41",
+    "video": "1613887377965211649",
+    "start": 1726,
+    "end": 1762,
+    "frames": 37
+   },
+   {
+    "name": "n41_04_742689_475-501",
+    "animator": "nian41",
+    "video": "1913481070839742689",
+    "start": 475,
+    "end": 501,
+    "frames": 27
+   },
+   {
+    "name": "n41_05_908348_813-841",
+    "animator": "nian41",
+    "video": "1913589758644908348",
+    "start": 813,
+    "end": 841,
+    "frames": 29
+   },
+   {
+    "name": "n41_06_051062_1802-1825",
+    "animator": "nian41",
+    "video": "1943223713455051062",
+    "start": 1802,
+    "end": 1825,
+    "frames": 24
+   },
+   {
+    "name": "n41_07_280544_1392-1496",
+    "animator": "nian41",
+    "video": "280544",
+    "start": 1392,
+    "end": 1496,
+    "frames": 105
+   },
+   {
+    "name": "n41_08_280544_1497-1558",
+    "animator": "nian41",
+    "video": "280544",
+    "start": 1497,
+    "end": 1558,
+    "frames": 62
+   },
+   {
+    "name": "n41_09_280544_4017-4044",
+    "animator": "nian41",
+    "video": "280544",
+    "start": 4017,
+    "end": 4044,
+    "frames": 28
+   },
+   {
+    "name": "n41_10_280556_908-999",
+    "animator": "nian41",
+    "video": "280556",
+    "start": 908,
+    "end": 999,
+    "frames": 92
+   },
+   {
+    "name": "n41_11_280556_1402-1497",
+    "animator": "nian41",
+    "video": "280556",
+    "start": 1402,
+    "end": 1497,
+    "frames": 96
+   },
+   {
+    "name": "n41_12_280597_421-450",
+    "animator": "nian41",
+    "video": "280597",
+    "start": 421,
+    "end": 450,
+    "frames": 30
+   },
+   {
+    "name": "n41_13_287263_815-838",
+    "animator": "nian41",
+    "video": "287263",
+    "start": 815,
+    "end": 838,
+    "frames": 24
+   },
+   {
+    "name": "n41_14_301158_356-388",
+    "animator": "nian41",
+    "video": "301158",
+    "start": 356,
+    "end": 388,
+    "frames": 33
+   },
+   {
+    "name": "nkm_15_110193_258-289",
+    "animator": "yutaka_nakamura",
+    "video": "110193",
+    "start": 258,
+    "end": 289,
+    "frames": 32
+   },
+   {
+    "name": "nkm_16_205025_236-266",
+    "animator": "yutaka_nakamura",
+    "video": "205025",
+    "start": 236,
+    "end": 266,
+    "frames": 31
+   },
+   {
+    "name": "nkm_17_271632_1387-1417",
+    "animator": "yutaka_nakamura",
+    "video": "271632",
+    "start": 1387,
+    "end": 1417,
+    "frames": 31
+   },
+   {
+    "name": "nkm_18_306713_173-207",
+    "animator": "yutaka_nakamura",
+    "video": "306713",
+    "start": 173,
+    "end": 207,
+    "frames": 35
+   }
+  ],
+  "frames": 801
  }
 }

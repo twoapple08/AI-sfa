@@ -1,0 +1,26 @@
+{
+ "video": "306713",
+ "start": 173,
+ "segment": "nkm_19_306713_173-207",
+ "judged_by": "Claude 원본 눈 판정 11-05",
+ "edits": [
+  {
+   "frames": [
+    1,
+    2
+   ],
+   "op": "drop",
+   "cause": "오검출",
+   "note": "달리는 다리 꼬임"
+  },
+  {
+   "frames": [
+    26,
+    26
+   ],
+   "op": "drop",
+   "cause": "사물 가림",
+   "note": "나무가 몸을 가림"
+  }
+ ]
+}
