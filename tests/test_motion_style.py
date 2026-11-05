@@ -166,3 +166,19 @@ class Stage4Plausible(unittest.TestCase):
         self.assertTrue(P.plausible(MT.decode(P.one(ir, 0))))
         bad = make_ir([60], [1]); bad['actors'][0]['joints']['kne_r'][0] = [50, 50.5]; bad['actors'][0]['joints']['ank_r'][0] = [50, 51]
         self.assertFalse(P.plausible(MT.decode(P.one(bad, 0))))   # 반례: 다리가 몸통 쪽으로 접힘
+
+
+class Stage5(unittest.TestCase):
+    def test_continuation_pairs(self):
+        import stage5_pack as P
+        ir = make_ir([60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98], [2] * 20)
+        rows = P.pairs(ir, None, '글', 'style', 's')
+        self.assertEqual(rows[0]['kind'], 'start'); self.assertTrue(any(r['kind'] == 'cont' for r in rows))
+        for r in rows:
+            if r['kind'] == 'cont': self.assertEqual(len(r['context']) % P.K, 0); self.assertGreater(len(r['context']), 0)
+
+    def test_style_score_separates(self):
+        import motion_tokens as MT, stage5_score as S
+        two = make_ir([60, 70] * 6, [2] * 12); one = make_ir([60, 70] * 12, [1] * 24)
+        a, b = S.style_score([MT.encode(two)]), S.style_score([MT.encode(one)])
+        self.assertLess(a['hold_l1'], b['hold_l1'])   # nian41(2장 유지 61%)에 2장 유지가 더 가깝다

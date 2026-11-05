@@ -104,5 +104,7 @@ def decode(toks, aspect=0.5625):
             joints[n].append([a_[0] + (b_[0] - a_[0]) * w, a_[1] + (b_[1] - a_[1]) * w])
     return dict(schema='motion-ir/1', fps=[24, 24], aspect=aspect, frames=N,
                 actors=[dict(slot=0, color='blue', joints=joints, thickness=[{} for _ in range(N)], hidden=[[] for _ in range(N)],
-                             smear=[[] for _ in range(N)], head_fill=[True] * N, facing=[None] * N)],
+                             smear=[[] for _ in range(N)], head_fill=[True] * N, facing=[None] * N,
+                             # 키프레임 간격 = 그림 유지 구간으로 본다(스타일 층 키는 원본 그림 구간 가운데라 간격이 유지 리듬을 담는다)
+                             drawings=[[int(times[i]), int(times[i + 1]) - 1] for i in range(len(times) - 1)] + [[int(times[-1]), int(times[-1])]])],
                 camera=[[0.0, 0.0, 1.0] for _ in range(N)], timeline=[], source=dict(generated=True))
