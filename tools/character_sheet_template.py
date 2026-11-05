@@ -106,15 +106,19 @@ def guide_frame(seq, pos, title, ids, names, with_slots=True):
 
 
 def build_template(with_example=None):
-    seq = ET.Element('Sequence', dict(Name='character_sheet_v2', HeightWidthRatio='0.5625', RatioX='16', RatioY='9', FrameCount='3', BackgroundColor='-1'))
+    # 11-05 사용자: "1번째만 있어도 되지 않을까? 캐릭터 디자인이 중요한 거니까" → 기본 1장(스틱맨 캐릭터 디자인).
+    # 실제 몸·근접 묘사 장은 SHEET_PAGES=3일 때만(나중에 실제 모습도 지키고 싶을 때).
+    pages = int(os.environ.get('SHEET_PAGES', 1))
+    seq = ET.Element('Sequence', dict(Name='character_sheet_v2', HeightWidthRatio='0.5625', RatioX='16', RatioY='9', FrameCount=str(pages), BackgroundColor='-1'))
     ids = Ids(0, 0)
-    f1 = guide_frame(seq, 0, '1 스틱맨', ids, (TOP, BOT))
-    guide_frame(seq, 1, '2 실제 몸 (얼굴 · 머리카락 · 옷)', ids, (TOP, BOT))
-    f3 = guide_frame(seq, 2, '3 근접 묘사 (손 · 표정 · 세부)', ids, None, with_slots=False)
-    for (x0, x1), nm in (((3.0, 49.0), '손'), ((51.0, 97.0), '표정 · 세부')):
-        for a, b in (((x0, 8), (x1, 8)), ((x1, 8), (x1, 97)), ((x1, 97), (x0, 97)), ((x0, 97), (x0, 8))):
-            line(f3, ids, a, b, GUIDE, 0.25, 0)
-        label(f3, ids, nm, (x0 + x1) / 2, 9.5, 4.2, 0)
+    f1 = guide_frame(seq, 0, '캐릭터 시트' if pages == 1 else '1 스틱맨', ids, (TOP, BOT))
+    if pages >= 3:
+        guide_frame(seq, 1, '2 실제 몸 (얼굴 · 머리카락 · 옷)', ids, (TOP, BOT))
+        f3 = guide_frame(seq, 2, '3 근접 묘사 (손 · 표정 · 세부)', ids, None, with_slots=False)
+        for (x0, x1), nm in (((3.0, 49.0), '손'), ((51.0, 97.0), '표정 · 세부')):
+            for a, b in (((x0, 8), (x1, 8)), ((x1, 8), (x1, 97)), ((x1, 97), (x0, 97)), ((x0, 97), (x0, 8))):
+                line(f3, ids, a, b, GUIDE, 0.25, 0)
+            label(f3, ids, nm, (x0 + x1) / 2, 9.5, 4.2, 0)
     if with_example is not None:
         place_example(f1, with_example, ids)
     return seq
@@ -231,7 +235,7 @@ def guide_png(seq_ex, path):
     y = H + 20
     d.text((30, y), '캐릭터 시트 양식 v2 — 작성 안내', fill=(0, 0, 0), font=f(40)); y += 64
     rules = [
-        '① 장 나누기:  1장 = 스틱맨 버전,  2장 = 실제 몸(얼굴·머리카락·옷),  3장 = 근접 묘사(손 모양·표정·세부).',
+        '① 한 장에 캐릭터 디자인(스틱맨 버전)을 그립니다. 실제 몸·얼굴·옷 모습은 필요하면 설명 글에 적어 주세요.',
         '② 위 줄 다섯 칸(정면·반측면·우측·좌측·후면)은 똑바로 그립니다. 발은 발바닥선, 정수리는 정수리선에 맞춥니다.',
         '     → 다섯 칸 모두 같은 크기(같은 키). 몸 중심은 칸의 세로 가운데선에.',
         '③ 반측면 = 정면과 측면 사이(약 45°로 돌아선 모습). 액션 장면에서 가장 많이 나오는 각도입니다.',
@@ -270,7 +274,7 @@ DESC = """# 캐릭터 설명 글 양식 (캐릭터 시트 v2와 함께 보내 �
 - 위: (예: 앞쪽 위에서 약 45도로 내려다봄)
 - 아래: (예: 앞쪽 아래에서 약 30도로 올려다봄)
 
-## 실제 몸(2장) 메모
+## 실제 몸 메모(스틱맨 대신 실제 손·얼굴·옷을 그릴 때 참고)
 - 얼굴·머리카락·옷의 특징:
 
 ## 그 밖의 특징
@@ -290,7 +294,7 @@ def main():
     ex.set('Name', 'character_sheet_v2_example')
     save(ex, os.path.join(out, 'character_sheet_v2_example.sfa'), 'character_sheet_v2_example')
     guide_png(ex, os.path.join(out, 'character_sheet_v2_guide.png'))
-    for k in range(3):
+    for k in range(len(empty.findall('Frame'))):
         cv2.imwrite(os.path.join(out, f'render_empty_{k + 1}.png'), render(empty, k, 1280, 720))
     open(os.path.join(out, 'character_sheet_v2_설명양식.txt'), 'w', encoding='utf-8').write(DESC)
     print('예시 칸별 객체', info[0], '배율 위/아래', round(info[1], 3), round(info[2], 3))
