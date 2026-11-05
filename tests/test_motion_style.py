@@ -198,3 +198,18 @@ class TokensToSfaCape(unittest.TestCase):
         back = [v for k, v in do.items() if 500 <= k - CS.ACC_AO0 < 1000]
         self.assertTrue(body and back)
         self.assertLess(max(back), min(body))
+
+    def test_facing_back_puts_cape_front(self):
+        """--facing 180(후면): 가면이 사라지고 망토 앞 사본이 보인다(뒤 사본은 투명)."""
+        import motion_tokens as MT, tokens_to_sfa as T, char_sheet as CS
+        sheet = os.path.join(os.path.dirname(__file__), '..', 'data', 'templates', 'character_sheet_v3_example.sfa')
+        ir = make_ir([60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82], [2] * 12)
+        out, root = T.build(MT.encode(ir), sheet, center=True, facing=180)
+        self.assertEqual(out['actors'][0]['facing'][0], 180.0)
+        f0 = root.findall('Frame')[0]
+        def alpha(fr): return (int(fr.get('Color')) & 0xFFFFFFFF) >> 24
+        frs = {int(x.get('ID')) % 10: alpha(x) for x in f0.findall('FR') if 7900000 <= int(x.get('ID')) < 8000000}
+        self.assertGreater(frs[0], 0)    # 망토 앞 사본 채움 보임(ID 끝 0)
+        self.assertEqual(frs[5], 0)      # 몸 뒤 사본(ID 끝 5) 투명
+        self.assertEqual(frs[1], 0)      # 가면 채움 투명(후면)
+
