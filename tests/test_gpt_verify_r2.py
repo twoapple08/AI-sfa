@@ -30,9 +30,26 @@ def inner(*names, **env):
 
 
 class GenModelTest(unittest.TestCase):
-    def cost(self, samples, cap=2048):
-        env = inner('gen_model', 'gen_cost', np=np, rate={'gen_s': {'640': samples}}, final_plan=lambda final: [(640, cap)])
+    def cost(self, samples, cap=2048, est='cap'):
+        env = inner('gen_model', 'gen_cost', np=np, rate={'gen_s': {'640': samples}}, final_plan=lambda final: [(640, cap)],
+                    a=SimpleNamespace(final_gen_est=est))
         return env['gen_model'](), env['gen_cost'](True)
+
+    def test_observed_length_bound(self):
+        """11-05 coord3 회차: 모델이 스스로 끝내면 상한 가정이 20배 넘게 컸다. 실측 길이 95% 분위×1.5와 상한 중 작은 쪽."""
+        s = [[100 + 10 * (i % 10), 1 + 0.01 * (100 + 10 * (i % 10))] for i in range(20)]
+        s[0] = [400, 5.0]  # 표본 길이 차이(식별 조건) + 긴 꼬리
+        _, c_cap = self.cost(s, est='cap')
+        _, c_obs = self.cost(s, est='observed')
+        lq = float(np.quantile([x[0] for x in s], 0.95)) * 1.5
+        m, _ = self.cost(s)
+        self.assertAlmostEqual(c_obs, m[0][640] + m[1] * lq, places=6)
+        self.assertLess(c_obs, c_cap / 4)
+        _, c_small = self.cost(s, cap=200, est='observed')   # 상한이 더 작으면 상한
+        self.assertAlmostEqual(c_small, m[0][640] + m[1] * 200, places=6)
+        _, c_few = self.cost(s[:10] + [[400, 5.0]], est='observed')   # 표본 16개 미만이면 예전처럼 상한
+        _, c_few_cap = self.cost(s[:10] + [[400, 5.0]], est='cap')
+        self.assertAlmostEqual(c_few, c_few_cap, places=6)
 
     def test_linear_samples_extrapolate(self):
         """참값 T = 1 + 0.01L 모의 표본: 수정 전 6.76초(참값 21.48)."""

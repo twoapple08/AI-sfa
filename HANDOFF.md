@@ -30,4 +30,4 @@
 
 ## 이번 세션(11-04~05 Claude) 커밋 흐름
 
-ea8424b(A/B 배율 넘침 수정) → 67973ec/e159ae9(869 수정) → 90a1811(v3 실행) → fd50963·58d5c5a(변환기 진단·정정) → cda27c9…914d635(좌표 표현 CPU 비교) → 2e3a340(--coord2) → cc9ba61(Kaggle 비교 실행) → 7837e93·f563723(결과·끝점 붕괴) → c59f735…28cac23(시험판·완성본·선화) → f8ce57b(베끼기 대책 시험 도구) → 0dbd83a(--objective) → f4ac6a2(coord3) → 9747ab2·fbeced6(배경 판 v1·v2) → 배경 판 v3 방 틀만(PLATE_BOX) → v4 왼쪽 열린 공간(사용자, 선 5개).
+ea8424b(A/B 배율 넘침 수정) → 67973ec/e159ae9(869 수정) → 90a1811(v3 실행) → fd50963·58d5c5a(변환기 진단·정정) → cda27c9…914d635(좌표 표현 CPU 비교) → 2e3a340(--coord2) → cc9ba61(Kaggle 비교 실행) → 7837e93·f563723(결과·끝점 붕괴) → c59f735…28cac23(시험판·완성본·선화) → f8ce57b(베끼기 대책 시험 도구) → 0dbd83a(--objective) → f4ac6a2(coord3) → 9747ab2·fbeced6(배경 판 v1·v2) → 배경 판 v3 방 틀만(PLATE_BOX) → v4 왼쪽 열린 공간(사용자, 선 5개) → **배경 3D 모형 room3d v2**(사용자: 배경 3D 허용·기둥 포함·사물 제외·선 끝까지·Z축은 굵기 면, Drive 1iBWjb6V3Z_SdilUu5EGzvPki-z3h9Kc9) · Kaggle coord3 회차 76/180분 조기 멈춤 원인(마지막 평가 20배 과대 예상) 수정 --final-gen-est.

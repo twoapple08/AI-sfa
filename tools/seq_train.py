@@ -840,7 +840,15 @@ def train(a):
 
         def a_of(w):
             return a_w[w] if w in a_w else max(a * max(1.0, (w / k) ** 2) for k, a in a_w.items())
-        return sum(a_of(w) + b * cap for w, cap in final_plan(final))
+        # 실측 길이 상한(--final-gen-est observed, 11-05): '모든 장이 상한까지'는 모델이 스스로 끝내게 된 뒤 20배 넘게 컸다
+        # (coord3 회차: 예상 7,337초 · 실제 352초 → 학습 180분 중 76분에서 멈춤). 최근 생성 길이의 95% 분위 × 1.5를
+        # 장마다 상한과 비교해 작은 쪽을 쓴다. 표본 16개 미만이면 예전처럼 상한.
+        lq = None
+        if getattr(a, 'final_gen_est', 'cap') == 'observed':
+            ls = [x[0] for v in rate.get('gen_s', {}).values() for x in v]
+            if len(ls) >= 16:
+                lq = float(np.quantile(ls, 0.95)) * 1.5
+        return sum(a_of(w) + b * (cap if lq is None else min(cap, lq)) for w, cap in final_plan(final))
 
     def final_cost():
         """마지막 평가(교사 강제 검증·종류별 검증·생성 채점·판정·저장) 예상 초 — 보수적: 생성은 상한까지 간다고 본다.
@@ -1469,6 +1477,8 @@ def main():
     t.add_argument('--deadline', type=float, default=0, help='이번 회차 절대 마감(유닉스 초, 작업자가 줌). 마지막 평가 예상 몫을 남기고 학습을 멈춘다. 0이면 시작 + --minutes')
     t.add_argument('--final-reserve-min', type=float, default=20, help='속도 실측이 없을 때 마지막 평가 몫(분). 실측이 생기면 폭·길이별 예상으로 바뀐다')
     t.add_argument('--max-fail-row', type=int, default=200, help='실패(메모리 부족·비정상 손실)만 이만큼 이어지면 멈춤')
+    t.add_argument('--final-gen-est', choices=('observed', 'cap'), default='observed',
+                   help='생성 평가 예상: observed = 최근 생성 길이 95%% 분위×1.5와 상한 중 작은 쪽(표본 16개 이상), cap = 모든 장이 상한까지(예전)')
     t.add_argument('--reserve-margin', type=float, default=1.25, help='평가 예상 시간에 곱하는 안전 여유')
     t.add_argument('--max-batch', type=int, default=16, help='한 묶음 최대 장 수')
     t.add_argument('--tok-budget', type=int, default=12288, help='한 묶음 토큰 한도(가장 긴 장 길이 × 장 수). 메모리 부족이면 자동으로 줄인다')

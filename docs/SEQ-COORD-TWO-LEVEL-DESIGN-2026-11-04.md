@@ -122,3 +122,8 @@ ptr이 모든 지표에서 앞섬(seed1 확인 실행 중). 단 붕괴가 남아
 ## Kaggle 장기 실행 — 2026-11-05 07:28 KST(사용자 "올려봐")
 
 `aisfa-seq-coord3-obj` version1 push·RUNNING. 코드 f4ac6a2, `--fresh --prebuilt --prebuilt-any-code --no-stages --minutes 215 --plan-minutes 180 --extra "--coord3 --objective balanced-v1 --maxlen 3072"`, T4, 인코더 이어 쓰기. 공식 커널 변경0. 판정: 학습 60분 시점 기록을 coord2 60분(aisfa-seq-coord2-ab-two)과 비교, 이어 180분 끝 결과·그림 시트. GPU 약3.5시간 예상.
+
+## coord3 + balanced-v1 Kaggle 장기 회차(`aisfa-seq-coord3-obj`, 코드 f4ac6a2, 11-05 07:28–09:04 KST)
+- **계획 180분 중 학습 76분에서 멈춤(`deadline`)**: 마지막 평가 예상 7,337초(생성이 모두 길이 상한까지 간다는 가정) vs 실제 352초. 판정 184장 중 169장이 스스로 끝냄(상한 15). → `--final-gen-est observed`(기본): 최근 생성 길이 95% 분위×1.5와 상한 중 작은 쪽(표본 16개 미만이면 예전대로). 회귀 시험 `test_observed_length_bound`.
+- 60분 시점 비교(coord2-two 60분 대비, **좌표 표현과 목적 함수를 동시에 바꿔 효과 분리 불가**): 생성 부분점수 3.02% vs 1.24%, 스스로 끝냄 19/20 vs 12/20, 미완료 7/92 vs 59/92, 객체 수 비 0.73 vs 2.45 — 멈춤 문제 크게 개선. 반면 교사 강제 좌표 점수 6.09 vs 12.74, 구조 70.8 vs 90.4로 하락. 끝(76분): 판정 통과(A−B 8.01, 34/10/1, p 0.0004)이나 외워 그리기 기준보다 −3.0, 객체 수 비 0.54(이제 덜 그림), 생성 좌표 오차 16.0.
+- 출력: scratch `kaggle_coord3/out/`(run.json, log.jsonl, 판정 시트 2장). 가중치 미수령.
