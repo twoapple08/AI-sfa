@@ -29,8 +29,12 @@ def one(ir, k):
     return MT.encode(sub)
 
 
-def text_at(tag, k, default):
+def text_at(tag, k, default, near=3):
     acts = [a for a in (tag or {}).get('actions', []) if a['from'] <= k <= a['to']]
+    if not acts:   # GPT는 시트 표본 장으로 범위를 적어 사이 장이 빈다 → near장 안의 가장 가까운 동작
+        cand = [(min(abs(k - a['from']), abs(k - a['to'])), a) for a in (tag or {}).get('actions', [])]
+        cand = [c for c in cand if c[0] <= near]
+        if cand: acts = [min(cand, key=lambda c: c[0])[1]]
     return ' / '.join(f"{a['verb']}: {a['detail']}" for a in acts) if acts else default
 
 
