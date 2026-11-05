@@ -5,6 +5,9 @@
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
+
+> **2026-11-05 재계획(정본):** 사용자 "산발식이었다 — 지금까지 것은 남기고 처음부터 계획". 확정 조건 **docs/REPLAN-CONDITIONS-2026-11-05.md**, 계획 초안 **docs/REPLAN-PLAN-DRAFT-2026-11-05.md**(사용자 미승인 — 승인 전 실행 금지), 대화 기록 docs/REPLAN-REQUIREMENTS-2026-11-05.md, 조사 docs/RESEARCH-ANIME-GEN-ARCHITECTURES-2026-11-05.md. 아래 기존 내용은 재계획 이전 상태 기록.
+
 ## 큰 그림(사용자 11-04 계획)
 
 변환기(그림→SFA)와 스틱맨화로 클립을 "SFA화"(배경·이펙트·연출을 라벨 붙은 요소로 + 인물은 스틱맨) → 많이 쌓아 태그/문장/스토리보드로 .sfa를 만드는 AI. 최종 AI는 **중간 표현**(docs/SFA-INTERMEDIATE-REPRESENTATION-DRAFT-2026-11-04.md)을 생성하고 컴파일러가 .sfa를 만든다(초안, 사용자 미승인 부분 있음).
