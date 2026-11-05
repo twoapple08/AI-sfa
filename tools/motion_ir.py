@@ -18,7 +18,7 @@
       python tools/motion_ir.py compile 입력.json 출력.sfa
       python tools/motion_ir.py roundtrip 입력.sfa   (추출 → 컴파일 → 기본 11객체 대조)
 """
-import json, sys, zipfile, xml.etree.ElementTree as ET
+import copy, json, sys, zipfile, xml.etree.ElementTree as ET
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -132,7 +132,50 @@ def compile_ir(ir, name='motion_ir', sheets=None):
             parts.append(xml)
         parts.append('</Frame>')
     parts.append('</Sequence>')
-    return ET.fromstring(''.join(parts))
+    root = ET.fromstring(''.join(parts))
+    if sheets:
+        declare_all_first(root, [a['slot'] for a in ir['actors']])
+    return root
+
+
+def _slot_of(aid):
+    import char_sheet as CS
+    i = int(aid)
+    if 0 <= i - AO0 < 1000: return (i - AO0) // 100
+    if 0 <= i - CS.ACC_AO0 < 100000: return (i - CS.ACC_AO0) // 1000
+    return None
+
+
+def declare_all_first(root, slots):
+    """앱은 오브젝트 앞뒤를 '파일 전체에서 처음 나온 순서'로 정한다(FORMAT.md 10-29). 첫 장에 없던 인물은 그 인물의 모든 오브젝트
+    (망토 뒤 사본·몸·가면·망토 앞 사본)가 나중에 등록돼 다른 인물 앞으로 나온다(11-05 사용자 '망토 레이어 버그').
+    → 첫 장에 없는 인물은 처음 나오는 장의 오브젝트를 투명(Color 0, 채움 없음)으로 첫 장에 미리 넣고, 첫 장 오브젝트를 인물 순서로 정렬."""
+    frames = root.findall('Frame')
+    if not frames: return
+    f0 = frames[0]
+    have0 = {_slot_of(a.get('ID')) for a in f0.findall('AO')}
+    pid = [960000000]
+    for s in slots:
+        if s in have0: continue
+        src = next((f for f in frames[1:] if any(_slot_of(a.get('ID')) == s for a in f.findall('AO'))), None)
+        if src is None: continue
+        remap = {}
+        for a in src.findall('AO'):
+            if _slot_of(a.get('ID')) != s: continue
+            c = copy.deepcopy(a); c.set('Color', '0')
+            for ap in c.findall('AP'):
+                remap[ap.get('ID')] = str(pid[0]); ap.set('ID', str(pid[0])); pid[0] += 1
+            f0.append(c)
+        for a in f0.findall('AO'):
+            if _slot_of(a.get('ID')) == s:
+                for ac in a.iter('AC'):
+                    ac.set('ConnPtId', remap.get(ac.get('ConnPtId'), ac.get('ConnPtId')))
+    aos = f0.findall('AO'); frs = f0.findall('FR')
+    for x in aos + frs: f0.remove(x)
+    order = {s: i for i, s in enumerate(slots)}
+    for a in sorted(aos, key=lambda a: order.get(_slot_of(a.get('ID')), 99)):   # 같은 인물 안 순서는 그대로(안정 정렬)
+        f0.append(a)
+    for x in frs: f0.append(x)
 
 
 def base_signature(root):

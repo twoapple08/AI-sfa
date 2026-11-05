@@ -329,7 +329,9 @@ def rig_xml(R_, yaw, n, slot, J, body_th_frame):
 
 
 # ---------- 흔들리는 액세서리(망토) — 11-05 사용자: "몸을 뚫고 펄럭임이 없음" ----------
-SIM = dict(n=9, gravity=0.012, damping=0.08, shape=0.06, iters=12, wind=(0.0, 0.0), reset_jump=1.2)
+SIM = dict(n=9, gravity=0.008, damping=0.04, shape=0.008, iters=12, wind=(0.0, 0.0), reset_jump=1.2, drag=0.35)
+# 11-05 사용자 "형태에 너무 얽매임, 훨씬 넓게 퍼지고 펄럭여도 됨": 모양 복원 0.06→0.008, 감쇠 0.08→0.04, 중력 0.012→0.008,
+# 공기 저항 drag(고정점 속도의 반대 방향, 끝으로 갈수록 크게) 추가
 
 
 def flex_info(ref):
@@ -370,12 +372,14 @@ def _simulate(info, P, J, state, key, n):
         st = dict(X=[list(map(list, t)) for t in targets], Xp=[list(map(list, t)) for t in targets])
     g = SIM['gravity'] * L
     wx, wy = SIM['wind'][0] * L, SIM['wind'][1] * L
+    av = (anchor[0] - st.get('anchor', anchor)[0], anchor[1] - st.get('anchor', anchor)[1]) if st.get('n') == n - 1 else (0.0, 0.0)
     for s, T in enumerate(targets):
         X, Xp = st['X'][s], st['Xp'][s]
         for i in range(N):
             vx, vy = (X[i][0] - Xp[i][0]) * (1 - SIM['damping']), (X[i][1] - Xp[i][1]) * (1 - SIM['damping'])
             Xp[i] = list(X[i])
-            X[i] = [X[i][0] + vx + wx, X[i][1] + vy + g + wy]
+            f = SIM['drag'] * i / (N - 1)      # 공기 저항: 몸이 가는 반대로, 끝으로 갈수록
+            X[i] = [X[i][0] + vx + wx - f * av[0], X[i][1] + vy + g + wy - f * av[1]]
         rest = [math.dist(T[i], T[i + 1]) for i in range(N - 1)]
         for _ in range(SIM['iters']):
             X[0] = list(T[0])

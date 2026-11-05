@@ -216,5 +216,35 @@ class CapeSimTest(unittest.TestCase):
         for m in moved: self.assertAlmostEqual(m, 60.0, places=2)
 
 
+class FirstOrderTest(unittest.TestCase):
+    SHEET = Path(__file__).resolve().parents[1] / 'data' / 'templates' / 'character_sheet_v2_example.sfa'
+
+    def test_absent_actor_declared_first(self):
+        """11-05 망토 레이어 버그: 첫 장에 없던 인물도 첫 장에 투명하게 미리 등록 → 파일 전체 '처음 나온 순서'가 인물 순서와 같다
+        (인물 0의 망토 뒤 사본·몸·액세서리가 모두 인물 1보다 먼저)."""
+        import copy as cp
+        import char_sheet as CS
+        M, root = scene()
+        ir = M.extract(root)
+        b = cp.deepcopy(ir['actors'][0]); b['slot'] = 1; b['color'] = 'blue'
+        for v in b['joints'].values():
+            for n in range(3): v[n] = [v[n][0] + 30, v[n][1]]
+        a = ir['actors'][0]
+        for v in a['joints'].values(): v[0] = None          # 인물 0은 첫 장에 없음
+        ir['actors'].append(b)
+        sh = CS.rig(CS.read_all(str(self.SHEET)))
+        out = M.compile_ir(ir, sheets={0: sh, 1: sh})
+        seen = []
+        for f in out.findall('Frame'):
+            for x in f.findall('AO'):
+                if x.get('ID') not in seen: seen.append(x.get('ID'))
+        slots = [M._slot_of(i) for i in seen]
+        self.assertEqual(slots, sorted(slots))
+        f0 = out.findall('Frame')[0]
+        self.assertTrue(all(x.get('Color') == '0' for x in f0.findall('AO') if M._slot_of(x.get('ID')) == 0))
+        ids = [p.get('ID') for x in f0.findall('AO') for p in x.findall('AP')]
+        self.assertEqual(len(ids), len(set(ids)))
+
+
 if __name__ == '__main__':
     unittest.main()
