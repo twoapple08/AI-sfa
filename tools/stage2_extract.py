@@ -225,7 +225,10 @@ def convert(c, W, H):
         actors.append(dict(slot=slot, color=('blue', 'red')[slot], joints=joints,
                            thickness=[{str(o): round(float(th[i]), 3) for o in range(1, 12)} for i in range(N)],
                            hidden=[[] for _ in range(N)], smear=[[] for _ in range(N)], head_fill=[True] * N,
-                           facing=FP.smooth_yaw(raw)))
+                           facing=FP.smooth_yaw(raw),
+                           # 원본 그림 구간(이 구간 0장 기준 [첫 장, 끝 장]): 관절은 PCHIP으로 24장 모두 움직이지만, 유지 리듬(2s·3s)·타격 멈춤은
+                           # 이 경계에 남는다(11-05: 보간 때문에 스타일 측정 자료에서 유지 리듬이 지워지던 것 보존). 트랙이 없는 장은 키 구간 밖.
+                           drawings=[[int(a_ - frames[0]), int(b_ - frames[0])] for a_, b_ in (rep.get('keypose_segments') or [])]))
     ir = dict(schema='motion-ir/1', fps=[24, 24], aspect=0.5625, frames=N, actors=actors,
               camera=[[0.0, 0.0, 1.0] for _ in range(N)], timeline=[],
               source=dict(animator=c.get('animator', 'nian41'), video=c['video'], start=c['start'], end=c['end'], auto=True,
