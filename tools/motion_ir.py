@@ -98,6 +98,42 @@ def hold_drawings(ir):
     return out
 
 
+DESPIKE = dict(min_jump=0.6, back=0.3, cos=-0.7)   # 몸통 단위
+
+
+def despike(ir, min_jump=None, back=None, cos=None):
+    """한 장만 튀었다가 바로 돌아오는 끝점(팔꿈치·손목·무릎·발목, 골반 기준)을 앞뒤 장 평균으로 바꾼 새 중간 표현과 바꾼 목록.
+    조건: n-1→n, n→n+1 이동이 모두 몸통 min_jump 이상, 방향이 반대(코사인 < cos), 거의 원래 자리로 돌아옴(|합| < back × |n-1→n|).
+    11-05 사용자 '갑자기 파밧 하고 튀는 모션'. 기준은 승인 10초판에서 바뀌는 장이 거의 없게 잡는다(진짜 빠른 타격 보존)."""
+    import copy
+    min_jump = DESPIKE['min_jump'] if min_jump is None else min_jump
+    back = DESPIKE['back'] if back is None else back
+    cos = DESPIKE['cos'] if cos is None else cos
+    out = copy.deepcopy(ir); fixed = []
+    asp = ir.get('aspect', 0.5625)
+    for a in out['actors']:
+        J = a['joints']; N = len(J['neck'])
+        P = lambda k, i: None if J[k][i] is None or J['pelvis'][i] is None else (J[k][i][0] - J['pelvis'][i][0], (J[k][i][1] - J['pelvis'][i][1]) * asp)
+        tor = [((J['neck'][i][0] - J['pelvis'][i][0]) ** 2 + ((J['neck'][i][1] - J['pelvis'][i][1]) * asp) ** 2) ** 0.5
+               for i in range(N) if J['neck'][i] is not None and J['pelvis'][i] is not None]
+        if not tor: continue
+        T = sorted(tor)[len(tor) // 2]
+        for k in ('elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l'):
+            for n in range(1, N - 1):
+                p0, p1, p2 = P(k, n - 1), P(k, n), P(k, n + 1)
+                if None in (p0, p1, p2): continue
+                d1 = (p1[0] - p0[0], p1[1] - p0[1]); d2 = (p2[0] - p1[0], p2[1] - p1[1])
+                m1 = (d1[0] ** 2 + d1[1] ** 2) ** 0.5; m2 = (d2[0] ** 2 + d2[1] ** 2) ** 0.5
+                if m1 < min_jump * T or m2 < min_jump * T: continue
+                if (d1[0] * d2[0] + d1[1] * d2[1]) / (m1 * m2) >= cos: continue
+                if ((d1[0] + d2[0]) ** 2 + (d1[1] + d2[1]) ** 2) ** 0.5 >= back * m1: continue
+                q0, q2, pv = J[k][n - 1], J[k][n + 1], J['pelvis']
+                J[k][n] = [pv[n][0] + ((q0[0] - pv[n - 1][0]) + (q2[0] - pv[n + 1][0])) / 2,
+                           pv[n][1] + ((q0[1] - pv[n - 1][1]) + (q2[1] - pv[n + 1][1])) / 2]
+                fixed.append((a.get('slot'), n, k))
+    return out, fixed
+
+
 def compile_ir(ir, name='motion_ir', sheets=None):
     """sheets: {slot: char_sheet.read(...) 한 칸 또는 char_sheet.read_all(...) 여러 칸} — 그 인물에 캐릭터 시트 색·액세서리를 입힌다(단계 1-②).
     여러 칸이면 장마다 facing에 가장 가까운 칸을 쓴다(모르면 정면)."""

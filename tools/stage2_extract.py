@@ -3,7 +3,7 @@
 개발 사례(60초 클립 1913231262086463573, held_out=false/training_ready=false)는 쓰지 않는다. 수동 보정 없이 공통 자동 처리만:
  1) 컷: 저용량 영상의 이웃 장 HSV 히스토그램 차(바타차리야 > CUT_THR)
  2) 인물 추적: 장마다 RTMW 사람 상자를 앞 장 트랙과 IoU·중심 거리로 이음
- 3) 구간 후보: 컷 안에서 트랙이 MIN_COVER 이상 이어지고 몸통·골반·무릎·발목 점수가 충분한(전신) 사람 1–2명, 키가 화면 높이의
+ 3) 구간 후보: 컷 안에서 트랙이 MIN_COVER 이상 이어지고 몸통 점수가 충분한 사람 1–2명(11-05부터 전신 조건 없음, 안 보이는 팔다리는 숨김), 키가 화면 높이의
     MIN_HEIGHT 이상, 원래 관절 흔들림 MAX_JITTER 이하, 길이 MIN_LEN–MAX_LEN장(긴 컷은 나눔)
  4) 액션 점수: 손목·발목 속도 / 몸통 길이의 평균(움직임 많은 구간 우선), 영상당 최대 PER_VIDEO개, 전체 상위 N개
  5) 변환: rtmw_to_stickman_2d_v2.run_core(키포즈) → stickman_variants.basic_joints, 머리 = run_core head_t/head_base,
@@ -69,8 +69,6 @@ SCORE = 1.5
 TORSO = (5, 6, 11, 12)
 LEGS = (11, 12, 13, 14, 15, 16)   # 골반·무릎·발목: 전신 조건(첫 시도에서 얼굴 클로즈업·상반신 컷이 뽑혀 엉뚱한 몸이 나오거나 다리가 통째로 없었다)
 MIN_HEIGHT, MAX_JITTER = 0.25, 2.0   # 사람 상자 높이 / 화면 높이 중앙값 하한, 원래 관절 흔들림(2차 차분 / 몸통) 중앙값 상한 — 0.15는 빠른 동작까지 잘라 6구간뿐(11-05: 전신 57트랙 흔들림 중앙 0.71), 2.0 넘는 4–6은 사람 바뀜·추적 실패
-LEG_MED = 3.0                     # 무릎·발목 점수 중앙값 하한: 가까운 상반신 컷은 다리를 지어내도 2.3 안팎(11-05 3차 시트 08·24·30), 전신은 3.2 이상
-IN_LEG = 0.6                      # 골반→발목 / 몸통 하한(웅크림 허용, 지어낸 짧은 다리 제외)
 LIMBS = (9, 10, 15, 16)          # 손목·발목(RTMW 몸 17점)
 
 
@@ -153,17 +151,6 @@ def action_score(t, frames):
     return float(np.median(v)) if v else 0.0   # 중앙값: 튀는 장에 덜 끌림
 
 
-def leg_in_frame(t, f, W, H):
-    """발목이 화면 안에 있고 골반→발목 길이가 몸통의 IN_LEG배 이상(가까운 상반신 컷에서 RTMW가 화면 밖 다리를 높은 점수로 지어낸다, 11-05 2차 시트 20·24·28–30)."""
-    k = t[f][1]
-    tor = np.linalg.norm((k[5, :2] + k[6, :2]) / 2 - (k[11, :2] + k[12, :2]) / 2) or 1
-    for hip, ank in ((11, 15), (12, 16)):
-        x, y = k[ank, :2]
-        if not (0 <= x < W and 0 <= y < H * 0.99): return False
-        if np.linalg.norm(k[ank, :2] - k[hip, :2]) < IN_LEG * tor: return False
-    return True
-
-
 def candidates(vid, R, cut_list, H=720, W=1280):
     out = []
     for s, e in zip(cut_list, cut_list[1:]):
@@ -173,9 +160,8 @@ def candidates(vid, R, cut_list, H=720, W=1280):
             frames = list(range(ws, we))
             T = []
             for t in track(R, ws, we):
-                good = [f for f in frames if f in t and t[f][1][list(TORSO) + list(LEGS), 2].min() >= SCORE and leg_in_frame(t, f, W, H)]
+                good = [f for f in frames if f in t and t[f][1][list(TORSO), 2].min() >= SCORE]   # 11-05 사용자: 전신 고집 필요 없음 → 몸통만(다리는 limb_hidden이 숨김)
                 if len(good) < MIN_COVER * len(frames): continue
-                if np.median([t[f][1][13:17, 2] for f in t]) < LEG_MED: continue
                 if np.median([t[f][0][3] - t[f][0][1] for f in t]) < MIN_HEIGHT * H: continue
                 if raw_jitter(t, frames) > MAX_JITTER: continue
                 T.append((t, good))
@@ -194,6 +180,47 @@ def candidates(vid, R, cut_list, H=720, W=1280):
 def to_pct(p, W, H):
     vis_h = W * 0.5625                      # SFA 16:9 화면(가운데 기준으로 위아래를 자르거나 여백)
     return [float(p[0]) / W * 100, float(p[1] - (H - vis_h) / 2) / vis_h * 100]
+
+
+# 조각(profile stickman_2d_v1 객체 번호) → 끝 관절(RTMW 번호). 조각은 끝 관절과 부모 조각이 보일 때만 그린다.
+LIMB_OBJ = {3: ('elb_r', 8, None), 4: ('wri_r', 10, 3), 5: ('elb_l', 7, None), 6: ('wri_l', 9, 5),
+            7: ('kne_r', 14, None), 8: ('ank_r', 16, 7), 9: ('kne_l', 13, None), 10: ('ank_l', 15, 9)}
+LIMB_BASE = {3: 'neck', 4: 'elb_r', 5: 'neck', 6: 'elb_l', 7: 'pelvis', 8: 'kne_r', 9: 'pelvis', 10: 'kne_l'}
+VIS_SCORE = {'arm': SCORE, 'leg': 2.5}   # 다리는 더 엄격: 가까운 상반신 컷에서 화면 밖 다리를 2.3 안팎 점수로 지어낸다(3차 시트)
+HIDE_RUN, COLLAPSE = 3, 0.35
+
+
+def limb_hidden(t, frames, B, W, H, top):
+    """장마다 숨길 조각 목록(11-05 사용자 '꾸겨진다'·'상체 위주로 나오는 부분도 있음, 전신 고집 필요 없음').
+    - 안 보임: 끝 관절 점수 < VIS_SCORE 또는 화면 가장자리에 몰림(stickman_clip.border_info) — HIDE_RUN장 이상 이어질 때만(짧은 깜빡임은 그림)
+    - 접힘: 조각 길이 < COLLAPSE × 이 구간 중앙값(가려진 팔다리를 풀이가 몸통 쪽으로 접어 넣은 장)
+    - 부모 조각이 숨으면 자식도 숨김. 10초판의 장면 데이터 '부분 인물/가시성'을 자동 관측으로 대신한 것(원본 판독 아님)."""
+    import stickman_clip as SC
+    N = len(frames)
+    K = np.stack([t[f][1] if f in t else np.zeros((23, 3)) for f in frames])
+    bm = SC.border_info(K, W, H, top)[0]
+    hide = [set() for _ in range(N)]
+    for oid, (jn, ri, parent) in LIMB_OBJ.items():
+        thr = VIS_SCORE['leg' if oid >= 7 else 'arm']
+        unseen = np.array([(f not in t) or K[i, ri, 2] < thr or bm[i, ri] for i, f in enumerate(frames)])
+        run = np.zeros(N, bool); i = 0
+        while i < N:
+            if unseen[i]:
+                j = i
+                while j < N and unseen[j]: j += 1
+                if j - i >= HIDE_RUN or i == 0 or j == N: run[i:j] = True   # 구간 양 끝에 붙은 짧은 결측도 숨김
+                i = j
+            else:
+                i += 1
+        L = np.linalg.norm(np.asarray(B[jn], float) - np.asarray(B[LIMB_BASE[oid]], float), axis=1)
+        med = np.nanmedian(L) if np.isfinite(L).any() else np.nan
+        for n in range(N):
+            if run[n] or (np.isfinite(L[n]) and np.isfinite(med) and L[n] < COLLAPSE * med):
+                hide[n].add(oid)
+    for n in range(N):
+        for oid, (_, _, parent) in LIMB_OBJ.items():
+            if parent in hide[n]: hide[n].add(oid)
+    return [sorted(h) for h in hide]
 
 
 def convert(c, W, H, video=None):
@@ -229,7 +256,7 @@ def convert(c, W, H, video=None):
                             knee_fixed=len(rep.get('knee_fixed', []))))
         actors.append(dict(slot=slot, color=('blue', 'red')[slot], joints=joints,
                            thickness=[{str(o): round(float(th[i]), 3) for o in range(1, 12)} for i in range(N)],
-                           hidden=[[] for _ in range(N)], smear=[[] for _ in range(N)], head_fill=[True] * N,
+                           hidden=limb_hidden(t, frames, B, W, H, top), smear=[[] for _ in range(N)], head_fill=[True] * N,
                            facing=FP.smooth_yaw(raw),
                            # 원본 그림 구간(이 구간 0장 기준 [첫 장, 끝 장]): 관절은 PCHIP으로 24장 모두 움직이지만, 유지 리듬(2s·3s)·타격 멈춤은
                            # 이 경계에 남는다(11-05: 보간 때문에 스타일 측정 자료에서 유지 리듬이 지워지던 것 보존). 트랙이 없는 장은 키 구간 밖.
