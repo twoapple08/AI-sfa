@@ -138,3 +138,22 @@ class UserSfaIr(unittest.TestCase):
         j = U.joints_of(r)
         self.assertEqual(j['elb_r'], [3, 3]); self.assertEqual(j['ank_l'], [-2, 20])
         r2 = dict(r, arms=r['arms'][:1]); self.assertIsNone(U.joints_of(r2))   # 팔 하나면 표준 뼈대 아님
+
+
+class MotionTokens(unittest.TestCase):
+    def test_roundtrip(self):
+        import motion_tokens as MT, math
+        ir = make_ir([60, 70, 80, 75], [2, 2, 2, 2])
+        t = MT.encode(ir)
+        self.assertEqual(t[0], '<motion>'); self.assertEqual(t[-1], '</motion>')
+        self.assertTrue(all(x in MT.VOCAB for x in t))
+        out = MT.decode(t)
+        a, b = ir['actors'][0]['joints'], out['actors'][0]['joints']
+        k0 = MT.keyframes(ir['actors'][0], ir['frames'])[0]
+        T = math.hypot(a['neck'][k0][0] - a['pelvis'][k0][0], (a['neck'][k0][1] - a['pelvis'][k0][1]) * 0.5625)
+        for n in ('wri_r', 'ank_l', 'neck'):
+            self.assertLess(math.hypot(a[n][k0][0] - b[n][0][0], (a[n][k0][1] - b[n][0][1]) * 0.5625) / T, 0.15)
+
+    def test_bad_tokens_skipped(self):
+        import motion_tokens as MT
+        self.assertIsNone(MT.decode(['<motion>', '<a3>', '</motion>']))
