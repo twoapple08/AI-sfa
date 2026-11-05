@@ -30,10 +30,20 @@ def load(path):
     return ET.fromstring(z.read([n for n in z.namelist() if n.endswith('.xml')][0]))
 
 
-def slot_boxes():
-    b = {n: s for n, s in zip(T.TOP, T.top_slots())}
+V2_NAME = {'우측': '우측면', '좌측': '좌측면'}   # v2 칸 이름 → v3 이름(같은 방향). v2 반측면은 좌우가 정해지지 않아 읽지 않는다
+
+
+def slot_boxes(version='v3'):
+    """{v3 칸 이름: (x0, x1, y0, y1)}. v2 시트는 이름을 v3로 바꿔 돌려준다."""
+    if version == 'v3':
+        return {n: v[:4] for n, v in T.slots_v3().items()}
+    b = {V2_NAME.get(n, n): s for n, s in zip(T.TOP, T.top_slots()) if n != '반측면'}
     b.update({n: s for n, s in zip(T.BOT, T.bot_slots())})
     return b
+
+
+def sheet_version(root):
+    return 'v2' if 'v2' in (root.get('Name') or '') else 'v3'
 
 
 def components(aos):
@@ -150,7 +160,8 @@ def closed_loop(objs):
 def read(path, view='정면'):
     root = load(path)
     f = root.findall('Frame')[0]
-    x0, x1, y0, y1 = slot_boxes()[view]
+    view = V2_NAME.get(view, view)
+    x0, x1, y0, y1 = slot_boxes(sheet_version(root))[view]
     aos = [a for a in f.findall('AO') if a.get('LayerId') == '0' and all(x0 < X < x1 and y0 < Y < y1 for X, Y in pts(a))]
     byid = {a.get('ID'): a for a in aos}
     comps = components(aos)
@@ -192,14 +203,16 @@ def read(path, view='정면'):
 
 
 ACC_AO0, ACC_PT0 = 4570000, 900000000
-VIEW_ANGLE = {'정면': 0.0, '우측': 90.0, '후면': 180.0, '좌측': 270.0}   # 반측면은 좌우가 정해지지 않아 v1은 고르지 않음
-VIEW_INDEX = {'정면': 0, '우측': 1, '후면': 2, '좌측': 3}
+VIEW_ANGLE = dict(T.RING_ANGLE)   # v3 수평 8방향(45° 간격). 0 정면 · 90 우측면(얼굴이 화면 왼쪽, v2 '우측') · 180 후면 · 270 좌측면
+VIEW_INDEX = {n: i for i, n in enumerate(T.RING)}   # 칸마다 액세서리 객체 ID 구간(0–7)
 
 
 def read_all(path):
     """그려진 방향 칸을 모두 읽는다 → {칸 이름: read() 결과}. 머리 원이 없는(빈) 칸은 건너뛴다."""
     out = {}
+    boxes = slot_boxes(sheet_version(load(path)))
     for v in VIEW_ANGLE:
+        if v not in boxes: continue
         try:
             out[v] = read(path, v)
         except StopIteration:
@@ -209,6 +222,7 @@ def read_all(path):
 
 def pick_view(views, facing):
     """몸 방향(도)에 가장 가까운 칸. 모르면 정면(없으면 아무 칸)."""
+    views = {V2_NAME.get(k, k): x for k, x in views.items()}
     if facing is None:
         return views.get('정면') or next(iter(views.values()))
     def gap(v): d = abs((facing - VIEW_ANGLE[v]) % 360); return min(d, 360 - d)
@@ -337,7 +351,7 @@ def rig_xml(R_, yaw, n, slot, J, body_th_frame):
 SIM = dict(n=9, gravity=0.008, damping=0.04, shape=0.008, iters=12, wind=(0.0, 0.0), reset_jump=1.2, drag=0.35)
 # 밑단 최소 너비(몸통 길이 대비, 칸별) — 사용자 11-05: "2배가 아니라 지금과 같은 크기. 시트에서 더 크게 들어오면 그 크기, 작으면 지금 크기".
 # 값 = 예시 시트(character_sheet_v2_example) 칸별 밑단 너비 × 2(사용자가 '좋다'고 한 v5 결과). 칸 사이는 섞어 쓴다.
-HEM_MIN = {'정면': 0.858, '우측': 0.318, '후면': 0.896, '좌측': 0.506}
+HEM_MIN = {'정면': 0.858, '우측면': 0.318, '후면': 0.896, '좌측면': 0.506}   # 반측면·후반측면 칸은 시트 밑단 길이만(없으면 0)
 # 11-05 사용자 "형태에 너무 얽매임, 훨씬 넓게 퍼지고 펄럭여도 됨": 모양 복원 0.06→0.008, 감쇠 0.08→0.04, 중력 0.012→0.008,
 # 공기 저항 drag(고정점 속도의 반대 방향, 끝으로 갈수록 크게) 추가
 

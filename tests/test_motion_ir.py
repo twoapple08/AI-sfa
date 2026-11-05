@@ -136,8 +136,8 @@ class FacingViewTest(unittest.TestCase):
         fr = out.findall('Frame')
         ids = [sorted(int(a.get('ID')) - CS.ACC_AO0 for a in f.findall('AO') if int(a.get('ID')) >= CS.ACC_AO0) for f in fr]
         self.assertTrue(all(0 <= i < 100 for i in ids[0]) and len(ids[0]) == 8)
-        self.assertTrue(all(100 <= i < 200 for i in ids[1]) and len(ids[1]) == 8)
-        self.assertTrue(all(200 <= i < 300 for i in ids[2]) and len(ids[2]) == 3)   # 망토만
+        self.assertTrue(all(200 <= i < 300 for i in ids[1]) and len(ids[1]) == 8)   # v3 칸 번호: 우측면 = 고리 2번
+        self.assertTrue(all(400 <= i < 500 for i in ids[2]) and len(ids[2]) == 3)   # 후면 = 고리 4번, 망토만
         self.assertEqual(sorted(len(x.findall('FS')) for x in fr[2].findall('FR') if x.find('FS').get('Kind') == '0'), [3])   # 후면: 망토 채움만, 가면 없음
         kinds = {}
         for f in fr:
@@ -146,6 +146,16 @@ class FacingViewTest(unittest.TestCase):
                 self.assertEqual(kinds.setdefault(a.get('ID'), k), k)
         self.assertEqual(CS.pick_view({'정면': 'f', '우측': 'r', '후면': 'b', '좌측': 'l'}, None), 'f')
         self.assertEqual(CS.pick_view({'정면': 'f', '우측': 'r', '후면': 'b', '좌측': 'l'}, 300.0), 'l')
+
+    def test_v3_ten_views(self):
+        """v3(10면): 수평 8방향 45° 간격 + 위·아래. 예시 시트는 v1의 4방향 + 위·아래만 채워 반측면·후반측면은 빈 칸."""
+        import char_sheet as CS, character_sheet_template as T
+        self.assertEqual(len(T.slots_v3()), 10)
+        self.assertEqual(CS.VIEW_ANGLE['우반측면'], 45.0); self.assertEqual(CS.VIEW_ANGLE['좌반측면'], 315.0)
+        v = CS.read_all(str(self.SHEET.parent / 'character_sheet_v3_example.sfa'))
+        self.assertEqual(sorted(v), sorted(['정면', '우측면', '후면', '좌측면']))
+        self.assertEqual(CS.pick_view({'정면': 'f', '우반측면': 'r45', '우측면': 'r'}, 50.0), 'r45')
+        self.assertEqual(len(CS.read_all(str(self.SHEET))), 4)   # v2 시트도 이름을 v3로 바꿔 읽음
 
 
 class RigTurnTest(unittest.TestCase):
