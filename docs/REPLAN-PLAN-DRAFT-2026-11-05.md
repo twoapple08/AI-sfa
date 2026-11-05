@@ -42,7 +42,7 @@
 - [x] 스타일 층: 쉬운 장면 18구간(nian41 14 + 나카무라 4) 801장, 학습 제외 129 → **672장**
 - [x] 스타일 층 GPT 태깅 18구간 + Claude 검수 — `data/stage2/tags_gpt_2026-11-05.json`
 - [x] 기본기 층: 수집 SFA 뼈대 510구간 9,347장(참고용 표시) — `data/stage2/user_sfa_ir_2026-11-05.jsonl.gz`
-- [~] 기본기 층 GPT 태깅(510구간) — GPT 작업 중
+- [x] 기본기 층 GPT 태깅 510구간(좋음 237·보통 187·나쁨 86 → 나쁨 제외) + Claude 검수(시트 2장 12구간 맞음) — `data/stage2/tags_usersfa_gpt_2026-11-05.json`
 - [x] 스타일 특징 실측(`data/stage2/style_features_2026-11-05.json`): nian41 2장 유지 61%·예비 동작 52%, 나카무라 1장 유지 74%
 - [ ] ◆ 사용자 표본 판정(고친 뒤)
 

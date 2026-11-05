@@ -1,0 +1,46 @@
+{
+  "segments": 510,
+  "first_id": "u000",
+  "last_id": "u509",
+  "sheets_visually_inspected": 85,
+  "actions": 1453,
+  "quality_counts": {
+    "좋음": 237,
+    "보통": 187,
+    "나쁨": 86
+  },
+  "parts": [
+    {
+      "file": "tags_usersfa_part01_u000-u089.json",
+      "count": 90
+    },
+    {
+      "file": "tags_usersfa_part02_u090-u179.json",
+      "count": 90
+    },
+    {
+      "file": "tags_usersfa_part03_u180-u269.json",
+      "count": 90
+    },
+    {
+      "file": "tags_usersfa_part04_u270-u359.json",
+      "count": 90
+    },
+    {
+      "file": "tags_usersfa_part05_u360-u449.json",
+      "count": 90
+    },
+    {
+      "file": "tags_usersfa_part06_u450-u509.json",
+      "count": 60
+    }
+  ],
+  "checks": [
+    "510 IDs complete and ordered; no duplicates",
+    "Required JSON fields and enum values",
+    "Integer frame ranges within index and displayed sampling sequence",
+    "No anatomical laterality or seconds",
+    "UTF-8 JSON readback; split arrays reproduce full array"
+  ],
+  "sha256": "f9cf84c3b889f947223cdd907621819c5e752eccb3a772ba7118341c24342984"
+}
