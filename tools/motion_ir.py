@@ -79,7 +79,8 @@ def extract(root):
 
 
 def compile_ir(ir, name='motion_ir', sheets=None):
-    """sheets: {slot: char_sheet.read(...) 결과} — 그 인물에 캐릭터 시트 색·액세서리를 입힌다(단계 1-②)."""
+    """sheets: {slot: char_sheet.read(...) 한 칸 또는 char_sheet.read_all(...) 여러 칸} — 그 인물에 캐릭터 시트 색·액세서리를 입힌다(단계 1-②).
+    여러 칸이면 장마다 facing에 가장 가까운 칸을 쓴다(모르면 정면)."""
     sheets = sheets or {}
     from stickman_clip import person_aos
     N = ir['frames']
@@ -111,6 +112,9 @@ def compile_ir(ir, name='motion_ir', sheets=None):
             sh = sheets.get(a['slot'])
             if sh is not None:
                 import char_sheet as CS
+                if 'joints' not in sh:   # 여러 칸(read_all) → 이 장의 몸 방향에 맞는 칸(가면 방향 2/3)
+                    fc = a.get('facing') or [None] * N
+                    sh = CS.pick_view(sh, fc[n])
                 xml = xml.replace(f'Color="{LINE_COLOR[color]}"', f'Color="{sh["body_color"]}"')
                 Jp = {k: tuple(v[n]) for k, v in a['joints'].items() if v[n] is not None}
                 if 'head_b' not in Jp: Jp['head_b'] = Jp['neck']

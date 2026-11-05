@@ -183,11 +183,34 @@ def read(path, view='정면'):
 
 
 ACC_AO0, ACC_PT0 = 4570000, 900000000
+VIEW_ANGLE = {'정면': 0.0, '우측': 90.0, '후면': 180.0, '좌측': 270.0}   # 반측면은 좌우가 정해지지 않아 v1은 고르지 않음
+VIEW_INDEX = {'정면': 0, '우측': 1, '후면': 2, '좌측': 3}
+
+
+def read_all(path):
+    """그려진 방향 칸을 모두 읽는다 → {칸 이름: read() 결과}. 머리 원이 없는(빈) 칸은 건너뛴다."""
+    out = {}
+    for v in VIEW_ANGLE:
+        try:
+            out[v] = read(path, v)
+        except StopIteration:
+            pass
+    return out
+
+
+def pick_view(views, facing):
+    """몸 방향(도)에 가장 가까운 칸. 모르면 정면(없으면 아무 칸)."""
+    if facing is None:
+        return views.get('정면') or next(iter(views.values()))
+    def gap(v): d = abs((facing - VIEW_ANGLE[v]) % 360); return min(d, 360 - d)
+    return views[min(views, key=gap)]
 
 
 def accessory_xml(sheet, n, slot, J, body_th_frame):
-    """한 장·한 인물의 액세서리 AO들(객체 ID는 모든 장에서 같게, 점 ID는 장마다 새로)."""
-    out, k, npt = [], 0, 0
+    """한 장·한 인물의 액세서리 AO들(객체 ID는 모든 장에서 같게, 점 ID는 장마다 새로).
+    칸마다 객체 ID 구간을 따로 둔다(칸마다 액세서리 수·종류가 달라 같은 ID가 장에 따라 다른 모양이 되지 않게)."""
+    vi = VIEW_INDEX.get(sheet.get('view'), 0)
+    out, k, npt = [], vi * 100, 0
     ratio = body_th_frame / (sheet['body_th'] or 1)
     for ai, acc in enumerate(sheet['accessories']):
         fr_ = frame_of(J, acc['bone'])

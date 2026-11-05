@@ -121,5 +121,31 @@ class CharSheetTest(unittest.TestCase):
         self.assertEqual(body.get('Color'), '-16777216')   # 시트 몸 색(검정)
 
 
+class FacingViewTest(unittest.TestCase):
+    SHEET = Path(__file__).resolve().parents[1] / 'data' / 'templates' / 'character_sheet_v2_example.sfa'
+
+    def test_view_follows_facing(self):
+        """가면 방향 2/3: 장마다 몸 방향에 가장 가까운 시트 칸. 후면이면 가면(머리 닫힌 모양·흰 채움) 없음.
+        칸마다 객체 ID 구간이 달라 같은 ID가 장에 따라 다른 모양이 되지 않는다."""
+        import char_sheet as CS
+        M, root = scene()
+        ir = M.extract(root)
+        ir['actors'][0]['facing'] = [0.0, 100.0, 170.0]          # 정면 · 우측(가장 가까움) · 후면
+        out = M.compile_ir(ir, sheets={0: CS.read_all(str(self.SHEET))})
+        fr = out.findall('Frame')
+        ids = [sorted(int(a.get('ID')) - CS.ACC_AO0 for a in f.findall('AO') if int(a.get('ID')) >= CS.ACC_AO0) for f in fr]
+        self.assertTrue(all(0 <= i < 100 for i in ids[0]) and len(ids[0]) == 8)
+        self.assertTrue(all(100 <= i < 200 for i in ids[1]) and len(ids[1]) == 8)
+        self.assertTrue(all(200 <= i < 300 for i in ids[2]) and len(ids[2]) == 3)   # 망토만
+        self.assertEqual(len([x for x in fr[2].findall('FR') if x.find('FS').get('Kind') == '0']), 0)
+        kinds = {}
+        for f in fr:
+            for a in f.findall('AO'):
+                k = (a.get('LayerId'), a.get('TypeId'))
+                self.assertEqual(kinds.setdefault(a.get('ID'), k), k)
+        self.assertEqual(CS.pick_view({'정면': 'f', '우측': 'r', '후면': 'b', '좌측': 'l'}, None), 'f')
+        self.assertEqual(CS.pick_view({'정면': 'f', '우측': 'r', '후면': 'b', '좌측': 'l'}, 300.0), 'l')
+
+
 if __name__ == '__main__':
     unittest.main()
