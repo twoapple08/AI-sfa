@@ -1,0 +1,624 @@
+{
+ "total": {
+  "rtmw": {
+   "frames": 1320,
+   "jump": 515,
+   "fold": 239,
+   "inferred": 570
+  },
+  "sapiens": {
+   "frames": 1320,
+   "jump": 679,
+   "fold": 294,
+   "inferred": 519
+  },
+  "vitpose": {
+   "frames": 1320,
+   "jump": 598,
+   "fold": 192,
+   "inferred": 525
+  }
+ },
+ "per_segment": {
+  "1613887377965211649_1439": {
+   "rtmw": {
+    "frames": 52,
+    "jump": 12,
+    "fold": 7,
+    "inferred": 4
+   },
+   "sapiens": {
+    "frames": 52,
+    "jump": 12,
+    "fold": 6,
+    "inferred": 2
+   },
+   "vitpose": {
+    "frames": 52,
+    "jump": 8,
+    "fold": 1,
+    "inferred": 0
+   }
+  },
+  "1613887377965211649_1494": {
+   "rtmw": {
+    "frames": 33,
+    "jump": 18,
+    "fold": 9,
+    "inferred": 9
+   },
+   "sapiens": {
+    "frames": 33,
+    "jump": 20,
+    "fold": 9,
+    "inferred": 2
+   },
+   "vitpose": {
+    "frames": 33,
+    "jump": 13,
+    "fold": 14,
+    "inferred": 0
+   }
+  },
+  "1613887377965211649_1726": {
+   "rtmw": {
+    "frames": 37,
+    "jump": 18,
+    "fold": 4,
+    "inferred": 9
+   },
+   "sapiens": {
+    "frames": 37,
+    "jump": 19,
+    "fold": 7,
+    "inferred": 2
+   },
+   "vitpose": {
+    "frames": 37,
+    "jump": 23,
+    "fold": 6,
+    "inferred": 4
+   }
+  },
+  "1913481070839742689_27": {
+   "rtmw": {
+    "frames": 27,
+    "jump": 20,
+    "fold": 8,
+    "inferred": 5
+   },
+   "sapiens": {
+    "frames": 27,
+    "jump": 22,
+    "fold": 6,
+    "inferred": 1
+   },
+   "vitpose": {
+    "frames": 27,
+    "jump": 23,
+    "fold": 4,
+    "inferred": 2
+   }
+  },
+  "1913481070839742689_358": {
+   "rtmw": {
+    "frames": 25,
+    "jump": 12,
+    "fold": 3,
+    "inferred": 25
+   },
+   "sapiens": {
+    "frames": 25,
+    "jump": 18,
+    "fold": 9,
+    "inferred": 24
+   },
+   "vitpose": {
+    "frames": 25,
+    "jump": 14,
+    "fold": 2,
+    "inferred": 25
+   }
+  },
+  "1913481070839742689_475": {
+   "rtmw": {
+    "frames": 27,
+    "jump": 12,
+    "fold": 5,
+    "inferred": 6
+   },
+   "sapiens": {
+    "frames": 27,
+    "jump": 16,
+    "fold": 11,
+    "inferred": 4
+   },
+   "vitpose": {
+    "frames": 27,
+    "jump": 13,
+    "fold": 7,
+    "inferred": 1
+   }
+  },
+  "1943223713455051062_191": {
+   "rtmw": {
+    "frames": 39,
+    "jump": 11,
+    "fold": 2,
+    "inferred": 21
+   },
+   "sapiens": {
+    "frames": 39,
+    "jump": 15,
+    "fold": 5,
+    "inferred": 18
+   },
+   "vitpose": {
+    "frames": 39,
+    "jump": 10,
+    "fold": 5,
+    "inferred": 17
+   }
+  },
+  "2029588466376511962_839": {
+   "rtmw": {
+    "frames": 35,
+    "jump": 22,
+    "fold": 7,
+    "inferred": 16
+   },
+   "sapiens": {
+    "frames": 35,
+    "jump": 24,
+    "fold": 15,
+    "inferred": 10
+   },
+   "vitpose": {
+    "frames": 35,
+    "jump": 22,
+    "fold": 7,
+    "inferred": 11
+   }
+  },
+  "2029588466376511962_1702": {
+   "rtmw": {
+    "frames": 24,
+    "jump": 8,
+    "fold": 5,
+    "inferred": 24
+   },
+   "sapiens": {
+    "frames": 24,
+    "jump": 7,
+    "fold": 1,
+    "inferred": 24
+   },
+   "vitpose": {
+    "frames": 24,
+    "jump": 7,
+    "fold": 0,
+    "inferred": 24
+   }
+  },
+  "216085_1268": {
+   "rtmw": {
+    "frames": 30,
+    "jump": 17,
+    "fold": 10,
+    "inferred": 22
+   },
+   "sapiens": {
+    "frames": 30,
+    "jump": 18,
+    "fold": 8,
+    "inferred": 19
+   },
+   "vitpose": {
+    "frames": 30,
+    "jump": 17,
+    "fold": 5,
+    "inferred": 16
+   }
+  },
+  "216085_1500": {
+   "rtmw": {
+    "frames": 29,
+    "jump": 13,
+    "fold": 4,
+    "inferred": 18
+   },
+   "sapiens": {
+    "frames": 29,
+    "jump": 19,
+    "fold": 6,
+    "inferred": 12
+   },
+   "vitpose": {
+    "frames": 29,
+    "jump": 15,
+    "fold": 2,
+    "inferred": 15
+   }
+  },
+  "216085_1791": {
+   "rtmw": {
+    "frames": 25,
+    "jump": 7,
+    "fold": 8,
+    "inferred": 2
+   },
+   "sapiens": {
+    "frames": 25,
+    "jump": 8,
+    "fold": 9,
+    "inferred": 6
+   },
+   "vitpose": {
+    "frames": 25,
+    "jump": 11,
+    "fold": 4,
+    "inferred": 5
+   }
+  },
+  "280523_1098": {
+   "rtmw": {
+    "frames": 27,
+    "jump": 10,
+    "fold": 7,
+    "inferred": 21
+   },
+   "sapiens": {
+    "frames": 27,
+    "jump": 11,
+    "fold": 6,
+    "inferred": 15
+   },
+   "vitpose": {
+    "frames": 27,
+    "jump": 11,
+    "fold": 4,
+    "inferred": 18
+   }
+  },
+  "280527_604": {
+   "rtmw": {
+    "frames": 104,
+    "jump": 46,
+    "fold": 18,
+    "inferred": 1
+   },
+   "sapiens": {
+    "frames": 104,
+    "jump": 59,
+    "fold": 19,
+    "inferred": 0
+   },
+   "vitpose": {
+    "frames": 104,
+    "jump": 66,
+    "fold": 16,
+    "inferred": 0
+   }
+  },
+  "280544_1392": {
+   "rtmw": {
+    "frames": 105,
+    "jump": 46,
+    "fold": 23,
+    "inferred": 12
+   },
+   "sapiens": {
+    "frames": 105,
+    "jump": 65,
+    "fold": 24,
+    "inferred": 18
+   },
+   "vitpose": {
+    "frames": 105,
+    "jump": 67,
+    "fold": 16,
+    "inferred": 18
+   }
+  },
+  "280544_1497": {
+   "rtmw": {
+    "frames": 62,
+    "jump": 19,
+    "fold": 8,
+    "inferred": 0
+   },
+   "sapiens": {
+    "frames": 62,
+    "jump": 34,
+    "fold": 19,
+    "inferred": 7
+   },
+   "vitpose": {
+    "frames": 62,
+    "jump": 27,
+    "fold": 16,
+    "inferred": 2
+   }
+  },
+  "280544_1854": {
+   "rtmw": {
+    "frames": 30,
+    "jump": 9,
+    "fold": 6,
+    "inferred": 30
+   },
+   "sapiens": {
+    "frames": 30,
+    "jump": 11,
+    "fold": 6,
+    "inferred": 30
+   },
+   "vitpose": {
+    "frames": 30,
+    "jump": 7,
+    "fold": 3,
+    "inferred": 30
+   }
+  },
+  "280544_3149": {
+   "rtmw": {
+    "frames": 28,
+    "jump": 7,
+    "fold": 2,
+    "inferred": 28
+   },
+   "sapiens": {
+    "frames": 28,
+    "jump": 12,
+    "fold": 5,
+    "inferred": 28
+   },
+   "vitpose": {
+    "frames": 28,
+    "jump": 10,
+    "fold": 6,
+    "inferred": 27
+   }
+  },
+  "280544_3417": {
+   "rtmw": {
+    "frames": 24,
+    "jump": 7,
+    "fold": 2,
+    "inferred": 24
+   },
+   "sapiens": {
+    "frames": 24,
+    "jump": 13,
+    "fold": 2,
+    "inferred": 24
+   },
+   "vitpose": {
+    "frames": 24,
+    "jump": 9,
+    "fold": 0,
+    "inferred": 24
+   }
+  },
+  "280544_4017": {
+   "rtmw": {
+    "frames": 28,
+    "jump": 11,
+    "fold": 3,
+    "inferred": 0
+   },
+   "sapiens": {
+    "frames": 28,
+    "jump": 13,
+    "fold": 6,
+    "inferred": 4
+   },
+   "vitpose": {
+    "frames": 28,
+    "jump": 14,
+    "fold": 3,
+    "inferred": 5
+   }
+  },
+  "280556_1402": {
+   "rtmw": {
+    "frames": 96,
+    "jump": 29,
+    "fold": 23,
+    "inferred": 10
+   },
+   "sapiens": {
+    "frames": 96,
+    "jump": 45,
+    "fold": 34,
+    "inferred": 15
+   },
+   "vitpose": {
+    "frames": 96,
+    "jump": 43,
+    "fold": 15,
+    "inferred": 12
+   }
+  },
+  "280556_2082": {
+   "rtmw": {
+    "frames": 36,
+    "jump": 10,
+    "fold": 3,
+    "inferred": 24
+   },
+   "sapiens": {
+    "frames": 36,
+    "jump": 12,
+    "fold": 6,
+    "inferred": 22
+   },
+   "vitpose": {
+    "frames": 36,
+    "jump": 9,
+    "fold": 2,
+    "inferred": 22
+   }
+  },
+  "280556_2708": {
+   "rtmw": {
+    "frames": 47,
+    "jump": 6,
+    "fold": 14,
+    "inferred": 47
+   },
+   "sapiens": {
+    "frames": 47,
+    "jump": 10,
+    "fold": 5,
+    "inferred": 47
+   },
+   "vitpose": {
+    "frames": 47,
+    "jump": 10,
+    "fold": 5,
+    "inferred": 47
+   }
+  },
+  "280556_3351": {
+   "rtmw": {
+    "frames": 80,
+    "jump": 31,
+    "fold": 10,
+    "inferred": 56
+   },
+   "sapiens": {
+    "frames": 80,
+    "jump": 35,
+    "fold": 13,
+    "inferred": 50
+   },
+   "vitpose": {
+    "frames": 80,
+    "jump": 23,
+    "fold": 11,
+    "inferred": 56
+   }
+  },
+  "280597_421": {
+   "rtmw": {
+    "frames": 30,
+    "jump": 18,
+    "fold": 9,
+    "inferred": 8
+   },
+   "sapiens": {
+    "frames": 30,
+    "jump": 18,
+    "fold": 9,
+    "inferred": 0
+   },
+   "vitpose": {
+    "frames": 30,
+    "jump": 15,
+    "fold": 7,
+    "inferred": 2
+   }
+  },
+  "287263_1256": {
+   "rtmw": {
+    "frames": 26,
+    "jump": 11,
+    "fold": 7,
+    "inferred": 9
+   },
+   "sapiens": {
+    "frames": 26,
+    "jump": 16,
+    "fold": 7,
+    "inferred": 14
+   },
+   "vitpose": {
+    "frames": 26,
+    "jump": 13,
+    "fold": 2,
+    "inferred": 14
+   }
+  },
+  "301142_677": {
+   "rtmw": {
+    "frames": 89,
+    "jump": 44,
+    "fold": 14,
+    "inferred": 44
+   },
+   "sapiens": {
+    "frames": 89,
+    "jump": 51,
+    "fold": 21,
+    "inferred": 35
+   },
+   "vitpose": {
+    "frames": 89,
+    "jump": 48,
+    "fold": 11,
+    "inferred": 37
+   }
+  },
+  "301142_775": {
+   "rtmw": {
+    "frames": 40,
+    "jump": 14,
+    "fold": 13,
+    "inferred": 10
+   },
+   "sapiens": {
+    "frames": 40,
+    "jump": 14,
+    "fold": 11,
+    "inferred": 6
+   },
+   "vitpose": {
+    "frames": 40,
+    "jump": 15,
+    "fold": 11,
+    "inferred": 6
+   }
+  },
+  "301142_1570": {
+   "rtmw": {
+    "frames": 48,
+    "jump": 22,
+    "fold": 0,
+    "inferred": 48
+   },
+   "sapiens": {
+    "frames": 48,
+    "jump": 31,
+    "fold": 1,
+    "inferred": 46
+   },
+   "vitpose": {
+    "frames": 48,
+    "jump": 25,
+    "fold": 1,
+    "inferred": 48
+   }
+  },
+  "301158_249": {
+   "rtmw": {
+    "frames": 37,
+    "jump": 5,
+    "fold": 5,
+    "inferred": 37
+   },
+   "sapiens": {
+    "frames": 37,
+    "jump": 31,
+    "fold": 8,
+    "inferred": 34
+   },
+   "vitpose": {
+    "frames": 37,
+    "jump": 10,
+    "fold": 6,
+    "inferred": 37
+   }
+  }
+ }
+}
