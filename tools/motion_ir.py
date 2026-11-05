@@ -253,6 +253,46 @@ def calm_limbs(ir, win=None, body_max=None, path_min=None, net_ratio=None, min_r
     return out, sorted(set(changed))
 
 
+EDIT_OPS = ('hide', 'smear', 'bridge', 'drop')
+
+
+def apply_edits(ir, edits):
+    """원본 눈 판정으로 고친 내용(단계 2, 사용자 11-05 '여기서 고친 다음 다음부터 안 생기게')을 적용한 새 중간 표현.
+    edits: [{"frames": [첫, 끝], "slot": 0, "op": "hide|smear|bridge|drop", "objs": [조각], "joints": [관절], "cause": "원인 분류", "note": "..."}]
+    - hide: 조각 숨김 / smear: '스미어로 대체' 표시(그리지 않음) / bridge: 관절을 앞(첫-1)·뒤(끝+1) 장 사이 직선으로(골반 기준)
+    - drop: 고칠 수 없는 장을 학습에서 뺌(actor['train_mask'] False). 좌표는 바꾸지 않는다.
+    좌표 직접 지정은 넣지 않는다(원본 좌표 비공개 규칙 — 필요하면 비공개 작업 폴더에서 따로)."""
+    import copy
+    out = copy.deepcopy(ir); N = out['frames']
+    for e in edits:
+        if e['op'] not in EDIT_OPS:
+            raise ValueError(f"모르는 수정 {e['op']}")
+        a = next(x for x in out['actors'] if x.get('slot', 0) == e.get('slot', 0))
+        f0, f1 = e['frames']
+        if not (0 <= f0 <= f1 < N):
+            raise ValueError(f"장 범위 밖 {e['frames']}")
+        a.setdefault('train_mask', [True] * N)
+        if e['op'] in ('hide', 'smear'):
+            key = 'hidden' if e['op'] == 'hide' else 'smear'
+            for n in range(f0, f1 + 1):
+                a[key][n] = sorted(set(a[key][n]) | set(e['objs']))
+        elif e['op'] == 'drop':
+            for n in range(f0, f1 + 1): a['train_mask'][n] = False
+        elif e['op'] == 'bridge':
+            J = a['joints']
+            if f0 == 0 or f1 == N - 1:
+                raise ValueError('잇기는 앞뒤에 정상 장이 있어야 한다')
+            for k in e['joints']:
+                p0, p1, q0, q1 = J[k][f0 - 1], J[k][f1 + 1], J['pelvis'][f0 - 1], J['pelvis'][f1 + 1]
+                if None in (p0, p1, q0, q1): continue
+                r0 = (p0[0] - q0[0], p0[1] - q0[1]); r1 = (p1[0] - q1[0], p1[1] - q1[1])
+                for n in range(f0, f1 + 1):
+                    if J['pelvis'][n] is None: continue
+                    t = (n - f0 + 1) / (f1 - f0 + 2)
+                    J[k][n] = [J['pelvis'][n][0] + r0[0] + (r1[0] - r0[0]) * t, J['pelvis'][n][1] + r0[1] + (r1[1] - r0[1]) * t]
+    return out
+
+
 def compile_ir(ir, name='motion_ir', sheets=None):
     """sheets: {slot: char_sheet.read(...) 한 칸 또는 char_sheet.read_all(...) 여러 칸} — 그 인물에 캐릭터 시트 색·액세서리를 입힌다(단계 1-②).
     여러 칸이면 장마다 facing에 가장 가까운 칸을 쓴다(모르면 정면)."""

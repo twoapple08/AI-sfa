@@ -93,3 +93,28 @@ class CalmLimbs(unittest.TestCase):
         ir2 = self._ir(body_move=3.0)
         ws2 = {0: {'r': [2.0] * ir2['frames'], 'l': [2.0] * ir2['frames']}}
         self.assertEqual(M.calm_limbs(ir2, wrist_score=ws2)[1], [])        # 반례: 몸 전체가 움직임
+
+
+class ApplyEdits(unittest.TestCase):
+    def test_ops(self):
+        import motion_ir as M
+        ir = make_ir([60, 70, 80, 90, 100], [2, 2, 2, 2, 2])
+        a = ir['actors'][0]; N = ir['frames']
+        a['hidden'] = [[] for _ in range(N)]; a['smear'] = [[] for _ in range(N)]
+        a['joints']['wri_r'][4] = [200.0, 40.0]                       # 4장 튐
+        out = M.apply_edits(ir, [dict(frames=[2, 3], op='smear', objs=[7, 8], cause='스미어'),
+                                 dict(frames=[4, 4], op='bridge', joints=['wri_r'], cause='오검출'),
+                                 dict(frames=[9, 9], op='drop', cause='판독 불가'),
+                                 dict(frames=[0, 0], op='hide', objs=[3])])
+        b = out['actors'][0]
+        self.assertEqual(b['smear'][2], [7, 8]); self.assertEqual(b['hidden'][0], [3])
+        self.assertAlmostEqual(b['joints']['wri_r'][4][0], (70 + 80) / 2)
+        self.assertFalse(b['train_mask'][9]); self.assertTrue(b['train_mask'][8])
+        self.assertEqual(a['joints']['wri_r'][4][0], 200.0)           # 원본 불변
+
+    def test_bad_ops_rejected(self):
+        import motion_ir as M
+        ir = make_ir([60, 70], [2, 2])
+        with self.assertRaises(ValueError): M.apply_edits(ir, [dict(frames=[0, 0], op='bridge', joints=['wri_r'])])
+        with self.assertRaises(ValueError): M.apply_edits(ir, [dict(frames=[0, 9], op='hide', objs=[3])])
+        with self.assertRaises(ValueError): M.apply_edits(ir, [dict(frames=[0, 0], op='move')])

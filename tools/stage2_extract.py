@@ -392,6 +392,11 @@ def main():
         arm = sum(len({3, 4, 5, 6} & set(x)) >= 2 for x in h) / max(len(h), 1)
         if arm >= ARM_HIDDEN_MAX:
             dropped.append((c['video'], c['start'], f'팔 숨김 {arm:.2f} ≥ {ARM_HIDDEN_MAX}(근접 컷)')); continue
+        ep = f'{root}/data/stage2/edits/{c["video"]}_{c["start"]}.json'
+        if os.path.exists(ep):                 # 원본 눈 판정 수정(구간별)
+            ed = json.load(open(ep, encoding='utf-8'))
+            ir = M.apply_edits(ir, ed['edits'])
+            for q_ in q: q_['edits'] = len(ed['edits'])
         accepted.append((c, ir, q))
     print('뺀 후보', len(dropped), dropped, flush=True)
     for i, (c, ir, q) in enumerate(sorted(accepted, key=lambda x: (list(PREFIX).index(x[0]['animator']), x[0]['video'], x[0]['start']))):
