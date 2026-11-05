@@ -259,7 +259,7 @@ EDIT_OPS = ('hide', 'smear', 'bridge', 'drop')
 def apply_edits(ir, edits):
     """원본 눈 판정으로 고친 내용(단계 2, 사용자 11-05 '여기서 고친 다음 다음부터 안 생기게')을 적용한 새 중간 표현.
     edits: [{"frames": [첫, 끝], "slot": 0, "op": "hide|smear|bridge|drop", "objs": [조각], "joints": [관절], "cause": "원인 분류", "note": "..."}]
-    - hide: 조각 숨김 / smear: '스미어로 대체' 표시(그리지 않음) / bridge: 관절을 앞(첫-1)·뒤(끝+1) 장 사이 직선으로(골반 기준)
+    - hide: 조각 숨김 / smear: 스미어 장 표시(smear_mark, 팔다리는 그대로 그림 — 나중에 스미어를 위에 덧댐) / bridge: 관절을 앞(첫-1)·뒤(끝+1) 장 사이 직선으로(골반 기준)
     - drop: 고칠 수 없는 장을 학습에서 뺌(actor['train_mask'] False). 좌표는 바꾸지 않는다.
     좌표 직접 지정은 넣지 않는다(원본 좌표 비공개 규칙 — 필요하면 비공개 작업 폴더에서 따로)."""
     import copy
@@ -273,7 +273,9 @@ def apply_edits(ir, edits):
             raise ValueError(f"장 범위 밖 {e['frames']}")
         a.setdefault('train_mask', [True] * N)
         if e['op'] in ('hide', 'smear'):
-            key = 'hidden' if e['op'] == 'hide' else 'smear'
+            # smear: 팔다리는 그대로 그리고 표시만(11-05 사용자: 스미어는 나중에 스틱맨 동작 위에 덧대기) → smear_mark
+            key = 'hidden' if e['op'] == 'hide' else 'smear_mark'
+            a.setdefault('smear_mark', [[] for _ in range(N)])
             for n in range(f0, f1 + 1):
                 a[key][n] = sorted(set(a[key][n]) | set(e['objs']))
         elif e['op'] == 'drop':

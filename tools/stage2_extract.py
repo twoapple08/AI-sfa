@@ -189,8 +189,6 @@ LIMB_OBJ = {3: ('elb_r', 8, None), 4: ('wri_r', 10, 3), 5: ('elb_l', 7, None), 6
 LIMB_BASE = {3: 'neck', 4: 'elb_r', 5: 'neck', 6: 'elb_l', 7: 'pelvis', 8: 'kne_r', 9: 'pelvis', 10: 'kne_l'}
 VIS_SCORE = {'arm': SCORE, 'leg': 2.5}   # 다리는 더 엄격: 가까운 상반신 컷에서 화면 밖 다리를 2.3 안팎 점수로 지어낸다(3차 시트)
 HIDE_RUN, COLLAPSE = 3, 0.35
-NEAR_TORSO = 30.0   # 구간 몸통 세로 길이 중앙값(화면 %) 이상이면 근접 상반신 컷 → 다리 전체 숨김.
-                    # 11-05 30구간 장별 검토: 다리를 지어낸 근접 컷 05·08·16·17·18·21·24·28·30 = 36–54%, 전신 컷 최대 27%. 승인 v5는 중앙 12–13%(컷별로 근접 장이 있어도 구간 중앙값엔 안 걸림)
 
 
 def limb_hidden(t, frames, B, W, H, top):
@@ -226,12 +224,63 @@ def limb_hidden(t, frames, B, W, H, top):
     return [sorted(h) for h in hide]
 
 
-def near_legs(hidden, joints):
-    """구간 몸통 세로 길이 중앙값이 NEAR_TORSO % 이상이면(근접 상반신 컷) 모든 장에서 다리 조각 7–10을 숨긴다."""
-    T = [abs(n[1] - p[1]) for n, p in zip(joints['neck'], joints['pelvis']) if n and p]
-    if T and sorted(T)[len(T) // 2] >= NEAR_TORSO:
-        return [sorted(set(h) | {7, 8, 9, 10}) for h in hidden]
-    return hidden
+LEG_DEFAULT = {'thigh': 0.91, 'shin': 0.75}   # 몸통 단위, 승인 10초판(stage1_cape_demo_10s_v5) 비율
+
+
+def estimate_legs(t, frames, B, S, W, H, top):
+    """안 보이는 다리를 지우지 않고 예상 위치에 둔다(11-05 사용자 n41_17: '하체가 바로 안 나온다고 날리지 말고 화면 틀 밖까지
+    배치 가능하니까 예상 다리 상태를 아래쪽에'). 무릎·발목이 보이는 장(점수 ≥ VIS_SCORE['leg'], 가장자리 아님)은 관측 그대로.
+    안 보이는 장은 보인 장들의 허벅지·정강이 각도를 이어(사이는 직선 보간, 앞뒤 끝은 유지) 길이 = 보인 장 중앙값(없으면 10초판 비율) × 몸통.
+    한 번도 안 보이면 곧게 선 다리. 화면 밖 좌표 허용. 반환: 장별 추론한 다리 조각 목록(관측 아님 표시)."""
+    import stickman_clip as SC
+    N = len(frames)
+    K = np.stack([t[f][1] if f in t else np.zeros((23, 3)) for f in frames])
+    bm = SC.border_info(K, W, H, top)[0]
+    seen = lambda i, ri: frames[i] in t and K[i, ri, 2] >= VIS_SCORE['leg'] and not bm[i, ri]
+    P = np.asarray(B['pelvis'], float)
+    inferred = [set() for _ in range(N)]
+    for side, sgn, (kn, an), (rk, ra) in (('r', -1, ('kne_r', 'ank_r'), (14, 16)), ('l', 1, ('kne_l', 'ank_l'), (13, 15))):
+        Kn, An = np.asarray(B[kn], float).copy(), np.asarray(B[an], float).copy()
+        ok_k = np.array([seen(i, rk) and np.all(np.isfinite(Kn[i])) for i in range(N)])
+        ok_a = np.array([ok_k[i] and seen(i, ra) and np.all(np.isfinite(An[i])) for i in range(N)])
+        # 무릎은 안 보여도 발목은 보이는 장(n41_17 26–27 발차기: 발목 점수 2.9·3.9, 무릎 2.0–2.4) — 발목은 관측, 무릎만 두 뼈 길이로 계산
+        ank_only = np.array([(not ok_k[i]) and seen(i, ra) for i in range(N)])
+        if ok_k.all() and ok_a.all():
+            continue
+        def ang(v): return np.arctan2(v[:, 1], v[:, 0])
+        th_a = ang(Kn - P); sh_a = ang(An - Kn)
+        Ls = np.where(np.isfinite(S), S, np.nanmedian(S))
+        # 추론 길이는 10초판 비율 이상: 근접 컷의 '보인' 다리는 화면 끝에 몰려 짧게 잡혀(n41_17 허벅지 약 0.5 몸통) 그 길이로는 다리가 쪼그라든다
+        Lt = max(np.nanmedian((np.linalg.norm(Kn - P, axis=1) / Ls)[ok_k]) if ok_k.any() else 0, LEG_DEFAULT['thigh'])
+        Lsh = max(np.nanmedian((np.linalg.norm(An - Kn, axis=1) / Ls)[ok_a]) if ok_a.any() else 0, LEG_DEFAULT['shin'])
+        def fill(a, ok, default):
+            if not ok.any():
+                return np.full(N, default)
+            idx = np.flatnonzero(ok)
+            return np.interp(np.arange(N), idx, np.unwrap(a[idx]))
+        TA = fill(th_a, ok_k, np.pi / 2 + sgn * 0.12)       # 화면 y 아래 = +90°, 좌우로 조금 벌림
+        SA = fill(sh_a, ok_a, np.pi / 2)
+        for i in range(N):
+            if not np.all(np.isfinite(P[i])): continue
+            if ank_only[i]:
+                a_ = K[i, ra, :2].astype(float); v = a_ - P[i]; d = np.linalg.norm(v)
+                lt, ls = Lt * Ls[i], Lsh * Ls[i]
+                guess = P[i] + lt * np.array([np.cos(TA[i]), np.sin(TA[i])])   # 굽는 쪽 = 이어 놓은 무릎 쪽
+                if d >= lt + ls or d < 1e-6:
+                    Kn[i] = P[i] + v * (lt / (lt + ls))                          # 다 뻗은 다리
+                else:
+                    x = (d * d + lt * lt - ls * ls) / (2 * d); h = np.sqrt(max(lt * lt - x * x, 0.0))
+                    u = v / d; nrm = np.array([-u[1], u[0]])
+                    c1, c2 = P[i] + u * x + nrm * h, P[i] + u * x - nrm * h
+                    Kn[i] = c1 if np.linalg.norm(c1 - guess) <= np.linalg.norm(c2 - guess) else c2
+                An[i] = a_; inferred[i] |= {7 if side == 'r' else 9}
+                continue
+            if not ok_k[i]:
+                Kn[i] = P[i] + Lt * Ls[i] * np.array([np.cos(TA[i]), np.sin(TA[i])]); inferred[i] |= {7 if side == 'r' else 9}
+            if not ok_a[i]:
+                An[i] = Kn[i] + Lsh * Ls[i] * np.array([np.cos(SA[i]), np.sin(SA[i])]); inferred[i] |= {8 if side == 'r' else 10}
+        B[kn], B[an] = Kn, An
+    return [sorted(x) for x in inferred]
 
 
 def convert(c, W, H, video=None):
@@ -254,6 +303,8 @@ def convert(c, W, H, video=None):
         S = np.asarray(full['_S'][:, 0], float)
         B = {k: v for k, v in full.items() if not k.startswith('_')}
         names = ['head_t', 'head_b', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l']
+        S_ = np.asarray(full['_S'][:, 0], float)
+        leg_inf = estimate_legs(t, frames, B, S_, W, H, top)   # 안 보이는 다리 = 예상 위치(화면 밖 허용)
         joints = {k: [to_pct(B[k][i], W, H) if np.all(np.isfinite(B[k][i])) else None for i in range(N)] for k in names}
         Sf = np.where(np.isfinite(S), S, np.nanmedian(S))
         th, _ = distance_thickness(Sf * 1152.0 / W, ((73.3, 1.0), (376.4, 5.0)))
@@ -267,7 +318,8 @@ def convert(c, W, H, video=None):
                             knee_fixed=len(rep.get('knee_fixed', []))))
         actors.append(dict(slot=slot, color=('blue', 'red')[slot], joints=joints,
                            thickness=[{str(o): round(float(th[i]), 3) for o in range(1, 12)} for i in range(N)],
-                           hidden=near_legs(limb_hidden(t, frames, B, W, H, top), joints), smear=[[] for _ in range(N)], head_fill=[True] * N,
+                           hidden=[[o for o in h if o < 7] for h in limb_hidden(t, frames, B, W, H, top)],   # 다리는 숨기지 않음(예상 위치)
+                           inferred=leg_inf, smear=[[] for _ in range(N)], smear_mark=[[] for _ in range(N)], head_fill=[True] * N,
                            facing=FP.smooth_yaw(raw),
                            # 원본 그림 구간(이 구간 0장 기준 [첫 장, 끝 장]): 관절은 PCHIP으로 24장 모두 움직이지만, 유지 리듬(2s·3s)·타격 멈춤은
                            # 이 경계에 남는다(11-05: 보간 때문에 스타일 측정 자료에서 유지 리듬이 지워지던 것 보존). 트랙이 없는 장은 키 구간 밖.

@@ -107,7 +107,7 @@ class ApplyEdits(unittest.TestCase):
                                  dict(frames=[9, 9], op='drop', cause='판독 불가'),
                                  dict(frames=[0, 0], op='hide', objs=[3])])
         b = out['actors'][0]
-        self.assertEqual(b['smear'][2], [7, 8]); self.assertEqual(b['hidden'][0], [3])
+        self.assertEqual(b['smear_mark'][2], [7, 8]); self.assertEqual(b['smear'][2], []); self.assertEqual(b['hidden'][0], [3])
         self.assertAlmostEqual(b['joints']['wri_r'][4][0], (70 + 80) / 2)
         self.assertFalse(b['train_mask'][9]); self.assertTrue(b['train_mask'][8])
         self.assertEqual(a['joints']['wri_r'][4][0], 200.0)           # 원본 불변
