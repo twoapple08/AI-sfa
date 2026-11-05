@@ -157,3 +157,12 @@ class MotionTokens(unittest.TestCase):
     def test_bad_tokens_skipped(self):
         import motion_tokens as MT
         self.assertIsNone(MT.decode(['<motion>', '<a3>', '</motion>']))
+
+
+class Stage4Plausible(unittest.TestCase):
+    def test_plausible(self):
+        import motion_tokens as MT, stage4_pack as P
+        ir = make_ir([60], [1])
+        self.assertTrue(P.plausible(MT.decode(P.one(ir, 0))))
+        bad = make_ir([60], [1]); bad['actors'][0]['joints']['kne_r'][0] = [50, 50.5]; bad['actors'][0]['joints']['ank_r'][0] = [50, 51]
+        self.assertFalse(P.plausible(MT.decode(P.one(bad, 0))))   # 반례: 다리가 몸통 쪽으로 접힘

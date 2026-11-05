@@ -1,0 +1,69 @@
+{
+ "note": "단계 2 학습 자료 v1(쉬운 장면 18구간) 스타일 특징. 그림 구간 경계는 포즈 변화 문턱 추정 — 경향 지표, 정답 아님",
+ "aggregate": {
+  "nian41": {
+   "hold_counts": {
+    "1": 105,
+    "2": 204,
+    "3": 17,
+    "4+": 10
+   },
+   "hold_share": {
+    "1": 0.312,
+    "2": 0.607,
+    "3": 0.051,
+    "4+": 0.03
+   },
+   "stop_after_fast": {
+    "n": 86,
+    "with_stop": 9,
+    "after_hold_median": 2.0
+   },
+   "anticipation": {
+    "n": 86,
+    "with_antic": 45
+   },
+   "stroke_peak_pos": {
+    "n": 19,
+    "quartiles": [
+     0.022,
+     0.294,
+     0.522
+    ]
+   },
+   "segments": 14
+  },
+  "yutaka_nakamura": {
+   "hold_counts": {
+    "1": 53,
+    "2": 11,
+    "3": 7,
+    "4+": 1
+   },
+   "hold_share": {
+    "1": 0.736,
+    "2": 0.153,
+    "3": 0.097,
+    "4+": 0.014
+   },
+   "stop_after_fast": {
+    "n": 18,
+    "with_stop": 1,
+    "after_hold_median": 1.0
+   },
+   "anticipation": {
+    "n": 19,
+    "with_antic": 5
+   },
+   "stroke_peak_pos": {
+    "n": 9,
+    "quartiles": [
+     0.375,
+     0.778,
+     1.0
+    ]
+   },
+   "segments": 4
+  }
+ }
+}

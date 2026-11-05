@@ -17,6 +17,7 @@ BONES = [('neck', 'pelvis'), ('neck', 'elb_r'), ('elb_r', 'wri_r'), ('neck', 'el
 RATIO = {('neck', 'elb_r'): 0.70, ('elb_r', 'wri_r'): 0.44, ('neck', 'elb_l'): 0.70, ('elb_l', 'wri_l'): 0.44,
          ('pelvis', 'kne_r'): 0.91, ('kne_r', 'ank_r'): 0.75, ('pelvis', 'kne_l'): 0.91, ('kne_l', 'ank_l'): 0.75,
          ('neck', 'head_t'): 0.75 + 0.0}   # 몸통 단위(10초판). 목→머리 꼭대기 = 머리 지름
+NAMES = ['head_t', 'head_b', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l']
 VOCAB = ([f'<t{i}>' for i in range(1, MAX_GAP + 1)] + [f'<x{i}>' for i in range(POS_BINS)] + [f'<y{i}>' for i in range(POS_BINS)]
          + [f'<s{i}>' for i in range(SCALE_BINS)] + [f'<a{i}>' for i in range(ANG_BINS)] + [f'<l{i}>' for i in range(LEN_BINS)] + ['<motion>', '</motion>'])
 
