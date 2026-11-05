@@ -189,6 +189,8 @@ LIMB_OBJ = {3: ('elb_r', 8, None), 4: ('wri_r', 10, 3), 5: ('elb_l', 7, None), 6
 LIMB_BASE = {3: 'neck', 4: 'elb_r', 5: 'neck', 6: 'elb_l', 7: 'pelvis', 8: 'kne_r', 9: 'pelvis', 10: 'kne_l'}
 VIS_SCORE = {'arm': SCORE, 'leg': 2.5}   # 다리는 더 엄격: 가까운 상반신 컷에서 화면 밖 다리를 2.3 안팎 점수로 지어낸다(3차 시트)
 HIDE_RUN, COLLAPSE = 3, 0.35
+NEAR_TORSO = 30.0   # 구간 몸통 세로 길이 중앙값(화면 %) 이상이면 근접 상반신 컷 → 다리 전체 숨김.
+                    # 11-05 30구간 장별 검토: 다리를 지어낸 근접 컷 05·08·16·17·18·21·24·28·30 = 36–54%, 전신 컷 최대 27%. 승인 v5는 중앙 12–13%(컷별로 근접 장이 있어도 구간 중앙값엔 안 걸림)
 
 
 def limb_hidden(t, frames, B, W, H, top):
@@ -224,6 +226,14 @@ def limb_hidden(t, frames, B, W, H, top):
     return [sorted(h) for h in hide]
 
 
+def near_legs(hidden, joints):
+    """구간 몸통 세로 길이 중앙값이 NEAR_TORSO % 이상이면(근접 상반신 컷) 모든 장에서 다리 조각 7–10을 숨긴다."""
+    T = [abs(n[1] - p[1]) for n, p in zip(joints['neck'], joints['pelvis']) if n and p]
+    if T and sorted(T)[len(T) // 2] >= NEAR_TORSO:
+        return [sorted(set(h) | {7, 8, 9, 10}) for h in hidden]
+    return hidden
+
+
 def convert(c, W, H, video=None):
     """확정 추출 경로(stickman_clip.person_in_shot: 뼈 길이 50분위·가장자리 판정·투영 길이·머리 지름 유지)를 그대로 쓴다.
     11-05 사용자 '비율이 nian41 10초 했던 거랑 아예 다르네': 처음 판은 run_core 기본 90분위 + basic_joints만 써서 팔다리가 약 1.3배 길고
@@ -257,7 +267,7 @@ def convert(c, W, H, video=None):
                             knee_fixed=len(rep.get('knee_fixed', []))))
         actors.append(dict(slot=slot, color=('blue', 'red')[slot], joints=joints,
                            thickness=[{str(o): round(float(th[i]), 3) for o in range(1, 12)} for i in range(N)],
-                           hidden=limb_hidden(t, frames, B, W, H, top), smear=[[] for _ in range(N)], head_fill=[True] * N,
+                           hidden=near_legs(limb_hidden(t, frames, B, W, H, top), joints), smear=[[] for _ in range(N)], head_fill=[True] * N,
                            facing=FP.smooth_yaw(raw),
                            # 원본 그림 구간(이 구간 0장 기준 [첫 장, 끝 장]): 관절은 PCHIP으로 24장 모두 움직이지만, 유지 리듬(2s·3s)·타격 멈춤은
                            # 이 경계에 남는다(11-05: 보간 때문에 스타일 측정 자료에서 유지 리듬이 지워지던 것 보존). 트랙이 없는 장은 키 구간 밖.
