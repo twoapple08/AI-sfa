@@ -66,3 +66,30 @@ class HoldDrawings(unittest.TestCase):
         import motion_ir as M
         ir = make_ir([60, 70], [2, 2]); ir['actors'][0]['drawings'] = []
         self.assertEqual(M.hold_drawings(ir)['actors'][0]['joints'], ir['actors'][0]['joints'])
+
+
+class CalmLimbs(unittest.TestCase):
+    def _ir(self, body_move=0.0):
+        xs = [60, 75, 58, 76, 57, 74, 59, 77, 60, 75]   # 손목이 장마다 앞뒤로 진동
+        ir = make_ir(xs, [1] * len(xs))
+        J = ir['actors'][0]['joints']
+        for n in range(ir['frames']):
+            for k in J:
+                J[k][n][0] += body_move * n
+        return ir
+
+    def test_low_score_oscillation_is_calmed(self):
+        import motion_ir as M
+        ir = self._ir()
+        ws = {0: {'r': [2.0] * ir['frames'], 'l': [5.0] * ir['frames']}}
+        _, ch = M.calm_limbs(ir, wrist_score=ws)
+        self.assertTrue(any(k == 'wri_r' for _, _, k in ch))
+
+    def test_high_score_or_moving_body_kept(self):
+        import motion_ir as M
+        ir = self._ir()
+        ws = {0: {'r': [5.0] * ir['frames'], 'l': [5.0] * ir['frames']}}
+        self.assertEqual(M.calm_limbs(ir, wrist_score=ws)[1], [])          # 반례: 점수 높은 진짜 팔 동작
+        ir2 = self._ir(body_move=3.0)
+        ws2 = {0: {'r': [2.0] * ir2['frames'], 'l': [2.0] * ir2['frames']}}
+        self.assertEqual(M.calm_limbs(ir2, wrist_score=ws2)[1], [])        # 반례: 몸 전체가 움직임

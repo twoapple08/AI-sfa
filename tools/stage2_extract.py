@@ -265,6 +265,13 @@ def convert(c, W, H, video=None):
               camera=[[0.0, 0.0, 1.0] for _ in range(N)], timeline=[],
               source=dict(animator=c.get('animator', 'nian41'), video=c['video'], start=c['start'], end=c['end'], auto=True,
                           held_out=False, training_ready=False, note='공통 자동 처리만, 사용자 판정 전'))
+    # 몸이 멈췄는데 낮은 점수의 팔만 진동하는 창(옷자락을 팔로 잡음, 11-05 n41_04) → 팔을 창 중앙값 자세로
+    import motion_ir as M
+    ws = {a['slot']: {'r': [float(c['tracks'][a['slot']][f][1][10, 2]) if f in c['tracks'][a['slot']] else None for f in frames],
+                      'l': [float(c['tracks'][a['slot']][f][1][9, 2]) if f in c['tracks'][a['slot']] else None for f in frames]} for a in actors}
+    ir, calmed = M.calm_limbs(ir, wrist_score=ws)
+    for q_ in quality:
+        q_['calmed_frames'] = len({n for sl, n, _ in calmed if sl == q_['slot']})
     return ir, quality
 
 

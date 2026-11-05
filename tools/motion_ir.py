@@ -134,6 +134,66 @@ def despike(ir, min_jump=None, back=None, cos=None):
     return out, fixed
 
 
+CALM = dict(win=7, body_max=0.08, path_min=1.2, net_ratio=0.3, min_rev=0, low_score=3.0)   # 몸통 단위·장. body_max 0.08: 승인 10초판 바뀐 장 0/480, n41_04 25/27 (0.12면 10초판 55장)
+
+
+def calm_limbs(ir, win=None, body_max=None, path_min=None, net_ratio=None, min_rev=None, wrist_score=None):
+    """몸(목·골반·무릎·발목, 골반 기준과 골반 자체)이 거의 멈춰 있는데 한 팔(팔꿈치·손목)만 앞뒤로 진동하면
+    검출 잡음(옷자락을 팔로, 좌우 팔 바꿔 잡기)으로 보고 그 창의 팔을 골반 기준 중앙값 자세로 둔다. 새 중간 표현과 바꾼 (인물, 장, 관절) 목록.
+    11-05 사용자 n41_04 '슬로우모션처럼 옷이 빠르게 펄럭이는 연출인데 양팔이 파바박 움직임'.
+    조건(창 win장): 몸 관절 평균 이동 < body_max, 팔 끝 경로 > path_min, 순이동/경로 < net_ratio, 방향 뒤집힘 ≥ min_rev, (wrist_score {slot: {'r': [...], 'l': [...]}}가 있으면) 손목 점수 창 중앙값 < low_score."""
+    import copy
+    c = dict(CALM, **{k: v for k, v in dict(win=win, body_max=body_max, path_min=path_min, net_ratio=net_ratio, min_rev=min_rev).items() if v is not None})
+    asp = ir.get('aspect', 0.5625); out = copy.deepcopy(ir); changed = []
+    for a in out['actors']:
+        J = a['joints']; N = len(J['neck'])
+        def rel(k, i):
+            if J[k][i] is None or J['pelvis'][i] is None: return None
+            return (J[k][i][0] - J['pelvis'][i][0], (J[k][i][1] - J['pelvis'][i][1]) * asp)
+        tor = [((J['neck'][i][0] - J['pelvis'][i][0]) ** 2 + ((J['neck'][i][1] - J['pelvis'][i][1]) * asp) ** 2) ** 0.5
+               for i in range(N) if J['neck'][i] is not None and J['pelvis'][i] is not None]
+        if not tor: continue
+        T = sorted(tor)[len(tor) // 2]
+        dist = lambda p, q: (((p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2) ** 0.5) / T
+        new = {k: list(J[k]) for k in J}
+        for side in ('r', 'l'):
+            arm = (f'elb_{side}', f'wri_{side}')
+            for i in range(0, N - c['win'] + 1):
+                idx = range(i, i + c['win'])
+                body = []
+                for k in ('neck', 'kne_r', 'kne_l', 'ank_r', 'ank_l'):
+                    P = [rel(k, j) for j in idx]
+                    if None in P: body = None; break
+                    body += [dist(P[j], P[j - 1]) for j in range(1, len(P))]
+                pv = [J['pelvis'][j] for j in idx]
+                if body is None or None in pv: continue
+                move = [dist((pv[j][0], pv[j][1] * asp), (pv[j - 1][0], pv[j - 1][1] * asp)) for j in range(1, len(pv))]
+                # 골반 자체 이동은 따로 본다(골반 기준 0 이동인 관절들과 평균하면 몸 전체 평행 이동이 묽어진다 — 시험 반례)
+                if sum(body) / len(body) >= c['body_max'] or sum(move) / len(move) >= c['body_max']: continue
+                W_ = [rel(f'wri_{side}', j) for j in idx]
+                if None in W_: continue
+                path = sum(dist(W_[j], W_[j - 1]) for j in range(1, len(W_)))
+                if path <= c['path_min'] or dist(W_[-1], W_[0]) / path >= c['net_ratio']: continue
+                # 잡음은 거의 매 장 방향이 뒤집힌다. 진짜 휘두르기(n41_11 채찍)는 몇 장에 걸쳐 한 방향으로 간다
+                D = [(W_[j][0] - W_[j - 1][0], W_[j][1] - W_[j - 1][1]) for j in range(1, len(W_))]
+                rev = sum(1 for d0, d1 in zip(D, D[1:]) if d0[0] * d1[0] + d0[1] * d1[1] < 0)
+                if rev < c['min_rev']: continue
+                # 손목 검출 점수(있을 때): 창 중앙값이 low_score 이상이면 진짜 팔 동작으로 보고 두지 않는다.
+                # n41_04(옷자락 펄럭임) 손목 점수 <3 비율 69%, 팔을 잘 잡은 n41_11(채찍)·16·21은 11–18%
+                if wrist_score is not None:
+                    sc = [v for v in (wrist_score.get(a.get('slot'), {}).get(side) or [None] * N)[i:i + c['win']] if v is not None]
+                    if not sc or sorted(sc)[len(sc) // 2] >= c['low_score']: continue
+                for k in arm:
+                    P = [rel(k, j) for j in idx]
+                    if None in P: continue
+                    mx = sorted(p[0] for p in P)[len(P) // 2]; my = sorted(p[1] for p in P)[len(P) // 2]
+                    for j in idx:
+                        new[k][j] = [J['pelvis'][j][0] + mx, J['pelvis'][j][1] + my / asp]
+                        changed.append((a.get('slot'), j, k))
+        for k in new: J[k] = new[k]
+    return out, sorted(set(changed))
+
+
 def compile_ir(ir, name='motion_ir', sheets=None):
     """sheets: {slot: char_sheet.read(...) 한 칸 또는 char_sheet.read_all(...) 여러 칸} — 그 인물에 캐릭터 시트 색·액세서리를 입힌다(단계 1-②).
     여러 칸이면 장마다 facing에 가장 가까운 칸을 쓴다(모르면 정면)."""
