@@ -75,7 +75,7 @@ model.train(); random.seed(0); losses = []
 if not DRY: torch.cuda.reset_peak_memory_stats()
 style = [r for r in rows if r['layer'] == 'style']
 t1 = time.time()
-TRAIN_MIN = float(os.environ.get('TRAIN_MIN', 45))   # 학습 시간 상한(분). 11-05: 긴 쌍(~400–700토큰)이라 800단계면 약 1시간 40분 — GPU 잔여 1.5–2시간에 맞춤
+TRAIN_MIN = float(os.environ.get('TRAIN_MIN', 70))   # 학습 시간 상한(분). 11-05: 긴 쌍(~400–700토큰)이라 800단계면 약 1시간 40분. 사용자 GPU 잔여 3시간 5분 확인 뒤 '추천대로' 70분(처음부터 학습)
 done = 0
 for step in range(STEPS):
     if not DRY and time.time() - t1 > TRAIN_MIN * 60: break
