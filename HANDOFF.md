@@ -6,7 +6,7 @@
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
 
-> **2026-11-05 진행:** 계획 승인 → **단계 1 완료**(사용자 v5 "좋은 것 같아"): `tools/motion_ir.py`(중간 표현 v1·컴파일러, 60초판 왕복 불일치 0), `tools/char_sheet.py`(캐릭터 시트 읽기·연속 방향·PBD 망토·흰 채우기·레이어 순서), `tools/facing_from_pose.py`, 시험 `tests/test_motion_ir.py`. 기록 docs/REPLAN-PLAN-DRAFT-2026-11-05.md '진행 기록'. 함께: SFA 뷰어 Windows 1.2(docs/SFA-VIEWER-WIN-1.2-2026-11-05.md). **다음 = 단계 2(움직임 자료 만들기)** — 시작 전 사용자에게 범위 확인.
+> **2026-11-05 진행:** 계획 승인 → **단계 1 완료**(사용자 v5 "좋은 것 같아"): `tools/motion_ir.py`(중간 표현 v1·컴파일러, 60초판 왕복 불일치 0), `tools/char_sheet.py`(캐릭터 시트 읽기·연속 방향·PBD 망토·흰 채우기·레이어 순서), `tools/facing_from_pose.py`, 시험 `tests/test_motion_ir.py`. 기록 docs/REPLAN-PLAN-DRAFT-2026-11-05.md '진행 기록'. 함께: SFA 뷰어 Windows 1.2(docs/SFA-VIEWER-WIN-1.2-2026-11-05.md). **다음 = 단계 2(움직임 자료 만들기)** — 시작 전 사용자에게 범위 확인. **상시 요청(사용자 11-05): 계획표 체크 목록(docs/REPLAN-PLAN-DRAFT-2026-11-05.md '체크 목록')을 작업이 끝날 때마다 갱신하고, 달라고 하면 최신본(PDF 포함)을 준다.**
 >
 > **2026-11-05 재계획(정본):** 사용자 "산발식이었다 — 지금까지 것은 남기고 처음부터 계획". 확정 조건 **docs/REPLAN-CONDITIONS-2026-11-05.md**, 계획 초안 **docs/REPLAN-PLAN-DRAFT-2026-11-05.md**(사용자 미승인 — 승인 전 실행 금지), 대화 기록 docs/REPLAN-REQUIREMENTS-2026-11-05.md, 조사 docs/RESEARCH-ANIME-GEN-ARCHITECTURES-2026-11-05.md. 아래 기존 내용은 재계획 이전 상태 기록.
 
