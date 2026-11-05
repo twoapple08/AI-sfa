@@ -1,0 +1,56 @@
+{
+ "run": {
+  "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "steps": 800,
+  "accum": 8,
+  "new_token_training": "trainable_token_indices",
+  "load_s": 74.7,
+  "trainable_params": 37953536,
+  "train_pairs": 6617,
+  "eval_pairs": 700,
+  "tokens_per_pair_median": 25,
+  "train_s": 3762.5,
+  "s_per_step": 4.7,
+  "train_peak_gb": 5.2,
+  "loss_first10": 14.301,
+  "loss_last10": 1.883,
+  "generation": {
+   "n": 200,
+   "seconds": 59.8
+  },
+  "gen_peak_gb": 5.2,
+  "total_s": 3898.0
+ },
+ "score": {
+  "all": {
+   "n": 200,
+   "decoded": 1.0,
+   "plausible": 1.0,
+   "copy_rate": 0.055,
+   "near_median": 0.28653841376585487,
+   "ref_copy_rate": 0.065,
+   "ref_near_median": 0.2740991584076645
+  },
+  "style": {
+   "n": 21,
+   "decoded": 1.0,
+   "plausible": 1.0,
+   "copy_rate": 0.0,
+   "near_median": 0.3176589539637075
+  },
+  "ref": {
+   "n": 179,
+   "decoded": 1.0,
+   "plausible": 1.0,
+   "copy_rate": 0.061452513966480445,
+   "near_median": 0.2782419290524535
+  },
+  "leak_split": {
+   "note": "평가 ref 구간 중 같은 파일의 다른 구간이 학습에 없는 26개 vs 있는 153개",
+   "clean_copy_rate": 0.0,
+   "dirty_copy_rate": 0.072,
+   "clean_ref_copy_rate": 0.077,
+   "dirty_ref_copy_rate": 0.072
+  }
+ }
+}
