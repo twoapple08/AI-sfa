@@ -1,0 +1,48 @@
+{
+ "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+ "steps": 150,
+ "accum": 4,
+ "new_token_training": "trainable_token_indices",
+ "load_s": 71.2,
+ "trainable_params": 37953536,
+ "tokens_per_pair_median": 186,
+ "train_s": 570.8,
+ "s_per_step": 3.81,
+ "train_peak_gb": 5.91,
+ "loss_first10": 16.5,
+ "loss_last10": 1.974,
+ "generation": [
+  {
+   "prompt": "0~1초 파랑이 몸을 낮췄다가 앞으로 달려가 오른쪽 상대에게 펀치를 뻗는다. 전신, 카메라 고정.",
+   "seconds": 18.5,
+   "new_tokens": 118,
+   "tok_per_s": 6.4,
+   "motion_token_share": 0.992,
+   "decoded_frames": 8
+  },
+  {
+   "prompt": "서 있다가 뛰어올라 공중에서 몸을 돌리고 착지한다.",
+   "seconds": 25.3,
+   "new_tokens": 164,
+   "tok_per_s": 6.5,
+   "motion_token_share": 0.994,
+   "decoded_frames": 12
+  },
+  {
+   "prompt": "상대의 공격을 팔로 막다가 뒤로 밀려 넘어지고 다시 일어난다.",
+   "seconds": 18.1,
+   "new_tokens": 118,
+   "tok_per_s": 6.5,
+   "motion_token_share": 0.992,
+   "decoded_frames": 8
+  }
+ ],
+ "gen_peak_gb": 5.91,
+ "total_s": 704.7,
+ "claude_check": {
+  "body_ok_frames": "26/28(정지 포즈 검사)",
+  "prompt_follow": "약함 — 펀치 글에 웅크렸다 서기, 점프 글에 누운 자세에서 앉기(수집 SFA 글이 거의 다 '스틱맨 동작'이라 예상됨)",
+  "short": "3개 모두 8–12장에서 끝냄 → 길이 조건 추가(f0240d3)",
+  "kaggle_gpu_used_min": 11.7
+ }
+}
