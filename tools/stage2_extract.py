@@ -33,6 +33,37 @@ VIDEOS = {   # post_id: (원본 폭, 높이) — X 영상은 docs/COORDINATION-2
     '301158': (854, 480),
 }
 DEV_CLIP = '1913231262086463573'
+PREFIX = {'nian41': 'n41', 'yutaka_nakamura': 'nkm'}
+LOW_PRIORITY = {'302394'}   # 나카무라 비질란테: 기본 중요도 낮음(AGENTS.md) — 채우기에서 뺀다
+MIN_ACT = 0.05             # 액션 점수 하한: 서 있기만 하는 구간 제외(11-05 4차 시트 12·14·20, 0.007–0.02)
+
+
+def videos_of(work, animator):
+    """애니메이터별 (영상 → 원본 해상도). nian41은 VIDEOS, 그 밖은 data/sakuga/posts_<animator>.jsonl ∩ Drive RTMW 목록(가로 영상만)."""
+    if animator == 'nian41':
+        return VIDEOS
+    lst = f'{work}/rtmw_{animator}.txt'
+    if not os.path.exists(lst):
+        out = subprocess.run(['rclone', 'lsf', f'gdrive:AI-sfa/02_분석자료/포즈_RTMW/{animator}/'], check=True, capture_output=True, text=True).stdout
+        open(lst, 'w').write(out)
+    ids = {x.replace('.jsonl.gz', '') for x in open(lst).read().split()}
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    res = {}
+    for l in open(f'{root}/data/sakuga/posts_{animator}.jsonl', encoding='utf-8'):
+        r = json.loads(l); i = str(r['id'])
+        if i in ids and i not in LOW_PRIORITY and r['width'] > r['height']:
+            res[i] = (int(r['width']), int(r['height']))
+    return dict(sorted(res.items()))
+
+
+def cached_cuts(work, vid, v):
+    p = f'{work}/cuts/{vid}.json'
+    if os.path.exists(p):
+        return tuple(json.load(open(p)))
+    os.makedirs(f'{work}/cuts', exist_ok=True)
+    cl, n = cuts(v)
+    json.dump([list(map(int, cl)), int(n)], open(p, 'w'))
+    return cl, n
 CUT_THR, MIN_LEN, MAX_LEN, MIN_COVER, PER_VIDEO = 0.35, 24, 120, 0.8, 6
 SCORE = 1.5
 TORSO = (5, 6, 11, 12)
@@ -43,13 +74,13 @@ IN_LEG = 0.6                      # 골반→발목 / 몸통 하한(웅크림 �
 LIMBS = (9, 10, 15, 16)          # 손목·발목(RTMW 몸 17점)
 
 
-def fetch(work, vid):
+def fetch(work, vid, animator='nian41'):
     os.makedirs(f'{work}/video', exist_ok=True); os.makedirs(f'{work}/rtmw', exist_ok=True)
     v, r = f'{work}/video/{vid}.mp4', f'{work}/rtmw/{vid}.jsonl.gz'
     if not os.path.exists(v):
-        subprocess.run(['rclone', 'copyto', f'gdrive:AI-sfa/01_원본영상/_Gemini용_저용량/nian41/{vid}.mp4', v], check=True, capture_output=True)
+        subprocess.run(['rclone', 'copyto', f'gdrive:AI-sfa/01_원본영상/_Gemini용_저용량/{animator}/{vid}.mp4', v], check=True, capture_output=True)
     if not os.path.exists(r):
-        subprocess.run(['rclone', 'copyto', f'gdrive:AI-sfa/02_분석자료/포즈_RTMW/nian41/{vid}.jsonl.gz', r], check=True, capture_output=True)
+        subprocess.run(['rclone', 'copyto', f'gdrive:AI-sfa/02_분석자료/포즈_RTMW/{animator}/{vid}.jsonl.gz', r], check=True, capture_output=True)
     return v, r
 
 
@@ -197,7 +228,7 @@ def convert(c, W, H):
                            facing=FP.smooth_yaw(raw)))
     ir = dict(schema='motion-ir/1', fps=[24, 24], aspect=0.5625, frames=N, actors=actors,
               camera=[[0.0, 0.0, 1.0] for _ in range(N)], timeline=[],
-              source=dict(animator='nian41', video=c['video'], start=c['start'], end=c['end'], auto=True,
+              source=dict(animator=c.get('animator', 'nian41'), video=c['video'], start=c['start'], end=c['end'], auto=True,
                           held_out=False, training_ready=False, note='공통 자동 처리만, 사용자 판정 전'))
     return ir, quality
 
@@ -256,40 +287,55 @@ def dev_thumbs(work):
 
 
 def main():
-    work = sys.argv[1]; NSEL = int(sys.argv[2]) if len(sys.argv) > 2 else 30
+    """사용: stage2_extract.py <작업 폴더> [N] [--fill 애니메이터 ...]
+    nian41에서 먼저 고르고, N에 못 미치면 --fill 애니메이터(예: yutaka_nakamura, 사용자 11-05 "부족하면 나카무라쪽도") 후보로 채운다."""
+    args = sys.argv[1:]
+    fill = args[args.index('--fill') + 1:] if '--fill' in args else []
+    pos = args[:args.index('--fill')] if '--fill' in args else args
+    work = pos[0]; NSEL = int(pos[1]) if len(pos) > 1 else 30
     os.makedirs(f'{work}/out', exist_ok=True)
-    allc = []
-    for vid in VIDEOS:
-        assert vid != DEV_CLIP
-        v, r = fetch(work, vid)
-        R = load_rtmw(r)
-        cl, n = cuts(v)
-        cs = sorted(candidates(vid, R, cl, VIDEOS[vid][1], VIDEOS[vid][0]), key=lambda c: -c['score'])[:PER_VIDEO]
-        print(vid, '장', n, '컷', len(cl) - 1, '후보', len(cs), [round(c['score'], 3) for c in cs], flush=True)
-        allc += cs
     dev = dev_thumbs(work)
-    sel, dropped = [], []
-    for c in sorted(allc, key=lambda c: (-c['score'], -VIDEOS[c['video']][0])):   # 같은 점수면 해상도 높은 쪽 먼저
-        th = seg_thumbs(work, c)
-        if same_scene(th, dev):
-            dropped.append((c['video'], c['start'], '개발 사례와 같은 장면')); continue
-        ps = pose_seq(c)
-        hit = next((k for k in sel if same_scene(th, k['th']) or pose_dist(ps, k['ps']) < POSE_DUP), None)
-        if hit:
-            dropped.append((c['video'], c['start'], f'중복 {hit["video"]}:{hit["start"]}')); continue
-        c['th'], c['ps'] = th, ps; sel.append(c)
-        if len(sel) == NSEL: break
+    sel, dropped, RES = [], [], {}
+    for animator in ['nian41'] + fill:
+        vids = videos_of(work, animator)
+        allc = []
+        for vid in vids:
+            assert vid != DEV_CLIP
+            RES[vid] = vids[vid]
+            try:
+                v, r = fetch(work, vid, animator)
+            except subprocess.CalledProcessError:
+                print(vid, '내려받기 실패(저용량 영상 없음)', flush=True); continue
+            R = load_rtmw(r)
+            cl, n = cached_cuts(work, vid, v)
+            cs = sorted([c for c in candidates(vid, R, cl, vids[vid][1], vids[vid][0]) if c['score'] >= MIN_ACT],
+                        key=lambda c: -c['score'])[:PER_VIDEO]
+            for c in cs: c['animator'] = animator
+            print(animator, vid, '장', n, '컷', len(cl) - 1, '후보', len(cs), [round(c['score'], 3) for c in cs], flush=True)
+            allc += cs
+        for c in sorted(allc, key=lambda c: (-c['score'], -RES[c['video']][0])):   # 같은 점수면 해상도 높은 쪽 먼저
+            if len(sel) == NSEL: break
+            th = seg_thumbs(work, c)
+            if same_scene(th, dev):
+                dropped.append((c['video'], c['start'], '개발 사례와 같은 장면')); continue
+            ps = pose_seq(c)
+            hit = next((k for k in sel if same_scene(th, k['th']) or pose_dist(ps, k['ps']) < POSE_DUP), None)
+            if hit:
+                dropped.append((c['video'], c['start'], f'중복 {hit["video"]}:{hit["start"]}')); continue
+            c['th'], c['ps'] = th, ps; sel.append(c)
+        print(animator, '까지 고름', len(sel), flush=True)
+        if len(sel) >= NSEL: break
     print('뺀 후보', len(dropped), dropped, flush=True)
     import motion_ir as M
     summary = []
-    for i, c in enumerate(sorted(sel, key=lambda c: (c['video'], c['start']))):
-        W, H = VIDEOS[c['video']]
+    for i, c in enumerate(sorted(sel, key=lambda c: (list(PREFIX).index(c['animator']), c['video'], c['start']))):
+        W, H = RES[c['video']]
         ir, q = convert(c, W, H)
-        name = f'n41_{i + 1:02d}_{c["video"][-6:]}_{c["start"]}-{c["end"] - 1}'
+        name = f'{PREFIX[c["animator"]]}_{i + 1:02d}_{c["video"][-6:]}_{c["start"]}-{c["end"] - 1}'
         json.dump(ir, open(f'{work}/out/{name}.json', 'w'))
         M.save_sfa(M.compile_ir(ir, name=name), f'{work}/out/{name}.sfa', name)
-        summary.append(dict(name=name, video=c['video'], start=c['start'], end=c['end'] - 1, frames=c['end'] - c['start'],
-                            actors=len(ir['actors']), action_score=round(c['score'], 4), quality=q))
+        summary.append(dict(name=name, animator=c['animator'], video=c['video'], start=c['start'], end=c['end'] - 1,
+                            frames=c['end'] - c['start'], actors=len(ir['actors']), action_score=round(c['score'], 4), quality=q))
         print(name, len(ir['actors']), round(c['score'], 3), [(x['observed'], x['jitter_torso_median']) for x in q], flush=True)
     json.dump(dict(segments=summary, dropped=dropped), open(f'{work}/out/summary.json', 'w'), ensure_ascii=False, indent=1)
 
