@@ -134,6 +134,65 @@ def despike(ir, min_jump=None, back=None, cos=None):
     return out, fixed
 
 
+BRIDGE = dict(max_gap=3, rel=0.8, abs_max=3.0, dev=0.6)   # 기본 경로 미적용(11-05): n41_23 가림 21–24장은 잡지만 n41_12에서 틀린 앞뒤 장을 이어 악화. 30구간 212/1183장 변경
+BRIDGE_CHAIN = {'elb_r': ('wri_r',), 'elb_l': ('wri_l',), 'kne_r': ('ank_r',), 'kne_l': ('ank_l',)}
+
+
+def _off_line(J, k, i, j, asp, T):
+    """낮은 점수 장 i..j-1의 관절(골반 기준)이 앞(i-1)·뒤(j) 장을 이은 직선 보간에서 가장 많이 벗어난 거리(몸통 단위)."""
+    P = lambda n: None if J[k][n] is None or J['pelvis'][n] is None else (J[k][n][0] - J['pelvis'][n][0], (J[k][n][1] - J['pelvis'][n][1]) * asp)
+    p0, p1 = P(i - 1), P(j)
+    if None in (p0, p1): return 0.0
+    m = 0.0
+    for n in range(i, j):
+        q = P(n)
+        if q is None: continue
+        t = (n - i + 1) / (j - i + 1)
+        m = max(m, ((q[0] - p0[0] - (p1[0] - p0[0]) * t) ** 2 + (q[1] - p0[1] - (p1[1] - p0[1]) * t) ** 2) ** 0.5 / T)
+    return m
+
+
+def bridge_occlusions(ir, scores, max_gap=None, rel=None, abs_max=None, dev=None):
+    """짧게 가려진 팔다리(파편·이펙트가 지나가 점수가 확 떨어진 1–max_gap장)를 앞뒤 정상 장 사이 직선으로 잇는다(골반 기준).
+    낮음 = 점수 < rel × 그 관절의 구간 점수 중앙값 이고 < abs_max. 부모(팔꿈치·무릎)를 이으면 자식(손목·발목)도 잇는다.
+    11-05 사용자 n41_23 '감속 효과 중 갑자기 다리가 파박 튐': 22–24장 날아가는 판자가 다리를 가려 무릎 점수 3.5→2.0–2.5.
+    10초판 장면 데이터의 '전후 관측으로 키 좌표 보완'을 점수로 자동화한 것(원본 판독 아님). scores = {slot: {관절: [점수|None]}}.
+    반환: 새 중간 표현, 이은 (인물, 장, 관절) 목록."""
+    import copy
+    c = dict(BRIDGE, **{k: v for k, v in dict(max_gap=max_gap, rel=rel, abs_max=abs_max, dev=dev).items() if v is not None})
+    out = copy.deepcopy(ir); done = []; asp = ir.get('aspect', 0.5625)
+    for a in out['actors']:
+        J = a['joints']; N = len(J['neck']); sc = scores.get(a.get('slot'), {})
+        tor = [((J['neck'][n][0] - J['pelvis'][n][0]) ** 2 + ((J['neck'][n][1] - J['pelvis'][n][1]) * asp) ** 2) ** 0.5
+               for n in range(N) if J['neck'][n] is not None and J['pelvis'][n] is not None]
+        if not tor: continue
+        T = sorted(tor)[len(tor) // 2]
+        for k in ('elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l'):
+            v = sc.get(k)
+            if not v: continue
+            good = [x for x in v if x is not None]
+            if not good: continue
+            med = sorted(good)[len(good) // 2]
+            low = [x is not None and x < c['rel'] * med and x < c['abs_max'] for x in v]
+            i = 0
+            while i < N:
+                if not low[i]: i += 1; continue
+                j = i
+                while j < N and low[j]: j += 1
+                if 0 < i and j < N and j - i <= c['max_gap'] and _off_line(J, k, i, j, asp, T) >= c['dev']:
+                    for kk in (k,) + BRIDGE_CHAIN.get(k, ()):
+                        p0, p1, q0, q1 = J[kk][i - 1], J[kk][j], J['pelvis'][i - 1], J['pelvis'][j]
+                        if None in (p0, p1, q0, q1): continue
+                        r0 = (p0[0] - q0[0], p0[1] - q0[1]); r1 = (p1[0] - q1[0], p1[1] - q1[1])
+                        for n in range(i, j):
+                            if J['pelvis'][n] is None: continue
+                            t = (n - i + 1) / (j - i + 1)
+                            J[kk][n] = [J['pelvis'][n][0] + r0[0] + (r1[0] - r0[0]) * t, J['pelvis'][n][1] + r0[1] + (r1[1] - r0[1]) * t]
+                            done.append((a.get('slot'), n, kk))
+                i = j
+    return out, sorted(set(done))
+
+
 CALM = dict(win=7, body_max=0.08, path_min=1.2, net_ratio=0.3, min_rev=0, low_score=3.0)   # 몸통 단위·장. body_max 0.08: 승인 10초판 바뀐 장 0/480, n41_04 25/27 (0.12면 10초판 55장)
 
 

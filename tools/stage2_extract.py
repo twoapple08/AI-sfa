@@ -269,9 +269,14 @@ def convert(c, W, H, video=None):
     import motion_ir as M
     ws = {a['slot']: {'r': [float(c['tracks'][a['slot']][f][1][10, 2]) if f in c['tracks'][a['slot']] else None for f in frames],
                       'l': [float(c['tracks'][a['slot']][f][1][9, 2]) if f in c['tracks'][a['slot']] else None for f in frames]} for a in actors}
+    RIDX = {'elb_r': 8, 'wri_r': 10, 'elb_l': 7, 'wri_l': 9, 'kne_r': 14, 'ank_r': 16, 'kne_l': 13, 'ank_l': 15}
+    js = {a['slot']: {k: [float(c['tracks'][a['slot']][f][1][i, 2]) if f in c['tracks'][a['slot']] else None for f in frames]
+                      for k, i in RIDX.items()} for a in actors}
+    bridged = []   # bridge_occlusions(짧은 가림 잇기)는 미적용: n41_23은 좋아졌지만 n41_12에서 앞뒤 장 자체가 틀린 곳을 이어 더 나빠짐(11-05 비교 시트)
     ir, calmed = M.calm_limbs(ir, wrist_score=ws)
     for q_ in quality:
         q_['calmed_frames'] = len({n for sl, n, _ in calmed if sl == q_['slot']})
+        q_['bridged_frames'] = len({n for sl, n, _ in bridged if sl == q_['slot']})
     return ir, quality
 
 
