@@ -73,7 +73,10 @@ model.train(); random.seed(0); losses = []
 if not DRY: torch.cuda.reset_peak_memory_stats()
 style = [r for r in rows if r['layer'] == 'style']
 t1 = time.time()
+TRAIN_MIN = float(os.environ.get('TRAIN_MIN', 45))   # 학습 시간 상한(분). 11-05: 긴 쌍(~400–700토큰)이라 800단계면 약 1시간 40분 — GPU 잔여 1.5–2시간에 맞춤
+done = 0
 for step in range(STEPS):
+    if not DRY and time.time() - t1 > TRAIN_MIN * 60: break
     for _ in range(ACC):
         r = random.choice(style) if random.random() < 0.3 else random.choice(rows)   # 스타일 층을 더 자주
         ids, lab = batch(r)
@@ -81,8 +84,9 @@ for step in range(STEPS):
             loss = model(input_ids=ids, labels=lab).loss / ACC
         scaler.scale(loss).backward(); losses.append(loss.item() * ACC)
     scaler.step(opt); scaler.update(); opt.zero_grad(set_to_none=True)
+    done = step + 1
     if step % 10 == 0: print('step', step, 'loss', round(sum(losses[-ACC * 10:]) / len(losses[-ACC * 10:]), 3), round(time.time() - t1), 's', flush=True)
-res['train_s'] = round(time.time() - t1, 1); res['s_per_step'] = round(res['train_s'] / STEPS, 2)
+res['train_s'] = round(time.time() - t1, 1); res['steps_done'] = done; res['s_per_step'] = round(res['train_s'] / max(done, 1), 2)
 res['train_peak_gb'] = 0 if DRY else round(torch.cuda.max_memory_allocated() / 2 ** 30, 2)
 res['loss_first10'] = round(sum(losses[:ACC * 10]) / (ACC * 10), 3); res['loss_last10'] = round(sum(losses[-ACC * 10:]) / (ACC * 10), 3)
 model.save_pretrained(f'{OUT}/lora')
@@ -91,20 +95,37 @@ model.eval(); random.seed(1)
 starts = [r for r in evals if r.get('kind') == 'start']
 ev = random.sample(starts, min(4 if DRY else 30, len(starts)))
 VS = set(MT.VOCAB)
-def gen1(prompt, frames, ctx):
-    ids = tok(head(prompt, frames, ctx), return_tensors='pt', add_special_tokens=False).input_ids.to(DEV)
-    with torch.no_grad(), torch.autocast('cuda', dtype=torch.float16, enabled=not DRY):
-        o = model.generate(ids, max_new_tokens=(60 if DRY else 420), do_sample=True, temperature=0.8, top_p=0.95, eos_token_id=tok.eos_token_id, pad_token_id=tok.eos_token_id)
-    return [t for t in tok.convert_ids_to_tokens(o[0, ids.shape[1]:].tolist()) if t in VS]
-tg = time.time(); f = open(f'{OUT}/stage5_gen.jsonl', 'w', encoding='utf-8')
-for r in ev:
-    chunks = [gen1(r['prompt'], 32, ())]
-    for _ in range(2):   # 이어 만들기: 앞 조각 마지막 키 3개(23토큰 × 3)
-        body = [t for t in chunks[-1] if t not in ('<motion>', '</motion>')]
+GB = 4 if DRY else 15   # 한 번에 여러 개 생성(11-05: 하나씩이면 30개 × 3조각 × 약 65초 ≈ 1시간 40분 → 묶음이면 몇 분)
+def gen_many(items):
+    """items = [(prompt, frames, ctx)] → 동작 토큰 목록들. 왼쪽 채움 묶음 생성."""
+    outs = []
+    tok.padding_side = 'left'
+    for i in range(0, len(items), GB):
+        part = items[i:i + GB]
+        enc = tok([head(p, n, c) for p, n, c in part], return_tensors='pt', padding=True, add_special_tokens=False).to(DEV)
+        with torch.no_grad(), torch.autocast('cuda', dtype=torch.float16, enabled=not DRY):
+            o = model.generate(**enc, max_new_tokens=(60 if DRY else 420), do_sample=True, temperature=0.8, top_p=0.95, eos_token_id=tok.eos_token_id, pad_token_id=tok.eos_token_id)
+        L = enc['input_ids'].shape[1]
+        if DRY and os.environ.get('DRY_FAKE'):   # 흐름 시험: 작은 모델은 동작 토큰을 못 내므로 정답 토큰으로 이어 만들기 경로까지 돌린다
+            outs += [ev[0]['tokens'] for _ in part]; continue
+        for row in o:
+            outs.append([t for t in tok.convert_ids_to_tokens(row[L:].tolist()) if t in VS])
+        print('생성', i + len(part), '/', len(items), round(time.time() - tg), 's', flush=True)
+    return outs
+tg = time.time()
+chunks = [[c] for c in gen_many([(r['prompt'], 32, ()) for r in ev])]
+for _ in range(2):   # 이어 만들기: 앞 조각 마지막 키 3개(23토큰 × 3)
+    todo = []
+    for k, cs in enumerate(chunks):
+        if len(cs) != _ + 1: continue
+        body = [t for t in cs[-1] if t not in ('<motion>', '</motion>')]
         ctx = body[-3 * 23:] if len(body) >= 23 else []
-        if not ctx or len(ctx) % 23: break
-        chunks.append(gen1(r['prompt'], 24, ctx))
-    f.write(json.dumps(dict(src=r['src'], prompt=r['prompt'], layer=r['layer'], chunks=chunks, ref=r['tokens']), ensure_ascii=False) + '\n')
+        if ctx and not len(ctx) % 23: todo.append((k, ctx))
+    for (k, ctx), g in zip(todo, gen_many([(ev[k]['prompt'], 24, ctx) for k, ctx in todo])):
+        chunks[k].append(g)
+f = open(f'{OUT}/stage5_gen.jsonl', 'w', encoding='utf-8')
+for r, cs in zip(ev, chunks):
+    f.write(json.dumps(dict(src=r['src'], prompt=r['prompt'], layer=r['layer'], chunks=cs, ref=r['tokens']), ensure_ascii=False) + '\n')
 f.close(); gens = dict(n=len(ev), seconds=round(time.time() - tg, 1))
 res['generation'] = gens
 res['gen_peak_gb'] = 0 if DRY else round(torch.cuda.max_memory_allocated() / 2 ** 30, 2)
