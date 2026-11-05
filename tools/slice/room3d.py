@@ -291,6 +291,12 @@ def main():
     B = boxes(p); zb = zbuffer(p, B, W, H)
     S = visible_segments(p, edges3d(p, B), zb, W, H, step=1.0)
     print('최종 평균 거리', round(s1, 2), '선', len(S), {k: round(v, 3) for k, v in p.items()})
+    if os.environ.get('ROOM_FLAT', '0') == '1':
+        # 선택(ROOM_FLAT=1, 기본 끔 — 사용자 11-05 "구조적인 건 포함해야지"로 기본에서 제외): 출입구 윤곽, 15px 미만 짧은 모서리,
+        # 투시점 근처로 몰리는 먼 기둥·보(깊이 ROOM_ZMAX=45 넘는 구간)를 뺀다. 바닥·벽·천장 경계(room)는 끝까지 둔다.
+        zmax = float(os.environ.get('ROOM_ZMAX', 45))
+        S = [x for x in S if x[2] != 'detail' and (x[2] == 'room' or min(x[3], x[4]) <= zmax)
+             and math.hypot(x[0][0] - x[1][0], x[0][1] - x[1][1]) >= 15]
     T = thickness_pieces(S, zref=p['pz0'])
     json.dump(dict(zref=p['pz0'], lines=[[list(a), list(b), k, th] for a, b, k, th in T]), open(os.path.join(OUT, 'lines.json'), 'w'))
     draw(plate, T, os.path.join(OUT, 'room3d_fit.png'), f'mean edge dist {s1:.2f}px  lines {len(S)} pieces {len(T)}')
