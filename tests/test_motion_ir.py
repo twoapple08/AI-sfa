@@ -46,6 +46,15 @@ class MotionIRTest(unittest.TestCase):
                 self.assertLessEqual(abs(p[2] - q[2]), 0.002)
                 self.assertLessEqual(abs(p[3] - q[3]), 0.002)
 
+    def test_facing_field(self):
+        """몸 방향 칸(가면 방향 1단계): 추출 시 모름(null), 값을 넣어도 컴파일 결과(기본 뼈대)는 같다."""
+        M, root = scene()
+        ir = M.extract(root)
+        self.assertEqual(ir['actors'][0]['facing'], [None, None, None])
+        a = M.base_signature(M.compile_ir(ir))
+        ir['actors'][0]['facing'] = [0.0, 90.0, 180.0]
+        self.assertEqual(a, M.base_signature(M.compile_ir(ir)))
+
     def test_smear_slot_not_drawn(self):
         """'스미어로 대체' 표시 객체는 그리지 않는다(색 0) — 관절 위치는 남는다(사용자 11-05)."""
         M, root = scene()

@@ -7,7 +7,9 @@
   fps [24,24], aspect 0.5625, frames N
   actors[]: slot, color('blue'|'red'|ARGB 정수), joints{이름: [[x,y] | null]*N}(화면 %), thickness[N] = {객체 번호: 굵기},
             hidden[N] = 그 장에서 안 그리는 객체 번호 목록(가림·화면 밖), smear[N] = '스미어로 대체' 객체 번호 목록
-            (그리지 않음, 나중 스미어 단계 입력 — 사용자 11-05), head_fill[N] bool
+            (그리지 않음, 나중 스미어 단계 입력 — 사용자 11-05), head_fill[N] bool,
+            facing[N] = 몸이 향한 방향(도, 0 정면 · 90 캐릭터 오른쪽이 화면 앞으로 돌아선 측면(=시트 '우측') · 180 후면 · 270 '좌측'), 모르면 null
+            (가면 등 방향 있는 액세서리의 시트 칸 선택용 — 사용자 11-05 "가면이 정면만 봄")
   camera[N]: [dx, dy, zoom] (v1은 기록만, 컴파일에 쓰지 않음)
   timeline[]: {start, end, text, tags[]} (태그·시간 구간 설명 자리)
 관절 이름: head_t head_b neck pelvis elb_r wri_r elb_l wri_l kne_r ank_r kne_l ank_l
@@ -70,7 +72,8 @@ def extract(root):
                 th[n] = th[n] or {}
                 th[n][str(oid)] = float(a.get('ThicknessScale'))   # 객체마다(한 장 안에서도 부위별로 다를 수 있음)
             fill[n] = any(x.find('FS') is not None and x.find('FS').get('ObjId') == str(AO0 + slot * 100 + 1) for x in f.findall('FR'))
-        actors.append(dict(slot=slot, color=color, joints=J, thickness=th, hidden=hid, smear=[[] for _ in range(N)], head_fill=fill))
+        actors.append(dict(slot=slot, color=color, joints=J, thickness=th, hidden=hid, smear=[[] for _ in range(N)], head_fill=fill,
+                           facing=[None] * N))   # 스틱맨 SFA에는 방향 정보가 없다 — 포즈 자료 등에서 따로 채운다
     return dict(schema='motion-ir/1', fps=[24, 24], aspect=float(root.get('HeightWidthRatio', 0.5625)), frames=N,
                 actors=actors, camera=[[0.0, 0.0, 1.0] for _ in range(N)], timeline=[])
 
