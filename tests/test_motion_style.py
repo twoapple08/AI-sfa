@@ -118,3 +118,23 @@ class ApplyEdits(unittest.TestCase):
         with self.assertRaises(ValueError): M.apply_edits(ir, [dict(frames=[0, 0], op='bridge', joints=['wri_r'])])
         with self.assertRaises(ValueError): M.apply_edits(ir, [dict(frames=[0, 9], op='hide', objs=[3])])
         with self.assertRaises(ValueError): M.apply_edits(ir, [dict(frames=[0, 0], op='move')])
+
+
+class UserSfaIr(unittest.TestCase):
+    def test_built_file(self):
+        import gzip, json
+        p = os.path.join(os.path.dirname(__file__), '..', 'data', 'stage2', 'user_sfa_ir_2026-11-05.jsonl.gz')
+        segs = [json.loads(l) for l in gzip.open(p, 'rt', encoding='utf-8')]
+        self.assertGreater(len(segs), 100)
+        for s in segs[:50]:
+            self.assertTrue(s['source']['reference'])                     # 참고용 표시(조건 29 ②)
+            self.assertGreaterEqual(s['frames'], 8)
+            self.assertEqual(len(s['actors'][0]['joints']['neck']), s['frames'])
+
+    def test_linking_keeps_fig_first(self):
+        import user_sfa_to_ir as U
+        r = dict(head=[[0, 0], [0, -5]], neck=[0, 0], hip=[0, 10], arms=[['2', [[0, 0], [3, 3], [6, 6]]], ['3', [[0, 0], [-3, 3], [-6, 6]]]],
+                 legs=[['4', [[0, 10], [2, 15], [2, 20]]], ['5', [[0, 10], [-2, 15], [-2, 20]]]])
+        j = U.joints_of(r)
+        self.assertEqual(j['elb_r'], [3, 3]); self.assertEqual(j['ank_l'], [-2, 20])
+        r2 = dict(r, arms=r['arms'][:1]); self.assertIsNone(U.joints_of(r2))   # 팔 하나면 표준 뼈대 아님
