@@ -1,0 +1,155 @@
+"""움직임 중간 표현 v1(재계획 단계 1, docs/REPLAN-PLAN-DRAFT-2026-11-05.md).
+
+생성기는 SFA 점 좌표를 직접 쓰지 않고 이 중간 표현(장마다 인물 관절 12개 + 가시성 + 굵기 + 카메라)을 만든다.
+.sfa는 컴파일러가 만든다(고정 뼈대 profiles/stickman_2d_v1.json, 기존 stickman_clip.person_aos 재사용).
+
+형식(JSON, schema "motion-ir/1"):
+  fps [24,24], aspect 0.5625, frames N
+  actors[]: slot, color('blue'|'red'|ARGB 정수), joints{이름: [[x,y] | null]*N}(화면 %), thickness[N] = {객체 번호: 굵기},
+            hidden[N] = 그 장에서 안 그리는 객체 번호 목록(가림·화면 밖), smear[N] = '스미어로 대체' 객체 번호 목록
+            (그리지 않음, 나중 스미어 단계 입력 — 사용자 11-05), head_fill[N] bool
+  camera[N]: [dx, dy, zoom] (v1은 기록만, 컴파일에 쓰지 않음)
+  timeline[]: {start, end, text, tags[]} (태그·시간 구간 설명 자리)
+관절 이름: head_t head_b neck pelvis elb_r wri_r elb_l wri_l kne_r ank_r kne_l ank_l
+
+사용: python tools/motion_ir.py extract 입력.sfa 출력.json
+      python tools/motion_ir.py compile 입력.json 출력.sfa
+      python tools/motion_ir.py roundtrip 입력.sfa   (추출 → 컴파일 → 기본 11객체 대조)
+"""
+import json, sys, zipfile, xml.etree.ElementTree as ET
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from pose_to_stickman import BODY  # noqa: E402
+
+AO0, PT0 = 4560000, 5680000
+JOINTS = ['head_t', 'head_b', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l']
+LINE_COLOR = {'blue': -16776961, 'red': -65536}
+COLOR_NAME = {v: k for k, v in LINE_COLOR.items()}
+
+
+def pid_names(moving_head):
+    """객체 번호 → [(점 번호, 관절 이름)] (stickman_clip.person_aos와 같은 규칙)."""
+    m = {}
+    for oid, _typ, pts in BODY:
+        m[oid] = [(pid, name) for pid, name, _fl, _ac in pts]
+    if moving_head:
+        m[1] = [(1, 'head_t'), (2, 'head_b')]
+        m[11] = [(21, 'neck'), (22, 'head_b')]
+    return m
+
+
+def load(path):
+    z = zipfile.ZipFile(path)
+    return ET.fromstring(z.read([n for n in z.namelist() if n.endswith('.xml')][0]))
+
+
+def extract(root):
+    frames = root.findall('Frame')
+    N = len(frames)
+    slots = sorted({(int(a.get('ID')) - AO0) // 100 for f in frames for a in f.findall('AO') if 0 <= int(a.get('ID')) - AO0 < 1000})
+    actors = []
+    for slot in slots:
+        J = {k: [None] * N for k in JOINTS}
+        th, hid, fill, color = [None] * N, [[] for _ in range(N)], [False] * N, None
+        for n, f in enumerate(frames):
+            aos = {int(a.get('ID')) - AO0 - slot * 100: a for a in f.findall('AO') if 0 < int(a.get('ID')) - AO0 - slot * 100 <= 11}
+            if not aos: continue
+            moving = 11 in aos
+            names = pid_names(moving)
+            base = PT0 + n * 1000 + slot * 100
+            for oid, a in aos.items():
+                for p in a.findall('AP'):
+                    nm = dict(names.get(oid, [])).get(int(p.get('ID')) - base)
+                    if nm and J[nm][n] is None:
+                        J[nm][n] = [float(p.get('X')), float(p.get('Y'))]
+                c = int(a.get('Color'))
+                if oid != 11:
+                    if c == 0: hid[n].append(oid)
+                    elif color is None: color = COLOR_NAME.get(c, c)
+                th[n] = th[n] or {}
+                th[n][str(oid)] = float(a.get('ThicknessScale'))   # 객체마다(한 장 안에서도 부위별로 다를 수 있음)
+            fill[n] = any(x.find('FS') is not None and x.find('FS').get('ObjId') == str(AO0 + slot * 100 + 1) for x in f.findall('FR'))
+        actors.append(dict(slot=slot, color=color, joints=J, thickness=th, hidden=hid, smear=[[] for _ in range(N)], head_fill=fill))
+    return dict(schema='motion-ir/1', fps=[24, 24], aspect=float(root.get('HeightWidthRatio', 0.5625)), frames=N,
+                actors=actors, camera=[[0.0, 0.0, 1.0] for _ in range(N)], timeline=[])
+
+
+def compile_ir(ir, name='motion_ir'):
+    from stickman_clip import person_aos
+    N = ir['frames']
+    parts = [f'<Sequence Name="{name}" HeightWidthRatio="{ir["aspect"]}" RatioX="16" RatioY="9" FrameCount="{N}" BackgroundColor="-1">']
+    for n in range(N):
+        parts.append(f'<Frame BackgroundColor="-1" ID="{5000 + n}" Position="{n}"><LayerDef ID="0" Name="Layer 1" Visible="true" Locked="false" />')
+        for a in ir['actors']:
+            # 화면 % → 가로세로 같은 단위(16:9)로: 머리 접촉 제약(A안)은 실제 거리로 계산해야 원본과 같다
+            sx, sy = 16.0, 16.0 * ir['aspect']
+            Jn = {k: (v[n][0] * sx / 100, v[n][1] * sy / 100) for k, v in a['joints'].items() if v[n] is not None}
+            if 'neck' not in Jn: continue
+            if 'head_b' not in Jn: Jn.pop('head_b', None)
+            off = set(a['hidden'][n]) | set(a['smear'][n])
+            vis = [o for o in range(1, 12) if o not in off]
+            color = a['color'] if isinstance(a['color'], str) else 'blue'
+            tn = a['thickness'][n] or {}
+            xml = person_aos(n, a['slot'], Jn, lambda p, sx=sx, sy=sy: (p[0] / sx * 100, p[1] / sy * 100), color, 1.0, visible_segments=vis)
+            for oid_s, t in tn.items():   # 객체별 굵기
+                aid = f'ID="{AO0 + a["slot"] * 100 + int(oid_s)}" '
+                i = xml.find('<AO ' + aid)
+                if i >= 0:
+                    j = xml.find('ThicknessScale="', i) + len('ThicknessScale="'); k = xml.find('"', j)
+                    xml = xml[:j] + f'{t:.3f}' + xml[k:]
+            if not isinstance(a['color'], str):
+                xml = xml.replace(f'Color="{LINE_COLOR["blue"]}"', f'Color="{a["color"]}"')
+            if not a['head_fill'][n]:
+                i = xml.find('<FR ')
+                if i >= 0: xml = xml[:i]
+            parts.append(xml)
+        parts.append('</Frame>')
+    parts.append('</Sequence>')
+    return ET.fromstring(''.join(parts))
+
+
+def base_signature(root):
+    """기본 11객체의 (장, 객체 ID) → (종류, 색, 굵기, 점(ID, Flags, X, Y, 연결)들) — 대조용."""
+    out = {}
+    for n, f in enumerate(root.findall('Frame')):
+        for a in f.findall('AO'):
+            i = int(a.get('ID')) - AO0
+            if not (0 <= i < 1000 and 0 < i % 100 <= 11): continue
+            lo = PT0 + n * 1000   # 기본 뼈대 점 범위 안의 연결만(근경 면 등 표시층으로 가는 연결은 v1 범위 밖)
+            pts = tuple((p.get('ID'), p.get('Flags'), round(float(p.get('X')), 3), round(float(p.get('Y')), 3),
+                         tuple(sorted(c.get('ConnPtId') for c in p.findall('AC') if lo <= int(c.get('ConnPtId')) < lo + 1000))) for p in a.findall('AP'))
+            out[(n, a.get('ID'))] = (a.get('TypeId'), a.get('Color'), round(float(a.get('ThicknessScale')), 3), pts)
+    return out
+
+
+def roundtrip(path):
+    src = load(path)
+    ir = extract(src)
+    out = compile_ir(ir)
+    A, B = base_signature(src), base_signature(out)
+
+    def same(a, b, tol=0.002):
+        # 종류·색·굵기·점 ID·Flags·연결은 정확히, 좌표는 0.002% 이내(소수 넷째 자리 반올림을 한 번 더 거침)
+        if b is None or a[:3] != b[:3] or len(a[3]) != len(b[3]): return False
+        return all(p[0] == q[0] and p[1] == q[1] and p[4] == q[4] and abs(p[2] - q[2]) <= tol and abs(p[3] - q[3]) <= tol for p, q in zip(a[3], b[3]))
+    diff = [k for k in A if not same(A[k], B.get(k))]
+    extra = [k for k in B if k not in A]
+    return dict(frames=ir['frames'], actors=len(ir['actors']), base_objects=len(A), mismatched=len(diff), missing_or_extra=len(extra),
+                first_mismatch=(diff[:1] and dict(key=diff[0], src=A[diff[0]], out=B.get(diff[0]))) or None), ir, out
+
+
+def save_sfa(root, path, name):
+    with zipfile.ZipFile(path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr(name + '.xml', ET.tostring(root, encoding='utf-8', xml_declaration=True))
+
+
+if __name__ == '__main__':
+    cmd = sys.argv[1]
+    if cmd == 'extract':
+        json.dump(extract(load(sys.argv[2])), open(sys.argv[3], 'w'), ensure_ascii=False)
+    elif cmd == 'compile':
+        save_sfa(compile_ir(json.load(open(sys.argv[2]))), sys.argv[3], Path(sys.argv[3]).stem)
+    elif cmd == 'roundtrip':
+        rep, _, _ = roundtrip(sys.argv[2])
+        print(json.dumps(rep, ensure_ascii=False, default=str)[:2000])
