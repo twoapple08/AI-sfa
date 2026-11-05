@@ -75,3 +75,40 @@ def main(work, outp):
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2])
+
+
+# ---- 평가(2026-11-05): 출처(구간) 단위로 떼어 둔 평가 자료로 채점 ----
+def pose_vec(ir):
+    """디코딩한 포즈 → 골반 기준·몸통 단위 관절 벡터(22개 수)."""
+    import numpy as np
+    J = ir['actors'][0]['joints']; asp = ir.get('aspect', 0.5625); P = J['pelvis'][0]
+    T = math.hypot(J['neck'][0][0] - P[0], (J['neck'][0][1] - P[1]) * asp) or 1
+    return np.array([[(J[n][0][0] - P[0]) / T, (J[n][0][1] - P[1]) * asp / T] for n in MT.NAMES if n not in ('pelvis', 'head_b')]).ravel()
+
+
+def split(rows, frac=0.1, seed=0):
+    """출처(구간 id) 단위로 평가 자료를 뗀다 — 같은 구간의 이웃 장이 학습·평가에 함께 들어가 외우기로 맞히는 것을 막는다."""
+    import random
+    srcs = sorted({r['src'] for r in rows}); random.Random(seed).shuffle(srcs)
+    style = [s for s in srcs if not s.startswith('u')]; ref = [s for s in srcs if s.startswith('u')]
+    held = set(style[:max(1, round(len(style) * frac))] + ref[:max(1, round(len(ref) * frac))])
+    return [r for r in rows if r['src'] not in held], [r for r in rows if r['src'] in held], sorted(held)
+
+
+def score(gen_tokens, train_rows, ref_rows=None, copy_thr=0.15):
+    """생성 포즈 채점: 디코딩 가능 비율, plausible 비율, 학습 포즈 베끼기 비율(가장 가까운 학습 포즈와 평균 관절 거리 < copy_thr 몸통).
+    ref_rows(평가 정답)를 주면 같은 거리로 '정답도 학습 포즈와 얼마나 가까운지'를 함께 내서 기준선으로 쓴다."""
+    import numpy as np
+    TR = np.stack([pose_vec(MT.decode(r['tokens'])) for r in train_rows])
+    def near(v): return float(np.min(np.linalg.norm((TR - v).reshape(len(TR), -1, 2), axis=2).mean(1)))
+    dec = [MT.decode(t) for t in gen_tokens]
+    ok = [d for d in dec if d is not None]
+    out = dict(n=len(gen_tokens), decoded=len(ok) / max(len(dec), 1),
+               plausible=sum(plausible(d) for d in ok) / max(len(dec), 1))
+    if ok:
+        ds = [near(pose_vec(d)) for d in ok]
+        out.update(copy_rate=sum(x < copy_thr for x in ds) / len(ds), near_median=float(np.median(ds)))
+    if ref_rows:
+        rs = [near(pose_vec(MT.decode(r['tokens']))) for r in ref_rows]
+        out.update(ref_copy_rate=sum(x < copy_thr for x in rs) / len(rs), ref_near_median=float(np.median(rs)))
+    return out
