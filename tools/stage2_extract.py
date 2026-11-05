@@ -236,13 +236,29 @@ def estimate_legs(t, frames, B, S, W, H, top):
     N = len(frames)
     K = np.stack([t[f][1] if f in t else np.zeros((23, 3)) for f in frames])
     bm = SC.border_info(K, W, H, top)[0]
-    seen = lambda i, ri: frames[i] in t and K[i, ri, 2] >= VIS_SCORE['leg'] and not bm[i, ri]
     P = np.asarray(B['pelvis'], float)
+    tor = np.linalg.norm((K[:, 5, :2] + K[:, 6, :2]) / 2 - (K[:, 11, :2] + K[:, 12, :2]) / 2, axis=1)
+    bottom = H - 1 - max(0.0, (H - W * 0.5625) / 2)          # 16:9 화면 아래 끝(화소)
+    def seen(i, ri):
+        # 근접 컷에서 RTMW는 화면 밖 무릎·발목을 화면 끝에 몰아 높은 점수(3–5)로 찍는다(사용자 11-05 '다리가 싹 다 곱창') →
+        # 가장자리에서 몸통 0.25 안쪽이면 관측으로 치지 않는다
+        if frames[i] not in t or K[i, ri, 2] < VIS_SCORE['leg'] or bm[i, ri]: return False
+        if tor[i] < 0.25 * (bottom - top):   # 전신 컷: 발이 화면 바닥 가까이 있는 게 정상 → 기본 가장자리 판정만
+            return True
+        m = max(8.0, 0.25 * tor[i]); x, y = K[i, ri, :2]
+        return m <= x <= W - 1 - m and top + m <= y <= bottom - m
     inferred = [set() for _ in range(N)]
     for side, sgn, (kn, an), (rk, ra) in (('r', -1, ('kne_r', 'ank_r'), (14, 16)), ('l', 1, ('kne_l', 'ank_l'), (13, 15))):
         Kn, An = np.asarray(B[kn], float).copy(), np.asarray(B[an], float).copy()
-        ok_k = np.array([seen(i, rk) and np.all(np.isfinite(Kn[i])) for i in range(N)])
-        ok_a = np.array([ok_k[i] and seen(i, ra) and np.all(np.isfinite(An[i])) for i in range(N)])
+        Ls0 = np.where(np.isfinite(S), S, np.nanmedian(S))
+        # 허벅지가 10초판 길이의 절반 미만이면 지어낸 무릎(몸통 쪽으로 접힘)으로 본다
+        near = tor >= 0.25 * (bottom - top)   # 근접 컷 장: 지어낸 다리 판정을 더 엄격히(전신 컷의 짧은 허벅지는 원근 — n41_28 의자에 앉음)
+        ok_k = np.array([seen(i, rk) and np.all(np.isfinite(Kn[i])) and np.all(np.isfinite(P[i]))
+                         and (not near[i] or np.linalg.norm(Kn[i] - P[i]) >= 0.5 * LEG_DEFAULT['thigh'] * Ls0[i]) for i in range(N)])
+        ok_a = np.array([ok_k[i] and seen(i, ra) and np.all(np.isfinite(An[i]))
+                         and (not near[i] or np.linalg.norm(An[i] - Kn[i]) >= 0.5 * LEG_DEFAULT['shin'] * Ls0[i]) for i in range(N)])
+        # 근접 컷에서 무릎은 발목까지 이어 보일 때만 관측(무릎만 찍힌 장은 지어낸 경우가 많았다 — n41_18 8장 화면 왼쪽 끝 무릎)
+        ok_k = np.where(near, ok_a, ok_k)
         # 무릎은 안 보여도 발목은 보이는 장(n41_17 26–27 발차기: 발목 점수 2.9·3.9, 무릎 2.0–2.4) — 발목은 관측, 무릎만 두 뼈 길이로 계산
         ank_only = np.array([(not ok_k[i]) and seen(i, ra) for i in range(N)])
         if ok_k.all() and ok_a.all():
@@ -253,12 +269,17 @@ def estimate_legs(t, frames, B, S, W, H, top):
         # 추론 길이는 10초판 비율 이상: 근접 컷의 '보인' 다리는 화면 끝에 몰려 짧게 잡혀(n41_17 허벅지 약 0.5 몸통) 그 길이로는 다리가 쪼그라든다
         Lt = max(np.nanmedian((np.linalg.norm(Kn - P, axis=1) / Ls)[ok_k]) if ok_k.any() else 0, LEG_DEFAULT['thigh'])
         Lsh = max(np.nanmedian((np.linalg.norm(An - Kn, axis=1) / Ls)[ok_a]) if ok_a.any() else 0, LEG_DEFAULT['shin'])
-        def fill(a, ok, default):
+        def fill(a, ok, default, reach=6):
+            # 보인 장의 각도는 reach장 안쪽까지만 잇고, 더 멀면 선 자세(default)로 천천히 돌아간다
             if not ok.any():
                 return np.full(N, default)
             idx = np.flatnonzero(ok)
-            return np.interp(np.arange(N), idx, np.unwrap(a[idx]))
-        TA = fill(th_a, ok_k, np.pi / 2 + sgn * 0.12)       # 화면 y 아래 = +90°, 좌우로 조금 벌림
+            v = np.interp(np.arange(N), idx, np.unwrap(a[idx]))
+            dist = np.array([np.min(np.abs(idx - i)) for i in range(N)])
+            w = np.clip((dist - 1) / reach, 0, 1)
+            d0 = (default - v + np.pi) % (2 * np.pi) - np.pi
+            return v + w * d0
+        TA = fill(th_a, ok_k, np.pi / 2 + sgn * 0.22)       # 화면 y 아래 = +90°, 좌우로 조금 벌림
         SA = fill(sh_a, ok_a, np.pi / 2)
         for i in range(N):
             if not np.all(np.isfinite(P[i])): continue
