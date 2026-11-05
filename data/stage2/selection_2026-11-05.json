@@ -1,0 +1,376 @@
+{
+ "date": "2026-11-05",
+ "tool": "tools/stage2_extract.py 36 --fill yutaka_nakamura",
+ "judged_by": "Claude 1차(시트 3장/구간), 사용자 판정 전",
+ "selected": [
+  {
+   "name": "n41_01_878017_38-63",
+   "animator": "nian41",
+   "video": "1534075160545878017",
+   "start": 38,
+   "end": 63,
+   "frames": 26,
+   "action_score": 0.1397
+  },
+  {
+   "name": "n41_02_211649_1726-1762",
+   "animator": "nian41",
+   "video": "1613887377965211649",
+   "start": 1726,
+   "end": 1762,
+   "frames": 37,
+   "action_score": 0.4078
+  },
+  {
+   "name": "n41_03_742689_475-501",
+   "animator": "nian41",
+   "video": "1913481070839742689",
+   "start": 475,
+   "end": 501,
+   "frames": 27,
+   "action_score": 0.5096
+  },
+  {
+   "name": "n41_04_908348_815-841",
+   "animator": "nian41",
+   "video": "1913589758644908348",
+   "start": 815,
+   "end": 841,
+   "frames": 27,
+   "action_score": 0.2324
+  },
+  {
+   "name": "n41_05_051062_191-229",
+   "animator": "nian41",
+   "video": "1943223713455051062",
+   "start": 191,
+   "end": 229,
+   "frames": 39,
+   "action_score": 0.2602
+  },
+  {
+   "name": "n41_06_051062_1802-1825",
+   "animator": "nian41",
+   "video": "1943223713455051062",
+   "start": 1802,
+   "end": 1825,
+   "frames": 24,
+   "action_score": 0.2123
+  },
+  {
+   "name": "n41_07_216085_1439-1490",
+   "animator": "nian41",
+   "video": "216085",
+   "start": 1439,
+   "end": 1490,
+   "frames": 52,
+   "action_score": 0.355
+  },
+  {
+   "name": "n41_08_216085_1495-1526",
+   "animator": "nian41",
+   "video": "216085",
+   "start": 1495,
+   "end": 1526,
+   "frames": 32,
+   "action_score": 0.5409
+  },
+  {
+   "name": "n41_09_216085_1791-1815",
+   "animator": "nian41",
+   "video": "216085",
+   "start": 1791,
+   "end": 1815,
+   "frames": 25,
+   "action_score": 0.4292
+  },
+  {
+   "name": "n41_11_280527_604-707",
+   "animator": "nian41",
+   "video": "280527",
+   "start": 604,
+   "end": 707,
+   "frames": 104,
+   "action_score": 0.4337
+  },
+  {
+   "name": "n41_12_280544_1392-1496",
+   "animator": "nian41",
+   "video": "280544",
+   "start": 1392,
+   "end": 1496,
+   "frames": 105,
+   "action_score": 0.3146
+  },
+  {
+   "name": "n41_13_280544_1497-1558",
+   "animator": "nian41",
+   "video": "280544",
+   "start": 1497,
+   "end": 1558,
+   "frames": 62,
+   "action_score": 0.2793
+  },
+  {
+   "name": "n41_15_280544_4017-4044",
+   "animator": "nian41",
+   "video": "280544",
+   "start": 4017,
+   "end": 4044,
+   "frames": 28,
+   "action_score": 0.3665
+  },
+  {
+   "name": "n41_16_280556_1313-1337",
+   "animator": "nian41",
+   "video": "280556",
+   "start": 1313,
+   "end": 1337,
+   "frames": 25,
+   "action_score": 0.4246
+  },
+  {
+   "name": "n41_17_280597_27-53",
+   "animator": "nian41",
+   "video": "280597",
+   "start": 27,
+   "end": 53,
+   "frames": 27,
+   "action_score": 0.9282
+  },
+  {
+   "name": "n41_18_280597_421-450",
+   "animator": "nian41",
+   "video": "280597",
+   "start": 421,
+   "end": 450,
+   "frames": 30,
+   "action_score": 0.8875
+  },
+  {
+   "name": "n41_19_287139_811-834",
+   "animator": "nian41",
+   "video": "287139",
+   "start": 811,
+   "end": 834,
+   "frames": 24,
+   "action_score": 0.1268
+  },
+  {
+   "name": "n41_20_287263_1256-1280",
+   "animator": "nian41",
+   "video": "287263",
+   "start": 1256,
+   "end": 1280,
+   "frames": 25,
+   "action_score": 0.7395
+  },
+  {
+   "name": "n41_21_301142_675-762",
+   "animator": "nian41",
+   "video": "301142",
+   "start": 675,
+   "end": 762,
+   "frames": 88,
+   "action_score": 0.3803
+  },
+  {
+   "name": "n41_22_301142_775-814",
+   "animator": "nian41",
+   "video": "301142",
+   "start": 775,
+   "end": 814,
+   "frames": 40,
+   "action_score": 0.3834
+  },
+  {
+   "name": "n41_23_301158_356-388",
+   "animator": "nian41",
+   "video": "301158",
+   "start": 356,
+   "end": 388,
+   "frames": 33,
+   "action_score": 0.2096
+  },
+  {
+   "name": "nkm_27_203289_213-241",
+   "animator": "yutaka_nakamura",
+   "video": "203289",
+   "start": 213,
+   "end": 241,
+   "frames": 29,
+   "action_score": 0.651
+  },
+  {
+   "name": "nkm_28_205025_238-266",
+   "animator": "yutaka_nakamura",
+   "video": "205025",
+   "start": 238,
+   "end": 266,
+   "frames": 29,
+   "action_score": 0.5113
+  },
+  {
+   "name": "nkm_29_205025_293-354",
+   "animator": "yutaka_nakamura",
+   "video": "205025",
+   "start": 293,
+   "end": 354,
+   "frames": 62,
+   "action_score": 0.305
+  },
+  {
+   "name": "nkm_30_229682_36-62",
+   "animator": "yutaka_nakamura",
+   "video": "229682",
+   "start": 36,
+   "end": 62,
+   "frames": 27,
+   "action_score": 0.2556
+  },
+  {
+   "name": "nkm_31_273325_61-90",
+   "animator": "yutaka_nakamura",
+   "video": "273325",
+   "start": 61,
+   "end": 90,
+   "frames": 30,
+   "action_score": 0.2691
+  },
+  {
+   "name": "nkm_33_306329_278-304",
+   "animator": "yutaka_nakamura",
+   "video": "306329",
+   "start": 278,
+   "end": 304,
+   "frames": 27,
+   "action_score": 0.2837
+  },
+  {
+   "name": "nkm_34_306329_342-369",
+   "animator": "yutaka_nakamura",
+   "video": "306329",
+   "start": 342,
+   "end": 369,
+   "frames": 28,
+   "action_score": 0.6781
+  },
+  {
+   "name": "nkm_35_306329_1611-1646",
+   "animator": "yutaka_nakamura",
+   "video": "306329",
+   "start": 1611,
+   "end": 1646,
+   "frames": 36,
+   "action_score": 0.3764
+  },
+  {
+   "name": "nkm_36_306713_173-207",
+   "animator": "yutaka_nakamura",
+   "video": "306713",
+   "start": 173,
+   "end": 207,
+   "frames": 35,
+   "action_score": 0.5066
+  }
+ ],
+ "excluded": [
+  {
+   "name": "n41_10_280523_41-64",
+   "reason": "마지막 장 자세 무너짐"
+  },
+  {
+   "name": "n41_14_280544_2327-2380",
+   "reason": "웅크린 근접 컷 뼈대 꼬임"
+  },
+  {
+   "name": "nkm_24_110193_258-289",
+   "reason": "예비(중간 품질, 하늘 낙하)"
+  },
+  {
+   "name": "nkm_25_159142_82-106",
+   "reason": "콘티·완성 나란히 비교 영상"
+  },
+  {
+   "name": "nkm_26_196873_659-701",
+   "reason": "예비(중간 품질, 촉수 비행)"
+  },
+  {
+   "name": "nkm_32_273677_0-78",
+   "reason": "우주 구르기 어긋남"
+  }
+ ],
+ "sample10_seed": 20261105,
+ "style_first_measure": {
+  "nian41": {
+   "hold_counts": {
+    "1": 264,
+    "2": 234,
+    "3": 20,
+    "4+": 5
+   },
+   "hold_share": {
+    "1": 0.505,
+    "2": 0.447,
+    "3": 0.038,
+    "4+": 0.01
+   },
+   "stop_after_fast": {
+    "n": 134,
+    "with_stop": 11,
+    "after_hold_median": 1.0
+   },
+   "anticipation": {
+    "n": 135,
+    "with_antic": 80
+   },
+   "stroke_peak_pos": {
+    "n": 21,
+    "quartiles": [
+     0.36,
+     0.6,
+     0.867
+    ]
+   }
+  },
+  "yutaka_nakamura": {
+   "hold_counts": {
+    "1": 132,
+    "2": 38,
+    "3": 6,
+    "4+": 3
+   },
+   "hold_share": {
+    "1": 0.737,
+    "2": 0.212,
+    "3": 0.034,
+    "4+": 0.017
+   },
+   "stop_after_fast": {
+    "n": 48,
+    "with_stop": 3,
+    "after_hold_median": 1.0
+   },
+   "anticipation": {
+    "n": 47,
+    "with_antic": 30
+   },
+   "stroke_peak_pos": {
+    "n": 10,
+    "quartiles": [
+     0.105,
+     0.321,
+     0.553
+    ]
+   }
+  },
+  "note": "그림 구간 경계는 포즈 변화 문턱 추정. 예비 동작 비율이 높게 나와 기준 재검토 필요"
+ },
+ "facing_check": {
+  "labeled": 19,
+  "v1_single": 12,
+  "v2_face_cues": 12,
+  "smoothed": 11,
+  "note": "옆·반측면을 정면으로(반측면 칸 없음 설계), 일부 정면↔후면 뒤집힘. RTMW가 애니 등 장에도 코·눈·귀 점수를 높게 줘 얼굴 단서 무효 → v2 미채택"
+ }
+}
