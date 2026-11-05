@@ -51,7 +51,7 @@ def run_vitpose():
     model = VitPoseForPoseEstimation.from_pretrained(name, torch_dtype=torch.float16).to(dev).eval()
     f = open(f'{OUT}/pose_vitpose.jsonl', 'w'); t0 = time.time()
     for i, m in enumerate(META):
-        img = cv2.imread(f"{DATA}/frames/{m['img']}")[:, :, ::-1]
+        img = cv2.imread(f"{DATA}/frames/{m['img']}")[:, :, ::-1].copy()   # 음수 stride는 torch가 못 받는다
         sc = m['scale']
         boxes = [[b[0] / sc, b[1] / sc, (b[2] - b[0]) / sc, (b[3] - b[1]) / sc] for b in m['boxes']]   # COCO xywh, 저화질 좌표
         people = []
@@ -125,6 +125,9 @@ if __name__ == '__main__':
     os.system('pip -q install -U "transformers>=4.49" huggingface_hub accelerate > /dev/null 2>&1')
     print('GPU', torch.cuda.get_device_name(0), '장', len(META), flush=True)
     which = sys.argv[1:] or ['vitpose', 'sapiens']
-    if 'vitpose' in which: run_vitpose()
-    if 'sapiens' in which: run_sapiens()
+    import traceback
+    for nm, fn in (('vitpose', run_vitpose), ('sapiens', run_sapiens)):   # 한 모델이 실패해도 다른 모델은 돈다
+        if nm not in which: continue
+        try: fn()
+        except Exception: print(nm, '실패'); traceback.print_exc()
     print('끝', flush=True)
