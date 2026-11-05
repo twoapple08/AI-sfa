@@ -17,16 +17,28 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-VIDEOS = {   # post_id: (원본 폭, 높이) — docs/COORDINATION-2026-10-17.md 의 원본 주소 해상도
-    '1613887197383622656': (1280, 720), '1613887377965211649': (1280, 720), '1943223713455051062': (1280, 720),
-    '2029588466376511962': (1280, 720), '1913589758644908348': (1280, 718), '1534075160545878017': (1280, 520),
-    '1534078885696000000': (1280, 520), '1913481070839742689': (872, 480)}
+VIDEOS = {   # post_id: (원본 폭, 높이) — X 영상은 docs/COORDINATION-2026-10-17.md 원본 주소, Sakugabooru는 data/sakuga/posts_nian41.jsonl
+    # 세로 영상 2개(1569962812805644289 444×722, 1937399147772137658 666×1082)는 16:9 화면에 다 들어가지 않아 뺐다
+    '1534075160545878017': (1280, 520), '1534078885696000000': (1280, 520), '1567691748968906752': (444, 248), '1613887197383622656': (1280, 720),
+    '1613887377965211649': (1280, 720), '1913481070839742689': (872, 480), '1913589758644908348': (1280, 718), '1943223713455051062': (1280, 720),
+    '2029588466376511962': (1280, 720), '216073': (852, 480), '216075': (852, 480), '216076': (852, 480),
+    '216077': (852, 480), '216079': (852, 480), '216081': (852, 480), '216084': (852, 480),
+    '216085': (852, 480), '216089': (852, 480), '280521': (854, 480), '280523': (854, 480),
+    '280525': (854, 480), '280526': (854, 480), '280527': (854, 480), '280528': (854, 480),
+    '280530': (854, 480), '280534': (854, 480), '280535': (854, 480), '280536': (854, 480),
+    '280544': (848, 480), '280556': (854, 480), '280597': (872, 480), '280598': (872, 480),
+    '280830': (854, 480), '280831': (854, 480), '280832': (854, 480), '280833': (854, 480),
+    '280834': (854, 480), '280835': (854, 480), '287139': (854, 480), '287140': (854, 480),
+    '287263': (854, 480), '287264': (854, 480), '287268': (854, 480), '301142': (854, 480),
+    '301158': (854, 480),
+}
 DEV_CLIP = '1913231262086463573'
-CUT_THR, MIN_LEN, MAX_LEN, MIN_COVER, PER_VIDEO = 0.35, 24, 120, 0.8, 5
+CUT_THR, MIN_LEN, MAX_LEN, MIN_COVER, PER_VIDEO = 0.35, 24, 120, 0.8, 6
 SCORE = 1.5
 TORSO = (5, 6, 11, 12)
 LEGS = (11, 12, 13, 14, 15, 16)   # 골반·무릎·발목: 전신 조건(첫 시도에서 얼굴 클로즈업·상반신 컷이 뽑혀 엉뚱한 몸이 나오거나 다리가 통째로 없었다)
-MIN_HEIGHT, MAX_JITTER = 0.25, 0.15   # 사람 상자 높이 / 화면 높이 중앙값 하한, 원래 관절 흔들림(2차 차분 / 몸통) 중앙값 상한
+MIN_HEIGHT, MAX_JITTER = 0.25, 2.0   # 사람 상자 높이 / 화면 높이 중앙값 하한, 원래 관절 흔들림(2차 차분 / 몸통) 중앙값 상한 — 0.15는 빠른 동작까지 잘라 6구간뿐(11-05: 전신 57트랙 흔들림 중앙 0.71), 2.0 넘는 4–6은 사람 바뀜·추적 실패
+IN_LEG = 0.6                      # 골반→발목 / 몸통 하한(웅크림 허용, 지어낸 짧은 다리 제외)
 LIMBS = (9, 10, 15, 16)          # 손목·발목(RTMW 몸 17점)
 
 
@@ -109,7 +121,18 @@ def action_score(t, frames):
     return float(np.median(v)) if v else 0.0   # 중앙값: 튀는 장에 덜 끌림
 
 
-def candidates(vid, R, cut_list, H=720):
+def leg_in_frame(t, f, W, H):
+    """발목이 화면 안에 있고 골반→발목 길이가 몸통의 IN_LEG배 이상(가까운 상반신 컷에서 RTMW가 화면 밖 다리를 높은 점수로 지어낸다, 11-05 2차 시트 20·24·28–30)."""
+    k = t[f][1]
+    tor = np.linalg.norm((k[5, :2] + k[6, :2]) / 2 - (k[11, :2] + k[12, :2]) / 2) or 1
+    for hip, ank in ((11, 15), (12, 16)):
+        x, y = k[ank, :2]
+        if not (0 <= x < W and 0 <= y < H * 0.99): return False
+        if np.linalg.norm(k[ank, :2] - k[hip, :2]) < IN_LEG * tor: return False
+    return True
+
+
+def candidates(vid, R, cut_list, H=720, W=1280):
     out = []
     for s, e in zip(cut_list, cut_list[1:]):
         for ws in range(s, e, MAX_LEN):
@@ -118,15 +141,20 @@ def candidates(vid, R, cut_list, H=720):
             frames = list(range(ws, we))
             T = []
             for t in track(R, ws, we):
-                good = [f for f in frames if f in t and t[f][1][list(TORSO) + list(LEGS), 2].min() >= SCORE]
+                good = [f for f in frames if f in t and t[f][1][list(TORSO) + list(LEGS), 2].min() >= SCORE and leg_in_frame(t, f, W, H)]
                 if len(good) < MIN_COVER * len(frames): continue
                 if np.median([t[f][0][3] - t[f][0][1] for f in t]) < MIN_HEIGHT * H: continue
                 if raw_jitter(t, frames) > MAX_JITTER: continue
-                T.append(t)
+                T.append((t, good))
             if not T: continue
-            T = sorted(T, key=lambda t: -np.median([(t[f][0][2] - t[f][0][0]) * (t[f][0][3] - t[f][0][1]) for f in t]))[:2]
-            sc = max(action_score(t, frames) for t in T)
-            out.append(dict(video=vid, start=ws, end=we, tracks=T, score=sc))
+            T = sorted(T, key=lambda tg: -np.median([(tg[0][f][0][2] - tg[0][f][0][0]) * (tg[0][f][0][3] - tg[0][f][0][1]) for f in tg[0]]))[:2]
+            # 구간을 주 인물이 잘 보이는 첫 장–끝 장으로 자른다(11-05: 트랙이 늦게 시작하면 앞 장 몸통 배율이 0 → 팔다리 전체가 NaN)
+            a, b = T[0][1][0], T[0][1][-1] + 1
+            if b - a < MIN_LEN: continue
+            fr = list(range(a, b))
+            T = [t for t, g in T if t is T[0][0] or sum(f in t for f in fr) == len(fr)]
+            sc = max(action_score(t, fr) for t in T)
+            out.append(dict(video=vid, start=a, end=b, tracks=T, score=sc))
     return out
 
 
@@ -172,6 +200,38 @@ def convert(c, W, H):
     return ir, quality
 
 
+DUP_THR = 12.0   # 썸네일(64×36 회색) 평균 절대차 — X 영상과 Sakugabooru 클립은 같은 장면을 잘라 올린 것이 많다(10-17 프레임 대조)
+
+
+def thumbs(video, frames):
+    import cv2
+    cap = cv2.VideoCapture(video); out = []
+    for f in frames:
+        cap.set(cv2.CAP_PROP_POS_FRAMES, f); ok, im = cap.read()
+        out.append(cv2.resize(cv2.cvtColor(im, cv2.COLOR_BGR2GRAY), (64, 36), interpolation=cv2.INTER_AREA).astype(np.float32) if ok else None)
+    return out
+
+
+def seg_thumbs(work, c):
+    fr = [c['start'] + int(q * (c['end'] - 1 - c['start'])) for q in (0.2, 0.5, 0.8)]
+    return thumbs(f'{work}/video/{c["video"]}.mp4', fr)
+
+
+def same_scene(A, B):
+    """두 구간의 표본 장 중 하나라도 거의 같은 그림이면 같은 장면."""
+    return any(a is not None and b is not None and float(np.abs(a - b).mean()) < DUP_THR for a in A for b in B)
+
+
+def dev_thumbs(work):
+    """개발 사례 영상 전체(4장 간격) 썸네일: 다른 출처에 같은 장면이 있으면 개발 사례로 보고 뺀다."""
+    v = f'{work}/video/{DEV_CLIP}.mp4'
+    if not os.path.exists(v):
+        subprocess.run(['rclone', 'copyto', f'gdrive:AI-sfa/01_원본영상/_Gemini용_저용량/nian41/{DEV_CLIP}.mp4', v], check=True, capture_output=True)
+    import cv2
+    n = int(cv2.VideoCapture(v).get(cv2.CAP_PROP_FRAME_COUNT))
+    return [t for t in thumbs(v, range(0, n, 4)) if t is not None]
+
+
 def main():
     work = sys.argv[1]; NSEL = int(sys.argv[2]) if len(sys.argv) > 2 else 30
     os.makedirs(f'{work}/out', exist_ok=True)
@@ -181,10 +241,21 @@ def main():
         v, r = fetch(work, vid)
         R = load_rtmw(r)
         cl, n = cuts(v)
-        cs = sorted(candidates(vid, R, cl, VIDEOS[vid][1]), key=lambda c: -c['score'])[:PER_VIDEO]
+        cs = sorted(candidates(vid, R, cl, VIDEOS[vid][1], VIDEOS[vid][0]), key=lambda c: -c['score'])[:PER_VIDEO]
         print(vid, '장', n, '컷', len(cl) - 1, '후보', len(cs), [round(c['score'], 3) for c in cs], flush=True)
         allc += cs
-    sel = sorted(allc, key=lambda c: -c['score'])[:NSEL]
+    dev = dev_thumbs(work)
+    sel, dropped = [], []
+    for c in sorted(allc, key=lambda c: (-c['score'], -VIDEOS[c['video']][0])):   # 같은 점수면 해상도 높은 쪽 먼저
+        th = seg_thumbs(work, c)
+        if same_scene(th, dev):
+            dropped.append((c['video'], c['start'], '개발 사례와 같은 장면')); continue
+        hit = next((k for k in sel if same_scene(th, k['th'])), None)
+        if hit:
+            dropped.append((c['video'], c['start'], f'중복 {hit["video"]}:{hit["start"]}')); continue
+        c['th'] = th; sel.append(c)
+        if len(sel) == NSEL: break
+    print('뺀 후보', len(dropped), dropped, flush=True)
     import motion_ir as M
     summary = []
     for i, c in enumerate(sorted(sel, key=lambda c: (c['video'], c['start']))):
@@ -196,7 +267,7 @@ def main():
         summary.append(dict(name=name, video=c['video'], start=c['start'], end=c['end'] - 1, frames=c['end'] - c['start'],
                             actors=len(ir['actors']), action_score=round(c['score'], 4), quality=q))
         print(name, len(ir['actors']), round(c['score'], 3), [(x['observed'], x['jitter_torso_median']) for x in q], flush=True)
-    json.dump(summary, open(f'{work}/out/summary.json', 'w'), ensure_ascii=False, indent=1)
+    json.dump(dict(segments=summary, dropped=dropped), open(f'{work}/out/summary.json', 'w'), ensure_ascii=False, indent=1)
 
 
 if __name__ == '__main__':
