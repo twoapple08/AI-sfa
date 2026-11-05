@@ -196,27 +196,32 @@ def to_pct(p, W, H):
     return [float(p[0]) / W * 100, float(p[1] - (H - vis_h) / 2) / vis_h * 100]
 
 
-def convert(c, W, H):
-    from rtmw_to_stickman_2d_v2 import run_core
-    from stickman_variants import basic_joints
+def convert(c, W, H, video=None):
+    """확정 추출 경로(stickman_clip.person_in_shot: 뼈 길이 50분위·가장자리 판정·투영 길이·머리 지름 유지)를 그대로 쓴다.
+    11-05 사용자 '비율이 nian41 10초 했던 거랑 아예 다르네': 처음 판은 run_core 기본 90분위 + basic_joints만 써서 팔다리가 약 1.3배 길고
+    머리 지름 0.50(60초판 0.74). 인물 고르기만 단계 2 추적을 넘기고, 색 무늬 그림 키(image_keys)는 개발 클립 전용이라 끈다."""
+    import stickman_clip as SC
     from stickman_clip import distance_thickness
     import facing_from_pose as FP
+    SC.SELECT.update(mode='coverage', side_rule='valid', q=50, projection=True, image_keys=False)
     frames = list(range(c['start'], c['end']))
     N = len(frames)
+    top = max(0.0, (H - W * 0.5625) / 2)
     actors, quality = [], []
     for slot, t in enumerate(c['tracks']):
-        K = np.stack([t[f][1] if f in t else np.zeros((23, 3)) for f in frames])
-        Wt = (K[:, :, 2] >= SCORE).astype(float)
-        J, S, rep, _, _ = run_core(K, Wt, frames, keys=True)
-        S = np.asarray(S, float)
-        B = basic_joints(J, S)[0]
-        B['head_t'], B['head_b'] = J['head_t'], J['head_base']
+        K = [t[f][1] if f in t else None for f in frames]
+        full, pres, rep = SC.person_in_shot({}, video, frames, 'blue', img=(W, H, top), K=K)
+        if full is None:
+            continue
+        S = np.asarray(full['_S'][:, 0], float)
+        B = {k: v for k, v in full.items() if not k.startswith('_')}
         names = ['head_t', 'head_b', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l']
         joints = {k: [to_pct(B[k][i], W, H) if np.all(np.isfinite(B[k][i])) else None for i in range(N)] for k in names}
-        th, _ = distance_thickness(S * 1152.0 / W, ((73.3, 1.0), (376.4, 5.0)))
+        Sf = np.where(np.isfinite(S), S, np.nanmedian(S))
+        th, _ = distance_thickness(Sf * 1152.0 / W, ((73.3, 1.0), (376.4, 5.0)))
         raw = [FP.yaw_of(t[f][1].tolist()) if f in t else None for f in frames]
         X = np.stack([np.asarray(B[k], float) for k in names], 1)
-        jit = np.nanmedian(np.linalg.norm(X[2:] - 2 * X[1:-1] + X[:-2], axis=2) / S[1:-1, None]) if N > 2 else 0.0
+        jit = np.nanmedian(np.linalg.norm(X[2:] - 2 * X[1:-1] + X[:-2], axis=2) / Sf[1:-1, None]) if N > 2 else 0.0
         quality.append(dict(slot=slot, observed=float(np.mean([f in t and t[f][1][list(TORSO), 2].min() >= SCORE for f in frames])),
                             torso_score_median=float(np.median([t[f][1][list(TORSO), 2].min() for f in frames if f in t])),
                             jitter_torso_median=round(float(jit), 4),
@@ -333,7 +338,7 @@ def main():
     summary = []
     for i, c in enumerate(sorted(sel, key=lambda c: (list(PREFIX).index(c['animator']), c['video'], c['start']))):
         W, H = RES[c['video']]
-        ir, q = convert(c, W, H)
+        ir, q = convert(c, W, H, f'{work}/video/{c["video"]}.mp4')
         name = f'{PREFIX[c["animator"]]}_{i + 1:02d}_{c["video"][-6:]}_{c["start"]}-{c["end"] - 1}'
         json.dump(ir, open(f'{work}/out/{name}.json', 'w'))
         M.save_sfa(M.compile_ir(ir, name=name), f'{work}/out/{name}.sfa', name)
