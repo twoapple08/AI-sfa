@@ -82,6 +82,7 @@ def compile_ir(ir, name='motion_ir', sheets=None):
     """sheets: {slot: char_sheet.read(...) 한 칸 또는 char_sheet.read_all(...) 여러 칸} — 그 인물에 캐릭터 시트 색·액세서리를 입힌다(단계 1-②).
     여러 칸이면 장마다 facing에 가장 가까운 칸을 쓴다(모르면 정면)."""
     sheets = sheets or {}
+    sim_state = {}   # 흔들리는 액세서리의 장 사이 상태(인물·액세서리별)
     from stickman_clip import person_aos
     N = ir['frames']
     parts = [f'<Sequence Name="{name}" HeightWidthRatio="{ir["aspect"]}" RatioX="16" RatioY="9" FrameCount="{N}" BackgroundColor="-1">']
@@ -121,7 +122,12 @@ def compile_ir(ir, name='motion_ir', sheets=None):
                 if 'head_b' not in Jp: Jp['head_b'] = Jp['neck']
                 body_th = (tn.get('2') if tn else None) or 1.0
                 i = xml.find('<FR ')
-                acc = CS.rig_xml(sh, fc[n], n, a['slot'], Jp, body_th) if rigged else CS.accessory_xml(sh, n, a['slot'], Jp, body_th)
+                if rigged:   # 연속 방향 + 흔들리는 망토(사슬 계산, 몸 뒤/앞 두 사본)
+                    behind, acc = CS.rig_frame(sh, fc[n], n, a['slot'], Jp, body_th, sim_state)
+                    xml = behind + xml
+                    i = xml.find('<FR ', len(behind))
+                else:
+                    acc = CS.accessory_xml(sh, n, a['slot'], Jp, body_th)
                 xml = (xml[:i] + acc + xml[i:]) if i >= 0 else xml + acc
             parts.append(xml)
         parts.append('</Frame>')

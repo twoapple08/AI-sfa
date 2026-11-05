@@ -326,3 +326,155 @@ def rig_xml(R_, yaw, n, slot, J, body_th_frame):
                          f'StartT="{0.0 if a_ == 0 else 1.0:.1f}" EndT="{0.0 if b_ == 0 else 1.0:.1f}" />' for oi, a_, b_ in ref['fill_loop'])
             out.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai}" Color="{_with_alpha(-1, alpha)}">{fs}</FR>')
     return ''.join(out)
+
+
+# ---------- 흔들리는 액세서리(망토) — 11-05 사용자: "몸을 뚫고 펄럭임이 없음" ----------
+SIM = dict(n=9, gravity=0.012, damping=0.08, shape=0.06, iters=12, wind=(0.0, 0.0), reset_jump=1.2)
+
+
+def flex_info(ref):
+    """몸통에 붙은 곡선 3개 고리 중 두 곡선이 한 끝점(위)을 나눠 가지면 망토로 본다 → 두 가장자리와 밑단.
+    v1은 이 모양만 흔든다(나머지는 단단한 부품)."""
+    objs = ref['objects']
+    if ref['bone'] != 'torso' or not ref.get('fill_loop') or len(objs) != 3 or any(o['type'] != '3' for o in objs):
+        return None
+    pairs = []
+    for a in range(3):
+        for b in range(a + 1, 3):
+            for ea in (0, 2):
+                for eb in (0, 2):
+                    if (b, eb) in [tuple(c) for c in objs[a]['pts'][ea]['conn']]:
+                        u = (objs[a]['pts'][ea]['uv'][0] + objs[b]['pts'][eb]['uv'][0]) / 2   # 몸통 축 위치(0 = 목)
+                        pairs.append((u, a, ea, b, eb))
+    if not pairs: return None
+    u, a, ea, b, eb = min(pairs)   # 목에 가장 가까운 공유 끝점 = 고정점(위)
+    return dict(edges=[(a, ea, 2 - ea), (b, eb, 2 - eb)], hem=3 - a - b)
+
+
+def _quad(p0, c, p2, t):
+    return ((1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * c[0] + t * t * p2[0], (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * c[1] + t * t * p2[1])
+
+
+def _simulate(info, P, J, state, key, n):
+    """PBD(위치 기반 동역학) 사슬 두 줄. P = 이 장의 단단한 배치(화면 %) — 목표 모양·고정점·길이의 기준.
+    중력·관성(Verlet)·감쇠·약한 모양 복원·거리 조건. 컷 등으로 고정점이 몸통 길이의 reset_jump배 넘게 뛰면 처음부터."""
+    L = math.dist(iso(J['neck']), iso(J['pelvis'])) or 1.0
+    N = SIM['n']
+    targets = []
+    for oi, top, bot in info['edges']:
+        p0, c, p2 = iso(P[(oi, top)]), iso(P[(oi, 1)]), iso(P[(oi, bot)])
+        targets.append([_quad(p0, c, p2, i / (N - 1)) for i in range(N)])
+    st = state.get(key)
+    anchor = targets[0][0]
+    if st is None or st['n'] != n - 1 or math.dist(anchor, st['anchor']) > SIM['reset_jump'] * L:
+        st = dict(X=[list(map(list, t)) for t in targets], Xp=[list(map(list, t)) for t in targets])
+    g = SIM['gravity'] * L
+    wx, wy = SIM['wind'][0] * L, SIM['wind'][1] * L
+    for s, T in enumerate(targets):
+        X, Xp = st['X'][s], st['Xp'][s]
+        for i in range(N):
+            vx, vy = (X[i][0] - Xp[i][0]) * (1 - SIM['damping']), (X[i][1] - Xp[i][1]) * (1 - SIM['damping'])
+            Xp[i] = list(X[i])
+            X[i] = [X[i][0] + vx + wx, X[i][1] + vy + g + wy]
+        rest = [math.dist(T[i], T[i + 1]) for i in range(N - 1)]
+        for _ in range(SIM['iters']):
+            X[0] = list(T[0])
+            for i in range(N - 1):
+                dx, dy = X[i + 1][0] - X[i][0], X[i + 1][1] - X[i][1]
+                d = math.hypot(dx, dy) or 1e-9
+                corr = (d - rest[i]) / d
+                if i == 0:
+                    X[i + 1][0] -= dx * corr; X[i + 1][1] -= dy * corr
+                else:
+                    X[i][0] += dx * corr / 2; X[i][1] += dy * corr / 2
+                    X[i + 1][0] -= dx * corr / 2; X[i + 1][1] -= dy * corr / 2
+            for i in range(1, N):
+                X[i][0] += SIM['shape'] * (T[i][0] - X[i][0]); X[i][1] += SIM['shape'] * (T[i][1] - X[i][1])
+        X[0] = list(T[0])
+    st.update(n=n, anchor=anchor)
+    state[key] = st
+    out = dict(P)
+    m = (N - 1) // 2
+    for (oi, top, bot), X in zip(info['edges'], st['X']):
+        p0, p2, mid = X[0], X[-1], X[m]
+        c = (2 * mid[0] - (p0[0] + p2[0]) / 2, 2 * mid[1] - (p0[1] + p2[1]) / 2)
+        out[(oi, top)], out[(oi, 1)], out[(oi, bot)] = pct(p0), pct(c), pct(p2)
+    h = info['hem']
+    # 밑단: 두 끝을 가장자리 아래 끝에, 조절점은 두 끝이 움직인 평균만큼
+    ends = {}
+    for (oi, top, bot) in info['edges']:
+        ends[(oi, bot)] = out[(oi, bot)]
+    hp = [P[(h, 0)], P[(h, 1)], P[(h, 2)]]
+    newe = []
+    for e in (0, 2):
+        q = min(ends.values(), key=lambda v: math.dist(iso(v), iso(hp[e])))
+        newe.append(q)
+    dmx = ((newe[0][0] - hp[0][0]) + (newe[1][0] - hp[2][0])) / 2; dmy = ((newe[0][1] - hp[0][1]) + (newe[1][1] - hp[2][1])) / 2
+    out[(h, 0)], out[(h, 2)], out[(h, 1)] = newe[0], newe[1], (hp[1][0] + dmx, hp[1][1] + dmy)
+    return out
+
+
+def _depth_alpha(yaw):
+    """망토 앞 사본의 불투명도: 등을 보일 때(후면 ±75° 안) 1, 정면 쪽(후면에서 105° 밖) 0, 사이는 선형. 뒤 사본 = 1 − 이 값."""
+    if yaw is None: return 0.0
+    d = abs((yaw - 180 + 180) % 360 - 180)
+    return 1.0 if d <= 75 else 0.0 if d >= 105 else (105 - d) / 30
+
+
+def rig_frame(R_, yaw, n, slot, J, body_th_frame, state):
+    """한 장·한 인물 → (몸 뒤에 그릴 XML, 몸 앞에 그릴 XML). 흔들리는 액세서리(망토)는 사슬 계산 + 뒤/앞 두 사본(앱은 '처음 나온 순서'로
+    앞뒤를 정하므로 두 사본을 첫 장부터 모두 내보내고 불투명도로 하나만 보이게). 나머지는 앞 사본만."""
+    views = R_['views']
+    have = [v for v in VIEW_ANGLE if v in views]
+    va, vb, t = _neighbors(0.0 if yaw is None else yaw, have)
+    ratio = body_th_frame / (R_['base']['body_th'] or 1)
+    back_out, front_out, k, npt = [], [], 0, 0
+    fa = _depth_alpha(yaw)
+    for ai, item in enumerate(R_['accs']):
+        A, B = item['per'].get(va), item['per'].get(vb)
+        ref = item['ref']
+        if A is not None and B is not None:
+            mix, alpha = [(A, 1 - t), (B, t)], 1.0
+        elif A is not None:
+            mix, alpha = [(A, 1.0)], max(0.0, 1 - t / 0.6)
+        elif B is not None:
+            mix, alpha = [(B, 1.0)], max(0.0, (t - 0.4) / 0.6)
+        else:
+            mix, alpha = [(ref, 1.0)], 0.0
+        frames = [(acc, w, frame_of(J, acc['bone'])) for acc, w in mix]
+        P = {}
+        for oi, o in enumerate(ref['objects']):
+            for pj, _ in enumerate(o['pts']):
+                x = y = 0.0
+                for acc, w, fr_ in frames:
+                    px, py = from_local(acc['objects'][oi]['pts'][pj]['uv'], fr_)
+                    x += w * px; y += w * py
+                P[(oi, pj)] = (x, y)
+        info = flex_info(ref)
+        if info is not None:
+            P = _simulate(info, P, J, state, (slot, ai), n)
+            copies = [(back_out, 500, alpha * (1 - fa)), (front_out, 0, alpha * fa)]
+        else:
+            copies = [(front_out, 0, alpha)]
+        for dest, base, al in copies:
+            ids = {}
+            for oi, o in enumerate(ref['objects']):
+                for pj, _ in enumerate(o['pts']):
+                    ids[(oi, pj)] = ACC_PT0 + n * 10000 + slot * 1000 + npt; npt += 1
+            k0 = base + k
+            for oi, o in enumerate(ref['objects']):
+                oid = ACC_AO0 + slot * 1000 + k0 + oi
+                s = [f'<AO ID="{oid}" TypeId="{o["type"]}" DrawOrder="{oid}" Color="{_with_alpha(o["color"], al)}" LayerId="0" ThicknessScale="{o["th"] * ratio:.3f}" '
+                     'ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">']
+                for pj, p in enumerate(o['pts']):
+                    x, y = P[(oi, pj)]
+                    s.append(f'<AP ID="{ids[(oi, pj)]}" Flags="{p["flags"]}" Index="{pj}" X="{x:.4f}" Y="{y:.4f}">'
+                             + ''.join(f'<AC ConnPtId="{ids[tuple(c)]}"/>' for c in p['conn']) + '</AP>')
+                s.append('</AO>')
+                dest.append(''.join(s))
+            if ref.get('fill_loop'):
+                fs = ''.join(f'<FS Kind="0" ObjId="{ACC_AO0 + slot * 1000 + k0 + oi}" StartPtId="{ids[(oi, a_)]}" EndPtId="{ids[(oi, b_)]}" '
+                             f'StartT="{0.0 if a_ == 0 else 1.0:.1f}" EndT="{0.0 if b_ == 0 else 1.0:.1f}" />' for oi, a_, b_ in ref['fill_loop'])
+                dest.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai + (5 if base else 0)}" Color="{_with_alpha(-1, al)}">{fs}</FR>')
+        k += len(ref['objects'])
+    return ''.join(back_out), ''.join(front_out)

@@ -161,9 +161,9 @@ class RigTurnTest(unittest.TestCase):
         out = M.compile_ir(ir, sheets={0: CS.rig(CS.read_all(str(self.SHEET)))})
         fr = out.findall('Frame')
         ids = [[a.get('ID') for a in f.findall('AO') if int(a.get('ID')) >= CS.ACC_AO0] for f in fr]
-        self.assertEqual(ids[0], ids[1]); self.assertEqual(ids[0], ids[2]); self.assertEqual(len(ids[0]), 8)
+        self.assertEqual(ids[0], ids[1]); self.assertEqual(ids[0], ids[2]); self.assertEqual(len(ids[0]), 11)   # 망토 뒤·앞 사본 3+3 + 가면 5
         frs = [x for x in fr[0].findall('FR') if x.get('ID').startswith('790')]
-        self.assertEqual(len(frs), 2)                                     # 망토·가면 둘 다 채움
+        self.assertEqual(len(frs), 3)                                     # 망토 두 사본·가면 모두 채움
         alpha = lambda c: (int(c) & 0xFFFFFFFF) >> 24
         mask = lambda f: [a for a in f.findall('AO') if int(a.get('ID')) >= CS.ACC_AO0 and (int(a.get('Color')) & 0xFFFFFF) == 0xFF0000]
         self.assertEqual({alpha(a.get('Color')) for a in mask(fr[0])}, {255})
@@ -177,6 +177,43 @@ class RigTurnTest(unittest.TestCase):
         for i in range(len(xs[0])):
             lo, hi = sorted((xs[0][i], xs[2][i]))
             self.assertTrue(lo - 1e-6 <= xs[1][i] <= hi + 1e-6)
+
+
+class CapeSimTest(unittest.TestCase):
+    SHEET = Path(__file__).resolve().parents[1] / 'data' / 'templates' / 'character_sheet_v2_example.sfa'
+
+    def compile(self, shift, facing):
+        import char_sheet as CS
+        M, root = scene()
+        ir = M.extract(root)
+        a = ir['actors'][0]
+        for v in a['joints'].values():                       # 같은 자세로 오른쪽으로 장마다 shift만큼 이동
+            for n in range(3): v[n] = [v[0][0] + shift * n, v[0][1]]
+        a['facing'] = facing
+        return CS, M.compile_ir(ir, sheets={0: CS.rig(CS.read_all(str(self.SHEET)))}).findall('Frame')
+
+    def test_cape_lags_and_depth(self):
+        """망토(11-05): 몸이 움직이면 밑단이 늦게 따라온다(관성), 고정점(목)은 따라간다. 정면 쪽은 몸 뒤 사본만, 후면 쪽은 앞 사본만 보인다.
+        뒤 사본은 인물 기본 뼈대보다 파일에서 먼저 나온다(앱 '처음 나온 순서' = 뒤)."""
+        CS, fr = self.compile(2.0, [0.0, 0.0, 180.0])
+        def cape(f, base):
+            return [a for a in f.findall('AO') if CS.ACC_AO0 + base <= int(a.get('ID')) < CS.ACC_AO0 + base + 3]
+        alpha = lambda a: (int(a.get('Color')) & 0xFFFFFFFF) >> 24
+        self.assertEqual({alpha(a) for a in cape(fr[0], 500)}, {255}); self.assertEqual({alpha(a) for a in cape(fr[0], 0)}, {0})
+        self.assertEqual({alpha(a) for a in cape(fr[2], 0)}, {255}); self.assertEqual({alpha(a) for a in cape(fr[2], 500)}, {0})
+        order = [a.get('ID') for a in fr[0].findall('AO')]
+        self.assertLess(order.index(str(CS.ACC_AO0 + 500)), order.index('4560002'))
+        xs = lambda f: [float(p.get('X')) for a in cape(f, 500) for p in a.findall('AP')]
+        moved = [x1 - x0 for x0, x1 in zip(xs(fr[0]), xs(fr[1]))]
+        self.assertAlmostEqual(max(moved), 2.0, places=2)      # 고정점(목)은 몸과 같이 2%
+        self.assertLess(min(moved), 1.9)                         # 밑단은 늦게(관성)
+
+    def test_reset_on_cut(self):
+        """컷 등으로 몸통 길이의 1.2배 넘게 뛰면 처음부터(망토가 날아가지 않는다)."""
+        CS, fr = self.compile(60.0, [0.0, 0.0, 0.0])
+        xs = lambda f: [float(p.get('X')) for a in f.findall('AO') if CS.ACC_AO0 + 500 <= int(a.get('ID')) < CS.ACC_AO0 + 503 for p in a.findall('AP')]
+        moved = [x1 - x0 for x0, x1 in zip(xs(fr[0]), xs(fr[1]))]
+        for m in moved: self.assertAlmostEqual(m, 60.0, places=2)
 
 
 if __name__ == '__main__':
