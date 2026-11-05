@@ -108,8 +108,9 @@ class CharSheetTest(unittest.TestCase):
         # 머리·가면 흰 채우기(사용자 11-05): 머리 Kind 1 + 가면 고리 Kind 0(선 5개, 고리 순서로 이어짐)
         frs = fr[0].findall('FR')
         self.assertTrue(any(x.find('FS').get('Kind') == '1' and x.get('Color') == '-1' for x in frs))
-        mask = [x for x in frs if x.find('FS').get('Kind') == '0']
-        self.assertEqual(len(mask), 1)
+        kind0 = [x for x in frs if x.find('FS').get('Kind') == '0']
+        self.assertEqual(sorted(len(x.findall('FS')) for x in kind0), [3, 5])   # 망토(곡선 3) + 가면(직선 5), 11-05 망토도 흰색
+        mask = [x for x in kind0 if len(x.findall('FS')) == 5]
         self.assertEqual(mask[0].get('Color'), '-1')
         fs = mask[0].findall('FS')
         self.assertEqual(len(fs), 5)
@@ -137,7 +138,7 @@ class FacingViewTest(unittest.TestCase):
         self.assertTrue(all(0 <= i < 100 for i in ids[0]) and len(ids[0]) == 8)
         self.assertTrue(all(100 <= i < 200 for i in ids[1]) and len(ids[1]) == 8)
         self.assertTrue(all(200 <= i < 300 for i in ids[2]) and len(ids[2]) == 3)   # 망토만
-        self.assertEqual(len([x for x in fr[2].findall('FR') if x.find('FS').get('Kind') == '0']), 0)
+        self.assertEqual(sorted(len(x.findall('FS')) for x in fr[2].findall('FR') if x.find('FS').get('Kind') == '0'), [3])   # 후면: 망토 채움만, 가면 없음
         kinds = {}
         for f in fr:
             for a in f.findall('AO'):
@@ -145,6 +146,37 @@ class FacingViewTest(unittest.TestCase):
                 self.assertEqual(kinds.setdefault(a.get('ID'), k), k)
         self.assertEqual(CS.pick_view({'정면': 'f', '우측': 'r', '후면': 'b', '좌측': 'l'}, None), 'f')
         self.assertEqual(CS.pick_view({'정면': 'f', '우측': 'r', '후면': 'b', '좌측': 'l'}, 300.0), 'l')
+
+
+class RigTurnTest(unittest.TestCase):
+    SHEET = Path(__file__).resolve().parents[1] / 'data' / 'templates' / 'character_sheet_v2_example.sfa'
+
+    def test_continuous_turn(self):
+        """연속 방향(11-05): 칸 사이는 두 칸 모양을 섞고, 후면에 없는 가면은 투명해진다. 객체 ID는 칸과 상관없이 하나이고
+        첫 장부터 항상 나온다(앱 '처음 나온 순서' 레이어 버그 방지). 망토(곡선 3개 고리)도 흰 채우기."""
+        import char_sheet as CS
+        M, root = scene()
+        ir = M.extract(root)
+        ir['actors'][0]['facing'] = [0.0, 45.0, 170.0]
+        out = M.compile_ir(ir, sheets={0: CS.rig(CS.read_all(str(self.SHEET)))})
+        fr = out.findall('Frame')
+        ids = [[a.get('ID') for a in f.findall('AO') if int(a.get('ID')) >= CS.ACC_AO0] for f in fr]
+        self.assertEqual(ids[0], ids[1]); self.assertEqual(ids[0], ids[2]); self.assertEqual(len(ids[0]), 8)
+        frs = [x for x in fr[0].findall('FR') if x.get('ID').startswith('790')]
+        self.assertEqual(len(frs), 2)                                     # 망토·가면 둘 다 채움
+        alpha = lambda c: (int(c) & 0xFFFFFFFF) >> 24
+        mask = lambda f: [a for a in f.findall('AO') if int(a.get('ID')) >= CS.ACC_AO0 and (int(a.get('Color')) & 0xFFFFFF) == 0xFF0000]
+        self.assertEqual({alpha(a.get('Color')) for a in mask(fr[0])}, {255})
+        self.assertEqual({alpha(a.get('Color')) for a in mask(fr[2])}, {0})     # 170°: 가면 사라짐(후면 쪽)
+        # 45°: 정면·우측 모양의 중간(정면 0° 결과와 다르고, 90° 결과와도 다름)
+        ir['actors'][0]['facing'] = [0.0, 45.0, 90.0]
+        for v in ir['actors'][0]['joints'].values():
+            v[1] = v[0]; v[2] = v[0]
+        o2 = M.compile_ir(ir, sheets={0: CS.rig(CS.read_all(str(self.SHEET)))}).findall('Frame')
+        xs = [[float(p.get('X')) for a in mask(f) for p in a.findall('AP')] for f in o2]
+        for i in range(len(xs[0])):
+            lo, hi = sorted((xs[0][i], xs[2][i]))
+            self.assertTrue(lo - 1e-6 <= xs[1][i] <= hi + 1e-6)
 
 
 if __name__ == '__main__':

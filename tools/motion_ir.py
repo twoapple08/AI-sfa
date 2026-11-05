@@ -112,15 +112,16 @@ def compile_ir(ir, name='motion_ir', sheets=None):
             sh = sheets.get(a['slot'])
             if sh is not None:
                 import char_sheet as CS
-                if 'joints' not in sh:   # 여러 칸(read_all) → 이 장의 몸 방향에 맞는 칸(가면 방향 2/3)
-                    fc = a.get('facing') or [None] * N
+                fc = a.get('facing') or [None] * N
+                rigged = 'accs' in sh                       # CS.rig(read_all(...)): 연속 방향(칸 사이를 섞음)
+                if not rigged and 'joints' not in sh:       # 여러 칸(read_all) → 이 장의 몸 방향에 맞는 칸(가면 방향 2/3)
                     sh = CS.pick_view(sh, fc[n])
-                xml = xml.replace(f'Color="{LINE_COLOR[color]}"', f'Color="{sh["body_color"]}"')
+                xml = xml.replace(f'Color="{LINE_COLOR[color]}"', f'Color="{(sh["base"] if rigged else sh)["body_color"]}"')
                 Jp = {k: tuple(v[n]) for k, v in a['joints'].items() if v[n] is not None}
                 if 'head_b' not in Jp: Jp['head_b'] = Jp['neck']
                 body_th = (tn.get('2') if tn else None) or 1.0
                 i = xml.find('<FR ')
-                acc = CS.accessory_xml(sh, n, a['slot'], Jp, body_th)
+                acc = CS.rig_xml(sh, fc[n], n, a['slot'], Jp, body_th) if rigged else CS.accessory_xml(sh, n, a['slot'], Jp, body_th)
                 xml = (xml[:i] + acc + xml[i:]) if i >= 0 else xml + acc
             parts.append(xml)
         parts.append('</Frame>')

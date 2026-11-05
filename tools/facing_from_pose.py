@@ -100,3 +100,49 @@ def apply(ir, R, frame0, sx=11.52, sy=6.48, oy=63.0, max_dist=120.0):
         rep[a['slot']] = dict(raw=dict(Counter(raw)), final=dict(Counter(fin)),
                               switches=sum(1 for x, y in zip(fin, fin[1:]) if x != y))
     return rep
+
+
+def continuous(ir, R, frame0, sx=11.52, sy=6.48, oy=63.0, max_dist=120.0, win=3, max_step=40.0, hold=12):
+    """연속 각도(도)로 facing을 채운다(11-05 사용자: 칸 사이 없이 갑자기 바뀜 → 칸 사이를 섞어 돌기).
+    장별 각도 → 앞뒤 win장 원형 평균 → 한 장 회전 상한 max_step(후면↔정면 같은 포즈 추정 좌우 뒤집힘도 몇 장에 걸쳐 돈다)
+    → 자료 없는 장은 hold장까지 앞 값 유지."""
+    rep = {}
+    for a in ir['actors']:
+        raw = []
+        for n in range(ir['frames']):
+            nk = a['joints']['neck'][n]
+            if nk is None:
+                raw.append(None); continue
+            px = (nk[0] * sx, nk[1] * sy + oy)
+            best, bd = None, max_dist
+            for k in R.get(frame0 + n, []):
+                if min(k[L_SH][2], k[R_SH][2]) < MIN_SCORE: continue
+                m = ((k[L_SH][0] + k[R_SH][0]) / 2, (k[L_SH][1] + k[R_SH][1]) / 2)
+                d = math.dist(px, m)
+                if d < bd: best, bd = k, d
+            raw.append(yaw_of(best) if best else None)
+        sm = []
+        for i in range(len(raw)):
+            w = [v for v in raw[max(0, i - win):i + win + 1] if v is not None]
+            if not w:
+                sm.append(None); continue
+            cx = sum(math.cos(math.radians(v)) for v in w); cy = sum(math.sin(math.radians(v)) for v in w)
+            sm.append(None if math.hypot(cx, cy) < 1e-6 else math.degrees(math.atan2(cy, cx)) % 360)
+        out, cur, gap = [], None, 0
+        for v in sm:
+            if v is None:
+                gap += 1
+                out.append(cur if gap <= hold else None)
+                if gap > hold: cur = None
+                continue
+            gap = 0
+            if cur is None:
+                cur = v
+            else:
+                d = (v - cur + 180) % 360 - 180
+                cur = (cur + max(-max_step, min(max_step, d))) % 360
+            out.append(round(cur, 2))
+        a['facing'] = out
+        jumps = [abs((y - x + 180) % 360 - 180) for x, y in zip(out, out[1:]) if x is not None and y is not None]
+        rep[a['slot']] = dict(known=sum(v is not None for v in out), max_step=max(jumps or [0]), mean_step=round(sum(jumps) / max(len(jumps), 1), 2))
+    return rep

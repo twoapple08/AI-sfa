@@ -121,21 +121,26 @@ def seg_dist(p, a, b):
 
 
 def closed_loop(objs):
-    """직선 묶음이 닫힌 고리면 [(객체 번호, 시작 점 번호, 끝 점 번호)]를 고리 순서로, 아니면 None."""
-    if not objs or any(o['type'] != '1' or len(o['pts']) != 2 for o in objs): return None
+    """직선(점 2개)·곡선(점 3개) 묶음이 끝점끼리 닫힌 고리면 [(객체 번호, 시작 끝점 번호, 끝 끝점 번호)]를 고리 순서로, 아니면 None.
+    (11-05: 망토는 곡선 3개 고리 — 직선만 찾던 처음 판에서 빠져 흰 채우기가 안 됐다)"""
+    if not objs or any(not ((o['type'] == '1' and len(o['pts']) == 2) or (o['type'] == '3' and len(o['pts']) == 3)) for o in objs):
+        return None
+    last = lambda oi: len(objs[oi]['pts']) - 1
     nxt = {}
     for oi, o in enumerate(objs):
-        for pj, p in enumerate(o['pts']):
-            for c in p['conn']:
+        for pj in (0, last(oi)):
+            for c in o['pts'][pj]['conn']:
                 nxt.setdefault((oi, pj), set()).add(tuple(c))
     order, cur, used = [], (0, 0), set()
     for _ in range(len(objs)):
         oi, pj = cur
         if oi in used: return None
-        used.add(oi); order.append((oi, pj, 1 - pj))
-        ends = [c for c in nxt.get((oi, 1 - pj), ()) if c[0] not in used or (len(used) == len(objs) and c[0] == 0)]
+        other = last(oi) if pj == 0 else 0
+        used.add(oi); order.append((oi, pj, other))
+        nx = nxt.get((oi, other), ())
         if len(used) == len(objs):
-            return order if any(c[0] == 0 for c in nxt.get((oi, 1 - pj), ())) else None
+            return order if any(c[0] == 0 for c in nx) else None
+        ends = [c for c in nx if c[0] not in used and c[1] in (0, last(c[0]))]
         if not ends: return None
         cur = ends[0]
     return None
@@ -175,7 +180,7 @@ def read(path, view='정면'):
                                   for p in a.findall('AP')]))
         loop = closed_loop(objs)
         # 흰 채우기(사용자 11-05 "가면이랑 머리에 하얀색 칠 — 중요"): 머리에 붙은 닫힌 모양(가면)은 안을 흰색으로
-        acc.append(dict(bone=bone, objects=objs, fill_loop=loop if (loop and bone == 'head') else None))
+        acc.append(dict(bone=bone, objects=objs, fill_loop=loop))   # 닫힌 모양(가면·망토)은 흰 채우기(사용자 11-05)
     body = lines[0]
     return dict(view=view, joints=J, body_color=body.get('Color'), body_th=float(body.get('ThicknessScale')),
                 head_fill=any(fs.get('ObjId') == head.get('ID') for x in f.findall('FR') for fs in x.findall('FS')),
@@ -231,6 +236,93 @@ def accessory_xml(sheet, n, slot, J, body_th_frame):
             out.append(''.join(s))
         if acc.get('fill_loop'):
             fs = ''.join(f'<FS Kind="0" ObjId="{ACC_AO0 + slot * 1000 + k0 + oi}" StartPtId="{ids[(oi, a_)]}" EndPtId="{ids[(oi, b_)]}" '
-                         f'StartT="{float(a_):.1f}" EndT="{float(b_):.1f}" />' for oi, a_, b_ in acc['fill_loop'])
+                         f'StartT="{0.0 if a_ == 0 else 1.0:.1f}" EndT="{0.0 if b_ == 0 else 1.0:.1f}" />' for oi, a_, b_ in acc['fill_loop'])
             out.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai}" Color="-1">{fs}</FR>')
+    return ''.join(out)
+
+
+# ---------- 연속 방향(11-05 사용자: "도는 모션 없이 갑자기 사라짐", "시트에서 준 그 사이가 없음", 레이어 버그) ----------
+def _shape_key(acc):
+    return (acc['bone'], tuple((o['type'], len(o['pts'])) for o in acc['objects']))
+
+
+def rig(views):
+    """칸별 액세서리를 하나의 대응 묶음으로. 기준 = 정면 칸(없으면 첫 칸). 다른 칸에서 같은 부위·같은 구조인 것을 짝으로.
+    짝이 없는 칸(예: 후면의 가면)은 None → 그 방향 쪽으로 갈수록 투명해진다."""
+    base_name = '정면' if '정면' in views else next(iter(views))
+    base = views[base_name]
+    out = []
+    for acc in base['accessories']:
+        per = {}
+        for v, sh in views.items():
+            cand = [a for a in sh['accessories'] if _shape_key(a) == _shape_key(acc)]
+            per[v] = cand[0] if cand else None
+        out.append(dict(per=per, ref=acc))
+    return dict(views=views, base=base, accs=out)
+
+
+def _neighbors(yaw, have):
+    """yaw(도)를 사이에 둔 두 칸과 비율 t(0 = 앞 칸, 1 = 뒤 칸)."""
+    angs = sorted(VIEW_ANGLE[v] for v in have)
+    y = yaw % 360
+    for i, a in enumerate(angs):
+        b = angs[(i + 1) % len(angs)] + (360 if i + 1 == len(angs) else 0)
+        yy = y if y >= a else y + 360
+        if a <= yy <= b:
+            t = 0.0 if b == a else (yy - a) / (b - a)
+            name = {VIEW_ANGLE[v]: v for v in have}
+            return name[a], name[b % 360], t
+    return have[0], have[0], 0.0
+
+
+def _with_alpha(color, alpha):
+    c = int(color) & 0xFFFFFFFF
+    a = int(round(((c >> 24) & 255) * max(0.0, min(1.0, alpha))))
+    v = (a << 24) | (c & 0xFFFFFF)
+    return v - (1 << 32) if v >= (1 << 31) else v
+
+
+def rig_xml(R_, yaw, n, slot, J, body_th_frame):
+    """연속 방향 액세서리: 두 이웃 칸의 국소 좌표를 비율로 섞는다. 한쪽에만 있으면 그쪽에서 멀어질수록 투명(t 0.6에서 0).
+    객체 ID는 칸과 상관없이 하나(첫 장부터 항상 내보내 앱의 '처음 나온 순서'가 인물 바로 뒤로 고정 — 레이어 버그 수정)."""
+    views = R_['views']
+    have = [v for v in VIEW_ANGLE if v in views]
+    va, vb, t = _neighbors(0.0 if yaw is None else yaw, have)
+    ratio = body_th_frame / (R_['base']['body_th'] or 1)
+    out, k, npt = [], 0, 0
+    for ai, item in enumerate(R_['accs']):
+        A, B = item['per'].get(va), item['per'].get(vb)
+        ref = item['ref']
+        if A is not None and B is not None:
+            mix, alpha = [(A, 1 - t), (B, t)], 1.0
+        elif A is not None:
+            mix, alpha = [(A, 1.0)], max(0.0, 1 - t / 0.6)
+        elif B is not None:
+            mix, alpha = [(B, 1.0)], max(0.0, (t - 0.4) / 0.6)
+        else:
+            mix, alpha = [(ref, 1.0)], 0.0
+        frames = [(acc, w, frame_of(J, acc['bone'])) for acc, w in mix]
+        ids = {}
+        for oi, o in enumerate(ref['objects']):
+            for pj, _ in enumerate(o['pts']):
+                ids[(oi, pj)] = ACC_PT0 + n * 10000 + slot * 1000 + npt; npt += 1
+        k0 = k
+        for oi, o in enumerate(ref['objects']):
+            oid = ACC_AO0 + slot * 1000 + k; k += 1
+            col = _with_alpha(o['color'], alpha)
+            s = [f'<AO ID="{oid}" TypeId="{o["type"]}" DrawOrder="{oid}" Color="{col}" LayerId="0" ThicknessScale="{o["th"] * ratio:.3f}" '
+                 'ObjectScale="1.0" GlowRadius="0" GlowThickness="0" GlowColor="4294967295" GlowAlpha="0">']
+            for pj, p in enumerate(o['pts']):
+                x = y = 0.0
+                for acc, w, fr_ in frames:
+                    px, py = from_local(acc['objects'][oi]['pts'][pj]['uv'], fr_)
+                    x += w * px; y += w * py
+                s.append(f'<AP ID="{ids[(oi, pj)]}" Flags="{p["flags"]}" Index="{pj}" X="{x:.4f}" Y="{y:.4f}">'
+                         + ''.join(f'<AC ConnPtId="{ids[tuple(c)]}"/>' for c in p['conn']) + '</AP>')
+            s.append('</AO>')
+            out.append(''.join(s))
+        if ref.get('fill_loop'):
+            fs = ''.join(f'<FS Kind="0" ObjId="{ACC_AO0 + slot * 1000 + k0 + oi}" StartPtId="{ids[(oi, a_)]}" EndPtId="{ids[(oi, b_)]}" '
+                         f'StartT="{0.0 if a_ == 0 else 1.0:.1f}" EndT="{0.0 if b_ == 0 else 1.0:.1f}" />' for oi, a_, b_ in ref['fill_loop'])
+            out.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai}" Color="{_with_alpha(-1, alpha)}">{fs}</FR>')
     return ''.join(out)
