@@ -35,6 +35,7 @@ VIDEOS = {   # post_id: (원본 폭, 높이) — X 영상은 docs/COORDINATION-2
 DEV_CLIP = '1913231262086463573'
 PREFIX = {'nian41': 'n41', 'yutaka_nakamura': 'nkm'}
 LOW_PRIORITY = {'302394'}   # 나카무라 비질란테: 기본 중요도 낮음(AGENTS.md) — 채우기에서 뺀다
+EASY = dict(torso=25.0, inferred=0.30, arm=0.10)   # --easy(사용자 11-05 '추천대로' B): 몸통 세로 중앙값 < 화면 25%, 예상 다리 장 ≤ 30%, 팔 숨김 장 ≤ 10%
 ARM_HIDDEN_MAX = 0.25       # 변환 뒤 팔 조각(3–6) 둘 이상 숨은 장 비율 상한: 얼굴 근접 컷(40후보 중 잘못 9개 중 6개 ≥0.25, 쓸 만함 26개는 최대 0.17)
 MIN_ACT = 0.05             # 액션 점수 하한: 서 있기만 하는 구간 제외(11-05 4차 시트 12·14·20, 0.007–0.02)
 
@@ -421,6 +422,8 @@ def main():
     """사용: stage2_extract.py <작업 폴더> [N] [--fill 애니메이터 ...]
     nian41에서 먼저 고르고, N에 못 미치면 --fill 애니메이터(예: yutaka_nakamura, 사용자 11-05 "부족하면 나카무라쪽도") 후보로 채운다."""
     args = sys.argv[1:]
+    easy = '--easy' in args
+    args = [a for a in args if a != '--easy']
     fill = args[args.index('--fill') + 1:] if '--fill' in args else []
     pos = args[:args.index('--fill')] if '--fill' in args else args
     work = pos[0]; NSEL = int(pos[1]) if len(pos) > 1 else 30
@@ -445,7 +448,7 @@ def main():
             print(animator, vid, '장', n, '컷', len(cl) - 1, '후보', len(cs), [round(c['score'], 3) for c in cs], flush=True)
             allc += cs
         for c in sorted(allc, key=lambda c: (-c['score'], -RES[c['video']][0])):   # 같은 점수면 해상도 높은 쪽 먼저
-            if len(sel) == NSEL * 2: break
+            if len(sel) == NSEL * (4 if easy else 2): break
             th = seg_thumbs(work, c)
             if same_scene(th, dev):
                 dropped.append((c['video'], c['start'], '개발 사례와 같은 장면')); continue
@@ -455,7 +458,7 @@ def main():
                 dropped.append((c['video'], c['start'], f'중복 {hit["video"]}:{hit["start"]}')); continue
             c['th'], c['ps'] = th, ps; sel.append(c)
         print(animator, '까지 고름(변환 전 후보)', len(sel), flush=True)
-        if len(sel) >= NSEL * 2: break
+        if len(sel) >= NSEL * (4 if easy else 2): break
     import motion_ir as M
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     excl = {}
@@ -475,6 +478,13 @@ def main():
         arm = sum(len({3, 4, 5, 6} & set(x)) >= 2 for x in h) / max(len(h), 1)
         if arm >= ARM_HIDDEN_MAX:
             dropped.append((c['video'], c['start'], f'팔 숨김 {arm:.2f} ≥ {ARM_HIDDEN_MAX}(근접 컷)')); continue
+        if easy:
+            J = ir['actors'][0]['joints']
+            T = [abs(n_[1] - p_[1]) for n_, p_ in zip(J['neck'], J['pelvis']) if n_ and p_]
+            tmed = sorted(T)[len(T) // 2] if T else 99
+            inf = sum(bool(x) for x in ir['actors'][0].get('inferred', [])) / max(len(h), 1)
+            if tmed >= EASY['torso'] or inf > EASY['inferred'] or arm > EASY['arm']:
+                dropped.append((c['video'], c['start'], f'쉬운 장면 아님(몸통 {tmed:.0f}% · 예상 다리 {inf:.2f} · 팔 숨김 {arm:.2f})')); continue
         ep = f'{root}/data/stage2/edits/{c["video"]}_{c["start"]}.json'
         if os.path.exists(ep):                 # 원본 눈 판정 수정(구간별)
             ed = json.load(open(ep, encoding='utf-8'))
