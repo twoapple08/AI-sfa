@@ -19,12 +19,11 @@ namespace SfaViewer
         // 첫 화면
         readonly Panel home = new() { Dock = DockStyle.Fill, AutoScroll = true, BackColor = Theme.Bg };
         readonly TextLabel homeTitle = new(Theme.Black(30), Theme.Orange, ContentAlignment.MiddleCenter) { Text = "SFA VIEWER" };
-        readonly TextLabel homeSub = new(Theme.Regular(10), Theme.Sub, ContentAlignment.MiddleCenter) { Text = "Stick Fighter 애니메이션 만들기 · 미리보기 · 내보내기  (파일을 끌어다 놓아도 됩니다)" };
+        readonly TextLabel homeSub = new(Theme.Regular(10), Theme.Sub, ContentAlignment.MiddleCenter) { Text = "Stick Fighter 애니메이션 미리보기 · 내보내기  (파일을 끌어다 놓아도 됩니다)" };
         readonly CardPanel pillBg = new() { Radius = 26 };
         readonly PillButton pill = new("최근 파일") { Fill = Color.White, Fore = Theme.Text, Cursor = Cursors.Default };
         readonly TextLabel empty = new(Theme.Regular(11), Theme.Sub, ContentAlignment.MiddleCenter) { Text = "아래 + 버튼으로 SFA 파일을 여세요" };
         readonly IconButton fab = new(IconKind.Plus) { Color = Color.White, Fill = Theme.Orange, Size = new Size(Theme.P(68), Theme.P(68)) };
-        readonly PillButton makeBtn = new("1v1 만들기") { Fill = Theme.Orange, Fore = Color.White };
         readonly Control homeSpacer = new() { Size = new Size(1, 1) }; // 마지막 카드 아래 여유(+ 버튼에 가리지 않게 스크롤 범위를 늘림)
         readonly List<RecentCard> cards = new();
         // 플레이어
@@ -58,7 +57,7 @@ namespace SfaViewer
         {
             Text = "SFA 뷰어"; Width = Theme.P(1280); Height = Theme.P(860); MinimumSize = new Size(Theme.P(340), Theme.P(380)); BackColor = Theme.Bg; KeyPreview = true;
             try { Icon = new Icon(typeof(MainForm).Assembly.GetManifestResourceStream("SfaViewer.app.ico")); } catch { }
-            home.Controls.AddRange(new Control[] { homeTitle, homeSub, makeBtn, pillBg, empty, homeSpacer });
+            home.Controls.AddRange(new Control[] { homeTitle, homeSub, pillBg, empty, homeSpacer });
             pillBg.Controls.Add(pill);
             Controls.Add(fab); Controls.Add(player); Controls.Add(home);
             player.Controls.AddRange(new Control[] { backBtn, title, openIcon, exportIcon, fpsBtn, view, frameLabel, timeLabel, seek, prevBtn, playBtn, nextBtn, status, infoCard });
@@ -67,7 +66,6 @@ namespace SfaViewer
             player.Resize += (_, _) => LayoutPlayer();
 
             fab.Click += (_, _) => PickFile();
-            makeBtn.Click += (_, _) => AskCreate();
             openIcon.Click += (_, _) => PickFile();
             backBtn.Click += (_, _) => GoHome();
             playBtn.Click += (_, _) => TogglePlay();
@@ -118,7 +116,7 @@ namespace SfaViewer
             cards.Clear();
             foreach (var r in Recent.Load())
             {
-                var card = new RecentCard(r, Path.Combine(CacheDir, "thumbs", r.Key + ".jpg"));
+                var card = new RecentCard(r, Path.Combine(CacheDir, "thumbs_v12", r.Key + ".jpg"));
                 card.Open += () => { if (File.Exists(r.Path)) _ = LoadFile(r.Path); else { MessageBox.Show(this, "파일을 찾을 수 없습니다:\n" + r.Path, "SFA 뷰어"); Recent.Forget(r.Path); BuildCards(); } };
                 card.Remove += () => { Recent.Forget(r.Path); BuildCards(); };
                 cards.Add(card); home.Controls.Add(card);
@@ -151,7 +149,6 @@ namespace SfaViewer
             bool showSub = W >= P(420);
             homeSub.Visible = showSub;
             if (showSub) { homeSub.SetBounds(0, y, W, P(24)); y += P(compact ? 30 : 46); }
-            makeBtn.SetBounds((W - P(200)) / 2, y, P(200), P(46)); y += P(compact ? 58 : 66);
             pillBg.SetBounds((W - P(170)) / 2, y, P(170), P(54)); pill.SetBounds(P(5), P(5), P(160), P(44)); y += P(compact ? 66 : 78);
             empty.SetBounds(0, y + P(30), W, P(30));
             int side = P(compact ? 14 : 24), gap = P(compact ? 14 : 22);
@@ -314,7 +311,7 @@ namespace SfaViewer
             tl = new Timeline(d.FrameCount, tween, play);
             fpsBtn.Text = $"{tween}, {play}"; fpsBtn.Invalidate();
             string how = tl.Interp ? $"보간 {tl.Fps}fps · 원본 {d.FrameCount}프레임 → {tl.Count}프레임" : $"보간 없음 · {tl.Fps}fps";
-            info.Text = $"{d.FrameCount}프레임 · {d.FrameCount / (double)play:F1}초 ({how})\n1920×{(int)Math.Round(1920 * d.Ratio)} · 오브젝트 {d.ObjCount:N0}개\n{loadMsg}";
+            info.Text = $"{d.FrameCount}프레임 · {d.FrameCount / (double)play:F1}초 ({how})\n1920×{(int)Math.Round(1920 * d.Ratio)} · 오브젝트 {d.ObjCount:N0}개{(d.InvalidFillSegs > 0 ? $" · 잘못된 채움 경계 {d.InvalidFillSegs:N0}개(그리지 않음)" : "")}\n{loadMsg}";
             seek.Maximum = Math.Max(tl.Count - 1, 0);
             int j = Math.Clamp((int)(pos * tl.Count), 0, Math.Max(tl.Count - 1, 0));
             LayoutPlayer();
@@ -383,7 +380,7 @@ namespace SfaViewer
         {
             try
             {
-                string f = Path.Combine(CacheDir, "thumbs", key + ".jpg");
+                string f = Path.Combine(CacheDir, "thumbs_v12", key + ".jpg"); // v1.2: 옛 미리보기(채움 검사 전)를 다시 쓰지 않게 새 폴더
                 if (jpg == null || (File.Exists(f) && !overwrite)) return;
                 Directory.CreateDirectory(Path.GetDirectoryName(f));
                 using var ms = new MemoryStream(jpg); using var src = new Bitmap(ms);

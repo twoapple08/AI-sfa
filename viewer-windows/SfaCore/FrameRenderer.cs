@@ -122,7 +122,7 @@ namespace SfaCore
                 {
                     if (d.SCont[k] != 0) continue;
                     outer++;
-                    int o = d.SObj[k]; if (o < 0 || !paired.Contains(d.OId[o])) return false;
+                    int o = d.SObj[k]; if (!d.SValid[k] || o < 0 || !paired.Contains(d.OId[o])) return false;
                 }
                 return outer > 0;
             }
@@ -132,7 +132,7 @@ namespace SfaCore
                 for (int k = d.FlSegStart[fl]; k < d.FlSegStart[fl] + d.FlSegCount[fl]; k++)
                 {
                     int o = d.SObj[k];
-                    b.Append(d.SCont[k]).Append(':').Append(o < 0 ? "*" : d.OId[o].ToString());
+                    b.Append(d.SCont[k]).Append(':').Append(o < 0 ? "*" : d.OId[o].ToString()).Append(':').Append(d.SKind[k]).Append(':').Append(d.SValid[k]);
                     if (withT) b.Append(':').Append(d.ST0[k].ToString("R")).Append(':').Append(d.ST1[k].ToString("R"));
                     b.Append(';');
                 }
@@ -250,6 +250,7 @@ namespace SfaCore
             for (int k = s0; k < s0 + d.FlSegCount[fl]; k++)
             {
                 if (d.SCont[k] != cont) continue;
+                if (!d.SValid[k]) return false; // 잘못된 경계(종류 없음·다른 객체 점 등)가 든 윤곽은 그리지 않는다(v1.2, 모바일 1.1과 같음)
                 int o = d.SObj[k]; if (o < 0) continue;
                 float t0 = SegT0(k), t1 = SegT1(k);
                 if (d.OType[o] == 3) { t0 = Math.Clamp(t0, 0, 1); t1 = Math.Clamp(t1, 0, 1); if (Math.Abs(t1 - t0) <= 1e-6f) continue; }

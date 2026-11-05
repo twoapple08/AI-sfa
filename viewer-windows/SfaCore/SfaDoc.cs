@@ -22,8 +22,9 @@ namespace SfaCore
         public int[] PIdx; // AP Index: 보간 때 점 대응
         public int FillCount; public int[] FlColor, FlSegStart, FlSegCount;
         public int SegCount; public int[] SObj, SCont; public float[] ST0, ST1;
+        public sbyte[] SKind; public bool[] SValid; public int InvalidFillSegs; // FS Kind(0 경계·1 원 전체·−1 없음/모름)과 유효성(모바일 1.1과 같은 검사, v1.2)
 
-        const int Magic = 0x53464131, Version = 3;
+        const int Magic = 0x53464131, Version = 4; // 4: FS Kind·유효성 추가(v1.2) — 옛 캐시(잘못된 채움 그림)는 다시 만든다
 
         public void Write(Stream s)
         {
@@ -38,6 +39,7 @@ namespace SfaCore
             w.Write(PtCount); WF(w, Px); WF(w, Py); WI(w, PIdx);
             w.Write(FillCount); WI(w, FlColor); WI(w, FlSegStart); WI(w, FlSegCount);
             w.Write(SegCount); WI(w, SObj); WF(w, ST0); WF(w, ST1); WI(w, SCont);
+            foreach (var k in SKind) w.Write(k); foreach (var v in SValid) w.Write(v);
         }
 
         public static SfaDoc Read(Stream s)
@@ -54,6 +56,8 @@ namespace SfaCore
             int p = d.PtCount = r.ReadInt32(); d.Px = RF(r, p); d.Py = RF(r, p); d.PIdx = RI(r, p);
             int f = d.FillCount = r.ReadInt32(); d.FlColor = RI(r, f); d.FlSegStart = RI(r, f); d.FlSegCount = RI(r, f);
             int g = d.SegCount = r.ReadInt32(); d.SObj = RI(r, g); d.ST0 = RF(r, g); d.ST1 = RF(r, g); d.SCont = RI(r, g);
+            d.SKind = new sbyte[g]; for (int i = 0; i < g; i++) d.SKind[i] = r.ReadSByte();
+            d.SValid = new bool[g]; for (int i = 0; i < g; i++) d.SValid[i] = r.ReadBoolean();
             return d;
         }
 
@@ -68,6 +72,7 @@ namespace SfaCore
         sealed class LB { public byte[] A = new byte[1024]; public int N; public void Add(byte v) { if (N == A.Length) Array.Resize(ref A, N * 2); A[N++] = v; } public byte[] Trim() { var r = new byte[N]; Array.Copy(A, r, N); return r; } }
 
         static long L(string s, long d) => s == null ? d : long.TryParse(s, out var v) ? v : double.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var x) ? (long)x : d;
+        static float FT(string s, float d) => s == null ? d : float.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : float.NaN; // T: 없으면 기본값, 읽을 수 없으면 NaN(무효)
         static float F(string s, float d) => s == null ? d : float.TryParse(s, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : d;
 
         public static SfaDoc Parse(Stream sfa, Action<long> progress = null)
@@ -87,7 +92,8 @@ namespace SfaCore
             LI oPS = new(); LB oPC = new(); LI oGroup = new(); LI oId = new();
             LF px = new(), py = new(); LI pIdx = new();
             LI flColor = new(), flSS = new(), flSC = new();
-            LI sObj = new(), sCont = new(); LF sT0 = new(), sT1 = new();
+            LI sObj = new(), sCont = new(); LF sT0 = new(), sT1 = new(); LB sKind = new(), sValid = new();
+            var pendingStart = new List<long>(); var pendingEnd = new List<long>();
             var aoIdToLocal = new Dictionary<long, int>(); var apIdToLocal = new Dictionary<long, int>();
             var acFrom = new List<int>(); var acTo = new List<long>(); var pendingSeg = new List<long>();
             int frameObj0 = 0, frameFill0 = 0, frameSeg0 = 0, frameLayer0 = 0, curObj = -1, curApOwner = -1;
@@ -99,8 +105,42 @@ namespace SfaCore
                 {
                     int n = oType.N - frameObj0;
                     for (int k = 0; k < pendingSeg.Count; k++)
-                        sObj.A[frameSeg0 + k] = aoIdToLocal.TryGetValue(pendingSeg[k], out var loc) ? frameObj0 + loc : -1;
-                    pendingSeg.Clear();
+                    {
+                        int seg = frameSeg0 + k;
+                        bool has = aoIdToLocal.TryGetValue(pendingSeg[k], out var loc);
+                        int obj = has ? frameObj0 + loc : -1;
+                        sObj.A[seg] = obj;
+                        if (obj < 0) continue;
+                        // 모바일 1.1과 같은 검사(docs/SFA-VIEWER-1.1-2026-11-03.md): 종류 누락을 원 전체 채움으로 보완하지 않는다.
+                        int type = oType.A[obj], count = oPC.A[obj];
+                        bool valid;
+                        switch ((sbyte)sKind.A[seg])
+                        {
+                            case 1: valid = type == 2 && count >= 2; break;
+                            case 0:
+                            {
+                                float t0 = sT0.A[seg], t1 = sT1.A[seg]; long st = pendingStart[k], en = pendingEnd[k];
+                                valid = type >= 1 && type <= 3 && count >= (type == 3 ? 3 : 2) && float.IsFinite(t0) && float.IsFinite(t1) && Math.Abs(t1 - t0) > 1e-6f
+                                        && (st < 0 || (apIdToLocal.TryGetValue(st, out var so) && so == loc)) && (en < 0 || (apIdToLocal.TryGetValue(en, out var eo) && eo == loc));
+                                break;
+                            }
+                            default: valid = false; break;
+                        }
+                        sValid.A[seg] = (byte)(valid ? 1 : 0);
+                        if ((sbyte)sKind.A[seg] == 1) { sT0.A[seg] = 0; sT1.A[seg] = 1; }
+                    }
+                    pendingSeg.Clear(); pendingStart.Clear(); pendingEnd.Clear();
+                    // 윤곽 하나가 부적합하면 그 윤곽 전체를 생략한다. 원 전체 조각은 단독이어야 한다(AOT-FILL-PATH).
+                    for (int fl = frameFill0; fl < flColor.N; fl++)
+                    {
+                        var groups = new Dictionary<int, List<int>>();
+                        for (int k = flSS.A[fl]; k < flSS.A[fl] + flSC.A[fl]; k++) { if (!groups.TryGetValue(sCont.A[k], out var lst)) groups[sCont.A[k]] = lst = new List<int>(); lst.Add(k); }
+                        foreach (var kv in groups)
+                        {
+                            bool bad = kv.Key < 0 || kv.Value.Exists(k => sValid.A[k] == 0) || (kv.Value.Count > 1 && kv.Value.Exists(k => (sbyte)sKind.A[k] == 1));
+                            if (bad) foreach (var k in kv.Value) sValid.A[k] = 0;
+                        }
+                    }
                     var parent = new int[n]; for (int i = 0; i < n; i++) parent[i] = i;
                     int Find(int a) { while (parent[a] != a) { parent[a] = parent[parent[a]]; a = parent[a]; } return a; }
                     for (int k = 0; k < acFrom.Count; k++)
@@ -156,7 +196,10 @@ namespace SfaCore
                         if (flColor.N > frameFill0)
                         {
                             sObj.Add(0); sCont.Add((int)L(x.GetAttribute("Contour"), 0)); pendingSeg.Add(L(x.GetAttribute("ObjId"), -1));
-                            sT0.Add(F(x.GetAttribute("StartT"), 0)); sT1.Add(F(x.GetAttribute("EndT"), 1)); flSC.A[flColor.N - 1]++;
+                            sT0.Add(FT(x.GetAttribute("StartT"), 0)); sT1.Add(FT(x.GetAttribute("EndT"), 1)); flSC.A[flColor.N - 1]++;
+                            long kind = L(x.GetAttribute("Kind"), -1);
+                            sKind.Add((byte)(sbyte)(kind == 0 || kind == 1 ? kind : -1)); sValid.Add(0);
+                            pendingStart.Add(L(x.GetAttribute("StartPtId"), -1)); pendingEnd.Add(L(x.GetAttribute("EndPtId"), -1));
                         }
                         break;
                 }
@@ -169,6 +212,9 @@ namespace SfaCore
             d.PtCount = px.N; d.Px = px.Trim(); d.Py = py.Trim(); d.PIdx = pIdx.Trim();
             d.FillCount = flColor.N; d.FlColor = flColor.Trim(); d.FlSegStart = flSS.Trim(); d.FlSegCount = flSC.Trim();
             d.SegCount = sT0.N; d.SObj = sObj.Trim(); d.ST0 = sT0.Trim(); d.ST1 = sT1.Trim(); d.SCont = sCont.Trim();
+            var kb = sKind.Trim(); d.SKind = new sbyte[kb.Length]; for (int i = 0; i < kb.Length; i++) d.SKind[i] = (sbyte)kb[i];
+            var vb = sValid.Trim(); d.SValid = new bool[vb.Length]; for (int i = 0; i < vb.Length; i++) d.SValid[i] = vb[i] != 0;
+            d.InvalidFillSegs = 0; foreach (var v in d.SValid) if (!v) d.InvalidFillSegs++;
             return d;
         }
 

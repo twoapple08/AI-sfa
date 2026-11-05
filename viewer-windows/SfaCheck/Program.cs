@@ -7,7 +7,7 @@ using SkiaSharp;
 var sw = Stopwatch.StartNew();
 SfaDoc d;
 using (var f = File.OpenRead(args[0])) d = SfaDoc.Parse(f);
-Console.WriteLine($"parse {sw.ElapsedMilliseconds}ms frames={d.FrameCount} AO={d.ObjCount} FR={d.FillCount}");
+Console.WriteLine($"parse {sw.ElapsedMilliseconds}ms frames={d.FrameCount} AO={d.ObjCount} FR={d.FillCount} invalidFS={d.InvalidFillSegs}");
 var ms = new MemoryStream(); d.Write(ms); ms.Position = 0;
 sw.Restart(); var d2 = SfaDoc.Read(ms); Console.WriteLine($"cache {ms.Length / 1e6:F1}MB read {sw.ElapsedMilliseconds}ms ok={d2.ObjCount == d.ObjCount}");
 Directory.CreateDirectory(args[1]);
