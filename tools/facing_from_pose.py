@@ -146,3 +146,28 @@ def continuous(ir, R, frame0, sx=11.52, sy=6.48, oy=63.0, max_dist=120.0, win=3,
         jumps = [abs((y - x + 180) % 360 - 180) for x, y in zip(out, out[1:]) if x is not None and y is not None]
         rep[a['slot']] = dict(known=sum(v is not None for v in out), max_step=max(jumps or [0]), mean_step=round(sum(jumps) / max(len(jumps), 1), 2))
     return rep
+
+
+def smooth_yaw(raw, win=3, max_step=40.0, hold=12):
+    """장별 각도 목록(None 허용) → continuous()와 같은 다듬기(원형 평균 · 회전 상한 · 유지)."""
+    sm = []
+    for i in range(len(raw)):
+        w = [v for v in raw[max(0, i - win):i + win + 1] if v is not None]
+        if not w:
+            sm.append(None); continue
+        cx = sum(math.cos(math.radians(v)) for v in w); cy = sum(math.sin(math.radians(v)) for v in w)
+        sm.append(None if math.hypot(cx, cy) < 1e-6 else math.degrees(math.atan2(cy, cx)) % 360)
+    out, cur, gap = [], None, 0
+    for v in sm:
+        if v is None:
+            gap += 1
+            out.append(cur if gap <= hold else None)
+            if gap > hold: cur = None
+            continue
+        gap = 0
+        if cur is None: cur = v
+        else:
+            d = (v - cur + 180) % 360 - 180
+            cur = (cur + max(-max_step, min(max_step, d))) % 360
+        out.append(round(cur, 2))
+    return out
