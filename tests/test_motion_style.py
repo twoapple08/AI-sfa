@@ -213,3 +213,58 @@ class TokensToSfaCape(unittest.TestCase):
         self.assertEqual(frs[5], 0)      # 몸 뒤 사본(ID 끝 5) 투명
         self.assertEqual(frs[1], 0)      # 가면 채움 투명(후면)
 
+
+
+class UpperOffFrame(unittest.TestCase):
+    """11-05 사용자 '다리밖에 없는데 뭉개진 사람' → '고쳐서라도 사용': 화면 위 밖 상체를 위 바깥 예상 위치로."""
+    def _case(self, sh=5):
+        import numpy as np
+        N, W, H = 6, 800, 450
+        def kp(neck_y, pel_y, sh_y=None, hip_y=None):
+            K = np.zeros((23, 3)); K[:, 2] = 3.0
+            sy = neck_y if sh_y is None else sh_y; hy = pel_y if hip_y is None else hip_y
+            K[5] = [390, sy, 3]; K[6] = [410, sy, 3]; K[11] = [392, hy, 3]; K[12] = [408, hy, 3]
+            K[0] = [400, sy - 20, 3]
+            K[13] = [395, pel_y + 90, 3]; K[14] = [405, pel_y + 90, 3]; K[15] = [395, pel_y + 170, 3]; K[16] = [405, pel_y + 170, 3]
+            return K
+        frames = list(range(N))
+        # 0–1장: 어깨·골반이 화면 위 끝(y 5–15)에 몰림, 2–5장 정상(목 100 → 골반 200)
+        t = {0: (None, kp(5, 15, sh_y=sh)), 1: (None, kp(5, 15, sh_y=sh))}
+        for f in range(2, N): t[f] = (None, kp(100 + 0 * f, 200))
+        B = {k: np.zeros((N, 2)) for k in ('head_t', 'head_b', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l')}
+        for i in range(N):
+            ny, py = (5, 15) if i < 2 else (100, 200)
+            B['neck'][i] = [400, ny]; B['pelvis'][i] = [400, py]; B['head_t'][i] = [400, ny - 70]; B['head_b'][i] = [400, ny - 5]
+            for k, dx in (('elb_r', 30), ('wri_r', 40), ('elb_l', -30), ('wri_l', -40)): B[k][i] = [400 + dx, ny + (40 if 'elb' in k else 90)]
+        S = np.full(N, 100.0)
+        return t, frames, B, S, W, H
+
+    def test_upper_moves_above_frame(self):
+        import numpy as np, stage2_extract as X
+        t, frames, B, S, W, H = self._case()
+        inf = X.estimate_upper(t, frames, B, S, W, H, 0.0)
+        self.assertIn(2, inf[0]); self.assertEqual(inf[3], [])
+        # 지어낸 골반(y 15)은 가까운 정상 장 속도로 이어 놓고(여기선 정지 → 200), 몸통 길이 = 정상 장(100), 머리는 목 위
+        self.assertEqual(list(B['pelvis'][0]), [400, 200])
+        self.assertAlmostEqual(float(np.linalg.norm(B['neck'][0] - B['pelvis'][0])), 100.0, places=3)
+        self.assertLess(B['head_t'][0][1], B['neck'][0][1]); self.assertLess(B['neck'][0][1], B['pelvis'][0][1])
+        # 정상 장은 그대로
+        self.assertEqual(list(B['neck'][4]), [400, 100])
+
+    def test_small_figure_not_triggered(self):
+        """멀리 작은 인물(몸통 배율 작음)이 위 끝에 닿은 정도는 건드리지 않는다(nkm_15 0장)."""
+        import numpy as np, stage2_extract as X
+        t, frames, B, S, W, H = self._case(sh=8)   # 어깨 y 8 > 0.6 × 몸통 10
+        S = np.full(len(frames), 10.0)
+        self.assertEqual(sum(map(len, X.estimate_upper(t, frames, B, S, W, H, 0.0))), 0)
+
+
+class ExtrapolateEdit(unittest.TestCase):
+    def test_extrapolate_last_frame(self):
+        import motion_ir as M
+        ir = make_ir([60, 62, 64, 66], [1, 1, 1, 1]); a = ir['actors'][0]; N = ir['frames']
+        a['joints']['pelvis'] = [[10 * n, 50] for n in range(N)]
+        for k in ('hidden', 'smear', 'thickness'): a[k] = [[] for _ in range(N)]
+        out = M.apply_edits(ir, [dict(frames=[3, 3], op='extrapolate')])
+        self.assertEqual(out['actors'][0]['joints']['pelvis'][3], [30, 50])   # 10·2 + (20−10)
+        self.assertEqual(out['actors'][0]['inferred'][3], list(range(1, 11)))

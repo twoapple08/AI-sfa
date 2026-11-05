@@ -253,7 +253,7 @@ def calm_limbs(ir, win=None, body_max=None, path_min=None, net_ratio=None, min_r
     return out, sorted(set(changed))
 
 
-EDIT_OPS = ('hide', 'smear', 'bridge', 'drop')
+EDIT_OPS = ('hide', 'smear', 'bridge', 'drop', 'extrapolate')
 
 
 def apply_edits(ir, edits):
@@ -261,6 +261,8 @@ def apply_edits(ir, edits):
     edits: [{"frames": [첫, 끝], "slot": 0, "op": "hide|smear|bridge|drop", "objs": [조각], "joints": [관절], "cause": "원인 분류", "note": "..."}]
     - hide: 조각 숨김 / smear: 스미어 장 표시(smear_mark, 팔다리는 그대로 그림 — 나중에 스미어를 위에 덧댐) / bridge: 관절을 앞(첫-1)·뒤(끝+1) 장 사이 직선으로(골반 기준)
     - drop: 고칠 수 없는 장을 학습에서 뺌(actor['train_mask'] False). 좌표는 바꾸지 않는다.
+    - extrapolate: 앞 두 장(첫-2, 첫-1)의 움직임을 그대로 이어 붙임(구간 끝에서 화면 밖으로 빠지는 장 — 11-05 사용자 '고쳐서라도 사용',
+      n41_10 91 카메라 앞 통과). 뒤에 정상 장이 없어 bridge를 못 쓸 때. 모든 조각을 추론(inferred)으로 표시.
     좌표 직접 지정은 넣지 않는다(원본 좌표 비공개 규칙 — 필요하면 비공개 작업 폴더에서 따로)."""
     import copy
     out = copy.deepcopy(ir); N = out['frames']
@@ -280,6 +282,18 @@ def apply_edits(ir, edits):
                 a[key][n] = sorted(set(a[key][n]) | set(e['objs']))
         elif e['op'] == 'drop':
             for n in range(f0, f1 + 1): a['train_mask'][n] = False
+        elif e['op'] == 'extrapolate':
+            J = a['joints']
+            if f0 < 2:
+                raise ValueError('이어 붙이기는 앞에 정상 장이 두 장 있어야 한다')
+            a.setdefault('inferred', [[] for _ in range(N)])
+            for k in J:
+                p1, p0 = J[k][f0 - 1], J[k][f0 - 2]
+                if None in (p0, p1): continue
+                for n in range(f0, f1 + 1):
+                    m = n - f0 + 1
+                    J[k][n] = [p1[0] + m * (p1[0] - p0[0]), p1[1] + m * (p1[1] - p0[1])]
+            for n in range(f0, f1 + 1): a['inferred'][n] = list(range(1, 11))
         elif e['op'] == 'bridge':
             J = a['joints']
             if f0 == 0 or f1 == N - 1:

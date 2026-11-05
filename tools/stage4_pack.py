@@ -99,6 +99,24 @@ def split(rows, frac=0.1, seed=0):
     return [r for r in rows if r['src'] not in held], [r for r in rows if r['src'] in held], sorted(held)
 
 
+def split_groups(rows, group_of, frac=0.1, seed=0):
+    """묶음(수집 SFA = 원본 파일, 스타일 층 = 영상) 단위로 평가 자료를 뗀다(11-05 전수 점검: 구간 단위 분리는 평가 ref 50구간 중 46구간이
+    같은 파일의 다른 구간과 학습에 함께 있었다 → 사용자 '파일 단위 새 분리 + 처음부터'). 층마다 구간 수의 frac에 닿을 때까지 묶음을 섞은 순서로 고른다.
+    group_of: 구간 id → 묶음 이름. 반환: (학습 행, 평가 행, 평가 구간 id 목록, 평가 묶음 목록)."""
+    import random, collections
+    held, groups = set(), []
+    for is_ref in (False, True):
+        srcs = sorted({r['src'] for r in rows if r['src'].startswith('u') == is_ref})
+        by = collections.defaultdict(list)
+        for x in srcs: by[group_of(x)].append(x)
+        names = sorted(by); random.Random(seed).shuffle(names)
+        goal = max(1, round(len(srcs) * frac)); got = 0
+        for g in names:
+            if got >= goal: break
+            held |= set(by[g]); groups.append(g); got += len(by[g])
+    return [r for r in rows if r['src'] not in held], [r for r in rows if r['src'] in held], sorted(held), groups
+
+
 def score(gen_tokens, train_rows, ref_rows=None, copy_thr=0.15):
     """생성 포즈 채점: 디코딩 가능 비율, plausible 비율, 학습 포즈 베끼기 비율(가장 가까운 학습 포즈와 평균 관절 거리 < copy_thr 몸통).
     ref_rows(평가 정답)를 주면 같은 거리로 '정답도 학습 포즈와 얼마나 가까운지'를 함께 내서 기준선으로 쓴다."""

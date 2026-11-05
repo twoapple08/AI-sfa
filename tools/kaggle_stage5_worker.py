@@ -55,7 +55,9 @@ res['load_s'] = round(time.time() - t0, 1)
 res['trainable_params'] = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 allrows = [json.loads(l) for l in open(f'{DATA}/motion5.jsonl', encoding='utf-8')]
-held = set(json.load(open(f'{DATA}/stage4_split_2026-11-05.json', encoding='utf-8'))['held_out'])
+# 11-05 사용자 '파일 단위 새 분리 + 처음부터': stage5_split(파일·영상 단위)이 있으면 그것, 없으면 옛 stage4_split
+sp = f'{DATA}/stage5_split_2026-11-05.json' if os.path.exists(f'{DATA}/stage5_split_2026-11-05.json') else f'{DATA}/stage4_split_2026-11-05.json'
+held = set(json.load(open(sp, encoding='utf-8'))['held_out']); res['split'] = os.path.basename(sp)
 rows = [r for r in allrows if r['src'] not in held]; evals = [r for r in allrows if r['src'] in held]
 res.update(train_pairs=len(rows), eval_pairs=len(evals))
 def head(prompt, frames, ctx=()): return f'길이: {frames}장\n글: {prompt}\n' + (f"앞 동작: {''.join(ctx)}\n" if ctx else '') + '동작: '

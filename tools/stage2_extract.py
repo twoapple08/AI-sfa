@@ -305,6 +305,78 @@ def estimate_legs(t, frames, B, S, W, H, top):
     return [sorted(x) for x in inferred]
 
 
+def estimate_upper(t, frames, B, S, W, H, top):
+    """화면 위 밖으로 나간 상체를 예상 위치(화면 위 바깥)에 둔다(11-05 사용자 n41_11·n41_12·n41_07: '다리밖에 없는데 뭉개진 사람',
+    '고쳐서라도 사용'). 위에서 들어오는 인물은 RTMW가 화면 밖 코·어깨(때로 골반까지)를 화면 위 끝 띠에 몰아 찍어,
+    몸 전체가 화면 위쪽에 구겨진다(다리 쪽 '곱창'과 같은 실패의 위쪽판).
+    - 판정: 두 어깨가 화면 위 끝에서 몸통(구간 중앙값) 0.6 안에 있는 장 = 상체 화면 밖.
+    - 골반도 그 띠(0.6) 안이면 골반 역시 지어낸 것 → 가장 가까운 정상 두 장의 속도로 이어 놓고, 보이는 발목까지 다리 길이(10초판 비율)를 넘으면 발목 쪽으로 당긴다.
+    - 몸통 방향·머리·팔은 가까운 정상 장의 각도를 잇고(없으면 곧게 선 자세), 길이는 정상 장 중앙값. 팔 점이 띠 밖·점수 충분하면 관측 그대로.
+    반환: 장별 추론한 조각 목록(머리·몸통·팔)."""
+    N = len(frames)
+    K = np.stack([t[f][1] if f in t else np.zeros((23, 3)) for f in frames])
+    Sm = float(np.nanmedian(S)) if np.isfinite(S).any() else np.nan
+    out = [set() for _ in range(N)]
+    if not np.isfinite(Sm): return [sorted(x) for x in out]
+    has = np.array([f in t for f in frames])
+    top = max(0.0, top)   # 화면(16:9)이 영상보다 높으면(872×480 등) top이 음수 — 실제 그림 위 끝(0)에서 잰다(n41_12 0장)
+    BAND = 0.6            # 어깨 띠(몸통 배): n41_12 0장 어깨 26px·몸통 47px(0.55) — 0.5면 놓쳤다
+    Si = np.where(np.isfinite(S), S, Sm)   # 띠는 그 장의 몸통 배율로(11-05 nkm_15: 구간 중앙값이면 멀리 작은 첫 장을 잘못 잡음)
+    off = has & (K[:, 5, 1] <= top + BAND * Si) & (K[:, 6, 1] <= top + BAND * Si)
+    if not off.any(): return [sorted(x) for x in out]
+    P = np.asarray(B['pelvis'], float); Nk = np.asarray(B['neck'], float)
+    good = ~off & np.isfinite(P).all(1) & np.isfinite(Nk).all(1)
+    if not good.any(): return [sorted(x) for x in out]
+    gi = np.flatnonzero(good)
+    pel_bad = off & (((K[:, 11, 1] + K[:, 12, 1]) / 2) <= top + 0.6 * Si)
+    for i in np.flatnonzero(pel_bad):
+        j = gi[np.argmin(np.abs(gi - i))]; j2 = j + (1 if j > i else -1)
+        v = (P[j2] - P[j]) if 0 <= j2 < N and good[j2] else np.zeros(2)
+        v = v if np.linalg.norm(v) <= 0.5 * Si[i] else v / np.linalg.norm(v) * 0.5 * Si[i]   # 한 장 이동 상한
+        P[i] = P[j] + v * (i - j) * (1 if j2 > j else -1)
+        for ra in (15, 16):   # 보이는 발목까지 다리 길이를 넘지 않게
+            if K[i, ra, 2] >= VIS_SCORE['leg'] and K[i, ra, 1] > top + 0.6 * Si[i]:
+                a_ = K[i, ra, :2].astype(float); d = np.linalg.norm(P[i] - a_)
+                Lmax = (LEG_DEFAULT['thigh'] + LEG_DEFAULT['shin']) * S[i] * float(np.nanmedian((np.linalg.norm(Nk - P, axis=1) / S)[good]))
+                if d > Lmax: P[i] = a_ + (P[i] - a_) / d * Lmax
+        out[i] |= {2}
+    def ang(v): return np.arctan2(v[:, 1], v[:, 0])
+    def fill(a, default):
+        v = np.interp(np.arange(N), gi, np.unwrap(a[gi]))
+        return np.where(np.isfinite(v), v, default)
+    th = fill(ang(Nk - P), -np.pi / 2)
+    # 길이는 이 장 몸통에 대한 비율로(11-05: n41_07은 확대가 커서 구간 화소 중앙값으로 두면 앞쪽 큰 장의 머리가 절반 크기)
+    Tg = np.linalg.norm(Nk - P, axis=1)
+    kS = float(np.nanmedian((Tg / S)[good]))              # 그린 몸통 ÷ 몸통 배율(_S)
+    def ratio(a, b):
+        L = np.linalg.norm(np.asarray(B[a], float) - np.asarray(B[b], float), axis=1)[good] / Tg[good]
+        return float(np.nanmedian(L)) if np.isfinite(L).any() else np.nan
+    Rht, Rhb = ratio('head_t', 'neck'), ratio('head_b', 'neck')
+    if os.environ.get('UPPER_DEBUG'): print('UPPER', round(Rht, 2), round(Rhb, 2), round(kS, 2), 'Sm/H', round(Sm / H, 3), int(off.sum()), flush=True)
+    arms = {}
+    for e, w, re_, rw in (('elb_r', 'wri_r', 8, 10), ('elb_l', 'wri_l', 7, 9)):
+        E, Wr = np.asarray(B[e], float), np.asarray(B[w], float)
+        arms[e] = (fill(ang(E - Nk) - ang(Nk - P), np.pi * 0.9), ratio(e, 'neck'), re_)
+        arms[w] = (fill(ang(Wr - E) - ang(Nk - P), np.pi * 0.9), ratio(w, e), rw)
+    for i in np.flatnonzero(off):
+        u = np.array([np.cos(th[i]), np.sin(th[i])]); T_ = kS * S[i]
+        Nk[i] = P[i] + T_ * u
+        if np.isfinite(Rht): B['head_t'][i] = Nk[i] + Rht * T_ * u
+        if np.isfinite(Rhb): B['head_b'][i] = Nk[i] + Rhb * T_ * u
+        out[i] |= {1, 2}
+        for e, w, oe, ow in (('elb_r', 'wri_r', 3, 4), ('elb_l', 'wri_l', 5, 6)):
+            for jn, base, oid in ((e, Nk[i], oe), (w, None, ow)):
+                a_rel, L, ri = arms[jn]
+                b0 = base if base is not None else np.asarray(B[e][i], float)
+                seen_ = K[i, ri, 2] >= SCORE and K[i, ri, 1] > top + BAND * Si[i]
+                if seen_ and np.isfinite(np.asarray(B[jn][i], float)).all(): continue
+                if not np.isfinite(L): continue
+                a = th[i] + a_rel[i]
+                B[jn][i] = b0 + L * T_ * np.array([np.cos(a), np.sin(a)]); out[i] |= {oid}
+    B['pelvis'], B['neck'] = P, Nk
+    return [sorted(x) for x in out]
+
+
 def convert(c, W, H, video=None):
     """확정 추출 경로(stickman_clip.person_in_shot: 뼈 길이 50분위·가장자리 판정·투영 길이·머리 지름 유지)를 그대로 쓴다.
     11-05 사용자 '비율이 nian41 10초 했던 거랑 아예 다르네': 처음 판은 run_core 기본 90분위 + basic_joints만 써서 팔다리가 약 1.3배 길고
@@ -326,7 +398,10 @@ def convert(c, W, H, video=None):
         B = {k: v for k, v in full.items() if not k.startswith('_')}
         names = ['head_t', 'head_b', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l']
         S_ = np.asarray(full['_S'][:, 0], float)
+        for k in B: B[k] = np.asarray(B[k], float).copy()
+        up_inf = estimate_upper(t, frames, B, S_, W, H, top)  # 화면 위 밖 상체 = 예상 위치(화면 밖 허용)
         leg_inf = estimate_legs(t, frames, B, S_, W, H, top)   # 안 보이는 다리 = 예상 위치(화면 밖 허용)
+        leg_inf = [sorted(set(a_) | set(b_)) for a_, b_ in zip(leg_inf, up_inf)]
         joints = {k: [to_pct(B[k][i], W, H) if np.all(np.isfinite(B[k][i])) else None for i in range(N)] for k in names}
         Sf = np.where(np.isfinite(S), S, np.nanmedian(S))
         th, _ = distance_thickness(Sf * 1152.0 / W, ((73.3, 1.0), (376.4, 5.0)))
@@ -340,7 +415,7 @@ def convert(c, W, H, video=None):
                             knee_fixed=len(rep.get('knee_fixed', []))))
         actors.append(dict(slot=slot, color=('blue', 'red')[slot], joints=joints,
                            thickness=[{str(o): round(float(th[i]), 3) for o in range(1, 12)} for i in range(N)],
-                           hidden=[[o for o in h if o < 7] for h in limb_hidden(t, frames, B, W, H, top)],   # 다리는 숨기지 않음(예상 위치)
+                           hidden=[[o for o in h if o < 7 and o not in u_] for h, u_ in zip(limb_hidden(t, frames, B, W, H, top), up_inf)],   # 다리·화면 위 밖 상체 예상 팔은 숨기지 않음
                            inferred=leg_inf, smear=[[] for _ in range(N)], smear_mark=[[] for _ in range(N)], head_fill=[True] * N,
                            facing=FP.smooth_yaw(raw),
                            # 원본 그림 구간(이 구간 0장 기준 [첫 장, 끝 장]): 관절은 PCHIP으로 24장 모두 움직이지만, 유지 리듬(2s·3s)·타격 멈춤은
