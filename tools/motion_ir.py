@@ -78,6 +78,26 @@ def extract(root):
                 actors=actors, camera=[[0.0, 0.0, 1.0] for _ in range(N)], timeline=[])
 
 
+def hold_drawings(ir):
+    """원본 그림 구간(actor['drawings'])마다 가운데 장의 관절·굵기·방향을 그 구간 모든 장에 복사한 새 중간 표현(끊어 보여 주기 판).
+    기본 추출은 키포즈 사이를 PCHIP으로 이어 24장 모두 움직인다(부드러운 판). 사용자 판정용 비교(11-05):
+    애니메이터 유지 리듬(2s·3s)을 그대로 보여 줄지 정하려고 같은 자료로 두 판을 만든다. 구간 밖 장·가운데 장이 빈 구간은 그대로 둔다."""
+    import copy
+    out = copy.deepcopy(ir)
+    for a in out['actors']:
+        for s, e in a.get('drawings') or []:
+            m = (s + e) // 2
+            if not (0 <= s <= e < out['frames']) or a['joints']['neck'][m] is None:
+                continue
+            for n in range(s, e + 1):
+                for k in a['joints']:
+                    a['joints'][k][n] = copy.copy(a['joints'][k][m])
+                a['thickness'][n] = dict(a['thickness'][m])
+                if a.get('facing'):
+                    a['facing'][n] = a['facing'][m]
+    return out
+
+
 def compile_ir(ir, name='motion_ir', sheets=None):
     """sheets: {slot: char_sheet.read(...) 한 칸 또는 char_sheet.read_all(...) 여러 칸} — 그 인물에 캐릭터 시트 색·액세서리를 입힌다(단계 1-②).
     여러 칸이면 장마다 facing에 가장 가까운 칸을 쓴다(모르면 정면)."""

@@ -41,3 +41,28 @@ class MotionStyle(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class HoldDrawings(unittest.TestCase):
+    def test_hold_copies_middle_and_keeps_original(self):
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tools'))
+        import motion_ir as M
+        ir = make_ir([60, 70, 80], [3, 2, 3])
+        # 부드러운 판처럼 그림 구간 안에서도 손목을 조금씩 움직여 둔다
+        for n in range(ir['frames']): ir['actors'][0]['joints']['wri_r'][n][0] += n * 0.1
+        a0 = ir['actors'][0]
+        a0['thickness'] = [{'1': 1.0 + n} for n in range(ir['frames'])]
+        a0['facing'] = [float(n) for n in range(ir['frames'])]
+        h = M.hold_drawings(ir)['actors'][0]
+        for s, e in a0['drawings']:
+            m = (s + e) // 2
+            for n in range(s, e + 1):
+                self.assertEqual(h['joints']['wri_r'][n], a0['joints']['wri_r'][m])
+                self.assertEqual(h['thickness'][n], a0['thickness'][m])
+                self.assertEqual(h['facing'][n], a0['facing'][m])
+        self.assertNotEqual(a0['joints']['wri_r'][0], a0['joints']['wri_r'][1])   # 원본은 바뀌지 않음
+
+    def test_hold_without_drawings_is_identity(self):
+        import motion_ir as M
+        ir = make_ir([60, 70], [2, 2]); ir['actors'][0]['drawings'] = []
+        self.assertEqual(M.hold_drawings(ir)['actors'][0]['joints'], ir['actors'][0]['joints'])

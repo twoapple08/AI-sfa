@@ -6,6 +6,11 @@
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
 
+> **2026-11-05 단계 2 진행(움직임 자료, 사용자 "nian41로 30구간", "부족하면 나카무라쪽도"):** 자동 추출 `tools/stage2_extract.py`(작업 폴더 = scratch `stage2/`, 원본·좌표·결과 비공개).
+> 시트 검토로 바꾼 거르기: 흔들림 상한 0.15→2.0(빠른 동작까지 잘림), 트랙 늦게 시작 → 구간을 주 인물 관측 범위로 자름(팔다리 전체 NaN 5구간), 화면 밖 발목·골반–발목 0.6몸통 미만 제외, 무릎·발목 점수 중앙값 3.0 미만 제외(근접 상반신 컷 다리 지어냄), 액션 0.05 미만 제외, **같은 그림의 다른 판(X↔사쿠가, 사쿠가끼리) = 정규화 포즈 열 차이 <0.2로 제거**(썸네일 비교는 놓침). nian41 46영상(세로 2·개발 사례 제외) → 쓸 만함 약 22 → 나카무라(가로, 302394 제외)로 채우는 중(36 고른 뒤 눈 검토로 30).
+> **발견:** 키포즈 PCHIP 보간이 유지 리듬(2s·3s)을 지움 → `drawings`(원본 그림 구간) 저장, `motion_ir.hold_drawings`(끊어 보여 주기 판), `tools/motion_style.py`(유지 리듬·빠른 전환 뒤 멈춤·예비 동작·획 최고 속도 위치, 카메라 흔들림 미측정). 태깅 시트 `tools/stage2_tag_sheets.py`, GPT 프롬프트 초안 docs/GPT-PROMPT-STAGE2-TAGGING-2026-11-05.md(30구간 ◆판정·Drive 업로드 뒤 새 GPT 세션에 보냄).
+> **다음:** 나카무라 채우기 실행 끝 → drawings 포함 재실행 → 30구간 1차 눈 판정 → 몸 방향 원본 대조 → 사용자 ◆표본 판정(부드러운 판/끊어 보여 주기 판 나란히) → 스타일 실측·태깅.
+>
 > **2026-11-05 진행:** 계획 승인 → **단계 1 완료**(사용자 v5 "좋은 것 같아"): `tools/motion_ir.py`(중간 표현 v1·컴파일러, 60초판 왕복 불일치 0), `tools/char_sheet.py`(캐릭터 시트 읽기·연속 방향·PBD 망토·흰 채우기·레이어 순서), `tools/facing_from_pose.py`, 시험 `tests/test_motion_ir.py`. 기록 docs/REPLAN-PLAN-DRAFT-2026-11-05.md '진행 기록'. 함께: SFA 뷰어 Windows 1.2(docs/SFA-VIEWER-WIN-1.2-2026-11-05.md). **다음 = 단계 2(움직임 자료 만들기)** — 시작 전 사용자에게 범위 확인. **상시 요청(사용자 11-05): 계획표 체크 목록(docs/REPLAN-PLAN-DRAFT-2026-11-05.md '체크 목록')을 작업이 끝날 때마다 갱신하고, 달라고 하면 최신본(PDF 포함)을 준다.**
 >
 > **2026-11-05 재계획(정본):** 사용자 "산발식이었다 — 지금까지 것은 남기고 처음부터 계획". 확정 조건 **docs/REPLAN-CONDITIONS-2026-11-05.md**, 계획 초안 **docs/REPLAN-PLAN-DRAFT-2026-11-05.md**(사용자 미승인 — 승인 전 실행 금지), 대화 기록 docs/REPLAN-REQUIREMENTS-2026-11-05.md, 조사 docs/RESEARCH-ANIME-GEN-ARCHITECTURES-2026-11-05.md. 아래 기존 내용은 재계획 이전 상태 기록.
