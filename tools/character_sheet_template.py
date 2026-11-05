@@ -135,7 +135,7 @@ def place_example(fr, v1, ids):
     """v1(시계 반대 90° 돌려 그린 6방향)을 시계 방향 90° 돌려 바로 세우고 칸에 맞춰 옮긴다.
     v1 배치: 왼쪽 세로줄 아래→위 = 정면·우측·좌측·후면, 오른쪽 세로줄 아래→위 = 위·아래(글자 양식을 돌린 것과 일치).
     사용자 원본 세 레이어는 '캐릭터 디자인' 한 레이어로 합치되, 원본 레이어 뒤→앞 순서로 객체를 넣어 앞뒤를 유지한다
-    (후면에서 보석이 머리 뒤에 숨는 것; 액세서리를 앞 레이어로 옮기면 보석이 앞으로 나왔다 — 11-05 첫 시험). 객체·점 ID는 그대로(면 FS 참조 유지), 양식 ID와 겹치지 않게 양식은 큰 번호 뒤에 둔다."""
+    (후면에서 가면이 머리 뒤에 숨는 것; 액세서리를 앞 레이어로 옮기면 가면이 앞으로 나왔다 — 11-05 첫 시험). 객체·점 ID는 그대로(면 FS 참조 유지), 양식 ID와 겹치지 않게 양식은 큰 번호 뒤에 둔다."""
     f = v1.find('Frame')
     aos = f.findall('AO')
 
@@ -149,7 +149,7 @@ def place_example(fr, v1, ids):
     # 묶음: 원래 x 기준 왼쪽/오른쪽 세로줄 → 새 y 기준 위/아래 줄, 그 안에서 새 x 순서
     ox = np.array([np.mean([float(p.get('X')) for p in a.findall('AP')]) for a in aos])
     oy = np.array([np.mean([float(p.get('Y')) for p in a.findall('AP')]) for a in aos])
-    left = ox < 42.5   # 왼쪽 세로줄 x 13–41%, 오른쪽 42%~ (보석 선이 경계에 걸려 45로는 섞임)
+    left = ox < 42.5   # 왼쪽 세로줄 x 13–41%, 오른쪽 42%~ (가면 선이 경계에 걸려 45로는 섞임)
     groups = {}
     for side, names, k in ((left, ['정면', '우측', '좌측', '후면'], 4), (~left, ['위', '아래'], 2)):
         idx = np.nonzero(side)[0]
@@ -183,7 +183,7 @@ def place_example(fr, v1, ids):
         for i in ix:
             col_ = int(aos[i].get('Color')) & 0xFFFFFFFF
             if n == '후면' and ((col_ >> 16) & 255) > 180 and ((col_ >> 8) & 255) < 80:
-                continue   # 후면에서 안 보이는 이마 보석(원본은 레이어로 머리 뒤에 숨김) — 한 레이어에선 비쳐 보여 뺀다(11-05)
+                continue   # 후면에서 안 보이는 가면(원본은 레이어로 머리 뒤에 숨김) — 한 레이어에선 비쳐 보여 뺀다(11-05)
             a = copy.deepcopy(aos[i])
             a.set('_ord', a.get('LayerId')); a.set('LayerId', '0')
             for k_ in ('ThicknessScale', 'ObjectScale'):
@@ -192,7 +192,7 @@ def place_example(fr, v1, ids):
                 X, Y = rot(float(p.get('X')), float(p.get('Y')))
                 p.set('X', f'{(X * s + tx) / PW * 100:.4f}'); p.set('Y', f'{(Y * s + ty) / PH * 100:.4f}')
             keep.append(a)
-    keep.sort(key=lambda a: int(a.get('_ord')))   # 원본 레이어 0(뒤)→2(앞) 순서로 넣어 앞뒤(후면 보석이 머리 뒤) 유지
+    keep.sort(key=lambda a: int(a.get('_ord')))   # 원본 레이어 0(뒤)→2(앞) 순서로 넣어 앞뒤(후면 가면이 머리 뒤) 유지
     pos0 = list(fr).index(fr.findall('LayerDef')[-1]) + 1   # 양식(맨 위 레이어) 객체보다 앞서 쓰기
     for i, a in enumerate(keep):
         del a.attrib['_ord']
@@ -253,7 +253,7 @@ def guide_png(seq_ex, path, blank=False):
         '③ 반측면 = 정면과 측면 사이(약 45°로 돌아선 모습). 액션 장면에서 가장 많이 나오는 각도입니다.',
         '④ 아래 줄(위·아래)은 비스듬하게(부감·앙각) 그려도 됩니다. 대략의 방향·각도는 설명 글에 적어 주세요.',
         '⑤ 레이어:  1번 = 시트지 템플릿(맨 위, 잠김 — 건드리지 않음)  ·  2번 = 캐릭터 디자인(바로 아래, 여기에 그립니다).',
-        '     → 레이어 이름은 바꾸지 마세요. 그 방향에서 안 보이는 부분(예: 후면에서 이마 보석)은 그리지 않습니다.',
+        '     → 레이어 이름은 바꾸지 마세요. 그 방향에서 안 보이는 부분(예: 후면에서 가면)은 그리지 않습니다.',
         '⑥ 액세서리가 무엇인지(이름·붙는 곳·흔들림)는 설명 글에 적어 주세요.',
         '⑦ 설명 글(따로 보내는 글 파일): 이름 · 색 · 비율 메모 · 액세서리마다 붙는 곳과 흔들림 여부 · 위/아래 칸 각도 · 그 밖의 특징.',
         '⑧ 무기는 이 시트가 아니라 무기 파일 + 무기를 든 정지 컷으로 따로 보냅니다.',

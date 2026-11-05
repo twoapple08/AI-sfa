@@ -68,7 +68,7 @@ class CharSheetTest(unittest.TestCase):
         import char_sheet as CS
         s = CS.read(str(self.SHEET))
         self.assertEqual(sorted(s['joints']), sorted(['head_t', 'head_b', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l']))
-        self.assertEqual(sorted((a['bone'], len(a['objects'])) for a in s['accessories']), [('head', 5), ('torso', 3)])   # 보석·망토
+        self.assertEqual(sorted((a['bone'], len(a['objects'])) for a in s['accessories']), [('head', 5), ('torso', 3)])   # 가면·망토
 
     def test_apply_follows_bone_and_keeps_ids(self):
         """액세서리는 붙은 부위를 따라 옮겨지고, 객체 ID는 모든 장에서 같고 점 ID는 장마다 새로."""
@@ -86,7 +86,7 @@ class CharSheetTest(unittest.TestCase):
         for f in fr:   # 한 장 안 점 ID 중복 없음(액세서리 여러 개 포함)
             ids = [p.get('ID') for a in f.findall('AO') for p in a.findall('AP')]
             self.assertEqual(len(ids), len(set(ids)))
-        # 인물 전체를 오른쪽으로 5% 옮기면 보석·망토도 정확히 5% 따라 옮겨진다
+        # 인물 전체를 오른쪽으로 5% 옮기면 가면·망토도 정확히 5% 따라 옮겨진다
         for v in ir['actors'][0]['joints'].values():
             v[2] = [v[0][0] + 5.0, v[0][1]]
         out2 = M.compile_ir(ir, sheets={0: CS.read(str(self.SHEET))})
