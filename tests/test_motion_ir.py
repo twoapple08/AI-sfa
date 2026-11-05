@@ -161,9 +161,21 @@ class RigTurnTest(unittest.TestCase):
         out = M.compile_ir(ir, sheets={0: CS.rig(CS.read_all(str(self.SHEET)))})
         fr = out.findall('Frame')
         ids = [[a.get('ID') for a in f.findall('AO') if int(a.get('ID')) >= CS.ACC_AO0] for f in fr]
-        self.assertEqual(ids[0], ids[1]); self.assertEqual(ids[0], ids[2]); self.assertEqual(len(ids[0]), 11)   # 망토 뒤·앞 사본 3+3 + 가면 5
+        self.assertEqual(ids[0], ids[1]); self.assertEqual(ids[0], ids[2])
+        self.assertEqual(len(ids[0]), 35)   # 망토 뒤·앞 사본 (채우기 전용 투명 테두리 12 + 곡선 3) × 2 + 가면 5
+        # 망토 채우기는 그 장 모양을 따른 투명 테두리를 가리키고, 테두리는 망토 선보다 먼저(아래) 나온다(11-05 페인트가 선을 가림)
+        aos = fr[0].findall('AO')
+        pos = {a.get('ID'): i for i, a in enumerate(aos)}
+        cape_fr = [x for x in fr[0].findall('FR') if len(x.findall('FS')) == 12]
+        self.assertEqual(len(cape_fr), 2)
+        for x in cape_fr:
+            hid = [fs.get('ObjId') for fs in x.findall('FS')]
+            self.assertTrue(all(next(a for a in aos if a.get('ID') == h).get('Color') == '0' for h in hid))
+            base = 500 if int(hid[0]) - CS.ACC_AO0 >= 500 else 0
+            self.assertLess(max(pos[h] for h in hid), pos[str(CS.ACC_AO0 + base)])
         frs = [x for x in fr[0].findall('FR') if x.get('ID').startswith('790')]
         self.assertEqual(len(frs), 3)                                     # 망토 두 사본·가면 모두 채움
+        self.assertEqual(sorted(len(x.findall('FS')) for x in frs), [5, 12, 12])
         alpha = lambda c: (int(c) & 0xFFFFFFFF) >> 24
         mask = lambda f: [a for a in f.findall('AO') if int(a.get('ID')) >= CS.ACC_AO0 and (int(a.get('Color')) & 0xFFFFFF) == 0xFF0000]
         self.assertEqual({alpha(a.get('Color')) for a in mask(fr[0])}, {255})
@@ -207,6 +219,18 @@ class CapeSimTest(unittest.TestCase):
         moved = [x1 - x0 for x0, x1 in zip(xs(fr[0]), xs(fr[1]))]
         self.assertAlmostEqual(max(moved), 2.0, places=2)      # 고정점(목)은 몸과 같이 2%
         self.assertLess(min(moved), 1.9)                         # 밑단은 늦게(관성)
+
+    def test_face_visible_cape_behind(self):
+        """11-05 '망토가 몸을 뚫음': 가면(얼굴)이 조금이라도 보이는 각도에서는 망토 앞 사본이 완전히 투명(몸 뒤 사본만)."""
+        import char_sheet as CS
+        for yaw in range(0, 360, 5):
+            m = CS.rig(CS.read_all(str(self.SHEET)))
+            have = [v for v in CS.VIEW_ANGLE if v in m['views']]
+            va, vb, t = CS._neighbors(float(yaw), have)
+            A, B = m['accs'][1]['per'].get(va), m['accs'][1]['per'].get(vb)   # 가면
+            mask_a = 1.0 if (A is not None and B is not None) else (max(0.0, 1 - t / 0.6) if A is not None else max(0.0, (t - 0.4) / 0.6) if B is not None else 0.0)
+            if mask_a > 0:
+                self.assertEqual(CS._depth_alpha(float(yaw)), 0.0, yaw)
 
     def test_reset_on_cut(self):
         """컷 등으로 몸통 길이의 1.2배 넘게 뛰면 처음부터(망토가 날아가지 않는다)."""

@@ -419,10 +419,12 @@ def _simulate(info, P, J, state, key, n):
 
 
 def _depth_alpha(yaw):
-    """망토 앞 사본의 불투명도: 등을 보일 때(후면 ±75° 안) 1, 정면 쪽(후면에서 105° 밖) 0, 사이는 선형. 뒤 사본 = 1 − 이 값."""
+    """망토 앞 사본의 불투명도. 얼굴(가면)이 보이는 동안은 망토가 몸 뒤여야 한다(11-05 사용자: 몸을 뚫음 — 가면은 후면에서 36°
+    떨어질 때까지 보이는데 망토가 75°부터 앞으로 나왔다). 가면이 완전히 사라진 뒤(후면에서 36° 안)에만 앞 사본: 12° 안 = 1, 36° 밖 = 0.
+    뒤 사본 = 1 − 이 값."""
     if yaw is None: return 0.0
     d = abs((yaw - 180 + 180) % 360 - 180)
-    return 1.0 if d <= 75 else 0.0 if d >= 105 else (105 - d) / 30
+    return 1.0 if d <= 12 else 0.0 if d >= 36 else (36 - d) / 24
 
 
 def rig_frame(R_, yaw, n, slot, J, body_th_frame, state):
@@ -461,6 +463,24 @@ def rig_frame(R_, yaw, n, slot, J, body_th_frame, state):
         else:
             copies = [(front_out, 0, alpha)]
         for dest, base, al in copies:
+            if info is not None and ref.get('fill_loop'):
+                # 11-05 사용자: 변형되는 망토에서 페인트가 망토 선을 가림 → 장마다 그 모양을 따라 새로 만든 투명 테두리에 흰 채우기,
+                # 망토 선보다 먼저(아래) 둔다. 객체 ID는 모든 장에서 같다(앞뒤 순서 유지).
+                poly = []
+                for oi, a_, b_ in ref['fill_loop']:
+                    p0, c, p2 = P[(oi, a_)], P[(oi, 1)], P[(oi, b_)]
+                    poly += [_quad(p0, c, p2, j / 4) for j in range(4)]
+                hid = []
+                for j in range(len(poly)):
+                    oid = ACC_AO0 + slot * 1000 + base + 300 + ai * 20 + j
+                    pa, pb = ACC_PT0 + n * 10000 + slot * 1000 + npt, ACC_PT0 + n * 10000 + slot * 1000 + npt + 1; npt += 2
+                    q0, q1 = poly[j], poly[(j + 1) % len(poly)]
+                    dest.append(f'<AO ID="{oid}" TypeId="1" DrawOrder="{oid}" Color="0" LayerId="0" ThicknessScale="0.05" ObjectScale="1.0" GlowRadius="0" '
+                                f'GlowThickness="0" GlowColor="4294967295" GlowAlpha="0"><AP ID="{pa}" Flags="9" Index="0" X="{q0[0]:.4f}" Y="{q0[1]:.4f}" />'
+                                f'<AP ID="{pb}" Flags="8" Index="1" X="{q1[0]:.4f}" Y="{q1[1]:.4f}" /></AO>')
+                    hid.append((oid, pa, pb))
+                fs = ''.join(f'<FS Kind="0" ObjId="{o}" StartPtId="{pa}" EndPtId="{pb}" StartT="0.0" EndT="1.0" />' for o, pa, pb in hid)
+                dest.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai + (5 if base else 0)}" Color="{_with_alpha(-1, al)}">{fs}</FR>')
             ids = {}
             for oi, o in enumerate(ref['objects']):
                 for pj, _ in enumerate(o['pts']):
@@ -476,7 +496,7 @@ def rig_frame(R_, yaw, n, slot, J, body_th_frame, state):
                              + ''.join(f'<AC ConnPtId="{ids[tuple(c)]}"/>' for c in p['conn']) + '</AP>')
                 s.append('</AO>')
                 dest.append(''.join(s))
-            if ref.get('fill_loop'):
+            if ref.get('fill_loop') and info is None:
                 fs = ''.join(f'<FS Kind="0" ObjId="{ACC_AO0 + slot * 1000 + k0 + oi}" StartPtId="{ids[(oi, a_)]}" EndPtId="{ids[(oi, b_)]}" '
                              f'StartT="{0.0 if a_ == 0 else 1.0:.1f}" EndT="{0.0 if b_ == 0 else 1.0:.1f}" />' for oi, a_, b_ in ref['fill_loop'])
                 dest.append(f'<FR ID="{7900000 + n * 100 + slot * 10 + ai + (5 if base else 0)}" Color="{_with_alpha(-1, al)}">{fs}</FR>')

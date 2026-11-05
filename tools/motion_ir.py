@@ -176,6 +176,15 @@ def declare_all_first(root, slots):
     for a in sorted(aos, key=lambda a: order.get(_slot_of(a.get('ID')), 99)):   # 같은 인물 안 순서는 그대로(안정 정렬)
         f0.append(a)
     for x in frs: f0.append(x)
+    # DrawOrder도 같은 순위로(11-05: 몸 뒤 망토 사본이 파일에서 먼저 나와도 DrawOrder가 커서 앱·렌더러 모두 몸 앞에 그렸다).
+    # 파일 전체 처음 나온 순서 = DrawOrder 순위 → 물리 순서·DrawOrder 어느 쪽을 쓰든 같은 앞뒤.
+    rank = {}
+    for f in frames:
+        for a in f.findall('AO'):
+            rank.setdefault(a.get('ID'), len(rank))
+    for f in frames:
+        for a in f.findall('AO'):
+            a.set('DrawOrder', str(1000 + rank[a.get('ID')]))
 
 
 def base_signature(root):
