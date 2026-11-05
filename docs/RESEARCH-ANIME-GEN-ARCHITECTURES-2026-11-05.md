@@ -55,3 +55,9 @@
 - OmniLottie: https://openaccess.thecvf.com/content/CVPR2026/html/Yang_OmniLottie_Generating_Vector_Animations_via_Parameterized_Lottie_Tokens_CVPR_2026_paper.html , https://chatpaper.com/paper/242479 (2차)
 - LottieGPT: https://openaccess.thecvf.com/content/CVPR2026/html/Chen_LottieGPT_Tokenizing_Vector_Animation_for_Autoregressive_Generation_CVPR_2026_paper.html , https://en.papernotes.org/CVPR2026/video_generation/lottiegpt_vector_animation_generation/ (2차 요약)
 - 제작 공정: https://arxiv.org/html/2501.06250v4 (설문), https://arxiv.org/html/2508.10881v1 (ToonComposer), https://openaccess.thecvf.com/content/CVPR2025/html/Meng_AniDoc_Animation_Creation_Made_Easier_CVPR_2025_paper.html
+
+## 6. 사용자 정정(11-05): "우리가 만드는 건 액션물이다. 디자인·카툰 같은 귀여운 것이 아니다."
+- LottieGPT/OmniLottie 자료(아이콘·UI·모션그래픽)는 움직임이 '도형 이동·회전·크기 + 감속 곡선'이라 액션과 거리가 멀다. **액션 작화는 장마다 모양을 새로 그린다**(타격·스미어·임팩트 프레임·연기·파편, 2/3장 유지와 멈춤의 리듬) → 키프레임+보간 압축과 "장마다 적으면 나빠진다"는 결론은 우리에게 그대로 옮겨지지 않는다. 사용자의 (24,24) 직접 그리기 규칙과도 이어진다.
+- 옮겨 올 교훈: 사전학습 대형 모델 위에서 시작, 정지 → 움직임 2단계 학습, 도형을 의미 단위로 표현.
+- 액션 움직임 지식의 원천은 애니 영상(픽셀)이다(AniSora 등은 실제 애니로 학습). 픽셀→SFA 변환은 버릴 수 없고, **잘 바뀌는 요소만 골라** 쓰는 쪽이 현실적이다.
+- 요소별: 스틱맨 동작(장마다 관절 12개, 추출 도구 거의 완성) · 카메라·타이밍(장마다 숫자 몇 개) · 이펙트(장마다 새 모양, 가장 어려움) · 배경(컷마다 한 번, 손 많이 감). → 학습이 가장 잘 될 첫 대상은 스틱맨 동작 + 타이밍(사용자 10-28 "주된 목적은 스틱맨의 움직임"과 일치). 재계획에서 확정 필요.
