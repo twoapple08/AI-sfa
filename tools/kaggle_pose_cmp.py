@@ -47,9 +47,12 @@ def push_data(work):
     print(out[-400:])
 
 
-def push():
+def push(models=None):
     u = user(); d = tempfile.mkdtemp(prefix='kpose_')
-    shutil.copy(f'{HERE}/kaggle_pose_cmp_worker.py', f'{d}/kernel.py')
+    src = open(f'{HERE}/kaggle_pose_cmp_worker.py', encoding='utf-8').read()
+    if models:
+        src = src.replace('MODELS = None', f'MODELS = {models!r}', 1)
+    open(f'{d}/kernel.py', 'w', encoding='utf-8').write(src)
     json.dump(dict(id=f'{u}/{KERNEL}', title=KERNEL, code_file='kernel.py', language='python', kernel_type='script', is_private=True,
                    enable_gpu=True, enable_internet=True, dataset_sources=[f'{u}/{DATASET}'], competition_sources=[], kernel_sources=[]),
               open(f'{d}/kernel-metadata.json', 'w'))
@@ -108,5 +111,5 @@ def apply(work, model, pulled):
 
 if __name__ == '__main__':
     c = sys.argv[1]
-    {'pack': lambda: pack(sys.argv[2]), 'push-data': lambda: push_data(sys.argv[2]), 'push': push, 'status': status,
+    {'pack': lambda: pack(sys.argv[2]), 'push-data': lambda: push_data(sys.argv[2]), 'push': lambda: push(sys.argv[2].split(',') if len(sys.argv) > 2 else None), 'status': status,
      'pull': lambda: pull(sys.argv[2]), 'apply': lambda: apply(sys.argv[2], sys.argv[3], sys.argv[4])}[c]()

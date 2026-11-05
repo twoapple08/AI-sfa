@@ -60,6 +60,7 @@ def run_vitpose():
             inp['pixel_values'] = inp['pixel_values'].half()
             with torch.no_grad():
                 out = model(**inp, dataset_index=torch.zeros(len(boxes), dtype=torch.long, device=dev))   # 0 = COCO
+            out.heatmaps = out.heatmaps.float()   # 후처리(scipy 가우스)가 float16을 못 받는다(11-05 v3 실패)
             res = proc.post_process_pose_estimation(out, boxes=[boxes])[0]
             for r in res:
                 kp = r['keypoints'].float().cpu().numpy() * sc; s_ = r['scores'].float().cpu().numpy()
@@ -121,10 +122,13 @@ def _flip_idx():
     return _FLIP
 
 
+MODELS = None   # push 때 바꿔 넣음(None이면 둘 다)
+
 if __name__ == '__main__':
+    if MODELS: os.environ['POSE_MODELS'] = ','.join(MODELS)
     os.system('pip -q install -U "transformers>=4.49" huggingface_hub accelerate > /dev/null 2>&1')
     print('GPU', torch.cuda.get_device_name(0), '장', len(META), flush=True)
-    which = sys.argv[1:] or ['vitpose', 'sapiens']
+    which = os.environ.get('POSE_MODELS', '').split(',') if os.environ.get('POSE_MODELS') else (sys.argv[1:] or ['vitpose', 'sapiens'])
     import traceback
     for nm, fn in (('vitpose', run_vitpose), ('sapiens', run_sapiens)):   # 한 모델이 실패해도 다른 모델은 돈다
         if nm not in which: continue
