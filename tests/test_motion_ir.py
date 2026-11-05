@@ -263,6 +263,33 @@ class CapeSimTest(unittest.TestCase):
         self.assertEqual({rgb(x.get('Color')) for x in cape_fr}, {rgb(cape['objects'][0]['color'])})   # 채우기 = 테두리 색
         self.assertTrue(all(int(fs.get('ObjId')) - CS.ACC_AO0 in (0, 1, 2, 500, 501, 502) for x in cape_fr for fs in x.findall('FS')))
 
+    def test_hem_min_width(self):
+        """11-05 사용자: 밑단은 '지금 크기'(칸별 기준, 몸통 길이 대비)가 최소. 시트가 더 크면 시트 크기, 작으면 기준 크기."""
+        import copy as cp, math as m
+        import char_sheet as CS
+        M, root = scene()
+        base_ir = M.extract(root)
+        def hem_ratio(scale):
+            rg = CS.rig(CS.read_all(str(self.SHEET)))
+            for v, acc in rg['accs'][0]['per'].items():
+                if acc is None: continue
+                for o in acc['objects']:
+                    for p in o['pts']: p['uv'] = (p['uv'][0], p['uv'][1] * scale)   # 옆으로 넓히기/좁히기
+            ir = cp.deepcopy(base_ir); ir['actors'][0]['facing'] = [0.0, 0.0, 0.0]
+            fr = M.compile_ir(ir, sheets={0: rg}).findall('Frame')[0]
+            info = CS.flex_info(rg['accs'][0]['ref'])
+            ao = {a.get('ID'): [(float(p.get('X')), float(p.get('Y'))) for p in a.findall('AP')] for a in fr.findall('AO')}
+            hem = ao[str(CS.ACC_AO0 + 500 + info['hem'])]
+            J = ir['actors'][0]['joints']; L = m.dist(CS.iso(J['neck'][0]), CS.iso(J['pelvis'][0]))
+            sheet_w = m.dist(*[rg['accs'][0]['per']['정면']['objects'][oi]['pts'][bot]['uv'] for oi, top, bot in info['edges']])
+            return m.dist(CS.iso(hem[0]), CS.iso(hem[2])) / L, sheet_w
+        w_big, s_big = hem_ratio(3.0)
+        self.assertGreater(s_big, CS.HEM_MIN['정면'])
+        self.assertAlmostEqual(w_big, s_big, delta=0.1 * s_big)                   # 크면 시트 그대로
+        w_small, s_small = hem_ratio(0.3)
+        self.assertLess(s_small, CS.HEM_MIN['정면'])
+        self.assertAlmostEqual(w_small, CS.HEM_MIN['정면'], delta=0.1)            # 작으면 기준 크기
+
     def test_reset_on_cut(self):
         """컷 등으로 몸통 길이의 1.2배 넘게 뛰면 처음부터(망토가 날아가지 않는다)."""
         CS, fr = self.compile(60.0, [0.0, 0.0, 0.0])

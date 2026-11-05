@@ -334,8 +334,10 @@ def rig_xml(R_, yaw, n, slot, J, body_th_frame):
 
 # ---------- 흔들리는 액세서리(망토) — 11-05 사용자: "몸을 뚫고 펄럭임이 없음" ----------
 # 망토(흔들리는 액세서리) 기본 세팅 — 사용자 11-05 확정("망토라는 캐디가 들어왔을 때 지금 세팅이 기본"): 아래 값 + 밑단 2배.
-SIM = dict(n=9, gravity=0.008, damping=0.04, shape=0.008, iters=12, wind=(0.0, 0.0), reset_jump=1.2, drag=0.35, hem_width=2.0)
-# hem_width(11-05 사용자 "아래쪽 기본 너비를 2배 정도"): 목은 그대로, 아래로 갈수록 벌려 밑단에서 시트 너비의 이 배수
+SIM = dict(n=9, gravity=0.008, damping=0.04, shape=0.008, iters=12, wind=(0.0, 0.0), reset_jump=1.2, drag=0.35)
+# 밑단 최소 너비(몸통 길이 대비, 칸별) — 사용자 11-05: "2배가 아니라 지금과 같은 크기. 시트에서 더 크게 들어오면 그 크기, 작으면 지금 크기".
+# 값 = 예시 시트(character_sheet_v2_example) 칸별 밑단 너비 × 2(사용자가 '좋다'고 한 v5 결과). 칸 사이는 섞어 쓴다.
+HEM_MIN = {'정면': 0.858, '우측': 0.318, '후면': 0.896, '좌측': 0.506}
 # 11-05 사용자 "형태에 너무 얽매임, 훨씬 넓게 퍼지고 펄럭여도 됨": 모양 복원 0.06→0.008, 감쇠 0.08→0.04, 중력 0.012→0.008,
 # 공기 저항 drag(고정점 속도의 반대 방향, 끝으로 갈수록 크게) 추가
 
@@ -370,7 +372,7 @@ def _quad(p0, c, p2, t):
     return ((1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * c[0] + t * t * p2[0], (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * c[1] + t * t * p2[1])
 
 
-def _simulate(info, P, J, state, key, n):
+def _simulate(info, P, J, state, key, n, hem_min=None):
     """PBD(위치 기반 동역학) 사슬 두 줄. P = 이 장의 단단한 배치(화면 %) — 목표 모양·고정점·길이의 기준.
     중력·관성(Verlet)·감쇠·약한 모양 복원·거리 조건. 컷 등으로 고정점이 몸통 길이의 reset_jump배 넘게 뛰면 처음부터."""
     L = math.dist(iso(J['neck']), iso(J['pelvis'])) or 1.0
@@ -379,7 +381,8 @@ def _simulate(info, P, J, state, key, n):
     for oi, top, bot in info['edges']:
         p0, c, p2 = iso(P[(oi, top)]), iso(P[(oi, 1)]), iso(P[(oi, bot)])
         targets.append([_quad(p0, c, p2, i / (N - 1)) for i in range(N)])
-    f = SIM['hem_width']
+    ws = math.dist(targets[0][-1], targets[1][-1]) / L if len(targets) == 2 else 0
+    f = max(1.0, (hem_min or 0) / ws) if ws > 1e-9 else 1.0   # 시트가 기준보다 작을 때만 기준 너비까지(크면 시트 그대로)
     if f != 1.0 and len(targets) == 2:
         for i in range(N):
             mx, my = (targets[0][i][0] + targets[1][i][0]) / 2, (targets[0][i][1] + targets[1][i][1]) / 2
@@ -489,7 +492,8 @@ def rig_frame(R_, yaw, n, slot, J, body_th_frame, state):
                 P[(oi, pj)] = (x, y)
         info = flex_info(ref)
         if info is not None:
-            P = _simulate(info, P, J, state, (slot, ai), n)
+            hm = (1 - t) * HEM_MIN.get(va, 0) + t * HEM_MIN.get(vb, 0)
+            P = _simulate(info, P, J, state, (slot, ai), n, hem_min=hm)
             copies = [(back_out, 500, alpha * (1 - fa)), (front_out, 0, alpha * fa)]
         else:
             copies = [(front_out, 0, alpha)]
