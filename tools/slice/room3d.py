@@ -29,7 +29,7 @@ P0 = dict(cx=724.0, cy=301.0, Xr=4.22, Xl=-5.08, Hc=3.38, Zb=90.0,
           lx1=-1.8, lx2=1.0, lbw=0.5, lbd=0.3,               # 세로보 두 줄: X 위치·폭·깊이
           dz0=18.5, dz1=22.7, dy=2.22,                       # 왼벽 문(첫 칸): Z 구간·윗변 높이(문 높이는 양쪽 공통)
           rd1a=20.2, rd1b=22.7, rd2a=31.3, rd2b=35.6,        # 오른벽 문 2개(판 x 908–930, 845–860에서 읽음)
-          tw=0.3)                                            # 벽 두께
+          tw=0.3, bd2=0.18, bw2=0.35, zf=7.8, hx0=-3.6)                        # 벽 두께, 보조 가로보 깊이·폭
 NPIL = 6
 XOPEN = -40.0   # 왼쪽 열린 공간 끝(화면 밖)
 MID = os.environ.get('ROOM_MID', '0') == '1'
@@ -49,8 +49,14 @@ def wall_pieces(name, x0, x1, za, zb, doors, dy, Hc):
 def boxes(p):
     """(이름, 종류, x0, x1, y0, y1, z0, z1). 바닥·천장·벽도 상자. 사물은 넣지 않는다."""
     Zn, Zb, Xr, Xl, Hc, tw = 1.2, p['Zb'], p['Xr'], p['Xl'], p['Hc'], p['tw']
+    # 천장: 채광 구멍(왼쪽 세로보와 왼쪽 벽 사이, 맨 앞 보 뒤~첫 기둥 줄)을 실제로 비운 네 조각(11-05 사용자 "천장 위쪽도")
+    hx0, hx1 = p['hx0'], p['lx1'] - p['lbw'] / 2
+    hz0, hz1 = p['zf'] + p['bw2'], p['pz0']
+    cx0, cx1, cz0, cz1 = XOPEN - 20, Xr + tw, Zn, Zb + tw
     B = [('floor', 'room', XOPEN - 20, Xr + tw, -0.3, 0.0, Zn, Zb + tw),
-         ('ceiling', 'room', XOPEN - 20, Xr + tw, Hc, Hc + 0.3, Zn, Zb + tw),
+         ('ceiling_a', 'room', cx0, hx0, Hc, Hc + 0.3, cz0, cz1), ('ceiling_b', 'room', hx1, cx1, Hc, Hc + 0.3, cz0, cz1),
+         ('ceiling_c', 'room', hx0, hx1, Hc, Hc + 0.3, cz0, hz0), ('ceiling_d', 'room', hx0, hx1, Hc, Hc + 0.3, hz1, cz1),
+         ('beam_front', 'beam', XOPEN, Xr, Hc - p['bd2'], Hc, p['zf'], p['zf'] + p['bw2']),
          ('wall_back', 'room', Xl - tw, Xr + tw, 0.0, Hc, Zb, Zb + tw)]
     B += wall_pieces('wall_r', Xr, Xr + tw, Zn, Zb, [(p['rd1a'], p['rd1b']), (p['rd2a'], p['rd2b'])], p['dy'], Hc)
     B += wall_pieces('wall_l', Xl - tw, Xl, p['pz0'] + p['pd'], Zb, [(p['dz0'], p['dz1'])], p['dy'], Hc)
@@ -63,6 +69,17 @@ def boxes(p):
         if MID and z + p['ps'] / 2 + p['bw'] < Zb:
             zm = z + p['ps'] / 2
             B.append((f'beam_m{i}', 'beam', XOPEN, Xr, Hc - p['bd'], Hc, zm, zm + p['bw']))
+    # 보조 가로보(11-05 사용자 "천장 위쪽 부분도"): 기둥 줄 사이를 ROOM_N2칸으로 나눈 자리마다, 첫 기둥 줄보다
+    # 카메라 쪽(화면 위쪽)으로도 이어서. 깊이 bd2·폭 bw2.
+    n2 = int(os.environ.get('ROOM_N2', p.get('n2', 2)))
+    if n2 > 1:
+        step = p['ps'] / n2
+        z = p['pz0'] - step * math.floor((p['pz0'] - p['zf'] - 1.0) / step)   # 맨 앞 보 뒤부터
+        j = 0
+        while z + p['bw2'] < Zb:
+            if abs(((z - p['pz0']) / p['ps']) - round((z - p['pz0']) / p['ps'])) > 1e-6 or z < p['pz0'] - 1e-6:
+                B.append((f'beam_s{j}', 'beam', XOPEN, Xr, Hc - p['bd2'], Hc, z, z + p['bw2']))
+            z += step; j += 1
     for k in ('lx1', 'lx2'):
         B.append((f'beam_{k}', 'beam', p[k] - p['lbw'] / 2, p[k] + p['lbw'] / 2, Hc - p['lbd'], Hc, Zn, Zb))
     return B
@@ -300,7 +317,7 @@ BND = dict(cx=(724 - 30, 724 + 30), cy=(301 - 20, 301 + 20), Xr=(3.5, 5.0), Xl=(
            pz0=(10.0, 12.5), ps=(12.0, 17.0), pw=(0.3, 1.2), pd=(0.4, 1.2), pin=(-0.1, 0.4), rp=(0.2, 0.8), rw=(0.3, 1.0),
            bd=(0.1, 0.5), bw=(0.3, 1.0), lx1=(-2.5, -1.0), lx2=(0.3, 1.8), lbw=(0.3, 0.9), lbd=(0.15, 0.5),
            dz0=(17.0, 21.0), dz1=(21.0, 24.0), dy=(1.8, 2.8), Zb=(60.0, 120.0),
-           rd1a=(18.5, 21.5), rd1b=(21.6, 24.5), rd2a=(29.0, 33.5), rd2b=(33.6, 38.0), tw=(0.1, 0.6))
+           rd1a=(18.5, 21.5), rd1b=(21.6, 24.5), rd2a=(29.0, 33.5), rd2b=(33.6, 38.0), tw=(0.1, 0.6), bd2=(0.08, 0.4), bw2=(0.2, 0.8), zf=(6.5, 9.5), hx0=(-4.8, -2.4))
 
 
 def main():
