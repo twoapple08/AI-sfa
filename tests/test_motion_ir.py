@@ -60,5 +60,45 @@ class MotionIRTest(unittest.TestCase):
         self.assertIsNotNone(ir['actors'][0]['joints']['wri_r'][2])
 
 
+
+class CharSheetTest(unittest.TestCase):
+    SHEET = Path(__file__).resolve().parents[1] / 'data' / 'templates' / 'character_sheet_v2_example.sfa'
+
+    def test_read_example_sheet(self):
+        import char_sheet as CS
+        s = CS.read(str(self.SHEET))
+        self.assertEqual(sorted(s['joints']), sorted(['head_t', 'head_b', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l']))
+        self.assertEqual(sorted((a['bone'], len(a['objects'])) for a in s['accessories']), [('head', 5), ('torso', 3)])   # 보석·망토
+
+    def test_apply_follows_bone_and_keeps_ids(self):
+        """액세서리는 붙은 부위를 따라 옮겨지고, 객체 ID는 모든 장에서 같고 점 ID는 장마다 새로."""
+        import char_sheet as CS
+        M, root = scene()
+        ir = M.extract(root)
+        out = M.compile_ir(ir, sheets={0: CS.read(str(self.SHEET))})
+        fr = out.findall('Frame')
+        acc = [[a for a in f.findall('AO') if int(a.get('ID')) >= CS.ACC_AO0] for f in fr]
+        self.assertEqual(len(acc[0]), 8)
+        self.assertEqual([a.get('ID') for a in acc[0]], [a.get('ID') for a in acc[2]])
+        p0 = {p.get('ID') for a in acc[0] for p in a.findall('AP')}
+        p2 = {p.get('ID') for a in acc[2] for p in a.findall('AP')}
+        self.assertFalse(p0 & p2)
+        for f in fr:   # 한 장 안 점 ID 중복 없음(액세서리 여러 개 포함)
+            ids = [p.get('ID') for a in f.findall('AO') for p in a.findall('AP')]
+            self.assertEqual(len(ids), len(set(ids)))
+        # 인물 전체를 오른쪽으로 5% 옮기면 보석·망토도 정확히 5% 따라 옮겨진다
+        for v in ir['actors'][0]['joints'].values():
+            v[2] = [v[0][0] + 5.0, v[0][1]]
+        out2 = M.compile_ir(ir, sheets={0: CS.read(str(self.SHEET))})
+        a0 = [a for a in out2.findall('Frame')[0].findall('AO') if int(a.get('ID')) >= CS.ACC_AO0]
+        a2 = [a for a in out2.findall('Frame')[2].findall('AO') if int(a.get('ID')) >= CS.ACC_AO0]
+        for x, y in zip(a0, a2):
+            for p, q in zip(x.findall('AP'), y.findall('AP')):
+                self.assertAlmostEqual(float(q.get('X')) - float(p.get('X')), 5.0, places=2)
+                self.assertAlmostEqual(float(q.get('Y')), float(p.get('Y')), places=2)
+        body = [a for a in fr[0].findall('AO') if a.get('ID') == '4560002'][0]
+        self.assertEqual(body.get('Color'), '-16777216')   # 시트 몸 색(검정)
+
+
 if __name__ == '__main__':
     unittest.main()

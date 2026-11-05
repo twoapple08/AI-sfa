@@ -75,7 +75,9 @@ def extract(root):
                 actors=actors, camera=[[0.0, 0.0, 1.0] for _ in range(N)], timeline=[])
 
 
-def compile_ir(ir, name='motion_ir'):
+def compile_ir(ir, name='motion_ir', sheets=None):
+    """sheets: {slot: char_sheet.read(...) 결과} — 그 인물에 캐릭터 시트 색·액세서리를 입힌다(단계 1-②)."""
+    sheets = sheets or {}
     from stickman_clip import person_aos
     N = ir['frames']
     parts = [f'<Sequence Name="{name}" HeightWidthRatio="{ir["aspect"]}" RatioX="16" RatioY="9" FrameCount="{N}" BackgroundColor="-1">']
@@ -103,6 +105,16 @@ def compile_ir(ir, name='motion_ir'):
             if not a['head_fill'][n]:
                 i = xml.find('<FR ')
                 if i >= 0: xml = xml[:i]
+            sh = sheets.get(a['slot'])
+            if sh is not None:
+                import char_sheet as CS
+                xml = xml.replace(f'Color="{LINE_COLOR[color]}"', f'Color="{sh["body_color"]}"')
+                Jp = {k: tuple(v[n]) for k, v in a['joints'].items() if v[n] is not None}
+                if 'head_b' not in Jp: Jp['head_b'] = Jp['neck']
+                body_th = (tn.get('2') if tn else None) or 1.0
+                i = xml.find('<FR ')
+                acc = CS.accessory_xml(sh, n, a['slot'], Jp, body_th)
+                xml = (xml[:i] + acc + xml[i:]) if i >= 0 else xml + acc
             parts.append(xml)
         parts.append('</Frame>')
     parts.append('</Sequence>')
