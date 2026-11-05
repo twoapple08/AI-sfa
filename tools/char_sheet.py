@@ -330,7 +330,8 @@ def rig_xml(R_, yaw, n, slot, J, body_th_frame):
 
 
 # ---------- 흔들리는 액세서리(망토) — 11-05 사용자: "몸을 뚫고 펄럭임이 없음" ----------
-SIM = dict(n=9, gravity=0.008, damping=0.04, shape=0.008, iters=12, wind=(0.0, 0.0), reset_jump=1.2, drag=0.35)
+SIM = dict(n=9, gravity=0.008, damping=0.04, shape=0.008, iters=12, wind=(0.0, 0.0), reset_jump=1.2, drag=0.35, hem_width=2.0)
+# hem_width(11-05 사용자 "아래쪽 기본 너비를 2배 정도"): 목은 그대로, 아래로 갈수록 벌려 밑단에서 시트 너비의 이 배수
 # 11-05 사용자 "형태에 너무 얽매임, 훨씬 넓게 퍼지고 펄럭여도 됨": 모양 복원 0.06→0.008, 감쇠 0.08→0.04, 중력 0.012→0.008,
 # 공기 저항 drag(고정점 속도의 반대 방향, 끝으로 갈수록 크게) 추가
 
@@ -374,6 +375,13 @@ def _simulate(info, P, J, state, key, n):
     for oi, top, bot in info['edges']:
         p0, c, p2 = iso(P[(oi, top)]), iso(P[(oi, 1)]), iso(P[(oi, bot)])
         targets.append([_quad(p0, c, p2, i / (N - 1)) for i in range(N)])
+    f = SIM['hem_width']
+    if f != 1.0 and len(targets) == 2:
+        for i in range(N):
+            mx, my = (targets[0][i][0] + targets[1][i][0]) / 2, (targets[0][i][1] + targets[1][i][1]) / 2
+            k = 1 + (f - 1) * i / (N - 1)
+            for T in targets:
+                T[i] = (mx + (T[i][0] - mx) * k, my + (T[i][1] - my) * k)
     st = state.get(key)
     anchor = targets[0][0]
     if st is None or st['n'] != n - 1 or math.dist(anchor, st['anchor']) > SIM['reset_jump'] * L:
@@ -430,8 +438,10 @@ def _simulate(info, P, J, state, key, n):
     for e in (0, 2):
         tgt = info['hem_conn'][e]
         newe.append(out[tgt] if tgt in out else hp[e])
-    dmx = ((newe[0][0] - hp[0][0]) + (newe[1][0] - hp[2][0])) / 2; dmy = ((newe[0][1] - hp[0][1]) + (newe[1][1] - hp[2][1])) / 2
-    out[(h, 0)], out[(h, 2)], out[(h, 1)] = newe[0], newe[1], (hp[1][0] + dmx, hp[1][1] + dmy)
+    # 조절점: 시트 밑단에서 두 끝 가운데 대비 조절점 위치(휨)를 두 끝 길이 비율만큼 키워 새 두 끝 가운데에
+    om = ((hp[0][0] + hp[2][0]) / 2, (hp[0][1] + hp[2][1]) / 2); nm = ((newe[0][0] + newe[1][0]) / 2, (newe[0][1] + newe[1][1]) / 2)
+    sc = (math.dist(iso(newe[0]), iso(newe[1])) / (math.dist(iso(hp[0]), iso(hp[2])) or 1e-9))
+    out[(h, 0)], out[(h, 2)], out[(h, 1)] = newe[0], newe[1], (nm[0] + (hp[1][0] - om[0]) * sc, nm[1] + (hp[1][1] - om[1]) * sc)
     return out
 
 
