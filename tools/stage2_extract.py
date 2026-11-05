@@ -38,6 +38,7 @@ SCORE = 1.5
 TORSO = (5, 6, 11, 12)
 LEGS = (11, 12, 13, 14, 15, 16)   # 골반·무릎·발목: 전신 조건(첫 시도에서 얼굴 클로즈업·상반신 컷이 뽑혀 엉뚱한 몸이 나오거나 다리가 통째로 없었다)
 MIN_HEIGHT, MAX_JITTER = 0.25, 2.0   # 사람 상자 높이 / 화면 높이 중앙값 하한, 원래 관절 흔들림(2차 차분 / 몸통) 중앙값 상한 — 0.15는 빠른 동작까지 잘라 6구간뿐(11-05: 전신 57트랙 흔들림 중앙 0.71), 2.0 넘는 4–6은 사람 바뀜·추적 실패
+LEG_MED = 3.0                     # 무릎·발목 점수 중앙값 하한: 가까운 상반신 컷은 다리를 지어내도 2.3 안팎(11-05 3차 시트 08·24·30), 전신은 3.2 이상
 IN_LEG = 0.6                      # 골반→발목 / 몸통 하한(웅크림 허용, 지어낸 짧은 다리 제외)
 LIMBS = (9, 10, 15, 16)          # 손목·발목(RTMW 몸 17점)
 
@@ -143,6 +144,7 @@ def candidates(vid, R, cut_list, H=720, W=1280):
             for t in track(R, ws, we):
                 good = [f for f in frames if f in t and t[f][1][list(TORSO) + list(LEGS), 2].min() >= SCORE and leg_in_frame(t, f, W, H)]
                 if len(good) < MIN_COVER * len(frames): continue
+                if np.median([t[f][1][13:17, 2] for f in t]) < LEG_MED: continue
                 if np.median([t[f][0][3] - t[f][0][1] for f in t]) < MIN_HEIGHT * H: continue
                 if raw_jitter(t, frames) > MAX_JITTER: continue
                 T.append((t, good))
@@ -222,6 +224,27 @@ def same_scene(A, B):
     return any(a is not None and b is not None and float(np.abs(a - b).mean()) < DUP_THR for a in A for b in B)
 
 
+POSE_DUP = 0.2   # 정규화 포즈 열(골반 원점·몸통 배율) 최소 정렬 차이 — 같은 그림의 다른 색·자르기 판(X↔사쿠가, 사쿠가끼리)이
+                 # 0.05–0.18, 다른 장면은 0.30 이상(11-05 3차 30구간). 화면 썸네일 비교는 레터박스·색 보정 차이로 놓쳤다
+
+
+def pose_seq(c):
+    t = c['tracks'][0]
+    K = np.stack([t[f][1][:17, :2] for f in range(c['start'], c['end']) if f in t])
+    pel = (K[:, 11] + K[:, 12]) / 2
+    tor = np.linalg.norm((K[:, 5] + K[:, 6]) / 2 - pel, axis=1)[:, None, None] + 1e-6
+    return (K - pel[:, None]) / tor
+
+
+def pose_dist(A, B, minov=12):
+    best = 9.0
+    for off in range(-len(B) + minov, len(A) - minov + 1):
+        i0, i1 = max(0, off), min(len(A), off + len(B))
+        if i1 - i0 < minov: continue
+        best = min(best, float(np.median(np.linalg.norm(A[i0:i1] - B[i0 - off:i1 - off], axis=2))))
+    return best
+
+
 def dev_thumbs(work):
     """개발 사례 영상 전체(4장 간격) 썸네일: 다른 출처에 같은 장면이 있으면 개발 사례로 보고 뺀다."""
     v = f'{work}/video/{DEV_CLIP}.mp4'
@@ -250,10 +273,11 @@ def main():
         th = seg_thumbs(work, c)
         if same_scene(th, dev):
             dropped.append((c['video'], c['start'], '개발 사례와 같은 장면')); continue
-        hit = next((k for k in sel if same_scene(th, k['th'])), None)
+        ps = pose_seq(c)
+        hit = next((k for k in sel if same_scene(th, k['th']) or pose_dist(ps, k['ps']) < POSE_DUP), None)
         if hit:
             dropped.append((c['video'], c['start'], f'중복 {hit["video"]}:{hit["start"]}')); continue
-        c['th'] = th; sel.append(c)
+        c['th'], c['ps'] = th, ps; sel.append(c)
         if len(sel) == NSEL: break
     print('뺀 후보', len(dropped), dropped, flush=True)
     import motion_ir as M
