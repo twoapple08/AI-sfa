@@ -44,6 +44,7 @@ class Ids:
         return self.p
 
 
+TL = 1   # 시트지 템플릿 레이어 ID
 STY = dict(ObjectScale='1.0', GlowRadius='0', GlowThickness='0', GlowColor='4294967295', GlowAlpha='0')
 
 
@@ -84,24 +85,25 @@ def label(fr, ids, text, cx, y, size, layer, th=0.18):
 
 def guide_frame(seq, pos, title, ids, names, with_slots=True):
     fr = ET.SubElement(seq, 'Frame', dict(BackgroundColor='4294967295', ID=str(pos + 1), Position=str(pos)))
-    for lid, nm, lock in ((0, 'sheet.guide', 'true'), (1, 'char.back', 'false'), (2, 'char.mid', 'false'), (3, 'char.front', 'false')):
+    # 11-05 사용자: 1번 시트지 템플릿(맨 위), 2번 캐릭터 디자인(바로 아래). 레이어 ID가 클수록 앞.
+    for lid, nm, lock in ((0, '캐릭터 디자인', 'false'), (1, '시트지 템플릿', 'true')):
         ET.SubElement(fr, 'LayerDef', dict(ID=str(lid), Name=nm, Visible='true', Locked=lock))
-    label(fr, ids, title, 50.0, 0.3, 2.8, 0, th=0.15)
+    label(fr, ids, title, 50.0, 0.3, 2.8, TL, th=0.15)
     if not with_slots:
         return fr
     for (x0, x1, y0, y1), nm in zip(top_slots(), names[0]):
         for a, b in (((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)), ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0))):
-            line(fr, ids, a, b, GUIDE, 0.25, 0)
-        line(fr, ids, ((x0 + x1) / 2, HEAD_Y - 1.5), ((x0 + x1) / 2, FOOT_Y + 1.5), GUIDE, 0.2, 0)      # 가운데선
-        label(fr, ids, nm, (x0 + x1) / 2, y0 + 1.6, 4.2, 0)
+            line(fr, ids, a, b, GUIDE, 0.25, TL)
+        line(fr, ids, ((x0 + x1) / 2, HEAD_Y - 1.5), ((x0 + x1) / 2, FOOT_Y + 1.5), GUIDE, 0.2, TL)      # 가운데선
+        label(fr, ids, nm, (x0 + x1) / 2, y0 + 1.6, 4.2, TL)
     xs = [s[0] for s in top_slots()] + [s[1] for s in top_slots()]
-    line(fr, ids, (min(xs), HEAD_Y), (max(xs), HEAD_Y), GUIDE2, 0.3, 0)    # 정수리선
-    line(fr, ids, (min(xs), FOOT_Y), (max(xs), FOOT_Y), GUIDE2, 0.3, 0)    # 발바닥선
+    line(fr, ids, (min(xs), HEAD_Y), (max(xs), HEAD_Y), GUIDE2, 0.3, TL)    # 정수리선
+    line(fr, ids, (min(xs), FOOT_Y), (max(xs), FOOT_Y), GUIDE2, 0.3, TL)    # 발바닥선
     for (x0, x1, y0, y1), nm in zip(bot_slots(), names[1]):
         for a, b in (((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)), ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0))):
-            line(fr, ids, a, b, GUIDE, 0.25, 0)
-        line(fr, ids, ((x0 + x1) / 2, y0 + 6), ((x0 + x1) / 2, y1 - 1), GUIDE, 0.2, 0)
-        label(fr, ids, nm, (x0 + x1) / 2, y0 + 1.6, 4.2, 0)
+            line(fr, ids, a, b, GUIDE, 0.25, TL)
+        line(fr, ids, ((x0 + x1) / 2, y0 + 6), ((x0 + x1) / 2, y1 - 1), GUIDE, 0.2, TL)
+        label(fr, ids, nm, (x0 + x1) / 2, y0 + 1.6, 4.2, TL)
     return fr
 
 
@@ -117,8 +119,8 @@ def build_template(with_example=None):
         f3 = guide_frame(seq, 2, '3 근접 묘사 (손 · 표정 · 세부)', ids, None, with_slots=False)
         for (x0, x1), nm in (((3.0, 49.0), '손'), ((51.0, 97.0), '표정 · 세부')):
             for a, b in (((x0, 8), (x1, 8)), ((x1, 8), (x1, 97)), ((x1, 97), (x0, 97)), ((x0, 97), (x0, 8))):
-                line(f3, ids, a, b, GUIDE, 0.25, 0)
-            label(f3, ids, nm, (x0 + x1) / 2, 9.5, 4.2, 0)
+                line(f3, ids, a, b, GUIDE, 0.25, TL)
+            label(f3, ids, nm, (x0 + x1) / 2, 9.5, 4.2, TL)
     if with_example is not None:
         place_example(f1, with_example, ids)
     return seq
@@ -132,8 +134,8 @@ def load_v1(path):
 def place_example(fr, v1, ids):
     """v1(시계 반대 90° 돌려 그린 6방향)을 시계 방향 90° 돌려 바로 세우고 칸에 맞춰 옮긴다.
     v1 배치: 왼쪽 세로줄 아래→위 = 정면·우측·좌측·후면, 오른쪽 세로줄 아래→위 = 위·아래(글자 양식을 돌린 것과 일치).
-    레이어는 사용자 원본 앞뒤 순서 그대로(원본 ID 0·1·2 → char.back·char.mid·char.front): 후면에서 보석이 머리 뒤에 숨는 것처럼
-    사용자가 레이어로 앞뒤를 나눴기 때문(액세서리 레이어로 옮기면 보석이 앞으로 나온다 — 11-05 첫 시험). 객체·점 ID는 그대로(면 FS 참조 유지), 양식 ID와 겹치지 않게 양식은 큰 번호 뒤에 둔다."""
+    사용자 원본 세 레이어는 '캐릭터 디자인' 한 레이어로 합치되, 원본 레이어 뒤→앞 순서로 객체를 넣어 앞뒤를 유지한다
+    (후면에서 보석이 머리 뒤에 숨는 것; 액세서리를 앞 레이어로 옮기면 보석이 앞으로 나왔다 — 11-05 첫 시험). 객체·점 ID는 그대로(면 FS 참조 유지), 양식 ID와 겹치지 않게 양식은 큰 번호 뒤에 둔다."""
     f = v1.find('Frame')
     aos = f.findall('AO')
 
@@ -179,16 +181,22 @@ def place_example(fr, v1, ids):
             ty = (y0 + 7 + (y1 - y0 - 8) / 2) / 100 * PH - (lo[1] + hi[1]) / 2 * s
         tx = cxp - (lo[0] + hi[0]) / 2 * s
         for i in ix:
+            col_ = int(aos[i].get('Color')) & 0xFFFFFFFF
+            if n == '후면' and ((col_ >> 16) & 255) > 180 and ((col_ >> 8) & 255) < 80:
+                continue   # 후면에서 안 보이는 이마 보석(원본은 레이어로 머리 뒤에 숨김) — 한 레이어에선 비쳐 보여 뺀다(11-05)
             a = copy.deepcopy(aos[i])
-            a.set('LayerId', str(int(a.get('LayerId')) + 1))
+            a.set('_ord', a.get('LayerId')); a.set('LayerId', '0')
             for k_ in ('ThicknessScale', 'ObjectScale'):
                 a.set(k_, f"{float(a.get(k_) or 1) * s:.4f}")
             for p in a.findall('AP'):
                 X, Y = rot(float(p.get('X')), float(p.get('Y')))
                 p.set('X', f'{(X * s + tx) / PW * 100:.4f}'); p.set('Y', f'{(Y * s + ty) / PH * 100:.4f}')
             keep.append(a)
-    for a in keep:
-        fr.append(a)
+    keep.sort(key=lambda a: int(a.get('_ord')))   # 원본 레이어 0(뒤)→2(앞) 순서로 넣어 앞뒤(후면 보석이 머리 뒤) 유지
+    pos0 = list(fr).index(fr.findall('LayerDef')[-1]) + 1   # 양식(맨 위 레이어) 객체보다 앞서 쓰기
+    for i, a in enumerate(keep):
+        del a.attrib['_ord']
+        fr.insert(pos0 + i, a)
     for x in f.findall('FR'):
         fr.append(copy.deepcopy(x))
     return {n: len(ix) for n, ix in groups.items()}, s_top, s_bot
@@ -198,7 +206,7 @@ def renumber_template(seq, base_o, base_p):
     """양식 객체·점 ID를 예시(사용자 원래 ID)와 겹치지 않게 큰 번호로."""
     for fr in seq.findall('Frame'):
         for a in fr.findall('AO'):
-            if a.get('LayerId') == '0' and int(a.get('ID')) < 100000:
+            if a.get('LayerId') == str(TL) and int(a.get('ID')) < 100000:
                 a.set('ID', str(base_o + int(a.get('ID')))); a.set('DrawOrder', a.get('ID'))
                 for p in a.findall('AP'):
                     p.set('ID', str(base_p + int(p.get('ID'))))
@@ -240,8 +248,8 @@ def guide_png(seq_ex, path):
         '     → 다섯 칸 모두 같은 크기(같은 키). 몸 중심은 칸의 세로 가운데선에.',
         '③ 반측면 = 정면과 측면 사이(약 45°로 돌아선 모습). 액션 장면에서 가장 많이 나오는 각도입니다.',
         '④ 아래 줄(위·아래)은 비스듬하게(부감·앙각) 그려도 됩니다. 대략의 방향·각도는 설명 글에 적어 주세요.',
-        '⑤ 레이어(앞뒤 순서):  sheet.guide = 양식(잠김)  ·  char.back = 몸 뒤에 오는 것  ·  char.mid = 몸  ·  char.front = 몸 앞에 오는 것.',
-        '     → 예: 후면에서 이마 보석은 머리 뒤(char.back), 정면에서는 앞(char.front). 레이어 이름은 바꾸지 마세요.',
+        '⑤ 레이어:  1번 = 시트지 템플릿(맨 위, 잠김 — 건드리지 않음)  ·  2번 = 캐릭터 디자인(바로 아래, 여기에 그립니다).',
+        '     → 레이어 이름은 바꾸지 마세요. 그 방향에서 안 보이는 부분(예: 후면에서 이마 보석)은 그리지 않습니다.',
         '⑥ 액세서리가 무엇인지(이름·붙는 곳·흔들림)는 설명 글에 적어 주세요.',
         '⑦ 설명 글(따로 보내는 글 파일): 이름 · 색 · 비율 메모 · 액세서리마다 붙는 곳과 흔들림 여부 · 위/아래 칸 각도 · 그 밖의 특징.',
         '⑧ 무기는 이 시트가 아니라 무기 파일 + 무기를 든 정지 컷으로 따로 보냅니다.',
