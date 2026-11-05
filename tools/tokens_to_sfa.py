@@ -1,7 +1,8 @@
 """동작 토큰(모델 출력) → 캐릭터 시트를 입힌 스틱맨 .sfa (단계 6 연결부).
 
 순서: 토큰 묶음들(처음 + 이어 만들기 조각들)을 이어 붙임 → motion_tokens.decode → 화면 밖으로 나간 골반 위치 보정(선택)
-→ 몸 굵기(거리 굵기, 몸통 길이로) → motion_ir.compile_ir(sheets=캐릭터 시트 v3 read_all) → .sfa
+→ 몸 굵기(거리 굵기, 몸통 길이로) → motion_ir.compile_ir(sheets=CS.rig(캐릭터 시트 v3 read_all)) → .sfa
+(11-05 사용자 '망토 레이어가 이상함': read_all만 넘기면 옛 칸 고르기 경로로 가서 망토가 흔들림·앞뒤 구분 없이 늘 몸 앞에 그려졌다 → rig로 넘긴다.)
 사용: python tools/tokens_to_sfa.py <토큰 json(목록 또는 목록의 목록)> <캐릭터 시트.sfa> <출력.sfa> [--center]
 """
 import json, math, os, sys
@@ -32,7 +33,7 @@ def build(tokens, sheet_path=None, center=False, name='generated'):
     S = [math.hypot((J['neck'][n][0] - J['pelvis'][n][0]) * 11.52, (J['neck'][n][1] - J['pelvis'][n][1]) * 6.48) for n in range(N)]
     th, _ = distance_thickness(__import__('numpy').array(S), ((73.3, 1.0), (376.4, 5.0)))
     a['thickness'] = [{str(o): round(float(th[n]), 3) for o in range(1, 12)} for n in range(N)]
-    sheets = {0: CS.read_all(sheet_path)} if sheet_path else None
+    sheets = {0: CS.rig(CS.read_all(sheet_path))} if sheet_path else None
     return ir, M.compile_ir(ir, name=name, sheets=sheets)
 
 

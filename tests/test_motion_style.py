@@ -182,3 +182,19 @@ class Stage5(unittest.TestCase):
         two = make_ir([60, 70] * 6, [2] * 12); one = make_ir([60, 70] * 12, [1] * 24)
         a, b = S.style_score([MT.encode(two)]), S.style_score([MT.encode(one)])
         self.assertLess(a['hold_l1'], b['hold_l1'])   # nian41(2장 유지 61%)에 2장 유지가 더 가깝다
+
+
+class TokensToSfaCape(unittest.TestCase):
+    def test_cape_behind_body_front_view(self):
+        """11-05 사용자 '망토 레이어가 이상함': 연결부가 read_all만 넘겨 망토가 늘 몸 앞(뒤 사본 없음)이었다.
+        정면(facing 없음)에서는 망토 뒤 사본이 있고, 그 DrawOrder가 몸 객체보다 작아야 한다."""
+        import motion_tokens as MT, tokens_to_sfa as T, char_sheet as CS, motion_ir as M
+        sheet = os.path.join(os.path.dirname(__file__), '..', 'data', 'templates', 'character_sheet_v3_example.sfa')
+        ir = make_ir([60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82], [2] * 12)
+        _, root = T.build(MT.encode(ir), sheet, center=True)
+        f0 = root.findall('Frame')[0]
+        do = {int(a.get('ID')): int(a.get('DrawOrder')) for a in f0.findall('AO')}
+        body = [v for k, v in do.items() if 0 <= k - M.AO0 < 100]
+        back = [v for k, v in do.items() if 500 <= k - CS.ACC_AO0 < 1000]
+        self.assertTrue(body and back)
+        self.assertLess(max(back), min(body))
