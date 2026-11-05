@@ -3,7 +3,8 @@
 개발 사례(60초 클립 1913231262086463573, held_out=false/training_ready=false)는 쓰지 않는다. 수동 보정 없이 공통 자동 처리만:
  1) 컷: 저용량 영상의 이웃 장 HSV 히스토그램 차(바타차리야 > CUT_THR)
  2) 인물 추적: 장마다 RTMW 사람 상자를 앞 장 트랙과 IoU·중심 거리로 이음
- 3) 구간 후보: 컷 안에서 트랙이 MIN_COVER 이상 이어지고 몸통 점수가 충분한 사람 1–2명, 길이 MIN_LEN–MAX_LEN장(긴 컷은 나눔)
+ 3) 구간 후보: 컷 안에서 트랙이 MIN_COVER 이상 이어지고 몸통·골반·무릎·발목 점수가 충분한(전신) 사람 1–2명, 키가 화면 높이의
+    MIN_HEIGHT 이상, 원래 관절 흔들림 MAX_JITTER 이하, 길이 MIN_LEN–MAX_LEN장(긴 컷은 나눔)
  4) 액션 점수: 손목·발목 속도 / 몸통 길이의 평균(움직임 많은 구간 우선), 영상당 최대 PER_VIDEO개, 전체 상위 N개
  5) 변환: rtmw_to_stickman_2d_v2.run_core(키포즈) → stickman_variants.basic_joints, 머리 = run_core head_t/head_base,
     굵기 = 거리 굵기(몸통 배율), 몸 방향 = facing_from_pose(어깨·골반·코) 연속 각도
@@ -24,6 +25,8 @@ DEV_CLIP = '1913231262086463573'
 CUT_THR, MIN_LEN, MAX_LEN, MIN_COVER, PER_VIDEO = 0.35, 24, 120, 0.8, 5
 SCORE = 1.5
 TORSO = (5, 6, 11, 12)
+LEGS = (11, 12, 13, 14, 15, 16)   # 골반·무릎·발목: 전신 조건(첫 시도에서 얼굴 클로즈업·상반신 컷이 뽑혀 엉뚱한 몸이 나오거나 다리가 통째로 없었다)
+MIN_HEIGHT, MAX_JITTER = 0.25, 0.15   # 사람 상자 높이 / 화면 높이 중앙값 하한, 원래 관절 흔들림(2차 차분 / 몸통) 중앙값 상한
 LIMBS = (9, 10, 15, 16)          # 손목·발목(RTMW 몸 17점)
 
 
@@ -85,6 +88,14 @@ def track(R, s, e):
     return tracks
 
 
+def raw_jitter(t, frames):
+    X = [t[f][1][:17, :2] / (np.linalg.norm((t[f][1][5, :2] + t[f][1][6, :2]) / 2 - (t[f][1][11, :2] + t[f][1][12, :2]) / 2) or 1)
+         for f in frames if f in t]
+    if len(X) < 3: return 9.9
+    X = np.stack(X)
+    return float(np.median(np.linalg.norm(X[2:] - 2 * X[1:-1] + X[:-2], axis=2)))
+
+
 def action_score(t, frames):
     pts = []
     for f in frames:
@@ -95,10 +106,10 @@ def action_score(t, frames):
         if f1 != f0 + 1: continue
         tor = np.linalg.norm((a[5, :2] + a[6, :2]) / 2 - (a[11, :2] + a[12, :2]) / 2) or 1
         v.append(np.mean([np.linalg.norm(b[i, :2] - a[i, :2]) for i in LIMBS]) / tor)
-    return float(np.mean(v)) if v else 0.0
+    return float(np.median(v)) if v else 0.0   # 중앙값: 튀는 장에 덜 끌림
 
 
-def candidates(vid, R, cut_list):
+def candidates(vid, R, cut_list, H=720):
     out = []
     for s, e in zip(cut_list, cut_list[1:]):
         for ws in range(s, e, MAX_LEN):
@@ -107,8 +118,11 @@ def candidates(vid, R, cut_list):
             frames = list(range(ws, we))
             T = []
             for t in track(R, ws, we):
-                good = [f for f in frames if f in t and t[f][1][list(TORSO), 2].min() >= SCORE]
-                if len(good) >= MIN_COVER * len(frames): T.append(t)
+                good = [f for f in frames if f in t and t[f][1][list(TORSO) + list(LEGS), 2].min() >= SCORE]
+                if len(good) < MIN_COVER * len(frames): continue
+                if np.median([t[f][0][3] - t[f][0][1] for f in t]) < MIN_HEIGHT * H: continue
+                if raw_jitter(t, frames) > MAX_JITTER: continue
+                T.append(t)
             if not T: continue
             T = sorted(T, key=lambda t: -np.median([(t[f][0][2] - t[f][0][0]) * (t[f][0][3] - t[f][0][1]) for f in t]))[:2]
             sc = max(action_score(t, frames) for t in T)
@@ -167,7 +181,7 @@ def main():
         v, r = fetch(work, vid)
         R = load_rtmw(r)
         cl, n = cuts(v)
-        cs = sorted(candidates(vid, R, cl), key=lambda c: -c['score'])[:PER_VIDEO]
+        cs = sorted(candidates(vid, R, cl, VIDEOS[vid][1]), key=lambda c: -c['score'])[:PER_VIDEO]
         print(vid, '장', n, '컷', len(cl) - 1, '후보', len(cs), [round(c['score'], 3) for c in cs], flush=True)
         allc += cs
     sel = sorted(allc, key=lambda c: -c['score'])[:NSEL]

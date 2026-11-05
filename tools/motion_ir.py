@@ -92,7 +92,8 @@ def compile_ir(ir, name='motion_ir', sheets=None):
             # 화면 % → 가로세로 같은 단위(16:9)로: 머리 접촉 제약(A안)은 실제 거리로 계산해야 원본과 같다
             sx, sy = 16.0, 16.0 * ir['aspect']
             Jn = {k: (v[n][0] * sx / 100, v[n][1] * sy / 100) for k, v in a['joints'].items() if v[n] is not None}
-            if 'neck' not in Jn: continue
+            need = ('head_t', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l')
+            if any(k not in Jn for k in need): continue   # 관절이 빠진 장은 그 인물을 그리지 않는다(단계 2 자동 추출: 풀이 범위 밖 장)
             if 'head_b' not in Jn: Jn.pop('head_b', None)
             off = set(a['hidden'][n]) | set(a['smear'][n])
             vis = [o for o in range(1, 12) if o not in off]
