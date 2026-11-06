@@ -55,13 +55,24 @@ def _grams(s):
     return {s[i:i + 2] for i in range(len(s) - 1)}
 
 
+LOCO = ('걷기', '달리기')
+
+
+def travel(c):
+    """조각 안 골반 가로 이동 ÷ 몸통(이동하는 걷기·달리기를 고르는 기준, 11-06: 제자리걸음 조각이 뽑혀 걷기로 안 보임)."""
+    J, asp = c['joints'], c['aspect']
+    T = sorted(_torso(J, n, asp) for n in range(c['frames']))[c['frames'] // 2]
+    return abs(J['pelvis'][-1][0] - J['pelvis'][0][0]) / T / max(c['frames'], 1)
+
+
 def pick(lib, verb, detail='', avoid=()):
     cand = [c for c in lib if c['verb'] == verb and c['src'] not in avoid] or [c for c in lib if c['verb'] == verb]
     if not cand: return None
     g = _grams(detail)
     def score(c):
         cg = _grams(c['detail']); sim = len(g & cg) / max(len(g | cg), 1) if g else 0
-        return sim + (0.3 if c['layer'] == 'style' else 0) + (0.2 if c['quality'] == '좋음' else 0) + min(c['frames'], 24) / 120
+        mv = min(travel(c) / 0.08, 1.0) * 0.6 if verb in LOCO else 0   # 걷기·달리기는 실제로 앞으로 나아가는 조각 우선
+        return sim + mv + (0.3 if c['layer'] == 'style' else 0) + (0.2 if c['quality'] == '좋음' else 0) + min(c['frames'], 24) / 120
     return max(cand, key=score)
 
 
@@ -72,7 +83,8 @@ def _torso(J, n, asp):
 def _norm(c):
     """조각 → 몸통 T0 크기, 첫 장 골반 원점 기준 좌표(이동 포함)."""
     J, asp = c['joints'], c['aspect']
-    T = sorted(_torso(J, n, asp) for n in range(c['frames']))[c['frames'] // 2]
+    Ts = sorted(_torso(J, n, asp) for n in range(c['frames']))
+    T = Ts[min(len(Ts) - 1, int(len(Ts) * 0.9))]   # 90분위(가장 길게 보인 몸통) — 원근으로 짧아진 장에 끌려 작아지지 않게(11-06 펀치 조각이 작아 보임)
     k = T0 / T; p0 = J['pelvis'][0]
     return {n_: [[(p[0] - p0[0]) * k, (p[1] - p0[1]) * k] for p in J[n_]] for n_ in NAMES}
 
