@@ -325,9 +325,52 @@ class Compose(unittest.TestCase):
             for k in J: J[k] = [[p[0] + dx * n, p[1]] for n, p in enumerate(J[k])]
             return dict(layer='ref', src=src, verb=verb, detail='', quality='좋음', frames=8, aspect=0.5625, joints=J)
         lib = [clip('걷기', 'a', 1.0), clip('펀치', 'b', 0.0)]
-        ir, picks = C.compose([('걷기', ''), ('펀치', '')], lib)
+        ir, picks = C.compose([('걷기', ''), ('펀치', '')], lib, synth=False)
         self.assertEqual([p['src'] for p in picks], ['a', 'b'])
         self.assertEqual(ir['frames'], 24 + C.BLEND + 8)   # 걷기: 8장 × 3번 반복 = 24 ≥ 20 · 펀치: 반복하지 않음(11-06)
         J = ir['actors'][0]['joints']
         H = max(m.hypot(J['head_t'][0][0] - J[a][0][0], (J['head_t'][0][1] - J[a][0][1]) * 0.5625) for a in ('ank_r', 'ank_l'))
         self.assertAlmostEqual(H, C.T0 * C.H_PER_T, places=3)   # 키(머리 위 ~ 먼 발목)를 맞춘다
+
+
+class GaitCycle(unittest.TestCase):
+    """11-06 걷기 출처 선택 1: 애니메이션 원리로 계산한 걷기·달리기 주기."""
+    def test_cycle_is_gait_and_feet_stay_planted(self):
+        import gait_cycle as GC, gait_eval as G
+        for verb, P in (('걷기', 24), ('달리기', 16)):
+            c = GC.cycle(verb, cycles=3)
+            m = G.metrics(dict(frames=c['frames'], aspect=c['aspect'], actors=[dict(joints=c['joints'])]))
+            self.assertTrue(m['gait_like'], verb)
+            self.assertEqual(m['period'], P)
+            self.assertEqual(m['slide'], 0.0)   # 지지 중 발은 땅에 고정
+            J = c['joints']   # 다리 길이 유지(두 뼈 역기구학)
+            for n in range(c['frames']):
+                for sd in 'rl':
+                    th = math.hypot(J['pelvis'][n][0] - J['kne_' + sd][n][0], (J['pelvis'][n][1] - J['kne_' + sd][n][1]) * c['aspect']) / 4.0
+                    self.assertAlmostEqual(th, GC.THIGH, places=6)
+
+    def test_speed_words(self):
+        import gait_cycle as GC
+        self.assertGreater(GC.params('걷기', '천천히 걷는다')['period'], GC.params('걷기', '')['period'])
+        self.assertLess(GC.params('달리기', '전력으로 달린다')['period'], GC.params('달리기', '')['period'])
+
+    def test_compose_uses_synth_and_camera_keeps_on_screen(self):
+        import compose as C
+        ir, picks = C.compose([('걷기', ''), ('달리기', '')], [])
+        self.assertEqual([p['src'] for p in picks], ['synth_걷기', 'synth_달리기'])
+        xs = [p[0] for p in ir['actors'][0]['joints']['pelvis']]
+        self.assertLessEqual(max(xs) - min(xs), C.CAM_HI - C.CAM_LO + 2)   # 따라가는 카메라: 골반이 화면 가운데 띠 안
+
+
+class ComposeMargin(unittest.TestCase):
+    def test_margin_stops_at_next_action(self):
+        """펀치 앞뒤 여유는 '자세 잡기'까지만, 다른 동작(킥) 앞에서 멈춘다."""
+        import compose as C
+        acts = [dict(verb='착지', **{'from': 0, 'to': 6}), dict(verb='펀치', **{'from': 9, 'to': 15}),
+                dict(verb='자세 잡기', **{'from': 18, 'to': 18}), dict(verb='킥', **{'from': 21, 'to': 33})]
+        lo, hi = C._bounds(acts, 1)
+        self.assertEqual((lo, hi), (6, 21))
+        ir = make_ir([60] * 40, [1] * 40)
+        s, t, core = C._margin(ir, [True] * 40, 9, 15, '펀치', lo, hi)
+        self.assertEqual((s, t, core), (7, 20, 2))
+        self.assertEqual(C._margin(ir, [True] * 40, 9, 15, '걷기', lo, hi), (9, 15, 0))   # 걷기·달리기는 늘리지 않음
