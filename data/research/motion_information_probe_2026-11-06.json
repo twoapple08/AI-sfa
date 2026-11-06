@@ -1,0 +1,93 @@
+{
+  "scope": "CPU synthetic counterexamples and existing public IR; no anime inspection or model run",
+  "metadata_token_collisions": {
+    "facing": true,
+    "hidden": true,
+    "smear": true,
+    "smear_mark": true,
+    "inferred": true,
+    "thickness": true,
+    "head_fill": true,
+    "color": true,
+    "camera": true,
+    "timeline": true,
+    "second_actor_default_slot": true
+  },
+  "synthetic_timing": {
+    "input_frames": 12,
+    "selected_keys": [
+      1,
+      4,
+      7,
+      10,
+      11
+    ],
+    "output_frames": 11,
+    "input_drawings": [
+      [
+        0,
+        2
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        9,
+        11
+      ]
+    ],
+    "output_drawings": [
+      [
+        0,
+        2
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        10,
+        10
+      ]
+    ],
+    "input_first_pair_identical": true,
+    "output_first_pair_identical": false
+  },
+  "existing_public_ir": {
+    "rows": 510,
+    "decodable": 510,
+    "shortened": 0,
+    "equal_length": 510,
+    "lengthened": 0,
+    "frames_lost_total": 0
+  },
+  "existing_public_ir_present": true,
+  "source_sha256": {
+    "tools/motion_tokens.py": "bc15a87537ae63a9e4e0b166547dcad9d0a748d0ac5b3186af994039ceec2f23",
+    "tools/compose.py": "29b831f0916af1413837f7881a5ab9cac10a959762c3fee9e14538dd22afb52d",
+    "tools/motion_ir.py": "0d150ba894cc36a906b564e9982194855c003b3ac1a13886f2d05f23a3882d39",
+    "tools/stage2_extract.py": "3a8f187afbfd170978ef441fb9ad460209c9b9401610594d299026dd588cc8b6",
+    "tools/stage5_pack.py": "3f444c0a38f4aed563656146af908a2ba500a8f9c478037bf87032a4d84ea46e",
+    "tools/tokens_to_sfa.py": "2711c5114e648205587bbd07bef7e062791bb19bfa5887cb588a5a8e59cc5c94",
+    "tools/motion_information_probe.py": "9e0e194e7c4ec92a81318f6d54e0513bcc4ac0ae845c8906680db1e8a1b3829e",
+    "data/stage2/user_sfa_ir_2026-11-05.jsonl.gz": "02519a269cc2621d247530b9da93901b34643fcb1cd663a9213635d67103a5ba"
+  },
+  "limits": [
+    "Collisions prove absent channels, not the cause of every visual defect.",
+    "Aggregate duration checks do not judge motion quality or anime fidelity.",
+    "No changes to production vocabulary, compiler, training data or approved output."
+  ]
+}
