@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-06):** 승인 nian41 280544 원본MD5 복원,1376~1407 연속32장/1391~1394 원본크기 판독. `docs/GPT-ANIME-SMEAR-EVENT-2026-11-06.md`, `data/research/anime_smear_event_2026-11-06.json`, `tools/anime_event_evidence.py`. 신체 자체가 길어지는 스미어 후보와 별도 궤적을 구분하는 사건 초안. 정확한 경계/원근 기여량 미확정·training_ready=false/held_out=false. **배치/타이밍은 승인 애니 원본**, 4.sfa는 구조 참고만,작은 형태변형 지원 중요. 다음은 사건정보 CPU 왕복 후 SFA 의미/편집 비교(High 권장), 학습/GPU/생산교체 없음. 비공개 연속32장/PTS는 `/workspace/scratch/anime_smear/evidence/`;분석 후 임시원본영상2개는 삭제. 검색 정정:이전 item_type 오류를 무결과로 오인;정상 검색은stage2폴더/compose문서 발견,최신진동입력은미확인. 작업마다 권장 추론 안내.
+- **최신 진행(11-06):** `docs/GPT-EVENT-CONTEXT-ROUNDTRIP-2026-11-06.md`, `tools/event_context.py`/`event_context_probe.py`/검사JSON. 실제 애니 사건 기록의 저장·분할/재결합 보존,새 보간장null,명시리매핑만 허용. 기존 토큰은 사건소실/합성12→11장 유지;문맥 오연결을 거부. 선언한 대응만 운반하며 자동 의미/시간 정답·모델학습·SFA외형/편집 성공은 아님. 기존 생산 경로 미연결,다음은 관측/추론 마디·형태 명시 후 사건을 검토용SFA와 묶는 비교(High). 애니 배치/타이밍 우선·4.sfa 구조참고·미확정/training_ready=false 유지. 원본 근거는 직전 애니 사건 보고서,32장/PTS 비공개 `/workspace/scratch/anime_smear/evidence/`. 작업마다 권장 추론 안내.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 

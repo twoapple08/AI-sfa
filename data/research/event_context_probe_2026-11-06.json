@@ -1,0 +1,54 @@
+{
+  "schema": "event-context-probe/1",
+  "source_case": "nian41_280544_leg_candidate_1390_1395",
+  "actual_anime_pose_used": false,
+  "synthetic_motion_only": true,
+  "context_roundtrip_equal": true,
+  "split_rejoin_equal": true,
+  "source_event_unchanged_after_remap": true,
+  "local_phase_runs_for_1390_1395": [
+    {
+      "phase_index": 0,
+      "local_inclusive": [
+        0,
+        2
+      ]
+    },
+    {
+      "phase_index": 1,
+      "local_inclusive": [
+        3,
+        3
+      ]
+    },
+    {
+      "phase_index": 2,
+      "local_inclusive": [
+        4,
+        5
+      ]
+    }
+  ],
+  "unmapped_interpolation_retained_as_null": true,
+  "legacy_tokens_unchanged_by_event": true,
+  "legacy_timeline_empty": true,
+  "legacy_motion_frames": [
+    12,
+    11
+  ],
+  "changed_length_binding_rejected": true,
+  "source_event_training_ready_after_roundtrip": false,
+  "exact_boundaries_verified_after_roundtrip": false,
+  "alignment_status": "declared_only",
+  "source_sha256": {
+    "data/research/anime_smear_event_2026-11-06.json": "39fe277d2fa0b7905bb04df246c213712a8c2d8dc26d2d8bfe24bf9522fe66a7",
+    "tools/event_context_probe.py": "be1076ad9c7bb613459896d828f71eb0699f7233852adfd873bca5fa7d34b10c",
+    "tools/event_context.py": "5e720b9fb10071b723f98c76f60988bd49cd84527db5835a70e191fb2b7d560e",
+    "tools/motion_tokens.py": "bc15a87537ae63a9e4e0b166547dcad9d0a748d0ac5b3186af994039ceec2f23",
+    "tools/motion_information_probe.py": "9e0e194e7c4ec92a81318f6d54e0513bcc4ac0ae845c8906680db1e8a1b3829e"
+  },
+  "limits": [
+    "문맥 보존은 생성 모델이 의미를 배웠다는 증거가 아니다.",
+    "원본 자세나 SFA 외형/편집 가능성은 이번에 비교하지 않았다."
+  ]
+}
