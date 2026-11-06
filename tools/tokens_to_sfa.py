@@ -30,8 +30,11 @@ def build(tokens, sheet_path=None, center=False, name='generated', facing=None):
         raise ValueError('토큰을 동작으로 되돌릴 수 없다')
     a = ir['actors'][0]; J = a['joints']; N = ir['frames']
     if facing is not None: a['facing'] = [float(facing)] * N
-    if center:   # 첫 장 골반을 화면 가운데 아래쪽(50, 70)으로 옮긴다
-        dx, dy = 50 - J['pelvis'][0][0], 70 - J['pelvis'][0][1]
+    if center:   # 골반이 움직인 범위 전체의 가운데를 화면 (50, 60)으로 옮긴다
+        # (11-06: 첫 장 골반만 가운데로 옮기면 화면 끝에서 시작한 동작이 뒤에서 화면 밖으로 밀려 — 단계 5 시트 17.7% 장이 화면 밖,
+        #  모델 원래 좌표로는 0.2%)
+        xs = [p[0] for p in J['pelvis']]; ys = [p[1] for p in J['pelvis']]
+        dx, dy = 50 - (min(xs) + max(xs)) / 2, 60 - (min(ys) + max(ys)) / 2
         for k in J: J[k] = [[p[0] + dx, p[1] + dy] for p in J[k]]
     S = [math.hypot((J['neck'][n][0] - J['pelvis'][n][0]) * 11.52, (J['neck'][n][1] - J['pelvis'][n][1]) * 6.48) for n in range(N)]
     th, _ = distance_thickness(__import__('numpy').array(S), ((73.3, 1.0), (376.4, 5.0)))

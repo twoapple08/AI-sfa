@@ -1,0 +1,106 @@
+{
+ "run": {
+  "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "steps": 800,
+  "accum": 8,
+  "new_token_training": "trainable_token_indices",
+  "load_s": 95.0,
+  "trainable_params": 37953536,
+  "split": "stage5_split_2026-11-05.json",
+  "train_pairs": 766,
+  "eval_pairs": 88,
+  "tokens_per_pair_median": 186,
+  "train_s": 4203.0,
+  "steps_done": 517,
+  "s_per_step": 8.13,
+  "train_peak_gb": 5.54,
+  "loss_first10": 15.314,
+  "loss_last10": 0.896,
+  "generation": {
+   "n": 30,
+   "seconds": 346.7
+  },
+  "gen_peak_gb": 5.75,
+  "total_s": 4646.1
+ },
+ "score": {
+  "all": {
+   "n": 30,
+   "decoded_chunks": 0.989,
+   "full_3_chunks": 29,
+   "frames_vs_request": [
+    15.0,
+    13.5,
+    13.0
+   ],
+   "seam_ratio_median": 0.8,
+   "seam_over_3": 9,
+   "seams": 58,
+   "plausible_median": 0.964
+  },
+  "style": {
+   "n": 4,
+   "decoded_chunks": 0.917,
+   "full_3_chunks": 3,
+   "frames_vs_request": [
+    12.5,
+    9.0,
+    6.5
+   ],
+   "seam_ratio_median": 0.61,
+   "seam_over_3": 0,
+   "seams": 6,
+   "plausible_median": 0.974
+  },
+  "ref": {
+   "n": 26,
+   "decoded_chunks": 1.0,
+   "full_3_chunks": 26,
+   "frames_vs_request": [
+    16.0,
+    14.0,
+    14.0
+   ],
+   "seam_ratio_median": 0.91,
+   "seam_over_3": 9,
+   "seams": 52,
+   "plausible_median": 0.963
+  },
+  "requested": [
+   32,
+   24,
+   24
+  ],
+  "rhythm": {
+   "style": {
+    "n": 3,
+    "hold_share": {
+     "1": 0.631,
+     "2": 0.338,
+     "3": 0.015,
+     "4+": 0.015
+    },
+    "hold_l1": 0.639,
+    "anticipation": 0.294,
+    "anticipation_ref": 0.523
+   },
+   "ref": {
+    "n": 26,
+    "hold_share": {
+     "1": 0.147,
+     "2": 0.853,
+     "3": 0.0,
+     "4+": 0.0
+    },
+    "hold_l1": 0.492,
+    "anticipation": 0.308,
+    "anticipation_ref": 0.523
+   }
+  },
+  "rhythm_baseline": {
+   "nian41_roundtrip": 0.064,
+   "user_sfa": 0.622
+  },
+  "offscreen_note": "모델 원래 좌표로 골반 화면 밖 0.2%(첫 시트의 17.7%는 tokens_to_sfa --center 표시 버그, 11-06 수정)"
+ }
+}
