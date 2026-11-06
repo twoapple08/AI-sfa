@@ -70,6 +70,19 @@ class SfaEventReviewTests(unittest.TestCase):
         root, _ = R.build(self.annotations, 'observed')
         with self.assertRaises(ValueError): R.inspect(root, C.slice_context(self.context, 0, 1))
 
+    def test_tip_extension_preserves_axes_and_joint_roles(self):
+        root, _ = R.build(self.annotations, 'observed')
+        extended = R.extend_to_tips(root, [[65, 55], [40, 35]], [100, 100])
+        report = R.inspect(extended, self.context, R.OBJECT_IDS + ['4560009'])
+        self.assertEqual(report['objects_per_frame'], 3)
+        self.assertEqual(report['unique_point_ids'], 12)
+        for old, new in zip(root.findall('Frame'), extended.findall('Frame')):
+            for a, b in zip(old.findall('AO'), new.findall('AO')[:2]):
+                self.assertEqual(a.attrib, b.attrib)
+                for pa, pb in zip(a.findall('AP'), b.findall('AP')):
+                    self.assertEqual(pa.attrib, pb.attrib)
+        with self.assertRaises(ValueError): R.extend_to_tips(root, [[65, 55]], [100, 100])
+
 
 if __name__ == '__main__':
     unittest.main()

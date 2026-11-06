@@ -1,0 +1,27 @@
+{
+  "schema": "sfa-foot-tip-revision/1",
+  "scope": "사용자 요청으로 부분 검토판에만 발끝 선 추가; 전체 캐릭터 기본 뼈대 변경 아님",
+  "source_indices": [
+    1392,
+    1393,
+    1394,
+    1395
+  ],
+  "old_asset_sha256": "3df44e3dc1f14f0d022e6388de4e1b9aabc6c83a397b8d37d8c3789299db9e01",
+  "new_asset_sha256": "be43a4b3b18fbddc27597586401799b7af30248215da5fbdac4ea1b877ee75ed",
+  "tool_sha256": "e94e43901e01a79b38daf8567148492c983b82e447e18c7358ab1b463ad3ea13",
+  "existing_axes_coordinates_and_flags_unchanged": true,
+  "source_context_unchanged": true,
+  "added_objects_per_frame": 1,
+  "added_orange_joints_per_frame": 0,
+  "structure": {
+    "frames": 4,
+    "objects_per_frame": 3,
+    "unique_point_ids": 24,
+    "one_root_and_one_orange_joint_per_frame": true,
+    "all_connections_resolve": true,
+    "app_editing_verified": false
+  },
+  "training_ready": false,
+  "user_judgment": "기존 observed가 뼈대를 더 잘 잡음; 발끝까지 이어지면 좋겠음. 주황점 앱 회전 성공 여부는 별도 미확인"
+}

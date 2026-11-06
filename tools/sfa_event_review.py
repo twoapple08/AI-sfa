@@ -61,7 +61,35 @@ def build(annotations, mode):
     return seq, output
 
 
-def inspect(root, context):
+def extend_to_tips(root, tips, image_size):
+    """기존 두 선의 좌표/역할을 보존하고 마지막 끝에 발끝 선 하나를 연결한다."""
+    result = copy.deepcopy(root)
+    frames = result.findall('Frame')
+    xy = np.asarray(tips, dtype=float)
+    if xy.shape != (len(frames), 2) or not np.isfinite(xy).all():
+        raise ValueError('장마다 유한한 발끝 좌표가 필요하다')
+    width, height = image_size
+    if width <= 0 or height <= 0:
+        raise ValueError('영상 크기 오류')
+    for frame, tip in zip(frames, xy):
+        aos = frame.findall('AO')
+        if [a.get('ID') for a in aos] != OBJECT_IDS:
+            raise ValueError('기존 두 선 검토판만 확장할 수 있다')
+        old_end = aos[1].findall('AP')[1]
+        pid = max(int(p.get('ID')) for a in aos for p in a.findall('AP')) + 1
+        new = ET.SubElement(frame, 'AO', **dict(aos[1].attrib, ID='4560009', DrawOrder='4560009'))
+        start = ET.SubElement(new, 'AP', ID=str(pid), Index='0', Flags='4', X=old_end.get('X'), Y=old_end.get('Y'))
+        ET.SubElement(start, 'AC', ConnPtId=old_end.get('ID'))
+        ET.SubElement(old_end, 'AC', ConnPtId=str(pid))
+        ET.SubElement(new, 'AP', ID=str(pid + 1), Index='1', Flags='9',
+                      X=f'{tip[0] / width * 100:.6f}', Y=f'{tip[1] / height * 100:.6f}')
+    return result
+
+
+def inspect(root, context, object_ids=None):
+    object_ids = list(OBJECT_IDS if object_ids is None else object_ids)
+    if object_ids not in (OBJECT_IDS, OBJECT_IDS + ['4560009']):
+        raise ValueError('지원하지 않는 부분 사슬')
     C.validate(context)
     frames = root.findall('Frame')
     if len(frames) != len(context['source_indices']) or int(root.get('FrameCount')) != len(frames):
@@ -71,7 +99,7 @@ def inspect(root, context):
         if int(frame.get('Position')) != index:
             raise ValueError('SFA Position 순서 오류')
         aos = frame.findall('AO')
-        if [a.get('ID') for a in aos] != OBJECT_IDS:
+        if [a.get('ID') for a in aos] != object_ids:
             raise ValueError('부분 사슬 대상 객체 불일치')
         current = [(a.get('ID'), a.get('TypeId'), a.get('LayerId')) for a in aos]
         if signature is not None and signature != current:
@@ -79,7 +107,7 @@ def inspect(root, context):
         signature = current
         points = [p for a in aos for p in a.findall('AP')]
         ids = {p.get('ID') for p in points}
-        if len(points) != 4 or len(ids) != 4 or seen & ids:
+        if len(points) != 2 * len(object_ids) or len(ids) != len(points) or seen & ids:
             raise ValueError('점 ID 중복 또는 장간 재사용')
         if sum(p.get('Flags') == '3' for p in points) != 1 or sum((int(p.get('Flags')) & 0x2f) == 0x21 for p in points) != 1:
             raise ValueError('뿌리/주황 관절 역할 오류')
@@ -94,6 +122,8 @@ def inspect(root, context):
                 other = conn.get('ConnPtId')
                 if other not in ids:
                     raise ValueError('끊어진 연결 참조')
+                if any(p.get(k) != by_id[other].get(k) for k in ('X', 'Y')):
+                    raise ValueError('부분 사슬 연결 좌표 분리')
                 graph[p.get('ID')].add(other)
         visited, todo = set(), [points[0].get('ID')]
         while todo:
@@ -105,18 +135,19 @@ def inspect(root, context):
         if any(by_id[points[1].get('ID')].get(k) != points[2].get(k) for k in ('X', 'Y')):
             raise ValueError('가운데 연결 좌표 분리')
         seen |= ids
-    return dict(frames=len(frames), objects_per_frame=2, unique_point_ids=len(seen),
+    return dict(frames=len(frames), objects_per_frame=len(object_ids), unique_point_ids=len(seen),
                 one_root_and_one_orange_joint_per_frame=True, all_connections_resolve=True,
                 app_editing_verified=False)
 
 
-def bind(path, context, role):
+def bind(path, context, role, object_ids=None):
+    object_ids = list(OBJECT_IDS if object_ids is None else object_ids)
     with zipfile.ZipFile(path) as z:
         root = ET.fromstring(z.read('review.xml'))
-    structure = inspect(root, context)
+    structure = inspect(root, context, object_ids)
     return dict(schema='sfa-event-review-binding/1', asset_sha256=digest(path),
                 context=copy.deepcopy(context), context_sha256=hashlib.sha256(C.dumps(context).encode()).hexdigest(),
-                object_binding=dict(actor_slot=context['actor_slot'], object_ids=list(OBJECT_IDS)),
+                object_binding=dict(actor_slot=context['actor_slot'], object_ids=object_ids),
                 role=role, structure=structure, training_ready=False, fps_for_review=[24, 24])
 
 
@@ -128,11 +159,12 @@ def verify(path, manifest):
     context = manifest['context']
     if hashlib.sha256(C.dumps(context).encode()).hexdigest() != manifest['context_sha256']:
         raise ValueError('문맥이 변경됐다. 재결합 검토가 필요하다')
-    if manifest['object_binding'] != dict(actor_slot=context['actor_slot'], object_ids=OBJECT_IDS):
+    ids = manifest['object_binding']['object_ids']
+    if manifest['object_binding'] != dict(actor_slot=context['actor_slot'], object_ids=ids) or ids not in (OBJECT_IDS, OBJECT_IDS + ['4560009']):
         raise ValueError('대상 객체 연결이 변경됐다')
     with zipfile.ZipFile(path) as z:
         root = ET.fromstring(z.read('review.xml'))
-    return inspect(root, context)
+    return inspect(root, context, ids)
 
 
 def comparison(annotations, output, evidence_dir):

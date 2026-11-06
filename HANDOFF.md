@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-06):** `docs/GPT-SFA-EVENT-REVIEW-2026-11-06.md`, `tools/sfa_event_review.py`,검사5개·집계JSON. 실제애니1392~1395 수동 부분중심선의 SFA4장2판+사건바인딩+원본비교PNG 생성. A고정길이반례(기존생성기아님),B수동축유지. 전신/자동추출/스미어형태층 성공 아님. 첫점화면경계·중간굽힘해석·하단연기속추론. 장당2AO/4AP,전체16AP새ID/Flags/AC/문맥검사통과,앱미확인. **사용자 B판 주황점/연결·비교판 판정 대기**, 새 시제품/설계 추가하지 않음. `/workspace/scratch/sfa_event_review/review.zip`,같은폴더 입력/시트;원본32장/PTS는anime_smear/evidence. 애니배치/타이밍·4.sfa구조참고·학습제외 유지. 모델/GPU/기존11객체기본경로 변경 없음, 작업마다 추론권장 안내.
+- **최신 진행(11-06):** 사용자 observed축이더좋음/발끝까지요청→부분검토판v2. 기존2선좌표/Flags/주황점유지,발목~발끝선1개연결(장당3AO/6AP,전체24점ID). 원본4장발끝수동판독·연기가림추론,새주황점없음. `docs/GPT-SFA-EVENT-REVIEW-2026-11-06.md`말미,`data/research/sfa_foot_tip_revision_2026-11-06.json`,도구extend_to_tips. 수정SFA/전후시트/ZIP `/workspace/scratch/sfa_event_review_tip_v2/`,기존v1보존. 사용자시각판정은수용됐으나앱회전성공미확인. v2판정대기중추가설계/시제품없음. 부분검토판에만적용,전체11객체프로필/생성기/학습/모델/GPU불변. 작업마다추론권장(이번Medium),애니배치/타이밍·4.sfa구조참고·미확정/학습제외유지.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
