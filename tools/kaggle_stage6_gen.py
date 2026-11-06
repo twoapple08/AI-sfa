@@ -23,7 +23,8 @@ DEV = 'cpu' if DRY else 'cuda'
 TARGET, FIRST, NEXT, CTX, K = 72, 32, 24, 3, 23
 MAX_CHUNKS = 3 if DRY else 10
 N_EVAL = 2 if DRY else 6
-MODES = ['full', 'act', 'full_ref']   # 11-06 비교: 매 조각 글 전체 / 조각마다 문장 하나(1차, 이어 만들기 50% 정지) / 글 전체 + <ref>(단계 5 평가 조건)
+MODES = [m for m in os.environ.get('MODES', 'full').split(',') if m]   # 2차 결과(11-06): 기본 = 글 전체. 옛 비교는 MODES=full,act,full_ref
+_OLD_MODES = ['full', 'act', 'full_ref']   # 11-06 비교: 매 조각 글 전체 / 조각마다 문장 하나(1차, 이어 만들기 50% 정지) / 글 전체 + <ref>(단계 5 평가 조건)
 RETRY, MIN_MOTION = 3, 0.05           # 정지(이웃 키 자세 변화 평균 < 0.05 몸통 — 학습 정답 중앙 0.6, 정지 판정 0.02)·되돌림 실패 조각은 다시 뽑기
 GB = 4 if DRY else 16
 CUSTOM = [
@@ -49,13 +50,13 @@ new_ids = tok.convert_tokens_to_ids(new)
 lc = dict(r=16, lora_alpha=32, lora_dropout=0.0, task_type='CAUSAL_LM',
           target_modules=['q_proj', 'k_proj', 'v_proj', 'o_proj', 'gate_proj', 'up_proj', 'down_proj'])
 model = get_peft_model(model, LoraConfig(**lc, trainable_token_indices={'embed_tokens': new_ids}))
-lora = sorted(glob.glob('/kaggle/input/**/lora/adapter_model.safetensors', recursive=True))
-if lora:
-    from safetensors.torch import load_file
-    r_ = set_peft_model_state_dict(model, load_file(lora[0]))
-    res['lora'] = lora[0]; res['lora_unexpected'] = len(getattr(r_, 'unexpected_keys', []) or [])
-elif not DRY:
-    raise SystemExit('단계 5 LoRA가 입력에 없다')
+# 학습 결과: 입력 안의 모든 adapter_model.safetensors(단계 5 2차의 30분 중간 저장본 lora_XXm/ + 마지막 lora/)를 차례로 불러 같은 글로 생성
+# (11-06: 오래 학습하면 외울 수 있어 시점별 비교). 이름 = 들어 있는 폴더 이름(맨 위면 데이터셋 이름).
+from safetensors.torch import load_file
+CKPTS = sorted(glob.glob(os.environ.get('INPUT_ROOT', '/kaggle/input') + '/**/adapter_model.safetensors', recursive=True))
+if os.environ.get('CKPT_ONLY'): CKPTS = [c for c in CKPTS if os.path.basename(os.path.dirname(c)) in os.environ['CKPT_ONLY'].split(',')]
+if not CKPTS and not DRY: raise SystemExit('학습 결과(LoRA)가 입력에 없다')
+res['ckpts'] = [os.path.basename(os.path.dirname(c)) for c in CKPTS]
 model.eval()
 res['load_s'] = round(time.time() - t0, 1)
 
@@ -65,7 +66,6 @@ starts = [r for r in rows if r['src'] in held and r['kind'] == 'start']
 random.seed(2); ev = random.sample(starts, min(N_EVAL, len(starts)))
 base = [dict(src=r['src'], layer=r['layer'], acts=r['prompt'].replace('<ref> ', '').split(' → ')) for r in ev]
 base += [dict(src=f'custom{i}', layer='custom', acts=a) for i, a in enumerate(CUSTOM)]
-samples = [dict(b, mode=m) for m in MODES for b in base]
 import math
 def motion(toks):
     body = [t for t in toks if t not in ('<motion>', '</motion>')]; P = []
@@ -99,37 +99,46 @@ def gen_many(items):
     return outs
 
 tg = time.time()
-for s in samples: s.update(chunks=[], frames=0, done=False)
-for k in range(MAX_CHUNKS):
-    todo = []
-    for i, s in enumerate(samples):
-        if s['done']: continue
-        act = prompt_of(s, k)
-        if k == 0: todo.append((i, (act, FIRST, ())))
-        else:
-            body = [t for t in s['chunks'][-1] if t not in ('<motion>', '</motion>')]
-            ctx = body[-CTX * K:] if len(body) >= K else []
-            if not ctx or len(ctx) % K: s['done'] = True; s['stop'] = '앞 조각 키 부족'; continue
-            todo.append((i, (act, NEXT, ctx)))
-    if not todo: break
-    outs = gen_many([x for _, x in todo]); tries = [1] * len(todo)
-    for _r in range(RETRY - 1):   # 정지·되돌림 실패 조각만 다시 뽑기
-        bad = [j for j, g in enumerate(outs) if MT.decode(g) is None or (not (DRY and os.environ.get('DRY_FAKE')) and motion(g) < MIN_MOTION)]
-        if not bad: break
-        for j, g in zip(bad, gen_many([todo[j][1] for j in bad])): outs[j] = g; tries[j] += 1
-    for (i, _), g, tr in zip(todo, outs, tries):
-        s = samples[i]; ir = MT.decode(g); s.setdefault('tries', []).append(tr); s.setdefault('motion', []).append(round(motion(g), 3) if ir else None)
-        if ir is None: s['done'] = True; s['stop'] = f'{k}번 조각 되돌림 실패'; continue
-        s['chunks'].append(g); s['frames'] += ir['frames']
-        if s['frames'] >= TARGET: s['done'] = True; s['stop'] = '목표 길이'
-    print('조각', k, '남은 표본', sum(not s['done'] for s in samples), round(time.time() - tg), 's', flush=True)
-with open(f'{OUT}/stage6_gen.jsonl', 'w', encoding='utf-8') as f:
-    for s in samples:
-        f.write(json.dumps(dict(src=s['src'], layer=s['layer'], mode=s['mode'], tries=s.get('tries'), motion=s.get('motion'),
-                                prompt=' → '.join(s['acts']), acts=s['acts'], chunks=s['chunks'],
-                                frames=s['frames'], stop=s.get('stop', '조각 상한')), ensure_ascii=False) + '\n')
-res['generation'] = dict(n=len(samples), seconds=round(time.time() - tg, 1),
-                         frames=[s['frames'] for s in samples], chunks=[len(s['chunks']) for s in samples])
+OUT_F = open(f'{OUT}/stage6_gen.jsonl', 'w', encoding='utf-8')
+for ci, ck_path in enumerate(CKPTS or [None]):
+    ck = os.path.basename(os.path.dirname(ck_path)) if ck_path else 'none'
+    if ck_path:
+        r_ = set_peft_model_state_dict(model, load_file(ck_path)); res.setdefault('ckpt_unexpected', {})[ck] = len(getattr(r_, 'unexpected_keys', []) or [])
+    samples = [dict(b, mode=m) for m in MODES for b in base]
+    for s in samples: s.update(chunks=[], frames=0, done=False)
+    for k in range(MAX_CHUNKS):
+        todo = []
+        for i, s in enumerate(samples):
+            if s['done']: continue
+            act = prompt_of(s, k)
+            if k == 0: todo.append((i, (act, FIRST, ())))
+            else:
+                body = [t for t in s['chunks'][-1] if t not in ('<motion>', '</motion>')]
+                ctx = body[-CTX * K:] if len(body) >= K else []
+                if not ctx or len(ctx) % K: s['done'] = True; s['stop'] = '앞 조각 키 부족'; continue
+                todo.append((i, (act, NEXT, ctx)))
+        if not todo: break
+        outs = gen_many([x for _, x in todo]); tries = [1] * len(todo)
+        for _r in range(RETRY - 1):   # 정지·되돌림 실패 조각만 다시 뽑기
+            bad = [j for j, g in enumerate(outs) if MT.decode(g) is None or (not (DRY and os.environ.get('DRY_FAKE')) and motion(g) < MIN_MOTION)]
+            if not bad: break
+            for j, g in zip(bad, gen_many([todo[j][1] for j in bad])): outs[j] = g; tries[j] += 1
+        for (i, _), g, tr in zip(todo, outs, tries):
+            s = samples[i]; ir = MT.decode(g); s.setdefault('tries', []).append(tr); s.setdefault('motion', []).append(round(motion(g), 3) if ir else None)
+            if ir is None: s['done'] = True; s['stop'] = f'{k}번 조각 되돌림 실패'; continue
+            s['chunks'].append(g); s['frames'] += ir['frames']
+            if s['frames'] >= TARGET: s['done'] = True; s['stop'] = '목표 길이'
+        print('조각', k, '남은 표본', sum(not s['done'] for s in samples), round(time.time() - tg), 's', flush=True)
+    f = OUT_F
+    if True:
+        for s in samples:
+            f.write(json.dumps(dict(ckpt=ck, src=s['src'], layer=s['layer'], mode=s['mode'], tries=s.get('tries'), motion=s.get('motion'),
+                                    prompt=' → '.join(s['acts']), acts=s['acts'], chunks=s['chunks'],
+                                    frames=s['frames'], stop=s.get('stop', '조각 상한')), ensure_ascii=False) + '\n')
+    res.setdefault('generation', {})[ck] = dict(n=len(samples), seconds=round(time.time() - tg, 1),
+                             frames=[s['frames'] for s in samples], chunks=[len(s['chunks']) for s in samples])
+
+OUT_F.close()
 res['total_s'] = round(time.time() - t0, 1)
 json.dump(res, open(f'{OUT}/stage6_result.json', 'w'), ensure_ascii=False, indent=1)
 print(json.dumps(res, ensure_ascii=False), flush=True)

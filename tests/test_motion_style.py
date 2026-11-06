@@ -287,3 +287,14 @@ class Stage5Report(unittest.TestCase):
         rc, rj = RP.seam_ratio(cont), RP.seam_ratio(jump)
         self.assertTrue(rc and rj)
         self.assertLess(max(rc), min(rj))
+
+    def test_copy_score(self):
+        """외우기 검사: 학습 동작 그대로면 베낌 1, 다른 동작이면 0."""
+        import motion_tokens as MT, stage5_report as RP
+        a = make_ir([50 + 4 * (i % 6) for i in range(30)], [1] * 30)
+        b = make_ir([50 + 4 * (i % 6) for i in range(30)], [1] * 30)
+        b['actors'][0]['joints']['ank_r'] = [[60 + 3 * (n % 5), 70] for n in range(30)]
+        b['actors'][0]['joints']['wri_l'] = [[30, 30 + 2 * (n % 7)] for n in range(30)]
+        ta, tb = MT.encode(a), MT.encode(b)
+        self.assertEqual(RP.copy_score([ta], [ta])['copy_rate'], 1.0)
+        self.assertEqual(RP.copy_score([tb], [ta])['copy_rate'], 0.0)

@@ -4,7 +4,8 @@
 - 리듬: stage5_score.style_score(nian41 유지 리듬 L1·예비 동작) — 층별(스타일 글 / 참고 글). 기준선: nian41 되돌림 0.064, 수집 SFA 0.622
 - 그럴듯함: 이어 붙인 동작의 장마다 stage4_pack.plausible 통과 비율
 출력: stage5_score.json, stage5_sheet_*.jpg(표본마다 4장 간격 줄), stage5_*.mp4·.sfa(캐릭터 시트 입힘, 앞 6개)
-사용: python tools/stage5_report.py <stage5_gen.jsonl> <출력 폴더> [캐릭터 시트.sfa]
+사용: python tools/stage5_report.py <stage5_gen.jsonl> <출력 폴더> [캐릭터 시트.sfa] [motion5.jsonl] [split.json]
+(기록에 ckpt가 있으면 학습 중간 저장본마다 하위 폴더로 따로 채점, motion5·split을 주면 외우기 검사 copy_score)
 """
 import json, math, os, sys
 import numpy as np
@@ -35,6 +36,27 @@ def seam_ratio(chunks):
     if not seams or not inner: return None
     m = float(np.median(inner)) or 1e-6
     return [round(s / m, 2) for s in seams]
+
+
+def copy_score(gen_tokens, train_tokens, W=6, thr=0.15):
+    """외우기 검사(11-06, 2차 학습 오래 하면 학습 동작을 베낄 수 있음): 생성 동작의 이어진 키 W개 창마다, 학습 동작 키열 안에서 가장 가까운 창과의
+    평균 자세 거리(몸통 단위, 관절 평균). thr 미만이면 '베낌'. 반환: 베낀 창 비율, 가장 가까운 거리 중앙값, 창 수.
+    기준선은 평가 정답(학습에 없는 실제 동작)을 같은 방식으로 재서 비교한다(실제 동작도 비슷한 자세가 있으니 0이 아니다)."""
+    def seq(t):
+        k = keys(t)
+        return np.stack(k).reshape(len(k), -1, 2) if k else None
+    T = [x for x in (seq(t) for t in train_tokens) if x is not None and len(x) >= W]
+    if not T: return dict(copy_rate=None, near_median=None, windows=0)
+    TW = np.concatenate([np.stack([x[i:i + W] for i in range(len(x) - W + 1)]) for x in T])   # (창, W, 관절, 2)
+    near = []
+    for t in gen_tokens:
+        g = seq(t)
+        if g is None or len(g) < W: continue
+        for i in range(len(g) - W + 1):
+            d = np.linalg.norm(TW - g[i:i + W][None], axis=3).mean(axis=(1, 2))
+            near.append(float(d.min()))
+    if not near: return dict(copy_rate=None, near_median=None, windows=0)
+    return dict(copy_rate=round(float(np.mean(np.array(near) < thr)), 3), near_median=round(float(np.median(near)), 3), windows=len(near))
 
 
 def frame_plausible(ir):
@@ -108,15 +130,35 @@ def videos(gen, outd, sheet_path, n=6, W=640, H=360):
         vw.release()
 
 
-def main(genp, outd, sheet_path=None):
+def train_tokens(motion5, split):
+    rows = [json.loads(l) for l in open(motion5, encoding='utf-8')]
+    held = set(json.load(open(split, encoding='utf-8'))['held_out'])
+    return [r['tokens'] for r in rows if r['src'] not in held], [r['tokens'] for r in rows if r['src'] in held and r['kind'] == 'start']
+
+
+def main(genp, outd, sheet_path=None, motion5=None, split=None):
+    """기록에 ckpt(학습 중간 저장본 이름)가 있으면 저장본마다 하위 폴더로 따로 채점한다. motion5·split을 주면 외우기 검사도."""
     os.makedirs(outd, exist_ok=True)
     gen = [json.loads(l) for l in open(genp, encoding='utf-8')]
-    sc, rows = evaluate(gen)
-    json.dump(dict(score=sc, rows=rows), open(f'{outd}/stage5_score.json', 'w'), ensure_ascii=False, indent=1)
-    print(json.dumps(sc, ensure_ascii=False))
-    sheet(gen, outd)
-    if sheet_path: videos(gen, outd, sheet_path)
+    tr = train_tokens(motion5, split) if motion5 else None
+    groups = {}
+    for g in gen: groups.setdefault(g.get('ckpt', ''), []).append(g)
+    summary = {}
+    for ck, gs in sorted(groups.items()):
+        d = f'{outd}/{ck}' if ck else outd; os.makedirs(d, exist_ok=True)
+        sc, rows = evaluate(gs)
+        if tr:
+            sc['copy'] = copy_score([T.join(g['chunks']) for g in gs if g['chunks']], tr[0])
+            sc['copy_baseline'] = copy_score(tr[1], tr[0])
+        json.dump(dict(score=sc, rows=rows), open(f'{d}/stage5_score.json', 'w'), ensure_ascii=False, indent=1)
+        summary[ck or 'all'] = dict(full_reach=sum(r['total'] >= 72 for r in rows), n=len(rows), plausible=sc['all']['plausible_median'],
+                                   seam_over_3=sc['all']['seam_over_3'], rhythm={k: v.get('hold_l1') for k, v in sc['rhythm'].items()},
+                                   copy=sc.get('copy', {}).get('copy_rate'))
+        sheet(gs, d)
+        if sheet_path: videos(gs, d, sheet_path)
+    json.dump(summary, open(f'{outd}/summary.json', 'w'), ensure_ascii=False, indent=1)
+    print(json.dumps(summary, ensure_ascii=False))
 
 
 if __name__ == '__main__':
-    main(*sys.argv[1:4])
+    main(*sys.argv[1:6])
