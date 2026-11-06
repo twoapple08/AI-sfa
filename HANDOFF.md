@@ -6,6 +6,8 @@
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
 
+> **GPT 일시 전담(11-06 사용자, Claude 토큰 소진):** docs/GPT-PROMPT-TAKEOVER-2026-11-06.md · 기록 docs/GPT-TAKEOVER-LOG-2026-11-06.md. 최신 사용자 판정: 실제 조각판 자세 구부정 · 리듬 보정 없는 판 진동 · 가면 너비 원근 안 바뀜(시트 좌반측면 가면 0.78 ≈ 정면 0.81이 원인 후보). Claude 복귀 시 그 기간 커밋부터 검토.
+>
 > **현재(2026-11-06, 정본 기록 docs/REPLAN-PLAN-DRAFT-2026-11-05.md 끝):** 글 → 동작 언어 모델(3B + LoRA) 1–3차는 걷기 주기를 못 만듦(3차는 평가 손실만 낮아지고 더 멈춤). 생성 경로는 **조각 잇기 `tools/compose.py`** — 걷기·달리기는 `tools/gait_cycle.py`(애니메이션 원리 계산 주기, 학습 아님), 다른 동작은 스타일 층 실제 조각 + 앞 6·뒤 9장 여유(다른 동작 앞에서 멈춤), 따라가는 카메라, nian41 리듬 보정(커밋 0f8293b). 사용자 눈가림 판정(A·B·C "셋 다 끔찍", 나카무라 실제 달리기만 봐줄 만) 뒤 고친 새판 비교 영상(scratch compose5) **사용자 판정 대기**. 걷기·달리기·펀치는 스타일 층 실제 조각 우선(loco48 거꾸로·nkm_16·n41_07), 몸 방향 넘기기. 붉은 날은 나중에, 가면 흔들림 없음(사용자 확정). 다음 후보(GPT 합의): 2D 확산 좁은 과제(사이 채우기) vs 계산 기준선, 작은 동작 토큰 표현. Kaggle: 새 계정 Titanium08 약 5시간 10분 사용(30시간 중), 옛 계정 약 1시간 남음 추정. GPU는 매번 허락.
 >
 > **2026-11-05 단계 2 진행(움직임 자료, 사용자 "nian41로 30구간", "부족하면 나카무라쪽도"):** 자동 추출 `tools/stage2_extract.py`(작업 폴더 = scratch `stage2/`, 원본·좌표·결과 비공개).
