@@ -104,6 +104,19 @@ for ci, ck_path in enumerate(CKPTS or [None]):
     ck = os.path.basename(os.path.dirname(ck_path)) if ck_path else 'none'
     if ck_path:
         r_ = set_peft_model_state_dict(model, load_file(ck_path)); res.setdefault('ckpt_unexpected', {})[ck] = len(getattr(r_, 'unexpected_keys', []) or [])
+    # 평가 손실(11-06): 학습에 안 쓴 평가 쌍 전부의 교사 강제 손실 — 저장본별로 재서 외우기 시작점(평가 손실이 다시 오르는 곳)을 찾는다
+    if not os.environ.get('NO_EVAL_LOSS'):
+        evp = [r for r in rows if r['src'] in held][:(4 if DRY else 1000)]; tot = n_ = 0.0; te = time.time()
+        with torch.no_grad():
+            for r in evp:
+                a = head(r['prompt'], r['frames'], r.get('context') or ())
+                ia = tok(a, add_special_tokens=False)['input_ids']; ib = tok(''.join(r['tokens']), add_special_tokens=False)['input_ids'] + [tok.eos_token_id]
+                ids = torch.tensor([(ia + ib)[:1000]], device=DEV); lab = torch.tensor([([-100] * len(ia) + ib)[:1000]], device=DEV)
+                with torch.autocast('cuda', dtype=torch.float16, enabled=not DRY):
+                    l = model(input_ids=ids, labels=lab).loss
+                tot += float(l) * len(ib); n_ += len(ib)
+        res.setdefault('eval_loss', {})[ck] = round(tot / max(n_, 1), 4)
+        print('평가 손실', ck, res['eval_loss'][ck], len(evp), '쌍', round(time.time() - te), 's', flush=True)
     samples = [dict(b, mode=m) for m in MODES for b in base]
     for s in samples: s.update(chunks=[], frames=0, done=False)
     for k in range(MAX_CHUNKS):
