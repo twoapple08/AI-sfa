@@ -1,0 +1,102 @@
+{
+  "schema": "anime-to-sfa-event-draft/1",
+  "case_id": "nian41_280544_leg_candidate_1390_1395",
+  "source": {
+    "post_id": 280544,
+    "artist": "nian41",
+    "role": "몸동작·타이밍의 개발 사례; 이펙트는 보충 범위",
+    "url": "https://www.sakugabooru.com/post/show/280544",
+    "artist_evidence": "기존 목록 A 본인 게시(X 대조), 이번 작가 귀속 독립 재검증 없음",
+    "md5": "8ea68edea456a357a0b752b32dc00d58",
+    "sha256": "5126cee68d459b3d0a12fabe9dafa531fd7e59958c5d538d98e5abc35c0e9ce5",
+    "frames": 4194,
+    "fps": "24/1",
+    "index_base": 0
+  },
+  "training_ready": false,
+  "held_out": false,
+  "source_inspection": "원본 연속32장과1391~1394 원본 크기 판독. 단일 개발사례",
+  "evidence_window": {
+    "inclusive_indices": [
+      1376,
+      1407
+    ],
+    "pts_seconds": [
+      57.333333,
+      58.625
+    ]
+  },
+  "subject": {
+    "local_id": "blue_actor",
+    "identity_scope": "이 구간 화면상의 파란 인물; 실제 좌우는 미확정"
+  },
+  "phases": [
+    {
+      "indices": [
+        1390,
+        1392
+      ],
+      "observation": "화면 밖에서 진입한 파란 인물의 다리/몸 일부가 크게 길어지고 꺾여 보임",
+      "status": "직접 원본 판독, 원근·빠른 이동·변형 기여량은 미분리"
+    },
+    {
+      "indices": [
+        1393,
+        1393
+      ],
+      "observation": "뻗은 다리 방향과 끝의 길게 뻗친 형태가 바뀜",
+      "status": "스미어 후보; 해부학적 좌우 미확정"
+    },
+    {
+      "indices": [
+        1394,
+        1395
+      ],
+      "observation": "이어지는 자세에서 몸과 다리의 화면상 배치가 다시 바뀜",
+      "status": "비교 장; 스미어 완전 종료 확정 아님"
+    }
+  ],
+  "uncertainties": [
+    "화면 밖 진입 때문에 스미어의 실제 최초 발생 시점은 미확정",
+    "정확한 부위 좌우·카메라/원근 기여량·신체와 시각적 늘임 경계는 미확정",
+    "접촉 장·뼈 길이·형태 수치·궤적 곡률은 이번에 측정하지 않음"
+  ],
+  "representation_requirements": {
+    "separate_body_and_effect": true,
+    "allow_projected_length_change": true,
+    "allow_shape_deformation": true,
+    "allow_effect_birth_death": true,
+    "preserve_evidence_and_inference": true,
+    "event_timing_from": "승인 애니 원본의 사건 판독",
+    "sfa_reference_role": "4.sfa는 표현 구조만 참고; 원본과 짝지어진 정답이 아님",
+    "shape_parameters": {
+      "width": null,
+      "curvature": null,
+      "tip_asymmetry": null,
+      "density": null
+    }
+  },
+  "renderer_candidates": [
+    {
+      "method": "신체 투영/자세 변화와 선택 시각 표현층을 함께 보존",
+      "status": "미구현·앱 판정 전"
+    },
+    {
+      "method": "별도 궤적 선/면 묶음",
+      "status": "원본의 시각 역할이 맞을 때만 검토; 이 사례의 자동 정답 아님"
+    }
+  ],
+  "forbidden_shortcuts": [
+    "4.sfa의 배치/타이밍을 학습 규칙으로 사용",
+    "모든 빠른 동작에 고정 삼각형 부착",
+    "신체의 늘어짐을 검출 오류로만 보고 평활 제거",
+    "의복/얼굴/머리카락의 그림체를 학습 정답으로 승격"
+  ],
+  "validation": {
+    "evidence_tool_sha256": "dd59d0267cbb81fa1415fc8fed8329868bfa4332f87c9f5a4b49a46009dcc11d",
+    "inspected_frames": 32,
+    "exact_smear_boundaries_verified": false,
+    "app_editing_verified": false,
+    "model_training_performed": false
+  }
+}

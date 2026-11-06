@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-06):** 사용자 제공4.sfa의14지정장+앞뒤24장/정지이미지를 조사. `docs/GPT-SMEAR-SFA-REFERENCE-2026-11-06.md`, `tools/sfa_effect_reference_probe.py`, JSON. **스미어를 넣는 방식/타이밍/연출은 승인된 실제 애니메이터 원본에서 학습**, 4.sfa는 여러 효과 중 스미어용 표현의 구조 참고 전용(training_ready=false). 색후보 전부 스미어로 분류 금지, 작은 형태 변형 지원 중요, 38선 반복은 필수 문법 아님. 다음은 실제 애니 사건과 SFA 표현 연결(High 권장), 진동은 최신compose6 입력 부재로 원인 미확정. 앞선 정보손실 진단은 `docs/GPT-ROOT-CAUSE-FIRST-PASS-2026-11-06.md`. 생산/학습/GPU 불변, 작업마다 권장 추론 안내.
+- **최신 진행(11-06):** 승인 nian41 280544 원본MD5 복원,1376~1407 연속32장/1391~1394 원본크기 판독. `docs/GPT-ANIME-SMEAR-EVENT-2026-11-06.md`, `data/research/anime_smear_event_2026-11-06.json`, `tools/anime_event_evidence.py`. 신체 자체가 길어지는 스미어 후보와 별도 궤적을 구분하는 사건 초안. 정확한 경계/원근 기여량 미확정·training_ready=false/held_out=false. **배치/타이밍은 승인 애니 원본**, 4.sfa는 구조 참고만,작은 형태변형 지원 중요. 다음은 사건정보 CPU 왕복 후 SFA 의미/편집 비교(High 권장), 학습/GPU/생산교체 없음. 비공개 연속32장/PTS는 `/workspace/scratch/anime_smear/evidence/`;분석 후 임시원본영상2개는 삭제. 검색 정정:이전 item_type 오류를 무결과로 오인;정상 검색은stage2폴더/compose문서 발견,최신진동입력은미확인. 작업마다 권장 추론 안내.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
