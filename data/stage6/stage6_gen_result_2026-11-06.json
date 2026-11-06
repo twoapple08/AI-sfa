@@ -1,0 +1,159 @@
+{
+ "run": {
+  "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "target": 72,
+  "first": 32,
+  "next": 24,
+  "max_chunks": 10,
+  "lora": "/kaggle/input/notebooks/twoapple08/aisfa-stage5-motion/lora/adapter_model.safetensors",
+  "lora_unexpected": 0,
+  "load_s": 82.7,
+  "generation": {
+   "n": 16,
+   "seconds": 384.9,
+   "frames": [
+    72,
+    73,
+    67,
+    75,
+    72,
+    80,
+    21,
+    29,
+    77,
+    75,
+    33,
+    14,
+    76,
+    82,
+    86,
+    75
+   ],
+   "chunks": [
+    7,
+    7,
+    10,
+    8,
+    7,
+    6,
+    2,
+    2,
+    7,
+    7,
+    4,
+    3,
+    9,
+    5,
+    6,
+    5
+   ]
+  },
+  "total_s": 467.8
+ },
+ "score": {
+  "all": {
+   "n": 12,
+   "decoded_chunks": 1.0,
+   "full_3_chunks": 0,
+   "frames_vs_request": [
+    12.0,
+    11.0,
+    8.5
+   ],
+   "seam_ratio_median": 0.0,
+   "seam_over_3": 20,
+   "seams": 67,
+   "plausible_median": 0.994
+  },
+  "custom": {
+   "n": 4,
+   "decoded_chunks": 1.0,
+   "full_3_chunks": 0,
+   "frames_vs_request": [
+    13.0,
+    9.0,
+    8.5
+   ],
+   "seam_ratio_median": 0.0,
+   "seam_over_3": 3,
+   "seams": 20,
+   "plausible_median": 1.0
+  },
+  "ref": {
+   "n": 6,
+   "decoded_chunks": 1.0,
+   "full_3_chunks": 0,
+   "frames_vs_request": [
+    10.5,
+    12.0,
+    8.5
+   ],
+   "seam_ratio_median": 0.63,
+   "seam_over_3": 13,
+   "seams": 37,
+   "plausible_median": 0.981
+  },
+  "style": {
+   "n": 2,
+   "decoded_chunks": 1.0,
+   "full_3_chunks": 0,
+   "frames_vs_request": [
+    12.0,
+    14.0,
+    7.5
+   ],
+   "seam_ratio_median": 0.0,
+   "seam_over_3": 4,
+   "seams": 10,
+   "plausible_median": 0.993
+  },
+  "requested": [
+   32,
+   24,
+   24
+  ],
+  "rhythm": {
+   "custom": {
+    "n": 4,
+    "hold_share": {
+     "1": 0.242,
+     "2": 0.714,
+     "3": 0.006,
+     "4+": 0.037
+    },
+    "hold_l1": 0.229,
+    "anticipation": 0.067,
+    "anticipation_ref": 0.523
+   },
+   "style": {
+    "n": 2,
+    "hold_share": {
+     "1": 0.353,
+     "2": 0.647,
+     "3": 0.0,
+     "4+": 0.0
+    },
+    "hold_l1": 0.162,
+    "anticipation": 0.222,
+    "anticipation_ref": 0.523
+   },
+   "ref": {
+    "n": 6,
+    "hold_share": {
+     "1": 0.415,
+     "2": 0.574,
+     "3": 0.0,
+     "4+": 0.011
+    },
+    "hold_l1": 0.206,
+    "anticipation": 0.522,
+    "anticipation_ref": 0.523
+   }
+  },
+  "rhythm_baseline": {
+   "nian41_roundtrip": 0.064,
+   "user_sfa": 0.622
+  },
+  "motion_note": "조각 움직임(이웃 키 자세 변화 평균, 몸통 단위) 중앙: 첫 조각 0.122 · 이어 만들기 0.02, 이어 만들기 조각의 50%가 거의 정지(<0.02). 단계 5(글 전체를 매 조각에) 0.541·0.317·22%, 학습 정답 0.59–0.69·0–5%. 리듬 L1 개선(0.16–0.23)은 정지 장이 2장 유지로 세어진 착시."
+ }
+}

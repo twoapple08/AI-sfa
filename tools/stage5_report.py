@@ -47,7 +47,8 @@ def frame_plausible(ir):
 
 
 def evaluate(gen):
-    rows, joined = [], {'style': [], 'ref': []}
+    import collections
+    rows, joined = [], collections.defaultdict(list)
     for g in gen:
         ch = g['chunks']
         dec = [MT.decode(c) for c in ch]
@@ -66,7 +67,7 @@ def evaluate(gen):
                     frames_vs_request=[round(float(np.median([r['frames'][i] for r in rs if len(r['frames']) > i])), 1) if any(len(r['frames']) > i for r in rs) else None for i in range(3)],
                     seam_ratio_median=round(float(np.median(sm)), 2) if sm else None, seam_over_3=sum(s > 3 for s in sm), seams=len(sm),
                     plausible_median=round(float(np.median([r['plausible'] for r in rs if r['plausible'] is not None])), 3) if any(r['plausible'] is not None for r in rs) else None)
-    sc = dict(all=agg(rows), style=agg([r for r in rows if r['layer'] == 'style']), ref=agg([r for r in rows if r['layer'] == 'ref']),
+    sc = dict(all=agg(rows), **{lay: agg([r for r in rows if r['layer'] == lay]) for lay in sorted({r['layer'] for r in rows})},
               requested=REQ, rhythm={k: SS.style_score(v) for k, v in joined.items() if v},
               rhythm_baseline=dict(nian41_roundtrip=0.064, user_sfa=0.622))
     return sc, rows
