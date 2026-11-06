@@ -61,3 +61,13 @@ A길이 강제에 따른 끝점 차이는 동일한 수동 입력 대비 약167.
 재현은 기존 observed XML을 읽어 `extend_to_tips(root,tips,image_size)` → SFA저장 → `bind(path,context,role,OBJECT_IDS+['4560009'])` → `verify` 순서다. 발끝 입력은 수정폴더의`tip_annotations.private.json`에 보존했다. 공개 집계는 `data/research/sfa_foot_tip_revision_2026-11-06.json`이며 좌표/원본 이미지/SFA는 비공개다. 실제 앱 편집 결과는 여전히 사용자 확인 전이다.
 
 수정SFA/24고유점/기존축과Flags불변/문맥동일/도구지문/ZIP구성 및 `git diff --check` 통과. 루트 전체회귀검사403개 OK·exit0(30.051초).
+
+## 사용자 재정정 — 무릎→뒤꿈치 한 선 v3
+
+사용자는 v2가 뒤꿈치를 잡지 않고 발목에서 발가락 쪽으로 꺾인다고 지적했다. **무릎부터 뒤꿈치까지 선 하나,뒤꿈치에서 발끝으로 꺾이는 구조**가 이번 정정이다. 발목을 별도 굽힘점으로 쓰지 않는다. Medium을 권장하고 수정했다.
+
+원본4장의 뒤꿈치를 원본/발 부위 확대에서 수동 판독했다. 연기 때문에 위치는 추론을 포함한다. 기존 위쪽 선/무릎점/발끝을 유지하고 두 번째 선의 끝과 세 번째 선의 시작을 동일한 뒤꿈치로 옮겼다. 새 점/관절은 늘리지 않았다. 장당3AO/6AP,4장24고유점,주황점기존1개·사건문맥동일이다. v1/v2도 보존했다.
+
+수정판 `/workspace/scratch/sfa_event_review_heel_v3/observed_heel_to_tip.sfa`,비교PNG와ZIP은 같은 폴더. 도구의`extend_to_tips(...,heels=...)`로 재현하며,뒤꿈치와발끝입력은`annotations.private.json`. 공개 집계`data/research/sfa_heel_tip_revision_2026-11-06.json`. 정강이끝=뒤꿈치=발시작 및 위쪽축/무릎/발끝 보존 검사를 추가했다. 사용자 정정은 이 부분 검토판에 적용했으며 전체 캐릭터 기본11객체·작가규칙·학습모델 변경은 아니다. 실제앱편집은미확인이다.
+
+4장 뒤꿈치접합·문맥바인딩·지문·`git diff --check` 및 루트전체회귀검사404개 OK·exit0(29.589초).

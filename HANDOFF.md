@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-06):** 사용자 observed축이더좋음/발끝까지요청→부분검토판v2. 기존2선좌표/Flags/주황점유지,발목~발끝선1개연결(장당3AO/6AP,전체24점ID). 원본4장발끝수동판독·연기가림추론,새주황점없음. `docs/GPT-SFA-EVENT-REVIEW-2026-11-06.md`말미,`data/research/sfa_foot_tip_revision_2026-11-06.json`,도구extend_to_tips. 수정SFA/전후시트/ZIP `/workspace/scratch/sfa_event_review_tip_v2/`,기존v1보존. 사용자시각판정은수용됐으나앱회전성공미확인. v2판정대기중추가설계/시제품없음. 부분검토판에만적용,전체11객체프로필/생성기/학습/모델/GPU불변. 작업마다추론권장(이번Medium),애니배치/타이밍·4.sfa구조참고·미확정/학습제외유지.
+- **최신 진행(11-06):** 사용자 v2 발목굽힘을정정: **무릎→뒤꿈치 한 선,뒤꿈치→발끝**,발목은별도굽힘점아님. 부분검토판v3 `/workspace/scratch/sfa_event_review_heel_v3/observed_heel_to_tip.sfa`·전후PNG·ZIP. 위쪽축/무릎/발끝유지,정강이끝/발시작을같은뒤꿈치로옮김. 장당3AO/6AP/24고유점/주황점기존1개. 원본4장수동뒤꿈치/연기가림추론,앱미확인·학습제외. v1/v2보존,사용자v3판정대기중새설계/시제품없음. 도구extend_to_tips의heels옵션·뒤꿈치연결검사추가,집계sfa_heel_tip_revision JSON·기록GPT-SFA-EVENT-REVIEW말미. 전체프로필/모델/GPU불변. 작업마다추론권장(이번Medium),애니배치/타이밍·4.sfa구조참고유지.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 

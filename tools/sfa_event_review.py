@@ -61,21 +61,27 @@ def build(annotations, mode):
     return seq, output
 
 
-def extend_to_tips(root, tips, image_size):
-    """기존 두 선의 좌표/역할을 보존하고 마지막 끝에 발끝 선 하나를 연결한다."""
+def extend_to_tips(root, tips, image_size, heels=None):
+    """발끝 선을 연결한다. 뒤꿈치가 주어지면 정강이 끝/발 시작을 그 점에 맞춘다."""
     result = copy.deepcopy(root)
     frames = result.findall('Frame')
     xy = np.asarray(tips, dtype=float)
     if xy.shape != (len(frames), 2) or not np.isfinite(xy).all():
         raise ValueError('장마다 유한한 발끝 좌표가 필요하다')
+    heel_xy = None if heels is None else np.asarray(heels, dtype=float)
+    if heel_xy is not None and (heel_xy.shape != xy.shape or not np.isfinite(heel_xy).all()):
+        raise ValueError('장마다 유한한 뒤꿈치 좌표가 필요하다')
     width, height = image_size
     if width <= 0 or height <= 0:
         raise ValueError('영상 크기 오류')
-    for frame, tip in zip(frames, xy):
+    for i, (frame, tip) in enumerate(zip(frames, xy)):
         aos = frame.findall('AO')
         if [a.get('ID') for a in aos] != OBJECT_IDS:
             raise ValueError('기존 두 선 검토판만 확장할 수 있다')
         old_end = aos[1].findall('AP')[1]
+        if heel_xy is not None:
+            old_end.set('X', f'{heel_xy[i][0] / width * 100:.6f}')
+            old_end.set('Y', f'{heel_xy[i][1] / height * 100:.6f}')
         pid = max(int(p.get('ID')) for a in aos for p in a.findall('AP')) + 1
         new = ET.SubElement(frame, 'AO', **dict(aos[1].attrib, ID='4560009', DrawOrder='4560009'))
         start = ET.SubElement(new, 'AP', ID=str(pid), Index='0', Flags='4', X=old_end.get('X'), Y=old_end.get('Y'))

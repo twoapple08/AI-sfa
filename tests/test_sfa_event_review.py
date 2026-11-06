@@ -83,6 +83,20 @@ class SfaEventReviewTests(unittest.TestCase):
                     self.assertEqual(pa.attrib, pb.attrib)
         with self.assertRaises(ValueError): R.extend_to_tips(root, [[65, 55]], [100, 100])
 
+    def test_knee_to_heel_is_one_line_then_turns_to_tip(self):
+        root, _ = R.build(self.annotations, 'observed')
+        heels, tips = [[62, 52], [37, 32]], [[70, 55], [45, 35]]
+        out = R.extend_to_tips(root, tips, [100, 100], heels=heels)
+        self.assertEqual(R.inspect(out, self.context, R.OBJECT_IDS + ['4560009'])['objects_per_frame'], 3)
+        for i, (before, after) in enumerate(zip(root.findall('Frame'), out.findall('Frame'))):
+            old, new = before.findall('AO'), after.findall('AO')
+            self.assertEqual(ET.tostring(old[0]), ET.tostring(new[0]))
+            self.assertEqual(old[1].find('AP').attrib, new[1].find('AP').attrib)
+            p = new[1].findall('AP')[1]; q, t = new[2].findall('AP')
+            self.assertEqual([float(p.get(k)) for k in ('X', 'Y')], heels[i])
+            self.assertEqual([q.get(k) for k in ('X', 'Y')], [p.get(k) for k in ('X', 'Y')])
+            self.assertEqual([float(t.get(k)) for k in ('X', 'Y')], tips[i])
+
 
 if __name__ == '__main__':
     unittest.main()

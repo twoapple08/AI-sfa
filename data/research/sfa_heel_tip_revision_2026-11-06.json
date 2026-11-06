@@ -1,0 +1,26 @@
+{
+  "schema": "sfa-heel-tip-revision/1",
+  "source_indices": [
+    1392,
+    1393,
+    1394,
+    1395
+  ],
+  "user_rule": "무릎부터 뒤꿈치까지 한 선,뒤꿈치에서 발끝으로 꺾임;발목을 별도 굽힘점으로 쓰지 않음",
+  "scope": "사용자 요청의 부분 검토판",
+  "asset_sha256": "8c4f811d6e61579b813f402db8f714490604ffcb2f266c1a0abab7b1a1d8dd8d",
+  "tool_sha256": "659b766773c45dc1d39a847ca078ebc80d227eaa98ef9ca37c71f1034f5491d9",
+  "structure": {
+    "frames": 4,
+    "objects_per_frame": 3,
+    "unique_point_ids": 24,
+    "one_root_and_one_orange_joint_per_frame": true,
+    "all_connections_resolve": true,
+    "app_editing_verified": false
+  },
+  "upper_axis_and_knee_unchanged": true,
+  "tip_positions_unchanged": true,
+  "source_context_unchanged": true,
+  "training_ready": false,
+  "app_editing_verified": false
+}
