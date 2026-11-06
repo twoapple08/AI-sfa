@@ -1,0 +1,61 @@
+{
+  "schema": "sfa-event-review-result/1",
+  "source_case": "nian41_280544_leg_candidate_1390_1395",
+  "source_indices": [
+    1392,
+    1393,
+    1394,
+    1395
+  ],
+  "source_annotation_method": "원본을 보고 수동 판독한 부분 중심선. 해부학적 관절 정답/자동 추출 아님",
+  "point_uncertainties": [
+    "첫 장 상단점은 화면 경계이고 골반이 아님",
+    "중간점은 시각적 굽힘의 해석이며 무릎 미확정",
+    "하단점은 연기 속 위치 추론이며 발목 미확정"
+  ],
+  "annotation_sha256": "13ca29da9e5ca8238817b14eb6309d0b899ffbcc420f5046278cc05cdadfa632",
+  "tool_sha256": "632517cf7184cd092d7e4a50acd2849fc62db28a617556ab7fbc003b2cf67a59",
+  "fixed_counterexample_endpoint_shift_px": [
+    167.94595,
+    93.78845,
+    33.60608,
+    0.0
+  ],
+  "fixed_counterexample_is_existing_pipeline": false,
+  "shape_smear_layer_implemented": false,
+  "axes_only": true,
+  "training_ready": false,
+  "app_editing_verified": false,
+  "variants": {
+    "observed": {
+      "asset_sha256": "3df44e3dc1f14f0d022e6388de4e1b9aabc6c83a397b8d37d8c3789299db9e01",
+      "context_sha256": "a908e2b7ba3c3a4c7ba481c8827ffbf50e9acf3d1938f6d9d011f4f5562733eb",
+      "structure": {
+        "frames": 4,
+        "objects_per_frame": 2,
+        "unique_point_ids": 16,
+        "one_root_and_one_orange_joint_per_frame": true,
+        "all_connections_resolve": true,
+        "app_editing_verified": false
+      }
+    },
+    "fixed_length_counterexample": {
+      "asset_sha256": "c7a710486e90a6893e989b9fdca219e69658734dc8484aff3dbdab6707d6c7de",
+      "context_sha256": "a908e2b7ba3c3a4c7ba481c8827ffbf50e9acf3d1938f6d9d011f4f5562733eb",
+      "structure": {
+        "frames": 4,
+        "objects_per_frame": 2,
+        "unique_point_ids": 16,
+        "one_root_and_one_orange_joint_per_frame": true,
+        "all_connections_resolve": true,
+        "app_editing_verified": false
+      }
+    }
+  },
+  "review_image_sha256": "18fbfac3a58708e230d181566238996e64f4bf24b212802646d8f9485fcd2636",
+  "limits": [
+    "두 판의 차이는 같은 수동 입력의 길이 고정 효과이며 실제 애니 정확도 개선 점수가 아니다.",
+    "좌표/이미지/SFA/바인딩 원본은 저장소 밖 비공개 검토 묶음에 있다.",
+    "사건은 파일 옆 바인딩에 보존된다. 앱이 사건 JSON을 읽는다고 가정하지 않는다."
+  ]
+}

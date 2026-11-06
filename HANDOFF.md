@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-06):** `docs/GPT-EVENT-CONTEXT-ROUNDTRIP-2026-11-06.md`, `tools/event_context.py`/`event_context_probe.py`/검사JSON. 실제 애니 사건 기록의 저장·분할/재결합 보존,새 보간장null,명시리매핑만 허용. 기존 토큰은 사건소실/합성12→11장 유지;문맥 오연결을 거부. 선언한 대응만 운반하며 자동 의미/시간 정답·모델학습·SFA외형/편집 성공은 아님. 기존 생산 경로 미연결,다음은 관측/추론 마디·형태 명시 후 사건을 검토용SFA와 묶는 비교(High). 애니 배치/타이밍 우선·4.sfa 구조참고·미확정/training_ready=false 유지. 원본 근거는 직전 애니 사건 보고서,32장/PTS 비공개 `/workspace/scratch/anime_smear/evidence/`. 작업마다 권장 추론 안내.
+- **최신 진행(11-06):** `docs/GPT-SFA-EVENT-REVIEW-2026-11-06.md`, `tools/sfa_event_review.py`,검사5개·집계JSON. 실제애니1392~1395 수동 부분중심선의 SFA4장2판+사건바인딩+원본비교PNG 생성. A고정길이반례(기존생성기아님),B수동축유지. 전신/자동추출/스미어형태층 성공 아님. 첫점화면경계·중간굽힘해석·하단연기속추론. 장당2AO/4AP,전체16AP새ID/Flags/AC/문맥검사통과,앱미확인. **사용자 B판 주황점/연결·비교판 판정 대기**, 새 시제품/설계 추가하지 않음. `/workspace/scratch/sfa_event_review/review.zip`,같은폴더 입력/시트;원본32장/PTS는anime_smear/evidence. 애니배치/타이밍·4.sfa구조참고·학습제외 유지. 모델/GPU/기존11객체기본경로 변경 없음, 작업마다 추론권장 안내.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
