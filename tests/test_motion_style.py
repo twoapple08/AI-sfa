@@ -1,4 +1,4 @@
-import os, sys, unittest
+import math, os, sys, unittest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tools'))
 import motion_style as MS
 
@@ -298,3 +298,18 @@ class Stage5Report(unittest.TestCase):
         ta, tb = MT.encode(a), MT.encode(b)
         self.assertEqual(RP.copy_score([ta], [ta])['copy_rate'], 1.0)
         self.assertEqual(RP.copy_score([tb], [ta])['copy_rate'], 0.0)
+
+
+class Retime(unittest.TestCase):
+    def test_retime_matches_target_share_and_holds(self):
+        """nian41 리듬 입히기: 그림 안 장은 같은 자세, 그림 유지 비율이 목표에 가깝다."""
+        import retime as RT
+        xs = [50 + 6 * math.sin(i / 3) + (i % 7) for i in range(120)]
+        ir = make_ir(xs, [1] * 120)
+        r = RT.retime(ir)
+        D = r['actors'][0]['drawings']; J = r['actors'][0]['joints']
+        self.assertEqual(D[0][0], 0); self.assertEqual(D[-1][1], 119)
+        for s, e in D:
+            for n in range(s + 1, e + 1): self.assertEqual(J['wri_r'][n], J['wri_r'][s])
+        hs = RT.hold_share(r); tg = RT.target_share()
+        self.assertLess(abs(hs['2'] - tg[2]), 0.2)

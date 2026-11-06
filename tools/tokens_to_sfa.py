@@ -3,7 +3,7 @@
 순서: 토큰 묶음들(처음 + 이어 만들기 조각들)을 이어 붙임 → motion_tokens.decode → 화면 밖으로 나간 골반 위치 보정(선택)
 → 몸 굵기(거리 굵기, 몸통 길이로) → motion_ir.compile_ir(sheets=CS.rig(캐릭터 시트 v3 read_all)) → .sfa
 (11-05 사용자 '망토 레이어가 이상함': read_all만 넘기면 옛 칸 고르기 경로로 가서 망토가 흔들림·앞뒤 구분 없이 늘 몸 앞에 그려졌다 → rig로 넘긴다.)
-사용: python tools/tokens_to_sfa.py <토큰 json(목록 또는 목록의 목록)> <캐릭터 시트.sfa> <출력.sfa> [--center] [--facing 도]
+사용: python tools/tokens_to_sfa.py <토큰 json(목록 또는 목록의 목록)> <캐릭터 시트.sfa> <출력.sfa> [--center] [--facing 도] [--retime]
 몸 방향: 동작 토큰에는 방향이 없다(수집 SFA 9,347장 중 방향 자료 0) → 모르면 정면(망토는 몸 뒤). --facing으로 전체 방향을 손으로 준다
 (0 정면, 90 우측면, 180 후면, 270 좌측면 — 캐릭터 시트 v3 고리 각도).
 """
@@ -22,12 +22,15 @@ def join(chunks):
     return out + ['</motion>']
 
 
-def build(tokens, sheet_path=None, center=False, name='generated', facing=None):
+def build(tokens, sheet_path=None, center=False, name='generated', facing=None, retime=False):
     if tokens and isinstance(tokens[0], list):
         tokens = join(tokens)
     ir = MT.decode(tokens)
     if ir is None:
         raise ValueError('토큰을 동작으로 되돌릴 수 없다')
+    if retime:   # nian41 그림 유지 리듬 입히기(tools/retime.py, 11-06)
+        import retime as RT
+        ir = RT.retime(ir)
     a = ir['actors'][0]; J = a['joints']; N = ir['frames']
     if facing is not None: a['facing'] = [float(facing)] * N
     if center:   # 골반이 움직인 범위 전체의 가운데를 화면 (50, 60)으로 옮긴다
@@ -46,6 +49,7 @@ def build(tokens, sheet_path=None, center=False, name='generated', facing=None):
 if __name__ == '__main__':
     toks = json.load(open(sys.argv[1], encoding='utf-8'))
     fc = float(sys.argv[sys.argv.index('--facing') + 1]) if '--facing' in sys.argv else None
-    ir, root = build(toks, sys.argv[2], center='--center' in sys.argv, facing=fc, name=os.path.splitext(os.path.basename(sys.argv[3]))[0])
+    rt = '--retime' in sys.argv
+    ir, root = build(toks, sys.argv[2], center='--center' in sys.argv, facing=fc, retime=rt, name=os.path.splitext(os.path.basename(sys.argv[3]))[0])
     M.save_sfa(root, sys.argv[3], os.path.splitext(os.path.basename(sys.argv[3]))[0])
     print('장', ir['frames'], '→', sys.argv[3])
