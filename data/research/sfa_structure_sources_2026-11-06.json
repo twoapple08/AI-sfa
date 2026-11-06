@@ -1,0 +1,237 @@
+{
+  "schema": "sfa-structure-survey/1",
+  "date": "2026-11-06",
+  "scope": "SFA 구조와 그림/동작의 단어·문법까지 포함한 공식 출처 대조",
+  "implementation_status": "기본 경로 미변경; 합성 CPU 프로브만 실행",
+  "systems": [
+    {
+      "id": "svg",
+      "name": "SVG 2 / Filter Effects",
+      "fit": "표준 도형·경로·합성",
+      "url": "https://www.w3.org/TR/SVG2/paths.html",
+      "limit": "직선·2차 곡선·원은 대응 후보. AC·Flags·FR 경계 참조·SFA 글로우는 별도 보존/검증.",
+      "source_files": []
+    },
+    {
+      "id": "lottie",
+      "name": "Lottie",
+      "fit": "속성 트랙·시간·레이어",
+      "url": "https://lottie.github.io/lottie-spec/latest/",
+      "limit": "속성별 키프레임과 도형 묶음 참고. 경로 편집망·SFA 전용 합성을 보장하지 않음.",
+      "source_files": [
+        {
+          "repository": "lottie/lottie-spec",
+          "path": "README.md",
+          "blob_sha": "a067695e87d10b12fbf96bd62beebf29e05a593a"
+        }
+      ]
+    },
+    {
+      "id": "opentoonz",
+      "name": "OpenToonz",
+      "fit": "2차 획·채움 구간·그림 유지",
+      "url": "https://github.com/opentoonz/opentoonz",
+      "limit": "TThickQuadratic와 TEdge의 stroke/w0/w1이 구조적으로 가까움. 가변 굵기·영역 알고리즘·매개변수 대응은 별도.",
+      "source_files": [
+        {
+          "repository": "opentoonz/opentoonz",
+          "path": "toonz/sources/include/tvectorimage.h",
+          "blob_sha": "7f8dfad2657fafa2c7c53de27832f95663be693e"
+        },
+        {
+          "repository": "opentoonz/opentoonz",
+          "path": "toonz/sources/include/tregion.h",
+          "blob_sha": "0decd68dee722f44b212e49e68b16d1d4aa33280"
+        },
+        {
+          "repository": "opentoonz/opentoonz",
+          "path": "toonz/sources/include/tstroke.h",
+          "blob_sha": "8a2f24a6413f8dd9feeb1d8c022704b6c1c46d45"
+        }
+      ]
+    },
+    {
+      "id": "vpaint",
+      "name": "VPaint / Vector Animation Complex",
+      "fit": "시간에 따른 위상 변화",
+      "url": "https://www.borisdalstein.com/research/vac/",
+      "limit": "선·면의 분할/합침/출현/소멸 표현 참고. SFA 참조·Flags·실제 동작 생성은 별도.",
+      "source_files": [
+        {
+          "repository": "dalboris/vpaint",
+          "path": "README.md",
+          "blob_sha": "d233f6c3687115e12a0065ad0db7c7b0581e6e86"
+        }
+      ]
+    },
+    {
+      "id": "synfig",
+      "name": "Synfig",
+      "fit": "공유 매개변수·선과 면의 연결",
+      "url": "https://wiki.synfig.org/Linking",
+      "limit": "공유 Spline/ValueNode로 선과 채움을 연결하는 설계. SFA 값 그래프와 직접 호환은 아님.",
+      "source_files": [
+        {
+          "repository": "synfig/synfig",
+          "path": "README.md",
+          "blob_sha": "0a3e84d80e01dc840fc3b5bd1c5096dffa2dc612"
+        }
+      ]
+    },
+    {
+      "id": "rive",
+      "name": "Rive",
+      "fit": "리깅·속성·계층·실행 형식",
+      "url": "https://rive.app/docs/editor/manipulating-shapes/bones",
+      "limit": "뼈·부품·속성 트랙을 구분하는 설계 참고. .riv는 SFA 편집 파일의 대체가 아니며 기본 몸 비율 고정은 강제하지 않음.",
+      "source_files": [
+        {
+          "repository": "rive-app/help-center",
+          "path": "runtimes/advanced_topics/format.md",
+          "blob_sha": "4a9fb60331a77baaebd0e434b3147e158b94d1ae"
+        }
+      ]
+    },
+    {
+      "id": "usd",
+      "name": "OpenUSD",
+      "fit": "대상 식별·참조·시간별 속성",
+      "url": "https://openusd.org/dev/user_guides/time_and_animated_values.html",
+      "limit": "정의/참조/시간별 값 분리 원리 참고. USD layer와 SFA 화면 레이어 의미를 혼동하지 않음.",
+      "source_files": [
+        {
+          "repository": "PixarAnimationStudios/OpenUSD",
+          "path": "README.md",
+          "blob_sha": "c388fc9fc936b02cf1d7560b4f783c793b076379"
+        }
+      ]
+    },
+    {
+      "id": "otio",
+      "name": "OpenTimelineIO",
+      "fit": "컷·클립·시간 구간",
+      "url": "https://opentimelineio.readthedocs.io/en/latest/tutorials/otio-file-format-specification.html",
+      "limit": "정확한 시간표의 교환 도구. 도형·편집망·애니 작화는 보유하지 않음.",
+      "source_files": [
+        {
+          "repository": "AcademySoftwareFoundation/OpenTimelineIO",
+          "path": "README.md",
+          "blob_sha": "b397304b5cd0fcc434b4af6a5df981b929373b8f"
+        }
+      ]
+    },
+    {
+      "id": "fonttools",
+      "name": "fontTools cu2qu",
+      "fit": "3차→2차 곡선·여러 변형의 조각 수 맞춤",
+      "url": "https://fonttools.readthedocs.io/en/latest/cu2qu/index.html",
+      "limit": "CPU 합성 비교 완료. 암시적 끝점을 펼쳐야 하며 FR 매개변수·대상 대응·Flags는 별도.",
+      "source_files": [
+        {
+          "repository": "fonttools/fonttools",
+          "path": "Lib/fontTools/cu2qu/cu2qu.py",
+          "blob_sha": "0e58ae2773a1d76f6e380d46bf270ee4c8430664"
+        }
+      ]
+    },
+    {
+      "id": "pathops",
+      "name": "Skia PathOps",
+      "fit": "윤곽·교차·면 연산",
+      "url": "https://api.skia.org/SkPathOps_8h.html",
+      "limit": "영역 기하 계산 부품. 결과만 남기면 원래 AO/FS/편집 관계를 잃을 수 있음.",
+      "source_files": [
+        {
+          "repository": "google/skia",
+          "path": "include/pathops/SkPathOps.h",
+          "blob_sha": "dba4c2f8aad991c52a9895db8a0a982dfe4e366d"
+        }
+      ]
+    },
+    {
+      "id": "deepsvg",
+      "name": "DeepSVG",
+      "fit": "상위 모양과 하위 경로 명령의 계층",
+      "url": "https://github.com/alexandre01/deepsvg",
+      "limit": "그림 어휘의 계층 참고. 아이콘/폰트와 잠재 보간의 성과를 액션 학습으로 확대하지 않음.",
+      "source_files": [
+        {
+          "repository": "alexandre01/deepsvg",
+          "path": "README.md",
+          "blob_sha": "a0e1e503fe63fec9394f6c6a80270fa0bdb0bf9e"
+        }
+      ]
+    },
+    {
+      "id": "strokenuwa",
+      "name": "StrokeNUWA",
+      "fit": "학습된 획 단위 압축",
+      "url": "https://github.com/ProjectNUWA/StrokeNUWA",
+      "limit": "좌표 나열보다 큰 표현 단위 후보. 희귀 획·구간 채움·편집 역할·원본 재구성 검증 필요.",
+      "source_files": [
+        {
+          "repository": "ProjectNUWA/StrokeNUWA",
+          "path": "README.md",
+          "blob_sha": "4e81ad8fe7ae558ad9593b7643ec8da0108e3c75"
+        }
+      ]
+    },
+    {
+      "id": "omnisvg",
+      "name": "OmniSVG",
+      "fit": "사전학습 그림/글 이해와 SVG 어휘",
+      "url": "https://github.com/OmniSVG/OmniSVG",
+      "limit": "공식 추론 코드/가중치 배포 링크 확인. 정지 SVG와 SFA 편집 애니메이션은 별도.",
+      "source_files": [
+        {
+          "repository": "OmniSVG/OmniSVG",
+          "path": "README.md",
+          "blob_sha": "7bc6d06335820f8247f7953db87a2ef3a72ee00b"
+        }
+      ]
+    },
+    {
+      "id": "starvector",
+      "name": "StarVector",
+      "fit": "그림/글→SVG 코드",
+      "url": "https://github.com/joanrod/star-vector",
+      "limit": "공식 코드/가중치 링크 확인. SVG 생성이 SFA 어휘·동작·연결 학습을 보장하지 않음.",
+      "source_files": [
+        {
+          "repository": "joanrod/star-vector",
+          "path": "README.md",
+          "blob_sha": "4bc3b034a3ee32edb82974116e6f7a8b6a48bd63"
+        }
+      ]
+    },
+    {
+      "id": "sketchrnn",
+      "name": "SketchRNN",
+      "fit": "펜 이동·획 끝·그림 끝의 명령열",
+      "url": "https://research.google/pubs/a-neural-representation-of-sketch-drawings/",
+      "limit": "그리는 행위의 명령 표현 참고. 선 스케치용 모델이라 채움·연결·글로우·장간 식별은 별도.",
+      "source_files": [
+        {
+          "repository": "magenta/magenta",
+          "path": "magenta/models/sketch_rnn/README.md",
+          "blob_sha": "f78bdd5e622f923f151f8be84cdbcf74056074b7"
+        }
+      ]
+    }
+  ],
+  "local_evidence": [
+    "docs/FORMAT.md 후반의 현행 기록",
+    "AGENTS.md 관절점/연결점·장별 새 AP ID 규칙",
+    "tools/sfa_tokens.py 실제 어휘·편집 정보 손실 범위",
+    "tools/motion_ir.py 기존 편집망 컴파일 경로",
+    "tools/char_sheet.py 시트·앞뒤 사본·점 ID",
+    "tools/sfa_render.py 묶음 글로우·레이어 알파",
+    "data/research/sfa_structure_probe_2026-11-06.json"
+  ],
+  "limits": [
+    "공식 명세와 선택 코드/README 대조이며 모든 외부 구현의 실행 감사는 아님",
+    "합성 기하·저장 어휘 검사이며 실제 앱·자연스러움·외부 모델 성능 검증은 아님",
+    "새 학습/GPU/유료 API/원본 영상 다운로드 없음"
+  ]
+}
+

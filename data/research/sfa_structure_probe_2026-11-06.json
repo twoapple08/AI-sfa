@@ -1,0 +1,83 @@
+{
+  "schema": "sfa-structure-probe/1",
+  "date": "2026-11-06",
+  "synthetic_only": true,
+  "fonttools_version": "4.61.1",
+  "legacy_source": "tools/potrace_lines.py",
+  "legacy_source_sha256": "22e05e14867469b999278aafa14ac15ef74c25d6595ea9043ec82714c5adbe53",
+  "tolerance": 0.1,
+  "units": "합성 곡선의 좌표 단위; 앱 픽셀/화면 백분율이 아님",
+  "metric": "각 2차 조각을 같은 길이의 t 구간으로 놓고 원래 3차와 같은 t에서 4001개 표본 비교",
+  "rows": [
+    {
+      "name": "arch",
+      "legacy_segments": 2,
+      "legacy_sampled_max_error": 1.2028124,
+      "adaptive_segments": 9,
+      "adaptive_sampled_max_error": 0.07357706
+    },
+    {
+      "name": "s_curve",
+      "legacy_segments": 2,
+      "legacy_sampled_max_error": 5.41298989,
+      "adaptive_segments": 14,
+      "adaptive_sampled_max_error": 0.09059556
+    },
+    {
+      "name": "loop",
+      "legacy_segments": 2,
+      "legacy_sampled_max_error": 4.57068711,
+      "adaptive_segments": 13,
+      "adaptive_sampled_max_error": 0.09517255
+    },
+    {
+      "name": "near_line",
+      "legacy_segments": 2,
+      "legacy_sampled_max_error": 0.1255773,
+      "adaptive_segments": 4,
+      "adaptive_sampled_max_error": 0.07675378
+    },
+    {
+      "name": "elevated_quadratic",
+      "legacy_segments": 2,
+      "legacy_sampled_max_error": 0.0,
+      "adaptive_segments": 1,
+      "adaptive_sampled_max_error": 0.0
+    },
+    {
+      "name": "point",
+      "legacy_segments": 2,
+      "legacy_sampled_max_error": 0.0,
+      "adaptive_segments": 1,
+      "adaptive_sampled_max_error": 0.0
+    }
+  ],
+  "compatible_pair": {
+    "individual_segments": [
+      9,
+      13
+    ],
+    "joint_segments": [
+      13,
+      13
+    ]
+  },
+  "vocabulary": {
+    "input_orange_role_points": 1,
+    "output_orange_role_points": 0,
+    "tokens": 32,
+    "input_objects": 2,
+    "output_objects": 2,
+    "input_points": 4,
+    "output_points": 4,
+    "same_coordinate_multiset": true,
+    "input_connections": 2,
+    "output_connections": 2,
+    "meaning": "현재 한 장 렌더용 어휘는 Flags의 편집 역할을 보존하지 않는다. 설계 범위의 반례이며 새 앱 시험이 아니다."
+  },
+  "limits": [
+    "수치 표본 검사이며 연속 전 구간의 독립 오차 증명은 아님",
+    "곡선 수 통일은 신체 의미·FR 구간·점 역할·장간 객체 대응을 자동 복원하지 않음",
+    "실제 앱·실제 원본·학습 품질 검증 아님; 기본 코드 변경 없음"
+  ]
+}
