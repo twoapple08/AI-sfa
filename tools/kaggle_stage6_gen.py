@@ -22,7 +22,9 @@ MODEL = 'trl-internal-testing/tiny-Qwen2_5_VLForConditionalGeneration' if DRY el
 DEV = 'cpu' if DRY else 'cuda'
 TARGET, FIRST, NEXT, CTX, K = 72, 32, 24, 3, 23
 MAX_CHUNKS = 3 if DRY else 10
-N_EVAL = 4 if DRY else 12
+N_EVAL = 2 if DRY else 6
+MODES = ['full', 'act', 'full_ref']   # 11-06 비교: 매 조각 글 전체 / 조각마다 문장 하나(1차, 이어 만들기 50% 정지) / 글 전체 + <ref>(단계 5 평가 조건)
+RETRY, MIN_MOTION = 3, 0.05           # 정지(이웃 키 자세 변화 평균 < 0.05 몸통 — 학습 정답 중앙 0.6, 정지 판정 0.02)·되돌림 실패 조각은 다시 뽑기
 GB = 4 if DRY else 16
 CUSTOM = [
     ['걷기: 몸을 세우고 발을 번갈아 내딛는다.', '달리기: 몸을 앞으로 기울이고 팔다리를 번갈아 움직인다.', '펀치: 상체를 기울이며 한 팔을 앞으로 곧게 뻗는다.'],
@@ -61,8 +63,24 @@ rows = [json.loads(l) for l in open(f'{DATA}/motion5.jsonl', encoding='utf-8')]
 held = set(json.load(open(f'{DATA}/stage5_split_2026-11-05.json', encoding='utf-8'))['held_out'])
 starts = [r for r in rows if r['src'] in held and r['kind'] == 'start']
 random.seed(2); ev = random.sample(starts, min(N_EVAL, len(starts)))
-samples = [dict(src=r['src'], layer=r['layer'], acts=r['prompt'].replace('<ref> ', '').split(' → ')) for r in ev]
-samples += [dict(src=f'custom{i}', layer='custom', acts=a) for i, a in enumerate(CUSTOM)]
+base = [dict(src=r['src'], layer=r['layer'], acts=r['prompt'].replace('<ref> ', '').split(' → ')) for r in ev]
+base += [dict(src=f'custom{i}', layer='custom', acts=a) for i, a in enumerate(CUSTOM)]
+samples = [dict(b, mode=m) for m in MODES for b in base]
+import math
+def motion(toks):
+    body = [t for t in toks if t not in ('<motion>', '</motion>')]; P = []
+    for i in range(0, len(body) - K + 1, K):
+        ir = MT.decode(['<motion>'] + body[i:i + K] + ['</motion>'])
+        if ir is None: continue
+        J = ir['actors'][0]['joints']; p0 = J['pelvis'][0]
+        T = math.hypot(J['neck'][0][0] - p0[0], (J['neck'][0][1] - p0[1]) * 0.5625) or 1
+        P.append([((J[n][0][0] - p0[0]) / T, (J[n][0][1] - p0[1]) * 0.5625 / T) for n in MT.NAMES if n not in ('pelvis', 'head_b')])
+    if len(P) < 2: return 0.0
+    d = [sum(math.hypot(a[0] - b[0], a[1] - b[1]) for a, b in zip(x, y)) / len(x) for x, y in zip(P, P[1:])]
+    return sum(d) / len(d)
+def prompt_of(s, k):
+    if s['mode'] == 'act': return s['acts'][min(k, len(s['acts']) - 1)]
+    return ('<ref> ' if s['mode'] == 'full_ref' else '') + ' → '.join(s['acts'])
 
 VS = set(MT.VOCAB)
 def head(prompt, frames, ctx=()): return f'길이: {frames}장\n글: {prompt}\n' + (f"앞 동작: {''.join(ctx)}\n" if ctx else '') + '동작: '
@@ -86,7 +104,7 @@ for k in range(MAX_CHUNKS):
     todo = []
     for i, s in enumerate(samples):
         if s['done']: continue
-        act = s['acts'][min(k, len(s['acts']) - 1)]
+        act = prompt_of(s, k)
         if k == 0: todo.append((i, (act, FIRST, ())))
         else:
             body = [t for t in s['chunks'][-1] if t not in ('<motion>', '</motion>')]
@@ -94,15 +112,21 @@ for k in range(MAX_CHUNKS):
             if not ctx or len(ctx) % K: s['done'] = True; s['stop'] = '앞 조각 키 부족'; continue
             todo.append((i, (act, NEXT, ctx)))
     if not todo: break
-    for (i, _), g in zip(todo, gen_many([x for _, x in todo])):
-        s = samples[i]; ir = MT.decode(g)
+    outs = gen_many([x for _, x in todo]); tries = [1] * len(todo)
+    for _r in range(RETRY - 1):   # 정지·되돌림 실패 조각만 다시 뽑기
+        bad = [j for j, g in enumerate(outs) if MT.decode(g) is None or (not (DRY and os.environ.get('DRY_FAKE')) and motion(g) < MIN_MOTION)]
+        if not bad: break
+        for j, g in zip(bad, gen_many([todo[j][1] for j in bad])): outs[j] = g; tries[j] += 1
+    for (i, _), g, tr in zip(todo, outs, tries):
+        s = samples[i]; ir = MT.decode(g); s.setdefault('tries', []).append(tr); s.setdefault('motion', []).append(round(motion(g), 3) if ir else None)
         if ir is None: s['done'] = True; s['stop'] = f'{k}번 조각 되돌림 실패'; continue
         s['chunks'].append(g); s['frames'] += ir['frames']
         if s['frames'] >= TARGET: s['done'] = True; s['stop'] = '목표 길이'
     print('조각', k, '남은 표본', sum(not s['done'] for s in samples), round(time.time() - tg), 's', flush=True)
 with open(f'{OUT}/stage6_gen.jsonl', 'w', encoding='utf-8') as f:
     for s in samples:
-        f.write(json.dumps(dict(src=s['src'], layer=s['layer'], prompt=' → '.join(s['acts']), acts=s['acts'], chunks=s['chunks'],
+        f.write(json.dumps(dict(src=s['src'], layer=s['layer'], mode=s['mode'], tries=s.get('tries'), motion=s.get('motion'),
+                                prompt=' → '.join(s['acts']), acts=s['acts'], chunks=s['chunks'],
                                 frames=s['frames'], stop=s.get('stop', '조각 상한')), ensure_ascii=False) + '\n')
 res['generation'] = dict(n=len(samples), seconds=round(time.time() - tg, 1),
                          frames=[s['frames'] for s in samples], chunks=[len(s['chunks']) for s in samples])
