@@ -44,7 +44,8 @@ try:
 except Exception as e:   # 오래된 peft
     model = get_peft_model(model, LoraConfig(**lc, modules_to_save=['embed_tokens', 'lm_head']))
     res['new_token_training'] = f'modules_to_save ({type(e).__name__})'
-prev = sorted(glob.glob('/kaggle/input/**/lora/adapter_model.safetensors', recursive=True)) if not DRY else []
+prev = sorted(glob.glob('/kaggle/input/**/adapter_model.safetensors', recursive=True)) if not DRY else []   # 데이터셋 맨 위·lora/ 어디든(11-06 새 계정 LoRA 데이터셋은 맨 위)
+REQUIRE_RESUME = True   # 2차: 이어 학습이 실패하면 GPU를 쓰기 전에 멈춘다
 if prev:   # 단계 4 LoRA에서 이어 학습
     from safetensors.torch import load_file
     from peft import set_peft_model_state_dict
@@ -53,6 +54,9 @@ if prev:   # 단계 4 LoRA에서 이어 학습
         res['resumed_from'] = prev[0]; res['resume_unexpected'] = len(getattr(r_, 'unexpected_keys', []) or [])
     except Exception as e:
         res['resume_error'] = f'{type(e).__name__}: {e}'[:300]
+        if REQUIRE_RESUME: raise
+elif REQUIRE_RESUME and not DRY:
+    raise SystemExit('이어 학습할 LoRA가 입력에 없다')
 res['load_s'] = round(time.time() - t0, 1)
 res['trainable_params'] = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
