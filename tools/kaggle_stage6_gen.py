@@ -61,7 +61,8 @@ model.eval()
 res['load_s'] = round(time.time() - t0, 1)
 
 rows = [json.loads(l) for l in open(f'{DATA}/motion5.jsonl', encoding='utf-8')]
-held = set(json.load(open(f'{DATA}/stage5_split_2026-11-05.json', encoding='utf-8'))['held_out'])
+_sp = next(p_ for p_ in (f'{DATA}/stage5_split_v3_2026-11-06.json', f'{DATA}/stage5_split_2026-11-05.json') if os.path.exists(p_))   # 3차 분리 우선
+held = set(json.load(open(_sp, encoding='utf-8'))['held_out']); res['split'] = os.path.basename(_sp)
 starts = [r for r in rows if r['src'] in held and r['kind'] == 'start']
 random.seed(2); ev = random.sample(starts, min(N_EVAL, len(starts)))
 base = [dict(src=r['src'], layer=r['layer'], acts=r['prompt'].replace('<ref> ', '').split(' → ')) for r in ev]
