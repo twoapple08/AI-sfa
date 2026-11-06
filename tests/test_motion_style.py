@@ -327,7 +327,7 @@ class Compose(unittest.TestCase):
         lib = [clip('걷기', 'a', 1.0), clip('펀치', 'b', 0.0)]
         ir, picks = C.compose([('걷기', ''), ('펀치', '')], lib)
         self.assertEqual([p['src'] for p in picks], ['a', 'b'])
-        self.assertEqual(ir['frames'], 24 + C.BLEND + 24)   # 8장 × 3번 반복 = 24 ≥ 20
+        self.assertEqual(ir['frames'], 24 + C.BLEND + 8)   # 걷기: 8장 × 3번 반복 = 24 ≥ 20 · 펀치: 반복하지 않음(11-06)
         J = ir['actors'][0]['joints']
         H = max(m.hypot(J['head_t'][0][0] - J[a][0][0], (J['head_t'][0][1] - J[a][0][1]) * 0.5625) for a in ('ank_r', 'ank_l'))
         self.assertAlmostEqual(H, C.T0 * C.H_PER_T, places=3)   # 키(머리 위 ~ 먼 발목)를 맞춘다

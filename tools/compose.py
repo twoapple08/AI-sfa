@@ -66,13 +66,27 @@ def travel(c):
     return abs(J['pelvis'][-1][0] - J['pelvis'][0][0]) / T / max(c['frames'], 1)
 
 
+_GC = {}
+
+
+def _gait(c):
+    import gait_eval as G
+    k = (c['src'], c['frames'], c['verb'])
+    if k not in _GC:
+        _GC[k] = G.metrics(dict(frames=c['frames'], aspect=c['aspect'], actors=[dict(joints=c['joints'])])) or {}
+    return _GC[k]
+
+
 def pick(lib, verb, detail='', avoid=()):
     cand = [c for c in lib if c['verb'] == verb and c['src'] not in avoid] or [c for c in lib if c['verb'] == verb]
     if not cand: return None
     g = _grams(detail)
     def score(c):
         cg = _grams(c['detail']); sim = len(g & cg) / max(len(g | cg), 1) if g else 0
-        mv = min(travel(c) / 0.08, 1.0) * 0.6 if verb in LOCO else 0   # 걷기·달리기는 실제로 앞으로 나아가는 조각 우선
+        mv = min(travel(c) / 0.08, 1.0) * 0.3 if verb in LOCO else 0   # 걷기·달리기는 실제로 앞으로 나아가는 조각 우선
+        if verb in LOCO:   # 11-06 걷기 판정(gait_eval): 실제 걸음 교대·지지 바뀜이 있는 조각 우선(제자리·정면 조각 u441은 걸음 0으로 재짐)
+            gm = _gait(c)
+            mv += (0.5 if gm.get('gait_like') else 0.35 if gm.get('step_like') else 0) + min(gm.get('steps_ankle', 0), 4) * 0.05
         return sim + mv + (0.3 if c['layer'] == 'style' else 0) + (0.2 if c['quality'] == '좋음' else 0) + min(c['frames'], 24) / 120
     return max(cand, key=score)
 
@@ -112,7 +126,14 @@ def compose(acts, lib, min_len=MIN_LEN, blend=BLEND):
         c = pick(lib, verb, detail, avoid=used[-1:])
         if c is None: raise ValueError(f'조각 없음: {verb}')
         used.append(c['src']); picks.append(dict(verb=verb, src=c['src'], layer=c['layer'], frames=c['frames'], detail=c['detail']))
-        C = _norm(c); C, F = _loop(C, c['frames'], min_len)
+        C = _norm(c)
+        if verb in LOCO:   # 반복은 걷기·달리기만(11-06 GPT: 짧은 펀치까지 반복하던 것). 주기를 잴 수 있으면 주기 맞춘 반복(경로 실험: HMDB 달리기 8/8 vs 지금 반복 5/8)
+            import gait_eval as G
+            cl = G.cycle_loop(dict(frames=c['frames'], aspect=c['aspect'], actors=[dict(joints=C)]), min_len) if c['frames'] >= 2 * 8 + 4 else None
+            if cl: C, F = cl['actors'][0]['joints'], cl['frames']
+            else: C, F = _loop(C, c['frames'], min_len)
+        else:
+            F = c['frames']
         if J['pelvis']:
             P = J['pelvis'][-1]
             last = {k: [J[k][-1][0] - P[0], J[k][-1][1] - P[1]] for k in NAMES}
