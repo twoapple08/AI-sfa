@@ -313,3 +313,21 @@ class Retime(unittest.TestCase):
             for n in range(s + 1, e + 1): self.assertEqual(J['wri_r'][n], J['wri_r'][s])
         hs = RT.hold_share(r); tg = RT.target_share()
         self.assertLess(abs(hs['2'] - tg[2]), 0.2)
+
+
+class Compose(unittest.TestCase):
+    def test_compose_loops_and_blends(self):
+        """실제 동작 조각 잇기: 짧은 조각은 반복해 MIN_LEN 이상, 이음매 BLEND장, 몸통 크기 T0로 맞춤."""
+        import compose as C, math as m
+        def clip(verb, src, dx):
+            ir = make_ir([60 + (i % 3) for i in range(8)], [1] * 8)
+            J = ir['actors'][0]['joints']
+            for k in J: J[k] = [[p[0] + dx * n, p[1]] for n, p in enumerate(J[k])]
+            return dict(layer='ref', src=src, verb=verb, detail='', quality='좋음', frames=8, aspect=0.5625, joints=J)
+        lib = [clip('걷기', 'a', 1.0), clip('펀치', 'b', 0.0)]
+        ir, picks = C.compose([('걷기', ''), ('펀치', '')], lib)
+        self.assertEqual([p['src'] for p in picks], ['a', 'b'])
+        self.assertEqual(ir['frames'], 24 + C.BLEND + 24)   # 8장 × 3번 반복 = 24 ≥ 20
+        J = ir['actors'][0]['joints']
+        T = m.hypot(J['neck'][0][0] - J['pelvis'][0][0], (J['neck'][0][1] - J['pelvis'][0][1]) * 0.5625)
+        self.assertAlmostEqual(T, C.T0, places=3)

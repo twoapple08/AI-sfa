@@ -28,6 +28,11 @@ def build(tokens, sheet_path=None, center=False, name='generated', facing=None, 
     ir = MT.decode(tokens)
     if ir is None:
         raise ValueError('토큰을 동작으로 되돌릴 수 없다')
+    return finalize(ir, sheet_path, center, name, facing, retime)
+
+
+def finalize(ir, sheet_path=None, center=False, name='generated', facing=None, retime=False):
+    """동작 자료(motion-ir) → (ir, .sfa 뿌리). build(토큰)와 compose(실제 동작 조각 잇기)가 같이 쓴다."""
     if retime:   # nian41 그림 유지 리듬 입히기(tools/retime.py, 11-06)
         import retime as RT
         ir = RT.retime(ir)
@@ -42,6 +47,10 @@ def build(tokens, sheet_path=None, center=False, name='generated', facing=None, 
     S = [math.hypot((J['neck'][n][0] - J['pelvis'][n][0]) * 11.52, (J['neck'][n][1] - J['pelvis'][n][1]) * 6.48) for n in range(N)]
     th, _ = distance_thickness(__import__('numpy').array(S), ((73.3, 1.0), (376.4, 5.0)))
     a['thickness'] = [{str(o): round(float(th[n]), 3) for o in range(1, 12)} for n in range(N)]
+    for k in ('hidden', 'smear'):
+        if not a.get(k) or len(a[k]) != N: a[k] = [[] for _ in range(N)]
+    if not a.get('head_fill') or len(a['head_fill']) != N: a['head_fill'] = [True] * N
+    if not a.get('facing') or len(a['facing']) != N: a['facing'] = [None] * N
     sheets = {0: CS.rig(CS.read_all(sheet_path))} if sheet_path else None
     return ir, M.compile_ir(ir, name=name, sheets=sheets)
 
