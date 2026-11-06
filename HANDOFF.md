@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-06):** 사용자 v2 발목굽힘을정정: **무릎→뒤꿈치 한 선,뒤꿈치→발끝**,발목은별도굽힘점아님. 부분검토판v3 `/workspace/scratch/sfa_event_review_heel_v3/observed_heel_to_tip.sfa`·전후PNG·ZIP. 위쪽축/무릎/발끝유지,정강이끝/발시작을같은뒤꿈치로옮김. 장당3AO/6AP/24고유점/주황점기존1개. 원본4장수동뒤꿈치/연기가림추론,앱미확인·학습제외. v1/v2보존,사용자v3판정대기중새설계/시제품없음. 도구extend_to_tips의heels옵션·뒤꿈치연결검사추가,집계sfa_heel_tip_revision JSON·기록GPT-SFA-EVENT-REVIEW말미. 전체프로필/모델/GPU불변. 작업마다추론권장(이번Medium),애니배치/타이밍·4.sfa구조참고유지.
+- **최신 진행(11-06):** 사용자발기준합의계획표반영:기본무릎→뒤꿈치,접지/타격/근접필요시짧은발선선택. 이후진행지시로원본301158 회전망치의밝은호1개 독립표현층 비교(High). `docs/GPT-SMEAR-CURVE-LAYER-2026-11-06.md`, `tools/smear_curve_review.py`,집계JSON. 원본MD5일치/C커뮤니티귀속·388~399연속12장/390~396원본크기판독. A일정폭/B폭변화+글로우,동일기하·출현/소멸,6장/9AO/162점. 몸부착/전체스미어/스타일학습/앱합격아님. 원본23.976→출력24(0.1%빠름)명시. 비공개 `/workspace/scratch/smear_layer/review/curve_layer_review.zip`·비교PNG·SFA. 사용자표현판정대기중새시제품/설계없음. 기존생성기/전체프로필/모델/GPU불변,작업마다추론권장. v3발검토기록/파일은보존.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 

@@ -1,0 +1,73 @@
+{
+  "schema": "smear-curve-layer-result/1",
+  "source": {
+    "post_id": 301158,
+    "artist": "nian41",
+    "sha256": "ba73b15167094da3f5ee6b5d80ca29687cf50334e5871ffb4a42f1241a4334aa",
+    "md5": "630377763bac23c822c64d3357a1dc6e",
+    "frames": 1921,
+    "fps": "24000/1001",
+    "index_base": 0,
+    "attribution": "기존 C 커뮤니티 태그; 독립 작가 확인 아님"
+  },
+  "case_id": "nian41_301158_hammer_sweep_candidate",
+  "training_ready": false,
+  "held_out": false,
+  "scope": "수동 원본 곡선 한 궤적의 독립 표현층; 몸 뼈대 부착/스미어 자동 검출 아님",
+  "source_indices": [
+    390,
+    391,
+    392,
+    393,
+    394,
+    395
+  ],
+  "active": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    false
+  ],
+  "source_fps": "24000/1001",
+  "output_fps": [
+    24,
+    24
+  ],
+  "one_to_one_frame_mapping": true,
+  "output_duration_seconds": 0.25,
+  "source_six_frame_duration_seconds": 0.25025,
+  "variants": {
+    "plain": {
+      "asset_sha256": "6ccae83f4f6aa4d7eed0a6d7622586608e144a2f66066a82a4cfb36e70a3d7fb",
+      "report": {
+        "frames": 6,
+        "objects_per_frame": 9,
+        "unique_points": 162,
+        "app_verified": false
+      }
+    },
+    "variable_glow": {
+      "asset_sha256": "b70357c45f79f166f6858ec227b5bfa3f39e6eac82f4347046be55a9772be4bb",
+      "report": {
+        "frames": 6,
+        "objects_per_frame": 9,
+        "unique_points": 162,
+        "app_verified": false
+      }
+    }
+  },
+  "curve_count": 9,
+  "segment_count_is_probe_setting_not_limit": true,
+  "shape_parameters_estimated_manually": true,
+  "rig_attachment_verified": false,
+  "foot_rule": "기본 무릎→뒤꿈치 한 선; 접지/타격/근접 필요시 뒤꿈치→발끝 선택",
+  "tool_sha256": "b3768144d2376e5c98c054a070137874a6772c25e2bfbfd4669e36185a7007f8",
+  "limitations": [
+    "실제 궤적 시작은 선택 구간 전일 수 있음",
+    "폭/글로우/기하 계수는 수동 근사이며 원본에서 정량 추정한 스타일 정답 아님",
+    "작가 귀속 C 수준/단일 개발사례"
+  ],
+  "comparison_sha256": "2a8e980478ac84537122b18a8cb97ca887bce61460ed10f49e5aa38048639287"
+}
