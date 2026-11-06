@@ -329,5 +329,5 @@ class Compose(unittest.TestCase):
         self.assertEqual([p['src'] for p in picks], ['a', 'b'])
         self.assertEqual(ir['frames'], 24 + C.BLEND + 24)   # 8장 × 3번 반복 = 24 ≥ 20
         J = ir['actors'][0]['joints']
-        T = m.hypot(J['neck'][0][0] - J['pelvis'][0][0], (J['neck'][0][1] - J['pelvis'][0][1]) * 0.5625)
-        self.assertAlmostEqual(T, C.T0, places=3)
+        H = max(m.hypot(J['head_t'][0][0] - J[a][0][0], (J['head_t'][0][1] - J[a][0][1]) * 0.5625) for a in ('ank_r', 'ank_l'))
+        self.assertAlmostEqual(H, C.T0 * C.H_PER_T, places=3)   # 키(머리 위 ~ 먼 발목)를 맞춘다

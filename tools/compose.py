@@ -17,6 +17,7 @@ import copy, gzip, json, math, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIN_CLIP, MIN_LEN, BLEND, T0 = 6, 20, 4, 12.0
+H_PER_T = 2.7   # 키 ÷ 몸통(수집 SFA 걷기·달리기 조각 2.6–2.9) — 키를 T0 × 2.7로 맞춘다
 NAMES = ['head_t', 'head_b', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l', 'kne_r', 'ank_r', 'kne_l', 'ank_l']
 
 
@@ -83,9 +84,12 @@ def _torso(J, n, asp):
 def _norm(c):
     """조각 → 몸통 T0 크기, 첫 장 골반 원점 기준 좌표(이동 포함)."""
     J, asp = c['joints'], c['aspect']
-    Ts = sorted(_torso(J, n, asp) for n in range(c['frames']))
-    T = Ts[min(len(Ts) - 1, int(len(Ts) * 0.9))]   # 90분위(가장 길게 보인 몸통) — 원근으로 짧아진 장에 끌려 작아지지 않게(11-06 펀치 조각이 작아 보임)
-    k = T0 / T; p0 = J['pelvis'][0]
+    # 크기 = 머리 위 ~ 더 먼 발목 키의 90분위(11-06: 수집 SFA는 작가마다 다리 비율이 달라 몸통으로 맞추면 펀치 조각(키 2.4 몸통)이
+    # 걷기 조각(2.85)보다 작게 보였다 → 같은 캐릭터가 조각마다 같은 키로 보이게)
+    Hs = sorted(max(math.hypot(J['head_t'][n][0] - J[a][n][0], (J['head_t'][n][1] - J[a][n][1]) * asp) for a in ('ank_r', 'ank_l'))
+                for n in range(c['frames']))
+    Hh = Hs[min(len(Hs) - 1, int(len(Hs) * 0.9))] or 1e-6
+    k = T0 * H_PER_T / Hh; p0 = J['pelvis'][0]
     return {n_: [[(p[0] - p0[0]) * k, (p[1] - p0[1]) * k] for p in J[n_]] for n_ in NAMES}
 
 
