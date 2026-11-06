@@ -20,7 +20,9 @@ MODEL = 'trl-internal-testing/tiny-Qwen2_5_VLForConditionalGeneration' if DRY el
 DEV = 'cpu' if DRY else 'cuda'
 STEPS, ACC, LR, MAXLEN = (2 if DRY else int(os.environ.get('STEPS', 3000))), (2 if DRY else 8), 2e-4, 1000
 # 2차 학습(11-06, 새 계정 30시간): 1차(70분·517단계)에서 이어 학습, 스타일 층 비중 0.3 → 0.5, 거의 정지한 목표 쌍 제외(생성 정지 15% 대책)
-STYLE_P = float(os.environ.get('STYLE_P', 0.5)); STATIC_MIN = 0.02
+# 3차(11-06): 기본기 자료(HMDB51·뒤집기)로 4,214쌍 — 스타일 67쌍을 0.5로 뽑으면 외우기만 → 0.25. 학습 중 평가 손실로 가장 좋은 시점 저장·조기 종료
+STYLE_P = float(os.environ.get('STYLE_P', 0.25)); STATIC_MIN = 0.02
+EVAL_EVERY, EVAL_N, PATIENCE = (1 if DRY else 50), (3 if DRY else 80), 4
 res = dict(model=MODEL, steps=STEPS, accum=ACC)
 t0 = time.time()
 
@@ -62,7 +64,7 @@ res['trainable_params'] = sum(p.numel() for p in model.parameters() if p.require
 
 allrows = [json.loads(l) for l in open(f'{DATA}/motion5.jsonl', encoding='utf-8')]
 # 11-05 사용자 '파일 단위 새 분리 + 처음부터': stage5_split(파일·영상 단위)이 있으면 그것, 없으면 옛 stage4_split
-sp = f'{DATA}/stage5_split_2026-11-05.json' if os.path.exists(f'{DATA}/stage5_split_2026-11-05.json') else f'{DATA}/stage4_split_2026-11-05.json'
+sp = next(p_ for p_ in (f'{DATA}/stage5_split_v3_2026-11-06.json', f'{DATA}/stage5_split_2026-11-05.json', f'{DATA}/stage4_split_2026-11-05.json') if os.path.exists(p_))
 held = set(json.load(open(sp, encoding='utf-8'))['held_out']); res['split'] = os.path.basename(sp)
 rows = [r for r in allrows if r['src'] not in held]; evals = [r for r in allrows if r['src'] in held]
 import math
@@ -95,6 +97,19 @@ style = [r for r in rows if r['layer'] == 'style']
 t1 = time.time()
 TRAIN_MIN = float(os.environ.get('TRAIN_MIN', 150))   # 학습 시간 상한(분). 11-05: 긴 쌍(~400–700토큰)이라 800단계면 약 1시간 40분. 사용자 GPU 잔여 3시간 5분 확인 뒤 '추천대로' 70분(처음부터 학습)
 done = 0; ckpts = []; CKPT_MIN = 30
+random.seed(5); evsub = random.sample(evals, min(EVAL_N, len(evals))); random.seed(0)
+def eval_loss():
+    model.eval(); tot = n_ = 0.0
+    with torch.no_grad():
+        for r in evsub:
+            ids, lab = batch(r)
+            with torch.autocast('cuda', dtype=torch.float16, enabled=not DRY):
+                l = model(input_ids=ids, labels=lab).loss
+            k = int((lab != -100).sum()); tot += float(l) * k; n_ += k
+    model.train(); return tot / max(n_, 1)
+best, bad, curve = eval_loss(), 0, []
+curve.append((0, round(best, 4))); print('평가 손실 0', round(best, 4), flush=True)
+model.save_pretrained(f'{OUT}/lora_best')
 for step in range(STEPS):
     if not DRY and time.time() - t1 > TRAIN_MIN * 60: break
     for _ in range(ACC):
@@ -108,6 +123,13 @@ for step in range(STEPS):
     if not DRY and time.time() - t1 > CKPT_MIN * 60 * (len(ckpts) + 1):   # 30분마다 중간 저장(오래 학습하면 외울 수 있어 앞 시점으로 되돌릴 수 있게)
         model.save_pretrained(f'{OUT}/lora_{int((time.time() - t1) // 60)}m'); ckpts.append(done)
     if step % 10 == 0: print('step', step, 'loss', round(sum(losses[-ACC * 10:]) / len(losses[-ACC * 10:]), 3), round(time.time() - t1), 's', flush=True)
+    if done % EVAL_EVERY == 0:
+        el = eval_loss(); curve.append((done, round(el, 4))); print('평가 손실', done, round(el, 4), '최고', round(best, 4), flush=True)
+        if el < best: best, bad = el, 0; model.save_pretrained(f'{OUT}/lora_best')
+        else:
+            bad += 1
+            if bad >= PATIENCE: print('조기 종료', done, flush=True); break
+res['eval_curve'] = curve; res['best_eval_loss'] = round(best, 4)
 res['train_s'] = round(time.time() - t1, 1); res['steps_done'] = done; res['checkpoints_at_step'] = ckpts; res['s_per_step'] = round(res['train_s'] / max(done, 1), 2)
 res['train_peak_gb'] = 0 if DRY else round(torch.cuda.max_memory_allocated() / 2 ** 30, 2)
 res['loss_first10'] = round(sum(losses[:ACC * 10]) / (ACC * 10), 3); res['loss_last10'] = round(sum(losses[-ACC * 10:]) / (ACC * 10), 3)
