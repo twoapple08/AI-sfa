@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-06):** 사용자 “자 가보자”로 전용 도구 첫 진단 시작(High 권장). `docs/GPT-ROOT-CAUSE-FIRST-PASS-2026-11-06.md`, `tools/motion_information_probe.py`, `data/research/motion_information_probe_2026-11-06.json`. 합성 메타데이터11변경 동일 토큰·12장→11장/유지 소실 반례, 공개IR510개 장 수는 전부 보존. 진동 원인/애니 원본 충실도는 미확정. 다음은 사용자 지정 스미어 SFA+구간(가능하면 대응 애니) 대조, 최신 compose6/보정 전 IR/시트/원본 구간 복원 후 단계별 진동 측정. 로컬 캐시 부재, Drive 이름검색 compose/stage2/loco 무결과(전체 부재 증거 아님). 생산 코드·학습·GPU 불변. GPT 계속 담당, 전달 불필요. 작업마다 권장 추론 수준 안내.
+- **최신 진행(11-06):** 사용자 제공4.sfa의14지정장+앞뒤24장/정지이미지를 조사. `docs/GPT-SMEAR-SFA-REFERENCE-2026-11-06.md`, `tools/sfa_effect_reference_probe.py`, JSON. **스미어를 넣는 방식/타이밍/연출은 승인된 실제 애니메이터 원본에서 학습**, 4.sfa는 여러 효과 중 스미어용 표현의 구조 참고 전용(training_ready=false). 색후보 전부 스미어로 분류 금지, 작은 형태 변형 지원 중요, 38선 반복은 필수 문법 아님. 다음은 실제 애니 사건과 SFA 표현 연결(High 권장), 진동은 최신compose6 입력 부재로 원인 미확정. 앞선 정보손실 진단은 `docs/GPT-ROOT-CAUSE-FIRST-PASS-2026-11-06.md`. 생산/학습/GPU 불변, 작업마다 권장 추론 안내.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
