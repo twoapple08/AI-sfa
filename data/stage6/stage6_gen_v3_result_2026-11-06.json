@@ -1,0 +1,53 @@
+{
+ "run": {
+  "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+  "ckpts": [
+   "lora_best"
+  ],
+  "split": "stage5_split_v3_2026-11-06.json",
+  "total_s": 1120.2
+ },
+ "by_mode": {
+  "full": {
+   "n": 10,
+   "reach_72": 9,
+   "frames": [
+    61,
+    88,
+    75,
+    91,
+    87,
+    72,
+    74,
+    80,
+    84,
+    79
+   ],
+   "cont_motion_median": 0.112,
+   "frozen_rate": 0.25,
+   "first_try_ok_rate": 0.558,
+   "tries_mean": 1.7
+  },
+  "full_ref": {
+   "n": 10,
+   "reach_72": 10,
+   "frames": [
+    94,
+    97,
+    90,
+    73,
+    81,
+    77,
+    98,
+    81,
+    81,
+    86
+   ],
+   "cont_motion_median": 0.06,
+   "frozen_rate": 0.476,
+   "first_try_ok_rate": 0.484,
+   "tries_mean": 1.9
+  }
+ },
+ "note": "3차 최고 시점(lora_best, 200단계). 움직임 = 이웃 키 자세 차이(경과 시간으로 나눈 속도 아님). 정지 = < 0.05 몸통. 다시 뽑기 포함 절차의 성능(first_try_ok_rate는 첫 시도 통과 비율)."
+}

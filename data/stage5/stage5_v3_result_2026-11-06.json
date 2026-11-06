@@ -1,0 +1,87 @@
+{
+ "model": "Qwen/Qwen2.5-VL-3B-Instruct",
+ "steps": 3000,
+ "accum": 8,
+ "resumed_from": "/kaggle/input/datasets/titanium08/aisfa-stage5-lora/adapter_model.safetensors",
+ "split": "stage5_split_v3_2026-11-06.json",
+ "train_pairs": 3886,
+ "eval_pairs": 423,
+ "dropped_static": 328,
+ "style_p": 0.25,
+ "steps_done": 400,
+ "eval_curve": [
+  [
+   0,
+   1.9781
+  ],
+  [
+   50,
+   1.5827
+  ],
+  [
+   100,
+   1.5714
+  ],
+  [
+   150,
+   1.5952
+  ],
+  [
+   200,
+   1.5664
+  ],
+  [
+   250,
+   1.6113
+  ],
+  [
+   300,
+   1.5703
+  ],
+  [
+   350,
+   1.6364
+  ],
+  [
+   400,
+   1.5846
+  ]
+ ],
+ "best_eval_loss": 1.5664,
+ "train_s": 4052.3,
+ "total_s": 4569.1,
+ "train_peak_gb": 5.54,
+ "loss_first10": 1.335,
+ "loss_last10": 0.884,
+ "note": "학습 중 평가 손실은 평가 423쌍 중 고정 80쌍 표본(seed 5)으로 잰 값 — 평가 전체 손실과 구분(GPT 11-06 지적). 학습 쌍은 32장 창을 8장 간격으로 겹쳐 자른 것 + 좌우 뒤집기라 독립 예시 수가 아님.",
+ "data": {
+  "train": {
+   "pairs": 4214,
+   "by_layer": {
+    "style": 56,
+    "ref": 4158
+   },
+   "by_dataset": {
+    "stage2/user_sfa": 1476,
+    "hmdb51": 2738
+   },
+   "mirrored": 2079,
+   "sources": 689
+  },
+  "eval": {
+   "pairs": 423,
+   "by_layer": {
+    "style": 11,
+    "ref": 412
+   },
+   "by_dataset": {
+    "stage2/user_sfa": 165,
+    "hmdb51": 258
+   },
+   "mirrored": 206,
+   "sources": 80
+  },
+  "hmdb_clips": 328,
+  "hmdb_time": "변환기가 원본을 30장/초로 가정해 24장/초로 다시 표본화하고 3장 이동 평균(tools/hmdb_to_ir.py) — 실제 원본 시간 간격은 개별 확인 안 함"
+ }
+}
