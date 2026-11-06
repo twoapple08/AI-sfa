@@ -43,6 +43,9 @@ def retime(ir, slot=0, share=None):
         for k in J:
             p = J[k][n]
             for m in range(n + 1, e + 1): J[k][m] = list(p)
+        fc = a.get('facing')   # 몸 방향도 그림과 함께 유지(11-06 조각 잇기가 방향을 넘기기 시작)
+        if fc and len(fc) == N:
+            for m in range(n + 1, e + 1): fc[m] = fc[n]
         D.append([n, e]); n = e + 1
     a['drawings'] = D
     return out

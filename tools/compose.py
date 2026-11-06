@@ -10,8 +10,8 @@
    조각이 MIN_LEN장보다 짧으면 반복해 늘린다(걷기·달리기 주기). 이음매는 BLEND장을 끼워 두 자세를 골반 기준으로 섞는다(계산, GPU 없음 —
    나중에 모델 이어 만들기로 바꿀 자리).
 4) 마무리: tokens_to_sfa.finalize(nian41 리듬 입히기·캐릭터 시트·굵기).
-사용: python tools/compose.py "<동작1> → <동작2> → ..." <출력.sfa> [--sheet 시트.sfa] [--style-dir stage2 작업 폴더] [--no-retime] [--no-synth] [--facing 도]
-걷기·달리기는 기본으로 계산 주기(gait_cycle), --no-synth면 실제 조각. 다른 동작은 태그 앞 PRE·뒤 POST장을 함께 자른다(예비 동작·마무리).
+사용: python tools/compose.py "<동작1> → <동작2> → ..." <출력.sfa> [--sheet 시트.sfa] [--style-dir stage2 작업 폴더] [--no-retime] [--synth] [--loco-dir 이동 장면 폴더] [--facing 도]
+걷기·달리기는 스타일 층 실제 조각 우선(없으면 계산 주기 gait_cycle, --synth면 항상 계산 주기 — 11-06 사용자 '로봇 같다'로 기본값에서 뺌). 다른 동작은 태그 앞 PRE·뒤 POST장을 함께 자른다(예비 동작·마무리).
 """
 import copy, gzip, json, math, os, sys
 
@@ -27,7 +27,9 @@ NAMES = ['head_t', 'head_b', 'neck', 'pelvis', 'elb_r', 'wri_r', 'elb_l', 'wri_l
 
 def _slice(ir, s, e):
     a = ir['actors'][0]
-    return dict(frames=e - s + 1, aspect=ir.get('aspect', 0.5625), joints={k: [list(p) for p in a['joints'][k][s:e + 1]] for k in NAMES})
+    fc = a.get('facing') or [None] * ir['frames']
+    return dict(frames=e - s + 1, aspect=ir.get('aspect', 0.5625), joints={k: [list(p) for p in a['joints'][k][s:e + 1]] for k in NAMES},
+                facing=list(fc[s:e + 1]))
 
 
 def _ok(ir, m, n):
@@ -59,8 +61,27 @@ def _margin(ir, m, f, e, verb, lo=-1, hi=10 ** 9):
     return s, t, f - s
 
 
-def library(style_dir=None):
+LOCO_CLIPS = f'{ROOT}/data/stage2/loco_style_clips_2026-11-06.json'
+
+
+def loco_clips(loco_dir):
+    """nian41·나카무라 영상의 실제 이동 장면(find_locomotion 후보 → Claude 원본 대조로 쓸 구간만, 좌표는 비공개 작업 폴더)."""
     out = []
+    if not loco_dir or not os.path.exists(LOCO_CLIPS): return out
+    for r in json.load(open(LOCO_CLIPS, encoding='utf-8'))['clips']:
+        p = f"{loco_dir}/{r['name']}.json"
+        if not os.path.exists(p): continue
+        ir = json.load(open(p)); a = ir['actors'][r.get('actor', 0)]
+        one = dict(ir, actors=[a])
+        c = dict(layer='style', src=r['name'], verb=r['verb'], detail=r['detail'], quality='좋음', **_slice(one, r['from'], r['to']))
+        if r.get('reverse'):   # 시간 거꾸로(뒷걸음 → 다가가기, 목록의 reason 참고)
+            c['joints'] = {k: v[::-1] for k, v in c['joints'].items()}; c['facing'] = c['facing'][::-1]
+        out.append(c)
+    return out
+
+
+def library(style_dir=None, loco_dir=None):
+    out = loco_clips(loco_dir)
     if style_dir and os.path.exists(f'{style_dir}/out/summary.json'):
         tags = {t['segment']: t for t in json.load(open(f'{ROOT}/data/stage2/tags_gpt_2026-11-05.json', encoding='utf-8'))}
         for s in json.load(open(f'{style_dir}/out/summary.json'))['segments']:
@@ -119,7 +140,8 @@ def pick(lib, verb, detail='', avoid=()):
     if not cand: return None
     # 11-06: 걷기·달리기 아닌 동작은 스타일 층(nian41·나카무라) 조각이 있으면 그 안에서만 고른다(몸동작 스타일 = 두 작가 규칙 ·
     # 설명 글 겹침 때문에 수집 SFA 펀치 u008(13장)이 nian41 펀치 10개를 이기던 것)
-    if verb not in LOCO and any(c['layer'] == 'style' for c in cand): cand = [c for c in cand if c['layer'] == 'style']
+    # 11-06 사용자 '공식 걷기는 로봇 같다' → 걷기·달리기도 스타일 층 실제 조각이 있으면 그 안에서만
+    if any(c['layer'] == 'style' for c in cand): cand = [c for c in cand if c['layer'] == 'style']
     g = _grams(detail)
     def score(c):
         cg = _grams(c['detail']); sim = len(g & cg) / max(len(g | cg), 1) if g else 0
@@ -147,8 +169,23 @@ def _norm(c):
     Hs = sorted(max(math.hypot(J['head_t'][n][0] - J[a][n][0], (J['head_t'][n][1] - J[a][n][1]) * asp) for a in ('ank_r', 'ank_l'))
                 for n in range(c['frames']))
     Hh = Hs[min(len(Hs) - 1, int(len(Hs) * 0.9))] or 1e-6
-    k = T0 * H_PER_T / Hh; p0 = J['pelvis'][0]
-    return {n_: [[(p[0] - p0[0]) * k, (p[1] - p0[1]) * k] for p in J[n_]] for n_ in NAMES}
+    # 11-06: 카메라 줌·원근으로 조각 안에서 크기가 바뀌면(나카무라 달리기 nkm_16 키 23 → 38) 장마다 맞춘다. 장 크기 = max(키, 몸통 × 2.7)
+    # (웅크리면 키만 줄고, 카메라 쪽으로 숙이면 몸통만 줄어 둘 중 큰 쪽) 9장 이동 평균. 조각 90분위와 1.25배 넘게 다른 장이 있을 때만.
+    F = c['frames']
+    size = [max(max(math.hypot(J['head_t'][n][0] - J[a][n][0], (J['head_t'][n][1] - J[a][n][1]) * asp) for a in ('ank_r', 'ank_l')),
+                _torso(J, n, asp) * H_PER_T) for n in range(F)]
+    sz = sorted(size)[min(F - 1, int(F * 0.9))] or 1e-6
+    if max(sz / max(x, 1e-6) for x in size) > 1.25:
+        sm = [sum(size[max(0, i - 4):i + 5]) / len(size[max(0, i - 4):i + 5]) for i in range(F)]
+        ks = [T0 * H_PER_T / max(x, 1e-6) for x in sm]
+    else:
+        ks = [T0 * H_PER_T / Hh] * F
+    out = {n_: [] for n_ in NAMES}; P = [0.0, 0.0]
+    for n in range(F):
+        if n: P = [P[0] + (J['pelvis'][n][0] - J['pelvis'][n - 1][0]) * ks[n], P[1] + (J['pelvis'][n][1] - J['pelvis'][n - 1][1]) * ks[n]]
+        pv = J['pelvis'][n]
+        for n_ in NAMES: out[n_].append([P[0] + (J[n_][n][0] - pv[0]) * ks[n], P[1] + (J[n_][n][1] - pv[1]) * ks[n]])
+    return out
 
 
 def _loop(J, F, need):
@@ -181,26 +218,88 @@ def follow(J, lo=CAM_LO, hi=CAM_HI, w=CAM_SMOOTH):
     return {k: [[q[0] + sm[n], q[1]] for n, q in enumerate(v)] for k, v in J.items()}
 
 
-def compose(acts, lib, min_len=MIN_LEN, blend=BLEND, synth=True, camera=True):
+def _cmean(fs):
+    fs = [f for f in fs if f is not None]
+    if not fs: return None
+    x = sum(math.cos(math.radians(f)) for f in fs); y = sum(math.sin(math.radians(f)) for f in fs)
+    return math.degrees(math.atan2(y, x)) % 360 if math.hypot(x, y) > 1e-6 else None
+
+
+def _side(f):
+    """몸 방향(도) → 화면에서 얼굴이 향한 쪽: +1 오른쪽(180–360, 시트 '좌측' 쪽) · −1 왼쪽 · 0 정면/후면 근처(±20°)."""
+    if f is None: return 0
+    s = math.sin(math.radians(f))
+    return 0 if abs(s) < 0.34 else (1 if s < 0 else -1)
+
+
+def _clip_dir(c, C, verb):
+    """조각이 향한 화면 쪽. 걷기·달리기 = 골반 이동 방향, 그 밖 = 몸 방향(없으면 손목을 가장 멀리 뻗은 쪽)."""
+    if verb in LOCO:
+        dx = C['pelvis'][-1][0] - C['pelvis'][0][0]
+        if abs(dx) > 1e-6: return 1 if dx > 0 else -1
+    d = _side(_cmean(c.get('facing') or []))
+    if d: return d
+    best = max(range(len(C['neck'])), key=lambda n: max(abs(C[w][n][0] - C['neck'][n][0]) for w in ('wri_r', 'wri_l')))
+    w = max(('wri_r', 'wri_l'), key=lambda w: abs(C[w][best][0] - C['neck'][best][0]))
+    return 1 if C[w][best][0] >= C['neck'][best][0] else -1
+
+
+def _front_half(f, side, lim=20):
+    """포즈로 잰 몸 방향은 뒤쪽으로 치우친다(n41_07 펀치 10–20장: 원본은 옆모습인데 207–237로 잼 → 가면이 사라짐). 향한 쪽 옆모습
+    (오른쪽 270 · 왼쪽 90)에서 뒤쪽으로 lim°까지만 허용하고, 앞쪽(정면 쪽)은 그대로 둔다."""
+    if f is None or not side: return f
+    base = 270.0 if side > 0 else 90.0
+    d = ((f - base + 180) % 360) - 180   # 오른쪽 옆(270) 기준: + 정면 쪽(→360) · − 뒤쪽(→180)
+    if side < 0: d = -d                  # 왼쪽 옆(90) 기준: 정면(0) 쪽이 −
+    if d < -lim: d = -lim
+    return (base + (d if side > 0 else -d)) % 360
+
+
+def _lerp_angle(a, b, t):
+    if a is None or b is None: return b if t >= 0.5 else a
+    d = ((b - a + 180) % 360) - 180
+    return (a + d * t) % 360
+
+
+def _smooth_facing(fs, w=5):
+    """몸 방향 떨림 줄이기(포즈 추정 방향은 장마다 흔들림): 펼친(unwrap) 각도의 w장 이동 평균."""
+    if any(f is None for f in fs) or len(fs) < 3: return fs
+    u = [fs[0]]
+    for f in fs[1:]: u.append(u[-1] + ((f - u[-1] + 180) % 360) - 180)
+    h = w // 2; N = len(u)
+    return [round((sum(u[max(0, i - h):i + h + 1]) / len(u[max(0, i - h):i + h + 1])) % 360, 2) for i in range(N)]
+
+
+def compose(acts, lib, min_len=MIN_LEN, blend=BLEND, synth=False, camera=True):
     """acts: [(verb, detail)] → (ir, 쓴 조각 목록). synth: 걷기·달리기는 애니메이션 원리로 계산한 주기(gait_cycle)를 쓴다
     (11-06 사용자 판정: 실제 걷기 조각은 어느 판도 걷기로 안 보임 · 걷기 출처 선택 1 '추천대로')."""
-    J = {k: [] for k in NAMES}; used = []; picks = []
+    J = {k: [] for k in NAMES}; used = []; picks = []; FC = []; want = None
     for verb, detail in acts:
-        if synth and verb in LOCO:
+        c = None if (synth and verb in LOCO) else pick(lib, verb, detail, avoid=used[-1:])
+        if c is None and verb in LOCO:   # 실제 조각이 없을 때만 계산 주기(11-06 사용자: 공식 걷기는 로봇 같다 → 기본값 아님)
             import gait_cycle as GC
             c = GC.clip(verb, detail, need=min_len)
-        else:
-            c = pick(lib, verb, detail, avoid=used[-1:])
         if c is None: raise ValueError(f'조각 없음: {verb}')
         used.append(c['src']); picks.append(dict(verb=verb, src=c['src'], layer=c['layer'], frames=c['frames'], detail=c['detail']))
         C = _norm(c)
+        # 몸 방향(11-06 사용자: 가면이 계속 정면만 봄 — 조각 잇기가 방향을 넘기지 않았다). 첫 조각의 화면 쪽을 기준으로,
+        # 반대쪽을 향한 조각은 좌우를 뒤집는다(골반 기준, 몸 방향 f → 360 − f).
+        d = _clip_dir(c, C, verb); fcs = list(c.get('facing') or [None] * c['frames'])
+        if want is None: want = d
+        if d and d != want:
+            C = {k: [[-p[0], p[1]] for p in v] for k, v in C.items()}
+            fcs = [None if f is None else (360 - f) % 360 for f in fcs]
+        if all(f is None for f in fcs): fcs = [270.0 if want > 0 else 90.0] * c['frames']   # 방향 없는 조각(계산·수집 SFA) = 옆모습
+        else: fcs = [_front_half(f, want) for f in fcs]
         if verb in LOCO and c['layer'] != 'synth':   # 반복은 걷기·달리기만(11-06 GPT: 짧은 펀치까지 반복하던 것). 주기를 잴 수 있으면 주기 맞춘 반복(경로 실험: HMDB 달리기 8/8 vs 지금 반복 5/8)
             import gait_eval as G
             cl = G.cycle_loop(dict(frames=c['frames'], aspect=c['aspect'], actors=[dict(joints=C)]), min_len) if c['frames'] >= 2 * 8 + 4 else None
             if cl: C, F = cl['actors'][0]['joints'], cl['frames']
             else: C, F = _loop(C, c['frames'], min_len)
+            fm = _cmean(fcs); fcs = [fm] * F   # 반복한 걷기·달리기는 조각 평균 방향
         else:
             F = c['frames']
+        fcs = _smooth_facing(fcs)
         if J['pelvis']:
             P = J['pelvis'][-1]
             last = {k: [J[k][-1][0] - P[0], J[k][-1][1] - P[1]] for k in NAMES}
@@ -212,15 +311,17 @@ def compose(acts, lib, min_len=MIN_LEN, blend=BLEND, synth=True, camera=True):
                 for k in NAMES:
                     r = [last[k][0] + (first[k][0] - last[k][0]) * t, last[k][1] + (first[k][1] - last[k][1]) * t]
                     J[k].append([pp[0] + r[0], pp[1] + r[1]])
+                FC.append(_lerp_angle(FC[-1], fcs[0], t))
             P = J['pelvis'][-1]
             for k in NAMES: J[k] += [[P[0] + p[0], P[1] + p[1]] for p in C[k]]
         else:
             for k in NAMES: J[k] += [[50 + p[0], 60 + p[1]] for p in C[k]]
+        FC += fcs
     if camera: J = follow(J)
     N = len(J['pelvis'])
     ir = dict(schema='motion-ir/1', fps=[24, 24], aspect=0.5625, frames=N,
               actors=[dict(slot=0, color='blue', joints=J, thickness=[{} for _ in range(N)], hidden=[[] for _ in range(N)],
-                           smear=[[] for _ in range(N)], head_fill=[True] * N, facing=[None] * N)])
+                           smear=[[] for _ in range(N)], head_fill=[True] * N, facing=FC)])
     return ir, picks
 
 
@@ -238,8 +339,8 @@ if __name__ == '__main__':
     import tokens_to_sfa as T, motion_ir as M
     args = sys.argv[1:]
     opt = lambda k: args[args.index(k) + 1] if k in args else None
-    lib = library(opt('--style-dir'))
-    ir, picks = compose(parse(args[0]), lib, synth='--no-synth' not in args)
+    lib = library(opt('--style-dir'), opt('--loco-dir'))
+    ir, picks = compose(parse(args[0]), lib, synth='--synth' in args)
     fc = opt('--facing')
     out = args[1]; name = os.path.splitext(os.path.basename(out))[0]
     ir, root = T.finalize(ir, opt('--sheet'), center=True, name=name, facing=float(fc) if fc else None, retime='--no-retime' not in args)

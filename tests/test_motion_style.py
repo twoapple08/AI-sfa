@@ -374,3 +374,27 @@ class ComposeMargin(unittest.TestCase):
         s, t, core = C._margin(ir, [True] * 40, 9, 15, '펀치', lo, hi)
         self.assertEqual((s, t, core), (7, 20, 2))
         self.assertEqual(C._margin(ir, [True] * 40, 9, 15, '걷기', lo, hi), (9, 15, 0))   # 걷기·달리기는 늘리지 않음
+
+
+class ComposeFacing(unittest.TestCase):
+    """11-06 사용자: 가면이 계속 정면만 봄 → 조각 잇기가 몸 방향을 넘긴다."""
+    def test_front_half_clamp(self):
+        import compose as C
+        self.assertAlmostEqual(C._front_half(215, 1), 250)     # 오른쪽 향함: 뒤쪽으로 20°까지만
+        self.assertAlmostEqual(C._front_half(320, 1), 320)     # 앞쪽(정면 쪽)은 그대로
+        self.assertAlmostEqual(C._front_half(145, -1), 110)    # 왼쪽 향함(90): 뒤쪽 145 → 110
+        self.assertAlmostEqual(C._front_half(30, -1), 30)
+
+    def test_facing_and_mirror(self):
+        import compose as C
+        def clip(verb, src, dx, fc):
+            ir = make_ir([60 + (i % 3) for i in range(8)], [1] * 8)
+            J = ir['actors'][0]['joints']
+            for k in J: J[k] = [[p[0] + dx * n, p[1]] for n, p in enumerate(J[k])]
+            return dict(layer='style', src=src, verb=verb, detail='', quality='좋음', frames=8, aspect=0.5625, joints=J, facing=[fc] * 8)
+        lib = [clip('걷기', 'a', 1.0, None), clip('펀치', 'b', 0.0, 90.0)]   # 걷기는 오른쪽으로, 펀치는 왼쪽(90)을 향함
+        ir, _ = C.compose([('걷기', ''), ('펀치', '')], lib, camera=False)
+        fc = ir['actors'][0]['facing']
+        self.assertEqual(len(fc), ir['frames'])
+        self.assertEqual(fc[0], 270.0)           # 방향 없는 걷기 = 이동 쪽 옆모습
+        self.assertAlmostEqual(fc[-1], 270.0)    # 반대쪽 펀치는 좌우 뒤집어 같은 쪽(360 − 90)
