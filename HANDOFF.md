@@ -2,6 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
+- **최신 계획 추가(11-06):** 계획표 체크 목록에 “우리 작업 전용 도구”6개 미착수 항목을 추가했다. 원인 분리→입출력/성공 기준→후보 역할 비교→작은 검증→최소 구조/순서→시제품/앱 평가. 현재는 계획 기록만 허용, 추가 조사·설계·구현은 사용자 진행 지시 대기. GPT가 계속 담당하며 별도 전달 불필요. 추론 권장은 일반 Medium, 원인/설계 High, 문서 Low, 최고 수준은 어려운 문제에만.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
