@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-07):** 사용자 반자동 원본맞춤 제안 “해보자” → v8 원본15 위공중효과1개,두경계8수동키로4.sfa UI84실제38선사슬의연결/진행간격을변형. `tools/smear_rail_fit.py`/`docs/GPT-SMEAR-RAIL-FIT-2026-11-07.md`. 38선은작은폭에서겹쳐면처럼보임→굵기.38/.14두안+미채택12선.14별도비교. 3단일장SFA/원본키·형태비교/ZIP Drive비공개. `/workspace/scratch/smear_landmark_v8/`키/템플릿/좌표/재현보존. **다음: 사용자 형태 판정**, 자동관측/최적화/앱성공/학습정답아님. 55경로시험은이전보고참조,v7반려/v6가린관절추정유지. 모델/GPU/기본경로불변.
+- **최신 진행(11-07):** 사용자 반자동 원본맞춤 제안 “해보자” → v8 원본15 위공중효과1개,두경계8수동키로4.sfa UI84실제38선사슬의연결/진행간격을변형. `tools/smear_rail_fit.py`/`docs/GPT-SMEAR-RAIL-FIT-2026-11-07.md`. 38선은작은폭에서겹쳐면처럼보임→굵기.38/.14두안+별도12선.14비교→사용자“나쁘지않다”,“마지막거”로12선.14안선택. 3단일장SFA/원본키·형태비교/ZIP Drive비공개. `/workspace/scratch/smear_landmark_v8/`키/템플릿/좌표/재현보존. **사용자판정: 원본15위효과는맨오른쪽12선.14안을형태기준으로선택. 다음제안: 다른장에도두경계보간으로형태재현여부확인**, 자동관측/최적화/앱성공/학습정답아님. 55경로시험은이전보고참조,v7반려/v6가린관절추정유지. 모델/GPU/기본경로불변.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
