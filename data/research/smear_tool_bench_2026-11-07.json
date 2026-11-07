@@ -1,0 +1,350 @@
+{
+  "source_case_count": 6,
+  "source_frame_count": 3,
+  "methods": [
+    {
+      "name": "anilines_basic",
+      "outputs": 6
+    },
+    {
+      "name": "anilines_basic_color",
+      "outputs": 6
+    },
+    {
+      "name": "anilines_basic_color_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "anilines_detail",
+      "outputs": 6
+    },
+    {
+      "name": "anilines_detail_color",
+      "outputs": 6
+    },
+    {
+      "name": "anilines_detail_color_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "anime2sketch",
+      "outputs": 6
+    },
+    {
+      "name": "anime2sketch_color",
+      "outputs": 6
+    },
+    {
+      "name": "anime2sketch_color_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "autotrace_anilines_detail_color_center",
+      "outputs": 6
+    },
+    {
+      "name": "autotrace_anilines_detail_color_outline",
+      "outputs": 6
+    },
+    {
+      "name": "autotrace_color_center",
+      "outputs": 6
+    },
+    {
+      "name": "autotrace_color_outline",
+      "outputs": 6
+    },
+    {
+      "name": "chroma_component",
+      "outputs": 6
+    },
+    {
+      "name": "chroma_component_anilines_detail",
+      "outputs": 6
+    },
+    {
+      "name": "chroma_component_contour",
+      "outputs": 6
+    },
+    {
+      "name": "chroma_component_ridge_dark",
+      "outputs": 6
+    },
+    {
+      "name": "chroma_component_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "color",
+      "outputs": 6
+    },
+    {
+      "name": "color_contour",
+      "outputs": 6
+    },
+    {
+      "name": "color_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "cutie_sam2_initial",
+      "outputs": 6
+    },
+    {
+      "name": "cutie_sam2_initial_anilines_detail",
+      "outputs": 6
+    },
+    {
+      "name": "cutie_sam2_initial_contour",
+      "outputs": 6
+    },
+    {
+      "name": "cutie_sam2_initial_ridge_dark",
+      "outputs": 6
+    },
+    {
+      "name": "cutie_sam2_initial_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "gimp_scissors",
+      "outputs": 1
+    },
+    {
+      "name": "grabcut",
+      "outputs": 6
+    },
+    {
+      "name": "grabcut_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "ilastik_features_rf",
+      "outputs": 6
+    },
+    {
+      "name": "ilastik_features_rf_anilines_detail",
+      "outputs": 6
+    },
+    {
+      "name": "ilastik_features_rf_contour",
+      "outputs": 6
+    },
+    {
+      "name": "ilastik_features_rf_ridge_dark",
+      "outputs": 6
+    },
+    {
+      "name": "ilastik_features_rf_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "mangaline",
+      "outputs": 6
+    },
+    {
+      "name": "mangaline_color",
+      "outputs": 6
+    },
+    {
+      "name": "mangaline_color_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "ridge_bright",
+      "outputs": 6
+    },
+    {
+      "name": "ridge_dark",
+      "outputs": 6
+    },
+    {
+      "name": "sam2_box_color",
+      "outputs": 6
+    },
+    {
+      "name": "sam2_box_color_anilines_detail",
+      "outputs": 6
+    },
+    {
+      "name": "sam2_box_color_contour",
+      "outputs": 6
+    },
+    {
+      "name": "sam2_box_color_ridge_dark",
+      "outputs": 6
+    },
+    {
+      "name": "sam2_box_color_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "sam2_points",
+      "outputs": 6
+    },
+    {
+      "name": "sam2_points_anilines_detail",
+      "outputs": 6
+    },
+    {
+      "name": "sam2_points_contour",
+      "outputs": 6
+    },
+    {
+      "name": "sam2_points_ridge_dark",
+      "outputs": 6
+    },
+    {
+      "name": "sam2_points_skeleton",
+      "outputs": 6
+    },
+    {
+      "name": "sato_bright",
+      "outputs": 6
+    },
+    {
+      "name": "sato_dark",
+      "outputs": 6
+    },
+    {
+      "name": "thin_color_extremes",
+      "outputs": 6
+    },
+    {
+      "name": "thin_color_extremes_anilines_detail",
+      "outputs": 6
+    },
+    {
+      "name": "thin_color_extremes_contour",
+      "outputs": 6
+    },
+    {
+      "name": "thin_color_extremes_ridge_dark",
+      "outputs": 6
+    },
+    {
+      "name": "thin_color_extremes_skeleton",
+      "outputs": 6
+    }
+  ],
+  "repos": {
+    "polyvector": "d296439370b2b7398d9ef70098fa0c42f67e0e8d",
+    "thin": "83be74e254f1ad7083885683d30962d4747c4d8b",
+    "mangaline": "6ec136d5332180b65476e62c2558f2873d5d936a",
+    "ridge": "7f73cc5db0e74915c095eb9336a9aa01dd0f27fa",
+    "skeleton": "f5dd65e2389f9311dd3c24b9a83bd852c28c49e9",
+    "autotrace": "ca687ed82b6b28928a8fadb2dba1a0f9a0649031",
+    "polyflow": "705bfeb048ec3727c2276a909d300439821900b1",
+    "anime2sketch": "47b520e02f478fa747031272fab7df7f4a072627",
+    "anilines": "5d188fb68f40fb04fbe3c9c54dcc57b16c914818",
+    "cutie": "ec5cdd4cf16f75c73ad785a2f96fb97dbad4125a",
+    "sam2": "2b90b9f5ceec907a1c18123530e92e794ad901a4"
+  },
+  "scripts": {
+    "downloads.py": "19449476d6f28caf8bb20cf622ccd43d3fd633a2134dde32af5d4d7c33b425ea",
+    "setup_cases.py": "c1f0b28b011c8f82197cfbac093bea3b5bea04da6efefbcd26764cb9244ab9f1",
+    "run_ridge.py": "6fd0a10ac603d3603f561bd60266247bc3b11255ad2cc2f4045b2ec567f670e5",
+    "run_lines.py": "c0d744f2dbd85d7202586b80c5e62424363269c4d3f81ef98e78a9a904b382bd",
+    "run_segmenters.py": "618723c96af0b2ae0ecd4449de6fadcec16f481427e12fe1d459aae64d0268f6",
+    "run_classical.py": "2cb741a60227a0250d94902a6d79639c4a9a90bd94ac44400b68009abc8f45f5",
+    "run_ilastik.py": "e9b51f543297b30f670fbba173f18c2d05a1f8b44518cf73aff53cf76644c76f",
+    "run_combinations.py": "d5f30bec959a66749e75d20b5beb35b4f7d599b2f4d7ade27499e54e9879ea97",
+    "render_results.py": "68b3b7b5f7ad984c08bdf291b2e4e762a8c0d3ab38a3c7196324eebd3a076d54",
+    "run_autotrace.py": "34fcddfd48d44bac1c74e0624168ee393178be48af6dd6ae6b32cf2b95090e3a",
+    "run_cutie.py": "72351168abb51f63a3882bfdd9e990881f57317d2f69dcb5004a482f22efe61f"
+  },
+  "coverage": [
+    [
+      "AniLines 기본/세부",
+      "완료",
+      "각 6영역 CPU 추론"
+    ],
+    [
+      "MangaLine / Anime2Sketch",
+      "완료",
+      "각 6영역 CPU 추론"
+    ],
+    [
+      "SAM2",
+      "완료",
+      "점 지정 / 색 마스크 상자 조합 각 6영역"
+    ],
+    [
+      "X-AnyLabeling / ISAT-SAM",
+      "부분",
+      "공통 SAM2 백엔드만 시험, 두 GUI는 별도 검증 안 함"
+    ],
+    [
+      "Cutie",
+      "완료",
+      "SAM2 초기 마스크→8장 추적, 6영역 비교"
+    ],
+    [
+      "Thin Object Selection",
+      "완료",
+      "색 마스크 극점→실제 TOSNet, 6영역"
+    ],
+    [
+      "ImageJ Ridge Detection",
+      "완료",
+      "실제 플러그인 1.4.1, 밝은/어두운 선 각 6영역"
+    ],
+    [
+      "Skeleton Tracing",
+      "완료",
+      "실제 원본 코드로 중심선→꺾은선 좌표"
+    ],
+    [
+      "AutoTrace",
+      "완료",
+      "Inkscape 1.4 내장 실제 라이브러리, 외곽/중심선"
+    ],
+    [
+      "ilastik",
+      "부분 완료",
+      "실제 특징 연산자+RF, 6영역. 전체 GUI 설치/동작은 미완"
+    ],
+    [
+      "GIMP 지능형 가위",
+      "1영역 완료",
+      "실제 GUI에서 수동 점 9개 입력. 윗끝 일부 빠짐"
+    ],
+    [
+      "PolyVectorization",
+      "빌드 차단",
+      "Qt5 개발 파일 없음. 대체 알고리즘 결과로 채우지 않음"
+    ],
+    [
+      "PolyVector Flow",
+      "빌드 차단",
+      "Qt5 개발 파일 없음, Gurobi/PAAL 의존성도 미준비"
+    ],
+    [
+      "SmearSmith",
+      "적용 제외",
+      "생성 도구이며 무료판은 사용자 스프라이트 입력 불가"
+    ],
+    [
+      "OpenCV 색/GrabCut/윤곽",
+      "완료",
+      "6영역씩. 색상 연결 영역 변형도 별도 비교"
+    ],
+    [
+      "Sato 필터",
+      "추가 기준선",
+      "ImageJ와 다른 알고리즘. 이름을 구분하여 별도 출력"
+    ]
+  ],
+  "held_out": false,
+  "training_ready": false,
+  "schema": "smear-tool-bench-summary/1",
+  "source": "기존 승인 자료 216076",
+  "device": "cpu",
+  "new_deep_training": false,
+  "local_rf_training": true,
+  "raw_png_count": 331,
+  "individual_sheet_count": 56,
+  "ui_notes": "X-AnyLabeling/ISAT는 SAM2 공통 백엔드만, ilastik은 특징/RF 연산자만 검증. GIMP1영역만 GUI 검증.",
+  "zip_sha256": "7f206d9d53bdd74525509175e82d553a3ba1f697385adb951d936e49df5f85e2",
+  "zip_bytes": 11166762
+}
