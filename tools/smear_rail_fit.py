@@ -28,3 +28,34 @@ def deform_chain(template, rail_a, rail_b, segments=None):
     if (np.linalg.norm(np.diff(points,axis=0),axis=1)<1e-8).any():
         raise ValueError('변형 후 길이가 0인 선이 있다')
     return points
+
+
+def densify_chain(points, max_gap, relative_gap, min_gap):
+    """벌어진 왕복 사이에 새 왕복만 넣는다. 기존 점/경계 꺾임과 순서는 보존한다.
+
+    간격은 같은 방향 획의 평균 축에 수직인 거리의 1/4,1/2,3/4 위치 근사다.
+    세 간격 제약은 검토용 입력이며 학습된 보편 임계값이 아니다.
+    """
+    points=np.asarray(points,float)
+    if points.ndim!=2 or points.shape[1]!=2 or len(points)<5 or len(points)%2!=1 or not np.isfinite(points).all():
+        raise ValueError('유한한 홀수 개 xy 사슬이 필요하다')
+    if not np.isfinite([max_gap,relative_gap,min_gap]).all() or not 0<min_gap<=max_gap or relative_gap<=0:
+        raise ValueError('양의 간격 제약이 필요하다')
+    strokes=points[:-1].reshape(-1,2,2);result=[];records=[]
+    for i,pair in enumerate(strokes):
+        result.extend(pair)
+        if i==len(strokes)-1:break
+        other=strokes[i+1];vectors=np.array([pair[1]-pair[0],other[1]-other[0]])
+        axis=vectors.mean(0);norm=np.linalg.norm(axis)
+        if norm<1e-8:raise ValueError('상쇄된 획 방향은 수동 확인이 필요하다')
+        normal=np.array([-axis[1],axis[0]])/norm
+        gaps=[abs(np.dot(((1-t)*other[0]+t*other[1])-((1-t)*pair[0]+t*pair[1]),normal)) for t in [.25,.5,.75]]
+        gap=max(gaps);length=min(np.linalg.norm(vectors,axis=1))
+        allowed=max(min_gap,min(max_gap,relative_gap*length))
+        divisions=max(1,int(np.ceil(gap/allowed)))
+        if divisions>64:raise ValueError('지나친 세분화는 수동 확인이 필요하다')
+        for j in range(1,divisions):result.extend(pair+(other-pair)*(j/divisions))
+        records.append(dict(interval=i,old_gap=float(gap),target_gap=float(allowed),divisions=divisions))
+    result.append(points[-1]);result=np.asarray(result)
+    if (np.linalg.norm(np.diff(result,axis=0),axis=1)<1e-8).any():raise ValueError('길이 0인 새 연결')
+    return result,records

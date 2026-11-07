@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-07):** v9사용자판정1·3번괜찮음,2·4번벌어져성김/굵기증가시날카로움손실지적. 같은12선고정원인검토(High권장). 실제긴획길이/수직중간간격 측정:1=66.73/1.90,2=34.17/4.28,3=62.96/3.72,4=34.38/6.43px. 절대간격뿐아니라간격/획길이차이. **다음제안(Medium): 1·3유지,2·4만.14굵기·경계끝길이차유지+넓은구간왕복점추가로국소밀도A/B**, 과밀면뭉침도확인. 아직새판생성없음/임계값·선수미확정/연속장튀기미검증. `docs/GPT-SMEAR-RAIL-TRANSFER-2026-11-07.md`후속절. 비공개 `/workspace/scratch/smear_rail_transfer_v9/`원본키/출력보존. 자동관측/다른영상일반화/앱성공아님,기본경로/모델/GPU불변.
+- **최신 진행(11-07):** 사용자밀도시험승인→v10 굵기.14/기존끝점·순서유지,2·4번넓은구간에새왕복추가. A20/28선,B26/40선;1·3번12선/원본겹침픽셀동일유지. B는특히4번면처럼뭉쳐A추가량낮춘비교함,교차무늬잔존. `docs/GPT-SMEAR-DENSITY-2026-11-07.md`/도구densify_chain/합성3검사. 비공개 `/workspace/scratch/smear_density_v10/`A/B단일장SFA8개·5열4행PNG·바인딩·ZIP31항목 Drive전달. **다음: 사용자2·4번A/B밀도판정**,아직미채택/목표간격시험용/자동추출·일반화·장간튀기·앱성공미확인. 생산기본경로/모델/GPU불변.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
