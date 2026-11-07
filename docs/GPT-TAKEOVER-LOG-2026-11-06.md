@@ -143,3 +143,7 @@ Claude 토큰 소진 기간에 GPT가 한 일을 여기에 적는다(날짜 · �
 ## 2026-11-07 — v7 반려·원본 스미어 추출 도구 조사
 
 사용자 v7 반려, 미채택 기록. 이어 마이너 도구 포함 조사 요청. High권장,공식문서/공개코드로 영역분리·선추출·2D생성 구분. X-AnyLabeling/SAM2,Cutie,AniLines,MangaLine,Anime2Sketch,OpenCV,SmearSmith 후보. 전용 자동판별→획→SFA 완성 도구는 검색범위에서 미확인. 다음은 원본 한 장 색/경계 추출과 AniLines 비교 제안, 설치/모델/GPU/새생성 미실행. 원본/좌표 공개없음.
+
+## 2026-11-07 — 스미어 추출 추가 후보
+
+사용자 추가 조사 요청에 High권장. ThinObjectSelection/Fiji Ridge/SkeletonTracing/AutoTrace/PolyVector(Flow)/ilastik/ISAT/GIMP 공식출처 확인. 영역·실제윤곽·중심선·편집점 역할 구분,유지보수중단/옛의존성/기본스무딩/원래획복원불가 제약 기록. 설치/추론/학습/GPU 미실행,현재스미어성능 미검증.

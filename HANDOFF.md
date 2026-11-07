@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-07):** 사용자 v7 “아 이게 아닌데”로 반려 → 채택금지. 스미어 추출 프로그램 조사 요청에 High권장, 공식출처로 X-AnyLabeling/SAM2·Cutie(영역분리),AniLines/MangaLine/Anime2Sketch(선추출),OpenCV색/윤곽,SmearSmith(생성전용) 확인. `docs/GPT-SMEAR-EXTRACTION-TOOLS-2026-11-07.md`. 원본스미어자동판별→정확한획→SFA 전용완성도구는 이번검색에서 미확인. **다음제안: 원본 한 장의 수동 영역+색/경계 추출과 AniLines detail 비교**; 아직 미실행. 설치/모델/GPU/새생성없음. v6가린관절여전히추정,원본/좌표/결과비공개,4.sfa는표현구조참고만.
+- **최신 진행(11-07):** 사용자 v7 “아 이게 아닌데”로 반려 → 채택금지. 스미어 추출 프로그램 조사 요청에 High권장, 공식출처로 X-AnyLabeling/SAM2·Cutie(영역분리),AniLines/MangaLine/Anime2Sketch(선추출),OpenCV색/윤곽,SmearSmith(생성전용) 확인. `docs/GPT-SMEAR-EXTRACTION-TOOLS-2026-11-07.md`. 원본스미어자동판별→정확한획→SFA 전용완성도구는 이번검색에서 미확인. 추가조사 ThinObjectSelection·Fiji Ridge·SkeletonTracing·AutoTrace·PolyVector(Flow)·ilastik·ISAT·GIMP 공식기능 확인. **다음제안: 원본 한 장의 실제경계 추출과 AniLines 비교, 분리된선에만 중심선/꺾은선 변환 평가**; 아직 미실행. 설치/모델/GPU/새생성없음. v6가린관절여전히추정,원본/좌표/결과비공개,4.sfa는표현구조참고만.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
