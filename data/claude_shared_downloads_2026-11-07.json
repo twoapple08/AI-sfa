@@ -1,0 +1,720 @@
+{
+  "scope": "이번 세션 전달 자료와 인계 필수 원본/관측자료의 공유사본",
+  "folder": "https://drive.google.com/drive/folders/1VSqs4ujWnby8bwQOCI_zaHEXyT2lJnnY",
+  "sharing": "anyone_with_link_reader; discovery disabled; original permissions unchanged",
+  "files_count": 71,
+  "verification": "all71 anonymous HTTP200/nonHTML first64bytes; core ZIP full SHA256 exact",
+  "core_package_sha256": "c763561989c46fd05332f1500962d0de34d9bb36aafb71e62f42edb5a6254958",
+  "files": [
+    {
+      "name": "1913231262086463573.jsonl.gz",
+      "id": "17TB3ZQ_rK-nA_L4XQ0GbM1VMS9lZBO8t",
+      "original_id": "16MtJnEfLU1U66-DFCdgk1QZAldDQRN-c",
+      "bytes": 4864151,
+      "md5": "521382d1ca9ca78a1c5a233f6d28c61d",
+      "url": "https://drive.google.com/file/d/17TB3ZQ_rK-nA_L4XQ0GbM1VMS9lZBO8t/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=17TB3ZQ_rK-nA_L4XQ0GbM1VMS9lZBO8t&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "1913231262086463573.mp4",
+      "id": "16GL1ut1Sg4llD_qtQ-WGrukc5X6moWag",
+      "original_id": "16KkKd-rqx_NEtjBTcJ8Hpug8q61ujFVG",
+      "bytes": 34716419,
+      "md5": "26683118ab962259deab0df613a2c113",
+      "url": "https://drive.google.com/file/d/16GL1ut1Sg4llD_qtQ-WGrukc5X6moWag/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=16GL1ut1Sg4llD_qtQ-WGrukc5X6moWag&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "Claude_세션인계_비공개실행자료_2026-11-07.zip",
+      "id": "1iG75vAikQAro6IYlomKH0i6xDPHLAVTc",
+      "original_id": "1zpQeFfR5FHghAP2O5Y9bQO_jb_Y1wFof",
+      "bytes": 3327073,
+      "md5": "43f842347b42d41c8f8a336ce6f0a057",
+      "url": "https://drive.google.com/file/d/1iG75vAikQAro6IYlomKH0i6xDPHLAVTc/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1iG75vAikQAro6IYlomKH0i6xDPHLAVTc&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_10초_기본폭_vs_폭55퍼센트.png",
+      "id": "14Lr1h2XOGchaJAjJ4EW3WKDQiWnrIbP3",
+      "original_id": "1uTAj6AGrS4XwEUuujQdLnUu4OzJvwBaT",
+      "bytes": 1302225,
+      "md5": "501ea3654332fd85f71f3565bde1084a",
+      "url": "https://drive.google.com/file/d/14Lr1h2XOGchaJAjJ4EW3WKDQiWnrIbP3/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=14Lr1h2XOGchaJAjJ4EW3WKDQiWnrIbP3&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_10초_레칸_스미어200퍼센트_머리채움수정.sfa",
+      "id": "1vWp7QFsU8gV8dHyaYmyLh6n_h_OxLbMS",
+      "original_id": "1FElZq61SUnPIYvIt0GPJ1MFp3tWOMfBS",
+      "bytes": 575382,
+      "md5": "1df54e23f9a453e475f4b5ff10f80cb4",
+      "url": "https://drive.google.com/file/d/1vWp7QFsU8gV8dHyaYmyLh6n_h_OxLbMS/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1vWp7QFsU8gV8dHyaYmyLh6n_h_OxLbMS&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_10초_레칸_스미어누락보충_v2.sfa",
+      "id": "1XOKc3L1Z7p4kWvhdcZKOZ9x_4qWB2oUX",
+      "original_id": "1ru2Kvk7Jxp3E9oq3GgFyWe30bPB_NqO4",
+      "bytes": 758831,
+      "md5": "cbcf3a7c9e73531c1f4dd14fd3dea1a3",
+      "url": "https://drive.google.com/file/d/1XOKc3L1Z7p4kWvhdcZKOZ9x_4qWB2oUX/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1XOKc3L1Z7p4kWvhdcZKOZ9x_4qWB2oUX&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_10초_레칸_스미어누락보충_v2_원본겹침.mp4",
+      "id": "1ALhsIq5Dq2BBydINWrFdVAeOvRyZDvaN",
+      "original_id": "1C_N2OQHYfTommYgMFg9zo3CGinTD0jzl",
+      "bytes": 5008126,
+      "md5": "28b5c2657702947ce7cd25c280d889e8",
+      "url": "https://drive.google.com/file/d/1ALhsIq5Dq2BBydINWrFdVAeOvRyZDvaN/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1ALhsIq5Dq2BBydINWrFdVAeOvRyZDvaN&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_10초_레칸_원본겹침_머리채움수정.mp4",
+      "id": "14eRvzl6bqE4RBxDVGFuF6zpVQ-CZtoI_",
+      "original_id": "1HOZhZBG_Ue5RyfAwMr5K83oJocg_AboF",
+      "bytes": 4961014,
+      "md5": "4f0e01f784bce45fa7c5894b5ba33190",
+      "url": "https://drive.google.com/file/d/14eRvzl6bqE4RBxDVGFuF6zpVQ-CZtoI_/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=14eRvzl6bqE4RBxDVGFuF6zpVQ-CZtoI_&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_10초_스미어_기본폭.sfa",
+      "id": "1ViNiz7mY4kzResbjlI5kZ0xGCqLUz8f9",
+      "original_id": "1aSLM6EubCisz1zfEvAYAIW8hO4IQ3A80",
+      "bytes": 330253,
+      "md5": "8075330362f0c05a9ab0546447225206",
+      "url": "https://drive.google.com/file/d/1ViNiz7mY4kzResbjlI5kZ0xGCqLUz8f9/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1ViNiz7mY4kzResbjlI5kZ0xGCqLUz8f9&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_10초_스미어_두버전.zip",
+      "id": "1HDCrHL1hoZee7CIYB6H-dafoswqQkf_L",
+      "original_id": "1OHPIxi64yaNrqTd8VfmYNM9sl0TQJ_7e",
+      "bytes": 3348596,
+      "md5": "4a0c632b336df31ff32baf2bf5da89d3",
+      "url": "https://drive.google.com/file/d/1HDCrHL1hoZee7CIYB6H-dafoswqQkf_L/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1HDCrHL1hoZee7CIYB6H-dafoswqQkf_L&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_10초_스미어_폭55퍼센트.sfa",
+      "id": "1a3v3zP_PCTzmNY1G7j6y3LwEDmnR8K9L",
+      "original_id": "15YV3FhN85UuUGZc3GZ_z0eMAhP0uLmic",
+      "bytes": 330026,
+      "md5": "918f5eb952395b1d670e89619d7f7c2f",
+      "url": "https://drive.google.com/file/d/1a3v3zP_PCTzmNY1G7j6y3LwEDmnR8K9L/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1a3v3zP_PCTzmNY1G7j6y3LwEDmnR8K9L&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_10초_스미어선200퍼센트_부위비례폭_경량.sfa",
+      "id": "11sKM1g8122y6iBYg-69L6eaav2M2Scjf",
+      "original_id": "1sGUsM1bsQZAYqbazRRBUKAi8WxYGS7wM",
+      "bytes": 314459,
+      "md5": "0ec5f720f8d7eb59aa35eecae16feaac",
+      "url": "https://drive.google.com/file/d/11sKM1g8122y6iBYg-69L6eaav2M2Scjf/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=11sKM1g8122y6iBYg-69L6eaav2M2Scjf&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_기본폭_부위굵기100_70_경량두판.zip",
+      "id": "1hgw5mN5600Gv419ipTbmwd-_BjtDIFMv",
+      "original_id": "1clJaXuqUnsohlN6ui02-7lb5FuwZkpLM",
+      "bytes": 1458775,
+      "md5": "e5c3d0760c2a1d705e87b27e6019bc70",
+      "url": "https://drive.google.com/file/d/1hgw5mN5600Gv419ipTbmwd-_BjtDIFMv/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1hgw5mN5600Gv419ipTbmwd-_BjtDIFMv&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_기본폭_부위굵기100_vs70.png",
+      "id": "1Fx7UPZGZtTyyPIOUOB6MzBiRahzHVEaS",
+      "original_id": "10ev-r7kbqfYBdoR_OOi86hP3GnhfGOnT",
+      "bytes": 935146,
+      "md5": "27ddf4a2f5bc0671d89e314e4fe2ec38",
+      "url": "https://drive.google.com/file/d/1Fx7UPZGZtTyyPIOUOB6MzBiRahzHVEaS/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1Fx7UPZGZtTyyPIOUOB6MzBiRahzHVEaS&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_기본폭_부위굵기100퍼센트_경량.sfa",
+      "id": "17nbGKoy1GHbkZEss8EdU9KWuLr5G8XyH",
+      "original_id": "1MK1rxJv8PU5eurqBqSTMyGlcik7QktRs",
+      "bytes": 313841,
+      "md5": "b5609f843dc76e896da91b7f24ae71d5",
+      "url": "https://drive.google.com/file/d/17nbGKoy1GHbkZEss8EdU9KWuLr5G8XyH/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=17nbGKoy1GHbkZEss8EdU9KWuLr5G8XyH&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_기본폭_부위굵기70퍼센트_경량.sfa",
+      "id": "1al3AKkVxI20aARlFX4G29j_mCGJ5qTYM",
+      "original_id": "1Rn5_hvtn2LbGNKPSTtbYkzLsxHnV3jaj",
+      "bytes": 314068,
+      "md5": "f8bd1d3a27ddd1feb847d04c1a4999e4",
+      "url": "https://drive.google.com/file/d/1al3AKkVxI20aARlFX4G29j_mCGJ5qTYM/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1al3AKkVxI20aARlFX4G29j_mCGJ5qTYM&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_기존스미어선200퍼센트_부위비례폭_비교.png",
+      "id": "1O4HbiI1G2R9wmvWU-AGQAM-AvQRqd0zu",
+      "original_id": "1qkygQQsOhLX751Cu3GCQ9SMNn6Vghf-n",
+      "bytes": 1029023,
+      "md5": "a8e73eef90e7e3d03ecce2a5a229e5dc",
+      "url": "https://drive.google.com/file/d/1O4HbiI1G2R9wmvWU-AGQAM-AvQRqd0zu/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1O4HbiI1G2R9wmvWU-AGQAM-AvQRqd0zu&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_스미어누락보충_원본이전보충_비교.png",
+      "id": "1NxqZuKPcHt8Wa0jUdVRNB08xsCg8qG9R",
+      "original_id": "1OnBCHl_0TZ_PjUoWq4gDkSFpRlsy4nzI",
+      "bytes": 1430278,
+      "md5": "2c8e77d5aad121a50c11bb26ed4a01f2",
+      "url": "https://drive.google.com/file/d/1NxqZuKPcHt8Wa0jUdVRNB08xsCg8qG9R/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1NxqZuKPcHt8Wa0jUdVRNB08xsCg8qG9R&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_자동탐색_미적용후보_1.png",
+      "id": "1nUvh41TkYsz7YCPs3MqxqaqX6f_K4MJr",
+      "original_id": "1OeVu4RG3CMvqP2ADNMtphjJ3ZnjpUhxv",
+      "bytes": 500361,
+      "md5": "82e6f3b4bc87c5664153822bd04cb8cd",
+      "url": "https://drive.google.com/file/d/1nUvh41TkYsz7YCPs3MqxqaqX6f_K4MJr/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1nUvh41TkYsz7YCPs3MqxqaqX6f_K4MJr&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_전체240장_스미어자동후보탐색.mp4",
+      "id": "1P3JGPZKwLaLVY_PyLnuyleTd-I1f09Dx",
+      "original_id": "1lo3s7KU6PjehHTaYyAWACYYAgc3AB3C3",
+      "bytes": 4743712,
+      "md5": "f41110db2d3be86fe8535e3b9bf9fe7d",
+      "url": "https://drive.google.com/file/d/1P3JGPZKwLaLVY_PyLnuyleTd-I1f09Dx/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1P3JGPZKwLaLVY_PyLnuyleTd-I1f09Dx&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "nian41_전체스미어자동후보탐색_영상시트자료.zip",
+      "id": "1H0T7NnbWcLwRrvrk6A1ebkDpv3Nnxffz",
+      "original_id": "1ogUvZjNv91NvyjMouNnKSIuU5vXqQu-f",
+      "bytes": 6081144,
+      "md5": "749ac05354eacf356b30d10b1514594d",
+      "url": "https://drive.google.com/file/d/1H0T7NnbWcLwRrvrk6A1ebkDpv3Nnxffz/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1H0T7NnbWcLwRrvrk6A1ebkDpv3Nnxffz&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "smear_v1_six_cases.png",
+      "id": "1T8xYWPaxBoPU8Q9eNI8MoLMQkTbSdm0o",
+      "original_id": "11b0N6pO5poiloAYKuYz_-78zCu1S2oW8",
+      "bytes": 33756,
+      "md5": "73a19303785a7502f9fb0e2ca46e0c07",
+      "url": "https://drive.google.com/file/d/1T8xYWPaxBoPU8Q9eNI8MoLMQkTbSdm0o/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1T8xYWPaxBoPU8Q9eNI8MoLMQkTbSdm0o&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "straight_sweep_effect_fixed.sfa",
+      "id": "1Gd6TQMN0J8p6QSbQW_Z8nv_HMky5RvdL",
+      "original_id": "16nka_NA_p3j72Y7Jz6Pg-TAMyb88_v8o",
+      "bytes": 144694,
+      "md5": "a822f50e0e8a5bc9d9f18a17b14cccb2",
+      "url": "https://drive.google.com/file/d/1Gd6TQMN0J8p6QSbQW_Z8nv_HMky5RvdL/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1Gd6TQMN0J8p6QSbQW_Z8nv_HMky5RvdL&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "가려진어깨_수정_v6.sfa",
+      "id": "1ZfpSNcl8B6TOwbpwpjdwPRfNviLYPECi",
+      "original_id": "1FFr5soF69je8Gnjr4xPlKkXZ6Xwt5Ly6",
+      "bytes": 54529,
+      "md5": "2f626eaecbf01c6e105c9593375c2a1d",
+      "url": "https://drive.google.com/file/d/1ZfpSNcl8B6TOwbpwpjdwPRfNviLYPECi/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1ZfpSNcl8B6TOwbpwpjdwPRfNviLYPECi&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "가려진어깨_수정_v6.zip",
+      "id": "1YtQu15bwtRWETb4aD6g1uaV4Dpe3pLBA",
+      "original_id": "18UuI5Q4UTzCzw5uklzAvzHYoK3uRwk8h",
+      "bytes": 1921372,
+      "md5": "466e7052aa2cb0cda4e37a4a159644a1",
+      "url": "https://drive.google.com/file/d/1YtQu15bwtRWETb4aD6g1uaV4Dpe3pLBA/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1YtQu15bwtRWETb4aD6g1uaV4Dpe3pLBA&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "선택했던_v13_B4_12_26_원본보존.png",
+      "id": "1knSTxo3YxK2IhdqNrA3oiMbMEJGvJhXp",
+      "original_id": "1FcyGD3BHXK9wRUz6W8MFnlGniEJNzfP9",
+      "bytes": 87666,
+      "md5": "ffbf20c582223417a981e1d74261b2c3",
+      "url": "https://drive.google.com/file/d/1knSTxo3YxK2IhdqNrA3oiMbMEJGvJhXp/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1knSTxo3YxK2IhdqNrA3oiMbMEJGvJhXp&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "선택했던_v13_B4_원본.sfa",
+      "id": "1AtLBsKj9JUMhWrn5JdC5NxknbTRQyepx",
+      "original_id": "15qootPwfsRule6pgVck6WvUk9AwxIPXm",
+      "bytes": 1813,
+      "md5": "c2bb532ead461dd422c14c26f931c38f",
+      "url": "https://drive.google.com/file/d/1AtLBsKj9JUMhWrn5JdC5NxknbTRQyepx/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1AtLBsKj9JUMhWrn5JdC5NxknbTRQyepx&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_56경로_전체이미지_비교.zip",
+      "id": "1rsidSK0RuO8zIXaoBjjgokNeHID1gWlG",
+      "original_id": "19_P_lQhibBbbl7HXLmeLKANwkPcFtzG8",
+      "bytes": 11166762,
+      "md5": "2ebebec50dd7bedb9762ff6e0fd2e1f5",
+      "url": "https://drive.google.com/file/d/1rsidSK0RuO8zIXaoBjjgokNeHID1gWlG/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1rsidSK0RuO8zIXaoBjjgokNeHID1gWlG&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v10_굵기고정_밀도A_B비교.png",
+      "id": "1IjjGhbRjJWOgeNSdhy1ZAqexZThNIpu6",
+      "original_id": "1wSG3BKiSqheu6ayGrvv5tB6v77Ywv0dJ",
+      "bytes": 168615,
+      "md5": "0b5263a735f5c3499407d65458ab2602",
+      "url": "https://drive.google.com/file/d/1IjjGhbRjJWOgeNSdhy1ZAqexZThNIpu6/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1IjjGhbRjJWOgeNSdhy1ZAqexZThNIpu6&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v10_밀도A_B_SFA비교묶음.zip",
+      "id": "1zkF4SiEcJyIP1HCSC0LBQ6HmII4QG6QI",
+      "original_id": "1NyN4f8WHJwYQNOlrd4f2O5sbMcYCvlvB",
+      "bytes": 2482558,
+      "md5": "9175008d1382ad0c6a87c6f2a59beec7",
+      "url": "https://drive.google.com/file/d/1zkF4SiEcJyIP1HCSC0LBQ6HmII4QG6QI/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1zkF4SiEcJyIP1HCSC0LBQ6HmII4QG6QI&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v11_기존점유지_추가점안쪽_비교.png",
+      "id": "13AEky1WZwP_tMCGW5mMd66HlPTaHDm71",
+      "original_id": "1QyJ3Ui-uFJudjCE2G3OjI5dwmCT_3ZRy",
+      "bytes": 159186,
+      "md5": "bfc84a913aa799fbf69e3f9bbe77a7b3",
+      "url": "https://drive.google.com/file/d/13AEky1WZwP_tMCGW5mMd66HlPTaHDm71/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=13AEky1WZwP_tMCGW5mMd66HlPTaHDm71&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v11_추가점안쪽_SFA비교묶음.zip",
+      "id": "153HjzVPOj8qQTrHBgu2HCKlNSH8XWYIb",
+      "original_id": "11FBGU5E0XDlBRehAZDDz3WBMFN9y38YW",
+      "bytes": 2333388,
+      "md5": "e76d4abb9c5a41316f22aa989c3b5b60",
+      "url": "https://drive.google.com/file/d/153HjzVPOj8qQTrHBgu2HCKlNSH8XWYIb/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=153HjzVPOj8qQTrHBgu2HCKlNSH8XWYIb&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v12_간격깊이변화_SFA비교묶음.zip",
+      "id": "1Sc7vzxOl40-nfY4veQVVyQznsuC0R_gR",
+      "original_id": "1d5U4F5GASOltJbayJfXF6IxvZpaFsxgV",
+      "bytes": 2327490,
+      "md5": "e2c74427db4e8ba9f7af0cc94c5994bc",
+      "url": "https://drive.google.com/file/d/1Sc7vzxOl40-nfY4veQVVyQznsuC0R_gR/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1Sc7vzxOl40-nfY4veQVVyQznsuC0R_gR&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v12_추가점_간격과깊이_변화.png",
+      "id": "1wQWJv1qfcfICZp7YXQx-6AKUnSDLCWj8",
+      "original_id": "1XaouByZ3WbgxckHgYMe2F95xsjc9zMdu",
+      "bytes": 152964,
+      "md5": "047316770a67d6ce201885dd91fe7bc5",
+      "url": "https://drive.google.com/file/d/1wQWJv1qfcfICZp7YXQx-6AKUnSDLCWj8/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1wQWJv1qfcfICZp7YXQx-6AKUnSDLCWj8&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v13_깊이12에서26퍼센트_SFA묶음.zip",
+      "id": "1FC2jx5_HkGqVbpUZkwfeJ-qJeEdgsRSr",
+      "original_id": "19TpIF0ZHsANdBK8ezmWzqsPxsGupk8oR",
+      "bytes": 2329335,
+      "md5": "2ea148494899b1342684cd6eebeefd2e",
+      "url": "https://drive.google.com/file/d/1FC2jx5_HkGqVbpUZkwfeJ-qJeEdgsRSr/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1FC2jx5_HkGqVbpUZkwfeJ-qJeEdgsRSr&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v13_깊이12에서26퍼센트_비교.png",
+      "id": "1YEHRBOeE7d07NHNEUrFaZ5SODuFpctCQ",
+      "original_id": "1aMIgwWfxhfCUaclpaleegAUGxDMuf56d",
+      "bytes": 153855,
+      "md5": "7143aeb2899702607cb05afb2e91e9a0",
+      "url": "https://drive.google.com/file/d/1YEHRBOeE7d07NHNEUrFaZ5SODuFpctCQ/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1YEHRBOeE7d07NHNEUrFaZ5SODuFpctCQ&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v14_3번_14선_SFA비교묶음.zip",
+      "id": "16lNJa1jVjGhRlA81W5zhZSzRQcsNLCyJ",
+      "original_id": "1eB6scw0IUTpMXSaMxSfl1p0_qbEv_PRH",
+      "bytes": 338010,
+      "md5": "8450c6239496e05f9f2b0602a2ef363f",
+      "url": "https://drive.google.com/file/d/16lNJa1jVjGhRlA81W5zhZSzRQcsNLCyJ/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=16lNJa1jVjGhRlA81W5zhZSzRQcsNLCyJ&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v14_3번만_12선에서14선_비교.png",
+      "id": "1GOM865fe4HlIkR0Qemi-7SNpTJ9NZGJv",
+      "original_id": "12BbHhQfyEy6RHqEovnRN8DLetzf393qn",
+      "bytes": 56666,
+      "md5": "253aa9791d2f611f46eb2cab93adbfc9",
+      "url": "https://drive.google.com/file/d/1GOM865fe4HlIkR0Qemi-7SNpTJ9NZGJv/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1GOM865fe4HlIkR0Qemi-7SNpTJ9NZGJv&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v5_원본겹침_9장.png",
+      "id": "1P_yH0_Ceq_XcKDwplY0I3rcScQQwvW_t",
+      "original_id": "1SQzi1gH_HiEHDTHN4-AZWcmxkbXrXBBJ",
+      "bytes": 1832936,
+      "md5": "0f53ea0f0034b99b0ca543f36960ae8e",
+      "url": "https://drive.google.com/file/d/1P_yH0_Ceq_XcKDwplY0I3rcScQQwvW_t/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1P_yH0_Ceq_XcKDwplY0I3rcScQQwvW_t&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v5_원본겹침_대표장.png",
+      "id": "1SBGfO7JaW_HeDa8wCB6QA9XtyXInpNZj",
+      "original_id": "1gLAOPjIc1TbAyTq34EEI2LpY_HXNb4is",
+      "bytes": 278215,
+      "md5": "72176e363703c9ea2de806e20b2d9031",
+      "url": "https://drive.google.com/file/d/1SBGfO7JaW_HeDa8wCB6QA9XtyXInpNZj/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1SBGfO7JaW_HeDa8wCB6QA9XtyXInpNZj&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v5_원본겹침_확대.png",
+      "id": "1GT2VSYQTUGtGm8TleOC_qOp7THvhUUvi",
+      "original_id": "1KtyTXChXYhNxi0dHZVv7S_N-Su7xqJa7",
+      "bytes": 354425,
+      "md5": "e046e6a3d9a6349e2bd0113e6ffbf986",
+      "url": "https://drive.google.com/file/d/1GT2VSYQTUGtGm8TleOC_qOp7THvhUUvi/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1GT2VSYQTUGtGm8TleOC_qOp7THvhUUvi&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v5_확대비교.png",
+      "id": "1Uuh_e8xEQCgMwOq8y-9QoB3LAduViD3V",
+      "original_id": "1CqYCq2KBI1x_bAeQj9Yn2CpjC-RsJr3U",
+      "bytes": 41839,
+      "md5": "5a6a9cbf450dfa7f1976b59ffa3fef99",
+      "url": "https://drive.google.com/file/d/1Uuh_e8xEQCgMwOq8y-9QoB3LAduViD3V/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1Uuh_e8xEQCgMwOq8y-9QoB3LAduViD3V&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v8_38선과12선_입력포함_비교묶음.zip",
+      "id": "1sUWHCu1-UpesnD9jEMO4Jd8392cp3zQQ",
+      "original_id": "1kFicvsOSDnyNvNxTkKfNFd5x8vldDKKP",
+      "bytes": 1134727,
+      "md5": "066eebb48e6c5000789797833fd7066c",
+      "url": "https://drive.google.com/file/d/1sUWHCu1-UpesnD9jEMO4Jd8392cp3zQQ/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1sUWHCu1-UpesnD9jEMO4Jd8392cp3zQQ&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v8_원본과수동경계_비교.png",
+      "id": "1Ju9W45aRv8TFUKWbPxsssRrgSYlhfHN6",
+      "original_id": "1CDA0D871aO8XXJzSlBEFmNRt0HXp6dqH",
+      "bytes": 60669,
+      "md5": "bcbd3c3a45988310290db60215de47e5",
+      "url": "https://drive.google.com/file/d/1Ju9W45aRv8TFUKWbPxsssRrgSYlhfHN6/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1Ju9W45aRv8TFUKWbPxsssRrgSYlhfHN6&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v9_다른모양3개_원본비교.png",
+      "id": "1UL-JesFrs8uzA9e1JTXBmRIbYnd2ARQV",
+      "original_id": "1RcQSrdxoWNWyQCUUi4RRWvlRGv0l6lsL",
+      "bytes": 153937,
+      "md5": "1599be92a5f20a2fae329c37e453d78d",
+      "url": "https://drive.google.com/file/d/1UL-JesFrs8uzA9e1JTXBmRIbYnd2ARQV/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1UL-JesFrs8uzA9e1JTXBmRIbYnd2ARQV&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_v9_다른모양_SFA와비교묶음.zip",
+      "id": "1r1kFJzYVuRfLqQniphgHj6MxlEB_YLMA",
+      "original_id": "10PV8UPkdETGd_z8renCOnWE7mXRWVZVi",
+      "bytes": 2028305,
+      "md5": "6609c58c0fedabefd40f46fd3b287586",
+      "url": "https://drive.google.com/file/d/1r1kFJzYVuRfLqQniphgHj6MxlEB_YLMA/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1r1kFJzYVuRfLqQniphgHj6MxlEB_YLMA&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_거리밀도시스템_v1_간격과깊이자동비교.png",
+      "id": "11jh6rggsrNbU_cMvKyJnptUN3w4-HkP2",
+      "original_id": "143fmLgKbQuNn1LYe3M3nQD8s99K8lrkc",
+      "bytes": 163460,
+      "md5": "839d441641081e9a5cbffb2b32aae88c",
+      "url": "https://drive.google.com/file/d/11jh6rggsrNbU_cMvKyJnptUN3w4-HkP2/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=11jh6rggsrNbU_cMvKyJnptUN3w4-HkP2&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_거리밀도시스템_v1_실행코드와SFA.zip",
+      "id": "1yHxbzecXSc03UB8BOwvMazQtYmRRpIY8",
+      "original_id": "1lSyC7HoL8ZmEytwq8SHYY5O2_iYcHbAb",
+      "bytes": 1246149,
+      "md5": "35359a633f615b8ae4934ba8a68ef700",
+      "url": "https://drive.google.com/file/d/1yHxbzecXSc03UB8BOwvMazQtYmRRpIY8/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1yHxbzecXSc03UB8BOwvMazQtYmRRpIY8&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_길이통합_v5.sfa",
+      "id": "1Ki0lblcEwt550hZc6NymxMRVO1xXfyhX",
+      "original_id": "1WLuAE660enKPAKbsTerKqejohH7EU7Wa",
+      "bytes": 48703,
+      "md5": "1fc9c0c94f0a751dba8fcac8a7bdee5e",
+      "url": "https://drive.google.com/file/d/1Ki0lblcEwt550hZc6NymxMRVO1xXfyhX/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1Ki0lblcEwt550hZc6NymxMRVO1xXfyhX&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_길이통합_v5_전체.zip",
+      "id": "1ezz46eUqeQCs2nO_KjFzILxKpd7V_iEa",
+      "original_id": "1vY4B37GayQm1oYxviRcbkIIZbNKzXrFY",
+      "bytes": 983224,
+      "md5": "f327deb45ac25b41989567e39dc26a16",
+      "url": "https://drive.google.com/file/d/1ezz46eUqeQCs2nO_KjFzILxKpd7V_iEa/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1ezz46eUqeQCs2nO_KjFzILxKpd7V_iEa&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_도구별_선추출_비교.png",
+      "id": "1cxeX1TJYhncDDv__h8IjZXMdo9wGmhnb",
+      "original_id": "1bsIm5mZIjHyN7AtXs1lbgbLRbychgFX2",
+      "bytes": 353170,
+      "md5": "a539cdd383c66c80327f4def25a1ca11",
+      "url": "https://drive.google.com/file/d/1cxeX1TJYhncDDv__h8IjZXMdo9wGmhnb/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1cxeX1TJYhncDDv__h8IjZXMdo9wGmhnb&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_도구별_영역분리_비교.png",
+      "id": "1VfYXzvQF3JQu-cdd7xaMrZPRJtcwgGup",
+      "original_id": "1JwE5WwJgPbRHsHSNtgMNQZ-zub_79Irc",
+      "bytes": 365839,
+      "md5": "76f0985a6e8391b568f2d5700ad14812",
+      "url": "https://drive.google.com/file/d/1VfYXzvQF3JQu-cdd7xaMrZPRJtcwgGup/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1VfYXzvQF3JQu-cdd7xaMrZPRJtcwgGup&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_연결길이_원본비교_v7.png",
+      "id": "1j9aSJGWAyXwfwQKdHOF7fFxSxoRyalCV",
+      "original_id": "1TnMjFsZ4fB5CKzSbiKJBvG5p_Uw_y9yD",
+      "bytes": 306278,
+      "md5": "2d5605c21e130ba69ef39848073770cd",
+      "url": "https://drive.google.com/file/d/1j9aSJGWAyXwfwQKdHOF7fFxSxoRyalCV/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1j9aSJGWAyXwfwQKdHOF7fFxSxoRyalCV&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_연결길이연장_v7.sfa",
+      "id": "1Dm6JAgj_g5Xyzu8HTEsk3a8qYeecVZgO",
+      "original_id": "1Y9oVqF1P9rkdIsoq050cLnMDxAIBSNno",
+      "bytes": 54723,
+      "md5": "f19312e1ce216b280834ea188109288f",
+      "url": "https://drive.google.com/file/d/1Dm6JAgj_g5Xyzu8HTEsk3a8qYeecVZgO/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1Dm6JAgj_g5Xyzu8HTEsk3a8qYeecVZgO&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_연결길이연장_v7.zip",
+      "id": "13SQw2GUq-vNtwoHq9qFbV0dutMv_Eksr",
+      "original_id": "1gOE-JgleZxxBkzHvMb3iijlCa3joATsx",
+      "bytes": 613893,
+      "md5": "a6fc54229b13c533f5e6c5b8369d1d2f",
+      "url": "https://drive.google.com/file/d/13SQw2GUq-vNtwoHq9qFbV0dutMv_Eksr/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=13SQw2GUq-vNtwoHq9qFbV0dutMv_Eksr&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_외곽과중심선_비교.png",
+      "id": "13-kEuv2Ec9FMh5Uo-ILkwIZE7I2M8sm8",
+      "original_id": "18o9NJ6KDYdRYDjS-b2KXZcAh2oycPzvL",
+      "bytes": 204503,
+      "md5": "bd2f13d09c365a09cd5dd14de9493d64",
+      "url": "https://drive.google.com/file/d/13-kEuv2Ec9FMh5Uo-ILkwIZE7I2M8sm8/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=13-kEuv2Ec9FMh5Uo-ILkwIZE7I2M8sm8&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_전체도구_실행상태.png",
+      "id": "1siibgtZNMmU-FS7vO-rxThL_gTV8WaBq",
+      "original_id": "1h6utmh35ZEG45ZrkAJiSs3hSx9zYEYDj",
+      "bytes": 181679,
+      "md5": "d0b3b656f02274f5d273af63b79612b1",
+      "url": "https://drive.google.com/file/d/1siibgtZNMmU-FS7vO-rxThL_gTV8WaBq/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1siibgtZNMmU-FS7vO-rxThL_gTV8WaBq&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어_조합별_원본겹침_비교.png",
+      "id": "1s0LxMND8TMcsiRd0z4akw3vb30nXWGY6",
+      "original_id": "1otaybsbJmeCIkwmeDB10VNFWgsNjJcxp",
+      "bytes": 294373,
+      "md5": "7bbd30d095eac1882a693ad97e05cf4b",
+      "url": "https://drive.google.com/file/d/1s0LxMND8TMcsiRd0z4akw3vb30nXWGY6/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1s0LxMND8TMcsiRd0z4akw3vb30nXWGY6&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "스미어기술_코드프로필_독립묶음.zip",
+      "id": "1d-eFSJj2r_OqGE_FrFDgDH6u1ly-TXPp",
+      "original_id": null,
+      "bytes": 23040,
+      "md5": "735bbc7c4a94333aa9038d9fdde79563",
+      "url": "https://drive.google.com/file/d/1d-eFSJj2r_OqGE_FrFDgDH6u1ly-TXPp/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1d-eFSJj2r_OqGE_FrFDgDH6u1ly-TXPp&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "애니19_사람만수정_스미어동일.sfa",
+      "id": "1f1x3fO4Q_cJgug1x0qJUIzvubsvq4EXl",
+      "original_id": "1K7L0Hx4Pg_ReHJrXE_Hw7-qJjkLu_Qpw",
+      "bytes": 7964,
+      "md5": "1df223454bbbb1a81383514e3423f1a0",
+      "url": "https://drive.google.com/file/d/1f1x3fO4Q_cJgug1x0qJUIzvubsvq4EXl/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1f1x3fO4Q_cJgug1x0qJUIzvubsvq4EXl&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "애니19_사람만수정_이전비교.png",
+      "id": "1VJyljXRIp7Fn-j6iG9z5v7FDhUFqmDbn",
+      "original_id": "1PiKqloShde1k13xsDKrO019KHr2T7u0d",
+      "bytes": 642802,
+      "md5": "811ef396d0ec90174d0753d644764127",
+      "url": "https://drive.google.com/file/d/1VJyljXRIp7Fn-j6iG9z5v7FDhUFqmDbn/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1VJyljXRIp7Fn-j6iG9z5v7FDhUFqmDbn&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "애니19_양팔몸스미어_v1.sfa",
+      "id": "1UsEM7i-E3jGIaZmHnS7oGSzbw4BLxJjo",
+      "original_id": "18QjebI1PlOdrlkHk2r3vNoSdIPVrfmQj",
+      "bytes": 6991,
+      "md5": "b78f8fcb00663511324b1a07db1fa021",
+      "url": "https://drive.google.com/file/d/1UsEM7i-E3jGIaZmHnS7oGSzbw4BLxJjo/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1UsEM7i-E3jGIaZmHnS7oGSzbw4BLxJjo&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "애니19_양팔몸스미어_전체비교.png",
+      "id": "1OKcinq-VT11kgi4kV3LL5yq-GdHUJEQT",
+      "original_id": "1-RJvJ4ZYuZ9K3_bhX8xBplKd5-CMS2Bu",
+      "bytes": 580701,
+      "md5": "9950ff93c0d4d805594e310ee91d4194",
+      "url": "https://drive.google.com/file/d/1OKcinq-VT11kgi4kV3LL5yq-GdHUJEQT/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1OKcinq-VT11kgi4kV3LL5yq-GdHUJEQT&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "애니19_원본SFA템플릿복구.sfa",
+      "id": "1xuyrJ90GNFcBK6Hyk5Px-GWYSdrSEd3y",
+      "original_id": "1cLzJ77tXsHsW6JZ4a4Y8ZZ2dFbrSCN46",
+      "bytes": 6473,
+      "md5": "b9fed6fe8bf202467893da6e454959d8",
+      "url": "https://drive.google.com/file/d/1xuyrJ90GNFcBK6Hyk5Px-GWYSdrSEd3y/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1xuyrJ90GNFcBK6Hyk5Px-GWYSdrSEd3y&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "애니19_원본SFA템플릿복구_전체비교.png",
+      "id": "1jsLGXxUSdHZXmMzH0yMVqw6x2fftgSxb",
+      "original_id": "1YdrmUSlhNzhB73uWUOsUd4ssoCrCcyCS",
+      "bytes": 578132,
+      "md5": "658b3c20936fb371a09de5930e5d4790",
+      "url": "https://drive.google.com/file/d/1jsLGXxUSdHZXmMzH0yMVqw6x2fftgSxb/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1jsLGXxUSdHZXmMzH0yMVqw6x2fftgSxb&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "애니19프레임_v1_원본겹침비교.png",
+      "id": "1IgV-pDqmSq_wJs4se033rjKhTciTpdXB",
+      "original_id": "1PgvItWwf2MEJvP7EwR8NMY9gqsGu0-gr",
+      "bytes": 289158,
+      "md5": "ee4b821eeffa595ea93fd3b8c6808dab",
+      "url": "https://drive.google.com/file/d/1IgV-pDqmSq_wJs4se033rjKhTciTpdXB/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1IgV-pDqmSq_wJs4se033rjKhTciTpdXB&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "애니19프레임_스미어_v1.sfa",
+      "id": "1eU7EXFJJLOj__KKHKHssJa3_PDfIP9sv",
+      "original_id": "15iZB5X3yOxxVTJljQHO38G_53Wfe4Ch2",
+      "bytes": 1381,
+      "md5": "f3727c2ad76fcb6a2d73562c38c15d58",
+      "url": "https://drive.google.com/file/d/1eU7EXFJJLOj__KKHKHssJa3_PDfIP9sv/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1eU7EXFJJLOj__KKHKHssJa3_PDfIP9sv&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "어깨_팔꿈치_원본비교_v6.png",
+      "id": "1cg-r80FYGKYC9Q3eBElg6g1PSGPZFG7N",
+      "original_id": "1DC3zUNqzFmj81bJTbklfyXIGhkAjIuIy",
+      "bytes": 761700,
+      "md5": "301edb6978d42ae482308c3b072edcc5",
+      "url": "https://drive.google.com/file/d/1cg-r80FYGKYC9Q3eBElg6g1PSGPZFG7N/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1cg-r80FYGKYC9Q3eBElg6g1PSGPZFG7N&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "초기_observed_뼈대검토.zip",
+      "id": "1cMjOmm5kcmewVAJ3UfscDcW1p5UN4Ih8",
+      "original_id": null,
+      "bytes": 647444,
+      "md5": "156a3dc0c283f33f485632104c1212a6",
+      "url": "https://drive.google.com/file/d/1cMjOmm5kcmewVAJ3UfscDcW1p5UN4Ih8/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1cMjOmm5kcmewVAJ3UfscDcW1p5UN4Ih8&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "초기_뒤꿈치검토_v3.zip",
+      "id": "1wozgNiqFoItNjEaVNq2L1ifhHNFW_Q6W",
+      "original_id": null,
+      "bytes": 630564,
+      "md5": "1b8dd44b1ad72aa9f9639a2e228257bf",
+      "url": "https://drive.google.com/file/d/1wozgNiqFoItNjEaVNq2L1ifhHNFW_Q6W/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1wozgNiqFoItNjEaVNq2L1ifhHNFW_Q6W&export=download&confirm=t",
+      "anonymous_download_verified": true
+    },
+    {
+      "name": "초기_발끝검토_v2.zip",
+      "id": "1KD-DoVYHe22Mo9cmWQ7YyatUIlgkl0Or",
+      "original_id": null,
+      "bytes": 625161,
+      "md5": "ad61d648f28e610e76666fd58e81e1ef",
+      "url": "https://drive.google.com/file/d/1KD-DoVYHe22Mo9cmWQ7YyatUIlgkl0Or/view?usp=drivesdk",
+      "download_url": "https://drive.usercontent.google.com/download?id=1KD-DoVYHe22Mo9cmWQ7YyatUIlgkl0Or&export=download&confirm=t",
+      "anonymous_download_verified": true
+    }
+  ]
+}
