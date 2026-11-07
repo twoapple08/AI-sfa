@@ -1,0 +1,81 @@
+{
+  "schema": "no-glow-smear-review-result/1",
+  "source": {
+    "post_id": 216076,
+    "artist": "nian41",
+    "sha256": "0b23d44f533ca2158d08684533de01fc936abe45eea78edc1ffa89d241a71013",
+    "md5": "45beaeced0bd33b00e57e89f1c100cc2",
+    "frames": 77,
+    "fps": "24000/1001",
+    "index_base": 0,
+    "attribution": "기존 C 커뮤니티 태그; 독립 작가 검증 아님"
+  },
+  "source_indices": [
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "scope": "수동 부분 팔 중심선+추상 늘어진 흔적/잔상;독립 화면 배치,리그 자동추종 아님",
+  "training_ready": false,
+  "held_out": false,
+  "candidates": [
+    {
+      "post_id": 216076,
+      "chosen": true
+    },
+    {
+      "post_id": 216081,
+      "chosen": false,
+      "reason": "불꽃/발사/신체변형 겹침,이번 비발광 잔상 비교에서 제외"
+    }
+  ],
+  "variants": {
+    "axes_only": {
+      "asset_sha256": "19a0b1e8c08cf0fce6a68b66accffa4b75407c71a383e7b9ecd092a89cf31ae2",
+      "report": {
+        "frames": 9,
+        "plain_objects_per_frame": 2,
+        "smear_objects_per_frame": 16,
+        "unique_smear_version_points": 414,
+        "axes_identical": true,
+        "all_glow_zero": true,
+        "fx_rig_attachment_verified": false,
+        "app_editing_verified": false
+      }
+    },
+    "axes_with_smear": {
+      "asset_sha256": "569870c6c78dfa1f0b31b0a125852de0eb20c2243f161942b1bd97f62fc6285b",
+      "report": {
+        "frames": 9,
+        "plain_objects_per_frame": 2,
+        "smear_objects_per_frame": 16,
+        "unique_smear_version_points": 414,
+        "axes_identical": true,
+        "all_glow_zero": true,
+        "fx_rig_attachment_verified": false,
+        "app_editing_verified": false
+      }
+    }
+  },
+  "source_duration_seconds": 0.375375,
+  "output_duration_seconds": 0.375,
+  "output_fps": [
+    24,
+    24
+  ],
+  "shape_interpretation": "영역 위치/퍼짐은 원본 수동 판독,7개 곡선 길이 변주는 표현용 근사이며 작가 스타일 정답 아님",
+  "primary_actor_proportions_learned": false,
+  "tool_sha256": "34e8ccbda7b12dfcdfa6777071d24b6d15553a578ad8465cf11637a8c8e1b176",
+  "source_event_uncertainties": [
+    "실제 해부학적 좌우와 머리카락에 가린 어깨 위치는 미확정",
+    "현 손/잔상 경계·원본 폭은 수동 해석",
+    "의복/머리카락/손가락 형태는 학습/출력 대상 아님"
+  ],
+  "component_ids_not_full_body_profile_semantics": true
+}
