@@ -1,0 +1,28 @@
+{
+  "base_sha256": "e70af99ede211264cb7d318ec8f6e6f50c9725dd1be44741629eced36eb251aa",
+  "input_sha256": "63c92e362539922bb1eae0c3f708f818f3024bedc1ff544e78acc4a0622927f6",
+  "narrow_factor": 0.55,
+  "base_frames_preserved": true,
+  "frame_count": 240,
+  "effect_frames": 24,
+  "events": 20,
+  "app_verified": false,
+  "automatic_smear_detection": false,
+  "source_start": 1032,
+  "source_end": 1271,
+  "source_fps": 24,
+  "source_sha256": "5736947008f14fe33f1512bd824e3ee74fad78e8af12fd2f10d4ad6fa34623da",
+  "status": "two_width_variants_awaiting_user_review",
+  "manual_effect_selection": true,
+  "smear_all_source_instances_exhaustively_verified": false,
+  "training_ready": false,
+  "held_out": false,
+  "files": {
+    "기본폭.sfa": "69999c074e0a8bd6677710fa78285c2544a23396c9feb3022fb42065c9b388b5",
+    "좁힌폭.sfa": "833e5e1e0fc83367c18396ba6ad3e189928d880639967a708d634e9f7c1b3102"
+  },
+  "tests": 449,
+  "test_exit": 0,
+  "replay_xml_identical": true,
+  "drive_metadata_verified": true
+}
