@@ -1,0 +1,36 @@
+{
+  "variants": [
+    {
+      "factor": 1.0,
+      "active_segments": 4554,
+      "removed_invisible_segments": 1012,
+      "peak_active_smear_segments": 580
+    },
+    {
+      "factor": 0.7,
+      "active_segments": 4554,
+      "removed_invisible_segments": 1012,
+      "peak_active_smear_segments": 580
+    }
+  ],
+  "body_preserved": true,
+  "smear_coordinates_preserved": true,
+  "app_performance_verified": false,
+  "source_range": [
+    1032,
+    1271
+  ],
+  "frame_count": 240,
+  "width": "previous_full_width",
+  "thickness_factors": [
+    1.0,
+    0.7
+  ],
+  "neighbor_inference_source_frame": 1138,
+  "neighbor_inference_target_frame": 1139,
+  "status": "awaiting_user_review",
+  "filled_faces_added": 0,
+  "thick_strokes_can_appear_filled": true,
+  "tests": 452,
+  "test_exit": 0
+}
