@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-07):** 사용자짧은평행선판거절→작은팔스미어는팔꿈치부터끝으로넓게(삼각형유사),공중은방향/궤적으로재구성. `docs/GPT-DIRECTIONAL-SMEAR-REVIEW-2026-11-07.md`/도구directional_smear_review/집계JSON. 같은수동팔축보존,팔형태3곡선채움+공중2형태를전후손이동으로방향추론,현재손과겹친공중형태억제. 모든글로우0/9장279점/장당팔2AO+효과9AO(전체11객체프로필아님). 사용자지침재구성·폭/휨계수/공중시간대응미확정·학습제외. `/workspace/scratch/no_glow_smear/directional_v2/directional_smear_review.zip`·전후시트,사용자v2판정대기중새설계없음. 기본발규칙/원본우선/4.sfa구조참고/생산·모델·GPU불변. 이번High,매작업추론권장.
+- **최신 진행(11-07):** 사용자정정v3:스미어채움면금지/투명도기본제외,지그재그연결선꺾임·벌어짐으로이동감. 공중위아래는양끝폭있는사다리꼴. **넓은쪽=이동앞쪽아닌부위바깥쪽**. `docs/GPT-ZIGZAG-SMEAR-REVIEW-2026-11-07.md`/도구zigzag_smear_review/집계JSON. 동일팔축·원본영역유지,팔꿈치근위/바깥폭기준가설.9장/효과42직선/792점/FR0/활성알파255/글로우0. 38분할은뭉쳐14로조정(설정가능). `/workspace/scratch/no_glow_smear/zigzag_v3/zigzag_smear_review.zip`·전후시트·확대detail,사용자v3판정대기중새설계없음. 기존면판미채택/보존,작가원본배치우선·4.sfa구조참고·공중대응/앱미확정·학습제외/모델GPU불변. 이번High,사용량갱신은동일작업계속으로처리.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 

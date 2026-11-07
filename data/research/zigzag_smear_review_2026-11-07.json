@@ -1,0 +1,46 @@
+{
+  "schema": "zigzag-smear-review-result/1",
+  "source_case": "nian41_216076_arm_non_glowing_candidates",
+  "source_indices": [
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "user_rules": [
+    "채움 면 금지",
+    "기본 불투명",
+    "지그재그 연결선 꺾임/벌어짐으로 이동감 표현",
+    "공중 위아래 두형태는사다리꼴,끝뾰족할필요없음",
+    "폭의넓은쪽은이동앞쪽이아닌부위바깥쪽"
+  ],
+  "report": {
+    "frames": 9,
+    "body_objects": 2,
+    "effect_line_objects": 42,
+    "fill_count": 0,
+    "active_alpha": 255,
+    "unique_points": 792,
+    "axes_preserved": true,
+    "app_verified": false
+  },
+  "asset_sha256": "f9b79b6d93cfdd6bdcd273bdd5ec64982fef39f868d905940fe7b2b20b1ad835",
+  "tool_sha256": "e4980782e895c3649ab4518d82c304244dd5a91b004b9f74cdfb368c4ab0955e",
+  "segments_per_group": 14,
+  "segments_are_configurable_not_limit": true,
+  "training_ready": false,
+  "width_reference": "현재 팔꿈치→손,공중은팔꿈치→원본영역중심의바깥쪽. 실제몸/회전축해석은미확정",
+  "movement_interpretation": "이전서로다른손중심과현재손중심거리;물리적속도측정아님",
+  "raw_body_and_source_proportions_not_learned": true,
+  "app_editing_verified": false,
+  "source_event_uncertainties": [
+    "실제 해부학적 좌우와 머리카락에 가린 어깨 위치는 미확정",
+    "현 손/잔상 경계·원본 폭은 수동 해석",
+    "의복/머리카락/손가락 형태는 학습/출력 대상 아님"
+  ]
+}
