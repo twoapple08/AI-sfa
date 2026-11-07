@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-07):** 사용자정정v3:스미어채움면금지/투명도기본제외,지그재그연결선꺾임·벌어짐으로이동감. 공중위아래는양끝폭있는사다리꼴. **넓은쪽=이동앞쪽아닌부위바깥쪽**. `docs/GPT-ZIGZAG-SMEAR-REVIEW-2026-11-07.md`/도구zigzag_smear_review/집계JSON. 동일팔축·원본영역유지,팔꿈치근위/바깥폭기준가설.9장/효과42직선/792점/FR0/활성알파255/글로우0. 38분할은뭉쳐14로조정(설정가능). `/workspace/scratch/no_glow_smear/zigzag_v3/zigzag_smear_review.zip`·전후시트·확대detail,사용자v3판정대기중새설계없음. 기존면판미채택/보존,작가원본배치우선·4.sfa구조참고·공중대응/앱미확정·학습제외/모델GPU불변. 이번High,사용량갱신은동일작업계속으로처리.
+- **최신 진행(11-07):** 사용자v3너무빈다고4.sfa참고밀도증가요청. Medium권장,4.sfa84장38직선연결성분/굵기1.0재확인→v4묶음14→38선(2.71배),검토선굵기.38유지. 9장효과114직선/2088점/FR·FS0/활성알파255/글로우0,형태·바깥쪽확장·축/장대응유지. `/workspace/scratch/no_glow_smear/zigzag_dense_v4/`SFA/ZIP/전후PNG/확대비교,기존v3보존. 기록GPT-ZIGZAG-SMEAR-REVIEW말미/밀도집계JSON. 사용자v4판정대기중추가시제품없음. 도구기본값/몸프로필/모델/GPU불변,원본배치우선·4.sfa구조밀도참고만·학습제외/앱미확정.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 

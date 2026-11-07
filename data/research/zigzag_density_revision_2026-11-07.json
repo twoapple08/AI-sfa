@@ -1,0 +1,35 @@
+{
+  "schema": "zigzag-density-revision/1",
+  "segments_before": 14,
+  "segments_after": 38,
+  "source_case": "nian41_216076_arm_non_glowing_candidates",
+  "reference": {
+    "source": "4.sfa",
+    "sha256": "17bed2cfba99e91d68af999ee2d8b434de15d235b41814742d57b474da528d66",
+    "user_frame": 84,
+    "component_lines": 38,
+    "type_id": 1,
+    "thickness_scale": 1.0,
+    "scope": "표현 구조/밀도 참고,작가 스타일/배치 학습 아님"
+  },
+  "rendering_stroke_thickness_unchanged": 0.38,
+  "geometry_rule_unchanged": true,
+  "axis_and_source_frame_mapping_unchanged": true,
+  "density_factor": 2.7142857142857144,
+  "report": {
+    "frames": 9,
+    "body_objects": 2,
+    "effect_line_objects": 114,
+    "fill_count": 0,
+    "active_alpha": 255,
+    "unique_points": 2088,
+    "axes_preserved": true,
+    "app_verified": false
+  },
+  "asset_sha256": "4d24804e6a3c01353a769189067ce1a286a969c2ecff27aa7788ad0a4bffedcf",
+  "tool_sha256": "e4980782e895c3649ab4518d82c304244dd5a91b004b9f74cdfb368c4ab0955e",
+  "default_tool_setting_changed": false,
+  "training_ready": false,
+  "app_editing_verified": false,
+  "note": "같은 연결선 수가 원본과 동일한 화면 간격/밀도/품질을 뜻하지는 않는다. 이번 수정판은명시적38분할호출"
+}
