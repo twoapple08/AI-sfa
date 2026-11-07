@@ -84,7 +84,7 @@ def inset_added_turns(original, dense, depth=.25):
     return result,fixed
 
 
-def vary_added_turns(original, dense, spacing_weights, depths):
+def vary_added_turns(original, dense, spacing_weights, depths, depth_scales=None):
     """고정된 원래 점 사이에서 추가 왕복의 간격과 양 끝 깊이를 개별 조절한다."""
     result,fixed=inset_added_turns(original,dense,0)
     dense=np.asarray(dense,float);weights=np.asarray(spacing_weights,float);depths=np.asarray(depths,float)
@@ -93,6 +93,8 @@ def vary_added_turns(original, dense, spacing_weights, depths):
     if depths.ndim!=1 or not len(depths) or not np.isfinite(depths).all() or ((depths<0)|(depths>=.5)).any():
         raise ValueError('깊이들은 0 이상 .5 미만이어야 한다')
     indices=np.flatnonzero(~fixed);runs=np.split(indices,np.where(np.diff(indices)!=1)[0]+1) if len(indices) else []
+    scales=np.ones(len(indices)//2) if depth_scales is None else np.asarray(depth_scales,float)
+    if scales.shape!=(len(indices)//2,) or not np.isfinite(scales).all() or ((scales<0)|(scales>1)).any():raise ValueError('추가 왕복마다 0~1 깊이 배율이 필요하다')
     cursor=0
     for run in runs:
         start,end=run[0],run[-1]
@@ -102,7 +104,7 @@ def vary_added_turns(original, dense, spacing_weights, depths):
         for pair,t in zip(run.reshape(-1,2),ts):
             a=(1-t)*dense[start-2]+t*dense[end+1]
             b=(1-t)*dense[start-1]+t*dense[end+2]
-            da,db=depths[(2*cursor)%len(depths)],depths[(2*cursor+1)%len(depths)]
+            da,db=depths[(2*cursor)%len(depths)]*scales[cursor],depths[(2*cursor+1)%len(depths)]*scales[cursor]
             result[pair[0]]=(1-da)*a+da*b;result[pair[1]]=(1-db)*b+db*a;cursor+=1
     if (np.linalg.norm(np.diff(result,axis=0),axis=1)<1e-8).any():raise ValueError('길이 0인 연결')
     return result,fixed

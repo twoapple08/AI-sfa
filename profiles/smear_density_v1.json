@@ -1,0 +1,42 @@
+{
+  "schema": "sfa-smear-density-profile/1",
+  "name": "smear_density_v1",
+  "reference_width": 852,
+  "max_gap": 6.0,
+  "relative_gap": 0.1,
+  "min_gap": 1.2,
+  "spacing_weights": [
+    0.65,
+    1.25,
+    0.85,
+    1.4,
+    0.55,
+    1.1,
+    0.75,
+    1.3
+  ],
+  "depths": [
+    0.13,
+    0.21,
+    0.24,
+    0.155,
+    0.175,
+    0.26,
+    0.12,
+    0.195,
+    0.225,
+    0.14,
+    0.25,
+    0.18,
+    0.15,
+    0.23
+  ],
+  "depth_bounds": [
+    0.12,
+    0.26
+  ],
+  "thickness": 0.14,
+  "note": "동일 원본 수동 개발사례로 조정한 검토 기본값. 작가 패턴 학습/다른 영상 검증 아님.",
+  "depth_spacing_reference": 6.0,
+  "depth_rule": "min(1,추가점 주변 최소 경계 간격/기준 간격)로 깊이 최솟값·최댓값·폭을 함께 축소"
+}

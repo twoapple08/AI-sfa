@@ -1,0 +1,21 @@
+{
+  "schema": "smear-density-system-validation/1",
+  "counts": [
+    12,
+    20,
+    14,
+    28
+  ],
+  "exact_replay": true,
+  "canvas_resize_test": true,
+  "case_specific_overrides": false,
+  "profile_sha256": "d1f894f43262a336ad43247ab6d4935633d2d49158a9709afb92b327b4d72dde",
+  "tool_sha256": "abf93e1a30eef893267f3493f7042001d31e4fd08546f2eb821950f46757e381",
+  "training_ready": false,
+  "held_out": false,
+  "app_verified": false,
+  "system_scope": "입력된 원래 사슬의 밀도 조절·단일장 SFA 출력",
+  "tests": 444,
+  "test_exit": 0,
+  "zip_entries": 18
+}
