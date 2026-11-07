@@ -1,0 +1,38 @@
+{
+  "character": "rekan_sheet_v3",
+  "primary_slot": 0,
+  "opponent_unchanged": true,
+  "head_fill_kind1": true,
+  "body_joints_preserved": true,
+  "smear_coordinates_preserved": true,
+  "smear_line": 0.28,
+  "main_smear_color": "black",
+  "accessory_frames": 238,
+  "direction_report": {
+    "0": {
+      "known": 240,
+      "max_step": 40.0,
+      "mean_step": 11.42
+    },
+    "1": {
+      "known": 240,
+      "max_step": 40.00000000000003,
+      "mean_step": 12.99
+    }
+  },
+  "direction_fallback_frames": [],
+  "app_verified": false,
+  "head_fill_format_changes": 467,
+  "video_frame_count": 240,
+  "video_fps": 24,
+  "video_duration_seconds": 10,
+  "video_size": [
+    1152,
+    720
+  ],
+  "original_audio": true,
+  "status": "awaiting_user_visual_review",
+  "tests": 455,
+  "test_exit": 0,
+  "head_mask_draw_order_verified": true
+}
