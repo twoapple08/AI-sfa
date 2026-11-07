@@ -23,6 +23,7 @@ def validate_profile(profile):
     if any(not isinstance(profile.get(k),(int,float)) or isinstance(profile[k],bool) or not np.isfinite(profile[k]) or profile[k]<=0 for k in keys):
         raise ValueError('길이/굵기/비율은 유한한 양수여야 한다')
     if profile['min_gap']>profile['max_gap']:raise ValueError('최소 간격이 최대 간격보다 크다')
+    if profile.get('depth_spacing_source','inserted') not in ('inserted','original'):raise ValueError('깊이 간격 기준 오류')
     bounds=np.asarray(profile.get('depth_bounds',[]),float)
     depths=np.asarray(profile.get('depths',[]),float);weights=np.asarray(profile.get('spacing_weights',[]),float)
     if bounds.shape!=(2,) or not np.isfinite(bounds).all() or not 0<=bounds[0]<=bounds[1]<.5:raise ValueError('깊이 범위가 잘못됐다')
@@ -52,7 +53,16 @@ def process(points,canvas,profile):
     base=np.asarray(points,float);scale=canvas[0]/profile['reference_width']
     dense,intervals=densify_chain(base,profile['max_gap']*scale,profile['relative_gap'],profile['min_gap']*scale)
     unshifted,fixed=vary_added_turns(base,dense,profile['spacing_weights'],[0.])
-    scales,local_gaps=depth_spacing_scales(unshifted,fixed,profile['depth_spacing_reference']*scale)
+    if profile.get('depth_spacing_source','inserted')=='original':
+        # 삽입 수가 깊이 축소를 다시 유발하지 않도록 기존 경계점 거리만 사용한다.
+        strokes=base[:-1].reshape(-1,2,2);scales=[];local_gaps=[]
+        reference=profile['depth_spacing_reference']*scale
+        for record in intervals:
+            i=record['interval'];gap=float(np.linalg.norm(strokes[i+1]-strokes[i],axis=1).min())
+            count=record['divisions']-1
+            scales.extend([min(1.,gap/reference)]*count);local_gaps.extend([gap]*count)
+    else:
+        scales,local_gaps=depth_spacing_scales(unshifted,fixed,profile['depth_spacing_reference']*scale)
     result,fixed=vary_added_turns(base,dense,profile['spacing_weights'],profile['depths'],scales)
     if not np.array_equal(result[fixed],base):raise ValueError('원래 꺾임점이 바뀌었다')
     records=[];cursor=0;strokes=base[:-1].reshape(-1,2,2)

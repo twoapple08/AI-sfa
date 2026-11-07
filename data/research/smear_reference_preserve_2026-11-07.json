@@ -1,0 +1,23 @@
+{
+  "status": "awaiting_user_visual_review",
+  "reference": "v13_B_case4",
+  "segments": 40,
+  "vertices": 41,
+  "exact_vertex_replay": true,
+  "exact_overlay_pixel_replay": true,
+  "profile": "profiles/smear_density_v1_1_reference.json",
+  "profile_sha256": "dcb1338fed2297a0690876cdf823baafbe4031ed76341e8838ffbf9055822d40",
+  "depth_spacing_source": "original",
+  "reference_spacing_px_at_width852": 4.8,
+  "reference_spacing_calibrated_on_single_case": true,
+  "new_scene_segments": [
+    68,
+    62,
+    30,
+    28,
+    26
+  ],
+  "manual_pose_and_rails": true,
+  "held_out": false,
+  "app_verified": false
+}
