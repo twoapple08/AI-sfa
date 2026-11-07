@@ -69,5 +69,18 @@
     "폭/글로우/기하 계수는 수동 근사이며 원본에서 정량 추정한 스타일 정답 아님",
     "작가 귀속 C 수준/단일 개발사례"
   ],
-  "comparison_sha256": "2a8e980478ac84537122b18a8cb97ca887bce61460ed10f49e5aa38048639287"
+  "comparison_sha256": "2a8e980478ac84537122b18a8cb97ca887bce61460ed10f49e5aa38048639287",
+  "user_feedback_2026_11_07": {
+    "trajectory": "대체로 맞음",
+    "ordinary_smear_default_glow": false,
+    "glow_exception": "원본/연출에서 발광 근거가 있는 특수한 사례",
+    "not_verified": [
+      "폭 표현 우열",
+      "정확한 소멸 타이밍",
+      "전체 스미어",
+      "앱 편집",
+      "리그 부착"
+    ],
+    "existing_glow_variant_role": "밝은 사례 비교 기록; 일반 스미어 기본값 미채택"
+  }
 }
