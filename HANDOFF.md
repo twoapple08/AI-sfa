@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-07):** 사용자거리밀도시스템완성+간격좁으면깊이최소/최대함께축소지시→`tools/smear_density.py`통합CLI/프로필smear_density_v1/합성입력/시스템검사구현. 같은설정4사례12/20/14/28선,고정점·불투명·굵기.14·면/글로우0유지. 주변경계간격/6px배율로기준12~26%의최소/최대/폭함께축소(반이면6~13%). 사례예외없음/실제경계는수동입력. 동일SFA바이트재현/2배화면동일/잘못된입력검토필요·기존출력보호. `docs/SMEAR-DENSITY-SYSTEM-V1.md`;비공개 `/workspace/scratch/smear_density_system_v1/`코드·실제입력/출력/4행비교/ZIP Drive전달. **다음: 새깊이축소통합결과사용자판정**,입력사슬밀도모듈완료/영상자동판독·앱·장간튀기·다른영상일반화미검증. 생산기본생성경로/모델/GPU불변.
+- **최신 진행(11-07):** 사용자거리밀도시스템완성+간격좁으면깊이최소/최대함께축소지시→`tools/smear_density.py`통합CLI/프로필smear_density_v1/합성입력/시스템검사구현. 같은설정4사례12/20/14/28선,고정점·불투명·굵기.14·면/글로우0유지. 주변경계간격/6px배율로기준12~26%의최소/최대/폭함께축소(반이면6~13%). 사례예외없음/실제경계는수동입력. 동일SFA바이트재현/2배화면동일/잘못된입력검토필요·기존출력보호. `docs/SMEAR-DENSITY-SYSTEM-V1.md`;비공개 `/workspace/scratch/smear_density_system_v1/`코드·실제입력/출력/4행비교/ZIP Drive전달. **사용자“좋아 v1완송”으로 v1완성·확정. 프로필/코드/결과를기준판보존,후속변경은별도버전으로구분. 미관판정대기종료**,입력사슬밀도모듈완료/영상자동판독·앱·장간튀기·다른영상일반화미검증. 생산기본생성경로/모델/GPU불변.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 

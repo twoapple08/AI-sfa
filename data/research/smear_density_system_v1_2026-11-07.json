@@ -17,5 +17,13 @@
   "system_scope": "입력된 원래 사슬의 밀도 조절·단일장 SFA 출력",
   "tests": 444,
   "test_exit": 0,
-  "zip_entries": 18
+  "zip_entries": 18,
+  "release_status": "user_accepted_v1",
+  "user_confirmation": "좋아 v1완송",
+  "accepted_date": "2026-11-07",
+  "baseline_files": {
+    "tools/smear_density.py": "abf93e1a30eef893267f3493f7042001d31e4fd08546f2eb821950f46757e381",
+    "tools/smear_rail_fit.py": "67e31c8184a2d516ebedca86f7f989b3427bd4b7c9d7db49d90800d352d3b1fd",
+    "profiles/smear_density_v1.json": "b13f86b9f7f6a6006fc38a6f511bd8216f4fd2cadb2e9428ed6e7bac7c1b9511"
+  }
 }
