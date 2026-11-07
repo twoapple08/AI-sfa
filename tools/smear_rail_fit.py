@@ -82,3 +82,27 @@ def inset_added_turns(original, dense, depth=.25):
             result[j]=(1-depth)*b+depth*a
     if (np.linalg.norm(np.diff(result,axis=0),axis=1)<1e-8).any():raise ValueError('길이 0인 연결')
     return result,fixed
+
+
+def vary_added_turns(original, dense, spacing_weights, depths):
+    """고정된 원래 점 사이에서 추가 왕복의 간격과 양 끝 깊이를 개별 조절한다."""
+    result,fixed=inset_added_turns(original,dense,0)
+    dense=np.asarray(dense,float);weights=np.asarray(spacing_weights,float);depths=np.asarray(depths,float)
+    if weights.ndim!=1 or not len(weights) or not np.isfinite(weights).all() or (weights<=0).any():
+        raise ValueError('간격 가중치는 양의 유한한 배열이어야 한다')
+    if depths.ndim!=1 or not len(depths) or not np.isfinite(depths).all() or ((depths<0)|(depths>=.5)).any():
+        raise ValueError('깊이들은 0 이상 .5 미만이어야 한다')
+    indices=np.flatnonzero(~fixed);runs=np.split(indices,np.where(np.diff(indices)!=1)[0]+1) if len(indices) else []
+    cursor=0
+    for run in runs:
+        start,end=run[0],run[-1]
+        if len(run)%2 or start<2 or end+2>=len(dense):raise ValueError('추가 왕복 양쪽에 기존 획이 필요하다')
+        count=len(run)//2;w=np.array([weights[(cursor+k)%len(weights)] for k in range(count+1)])
+        ts=np.cumsum(w)[:-1]/w.sum()
+        for pair,t in zip(run.reshape(-1,2),ts):
+            a=(1-t)*dense[start-2]+t*dense[end+1]
+            b=(1-t)*dense[start-1]+t*dense[end+2]
+            da,db=depths[(2*cursor)%len(depths)],depths[(2*cursor+1)%len(depths)]
+            result[pair[0]]=(1-da)*a+da*b;result[pair[1]]=(1-db)*b+db*a;cursor+=1
+    if (np.linalg.norm(np.diff(result,axis=0),axis=1)<1e-8).any():raise ValueError('길이 0인 연결')
+    return result,fixed

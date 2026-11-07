@@ -48,3 +48,22 @@ class InsetTests(unittest.TestCase):
         q,_=inset_added_turns(p,p,0)
         np.testing.assert_array_equal(q,p)
         with self.assertRaises(ValueError):inset_added_turns(p,p,.5)
+
+class VaryTurnsTests(unittest.TestCase):
+    def test_variable_spacing_and_depth_keep_all_fixed_vertices(self):
+        from smear_rail_fit import vary_added_turns
+        p=np.array([[0,0],[0,20],[1,0],[1,20],[13,0],[13,20],[14,0]],float)
+        dense,_=densify_chain(p,3,.2,1)
+        q,fixed=vary_added_turns(p,dense,[.5,1.4,.8,1.3],[.15,.35,.3,.4,.2,.1])
+        np.testing.assert_array_equal(q[fixed],p)
+        self.assertEqual(q.shape,dense.shape)
+        pairs=q[~fixed].reshape(-1,2,2)
+        self.assertGreater(np.ptp(np.linalg.norm(pairs[:,1]-pairs[:,0],axis=1)),1)
+        self.assertGreater(np.ptp(np.diff(pairs[:,0,0])),.1)
+        self.assertTrue(np.all((q[:,0]>=0)&(q[:,0]<=14)&(q[:,1]>=0)&(q[:,1]<=20)))
+
+    def test_bad_distribution_rejected(self):
+        from smear_rail_fit import vary_added_turns
+        p=np.array([[0,0],[0,20],[1,0],[1,20],[2,0]],float)
+        with self.assertRaises(ValueError):vary_added_turns(p,p,[0],[.2])
+        with self.assertRaises(ValueError):vary_added_turns(p,p,[1],[.5])
