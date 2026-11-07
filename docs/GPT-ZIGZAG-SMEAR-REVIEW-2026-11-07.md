@@ -53,3 +53,7 @@ High를권장하고이전면판을정정했다. 사용량갱신후이어진진�
 비공개 `/workspace/scratch/no_glow_smear/zigzag_dense_v4/zigzag_smear.sfa`,ZIP`zigzag_dense_v4.zip`,`comparison.png`,`detail_comparison.png`. 새밀도로전체크기/확대렌더를직접확인했다. 기존비공개입력에`save(annotation,event,PRIVATE_DIR,segments=38)`로재현한다. 공개집계는`data/research/zigzag_density_revision_2026-11-07.json`. 사용자v4판정대기중추가설계/시제품없음.
 
 38선/묶음·2088점·채움0·불투명·문맥동일·지문/ZIP·`git diff --check`확인. 루트전체검사421개 OK·exit0(28.711초). 실제앱/표현합격은아직미확인이다.
+
+## 겹침 길이 통합 v5
+
+사용자가겹친두형태의길이를하나로요청하여후속`docs/GPT-JOINED-ZIGZAG-REVIEW-2026-11-07.md`에서한연속지그재그로재구성했다. v4는밀도비교기록으로보존한다.

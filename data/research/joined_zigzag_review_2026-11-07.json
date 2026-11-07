@@ -1,0 +1,46 @@
+{
+  "schema": "joined-zigzag-result/1",
+  "source_case": "nian41_216076_arm_non_glowing_candidates",
+  "user_rule": "겹친두형태를한길이/연속지그재그로재구성",
+  "report": {
+    "frames": 9,
+    "capacity_per_group": [
+      90,
+      38,
+      38
+    ],
+    "unique_points": 3024,
+    "merged_source_indices": [
+      15,
+      16,
+      17,
+      18
+    ],
+    "fill_count": 0,
+    "active_alpha": 255,
+    "axes_preserved": true,
+    "app_verified": false
+  },
+  "asset_sha256": "1d8e1d805376a0332225e5f95357556e82f4666176a670468ebaf0c2064f0f90",
+  "tool_sha256": "2724fcbb3a0b88d9f5262a543ed87adc05be9a990da6aac522a5713a8bdfd1a5",
+  "original_density_preserved": true,
+  "body_axes_preserved": true,
+  "training_ready": false,
+  "app_editing_verified": false,
+  "source_indices": [
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "limits": [
+    "겹침은근사방사구간/20도이내축정렬로판단",
+    "사용자지침기하재구성,원본스타일학습아님",
+    "미표시여분객체는장간ID유지용,불투명스타일에반투명은없음"
+  ]
+}
