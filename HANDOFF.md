@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-07):** 사용자 v8마지막12선/.14선택 후 다른장시험승인→v9 원본13위/17위/17아래 새3효과,수동8키씩/기존deform_chain·12선/.14유지. 원본15위기준판좌표동일재현+새3판4행PNG/1장SFA4개/전체겹침/ZIP Drive비공개. `docs/GPT-SMEAR-RAIL-TRANSFER-2026-11-07.md`; `/workspace/scratch/smear_rail_transfer_v9/`키/템플릿/출력/재현보존.4사례96고유점/면·글로우0/불투명/앱미확인.  **다음: 비교PNG2~4행사용자형태판정**, 수동보완동일원본개발사례·자동관측/다른영상일반화/연속움직임성공아님. v8선택범위원본15위1효과유지,기본도구/생산경로/모델/GPU불변.
+- **최신 진행(11-07):** v9사용자판정1·3번괜찮음,2·4번벌어져성김/굵기증가시날카로움손실지적. 같은12선고정원인검토(High권장). 실제긴획길이/수직중간간격 측정:1=66.73/1.90,2=34.17/4.28,3=62.96/3.72,4=34.38/6.43px. 절대간격뿐아니라간격/획길이차이. **다음제안(Medium): 1·3유지,2·4만.14굵기·경계끝길이차유지+넓은구간왕복점추가로국소밀도A/B**, 과밀면뭉침도확인. 아직새판생성없음/임계값·선수미확정/연속장튀기미검증. `docs/GPT-SMEAR-RAIL-TRANSFER-2026-11-07.md`후속절. 비공개 `/workspace/scratch/smear_rail_transfer_v9/`원본키/출력보존. 자동관측/다른영상일반화/앱성공아님,기본경로/모델/GPU불변.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
