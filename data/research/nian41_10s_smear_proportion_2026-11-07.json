@@ -1,0 +1,18 @@
+{
+  "smear_thickness": 0.28,
+  "original_smear_thickness": 0.14,
+  "line_gain": 2.0,
+  "width_body_multiple": 8.0,
+  "body_frames_preserved": 240,
+  "active_segments_preserved": 4554,
+  "invisible_padding_removed": 1012,
+  "app_performance_verified": false,
+  "status": "awaiting_user_visual_review",
+  "width_multiple_chosen_for_trial_not_user_specified": true,
+  "source_range": [
+    1032,
+    1271
+  ],
+  "tests": 455,
+  "test_exit": 0
+}
