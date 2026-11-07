@@ -59,3 +59,26 @@ def densify_chain(points, max_gap, relative_gap, min_gap):
     result.append(points[-1]);result=np.asarray(result)
     if (np.linalg.norm(np.diff(result,axis=0),axis=1)<1e-8).any():raise ValueError('길이 0인 새 연결')
     return result,records
+
+
+def inset_added_turns(original, dense, depth=.25):
+    """원래 점은 고정하고 삽입된 왕복쌍의 두 끝만 서로를 향해 안쪽으로 당긴다."""
+    original=np.asarray(original,float);dense=np.asarray(dense,float)
+    if any(a.ndim!=2 or a.shape[1]!=2 or not np.isfinite(a).all() for a in [original,dense]):
+        raise ValueError('유한한 xy 배열이 필요하다')
+    if not np.isfinite(depth) or not 0<=depth<.5:raise ValueError('안쪽 깊이는 0 이상 .5 미만이어야 한다')
+    fixed=np.zeros(len(dense),bool);cursor=0
+    for point in original:
+        while cursor<len(dense) and not np.array_equal(dense[cursor],point):cursor+=1
+        if cursor==len(dense):raise ValueError('기존 점 또는 순서가 소실됐다')
+        fixed[cursor]=True;cursor+=1
+    result=dense.copy();indices=np.flatnonzero(~fixed)
+    runs=np.split(indices,np.where(np.diff(indices)!=1)[0]+1) if len(indices) else []
+    for run in runs:
+        if len(run)%2:raise ValueError('추가점은 왕복쌍이어야 한다')
+        for i,j in run.reshape(-1,2):
+            a,b=dense[i],dense[j]
+            result[i]=(1-depth)*a+depth*b
+            result[j]=(1-depth)*b+depth*a
+    if (np.linalg.norm(np.diff(result,axis=0),axis=1)<1e-8).any():raise ValueError('길이 0인 연결')
+    return result,fixed

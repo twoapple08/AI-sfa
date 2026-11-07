@@ -28,3 +28,23 @@ class DensityTests(unittest.TestCase):
     def test_invalid_threshold_is_rejected(self):
         p=[[0,0],[0,10],[1,0],[1,10],[2,0]]
         with self.assertRaises(ValueError):densify_chain(p,1,.1,2)
+
+class InsetTests(unittest.TestCase):
+    def test_only_inserted_pairs_move_and_keep_their_midpoints(self):
+        from smear_rail_fit import inset_added_turns
+        p=np.array([[0,0],[0,20],[1,0],[1,20],[9,0],[9,20],[10,0]],float)
+        dense,_=densify_chain(p,3,.2,1)
+        inset,fixed=inset_added_turns(p,dense,.25)
+        np.testing.assert_array_equal(inset[fixed],p)
+        self.assertEqual(inset.shape,dense.shape)
+        added=np.flatnonzero(~fixed).reshape(-1,2)
+        for i,j in added:
+            np.testing.assert_allclose((inset[i]+inset[j])/2,(dense[i]+dense[j])/2)
+            self.assertAlmostEqual(np.linalg.norm(inset[j]-inset[i]),np.linalg.norm(dense[j]-dense[i])*.5)
+
+    def test_zero_depth_and_bad_depth(self):
+        from smear_rail_fit import inset_added_turns
+        p=np.array([[0,0],[0,20],[1,0],[1,20],[2,0]],float)
+        q,_=inset_added_turns(p,p,0)
+        np.testing.assert_array_equal(q,p)
+        with self.assertRaises(ValueError):inset_added_turns(p,p,.5)

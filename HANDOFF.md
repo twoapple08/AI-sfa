@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-07):** 사용자밀도시험승인→v10 굵기.14/기존끝점·순서유지,2·4번넓은구간에새왕복추가. A20/28선,B26/40선;1·3번12선/원본겹침픽셀동일유지. B는특히4번면처럼뭉쳐A추가량낮춘비교함,교차무늬잔존. `docs/GPT-SMEAR-DENSITY-2026-11-07.md`/도구densify_chain/합성3검사. 비공개 `/workspace/scratch/smear_density_v10/`A/B단일장SFA8개·5열4행PNG·바인딩·ZIP31항목 Drive전달. **다음: 사용자2·4번A/B밀도판정**,아직미채택/목표간격시험용/자동추출·일반화·장간튀기·앱성공미확인. 생산기본경로/모델/GPU불변.
+- **최신 진행(11-07):** 사용자기존꺾임유지/밀도용추가점더깊숙지시→v11 추가왕복끝만서로중심쪽25%씩이동(새왕복길이50%). v9원래13꼭짓점·순서고정,1·3픽셀동일. A/B선개수/굵기.14/활성알파255/면·글로우0유지. `docs/GPT-SMEAR-INSET-2026-11-07.md`/도구inset_added_turns/합성2검사추가. 비공개 `/workspace/scratch/smear_inset_v11/`8단일장SFA/5열4행PNG/바인딩/ZIP Drive전달. **다음: 사용자2·4번안쪽깊이/외곽판정**,A/B선택·깊이수치채택미정/중앙교차잔존/앱·장간튀기·자동관측·일반화미검증. 생산기본경로/모델/GPU불변.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
