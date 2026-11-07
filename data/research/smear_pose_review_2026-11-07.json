@@ -1,0 +1,12 @@
+{
+  "status": "awaiting_user_pose_review",
+  "smear_user_feedback": "스미어는 괜찮아졌네",
+  "source_frame": 19,
+  "smear_objects": 214,
+  "smear_all_serialized_attributes_equal": true,
+  "body_objects": 9,
+  "body_single_connected_component": true,
+  "manual_occlusion_inference": true,
+  "prior_observed_different_scene_not_transplanted": true,
+  "app_verified": false
+}

@@ -2,6 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
+- **현재(11-07):** 사용자수정스미어긍정/사람미채택→사람만수정승인. `/workspace/scratch/smear_pose_correct19/` 원본12·17로가린어깨추정/목·몸통/연결네이티브원머리수정. 스미어214객체전체XML동일,사람9객체1연결성분. 새사람미관판정대기. observed다른장면좌표이식금지.
 - **최우선 정정(11-07):** 사용자 v13 B4(40선/깊이12~26%) 결과 유지 재지정. v1 완료는 미관 보존 검증 부족. 별도 v1.1 검토 프로필 `smear_density_v1_1_reference.json`:B간격 복원/깊이는 삽입 전 기존 경계간격 기준4.8px. 선택41점 좌표·원본겹침 픽셀 동일 확인. `/workspace/scratch/smear_reference_preserve/` 새19장면 양팔·몸 재시험,사용자판정대기. v1 파일 보존/기본CLI프로필불변,새실행은 --profile 명시. 상세 `docs/SMEAR-DENSITY-SYSTEM-V1.md` 마지막 절.
 - **최신 진행(11-07):** 사용자거리밀도시스템완성+간격좁으면깊이최소/최대함께축소지시→`tools/smear_density.py`통합CLI/프로필smear_density_v1/합성입력/시스템검사구현. 같은설정4사례12/20/14/28선,고정점·불투명·굵기.14·면/글로우0유지. 주변경계간격/6px배율로기준12~26%의최소/최대/폭함께축소(반이면6~13%). 사례예외없음/실제경계는수동입력. 동일SFA바이트재현/2배화면동일/잘못된입력검토필요·기존출력보호. `docs/SMEAR-DENSITY-SYSTEM-V1.md`;비공개 `/workspace/scratch/smear_density_system_v1/`코드·실제입력/출력/4행비교/ZIP Drive전달. **사용자“좋아 v1완송”으로 v1완성·확정. 프로필/코드/결과를기준판보존,후속변경은별도버전으로구분. 미관판정대기종료**,입력사슬밀도모듈완료/영상자동판독·앱·장간튀기·다른영상일반화미검증. 생산기본생성경로/모델/GPU불변.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
