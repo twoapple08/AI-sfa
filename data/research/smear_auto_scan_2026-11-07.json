@@ -1,0 +1,31 @@
+{
+  "raw_regions": 4078,
+  "raw_frames": 239,
+  "scanned_frames": 240,
+  "limb_priority_regions": 588,
+  "limb_priority_frames": 207,
+  "unapplied_part_proposals": 505,
+  "distinct_review_examples": 40,
+  "meaning": "all are unverified candidates, not smear probabilities",
+  "pose_context_inferred": true,
+  "method": "color silhouette thin protrusions + roughness + local edge coherence + neighbor change; optional existing pose endpoints prioritize",
+  "threshold_seed": 0.28,
+  "threshold_region": 0.45,
+  "threshold_priority": 0.38,
+  "source_palette_bias": "red/blue source",
+  "manual_top40_review": {
+    "normal_hand_or_boot": 27,
+    "ambiguous": 5,
+    "already_covered_or_actor_overlap": 3,
+    "clothes_object_or_body_part_mismatch": 5
+  },
+  "new_confirmed_smears_in_top40": 0,
+  "automatic_application": false,
+  "sfa_changed": false,
+  "semantic_detector_verified": false,
+  "held_out": false,
+  "training_ready": false,
+  "status": "exploratory_detector_false_positives_need_improvement",
+  "tests": 458,
+  "test_exit": 0
+}
