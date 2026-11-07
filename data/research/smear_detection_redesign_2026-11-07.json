@@ -1,0 +1,152 @@
+{
+ "schema": "smear-detection-redesign/1",
+ "date": "2026-11-07",
+ "source_range": [
+  1032,
+  1271
+ ],
+ "frames": 240,
+ "labels": {
+  "positives": 65,
+  "sure": 30,
+  "likely": 35,
+  "uncertain": 18,
+  "frames_with_positive": 50,
+  "labeler": "claude_visual",
+  "user_verified": false,
+  "exhaustive": false,
+  "held_out": false,
+  "labels_sha256": "1b4c55713c074fd7e0ddff1af7b989bd49c7bcc92debfb68d289013d24328a65"
+ },
+ "split": {
+  "dev": [
+   1032,
+   1182
+  ],
+  "test": [
+   1183,
+   1271
+  ],
+  "note": "test not fully independent: structure chosen after viewing all frames; no coefficient fit on test"
+ },
+ "match_rule": "same actor color; label point in box+40px or label-box overlap >=30% of smaller",
+ "results": {
+  "oldscan/dev": {
+   "positives": 37,
+   "detections": 3177,
+   "average_precision": 0.1154,
+   "top20_hits": 6,
+   "top40_hits": 6,
+   "top100_hits": 14,
+   "false_positive_kinds": {
+    "body_cloth_other": 1932,
+    "foot_shoe": 301,
+    "hand": 460,
+    "head_hair": 333,
+    "unknown": 12
+   }
+  },
+  "oldscan/test": {
+   "positives": 28,
+   "detections": 901,
+   "average_precision": 0.2474,
+   "top20_hits": 8,
+   "top40_hits": 12,
+   "top100_hits": 15,
+   "false_positive_kinds": {
+    "body_cloth_other": 353,
+    "foot_shoe": 84,
+    "hand": 236,
+    "head_hair": 132
+   }
+  },
+  "oldscan/all": {
+   "positives": 65,
+   "detections": 4078,
+   "average_precision": 0.1587,
+   "top20_hits": 7,
+   "top40_hits": 11,
+   "top100_hits": 20,
+   "false_positive_kinds": {
+    "body_cloth_other": 2285,
+    "foot_shoe": 385,
+    "hand": 696,
+    "head_hair": 465,
+    "unknown": 12
+   }
+  },
+  "v2b/dev": {
+   "positives": 37,
+   "detections": 1065,
+   "average_precision": 0.2795,
+   "top20_hits": 9,
+   "top40_hits": 11,
+   "top100_hits": 17,
+   "false_positive_kinds": {
+    "body_cloth_other": 30,
+    "foot_shoe": 467,
+    "hand": 480,
+    "head_hair": 7,
+    "unknown": 2
+   }
+  },
+  "v2b/test": {
+   "positives": 28,
+   "detections": 631,
+   "average_precision": 0.5236,
+   "top20_hits": 10,
+   "top40_hits": 17,
+   "top100_hits": 30,
+   "false_positive_kinds": {
+    "body_cloth_other": 43,
+    "foot_shoe": 253,
+    "hand": 269,
+    "head_hair": 18
+   }
+  },
+  "v2b/all": {
+   "positives": 65,
+   "detections": 1696,
+   "average_precision": 0.3904,
+   "top20_hits": 12,
+   "top40_hits": 21,
+   "top100_hits": 35,
+   "false_positive_kinds": {
+    "body_cloth_other": 73,
+    "foot_shoe": 720,
+    "hand": 749,
+    "head_hair": 25,
+    "unknown": 2
+   }
+  }
+ },
+ "rejected_variants": [
+  "strand count only",
+  "count*motion",
+  "size-normalized",
+  "temporal transience ratio (AP all .38->.24)",
+  "thin-strand score sums (inconsistent, within noise)"
+ ],
+ "old_tool_failure_stages": [
+  "actor region (background pipes/green blocks/cloth in color mask)",
+  "semantic (hair/fingers/hems same jagged texture)",
+  "temporal diff dominated by camera motion on 1s vs drawings on 2s",
+  "no body-part anchoring; off-screen limbs unmatched"
+ ],
+ "remaining_failure": "normal hands/fingers and shoes vs smear (v2 FPs: hand 748, foot 720)",
+ "sfa_changed": false,
+ "automatic_smear_detection_verified": false,
+ "probability_calibrated": false,
+ "training": false,
+ "gpu": false,
+ "private_bundle": {
+  "drive_id": "1BPcrq9ujx5t07MQS_UVXTypasJ8exKxX",
+  "bytes": 1730295,
+  "sha256": "f92a97cb4f12be12ac5aac6ce8a561096fc89ffd36de3645bb19fe4845afde6d",
+  "shared_link": false
+ },
+ "blocked": [
+  "GPT private 32-file bundle and failure ZIP not link-shared; manual smear inputs not used"
+ ],
+ "status": "redesign_v2_improves_ranking_but_semantic_hand_vs_smear_unsolved"
+}

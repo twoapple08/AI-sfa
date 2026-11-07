@@ -200,3 +200,5 @@ Read HANDOFF.md first for current scope and evidence. Keep it current at meaning
 - **최신 사용자 정정(11-04):** 손가락·발가락·발길이 부속은 제거한다. 가까운 단순 연속 면은 유지한다. 유효 폭을 못 얻었다고50px 같은 고정 반지름으로 채우지 않는다. 근거 있는 표시 척도를 명시하고 원근 측정/추론을 구분한다. 현재 기준은 docs/STICKMAN-WIDTH-FIX-REPLAY-2026-11-04.md. 기존 구간은 보존한표시키/입력/코드지문과 stickman_replay.py로 재현·XML대조하며,스킬만으로 영상부터 새로 판단해 동일 출력이 보장된다고 말하지 않는다.
 
 - **마디 면 경계 정정(11-04 사용자):** 가까운신체를부위별선굵기나별도캡슐경계가드러나는모양으로대신하지않는다.951주변은두마디팔다리를한연속채움으로잇는선택표시층으로보완하고굵기도조금높여비교한다.몸통직선/기본편집뼈대는유지한다.새표시층과기존승인v1을구분하며 docs/STICKMAN-DISPLAY-MOTION-FIX-2026-11-04.md를따른다.
+
+- **스미어 탐지 평가(11-07 Claude):** 스미어 탐지 개선은 `tools/smear_eval.py`와 비공개 라벨로 기존/새 방식을 같은 기준(AP·상위k·오탐 부위)으로 비교해 보고한다. 후보 수·재현율·합성 테스트를 성공으로 쓰지 않는다. 개발/시험 구간에서 손 계수를 바꿔 ±2개 차이를 개선이라 하지 않는다. 새 환경 복원: GPT가 올린 Drive 파일은 링크 공유가 아니면 `drive.usercontent` 다운로드와 rclone(drive.file) 모두 막힌다. 공유 링크 생성(권한 변경)은 자동 검토가 거절했으므로 사용자에게 공유를 부탁한다. 테스트 의존성: opencv-python-headless, scikit-image, skia-python(+libegl1), CPU torch/torchvision.
