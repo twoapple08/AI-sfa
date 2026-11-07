@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-07):** 사용자겹친두형태길이하나로요청→v5팔꿈치~최바깥끝한연속지그재그. 원본15/16아래묶음·17/18위묶음과팔겹침통합,떨어진다른묶음유지,원래팔축유지. 길이에맞춰선수/밀도보존,옛겹침·여분선비표시. 9장3024점/채움0/활성불투명/글로우0. `docs/GPT-JOINED-ZIGZAG-REVIEW-2026-11-07.md`/도구joined_zigzag_review/집계JSON. 비공개 `/workspace/scratch/no_glow_smear/joined_v5/`SFA/ZIP/전후·확대PNG,이전v4보존. 사용자지침기하재구성·앱/의미미확정·학습제외,사용자v5판정대기중추가설계없음. 이번Medium,프로필/모델/GPU불변.
+- **최신 진행(11-07):** 사용자 머리카락 경계 어깨 탓에 위팔/팔꿈치 오류 지적 → v6 가려진 어깨·팔꿈치를 몸통/양어깨/소매/인접 장으로 수동 재판독. 손 중심·공중 잔상 근사 유지, 새 축으로 기존 단일 길이 지그재그 재계산. 9장3564점/용량[120,38,38]/채움0/활성불투명/글로우0. `docs/GPT-OCCLUDED-SHOULDER-REVIEW-2026-11-07.md`. 비공개 `/workspace/scratch/no_glow_smear/occlusion_v6/` 관절 전후 원본 비교/9장겹침/SFA/바인딩/ZIP,Drive 전달. v5보존. 가린관절 수동추정·학습제외·앱미확인. **다음: 사용자 관절 비교 판단을 먼저 받고 축 확정 뒤 스미어 평가**, 새 자동 추출기 구현/일반화로 세지 않음. 이번High권장,모델/GPU불변.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 
