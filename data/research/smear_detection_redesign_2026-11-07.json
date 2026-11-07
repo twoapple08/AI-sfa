@@ -148,5 +148,119 @@
  "blocked": [
   "GPT private 32-file bundle and failure ZIP not link-shared; manual smear inputs not used"
  ],
- "status": "redesign_v2_improves_ranking_but_semantic_hand_vs_smear_unsolved"
+ "status": "user_verified_eval: v2 ranking better than old, hand/shoe false positives remain",
+ "user_verified_labels": {
+  "date": "2026-11-07",
+  "candidates_reviewed": 95,
+  "positives": 89,
+  "frames": 71,
+  "negatives": 8,
+  "negative_reasons": {
+   "none": 3,
+   "hair": 3,
+   "impact_effect_not_body": 2
+  },
+  "corrections": {
+   "part_fixed": 4,
+   "actor_fixed": 5,
+   "range_expanded": 3,
+   "added_second_actor": 2
+  },
+  "exhaustive": false,
+  "labels_sha256": "a9a38222843ae650d4d7a480a2d03624391849a1b99c0079683ebe8c66ddcc20",
+  "results": {
+   "oldscan/dev": {
+    "positives": 56,
+    "detections": 3177,
+    "average_precision": 0.0859,
+    "top20_hits": 6,
+    "top40_hits": 7,
+    "top100_hits": 13,
+    "false_positive_kinds": {
+     "body_cloth_other": 1950,
+     "foot_shoe": 304,
+     "hand": 478,
+     "head_hair": 341,
+     "unknown": 9
+    }
+   },
+   "oldscan/test": {
+    "positives": 33,
+    "detections": 901,
+    "average_precision": 0.2166,
+    "top20_hits": 8,
+    "top40_hits": 11,
+    "top100_hits": 14,
+    "false_positive_kinds": {
+     "body_cloth_other": 368,
+     "foot_shoe": 83,
+     "hand": 254,
+     "head_hair": 141
+    }
+   },
+   "oldscan/all": {
+    "positives": 89,
+    "detections": 4078,
+    "average_precision": 0.1229,
+    "top20_hits": 7,
+    "top40_hits": 12,
+    "top100_hits": 20,
+    "false_positive_kinds": {
+     "body_cloth_other": 2318,
+     "foot_shoe": 387,
+     "hand": 732,
+     "head_hair": 482,
+     "unknown": 9
+    }
+   },
+   "v2b/dev": {
+    "positives": 56,
+    "detections": 1065,
+    "average_precision": 0.3088,
+    "top20_hits": 11,
+    "top40_hits": 16,
+    "top100_hits": 23,
+    "false_positive_kinds": {
+     "body_cloth_other": 30,
+     "foot_shoe": 474,
+     "hand": 487,
+     "head_hair": 7,
+     "unknown": 2
+    }
+   },
+   "v2b/test": {
+    "positives": 33,
+    "detections": 631,
+    "average_precision": 0.5122,
+    "top20_hits": 12,
+    "top40_hits": 20,
+    "top100_hits": 26,
+    "false_positive_kinds": {
+     "body_cloth_other": 43,
+     "foot_shoe": 253,
+     "hand": 273,
+     "head_hair": 18
+    }
+   },
+   "v2b/all": {
+    "positives": 89,
+    "detections": 1696,
+    "average_precision": 0.3803,
+    "top20_hits": 14,
+    "top40_hits": 25,
+    "top100_hits": 39,
+    "false_positive_kinds": {
+     "body_cloth_other": 73,
+     "foot_shoe": 727,
+     "hand": 760,
+     "head_hair": 25,
+     "unknown": 2
+    }
+   }
+  },
+  "v2_missed": [
+   "1151 red arm (behind blue arm)",
+   "1208 red arm"
+  ]
+ }
 }
