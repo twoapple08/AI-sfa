@@ -2,7 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
-- **최신 진행(11-07):** 비발광원본216076 팔/늘어진손흔적·잔상후보13장직접판독,원본12~20의9장A부분팔축/B동일축+2영역성긴곡선묶음생성(High). `docs/GPT-NO-GLOW-SMEAR-REVIEW-2026-11-07.md`,도구no_glow_smear_review/집계JSON. 전체스미어/자동학습/리그추종아님,원본C커뮤니티귀속·수동마디/영역추론·7획변주는표현근사. B16AO/414점/글로우모두0/축동일,원본23.976→24차이명시. 비공개 `/workspace/scratch/no_glow_smear/review/no_glow_smear_review.zip`·비교PNG·입력,원본영상2개분석후삭제. 사용자A/B표현판정대기중새설계/시제품없음. 일반글로우off/예외발광·4.sfa구조참고만·기본뒤꿈치/필요시발선기준유지,생산프로필/모델/GPU변경없음,매작업추론권장.
+- **최신 진행(11-07):** 사용자짧은평행선판거절→작은팔스미어는팔꿈치부터끝으로넓게(삼각형유사),공중은방향/궤적으로재구성. `docs/GPT-DIRECTIONAL-SMEAR-REVIEW-2026-11-07.md`/도구directional_smear_review/집계JSON. 같은수동팔축보존,팔형태3곡선채움+공중2형태를전후손이동으로방향추론,현재손과겹친공중형태억제. 모든글로우0/9장279점/장당팔2AO+효과9AO(전체11객체프로필아님). 사용자지침재구성·폭/휨계수/공중시간대응미확정·학습제외. `/workspace/scratch/no_glow_smear/directional_v2/directional_smear_review.zip`·전후시트,사용자v2판정대기중새설계없음. 기본발규칙/원본우선/4.sfa구조참고/생산·모델·GPU불변. 이번High,매작업추론권장.
 - **읽기:** AGENTS.md 전체 → 이 문서 → docs/NEW-COLLABORATOR-ONBOARDING-2026-11-04.md → .claude/skills/stickman-extraction/START-HERE.md. 11-04 이전 상세 상태: docs/history/HANDOFF-BEFORE-2026-11-05.md.
 - **비공개 자료 복원:** 새 환경이면 manifest의 Drive 링크 공유 파일을 `https://drive.usercontent.google.com/download?id=<ID>&export=download&confirm=t`로 받아 `restore_data.py --import-path`(11-04 Claude 확인: 13종 verified). rclone 설정은 drive.file 범위라 GPT가 올린 폴더 목록은 안 보이고, rclone 자신이 만든 파일·링크 공유 파일만 접근된다. 값/토큰 출력 금지.
 

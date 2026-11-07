@@ -1,0 +1,42 @@
+{
+  "schema": "directional-smear-result/1",
+  "source_case": "nian41_216076_arm_non_glowing_candidates",
+  "source_indices": [
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "user_rule": "작은 팔 스미어는 팔꿈치에서 끝으로 넓어지는 형태;공중 스미어는 이동 방향/궤적으로 재구성",
+  "asset_sha256": "43493f096b5c4781744b55b4b411d0f20395e39ba89d79010bdd1fdd9a37dc29",
+  "tool_sha256": "01d0a9f2cdbd6eef3b3d9926d66e3a231790bef05c3793e231deed052849be30",
+  "report": {
+    "frames": 9,
+    "objects_per_frame": 11,
+    "body_objects": 2,
+    "effect_curves": 9,
+    "fills_per_frame": 3,
+    "unique_points": 279,
+    "axes_preserved": true,
+    "glow_zero": true,
+    "app_verified": false
+  },
+  "training_ready": false,
+  "user_guided_reconstruction": true,
+  "direction_inference": "현재/이전 서로 다른 손 중심으로 방향,다음 위치로 회전 성분 추론;반복그림은이전유효이동방향유지",
+  "floating_positions": "원본에서수동판독한영역중심유지",
+  "temporal_identity_verified": false,
+  "app_editing_verified": false,
+  "limits": [
+    "팔꿈치/손 위치는 기존 수동 추론",
+    "폭비율/채움/휨 계수는 표현 가설이며 학습 정답 아님",
+    "공중 형상과 실제 과거/현재/미래 손 대응은 미확정",
+    "AC접합은 실제앱회전 성공 증거가 아님"
+  ],
+  "hand_overlap_policy": "영역중심이 현재 손 중심에서 영역 반대각선 이내이면 공중 형상 억제하는 시험 가설"
+}
