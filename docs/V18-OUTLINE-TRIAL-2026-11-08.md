@@ -24,3 +24,9 @@
 - 어두운배경비교 https://drive.google.com/file/d/1-OguBfMmtFQWhLg1nAzc4EKvCKpY6KRN/view
 - 밝은배경비교 https://drive.google.com/file/d/1anD17Ll2dX8yNreXEP0EeJISw2AGNPQp/view
 - 원본+선/글로우두SFA+비교+안내ZIP https://drive.google.com/file/d/1_5RG8O92O1AAlzJB5adT1ASycFKeDXBW/view
+
+## 사용자 색상 수정 — #303030
+
+사용자가검정보다조금밝을정도의더어두운테두리를요청. 새시험은청회색#7C8896에서중성짙은회색#303030으로만변경했다. 선판/글로우판각240장,테두리Color RGB및글로우판GlowColor RGB외모든객체·좌표·면·연결·불투명도·두께·글로우크기·장동일검사. 비공개`/workspace/scratch/v18_outline_dark/`에두SFA/명암비교/ZIP. 이전색상판은보존. 사용자미관판정·앱미검증.
+
+짙은회색비교 https://drive.google.com/file/d/1RP10psRXnu-hhtosVtucNAUAZbNWoom4/view ; 두SFA/비교ZIP https://drive.google.com/file/d/1BGjqmZeSaUNi_uUJBE_2icdNpxfUdefU/view . 기존공유폴더권한상속확인.

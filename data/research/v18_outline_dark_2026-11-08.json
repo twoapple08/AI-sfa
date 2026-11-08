@@ -1,0 +1,15 @@
+{
+  "color": "#303030",
+  "previous_color": "#7C8896",
+  "frames": 240,
+  "variants": [
+    "stroke",
+    "glow"
+  ],
+  "changes_only_outline_rgb": true,
+  "edited_color_objects": 22162,
+  "app_verified": false,
+  "tests": 461,
+  "test_exit": 0,
+  "shared_delivery": true
+}
