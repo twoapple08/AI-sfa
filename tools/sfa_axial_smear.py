@@ -32,7 +32,8 @@ def is_axial(motion):
 
 def classify(motion,overrides=None):
     """'straight' | 'rotation' 와 판정 근거('angle'|'override'|'needs_review')."""
-    frame=motion.get('frame');o=(overrides or {}).get(str(frame)) or (overrides or {}).get(frame)
+    frame=motion.get('frame');ov=overrides or {}
+    o=ov.get(f"{frame}:{motion.get('slot')}:{motion.get('code')}") or ov.get(str(frame)) or ov.get(frame)  # 부위별 키 우선
     if o in ('straight','rotation'):return o,'override'
     a=abs(np.degrees(motion['angle']))
     if a<=STRAIGHT_MAX:return 'straight','angle'
@@ -130,7 +131,7 @@ def build(source,profile=None,canvas=SW.CANVAS,overrides=None,frame_base=1,direc
         if fx:
             v=m['now']['tip']-m['now']['hub'];d=v/np.linalg.norm(v) if fx.get('dir','arm')=='arm' else np.asarray(fx['dir'],float)
             m=dict(m,forced=True,total_px=fx.get('total_px'));sd=d.tolist()
-        return dict(m,frame=index+frame_base,stretch_dir=sd,
+        return dict(m,frame=index+frame_base,slot=slot,code=code,stretch_dir=sd,
                     limb_px=float(limb.get('ThicknessScale'))*PX,
                     smear_px=(float(smear[0].get('ThicknessScale')) if smear else 1.35)*PX)
     def geometry(motion,detached=False,center=None,span=None):
@@ -141,6 +142,8 @@ def build(source,profile=None,canvas=SW.CANVAS,overrides=None,frame_base=1,direc
         # 원본에서 잰 늘어짐 방향이 있으면 회전 판정 장면도 그 방향의 갈래로 그린다(사용자 11-08, 1160).
         return streak_geometry(motion) if kind=='straight' or motion.get('stretch_dir') is not None else rotation_geometry(motion)
     def validator(motion,density):
+        ovr=(overrides or {}).get(f"{motion['frame']}:{motion.get('slot')}:{motion.get('code')}")
+        if ovr=='keep_v18':return dict(passed=False,rule='user_keep_v18')  # 사용자 '좌우': 원본에서 잰 v18 지그재그 유지
         if motion.get('forced'):return check_streak(motion,density)
         if not is_axial(motion):return F.check_turns(motion,density)
         kind,_=classify(motion,overrides)

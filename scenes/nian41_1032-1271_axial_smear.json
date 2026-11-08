@@ -1,6 +1,6 @@
 {
   "schema": "axial-smear-overrides/1",
-  "description": "nian41 1032-1271 직진/회전 사용자 판정(2026-11-08). 회전각 15~40° 구간과 133°(1036)를 사람이 정했다. 장 번호는 원본 영상 장. stretch_directions: 원본 확인 스미어 상자 안 가닥 늘어짐 방향(tools/smear_stretch_direction.py, 일치도>=.30 또는 _eye=Claude 눈 확인; 사용자 11-08 \"늘어지는 방향에 맞춰\").",
+  "description": "nian41 1032-1271 직진/회전 사용자 판정(2026-11-08). 회전각 15~40° 구간과 133°(1036)를 사람이 정했다. 장 번호는 원본 영상 장. stretch_directions: 원본 확인 스미어 상자 안 가닥 늘어짐 방향(tools/smear_stretch_direction.py, 일치도>=.30 또는 _eye=Claude 눈 확인; 사용자 11-08 \"늘어지는 방향에 맞춰\"). 11-08 사용자 2차 판정: 가1·가3·가8 좌우(부위별 키), 나4 앞뒤. 좌우 판정은 keep_v18(원본 측정 지그재그 유지; 휘두르기 테이퍼는 움직임이 작아 스미어가 사라짐).",
   "frame_base": 1032,
   "axial_overrides": {
     "1036": "rotation",
@@ -10,7 +10,10 @@
     "1181": "straight",
     "1182": "straight",
     "1188": "straight",
-    "1213": "straight"
+    "1213": "straight",
+    "1046:1:8": "keep_v18",
+    "1065:0:8": "keep_v18",
+    "1231:1:8": "keep_v18"
   },
   "stretch_directions": {
     "1036:0:4": {
@@ -197,6 +200,16 @@
       "use": false,
       "reason": "low_coherence",
       "coherence": 0.283
+    }
+  },
+  "forced_streaks": {
+    "1174:0:4": {
+      "dir": "arm",
+      "why": "사용자 11-08 나4 '앞뒤'(직진 갈래로 바꿈, 길이는 기본 규칙)"
+    },
+    "1231:0:4": {
+      "dir": "arm",
+      "why": "사용자 11-08 가7 '스미어는 문제없음': 팔 자세만 고치고 앞뒤 갈래 유지(자세 교정으로 움직임 판정이 바뀌어 고정)"
     }
   }
 }

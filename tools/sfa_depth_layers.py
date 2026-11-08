@@ -221,6 +221,7 @@ def build(root,frames_dir,scene,frame_base,canvas=CANVAS):
         rgb=cv2.cvtColor(cv2.imread(str(Path(frames_dir)/f'{n+frame_base}.png')),cv2.COLOR_BGR2RGB)
         overlap,meas=relations(f,rgb,slot_color,color_slot,canvas)
         level,dropped=assign_levels(overlap,meas,file_order)
+        if n+frame_base in set(scene.get('depth_flat',[])):level={k:0 for k in level}  # 사용자 판정: 기존(한 칸)이 맞음
         maxlevel=max(maxlevel,max(level.values(),default=0))
         per_frame.append(dict(level=level,meas=meas,dropped=dropped))
     K=maxlevel+1

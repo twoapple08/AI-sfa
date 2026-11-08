@@ -206,8 +206,10 @@ def build(stick,items,frames_dir,template,scene,density_profile,frame_base,canva
         prof*=float(np.clip(L_/(12*bw),1.,1.6));prof=np.maximum(prof,1.5)
         ov=next((o for o in scene.get('smear_size',[]) if o['frame']==n and o['actor']==it['actor'] and o['part']==it['part']),None)
         if ov:  # 사용자 지정 크기(형식은 그대로): 끝(손끝 앞)은 두고 길이·끝 폭만 맞춘다
-            axis=np.array([axis[1]-ov['length_px']*u,axis[1]]);L_=float(ov['length_px'])
-            prof=prof*np.array([ov['wl_px']/max(prof[-1][0],1e-6),ov['wr_px']/max(prof[-1][1],1e-6)])
+            if ov.get('rotate_deg'):  # 화면 기준(y 아래) 각도: 음수 = 반시계
+                t=np.radians(ov['rotate_deg']);u=np.array([[np.cos(t),-np.sin(t)],[np.sin(t),np.cos(t)]])@u;nv=np.array([-u[1],u[0]])
+            axis=np.array([axis[1]-ov.get('length_px',L_)*u,axis[1]]);L_=float(ov.get('length_px',L_))
+            if 'wl_px' in ov:prof=prof*np.array([ov['wl_px']/max(prof[-1][0],1e-6),ov['wr_px']/max(prof[-1][1],1e-6)])
             mode=mode+'+size'
         ts=np.linspace(0,1,4);cen=axis[0]+ts[:,None]*(axis[1]-axis[0])
         pts=deform_chain(template,cen+prof[:,0:1]*nv,cen-prof[:,1:2]*nv,12)
@@ -239,6 +241,8 @@ def main():
     with zipfile.ZipFile(a.stickman) as z:stick=E.fromstring(z.read(z.namelist()[0]))
     scene=json.loads(Path(a.scene).read_text())
     items=items_from_labels(json.loads(Path(a.labels).read_text())['labels'],scene.get('extra',[]))
+    drop={(int(f),ac,pt) for f,ac,pt in scene.get('drop',[])}  # 사용자가 '스미어 없음'으로 판정한 항목
+    items=[i for i in items if (i['frame'],i['actor'],i['part']) not in drop]
     result,rep=build(stick,items,a.frames,json.loads(Path(a.template).read_text())[0],scene,json.loads(Path(a.density).read_text()),int(scene.get('frame_base',1)))
     with zipfile.ZipFile(a.out,'w',zipfile.ZIP_DEFLATED) as z:z.writestr('review.xml',E.tostring(result,encoding='utf-8',xml_declaration=True))
     if a.report:Path(a.report).write_text(json.dumps(rep,ensure_ascii=False,indent=1))
