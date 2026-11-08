@@ -1,0 +1,82 @@
+{
+  "source_sha256": "3a28690bd9165fcba9c7c23706d721999fb55d33b4dbcfd8d34327efae012c8a",
+  "frames": 240,
+  "families": {
+    "flow_rotation": 48,
+    "flow_axial_candidate": 22,
+    "flow_translation": 10,
+    "keep": 21
+  },
+  "changed_effects": 80,
+  "changed_playback_frames": 61,
+  "new_smear_objects": 5420,
+  "curved_accents": 0,
+  "added_density_pairs": 2070,
+  "density_intervals_verified": 560,
+  "original_gap_reference": true,
+  "base_turns_preserved": true,
+  "body_accessories_fills_identical": true,
+  "unique_ids": true,
+  "reciprocal_new_connections": true,
+  "stable_new_object_types": true,
+  "new_fills": 0,
+  "opaque_smears": true,
+  "outline_color": "#303030",
+  "video_input": false,
+  "learned_artist_style": false,
+  "app_verified": false,
+  "quality_approved": false,
+  "leading_turns_checked": 2710,
+  "minimum_direction_cosine": 0.9476175253654117,
+  "backward_leading_turns": 0,
+  "front_share": 0.58,
+  "back_share": 0.42,
+  "axis_extent_rule": "shared_gain_no_floor_no_pointwise_cap",
+  "rotation_half_radius_half_extent": true,
+  "trailing_turns_checked": 2630,
+  "minimum_backward_direction_cosine": 0.9460379572557438,
+  "wrong_facing_return_turns": 0,
+  "deliverables": [
+    {
+      "name": "v18_축비례_양방향_10초_비교.mp4",
+      "id": "12C8rrkfJ_2j9_H2Aqg-pKLn5cZdAjkUj",
+      "url": "https://drive.google.com/file/d/12C8rrkfJ_2j9_H2Aqg-pKLn5cZdAjkUj/view?usp=drivesdk",
+      "sha256": "d77c13e63a58fc374a59ee88a1ec217a9949f1c7765a5fbb1797a043f45a4a24",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_축비례_양방향_4배느리게.mp4",
+      "id": "1fYKdNt5_f6t-S-IC8xahZ9-aheI94Knn",
+      "url": "https://drive.google.com/file/d/1fYKdNt5_f6t-S-IC8xahZ9-aheI94Knn/view?usp=drivesdk",
+      "sha256": "1cf96e9e604dd4c33a0e8f449e2628f732823bd16037d631dc774f7e06d7e124",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_축비례_양방향_확대비교.png",
+      "id": "11zZwxndSsVzikmTT2zl4WhUVDcYE6dhf",
+      "url": "https://drive.google.com/file/d/11zZwxndSsVzikmTT2zl4WhUVDcYE6dhf/view?usp=drivesdk",
+      "sha256": "1fe5cec66d3f713901cd22eb7a9793501f28bd18d069ae5ead0cf4f34737ab1d",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_축비례_양방향꺾임_글로우.sfa",
+      "id": "1V0grkdlHRE2DVto_JlRq6Be47xwY1hio",
+      "url": "https://drive.google.com/file/d/1V0grkdlHRE2DVto_JlRq6Be47xwY1hio/view?usp=drivesdk",
+      "sha256": "e4ddaf5a34642e3aab51b644ef9a0113ae946d8ceed4d48ebe51b889e94054e9",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_축비례_양방향_전체묶음.zip",
+      "id": "1Q_yXHDQ5z6_vKs2uds69uAEjyY6B7aFI",
+      "url": "https://drive.google.com/file/d/1Q_yXHDQ5z6_vKs2uds69uAEjyY6B7aFI/view?usp=drivesdk",
+      "sha256": "4eb8181966631dd8046db56dc5f4d4ae3adaac204e48b509399d10addc42456f",
+      "anonymous_sha256_verified": true
+    }
+  ],
+  "tests": {
+    "count": 484,
+    "status": "OK",
+    "exit_code": 0,
+    "seconds": 29.908
+  }
+}

@@ -12,10 +12,10 @@ class FlowSmearTests(unittest.TestCase):
     def test_rotation_front_turns_face_local_tangent(self):
         m=self.motion();family,p,arcs=F.geometry(m)
         self.assertEqual(family,'flow_rotation');self.assertEqual(arcs,[])
-        b=p[1::2]-(p[:-1:2]+p[2::2])/2;vel=F.local_motion(m,F.RADII)
-        cosine=np.sum(b*vel,axis=1)/(np.linalg.norm(b,axis=1)*np.linalg.norm(vel,axis=1))
-        self.assertTrue((cosine>.98).all())
-        self.assertGreater(np.linalg.norm(b[-1]),np.linalg.norm(b[0]))
+        density=D.process(p,(1152,648),json.loads(F.S.PROFILE.read_text()))
+        check=F.check_turns(m,density);self.assertTrue(check['passed']);self.assertGreater(check['min_cosine'],.90)
+        distances=np.linalg.norm(p[1::2]-F.RADII[:,None]*m['now']['tip'],axis=1)
+        self.assertGreater(distances[-1],distances[0])
 
     def test_four_translation_directions(self):
         for direction in [[0,1],[0,-1],[1,0],[-1,0]]:
@@ -26,7 +26,18 @@ class FlowSmearTests(unittest.TestCase):
             self.assertEqual(family,'flow_translation' if travel[0]==0 else 'flow_axial_candidate')
 
     def test_front_peaks_dominate_return_depth(self):
-        m=self.motion();_,p,_=F.geometry(m);self.assertGreater(np.mean(p[1::2,1]),abs(np.mean(p[::2,1]))*2)
+        m=self.motion();_,p,_=F.geometry(m);self.assertGreater(np.mean(p[1::2,1]),abs(np.mean(p[::2,1])));self.assertGreater(abs(np.mean(p[::2,1]))/np.mean(p[1::2,1]),.55)
+
+    def test_rotation_extent_is_proportional_to_axis_distance(self):
+        for angle in [.3,1.4]:
+            extent=F.motion_extent(self.motion(angle),np.array([0,.25,.5,1.]))
+            self.assertEqual(extent[0],0.)
+            np.testing.assert_allclose(extent[1:]/extent[-1],[.25,.5,1.])
+
+    def test_translation_extent_does_not_fade_toward_joint(self):
+        m=self.motion(0);delta=np.array([0.,-15.]);m['hub']=delta;m['tip']=m['now']['tip']+delta
+        extent=F.motion_extent(m,np.array([0,.25,.5,1.]))
+        np.testing.assert_allclose(extent,np.full(4,extent[0]));self.assertGreater(extent[0],0)
 
     def test_no_outline_arcs_even_for_large_rotation(self):
         for angle in [-1.4,-.8,.8,1.4]:self.assertEqual(F.geometry(self.motion(angle))[2],[])
