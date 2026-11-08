@@ -31,6 +31,8 @@
 
 재현: 테두리 없는 v18 XML에 `sfa_flow_smear.build(source)`, 이어 `sfa_outline_trial.build(result,mode='glow',color=0xff303030)`. v18리그4560000 전용/테두리 중복실행 금지. 이전 속도기반판 코드는 커밋84513b4와 이전공유ZIP에 보존한다.
 
-실제 앱 표시/편집 추종/미관 승인 미확인. 새 누락탐지/작가스타일 학습/3D복원으로 해석하지 않는다. 사용자 판정 전 기준 v18을 교체하지 않는다.
+후속 사용자 확인: “좋아 이개선점을 클로드한테 전달하기 위한 문서와 프롬작성해줘”로 이번 표시 테이퍼 개선을 긍정했다. 전체240장 미관/실제 앱 표시/편집 추종은 미확인. 새 누락탐지/작가스타일 학습/3D복원으로 해석하지 않는다. 사용자 판정 전 기준 v18을 교체하지 않는다.
 
 표시 테이퍼 최종 검사: 루트 `python -m unittest discover -s tests` **486개 OK/exit0(29.986초)**. 공유5파일 shared=true/무인증 전체 다운로드SHA256 일치. 영상240장10/40초 ffprobe확인.
+
+Claude용 보충 인계: `CLAUDE-SMEAR-IMPROVEMENT-HANDOFF-2026-11-08.md`, 실행 프롬프트: `CLAUDE-PROMPT-SMEAR-IMPROVEMENT-2026-11-08.md`.

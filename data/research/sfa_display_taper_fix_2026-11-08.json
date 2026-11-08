@@ -92,5 +92,13 @@
     "status": "OK",
     "exit_code": 0,
     "seconds": 29.986
+  },
+  "user_confirmation": {
+    "date": "2026-11-08",
+    "display_taper_improvement_accepted": true,
+    "quote": "좋아 이개선점을 클로드한테 전달하기 위한 문서와 프롬작성해줘",
+    "complete_clip_quality_approved": false,
+    "app_verified": false,
+    "scope": "방향과 표시폭 분리/3·4번 안쪽 테이퍼 개선 확인. 기존 quality_approved=false는 전체 결과 미관 미확정을 유지한다."
   }
 }
