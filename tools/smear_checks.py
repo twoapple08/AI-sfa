@@ -93,14 +93,20 @@ def geometry_same(ref,cur):
     return dict(frames_with_shape_change=[n for n,(a,b) in enumerate(zip(ref.findall('Frame'),cur.findall('Frame'))) if sig(a)!=sig(b)])
 
 
-def run(path,ref=None,frame_base=1,id_map=None,color_slot=None):
+def run(path,ref=None,frame_base=1,id_map=None,color_slot=None,pose_fixes=None):
     root=load(path);res=dict(tip=tip_violations(root,frame_base,id_map=id_map,color_slot=color_slot),layers=LO.check(root))
     res['head_fill_kind1']=sum(1 for f in root.findall('Frame') for s in f.iter('FS') if s.get('Kind')=='1')
     dup=0
     for f in root.findall('Frame'):
         ids=[p.get('ID') for p in f.iter('AP')];dup+=len(ids)-len(set(ids))
     res['duplicate_point_ids']=dup
-    if ref:res['body']=body_same(load(ref),root)
+    if ref:
+        base=load(ref)
+        if pose_fixes:  # 장면 설정의 사용자 자세 교정을 기준에 먼저 적용: 교정 장도 '기준+교정'과 정확히 같아야 통과
+            from smear_from_labels import apply_pose_fixes
+            base,_=apply_pose_fixes(base,pose_fixes,frame_base)
+        res['body']=body_same(base,root)
+        if pose_fixes:res['body']['pose_fixes_applied_to_reference']=len(pose_fixes)
     res['passed']=(not res['tip']['violations'] and res['layers']['order_matches_ids'] and res['layers']['layer_ids_with_multiple_names']==0
                    and res['layers']['ids_with_multiple_layer_or_type']==0 and dup==0 and (not ref or not res['body']['frames_with_body_change']))
     return res
@@ -114,10 +120,10 @@ def main():
     ap.add_argument('--depth-report',help='sfa_depth_layers 보고서(id_map으로 옮긴 부위를 원래 ID로 찾는다)')
     a=ap.parse_args()
     idm={int(v):int(o) for o,k,v in json.load(open(a.depth_report))['id_map']} if a.depth_report else None
-    cs=None
+    cs=None;pf=None
     if a.scene:
-        sc=json.load(open(a.scene));cs={int(v['smear_color']):v['slot'] for v in sc['actors'].values()};a.frame_base=int(sc.get('frame_base',a.frame_base))
-    res=run(a.sfa,a.reference,a.frame_base,idm,cs)
+        sc=json.load(open(a.scene));cs={int(v['smear_color']):v['slot'] for v in sc['actors'].values()};a.frame_base=int(sc.get('frame_base',a.frame_base));pf=sc.get('pose_fixes')
+    res=run(a.sfa,a.reference,a.frame_base,idm,cs,pf)
     if a.same_shapes_as:
         res['shapes']=geometry_same(load(a.same_shapes_as),load(a.sfa))
         res['passed']=res['passed'] and not res['shapes']['frames_with_shape_change']

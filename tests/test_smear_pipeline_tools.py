@@ -87,6 +87,22 @@ class ManualFixes(unittest.TestCase):
         self.assertAlmostEqual(float(a.findall('AP')[0].get('X'))*11.52,200,4)
         with self.assertRaises(ValueError):SL.apply_pose_fixes(r,[dict(frame=1,object=SL.BASE+4,**{'from':[999,999],'to':[0,0]})],1)
 
+    def test_body_check_applies_scene_pose_fixes_to_reference(self):
+        """장면 설정 자세 교정 장은 '기준+교정'과 같아야 통과, 교정과 다른 몸 변경은 여전히 잡는다."""
+        import tempfile,zipfile,os
+        fix=[dict(frame=1,object=SL.BASE+4,**{'from':[160,100],'to':[200,120]})]
+        ref=frame_with_arm(175);good,_=SL.apply_pose_fixes(ref,fix,1)
+        bad,_=SL.apply_pose_fixes(ref,[dict(fix[0],to=[201,120])],1)
+        with tempfile.TemporaryDirectory() as d:
+            def save(root,name):
+                p=os.path.join(d,name)
+                with zipfile.ZipFile(p,'w') as z:z.writestr('a.xml',E.tostring(root))
+                return p
+            r,g,b=save(ref,'r.sfa'),save(good,'g.sfa'),save(bad,'b.sfa')
+            self.assertEqual(SC.run(g,r)['body']['frames_with_body_change'],[0])
+            self.assertEqual(SC.run(g,r,pose_fixes=fix)['body']['frames_with_body_change'],[])
+            self.assertEqual(SC.run(b,r,pose_fixes=fix)['body']['frames_with_body_change'],[0])
+
     def test_forced_streak_uses_given_length_and_arm_direction(self):
         import sfa_axial_smear as A
         m=dict(now=dict(hub=np.zeros(2),tip=np.array([60.,0.])),hub=np.zeros(2),tip=np.array([60.,0.]),angle=0.,length=60.,old_length=60.,

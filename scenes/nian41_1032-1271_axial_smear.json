@@ -1,6 +1,6 @@
 {
   "schema": "axial-smear-overrides/1",
-  "description": "nian41 1032-1271 직진/회전 사용자 판정(2026-11-08). 회전각 15~40° 구간과 133°(1036)를 사람이 정했다. 장 번호는 원본 영상 장. stretch_directions: 원본 확인 스미어 상자 안 가닥 늘어짐 방향(tools/smear_stretch_direction.py, 일치도>=.30 또는 _eye=Claude 눈 확인; 사용자 11-08 \"늘어지는 방향에 맞춰\"). 11-08 사용자 2차 판정: 가1·가3·가8 좌우(부위별 키), 나4 앞뒤. 좌우 판정은 keep_v18(원본 측정 지그재그 유지; 휘두르기 테이퍼는 움직임이 작아 스미어가 사라짐).",
+  "description": "nian41 1032-1271 직진/회전 사용자 판정(2026-11-08). 회전각 15~40° 구간과 133°(1036)를 사람이 정했다. 장 번호는 원본 영상 장. stretch_directions: 원본 확인 스미어 상자 안 가닥 늘어짐 방향(tools/smear_stretch_direction.py, 일치도>=.30 또는 _eye=Claude 눈 확인; 사용자 11-08 \"늘어지는 방향에 맞춰\"). 11-08 사용자 2차 판정: 가1·가3·가8 좌우(부위별 키), 나4 앞뒤. 좌우 판정은 keep_v18(원본 측정 지그재그 유지; 휘두르기 테이퍼는 움직임이 작아 스미어가 사라짐). 11-08 사용자 시계 판정(\"다 그대로 가\": Claude 1차 판독 채택): 1059 9시, 1065 3시, 1175·1176 3시, 1213 4.5시, 1231 파랑 팔 9시, 1231 빨강 다리 1.5시. 1046은 판독 불가로 미사용 유지. keep_v18(1065·1231 다리)과 직전 장 추정 불가(1059)는 방향만 기록되고 모양에는 쓰이지 않는다. 1231 파랑 팔은 forced_streaks(dir arm, 팔 축 약 9.5° 차)가 우선한다.",
   "frame_base": 1032,
   "axial_overrides": {
     "1036": "rotation",
@@ -47,14 +47,24 @@
       "deg_from_arm": 34.3
     },
     "1059:0:6": {
-      "use": false,
-      "reason": "low_coherence",
-      "coherence": 0.191
+      "use": true,
+      "reason": "user_clock_11-08",
+      "coherence": 0.191,
+      "clock": 9,
+      "dir": [
+        -1.0,
+        0.0
+      ]
     },
     "1065:0:8": {
-      "use": false,
-      "reason": "low_coherence",
-      "coherence": 0.087
+      "use": true,
+      "reason": "user_clock_11-08",
+      "coherence": 0.087,
+      "clock": 3,
+      "dir": [
+        1.0,
+        -0.0
+      ]
     },
     "1153:1:6": {
       "use": true,
@@ -127,14 +137,24 @@
       "deg_from_arm": 1.5
     },
     "1175:1:4": {
-      "use": false,
-      "reason": "low_coherence",
-      "coherence": 0.184
+      "use": true,
+      "reason": "user_clock_11-08",
+      "coherence": 0.184,
+      "clock": 3,
+      "dir": [
+        1.0,
+        -0.0
+      ]
     },
     "1176:1:4": {
-      "use": false,
-      "reason": "low_coherence",
-      "coherence": 0.201
+      "use": true,
+      "reason": "user_clock_11-08",
+      "coherence": 0.201,
+      "clock": 3,
+      "dir": [
+        1.0,
+        -0.0
+      ]
     },
     "1181:0:4": {
       "use": true,
@@ -177,9 +197,14 @@
       "deg_from_arm": 78.2
     },
     "1213:1:4": {
-      "use": false,
-      "reason": "low_coherence",
-      "coherence": 0.263
+      "use": true,
+      "reason": "user_clock_11-08",
+      "coherence": 0.263,
+      "clock": 4.5,
+      "dir": [
+        0.7071,
+        0.7071
+      ]
     },
     "1230:0:4": {
       "use": true,
@@ -192,14 +217,24 @@
       "deg_from_arm": 23.5
     },
     "1231:0:4": {
-      "use": false,
-      "reason": "low_coherence",
-      "coherence": 0.243
+      "use": true,
+      "reason": "user_clock_11-08",
+      "coherence": 0.243,
+      "clock": 9,
+      "dir": [
+        -1.0,
+        0.0
+      ]
     },
     "1231:1:8": {
-      "use": false,
-      "reason": "low_coherence",
-      "coherence": 0.283
+      "use": true,
+      "reason": "user_clock_11-08",
+      "coherence": 0.283,
+      "clock": 1.5,
+      "dir": [
+        0.7071,
+        -0.7071
+      ]
     }
   },
   "forced_streaks": {

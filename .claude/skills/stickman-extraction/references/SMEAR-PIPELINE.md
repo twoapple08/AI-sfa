@@ -61,6 +61,7 @@ python tools/smear_checks.py 결과.sfa --reference 스틱맨_스미어전.sfa -
 ```
 - 팔다리 끝 비돌출, 몸 불변(스미어·테두리 층 밖), 레이어 번호=적은 순서, 층 이름 하나, ID마다 (층, 종류) 하나, 장 안 점 ID 중복 없음, 흰 머리 Kind1 개수를 본다.
 - 현재 결과(`030bf1a9…`)는 모두 통과한다(스미어 101, 위반 0, Kind1 467). 옛 기준판 `e6556a67…`은 레이어 번호 결함으로 실패한다(예상한 결과).
+- `--scene`을 주면 장면 설정 `pose_fixes`를 기준 SFA에 먼저 적용하고 몸 불변을 비교한다(11-08 새 세션). 교정한 장도 '기준+교정'과 정확히 같아야 통과한다. 이전에는 교정 장(1036·1037·1078·1079·1230·1231)이 '몸 변경'으로 실패했다. 깊이 칸 검사에도 `--scene`을 준다. 빼면 다른 인물 팔다리와도 비교해 1182에서 0.8px 오탐이 난다.
 
 **처음부터 재현(11-08):** Drive 입력 3종 + 영상에서 만든 프레임으로 2→3→4단계를 실행하면 검사를 통과한다(스미어 101, 위반 0). 현재 결과 `030bf1a9…`와는 1220–1222의 빈 스미어 층 정의 유무만 다르고, 객체·점·연결은 240장 모두 같다.
 
@@ -83,6 +84,6 @@ python tools/sfa_overlay_video.py --sfa 결과.sfa --video video.mp4 --first-fra
 ```bash
 python tools/sfa_depth_layers.py --sfa 결과.sfa --frames frames --scene scenes/nian41_1032-1271_smear.json \
   --out 결과_깊이칸.sfa --report 깊이칸_report.json
-python tools/smear_checks.py 결과_깊이칸.sfa --frame-base 1032 --same-shapes-as 결과.sfa --depth-report 깊이칸_report.json
+python tools/smear_checks.py 결과_깊이칸.sfa --frame-base 1032 --same-shapes-as 결과.sfa --depth-report 깊이칸_report.json --scene scenes/nian41_1032-1271_smear.json
 ```
 스미어가 원본에서 앞에 있는 다른 인물 부위를 덮지 않게 한다. 인물과 상관없는 깊이 칸마다 '테두리→몸→스미어'를 두고, 장마다 원본 색으로 앞뒤를 재서 부위를 칸에 배정한다. 사람 편집은 고려하지 않는다. 설계·측정·결과·한계는 `docs/DEPTH-LAYERS-2026-11-08.md`. 앞뒤 측정은 근사라서 위 칸으로 올린 장의 시트를 사용자 판정에 낸다. 파편(debris)도 같은 칸 체계에 넣을 예정이다(미구현).
