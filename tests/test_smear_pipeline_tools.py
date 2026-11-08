@@ -51,3 +51,29 @@ class Placement(unittest.TestCase):
 
 if __name__=='__main__':
     unittest.main()
+
+
+class DepthLevels(unittest.TestCase):
+    def setUp(self):
+        import sfa_depth_layers as D
+        self.D=D;self.order=lambda k:(k[0],list(D.GROUPS).index(k[1]))
+
+    def test_measured_beats_default_cycle(self):
+        # 1173 유형: 검은 팔(0:armA)이 파란 팔(1:armA) 스미어 위. 검은 팔은 파란 몸통과도 겹치고(기본: 파랑 위),
+        # 파란 몸통과 파란 팔은 같은 인물 순서. 기본끼리 이으면 측정과 순환 → 기본을 버려야 한다.
+        overlap={((0,'armA'),(1,'core')),((1,'core'),(1,'armA')),('smear',(1,'armA'),(0,'armA'))}
+        meas=[((0,'armA'),(1,'armA'),'over_smear',1600.)]
+        level,dropped=self.D.assign_levels(overlap,meas,self.order)
+        self.assertGreater(level[(0,'armA')],level[(1,'armA')])
+        self.assertTrue(all(d[0]!='measured' for d in dropped))
+
+    def test_default_keeps_single_level(self):
+        overlap={((0,'armA'),(1,'armA'))}
+        level,_=self.D.assign_levels(overlap,[],self.order)
+        self.assertEqual(max(level.values()),0)
+
+    def test_chains_ignore_ids(self):
+        root=E.Element('Sequence');f=E.SubElement(root,'Frame')
+        a=ao(f,600000001,[(0,0),(10,0)],layer='1');b=ao(f,13,[(10,0),(20,5)],layer='1')
+        E.SubElement(a.findall('AP')[1],'AC',ConnPtId=b.findall('AP')[0].get('ID'))
+        self.assertEqual(len(SC.smear_chains([a,b])),1)

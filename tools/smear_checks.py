@@ -19,18 +19,36 @@ def load(path):
 
 
 def layer_ids(frame,prefix):
-    return {l.get('ID') for l in frame.findall('LayerDef') if (l.get('Name') or '').startswith(prefix)}
+    """이름으로 역할 층을 찾는다(깊이 칸 이름 z0_smear 등 포함)."""
+    return {l.get('ID') for l in frame.findall('LayerDef') if (l.get('Name') or '').split('_',1)[-1].startswith(prefix) or (l.get('Name') or '').startswith(prefix)}
 
 
-def tip_violations(root,frame_base=1,near=40.):
-    out=[];total=0
+def smear_chains(aos):
+    """점 연결(AC)로 이어진 스미어 객체 묶음(ID에 기대지 않음: 깊이 칸 정리로 ID가 바뀌어도 같다)."""
+    owner={p.get('ID'):i for i,a in enumerate(aos) for p in a.findall('AP')};parent=list(range(len(aos)))
+    def find(i):
+        while parent[i]!=i:parent[i]=parent[parent[i]];i=parent[i]
+        return i
+    for i,a in enumerate(aos):
+        for p in a.findall('AP'):
+            for c in p.findall('AC'):
+                j=owner.get(c.get('ConnPtId'))
+                if j is not None:parent[find(i)]=find(j)
+    out={}
+    for i,a in enumerate(aos):out.setdefault((find(i),a.get('Color')),[]).extend(P(a))
+    return list(out.values())
+
+
+def tip_violations(root,frame_base=1,near=40.,id_map=None):
+    """id_map: 깊이 칸 정리의 {새 ID: 원래 ID}(옮긴 팔다리를 원래 부위로 찾는다)."""
+    out=[];total=0;back=id_map or {}
     for n,f in enumerate(root.findall('Frame')):
-        smear=layer_ids(f,'smear');objs={int(a.get('ID'))-BASE:a for a in f.findall('AO') if BASE<int(a.get('ID'))<BASE+200}
-        groups={}
+        smear=layer_ids(f,'smear');objs={}
         for a in f.findall('AO'):
-            if a.get('LayerId') in smear and int(a.get('Color','0'))&0xff000000:
-                groups.setdefault((int(a.get('ID'))//10000,a.get('Color')),[]).extend(P(a))
-        for pts in groups.values():
+            oid=back.get(int(a.get('ID')),int(a.get('ID')))
+            if BASE<oid<BASE+200:objs[oid-BASE]=a
+        groups=smear_chains([a for a in f.findall('AO') if a.get('LayerId') in smear and int(a.get('Color','0'))&0xff000000])
+        for pts in groups:
             Q=np.array(pts);total+=1;best=None
             for off in (0,100):
                 for o1,o2,_ in LIMBS.values():
@@ -56,7 +74,7 @@ def body_same(ref,cur):
             for x in f:
                 if x.tag=='LayerDef':continue
                 name=names.get(x.get('LayerId','0'),'') if x.tag=='AO' else ''
-                if name.startswith('smear') or name.startswith('outline'):continue
+                if 'smear' in name or 'outline' in name:continue
                 y=E.fromstring(E.tostring(x))
                 if y.tag=='AO':y.set('LayerId',name)
                 out.append(E.tostring(y))
@@ -65,8 +83,17 @@ def body_same(ref,cur):
     return dict(frames_with_body_change=diff)
 
 
-def run(path,ref=None,frame_base=1):
-    root=load(path);res=dict(tip=tip_violations(root,frame_base),layers=LO.check(root))
+def geometry_same(ref,cur):
+    """ID·레이어만 바뀌고 객체 모양(종류·색·굵기·글로우·점 좌표)과 채움은 그대로인지(깊이 칸 정리 검사)."""
+    def sig(f):
+        aos=sorted(tuple([a.get(k) for k in ('TypeId','Color','ThicknessScale','GlowRadius','GlowThickness','GlowAlpha')]+[(p.get('X'),p.get('Y')) for p in a.findall('AP')]) for a in f.findall('AO'))
+        frs=sorted((r.get('Color'),len(r.findall('FS'))) for r in f.findall('FR'))
+        return aos,frs
+    return dict(frames_with_shape_change=[n for n,(a,b) in enumerate(zip(ref.findall('Frame'),cur.findall('Frame'))) if sig(a)!=sig(b)])
+
+
+def run(path,ref=None,frame_base=1,id_map=None):
+    root=load(path);res=dict(tip=tip_violations(root,frame_base,id_map=id_map),layers=LO.check(root))
     res['head_fill_kind1']=sum(1 for f in root.findall('Frame') for s in f.iter('FS') if s.get('Kind')=='1')
     dup=0
     for f in root.findall('Frame'):
@@ -81,7 +108,14 @@ def run(path,ref=None,frame_base=1):
 def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('sfa');ap.add_argument('--reference',help='몸 불변 비교 기준(스미어 전 스틱맨 또는 이전 판)');ap.add_argument('--frame-base',type=int,default=1)
-    a=ap.parse_args();res=run(a.sfa,a.reference,a.frame_base)
+    ap.add_argument('--same-shapes-as',help='깊이 칸 정리 전 SFA: 모양이 그대로인지 검사')
+    ap.add_argument('--depth-report',help='sfa_depth_layers 보고서(id_map으로 옮긴 부위를 원래 ID로 찾는다)')
+    a=ap.parse_args()
+    idm={int(v):int(o) for o,k,v in json.load(open(a.depth_report))['id_map']} if a.depth_report else None
+    res=run(a.sfa,a.reference,a.frame_base,idm)
+    if a.same_shapes_as:
+        res['shapes']=geometry_same(load(a.same_shapes_as),load(a.sfa))
+        res['passed']=res['passed'] and not res['shapes']['frames_with_shape_change']
     print(json.dumps(res,ensure_ascii=False,indent=1))
     raise SystemExit(0 if res['passed'] else 1)
 

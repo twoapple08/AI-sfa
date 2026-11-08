@@ -73,5 +73,10 @@ python tools/sfa_overlay_video.py --sfa 결과.sfa --video video.mp4 --first-fra
 - 내지르기를 빗살로 그리는 방식(v5)은 사용자가 지웠다. 직진은 갈래형이다.
 - 원본 프레임·라벨·좌표·결과 SFA·영상은 Drive에만 둔다. 저장소에는 코드·장면 설정(판정·방향 단위벡터)·문서만 둔다.
 
-## 다음 설계(결정 대기·미구현): 깊이 칸 레이어
-스미어가 앞쪽 부위를 덮는 문제(예: 파란 팔 스미어가 위에 있어야 할 검은 팔을 가림)와 앞뒤 파편 문제에 쓴다. 인물과 상관없는 깊이 칸을 아래→위로 쌓고, 칸마다 '테두리→몸→스미어'를 둔다. 장마다 부위를 칸에 배정하고, 앞뒤는 원본 겹침의 색으로 잰다. 앱은 ID 하나를 한 레이어에만 두므로, 칸마다 복제 ID를 두고 쓰지 않는 칸에서는 빼거나 투명하게 한다. 사람 편집은 고려하지 않는다(사용자 11-08: 사람이 할 일은 거의 없게 한다). 설계와 결과는 `docs/DEPTH-LAYERS-2026-11-08.md`(작성 예정)에 둔다.
+## 3b. 깊이 칸 레이어(`tools/sfa_depth_layers.py`, 11-08 시험)
+```bash
+python tools/sfa_depth_layers.py --sfa 결과.sfa --frames frames --scene scenes/nian41_1032-1271_smear.json \
+  --out 결과_깊이칸.sfa --report 깊이칸_report.json
+python tools/smear_checks.py 결과_깊이칸.sfa --frame-base 1032 --same-shapes-as 결과.sfa --depth-report 깊이칸_report.json
+```
+스미어가 원본에서 앞에 있는 다른 인물 부위를 덮지 않게 한다. 인물과 상관없는 깊이 칸마다 '테두리→몸→스미어'를 두고, 장마다 원본 색으로 앞뒤를 재서 부위를 칸에 배정한다. 사람 편집은 고려하지 않는다. 설계·측정·결과·한계는 `docs/DEPTH-LAYERS-2026-11-08.md`. 앞뒤 측정은 근사라서 위 칸으로 올린 장의 시트를 사용자 판정에 낸다. 파편(debris)도 같은 칸 체계에 넣을 예정이다(미구현).
