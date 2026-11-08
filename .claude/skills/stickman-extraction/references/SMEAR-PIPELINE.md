@@ -79,7 +79,7 @@ python tools/sfa_overlay_video.py --sfa 결과.sfa --video video.mp4 --first-fra
 - 내지르기를 빗살로 그리는 방식(v5)은 사용자가 지웠다. 직진은 갈래형이다.
 - 원본 프레임·라벨·좌표·결과 SFA·영상은 Drive에만 둔다. 저장소에는 코드·장면 설정(판정·방향 단위벡터)·문서만 둔다.
 
-## 3b. 깊이 칸 레이어(`tools/sfa_depth_layers.py`, 11-08 시험)
+## 3b. 깊이 칸 레이어 — **최종 전달물은 이 판만**(사용자 11-08). 3단계 결과(한 칸)는 중간 산출물이다(`tools/sfa_depth_layers.py`, 11-08 시험)
 ```bash
 python tools/sfa_depth_layers.py --sfa 결과.sfa --frames frames --scene scenes/nian41_1032-1271_smear.json \
   --out 결과_깊이칸.sfa --report 깊이칸_report.json
