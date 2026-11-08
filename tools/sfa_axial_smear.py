@@ -165,11 +165,13 @@ def main():
     ap.add_argument('--source',required=True,help='v18 원본 SFA(비공개)')
     ap.add_argument('--overrides',help='scenes/*_axial_smear.json')
     ap.add_argument('--out',required=True);ap.add_argument('--report')
+    ap.add_argument('--outline-edge',type=float,default=.30,help='테두리 바깥 폭 / 몸통 굵기(기본 .30)')
     a=ap.parse_args()
     with zipfile.ZipFile(a.source) as z:src=E.fromstring(z.read(z.namelist()[0]))
     ov,fb=load_overrides(a.overrides) if a.overrides else ({},1)
     root,report=build(src,overrides=ov,frame_base=fb,directions=load_directions(a.overrides) if a.overrides else None)
-    out=O.build(root,mode='glow',color=0xff303030)[0]  # 기준판과 같은 #303030 글로우 테두리
+    # #303030 글로우 테두리(사용자 선택). 바깥 폭=몸통 굵기의 30%(11-08 사용자: 10%는 앱에서 안 보임)
+    out=O.build(root,mode='glow',color=0xff303030,edge_ratio=a.outline_edge)[0]
     import sfa_layer_order as LO
     mapping=LO.renumber_bottom_to_top(out)  # 앱은 레이어를 번호 순으로 그린다: 테두리 0, 몸 1, 스미어 2
     report['layer_renumber']=mapping;report['layer_check']=LO.check(out)
