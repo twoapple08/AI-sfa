@@ -54,5 +54,25 @@ class AxialStreak(unittest.TestCase):
         self.assertTrue(A.check_rotation(m,density)['passed'])
 
 
+class StretchDirection(unittest.TestCase):
+    def test_measured_direction_overrides_arm_axis(self):
+        # 사용자 11-08(1160): 팔은 위로 서 있어도 원본 가닥이 오른쪽이면 갈래도 오른쪽
+        m=dict(thrust(),stretch_dir=[0.,-1.])
+        _,p,_=A.streak_geometry(m);bis=p[1::2]-(p[:-1:2]+p[2::2])/2
+        self.assertTrue((bis[:,1]<0).all());self.assertTrue((np.abs(bis[:,0])<1e-6).all())
+        density=D.process(p,(1152,648),json.loads(A.SW.PROFILE.read_text()))
+        self.assertTrue(A.check_streak(m,density)['passed'])
+
+    def test_decide_rule(self):
+        import smear_stretch_direction as SD
+        arm=[1.,0.]
+        self.assertEqual(SD.decide(None,arm)[0],False)
+        self.assertEqual(SD.decide(dict(dir=[0.,1.],coherence=.1),arm)[2],'low_coherence')
+        use,d,why=SD.decide(dict(dir=[-0.98,0.2],coherence=.6),arm)  # 팔 축 근처는 바깥쪽 부호
+        self.assertTrue(use);self.assertGreater(d[0],0);self.assertEqual(why,'along_arm_outward')
+        use,d,why=SD.decide(dict(dir=[0.,-1.],coherence=.2),arm,eye_ok=True)
+        self.assertEqual((use,why),(True,'measured_sign_eye'));self.assertLess(d[1],0)
+
+
 if __name__=='__main__':
     unittest.main()

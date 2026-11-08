@@ -40,10 +40,18 @@ def classify(motion,overrides=None):
     return 'straight','needs_review'
 
 
+def stretch_direction(motion):
+    """갈래가 늘어지는 방향. 원본에서 잰 방향(motion['stretch_dir'])이 있으면 그것, 없으면 팔꿈치→손 바깥쪽."""
+    if motion.get('stretch_dir') is not None:
+        d=np.asarray(motion['stretch_dir'],float);return d/max(np.linalg.norm(d),1e-9)
+    v=motion['now']['tip']-motion['now']['hub'];return v/max(np.linalg.norm(v),1e-9)
+
+
 def streak_geometry(motion):
-    now=motion['now'];v=now['tip']-now['hub'];length=motion['length']
-    # 내지르기·거둬들이기 모두 팔꿈치→손 바깥쪽으로 늘어난다(원본 1173/1181/1230 관찰).
-    d=v/max(np.linalg.norm(v),1e-9);n=np.array([-d[1],d[0]])
+    now=motion['now'];length=motion['length']
+    # 기본: 내지르기·거둬들이기 모두 팔꿈치→손 바깥쪽(원본 1173/1181/1230 관찰).
+    # 사용자 11-08: 원본에서 가닥이 늘어진 방향이 있으면 그 방향을 따른다(예: 1160 팔은 위, 가닥은 오른쪽).
+    d=stretch_direction(motion);n=np.array([-d[1],d[0]])
     speed=float(F.motion_extent(motion,np.array(1.)))
     total=max(LENGTH*length,min(speed,1.4*LENGTH*length))
     span=WIDTH*motion['limb_px'];k=int(np.clip(np.floor(span/(GAP*motion['smear_px']))+1,3,6))
@@ -82,12 +90,12 @@ def rotation_geometry(motion):
 
 def check_streak(motion,density):
     """갈래의 모든 앞 꼭짓점이 팔 바깥쪽을 향하고, 손끝 이동이 팔 축과 나란한지."""
-    now=motion['now'];v=now['tip']-now['hub'];d=v/max(np.linalg.norm(v),1e-9)
-    tipv=F.local_motion(motion,np.array(1.))
+    d=stretch_direction(motion);tipv=F.local_motion(motion,np.array(1.))
     path=np.array(density['points_px']);bis=path[1::2]-(path[:-1:2]+path[2::2])/2
     cos=bis@d/np.maximum(np.linalg.norm(bis,axis=1),1e-9)
     tc=abs(float(tipv@d/max(np.linalg.norm(tipv),1e-9)))
-    return dict(passed=float(cos.min())>=.80 and tc>=.5,min_cosine=float(cos.min()),tip_motion_cosine=tc,
+    measured=motion.get('stretch_dir') is not None  # 원본 측정 방향은 이동 추정과 독립이라 이동 일치 조건을 쓰지 않는다
+    return dict(passed=float(cos.min())>=.80 and (measured or tc>=.5),measured_direction=measured,min_cosine=float(cos.min()),tip_motion_cosine=tc,
                 leading_turns=len(cos),backward_turns=int((cos<0).sum()),rule='axial_outward')
 
 
@@ -102,7 +110,7 @@ def check_rotation(motion,density):
                 backward_turns=int((cos<0).sum()),radii_start=float(r[0]),rule='rotation_trimmed')
 
 
-def build(source,profile=None,canvas=SW.CANVAS,overrides=None,frame_base=1):
+def build(source,profile=None,canvas=SW.CANVAS,overrides=None,frame_base=1,directions=None):
     """GPT 표시 테이퍼판과 같은 입력(v18 원본)으로, 축방향 후보만 직진/회전으로 다시 그린다.
     frame_base: 0번 장의 원본 장 번호(overrides 키와 보고서 장 번호에 쓴다)."""
     decisions={}
@@ -113,17 +121,19 @@ def build(source,profile=None,canvas=SW.CANVAS,overrides=None,frame_base=1):
         aos=frames[index].findall('AO');objs={a.get('ID'):a for a in aos}
         limb=objs[str(SW.M.BASE+slot*100+code)]
         smear=[a for a in aos if a.get('LayerId')=='1']
-        return dict(m,frame=index+frame_base,
+        sd=(directions or {}).get(f'{index+frame_base}:{slot}:{code}')
+        return dict(m,frame=index+frame_base,stretch_dir=sd,
                     limb_px=float(limb.get('ThicknessScale'))*PX,
                     smear_px=(float(smear[0].get('ThicknessScale')) if smear else 1.35)*PX)
     def geometry(motion,detached=False,center=None,span=None):
         if detached or not is_axial(motion):return F.geometry(motion,detached,center,span)
-        kind,why=classify(motion,overrides);decisions[(motion['frame'],round(float(motion['now']['tip'][0]),3))]=(kind,why)
-        return streak_geometry(motion) if kind=='straight' else rotation_geometry(motion)
+        kind,why=classify(motion,overrides);decisions[(motion['frame'],round(float(motion['now']['tip'][0]),3))]=(kind,why,motion.get('stretch_dir') is not None)
+        # 원본에서 잰 늘어짐 방향이 있으면 회전 판정 장면도 그 방향의 갈래로 그린다(사용자 11-08, 1160).
+        return streak_geometry(motion) if kind=='straight' or motion.get('stretch_dir') is not None else rotation_geometry(motion)
     def validator(motion,density):
         if not is_axial(motion):return F.check_turns(motion,density)
         kind,_=classify(motion,overrides)
-        return check_streak(motion,density) if kind=='straight' else check_rotation(motion,density)
+        return check_streak(motion,density) if kind=='straight' or motion.get('stretch_dir') is not None else check_rotation(motion,density)
     SW.history=history
     try:
         root,report=SW.build(source,profile,canvas,geometry_fn=geometry,validator=validator)
@@ -132,14 +142,20 @@ def build(source,profile=None,canvas=SW.CANVAS,overrides=None,frame_base=1):
     root.set('Name',source.get('Name','')+'_flow_axial_streak')
     report.update(axial_rule='straight<=15deg, rotation>=40deg, between=override_or_review',
                   streak=dict(width_per_limb_px=WIDTH,length_per_forearm=LENGTH,gap_per_smear_px=GAP,direction='hub_to_tip_outward'),
-                  axial_decisions=[dict(frame=f,kind=k,basis=w) for (f,_),(k,w) in sorted(decisions.items())],
-                  needs_review=sorted({f for (f,_),(k,w) in decisions.items() if w=='needs_review'}))
+                  axial_decisions=[dict(frame=f,kind=k,basis=w,measured_stretch=m) for (f,_),(k,w,m) in sorted(decisions.items())],
+                  needs_review=sorted({f for (f,_),(k,w,m) in decisions.items() if w=='needs_review'}))
     return root,report
 
 
 def load_overrides(path):
     data=json.loads(Path(path).read_text())
     return {str(k):v for k,v in data['axial_overrides'].items()},int(data.get('frame_base',1))
+
+
+def load_directions(path):
+    """scenes/*_axial_smear.json의 stretch_directions(사용 표시된 것만) → {'장:slot:부위': [dx,dy]}."""
+    data=json.loads(Path(path).read_text())
+    return {k:v['dir'] for k,v in data.get('stretch_directions',{}).items() if v.get('use')}
 
 
 def main():
@@ -152,7 +168,7 @@ def main():
     a=ap.parse_args()
     with zipfile.ZipFile(a.source) as z:src=E.fromstring(z.read(z.namelist()[0]))
     ov,fb=load_overrides(a.overrides) if a.overrides else ({},1)
-    root,report=build(src,overrides=ov,frame_base=fb)
+    root,report=build(src,overrides=ov,frame_base=fb,directions=load_directions(a.overrides) if a.overrides else None)
     out=O.build(root,mode='glow',color=0xff303030)[0]  # 기준판과 같은 #303030 글로우 테두리
     with zipfile.ZipFile(a.out,'w',zipfile.ZIP_DEFLATED) as z:z.writestr('review.xml',E.tostring(out,encoding='utf-8',xml_declaration=True))
     if a.report:Path(a.report).write_text(json.dumps(report,ensure_ascii=False,indent=1,default=str))
