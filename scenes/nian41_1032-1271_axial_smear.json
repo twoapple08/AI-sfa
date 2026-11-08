@@ -1,0 +1,15 @@
+{
+  "schema": "axial-smear-overrides/1",
+  "description": "nian41 1032-1271 직진/회전 사용자 판정(2026-11-08). 회전각 15~40° 구간과 133°(1036)를 사람이 정했다. 장 번호는 원본 영상 장.",
+  "frame_base": 1032,
+  "axial_overrides": {
+    "1036": "rotation",
+    "1158": "rotation",
+    "1159": "rotation",
+    "1160": "rotation",
+    "1181": "straight",
+    "1182": "straight",
+    "1188": "straight",
+    "1213": "straight"
+  }
+}
