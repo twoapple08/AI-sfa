@@ -77,3 +77,20 @@ class DepthLevels(unittest.TestCase):
         a=ao(f,600000001,[(0,0),(10,0)],layer='1');b=ao(f,13,[(10,0),(20,5)],layer='1')
         E.SubElement(a.findall('AP')[1],'AC',ConnPtId=b.findall('AP')[0].get('ID'))
         self.assertEqual(len(SC.smear_chains([a,b])),1)
+
+
+class ManualFixes(unittest.TestCase):
+    def test_pose_fix_moves_exactly_one_point(self):
+        r=frame_with_arm(175)
+        out,log=SL.apply_pose_fixes(r,[dict(frame=1,object=SL.BASE+4,**{'from':[160,100],'to':[200,120]})],1)
+        a=[x for x in out.find('Frame').findall('AO') if x.get('ID')==str(SL.BASE+4)][0]
+        self.assertAlmostEqual(float(a.findall('AP')[0].get('X'))*11.52,200,4)
+        with self.assertRaises(ValueError):SL.apply_pose_fixes(r,[dict(frame=1,object=SL.BASE+4,**{'from':[999,999],'to':[0,0]})],1)
+
+    def test_forced_streak_uses_given_length_and_arm_direction(self):
+        import sfa_axial_smear as A
+        m=dict(now=dict(hub=np.zeros(2),tip=np.array([60.,0.])),hub=np.zeros(2),tip=np.array([60.,0.]),angle=0.,length=60.,old_length=60.,
+               limb_px=26.,smear_px=7.4,forced=True,total_px=110.,stretch_dir=[1.,0.])
+        _,p,_=A.streak_geometry(m)
+        self.assertAlmostEqual(p[1::2,0].max()-p[::2,0].min(),110*(A.F.FRONT_SHARE*max(A.F.FORWARD[:5])+A.F.BACK_SHARE*max(A.F.TRAIL[:6])),delta=15)
+        self.assertGreater(p[:,0].max(),60)

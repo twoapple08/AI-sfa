@@ -103,8 +103,26 @@ def items_from_labels(labels,extra=()):
     return out+[dict(frame=int(f),actor=a,part=p,box=None,src='extra',whole=False) for f,a,p in extra]
 
 
+def apply_pose_fixes(stick,fixes,frame_base,canvas=CANVAS,tol=1.5):
+    """사용자 요청 수동 자세 교정(장면 설정 pose_fixes). 지정 객체의 from 좌표 점(과 같은 좌표로 이어진 점)을 to로 옮긴다.
+    자동 교정이 아니다. 맞는 점이 없으면 멈춘다."""
+    out=copy.deepcopy(stick);log=[]
+    for fx in fixes or []:
+        f=out.findall('Frame')[fx['frame']-frame_base];hit=0
+        for a in f.findall('AO'):
+            if a.get('ID')!=str(fx['object']):continue
+            for p in a.findall('AP'):
+                xy=np.array([float(p.get('X'))*canvas[0]/100,float(p.get('Y'))*canvas[1]/100])
+                if np.linalg.norm(xy-np.array(fx['from'],float))<tol:
+                    p.set('X',repr(fx['to'][0]/canvas[0]*100));p.set('Y',repr(fx['to'][1]/canvas[1]*100));hit+=1
+        if hit!=1:raise ValueError(f"자세 교정 대상 점을 하나로 못 찾음: {fx}")
+        log.append(dict(frame=fx['frame'],object=fx['object'],to=fx['to']))
+    return out,log
+
+
 def build(stick,items,frames_dir,template,scene,density_profile,frame_base,canvas=CANVAS):
-    """stick: 스미어 없는 스틱맨 SFA 루트(그대로 두고 복사본에 스미어 층 추가)."""
+    """stick: 스미어 없는 스틱맨 SFA 루트(그대로 두고 복사본에 스미어 층 추가). 장면 pose_fixes를 먼저 적용한다."""
+    stick,_=apply_pose_fixes(stick,scene.get('pose_fixes'),frame_base,canvas)
     import cv2
     import smear_limb_scan as V
     from smear_rail_fit import deform_chain

@@ -53,7 +53,7 @@ def streak_geometry(motion):
     # 사용자 11-08: 원본에서 가닥이 늘어진 방향이 있으면 그 방향을 따른다(예: 1160 팔은 위, 가닥은 오른쪽).
     d=stretch_direction(motion);n=np.array([-d[1],d[0]])
     speed=float(F.motion_extent(motion,np.array(1.)))
-    total=max(LENGTH*length,min(speed,1.4*LENGTH*length))
+    total=motion.get('total_px') or max(LENGTH*length,min(speed,1.4*LENGTH*length))
     span=WIDTH*motion['limb_px'];k=int(np.clip(np.floor(span/(GAP*motion['smear_px']))+1,3,6))
     r=np.linspace(0,1,k);valleys=np.linspace(-.5/(k-1),1+.5/(k-1),k+1)
     prof=1-.30*(2*r-1)**2  # 가운데 가닥이 조금 길다
@@ -110,27 +110,38 @@ def check_rotation(motion,density):
                 backward_turns=int((cos<0).sum()),radii_start=float(r[0]),rule='rotation_trimmed')
 
 
-def build(source,profile=None,canvas=SW.CANVAS,overrides=None,frame_base=1,directions=None):
+def build(source,profile=None,canvas=SW.CANVAS,overrides=None,frame_base=1,directions=None,forced=None):
+    """forced: {'장:slot:부위': {'dir':'arm' 또는 [dx,dy], 'total_px':길이}} — 움직임 추정이 안 되는 장에 직진 갈래를 직접 지정(사용자 요청)."""
     """GPT 표시 테이퍼판과 같은 입력(v18 원본)으로, 축방향 후보만 직진/회전으로 다시 그린다.
     frame_base: 0번 장의 원본 장 번호(overrides 키와 보고서 장 번호에 쓴다)."""
     decisions={}
     original=SW.history
     def history(frames,index,slot,code,c=canvas):
         m=original(frames,index,slot,code,c)
+        fx=(forced or {}).get(f'{index+frame_base}:{slot}:{code}')
+        if m is None and fx:  # 직전 장 팔이 가려져 추정 불가: 현재 팔만으로 정지 상태를 만들고 직접 지정한 갈래를 그린다
+            now=SW.M.limb(frames[index],slot,code,c);L=float(np.linalg.norm(now['tip']-now['hub']))
+            m=dict(now=now,hub=now['hub'],tip=now['tip'],angle=0.,old_length=L,length=L,past=index-1,displacement=0.)
         if m is None:return m
         aos=frames[index].findall('AO');objs={a.get('ID'):a for a in aos}
         limb=objs[str(SW.M.BASE+slot*100+code)]
         smear=[a for a in aos if a.get('LayerId')=='1']
         sd=(directions or {}).get(f'{index+frame_base}:{slot}:{code}')
+        if fx:
+            v=m['now']['tip']-m['now']['hub'];d=v/np.linalg.norm(v) if fx.get('dir','arm')=='arm' else np.asarray(fx['dir'],float)
+            m=dict(m,forced=True,total_px=fx.get('total_px'));sd=d.tolist()
         return dict(m,frame=index+frame_base,stretch_dir=sd,
                     limb_px=float(limb.get('ThicknessScale'))*PX,
                     smear_px=(float(smear[0].get('ThicknessScale')) if smear else 1.35)*PX)
     def geometry(motion,detached=False,center=None,span=None):
+        if motion.get('forced'):
+            decisions[(motion['frame'],round(float(motion['now']['tip'][0]),3))]=('straight','forced',True);return streak_geometry(motion)
         if detached or not is_axial(motion):return F.geometry(motion,detached,center,span)
         kind,why=classify(motion,overrides);decisions[(motion['frame'],round(float(motion['now']['tip'][0]),3))]=(kind,why,motion.get('stretch_dir') is not None)
         # 원본에서 잰 늘어짐 방향이 있으면 회전 판정 장면도 그 방향의 갈래로 그린다(사용자 11-08, 1160).
         return streak_geometry(motion) if kind=='straight' or motion.get('stretch_dir') is not None else rotation_geometry(motion)
     def validator(motion,density):
+        if motion.get('forced'):return check_streak(motion,density)
         if not is_axial(motion):return F.check_turns(motion,density)
         kind,_=classify(motion,overrides)
         return check_streak(motion,density) if kind=='straight' or motion.get('stretch_dir') is not None else check_rotation(motion,density)
@@ -169,7 +180,8 @@ def main():
     a=ap.parse_args()
     with zipfile.ZipFile(a.source) as z:src=E.fromstring(z.read(z.namelist()[0]))
     ov,fb=load_overrides(a.overrides) if a.overrides else ({},1)
-    root,report=build(src,overrides=ov,frame_base=fb,directions=load_directions(a.overrides) if a.overrides else None)
+    forced=json.loads(Path(a.overrides).read_text()).get('forced_streaks') if a.overrides else None
+    root,report=build(src,overrides=ov,frame_base=fb,directions=load_directions(a.overrides) if a.overrides else None,forced=forced)
     # #303030 글로우 테두리(사용자 선택). 바깥 폭=몸통 굵기의 30%(11-08 사용자: 10%는 앱에서 안 보임)
     out=O.build(root,mode='glow',color=0xff303030,edge_ratio=a.outline_edge)[0]
     import sfa_layer_order as LO
