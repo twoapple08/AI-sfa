@@ -1,0 +1,43 @@
+{
+  "source_sha256": "3a28690bd9165fcba9c7c23706d721999fb55d33b4dbcfd8d34327efae012c8a",
+  "variants": [
+    {
+      "mode": "stroke",
+      "color": "#7C8896",
+      "edge_ratio": 0.1,
+      "glow_radius": 0,
+      "frames": 240,
+      "added_outline_objects": 11081,
+      "source_nodes_identical": true,
+      "new_fills": 0,
+      "outline_layer": 2,
+      "original_alpha_preserved": true,
+      "app_verified": false,
+      "editing_follow_verified": false
+    },
+    {
+      "mode": "glow",
+      "color": "#7C8896",
+      "edge_ratio": 0.1,
+      "glow_radius": 0.35,
+      "frames": 240,
+      "added_outline_objects": 11081,
+      "source_nodes_identical": true,
+      "new_fills": 0,
+      "outline_layer": 2,
+      "original_alpha_preserved": true,
+      "app_verified": false,
+      "editing_follow_verified": false
+    }
+  ],
+  "source_frames": 240,
+  "source_objects": 18125,
+  "user_visual_review": "pending",
+  "existing_v18_geometry_preserved": true,
+  "entire_silhouette_outer_contour_extraction": false,
+  "actor_occlusion_handling_complete": false,
+  "tests": 461,
+  "test_exit": 0,
+  "delivery_shared_folder": true,
+  "zip_anonymous_full_sha_verified": true
+}

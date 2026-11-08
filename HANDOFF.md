@@ -2,6 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
+- **새요청(11-08 사용자):** Claude이관후잠시GPT와검은캐릭터외곽선논의,최신첨부v18(SHA3a28690...)으로시험. `docs/V18-OUTLINE-TRIAL-2026-11-08.md`/`tools/sfa_outline_trial.py`. v18원본모든노드보존+청회색선복제/작은불투명글로우뒤Layer2의두SFA·명암비교공유폴더전달. v18수정스미어알고리즘/자동탐지성공으로해석금지. 새외곽선은시험/사용자판정대기·앱/편집추종미검증.
 - **자료 접근 수정(11-07 사용자):** 비공개 링크로Claude다운로드실패→세션전달본67+기술/초기뼈대4를새Drive읽기공유폴더(총71개)로준비. 기존원본권한은유지. 새폴더 https://drive.google.com/drive/folders/1VSqs4ujWnby8bwQOCI_zaHEXyT2lJnnY ; 개별다운로드목록 `docs/CLAUDE-DOWNLOADS-2026-11-07.md` 우선. 옛비공개ID대신공유사본ID사용.
 - **담당 이관(11-07 사용자):** 이제Claude가이어받음. 이세션전체·실패·자료·권한·복원은 `docs/CLAUDE-SESSION-HANDOFF-2026-11-07.md`, 복사프롬프트는 `docs/CLAUDE-PROMPT-TAKEOVER-2026-11-07.md`.
 - **현재 할 일:** 사용자“거의 제대로 못잡았는데?” → **전체240장 스미어 자동후보 탐색 실패 검토·탐지방식 재설계**. 4078외곽후보/239장→손발우선588/207장,상위40새확정0. 일반손·신발·옷과의미구분실패. 후보수/458코드검사로성공선언금지. 실패영상/JSON/32개비공개자료묶음Drive는인계문서참조.
