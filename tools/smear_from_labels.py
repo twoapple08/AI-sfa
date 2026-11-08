@@ -204,6 +204,11 @@ def build(stick,items,frames_dir,template,scene,density_profile,frame_base,canva
             bx=it['box'];major=max(bx[2]-bx[0],bx[3]-bx[1]);L0=np.linalg.norm(axis[1]-axis[0])
             if L0>1.15*major:axis=np.array([axis[1]-(axis[1]-axis[0])*1.15*major/L0,axis[1]])
         prof*=float(np.clip(L_/(12*bw),1.,1.6));prof=np.maximum(prof,1.5)
+        ov=next((o for o in scene.get('smear_size',[]) if o['frame']==n and o['actor']==it['actor'] and o['part']==it['part']),None)
+        if ov:  # 사용자 지정 크기(형식은 그대로): 끝(손끝 앞)은 두고 길이·끝 폭만 맞춘다
+            axis=np.array([axis[1]-ov['length_px']*u,axis[1]]);L_=float(ov['length_px'])
+            prof=prof*np.array([ov['wl_px']/max(prof[-1][0],1e-6),ov['wr_px']/max(prof[-1][1],1e-6)])
+            mode=mode+'+size'
         ts=np.linspace(0,1,4);cen=axis[0]+ts[:,None]*(axis[1]-axis[0])
         pts=deform_chain(template,cen+prof[:,0:1]*nv,cen-prof[:,1:2]*nv,12)
         small=prof[-1].sum()<28 and L_<40
