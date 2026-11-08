@@ -11,5 +11,8 @@
   "app_verified": false,
   "tests": 461,
   "test_exit": 0,
-  "shared_delivery": true
+  "shared_delivery": true,
+  "user_selected_mode": "glow",
+  "user_confirmation": "나는 글로우로 할래",
+  "selected_sfa_sha256": "bac6f6b703822e884bbd46b96c88e1d4eec28d097c02bac47362761995af931f"
 }

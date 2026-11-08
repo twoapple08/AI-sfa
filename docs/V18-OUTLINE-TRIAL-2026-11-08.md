@@ -30,3 +30,9 @@
 사용자가검정보다조금밝을정도의더어두운테두리를요청. 새시험은청회색#7C8896에서중성짙은회색#303030으로만변경했다. 선판/글로우판각240장,테두리Color RGB및글로우판GlowColor RGB외모든객체·좌표·면·연결·불투명도·두께·글로우크기·장동일검사. 비공개`/workspace/scratch/v18_outline_dark/`에두SFA/명암비교/ZIP. 이전색상판은보존. 사용자미관판정·앱미검증.
 
 짙은회색비교 https://drive.google.com/file/d/1RP10psRXnu-hhtosVtucNAUAZbNWoom4/view ; 두SFA/비교ZIP https://drive.google.com/file/d/1BGjqmZeSaUNi_uUJBE_2icdNpxfUdefU/view . 기존공유폴더권한상속확인.
+
+## 사용자 선택 확정
+
+사용자“나는 글로우로 할래”로#303030작은글로우테두리를선택했다. `v18_테두리_303030_glow.sfa`가선택된표시기준이다. 선복제판은이력으로보존한다. 기존반경.35/불투명본체GlowAlpha255/부속의원래부분알파/몸통선10%바깥폭유지. 이선택은실제앱·원본편집시추종·폰성능을검증했다는뜻은아니다.
+
+선택SFA 단독링크: https://drive.google.com/file/d/1sGCujUbLvLvjetAw0q9Ip34EpLC4V_S_/view . 로그인없이전체다운로드SHA일치확인.
