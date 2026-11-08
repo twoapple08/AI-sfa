@@ -206,8 +206,8 @@ def build(stick,items,frames_dir,template,scene,density_profile,frame_base,canva
         prof*=float(np.clip(L_/(12*bw),1.,1.6));prof=np.maximum(prof,1.5)
         ov=next((o for o in scene.get('smear_size',[]) if o['frame']==n and o['actor']==it['actor'] and o['part']==it['part']),None)
         if ov:  # 사용자 지정 크기(형식은 그대로): 끝(손끝 앞)은 두고 길이·끝 폭만 맞춘다
-            if ov.get('rotate_deg'):  # 화면 기준(y 아래) 각도: 음수 = 반시계
-                t=np.radians(ov['rotate_deg']);u=np.array([[np.cos(t),-np.sin(t)],[np.sin(t),np.cos(t)]])@u;nv=np.array([-u[1],u[0]])
+            if ov.get('rotate_deg'):  # 삼각함수 기준(양수=반시계, 음수=오른쪽이 내려감). 화면 y가 아래라 부호를 뒤집는다
+                t=-np.radians(ov['rotate_deg']);u=np.array([[np.cos(t),-np.sin(t)],[np.sin(t),np.cos(t)]])@u;nv=np.array([-u[1],u[0]])
             axis=np.array([axis[1]-ov.get('length_px',L_)*u,axis[1]]);L_=float(ov.get('length_px',L_))
             if 'wl_px' in ov:prof=prof*np.array([ov['wl_px']/max(prof[-1][0],1e-6),ov['wr_px']/max(prof[-1][1],1e-6)])
             mode=mode+'+size'
