@@ -1,0 +1,10 @@
+{
+  "schema": "smear-scene/1",
+  "description": "nian41 1032-1271 스미어 배치 장면 설정(v18, 2026-11-08). actors: 원본 인물색 → 스틱맨 slot과 스미어 색(검정 레칸=원본 파란 인물, 파랑=원본 빨간 인물). extra: 사용자 확인 라벨 89개 밖에서 전수 눈검토로 추가한 13곳(상자 없음, 원본 톱니 화소가 많은 팔다리를 고름).",
+  "frame_base": 1032,
+  "actors": {
+    "blue": {"slot": 0, "smear_color": -16777216},
+    "red": {"slot": 1, "smear_color": -16776961}
+  },
+  "extra": [[1046,"blue","arm"],[1047,"blue","arm"],[1052,"blue","arm"],[1053,"blue","arm"],[1054,"blue","arm"],[1055,"blue","arm"],[1057,"blue","leg"],[1058,"blue","arm"],[1059,"blue","arm"],[1060,"red","leg"],[1072,"red","arm"],[1204,"blue","leg"],[1205,"blue","leg"]]
+}

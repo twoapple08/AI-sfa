@@ -9,6 +9,7 @@
 |`references/CURRENT-STATE.md`|최신 결과/검증/미완/바로 할 일|
 |`references/SESSION-LEDGER.md`|이번 세션 전체 경과와 상세 변경 로그|
 |`references/DECISIONS-AND-LIMITS.md`|유효 사용자 결정/금지/미채택/일반화 한계|
+|`references/SMEAR-PIPELINE.md`|스틱맨 다음 단계: 스미어 탐지·배치·모양·검사·영상 절차와 입력 위치(11-08)|
 |`references/ENVIRONMENT.md`|의존성과 환경 복원|
 |`data/artifact_manifest.json`|13종 파일의 정확 Drive ID/크기/SHA/역할/필수 여부|
 |`data/archive_inventory.json`|중첩 ZIP 포함752개 파일 항목 지문 색인|

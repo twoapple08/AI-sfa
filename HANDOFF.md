@@ -2,6 +2,7 @@
 
 한국어로 답한다. 브랜치 `claude/new-session-gknz4t`만(main 읽기/쓰기 금지). 저장 전 지정 브랜치 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인. GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
 
+- **스틱맨→스미어 기술 정립(11-08 사용자 요청):** 스킬 `.claude/skills/stickman-extraction/references/SMEAR-PIPELINE.md`에 스틱맨 다음 단계로 정리했다. 새 도구는 `smear_from_labels`(v18 배치, 스크래치에서 이식해 v18 스미어 객체 동일 재현), `smear_checks`(전달 전 검사), `sfa_overlay_video`(앱 레이어 순서 미리보기)다. Drive 입력 `02_분석자료/스미어파이프라인_입력_2026-11-08/`에서 처음부터 다시 실행해 현재 결과와 객체 동일을 확인했다. 다음: 깊이 칸 레이어 설계(`docs/DEPTH-LAYERS-2026-11-08.md` 예정, 사람 편집 고려 안 함).
 - **스미어 작업 보류(11-08 사용자 "반쯤 완성인 걸로 하고 넘어가자, 나중에 와서 수정"):** 현재 결과는 `nian41_10초_레칸_스미어_직진B_레이어수정.sfa`(SHA `030bf1a9…`, Drive `AI-sfa/04_SFA시험작/nian41_10초_직진스미어_시험_2026-11-08/레이어수정/`)이며 앱 재확인 전이다. 다시 다룰 때 남은 일:
   ① 앱에서 레이어 수정본의 색·머리 순서 확인
   ② 1035~1037 파랑 아래팔이 거꾸로 접힘(승인 뼈대의 RTMW 오류). 원본 주먹 위치로 펼지 사용자 결정 대기
