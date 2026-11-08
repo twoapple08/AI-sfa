@@ -39,6 +39,19 @@ class FlowSmearTests(unittest.TestCase):
         extent=F.motion_extent(m,np.array([0,.25,.5,1.]))
         np.testing.assert_allclose(extent,np.full(4,extent[0]));self.assertGreater(extent[0],0)
 
+    def test_display_tapers_even_with_translation_or_mixed_motion(self):
+        for angle in [0.,.8]:
+            m=self.motion(angle);m['hub']=m['hub']+np.array([0.,-15.]);m['tip']=m['tip']+np.array([0.,-15.])
+            r=np.array([0.,.25,.5,1.]);width=F.display_extent(m,r)
+            self.assertEqual(width[0],0.);np.testing.assert_allclose(width[1:]/width[-1],[.25,.5,1.])
+            np.testing.assert_allclose(F.display_extent(m,r,taper=False),F.motion_extent(m,r))
+
+    def test_attached_translation_geometry_has_visible_inner_taper(self):
+        m=self.motion(0);m['hub']=np.array([0.,-15.]);m['tip']=m['now']['tip']+m['hub']
+        family,points,_=F.geometry(m);self.assertEqual(family,'flow_translation')
+        widths=np.abs(points[1::2,1])/(F.FRONT_SHARE*F.FORWARD)
+        np.testing.assert_allclose(widths/widths[-1],F.RADII)
+
     def test_no_outline_arcs_even_for_large_rotation(self):
         for angle in [-1.4,-.8,.8,1.4]:self.assertEqual(F.geometry(self.motion(angle))[2],[])
 

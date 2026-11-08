@@ -28,6 +28,13 @@ def motion_extent(motion,radii):
     return np.linalg.norm(local_motion(motion,r),axis=-1)*gain
 
 
+def display_extent(motion,radii,taper=True):
+    """부착된 부위의 표시 외곽: 방향용 실제 속도와 분리한 관절→말단 테이퍼."""
+    if not taper:return motion_extent(motion,radii)
+    tip=float(motion_extent(motion,np.array(1.)))
+    return np.maximum(np.asarray(radii,float),0.)*tip
+
+
 def geometry(motion,detached=False,source_center=None,source_span=None):
     """반경 방향으로 진행하며 앞/뒤 꺾임을 이동 방향으로 왕복시킨다. 외곽 호 없음."""
     r=RADII
@@ -52,7 +59,7 @@ def geometry(motion,detached=False,source_center=None,source_span=None):
         speeds=np.linalg.norm(velocities,axis=-1)
         directions=velocities/np.maximum(speeds[...,None],1e-9)
         directions=np.where((speeds<1e-6)[...,None],mean,directions)
-        extent=motion_extent(motion,xs)
+        extent=display_extent(motion,xs,taper=not (detached or axial))
         if detached:extent=np.minimum(extent,float(source_span)*.70)
         return directions,extent
     front_dir,front_extent=vectors(r);back_dir,back_extent=vectors(valleys)
@@ -81,5 +88,6 @@ def build(source,profile=None,canvas=S.CANVAS):
     report['direction_rule']='leading_turn_bisector_aligned_with_local_motion'
     report['outer_curve_accents']=0
     report['front_share']=FRONT_SHARE;report['back_share']=BACK_SHARE
-    report['extent_rule']='shared_gain_no_inner_floor_or_pointwise_cap'
+    report['extent_rule']='attached_display_taper_separate_from_local_motion'
+    report['taper_scope']='attached_nonaxial_limb_only'
     return root,report

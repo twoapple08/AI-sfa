@@ -1,0 +1,96 @@
+{
+  "source_sha256": "3a28690bd9165fcba9c7c23706d721999fb55d33b4dbcfd8d34327efae012c8a",
+  "frames": 240,
+  "families": {
+    "flow_rotation": 43,
+    "flow_axial_candidate": 22,
+    "keep": 28,
+    "flow_translation": 8
+  },
+  "changed_effects": 73,
+  "changed_playback_frames": 58,
+  "new_smear_objects": 5756,
+  "curved_accents": 0,
+  "added_density_pairs": 2294,
+  "density_intervals_verified": 511,
+  "original_gap_reference": true,
+  "base_turns_preserved": true,
+  "body_accessories_fills_identical": true,
+  "unique_ids": true,
+  "reciprocal_new_connections": true,
+  "stable_new_object_types": true,
+  "new_fills": 0,
+  "opaque_smears": true,
+  "outline_color": "#303030",
+  "video_input": false,
+  "learned_artist_style": false,
+  "app_verified": false,
+  "quality_approved": false,
+  "leading_turns_checked": 2878,
+  "minimum_direction_cosine": 0.828743906326643,
+  "backward_leading_turns": 0,
+  "front_share": 0.58,
+  "back_share": 0.42,
+  "axis_extent_rule": "display_taper_separate_from_local_motion",
+  "rotation_half_radius_half_extent": true,
+  "trailing_turns_checked": 2805,
+  "minimum_backward_direction_cosine": 0.8928591803827858,
+  "wrong_facing_return_turns": 0,
+  "target_case_taper_ratios": {
+    "21": [
+      0.0,
+      0.25,
+      0.5,
+      1.0
+    ],
+    "32": [
+      0.0,
+      0.25,
+      0.5,
+      1.0
+    ]
+  },
+  "deliverables": [
+    {
+      "name": "v18_부착부위_테이퍼수정_10초.mp4",
+      "id": "1QybdAr22JhxXfYVEWnTTFm1zq5oLUV2X",
+      "url": "https://drive.google.com/file/d/1QybdAr22JhxXfYVEWnTTFm1zq5oLUV2X/view?usp=drivesdk",
+      "sha256": "53c9032e7a266ba13fd61b5e8e1748c8e86c91674bfa40f0d5a03f08a094ea63",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_부착부위_테이퍼수정_4배느리게.mp4",
+      "id": "10TtHy69jjKoVwWnK5o5W-t9iCcqFlMvn",
+      "url": "https://drive.google.com/file/d/10TtHy69jjKoVwWnK5o5W-t9iCcqFlMvn/view?usp=drivesdk",
+      "sha256": "6818ca4b6ee2225390ef39c4bbd1923c2c22f5ed27b17ce7745c52499ed6670c",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_부착부위_테이퍼수정_확대비교.png",
+      "id": "1qRqZbDaKZwiHv_obC1yCnVaAR1i-U8dl",
+      "url": "https://drive.google.com/file/d/1qRqZbDaKZwiHv_obC1yCnVaAR1i-U8dl/view?usp=drivesdk",
+      "sha256": "bcdef5d2537438dd1043daaca80280399ff3d19ec3de6b2971f4f1b6102c2208",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_부착부위_테이퍼수정_글로우.sfa",
+      "id": "1tkyiNUqNuoDF_JpQ1MtgWNJPIWVftJaz",
+      "url": "https://drive.google.com/file/d/1tkyiNUqNuoDF_JpQ1MtgWNJPIWVftJaz/view?usp=drivesdk",
+      "sha256": "e6556a67f829a22ad9815b0200796926e1a6c7e9106f85db3811ce541eeeffd8",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_부착부위_테이퍼수정_전체묶음.zip",
+      "id": "13qD7FcsteG_gompMG0-4B6z9w5_QJMBN",
+      "url": "https://drive.google.com/file/d/13qD7FcsteG_gompMG0-4B6z9w5_QJMBN/view?usp=drivesdk",
+      "sha256": "284f3bfb6dd7a3bb0a5c93208500acbeb98126cc954f7a59805eaf9ac94e50fb",
+      "anonymous_sha256_verified": true
+    }
+  ],
+  "tests": {
+    "count": 486,
+    "status": "OK",
+    "exit_code": 0,
+    "seconds": 29.986
+  }
+}
