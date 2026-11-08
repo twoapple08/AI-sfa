@@ -170,6 +170,9 @@ def main():
     ov,fb=load_overrides(a.overrides) if a.overrides else ({},1)
     root,report=build(src,overrides=ov,frame_base=fb,directions=load_directions(a.overrides) if a.overrides else None)
     out=O.build(root,mode='glow',color=0xff303030)[0]  # 기준판과 같은 #303030 글로우 테두리
+    import sfa_layer_order as LO
+    mapping=LO.renumber_bottom_to_top(out)  # 앱은 레이어를 번호 순으로 그린다: 테두리 0, 몸 1, 스미어 2
+    report['layer_renumber']=mapping;report['layer_check']=LO.check(out)
     with zipfile.ZipFile(a.out,'w',zipfile.ZIP_DEFLATED) as z:z.writestr('review.xml',E.tostring(out,encoding='utf-8',xml_declaration=True))
     if a.report:Path(a.report).write_text(json.dumps(report,ensure_ascii=False,indent=1,default=str))
     print(json.dumps(dict(changed=report['changed_effects'],needs_review=report['needs_review']),ensure_ascii=False))
