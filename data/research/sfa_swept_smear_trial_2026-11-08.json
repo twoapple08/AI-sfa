@@ -1,0 +1,71 @@
+{
+  "source_sha256": "3a28690bd9165fcba9c7c23706d721999fb55d33b4dbcfd8d34327efae012c8a",
+  "frames": 240,
+  "families": {
+    "radial_sweep": 57,
+    "translation_blade": 25,
+    "keep": 19
+  },
+  "changed_effects": 82,
+  "changed_playback_frames": 61,
+  "new_smear_objects": 3012,
+  "curved_accents": 108,
+  "added_density_pairs": 796,
+  "density_intervals_verified": 574,
+  "original_gap_reference": true,
+  "base_turns_preserved": true,
+  "body_accessories_fills_identical": true,
+  "unique_ids": true,
+  "reciprocal_new_connections": true,
+  "stable_new_object_types": true,
+  "new_fills": 0,
+  "opaque_smears": true,
+  "outline_color": "#303030",
+  "video_input": false,
+  "learned_artist_style": false,
+  "app_verified": false,
+  "quality_approved": false,
+  "deliverables": [
+    {
+      "name": "v18_궤적재구성_10초_비교.mp4",
+      "id": "1X37TzFr8tJJLVv_h0QRxEU6cAsNfZG5c",
+      "url": "https://drive.google.com/file/d/1X37TzFr8tJJLVv_h0QRxEU6cAsNfZG5c/view?usp=drivesdk",
+      "sha256": "e83579c257bdcb1f6bc664374a5b33f9edc613e3c52bc97e70fed25fcbd03a49",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_궤적재구성_4배느리게_비교.mp4",
+      "id": "1RCLKQ8_wLWMCgmC0fjIuRzPtzQUCEn6A",
+      "url": "https://drive.google.com/file/d/1RCLKQ8_wLWMCgmC0fjIuRzPtzQUCEn6A/view?usp=drivesdk",
+      "sha256": "d99df8419c4e179fbc0d5663c801fbc9e50305e2ea2361cc5227aa72782b64ec",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_궤적재구성_확대비교.png",
+      "id": "1wDI5FfUJvADmWm05-nluclbvDlpi-WrR",
+      "url": "https://drive.google.com/file/d/1wDI5FfUJvADmWm05-nluclbvDlpi-WrR/view?usp=drivesdk",
+      "sha256": "16d6e666245531fb1c0838644900d4db1b0a132a91f500293cc1c568a8f46270",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_궤적재구성_글로우.sfa",
+      "id": "10SGDU1nSgZmOaeyMGp94yG8GSMdBnx2l",
+      "url": "https://drive.google.com/file/d/10SGDU1nSgZmOaeyMGp94yG8GSMdBnx2l/view?usp=drivesdk",
+      "sha256": "b0c4ed9b57c31a724b2a9366c3f77adbe96b6d9280e3b8d297d9339db2766ad1",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_궤적재구성_전체묶음.zip",
+      "id": "1L9MUrzvIj7_9Wv_lltBII6ZuOLzRkYot",
+      "url": "https://drive.google.com/file/d/1L9MUrzvIj7_9Wv_lltBII6ZuOLzRkYot/view?usp=drivesdk",
+      "sha256": "5d1f8ebc7077a97a1c4f70876cb7fa48d93b8ddbcff48208e9a90cdf2d2c8f0f",
+      "anonymous_sha256_verified": true
+    }
+  ],
+  "tests": {
+    "count": 475,
+    "status": "OK",
+    "exit_code": 0,
+    "seconds": 28.886
+  }
+}
