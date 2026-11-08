@@ -1,0 +1,55 @@
+{
+  "source_sha256": "3a28690bd9165fcba9c7c23706d721999fb55d33b4dbcfd8d34327efae012c8a",
+  "frames": 240,
+  "family_counts": {
+    "compact_burst": 44,
+    "arc_fan": 50,
+    "keep": 5,
+    "straight_taper": 2
+  },
+  "existing_effect_groups": 101,
+  "changed_effect_groups": 96,
+  "changed_playback_frames": 72,
+  "new_smear_objects": 4242,
+  "quadratic_objects": 305,
+  "body_accessories_fills_identical": true,
+  "unique_ids": true,
+  "reciprocal_new_connections": true,
+  "stable_new_object_types": true,
+  "opaque_smear_lines": true,
+  "new_smear_fills": 0,
+  "outline_color": "#303030",
+  "video_input": false,
+  "app_verified": false,
+  "animation_quality_approved": false,
+  "deliverables": [
+    {
+      "name": "v18_스미어다양화_10초_비교.mp4",
+      "id": "14L9b3S75XUBsLK1C8jWkxYzP3mxonLIl",
+      "url": "https://drive.google.com/file/d/14L9b3S75XUBsLK1C8jWkxYzP3mxonLIl/view?usp=drivesdk",
+      "sha256": "0792e75b261c52e46820a38aadfaa3889d2bfa90889e7947a39a4bafa67ba629",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "스미어_형태비교.png",
+      "id": "1_9ELsrPZdYqIZflWLk9dyiC_noZQ5cFF",
+      "url": "https://drive.google.com/file/d/1_9ELsrPZdYqIZflWLk9dyiC_noZQ5cFF/view?usp=drivesdk",
+      "sha256": "f553ba8973e7c61220939c76198f49bc3a660d00af1b3e3c35b4e0b973f26c68",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_뼈대판정_스미어다양화_글로우.sfa",
+      "id": "1d00sGaSvS0TjFVqKOvFwKFQh6Qjn0wg2",
+      "url": "https://drive.google.com/file/d/1d00sGaSvS0TjFVqKOvFwKFQh6Qjn0wg2/view?usp=drivesdk",
+      "sha256": "dc5e29ebf1fb40a975436a89110f3929dff555491623cdf39da7f3875f859393",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_스미어형태시험_묶음.zip",
+      "id": "1I7ZfDZECcDYUmoY5d3hj3BucQ4_Ryyz8",
+      "url": "https://drive.google.com/file/d/1I7ZfDZECcDYUmoY5d3hj3BucQ4_Ryyz8/view?usp=drivesdk",
+      "sha256": "e67b2542739cd31000fa7cb5aefafa9f626cc54b99a0935c2d89a015b3c7360d",
+      "anonymous_sha256_verified": true
+    }
+  ]
+}
