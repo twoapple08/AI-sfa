@@ -23,7 +23,7 @@ def layer_ids(frame,prefix):
     return {l.get('ID') for l in frame.findall('LayerDef') if (l.get('Name') or '').split('_',1)[-1].startswith(prefix) or (l.get('Name') or '').startswith(prefix)}
 
 
-def smear_chains(aos):
+def smear_chains(aos,with_color=False):
     """점 연결(AC)로 이어진 스미어 객체 묶음(ID에 기대지 않음: 깊이 칸 정리로 ID가 바뀌어도 같다)."""
     owner={p.get('ID'):i for i,a in enumerate(aos) for p in a.findall('AP')};parent=list(range(len(aos)))
     def find(i):
@@ -36,10 +36,10 @@ def smear_chains(aos):
                 if j is not None:parent[find(i)]=find(j)
     out={}
     for i,a in enumerate(aos):out.setdefault((find(i),a.get('Color')),[]).extend(P(a))
-    return list(out.values())
+    return [(k[1],v) for k,v in out.items()] if with_color else list(out.values())
 
 
-def tip_violations(root,frame_base=1,near=40.,id_map=None):
+def tip_violations(root,frame_base=1,near=40.,id_map=None,color_slot=None):
     """id_map: 깊이 칸 정리의 {새 ID: 원래 ID}(옮긴 팔다리를 원래 부위로 찾는다)."""
     out=[];total=0;back=id_map or {}
     for n,f in enumerate(root.findall('Frame')):
@@ -47,10 +47,11 @@ def tip_violations(root,frame_base=1,near=40.,id_map=None):
         for a in f.findall('AO'):
             oid=back.get(int(a.get('ID')),int(a.get('ID')))
             if BASE<oid<BASE+200:objs[oid-BASE]=a
-        groups=smear_chains([a for a in f.findall('AO') if a.get('LayerId') in smear and int(a.get('Color','0'))&0xff000000])
-        for pts in groups:
+        groups=smear_chains([a for a in f.findall('AO') if a.get('LayerId') in smear and int(a.get('Color','0'))&0xff000000],with_color=True)
+        for col,pts in groups:
             Q=np.array(pts);total+=1;best=None
-            for off in (0,100):
+            own=(color_slot or {}).get(int(col)) if col is not None else None
+            for off in ((0,100) if own is None else (own*100,)):  # 스미어 색으로 인물을 알면 그 인물 팔다리만
                 for o1,o2,_ in LIMBS.values():
                     if off+o1 in objs and off+o2 in objs:
                         c=chain(objs,off,o1,o2)
@@ -92,8 +93,8 @@ def geometry_same(ref,cur):
     return dict(frames_with_shape_change=[n for n,(a,b) in enumerate(zip(ref.findall('Frame'),cur.findall('Frame'))) if sig(a)!=sig(b)])
 
 
-def run(path,ref=None,frame_base=1,id_map=None):
-    root=load(path);res=dict(tip=tip_violations(root,frame_base,id_map=id_map),layers=LO.check(root))
+def run(path,ref=None,frame_base=1,id_map=None,color_slot=None):
+    root=load(path);res=dict(tip=tip_violations(root,frame_base,id_map=id_map,color_slot=color_slot),layers=LO.check(root))
     res['head_fill_kind1']=sum(1 for f in root.findall('Frame') for s in f.iter('FS') if s.get('Kind')=='1')
     dup=0
     for f in root.findall('Frame'):
@@ -109,10 +110,14 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('sfa');ap.add_argument('--reference',help='몸 불변 비교 기준(스미어 전 스틱맨 또는 이전 판)');ap.add_argument('--frame-base',type=int,default=1)
     ap.add_argument('--same-shapes-as',help='깊이 칸 정리 전 SFA: 모양이 그대로인지 검사')
+    ap.add_argument('--scene',help='scenes/*_smear.json: 스미어 색→인물(자기 팔다리와만 비교), frame_base')
     ap.add_argument('--depth-report',help='sfa_depth_layers 보고서(id_map으로 옮긴 부위를 원래 ID로 찾는다)')
     a=ap.parse_args()
     idm={int(v):int(o) for o,k,v in json.load(open(a.depth_report))['id_map']} if a.depth_report else None
-    res=run(a.sfa,a.reference,a.frame_base,idm)
+    cs=None
+    if a.scene:
+        sc=json.load(open(a.scene));cs={int(v['smear_color']):v['slot'] for v in sc['actors'].values()};a.frame_base=int(sc.get('frame_base',a.frame_base))
+    res=run(a.sfa,a.reference,a.frame_base,idm,cs)
     if a.same_shapes_as:
         res['shapes']=geometry_same(load(a.same_shapes_as),load(a.sfa))
         res['passed']=res['passed'] and not res['shapes']['frames_with_shape_change']

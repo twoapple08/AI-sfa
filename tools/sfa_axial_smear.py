@@ -16,7 +16,8 @@ import numpy as np
 import sfa_swept_smear as SW
 import sfa_flow_smear as F
 
-WIDTH=2.1      # 갈래 폭 / 팔 선 굵기(px)
+WIDTH=1.6      # 갈래 폭 / 팔 선 굵기(px). 11-08 사용자 '앞뒤 스미어 폭을 좀 줄이자'(2.1→1.6)
+STREAK_THICK=.75  # 앞뒤 갈래 선 굵기 배수. 기본(.14)×부위 배율(250–1000%)에 곱하므로 기본·배율이 함께 준다(11-08 사용자)
 LENGTH=1.2     # 갈래 전체 길이 / 팔뚝 길이(속도가 크면 최대 1.4배까지)
 GAP=2.0        # 가닥 사이 간격 / 스미어 선 굵기 → 굵을수록 가닥 수 감소(3–6)
 STRAIGHT_MAX=15.;ROTATION_MIN=40.
@@ -151,6 +152,15 @@ def build(source,profile=None,canvas=SW.CANVAS,overrides=None,frame_base=1,direc
     SW.history=history
     try:
         root,report=SW.build(source,profile,canvas,geometry_fn=geometry,validator=validator)
+        # 앞뒤 갈래 선만 가늘게: 사슬 ID는 1420000000+트랙순번*20000부터(sfa_swept_smear.build)
+        keys=list(SW.M.analyze(source,canvas).keys());thin=0
+        for e in report['effects']:
+            if e.get('family')!='flow_axial_streak':continue
+            base=1420000000+keys.index(e['key'])*20000
+            for a_ in root.findall('Frame')[int(e['frame'])-1].findall('AO'):
+                if base<=int(a_.get('ID'))<base+20000:
+                    a_.set('ThicknessScale',f"{float(a_.get('ThicknessScale'))*STREAK_THICK:.4f}");thin+=1
+        report['streak_thickness_scale']=STREAK_THICK;report['streak_lines_thinned']=thin
     finally:
         SW.history=original
     root.set('Name',source.get('Name','')+'_flow_axial_streak')
