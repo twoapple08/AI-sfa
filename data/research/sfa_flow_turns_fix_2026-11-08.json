@@ -1,0 +1,75 @@
+{
+  "source_sha256": "3a28690bd9165fcba9c7c23706d721999fb55d33b4dbcfd8d34327efae012c8a",
+  "frames": 240,
+  "families": {
+    "flow_rotation": 47,
+    "flow_axial_candidate": 22,
+    "flow_translation": 9,
+    "keep": 23
+  },
+  "changed_effects": 78,
+  "changed_playback_frames": 59,
+  "new_smear_objects": 3958,
+  "curved_accents": 0,
+  "added_density_pairs": 1355,
+  "density_intervals_verified": 546,
+  "original_gap_reference": true,
+  "base_turns_preserved": true,
+  "body_accessories_fills_identical": true,
+  "unique_ids": true,
+  "reciprocal_new_connections": true,
+  "stable_new_object_types": true,
+  "new_fills": 0,
+  "opaque_smears": true,
+  "outline_color": "#303030",
+  "video_input": false,
+  "learned_artist_style": false,
+  "app_verified": false,
+  "quality_approved": false,
+  "leading_turns_checked": 1979,
+  "minimum_direction_cosine": 0.8243446018005676,
+  "backward_leading_turns": 0,
+  "deliverables": [
+    {
+      "name": "v18_진행방향꺾임_10초_비교.mp4",
+      "id": "17EhXMIHChraDsB3KH4-8kh_w0xMayCxP",
+      "url": "https://drive.google.com/file/d/17EhXMIHChraDsB3KH4-8kh_w0xMayCxP/view?usp=drivesdk",
+      "sha256": "bd8c4d8f1463448419cd80cd0f87f5a8239529aa867313b8f62e397c7152e030",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_진행방향꺾임_4배느리게.mp4",
+      "id": "11wCNO3mD7dtlaiNqPNKPDJQ7D8Qdrpfk",
+      "url": "https://drive.google.com/file/d/11wCNO3mD7dtlaiNqPNKPDJQ7D8Qdrpfk/view?usp=drivesdk",
+      "sha256": "4c8aa157b04d2f68e60196dedb1a9217b4d265e620ab8ce5933d847d34bb3910",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_진행방향꺾임_방향표시비교.png",
+      "id": "18aovexc4tSJbLWk5_mRBviDJL_GMpd2Y",
+      "url": "https://drive.google.com/file/d/18aovexc4tSJbLWk5_mRBviDJL_GMpd2Y/view?usp=drivesdk",
+      "sha256": "c51203b8261b4e89580205a6733261ef2d9c489181386df0543bd24d1a147787",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_진행방향꺾임_글로우.sfa",
+      "id": "1542Qsu6vxiDe-xaWOHrVxQlpZyF21ag6",
+      "url": "https://drive.google.com/file/d/1542Qsu6vxiDe-xaWOHrVxQlpZyF21ag6/view?usp=drivesdk",
+      "sha256": "54d75052f62793657490cb5c582e9b0cad3a5b62d20538ab092bd78792ad4b2e",
+      "anonymous_sha256_verified": true
+    },
+    {
+      "name": "v18_진행방향꺾임_전체묶음.zip",
+      "id": "1i0X4S-TeVCGBlnx8KsZJlJsJGZkKBRce",
+      "url": "https://drive.google.com/file/d/1i0X4S-TeVCGBlnx8KsZJlJsJGZkKBRce/view?usp=drivesdk",
+      "sha256": "8b51426874f6d2848aca7752e7587a3d17fd2521c6ba811ec2d8efc62246db38",
+      "anonymous_sha256_verified": true
+    }
+  ],
+  "tests": {
+    "count": 482,
+    "status": "OK",
+    "exit_code": 0,
+    "seconds": 32.056
+  }
+}

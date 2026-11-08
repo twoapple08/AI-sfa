@@ -83,7 +83,7 @@ def sweep_geometry(motion,detached=False,source_center=None,source_span=None):
     return family,base,accents
 
 
-def build(source,profile=None,canvas=CANVAS):
+def build(source,profile=None,canvas=CANVAS,geometry_fn=sweep_geometry,validator=None):
     profile=copy.deepcopy(profile or json.loads(PROFILE.read_text()));D.validate_profile(profile)
     root=copy.deepcopy(source);root.set('Name',source.get('Name','')+'_swept_trial')
     frames=source.findall('Frame');outframes=root.findall('Frame');tracks=M.analyze(source,canvas)
@@ -98,8 +98,12 @@ def build(source,profile=None,canvas=CANVAS):
                 if motion is None:reason='insufficient_history'
             if reason:
                 report.append(dict(frame=n+1,key=key,family='keep',reason=reason));continue
-            family,base,accents=sweep_geometry(motion,group['detached'],group['path'].mean(0),np.linalg.norm(np.ptp(group['path'],axis=0)))
-            density=D.process(base,canvas,profile);path=np.array(density['points_px']);frame=outframes[n];byid={a.get('ID'):a for a in frame.findall('AO')}
+            family,base,accents=geometry_fn(motion,group['detached'],group['path'].mean(0),np.linalg.norm(np.ptp(group['path'],axis=0)))
+            density=D.process(base,canvas,profile)
+            direction_check=validator(motion,density) if validator else None
+            if direction_check is not None and not direction_check['passed']:
+                report.append(dict(frame=n+1,key=key,family='keep',reason='direction_unstable',direction_check=direction_check));continue
+            path=np.array(density['points_px']);frame=outframes[n];byid={a.get('ID'):a for a in frame.findall('AO')}
             for old in group['objects']:frame.remove(byid[old.get('ID')])
             template=group['objects'][0];line_base=1420000000+ti*20000
             if len(path)>19000:raise ValueError('사슬 객체 수 제한')
@@ -118,7 +122,7 @@ def build(source,profile=None,canvas=CANVAS):
                     E.SubElement(previous,'AC',ConnPtId=aps[0].get('ID'));E.SubElement(aps[0],'AC',ConnPtId=previous.get('ID'))
                 previous=aps[-1] if typ=='1' else None;frame.append(ao)
             changed+=1
-            report.append(dict(frame=n+1,key=key,slot=group['slot'],body_code=code,family=family,past_frame=motion['past']+1,angle=motion['angle'],base_vertices=len(base),added_pairs=density['added_pairs'],new_lines=len(path)-1,curved_accents=len(accents),base_vertices_preserved=density['original_vertices_preserved'],density_intervals=density['intervals']))
+            report.append(dict(frame=n+1,key=key,slot=group['slot'],body_code=code,family=family,past_frame=motion['past']+1,angle=motion['angle'],base_vertices=len(base),added_pairs=density['added_pairs'],new_lines=len(path)-1,curved_accents=len(accents),direction_check=direction_check,base_vertices_preserved=density['original_vertices_preserved'],density_intervals=density['intervals']))
     if pid>=2000000000:raise ValueError('테두리 예약 점 ID 영역 침범')
     for a,b in zip(frames,outframes):
         if [E.tostring(x) for x in a if x.tag!='AO' or x.get('LayerId')!='1']!=[E.tostring(x) for x in b if x.tag!='AO' or x.get('LayerId')!='1']:raise ValueError('원본 몸/부속/면 변경')
