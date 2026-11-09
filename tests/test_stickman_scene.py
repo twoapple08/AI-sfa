@@ -137,3 +137,36 @@ class TestScene(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestKeyedPoseAndDespike(unittest.TestCase):
+    def test_polar_interpolation_keeps_limb_length(self):
+        from stickman_scene import keyed_pose
+        keys = {'0': dict(neck=[0, 0], elb_r=[100, 0]), '2': dict(neck=[0, 0], elb_r=[-100, 1])}
+        mid = keyed_pose(keys, 1, {'neck', 'elb_r'})
+        self.assertAlmostEqual(float(np.linalg.norm(mid['elb_r'])), 100, delta=1)  # 직선 보간이면 0 근처로 접힘
+
+    def test_despike_fixes_lone_jump_not_fast_motion(self):
+        from stickman_scene import despike
+        def p(wx):
+            q = pose(0); q['neck'] = np.array([0., 0.]); q['pelvis'] = np.array([0., 100.]); q['wri_r'] = np.array([wx, 50.]); return q
+        poses = [dict(blue=p(x)) for x in (10, 12, 90, 14, 16)]
+        out, log = despike(poses, list(range(5)), [], set())
+        np.testing.assert_allclose(out[2]['blue']['wri_r'], [13, 50])
+        fast = [dict(blue=p(x)) for x in (0, 40, 80, 120, 160)]  # 빠른 움직임: 앞뒤가 서로 멀다 → 그대로
+        out2, log2 = despike(fast, list(range(5)), [], set())
+        self.assertEqual(log2, [])
+        out3, log3 = despike(poses, list(range(5)), [2], set())  # 컷을 넘으면 그대로
+        self.assertEqual(log3, [])
+        out4, log4 = despike(poses, list(range(5)), [], {(2, 'blue')})  # 수동 지정 장은 제외
+        self.assertEqual(log4, [])
+
+    def test_despike_length_keeps_direction(self):
+        from stickman_scene import despike
+        def p(L):
+            q = pose(0); q['neck'] = np.array([0., 0.]); q['pelvis'] = np.array([0., 300.])
+            q['elb_r'] = np.array([100., 0.]); q['wri_r'] = np.array([100. + L, 0.]); return q
+        poses = [dict(blue=p(L)) for L in (100, 104, 20, 98, 102)]
+        out, log = despike(poses, list(range(5)), [], set())
+        np.testing.assert_allclose(out[2]['blue']['wri_r'], [201, 0], atol=0.5)
+        self.assertTrue(any(x['joint'] == 'wri_r' for x in log))

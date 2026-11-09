@@ -38,7 +38,7 @@ def load_scene(path):
     if (digest != rig['base_layout_sha256'] or rig_layout_fingerprint() != rig['layout_sha256']
             or scene.get('rig') != rig['id'] or scene.get('schema') != 1):
         raise ValueError('장면 설정과 고정 뼈대 버전이 다르다')
-    unknown = set(scene) - {'schema', 'rig', 'source_sha256', 'start', 'end', 'cuts', 'tracks', 'partials', 'contacts', 'occlusions', 'description', 'visible_views'}
+    unknown = set(scene) - {'schema', 'rig', 'source_sha256', 'start', 'end', 'cuts', 'tracks', 'partials', 'contacts', 'occlusions', 'description', 'visible_views', 'despike'}
     if unknown:
         raise ValueError(f'알 수 없는 장면 항목: {sorted(unknown)}')
     return scene, dict(id=rig['id'], profile_sha256=hashlib.sha256(RIG_PATH.read_bytes()).hexdigest(),
@@ -64,6 +64,97 @@ def keyed_value(keys, frame):
     return np.array([np.interp(frame, times, values[:, axis]) for axis in (0, 1)])
 
 
+PARENT = {'pelvis': 'neck', 'elb_l': 'neck', 'elb_r': 'neck', 'wri_l': 'elb_l', 'wri_r': 'elb_r',
+          'kne_l': 'pelvis', 'kne_r': 'pelvis', 'ank_l': 'kne_l', 'ank_r': 'kne_r', 'head_t': 'neck', 'head_b': 'neck'}
+
+
+def keyed_pose(keys, frame, names):
+    """키 사이를 부모 관절 기준 각도·길이로 보간한다(11-09). 좌표 직선 보간은 자세가 크게 바뀌는 두 키 사이에서
+    팔다리를 접어 짧게 만들었다(예: 3153 다리 0.1배). 키 밖은 가장 가까운 키, 부모가 키에 없으면 좌표 보간."""
+    out = {}
+    for name in names:
+        out[name] = keyed_value({t: v[name] for t, v in keys.items() if name in v}, frame)
+    times = sorted(int(t) for t in keys)
+    lo = [t for t in times if t <= frame]
+    hi = [t for t in times if t >= frame]
+    if not lo or not hi or lo[-1] == hi[0]:
+        return out
+    t0, t1 = lo[-1], hi[0]
+    k0, k1 = keys[str(t0)], keys[str(t1)]
+    w = (frame - t0) / (t1 - t0)
+    order = ['pelvis', 'elb_l', 'elb_r', 'head_t', 'head_b', 'kne_l', 'kne_r', 'wri_l', 'wri_r', 'ank_l', 'ank_r']
+    for name in order:
+        par = PARENT[name]
+        if name not in names or par not in out or not all(n in k for k in (k0, k1) for n in (name, par)):
+            continue
+        v0 = np.subtract(k0[name], k0[par]); v1 = np.subtract(k1[name], k1[par])
+        a0, a1 = np.arctan2(v0[1], v0[0]), np.arctan2(v1[1], v1[0])
+        da = (a1 - a0 + np.pi) % (2 * np.pi) - np.pi
+        ang = a0 + w * da; length = (1 - w) * np.linalg.norm(v0) + w * np.linalg.norm(v1)
+        out[name] = np.asarray(out[par], float) + length * np.array([np.cos(ang), np.sin(ang)])
+    return out
+
+
+def despike(poses, frames, cuts, protected, agree=0.25, jump=0.35, length_ratio=(0.6, 1.5), min_px=30):
+    """자동 검출의 한 장 흔들림 제거(11-09). 같은 컷에서 앞뒤 장의 관절이 서로 가까운데(몸통의 agree 이내)
+    그 장만 몸통의 jump 넘게 벗어나면 앞뒤 중간값으로 바꾼다. 앞뒤가 서로 먼 빠른 움직임은 건드리지 않는다.
+    protected={(장, 인물)}: 수동 지정 구간은 제외."""
+    shot = lambda f: sum(f >= c for c in cuts)
+    out = copy.deepcopy(poses); log = []
+    def window(src, i, w, actor):
+        if i < 1 or i + w >= len(frames):
+            return None
+        if len({shot(frames[k]) for k in range(i - 1, i + w + 1)}) != 1:
+            return None
+        rows = [src[k].get(actor) for k in range(i - 1, i + w + 1)]
+        if any(r is None for r in rows) or any((frames[k], actor) in protected for k in range(i, i + w)):
+            return None
+        return rows[0], rows[1:-1], rows[-1]
+    for w in (1, 2):  # 그림이 2장 단위로 바뀌므로 2장짜리 튐도 본다
+        for i in range(1, len(frames) - 1):
+            for actor in list(poses[i]):
+                win = window(out, i, w, actor)
+                if win is None:
+                    continue
+                a, mids, b = win
+                torso = np.median([np.linalg.norm(np.subtract(p['neck'], p['pelvis'])) for p in (a, *mids, b)])
+                for name in JOINTS:
+                    if any(name not in p for p in (a, b, *mids)):
+                        continue
+                    pa, pb = np.asarray(a[name], float), np.asarray(b[name], float)
+                    if np.linalg.norm(pa - pb) >= agree * torso:
+                        continue
+                    for k, j in enumerate(mids):
+                        target = pa + (pb - pa) * (k + 1) / (w + 1)
+                        if np.linalg.norm(np.asarray(j[name], float) - target) > jump * torso:
+                            log.append(dict(frame=frames[i + k], actor=actor, joint=name, moved_px=round(float(np.linalg.norm(np.asarray(j[name], float) - target)), 1)))
+                            j[name] = target
+    # 2단계: 길이 튐. 앞뒤 장의 마디 길이가 서로 비슷한데 그 장만 크게 다르면 방향은 두고 길이만 앞뒤 평균으로(아래 관절 함께 이동).
+    child = {'elb_l': ['wri_l'], 'elb_r': ['wri_r'], 'kne_l': ['ank_l'], 'kne_r': ['ank_r'], 'wri_l': [], 'wri_r': [], 'ank_l': [], 'ank_r': []}
+    for w, i in [(w, i) for w in (1, 2) for i in range(1, len(frames) - 1)]:
+        for actor in list(out[i]):
+            win = window(out, i, w, actor)
+            if win is None:
+                continue
+            a, mids, b = win
+            for name in ('elb_l', 'elb_r', 'kne_l', 'kne_r', 'wri_l', 'wri_r', 'ank_l', 'ank_r'):
+                par = PARENT[name]
+                la, lb = (float(np.linalg.norm(np.subtract(p[name], p[par]))) for p in (a, b))
+                if abs(la - lb) > agree * max(la, lb):
+                    continue
+                for k, j in enumerate(mids):
+                    m = la + (lb - la) * (k + 1) / (w + 1)
+                    lj = float(np.linalg.norm(np.subtract(j[name], j[par])))
+                    if not (lj < length_ratio[0] * m or lj > length_ratio[1] * m) or abs(lj - m) < min_px:
+                        continue
+                    d = np.subtract(j[name], j[par]); d = d / max(np.linalg.norm(d), 1e-9)
+                    delta = np.asarray(j[par], float) + d * m - np.asarray(j[name], float)
+                    for n in [name, *child[name]]:
+                        j[n] = np.asarray(j[n], float) + delta
+                    log.append(dict(frame=frames[i + k], actor=actor, joint=name, length=[round(lj), round(m)]))
+    return out, log
+
+
 def apply_scene(poses, frames, scene):
     """입력 불변. 좌표만 바꾸며 인물 사이 AC 연결이나 새 마디를 만들지 않는다."""
     if not frames or scene['start'] != frames[0] or scene['end'] != frames[-1]:
@@ -73,6 +164,11 @@ def apply_scene(poses, frames, scene):
     report = {'partials': [], 'tracks': [], 'contacts': []}
     from stickman_occlusion import bridge_occlusions
     result, report['occlusions'] = bridge_occlusions(result, frames, scene.get('occlusions', []), cuts)
+    if scene.get('despike'):
+        protected = {(f, sp['actor']) for sp in [*scene.get('partials', []), *scene.get('visible_views', [])]
+                     for f in range(sp['start'], sp['end'] + 1)}
+        cfg = scene['despike'] if isinstance(scene['despike'], dict) else {}
+        result, report['despike'] = despike(result, frames, cuts, protected, **cfg)
     for spec in [*scene.get('partials', []), *scene.get('tracks', []), *scene.get('contacts', []), *scene.get('visible_views', [])]:
         if not frames[0] <= spec['start'] <= spec['end'] <= frames[-1] or any(spec['start'] < c <= spec['end'] for c in cuts):
             raise ValueError('이벤트는 처리 범위·한 컷 안에 있어야 한다')
@@ -119,7 +215,7 @@ def apply_scene(poses, frames, scene):
             for name in names:
                 if name not in JOINTS:
                     raise ValueError(f'알 수 없는 관절: {name}')
-                j[name] = keyed_value({t: v[name] for t, v in view['keys'].items() if name in v}, frame)
+            j.update(keyed_pose(view.get('keys', {}), frame, names))
             if view.get('head_d'):  # 머리 지름은 장마다 읽지 않고 구간 흐름으로 고정(가림 때문에 줄이지 않는다, 11-09 사용자)
                 dia = float(np.interp(frame, *zip(*sorted((int(t), float(v)) for t, v in view['head_d'].items()))))
                 c = (np.asarray(j['head_t'], float) + np.asarray(j['head_b'], float)) / 2
