@@ -51,12 +51,14 @@ class TestScene(unittest.TestCase):
         poses[2]['red'] = None  # 검출 없는 장도 틀을 빌려 같은 지정을 받는다
         before = copy.deepcopy(poses)
         scene = self.scene()
-        scene['visible_views'] = [dict(actor='red', start=1, end=3, visible_segments=[4, 3],
+        scene['visible_views'] = [dict(actor='red', start=1, end=3, visible_segments=[4, 3], thick=6.5,
                                        keys={'1': dict(wri_r=[0, 0]), '3': dict(wri_r=[20, 40])})]
         out, report = apply_scene(poses, list(range(7)), scene)
         for f in (1, 2, 3):
             self.assertEqual(out[f]['red']['_visible_segments'], [3, 4])
         np.testing.assert_allclose(out[2]['red']['wri_r'], [10, 20])
+        self.assertEqual(out[2]['red']['_thick'], 6.5)
+        self.assertNotIn('_thick', out[0]['red'])
         self.assertNotIn('_visible_segments', out[0]['red'])
         np.testing.assert_array_equal(poses[1]['red']['wri_r'], before[1]['red']['wri_r'])
         j = out[1]['red']

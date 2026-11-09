@@ -428,6 +428,7 @@ def main():
                 same_shot = np.array([sum(f >= cut for cut in a.cuts) == sum(frames[n] >= cut for cut in a.cuts) for f in frames])
                 valid = np.flatnonzero(np.isfinite(thick[c]) & same_shot)
                 th = thick[c][min(valid, key=lambda t: abs(t - n))] if len(valid) else 1.
+            th = Jn.get('_thick', th)
             parts.append(person_aos(n, slot, Jn, to_pct, c, float(th), Jn.get('_visible_segments')))
             jn[c] = {k: [round(float(v[0]), 2), round(float(v[1]), 2)] for k, v in Jn.items() if not k.startswith('_')}
             if '_visible_segments' in Jn:

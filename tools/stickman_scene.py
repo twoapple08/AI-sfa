@@ -121,6 +121,8 @@ def apply_scene(poses, frames, scene):
                     raise ValueError(f'알 수 없는 관절: {name}')
                 j[name] = keyed_value({t: v[name] for t, v in view['keys'].items() if name in v}, frame)
             j['_visible_segments'] = sorted(view['visible_segments'])
+            if 'thick' in view:  # 근접에서 검출 크기를 믿을 수 없을 때 같은 장면 기준으로 정한 굵기
+                j['_thick'] = float(view['thick'])
             result[i][actor] = j
             report.setdefault('visible_views', []).append(dict(frame=frame, actor=actor, visible_segments=j['_visible_segments']))
     for track in scene.get('tracks', []):
