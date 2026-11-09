@@ -120,6 +120,12 @@ def apply_scene(poses, frames, scene):
                 if name not in JOINTS:
                     raise ValueError(f'알 수 없는 관절: {name}')
                 j[name] = keyed_value({t: v[name] for t, v in view['keys'].items() if name in v}, frame)
+            if view.get('head_d'):  # 머리 지름은 장마다 읽지 않고 구간 흐름으로 고정(가림 때문에 줄이지 않는다, 11-09 사용자)
+                dia = float(np.interp(frame, *zip(*sorted((int(t), float(v)) for t, v in view['head_d'].items()))))
+                c = (np.asarray(j['head_t'], float) + np.asarray(j['head_b'], float)) / 2
+                u = np.asarray(j['head_t'], float) - np.asarray(j['head_b'], float)
+                u = u / max(np.linalg.norm(u), 1e-9)
+                j['head_t'], j['head_b'] = c + u * dia / 2, c - u * dia / 2
             j['_visible_segments'] = sorted(view['visible_segments'])
             if 'thick' in view:  # 근접에서 검출 크기를 믿을 수 없을 때 같은 장면 기준으로 정한 굵기
                 j['_thick'] = float(view['thick'])

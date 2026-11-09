@@ -64,6 +64,14 @@ class TestScene(unittest.TestCase):
         j = out[1]['red']
         fr = E.fromstring('<Frame>'+sc.person_aos(1, 1, j, lambda v:v, 'red', visible_segments=j['_visible_segments'])+'</Frame>')
         self.assertEqual([int(a.get('ID')) % 100 for a in fr.findall('AO') if a.get('Color') != '0'], [3, 4])
+        # 머리 지름은 구간 흐름(head_d)으로 고정: 키가 작게 읽혀도 지름은 지정값, 중심은 유지
+        sc2 = self.scene()
+        sc2['visible_views'] = [dict(actor='red', start=1, end=3, visible_segments=[1, 2],
+                                     keys={'1': dict(head_t=[0, 0], head_b=[0, 20])}, head_d={'1': 100, '3': 140})]
+        o2, _ = apply_scene([dict(blue=pose(10), red=pose(90)) for _ in range(7)], list(range(7)), sc2)
+        for f, dia in ((1, 100), (2, 120)):
+            np.testing.assert_allclose(np.linalg.norm(o2[f]['red']['head_t'] - o2[f]['red']['head_b']), dia)
+            np.testing.assert_allclose((o2[f]['red']['head_t'] + o2[f]['red']['head_b']) / 2, [0, 10])
         scene['visible_views'][0]['end'] = 5  # 컷(4)을 넘으면 거부
         with self.assertRaises(ValueError):
             apply_scene(poses, list(range(7)), scene)
