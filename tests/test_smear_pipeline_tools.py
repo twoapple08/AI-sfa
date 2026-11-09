@@ -110,3 +110,15 @@ class ManualFixes(unittest.TestCase):
         _,p,_=A.streak_geometry(m)
         self.assertAlmostEqual(p[1::2,0].max()-p[::2,0].min(),110*(A.F.FRONT_SHARE*max(A.F.FORWARD[:5])+A.F.BACK_SHARE*max(A.F.TRAIL[:6])),delta=15)
         self.assertGreater(p[:,0].max(),60)
+
+
+class UserDepth(unittest.TestCase):
+    def test_user_depth_overrides_measure_and_raises_front(self):
+        import sfa_depth_layers as D
+        sc={'depth_user':[dict(frame=1176,front='0:armA',back='1:armA',kind='over_smear')]}
+        meas=[((1,'armA'),(0,'armA'),'body',80.)]  # 측정은 반대
+        m=D.user_depth(meas,sc,1176);self.assertEqual(m,[((0,'armA'),(1,'armA'),'over_smear',1e9)])
+        self.assertEqual(D.user_depth(meas,sc,1175),meas)
+        order=lambda k:(k[0],0)
+        level,_=D.assign_levels([((0,'armA'),(1,'armA'))],m,order)
+        self.assertGreater(level[(0,'armA')],level[(1,'armA')])

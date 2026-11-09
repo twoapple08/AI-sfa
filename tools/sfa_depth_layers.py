@@ -209,6 +209,18 @@ def assign_levels(overlap,meas,file_order):
     return _levels(cons) or {},dropped
 
 
+def user_depth(meas,scene,frame):
+    """사용자 앞뒤 판정(장면 설정 depth_user)을 측정보다 강한 제약으로 넣는다. 같은 쌍의 측정은 버린다.
+    측정이 없거나 틀린 장을 사람이 지정한다(11-09 1176: 검은 팔이 빨강 팔 스미어 앞)."""
+    out=list(meas)
+    for u in scene.get('depth_user',[]):
+        if int(u['frame'])!=frame:continue
+        fs,fg=u['front'].split(':');bs,bg=u['back'].split(':');f,b=(int(fs),fg),(int(bs),bg)
+        out=[m for m in out if frozenset((m[0],m[1]))!=frozenset((f,b))]
+        out.append((f,b,u.get('kind','over_smear'),1e9))
+    return out
+
+
 def build(root,frames_dir,scene,frame_base,canvas=CANVAS):
     import cv2
     actors=scene['actors'];slot_color={v['slot']:k for k,v in actors.items()};color_slot={int(v['smear_color']):v['slot'] for v in actors.values()}
@@ -220,6 +232,7 @@ def build(root,frames_dir,scene,frame_base,canvas=CANVAS):
     for n,f in enumerate(frames):
         rgb=cv2.cvtColor(cv2.imread(str(Path(frames_dir)/f'{n+frame_base}.png')),cv2.COLOR_BGR2RGB)
         overlap,meas=relations(f,rgb,slot_color,color_slot,canvas)
+        meas=user_depth(meas,scene,n+frame_base)
         level,dropped=assign_levels(overlap,meas,file_order)
         if n+frame_base in set(scene.get('depth_flat',[])):level={k:0 for k in level}  # 사용자 판정: 기존(한 칸)이 맞음
         maxlevel=max(maxlevel,max(level.values(),default=0))
