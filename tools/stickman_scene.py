@@ -38,7 +38,7 @@ def load_scene(path):
     if (digest != rig['base_layout_sha256'] or rig_layout_fingerprint() != rig['layout_sha256']
             or scene.get('rig') != rig['id'] or scene.get('schema') != 1):
         raise ValueError('장면 설정과 고정 뼈대 버전이 다르다')
-    unknown = set(scene) - {'schema', 'rig', 'source_sha256', 'start', 'end', 'cuts', 'tracks', 'partials', 'contacts', 'occlusions', 'description'}
+    unknown = set(scene) - {'schema', 'rig', 'source_sha256', 'start', 'end', 'cuts', 'tracks', 'partials', 'contacts', 'occlusions', 'description', 'visible_views'}
     if unknown:
         raise ValueError(f'알 수 없는 장면 항목: {sorted(unknown)}')
     return scene, dict(id=rig['id'], profile_sha256=hashlib.sha256(RIG_PATH.read_bytes()).hexdigest(),
@@ -73,7 +73,7 @@ def apply_scene(poses, frames, scene):
     report = {'partials': [], 'tracks': [], 'contacts': []}
     from stickman_occlusion import bridge_occlusions
     result, report['occlusions'] = bridge_occlusions(result, frames, scene.get('occlusions', []), cuts)
-    for spec in [*scene.get('partials', []), *scene.get('tracks', []), *scene.get('contacts', [])]:
+    for spec in [*scene.get('partials', []), *scene.get('tracks', []), *scene.get('contacts', []), *scene.get('visible_views', [])]:
         if not frames[0] <= spec['start'] <= spec['end'] <= frames[-1] or any(spec['start'] < c <= spec['end'] for c in cuts):
             raise ValueError('이벤트는 처리 범위·한 컷 안에 있어야 한다')
     # 부분 인물도 같은11객체 틀을 쓰고 보이는 조각만 표시한다.
@@ -99,6 +99,30 @@ def apply_scene(poses, frames, scene):
             j['_visible_segments'] = list(part['visible_segments'])
             result[i][actor] = j
             report['partials'].append(dict(frame=frame, actor=actor, visible_segments=part['visible_segments']))
+    # 보이는 부위 지정(11-09): 근접·부분 구도에서 검출이 몸을 지어내도 원본에 보이는 조각만 그린다.
+    # 검출된 인물이 있으면 그 좌표를, 없으면 가장 가까운 틀을 쓰고 keys 관절만 원본 판독 좌표로 바꾼다.
+    for view in scene.get('visible_views', []):
+        actor = view['actor']
+        if not set(view['visible_segments']).issubset(range(1, 11)):
+            raise ValueError('보이는 부위 지정의 조각 번호가 잘못됐다')
+        valid = [i for i, row in enumerate(poses) if row.get(actor) is not None]
+        for i, frame in enumerate(frames):
+            if not view['start'] <= frame <= view['end']:
+                continue
+            j = result[i].get(actor)
+            if j is None:
+                if not valid:
+                    raise ValueError('보이는 부위 지정: 쓸 수 있는 인물 틀이 없다')
+                j = {k: np.asarray(v, float) for k, v in poses[min(valid, key=lambda n: abs(n - i))][actor].items() if k in JOINTS}
+            j = {k: (np.asarray(v, float).copy() if k in JOINTS else v) for k, v in j.items()}
+            names = set().union(*(v.keys() for v in view.get('keys', {}).values())) if view.get('keys') else set()
+            for name in names:
+                if name not in JOINTS:
+                    raise ValueError(f'알 수 없는 관절: {name}')
+                j[name] = keyed_value({t: v[name] for t, v in view['keys'].items() if name in v}, frame)
+            j['_visible_segments'] = sorted(view['visible_segments'])
+            result[i][actor] = j
+            report.setdefault('visible_views', []).append(dict(frame=frame, actor=actor, visible_segments=j['_visible_segments']))
     for track in scene.get('tracks', []):
         actor = track['actor']
         for i, frame in enumerate(frames):

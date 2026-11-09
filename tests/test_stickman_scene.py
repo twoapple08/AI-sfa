@@ -45,6 +45,27 @@ class TestScene(unittest.TestCase):
                 if p.get('ID') in pts:
                     self.assertTrue(all(a.get('ConnPtId') in pts for a in p.findall('AC')))
 
+    def test_visible_view_hides_invented_body_on_detected_actor(self):
+        """근접에서 검출이 몸을 지어내도 지정 조각만 보이고, 키 관절은 원본 판독 좌표로 보간된다(11-09)."""
+        poses = [dict(blue=pose(10), red=pose(90)) for _ in range(7)]
+        poses[2]['red'] = None  # 검출 없는 장도 틀을 빌려 같은 지정을 받는다
+        before = copy.deepcopy(poses)
+        scene = self.scene()
+        scene['visible_views'] = [dict(actor='red', start=1, end=3, visible_segments=[4, 3],
+                                       keys={'1': dict(wri_r=[0, 0]), '3': dict(wri_r=[20, 40])})]
+        out, report = apply_scene(poses, list(range(7)), scene)
+        for f in (1, 2, 3):
+            self.assertEqual(out[f]['red']['_visible_segments'], [3, 4])
+        np.testing.assert_allclose(out[2]['red']['wri_r'], [10, 20])
+        self.assertNotIn('_visible_segments', out[0]['red'])
+        np.testing.assert_array_equal(poses[1]['red']['wri_r'], before[1]['red']['wri_r'])
+        j = out[1]['red']
+        fr = E.fromstring('<Frame>'+sc.person_aos(1, 1, j, lambda v:v, 'red', visible_segments=j['_visible_segments'])+'</Frame>')
+        self.assertEqual([int(a.get('ID')) % 100 for a in fr.findall('AO') if a.get('Color') != '0'], [3, 4])
+        scene['visible_views'][0]['end'] = 5  # 컷(4)을 넘으면 거부
+        with self.assertRaises(ValueError):
+            apply_scene(poses, list(range(7)), scene)
+
     def test_partial_leg_uses_same_rig_and_one_root(self):
         poses = [dict(blue=pose(10), red=pose(90)) for _ in range(7)]
         poses[1]['red'] = None

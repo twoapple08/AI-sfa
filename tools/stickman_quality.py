@@ -103,12 +103,12 @@ def audit(root, scene, colors=('blue', 'red'), width=1152, crop_y=63, top=24, vi
             pose = poses[i][color]
             if pose is None:
                 if ((f, color) in planned or any(part['actor'] == color and part['start'] <= f <= part['end']
-                                               for part in scene.get('partials', []))):
+                                               for part in [*scene.get('partials', []), *scene.get('visible_views', [])])):
                     fail(f'{color} 표시하기로 한 부분 인물 누락')
                 continue
             counts[color] += 1
             expected_visible = list(range(1, 11))
-            for partial in scene.get('partials', []):
+            for partial in [*scene.get('partials', []), *scene.get('visible_views', [])]:
                 if partial['actor'] == color and partial['start'] <= f <= partial['end']:
                     expected_visible = sorted(partial['visible_segments'])
             expected_visible = planned.get((f, color), expected_visible)
