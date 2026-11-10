@@ -1,0 +1,23 @@
+{
+  "schema": "smear-scene/1",
+  "description": "nian41 3072-3311 새 구간: 스틱맨 깊이 칸용 최소 설정(인물색→slot). 스미어 항목은 아직 없음.",
+  "frame_base": 3072,
+  "actors": {
+    "blue": {
+      "slot": 0,
+      "smear_color": -16777216
+    },
+    "red": {
+      "slot": 1,
+      "smear_color": -16776961
+    }
+  },
+  "extra": [],
+  "pose_fixes": [],
+  "smear_size": [],
+  "drop": [],
+  "drop_why": "",
+  "depth_flat": [],
+  "depth_flat_why": "",
+  "depth_user": []
+}

@@ -109,7 +109,7 @@ def color_count(masks,slot_color,slot,p,r):
     return int(m[max(0,y-r):y+r+1,max(0,x-r):x+r+1].sum())
 
 
-def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5):
+def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5,one_sided=True):
     """원본에서 잰 앞뒤. 반환: 겹치는 쌍(기본 제약용), 측정 [(front, back, kind, strength)]."""
     import cv2
     import smear_limb_scan as V
@@ -143,6 +143,40 @@ def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5):
             if na+nb>=10:
                 if na>ratio*nb:meas.append((ka,kb,'body',na/(nb+1)))
                 elif nb>ratio*na:meas.append((kb,ka,'body',nb/(na+1)))
+            elif one_sided:
+                # 가림 근거(11-10): 뒤로 보낼 부위가 자기 선 전체에서 자기 색이 거의 안 보이고(<20%, 실제로 가려짐),
+                # 겹치는 지점에는 앞 인물색만 보일 때만 앞뒤를 정한다. 겹침 지점 색만 보면 뼈대가 조금 어긋나도
+                # 틀린다(승인 10초 1197 빨강 머리). 경계 측정보다 약하게(세기 상한 1) 넣는다.
+                def own_support(k):
+                    hits=tot=0
+                    for q1,q2,_,_ in segs(k):
+                        for t in np.linspace(0,1,12):
+                            c=q1+t*(q2-q1);x,y=int(round(c[0])),int(round(c[1]))
+                            m=masks[slot_color[k[0]]]
+                            if 0<=x<m.shape[1] and 0<=y<m.shape[0]:
+                                tot+=1;hits+=color_count(masks,slot_color,k[0],c,6)>0
+                    if k[1]=='core' and k[0] in heads:
+                        cen=heads[k[0]][0];tot+=3;hits+=3*(color_count(masks,slot_color,k[0],cen,8)>0)
+                    return hits/tot if tot>=6 else None
+                dense=[]  # 겹치는 구간을 따라 여러 점(가장 가까운 한 점만 보면 쌍마다 1~2점뿐이라 근거가 모이지 않는다)
+                for p1,p2,wa,_ in segs(ka):
+                    for q1,q2,wb,_ in segs(kb):
+                        lim=(wa+wb)/2
+                        for a1,a2,b1,b2 in ((p1,p2,q1,q2),(q1,q2,p1,p2)):
+                            u=b2-b1
+                            for t in np.linspace(0,1,16):
+                                c=a1+t*(a2-a1);w=np.clip((c-b1)@u/max(u@u,1e-9),0,1)
+                                if np.linalg.norm(c-(b1+w*u))<lim:dense.append(c)
+                oa=ob=0
+                for c in dense:
+                    ca,cb=color_count(masks,slot_color,0,c,6),color_count(masks,slot_color,1,c,6)
+                    if ca>20 and cb==0:oa+=1
+                    elif cb>20 and ca==0:ob+=1
+                sa,sb=own_support(ka),own_support(kb)
+                torso=lambda sl:max([np.linalg.norm(q2-q1) for q1,q2,_,_ in lines.get((sl,'core'),[])] or [0])
+                if min(torso(0),torso(1))<80:sa=sb=None  # 먼 작은 인물은 색 영역이 가늘어 근거로 쓰지 않는다(승인 10초 1236)
+                if ob>=3 and sa is not None and sa<0.2 and (sb is None or sb>=0.2):meas.append((kb,ka,'body',min(1.,ob/10)))
+                elif oa>=3 and sb is not None and sb<0.2 and (sa is None or sa>=0.2):meas.append((ka,kb,'body',min(1.,oa/10)))
     # 같은 인물 안 겹침: 원래 순서 유지(측정하지 않음)
     for s in (0,1):
         ks_=[k for k in keys if k[0]==s]
