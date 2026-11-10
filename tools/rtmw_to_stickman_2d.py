@@ -92,7 +92,75 @@ def pick_target(R, frames, video=None, color='blue', strict=False, min_share=0.0
                     ok_ += m[win].mean() >= 0.3 and m[win].mean() > o[win].mean()
                 return ok_ / n if n else 0.0
 
-            cands = [p for p in ps if share(p, m) >= min_share and share(p, m) > share(p, o)]
+            def head_owner(p):
+                # 머리(코·눈·귀) 자리 색: 몸은 근접에서 상대 팔에 자주 가리지만(3101 파랑), 검출이 잡은 얼굴·머리카락은 덜 가린다.
+                k = p[1]
+                a_ = b_ = 0
+                for j in range(5):
+                    if k[j, 2] < 1.5:
+                        continue
+                    x, y = int(np.clip(k[j, 0], 0, m.shape[1] - 1)), int(np.clip(k[j, 1], 0, m.shape[0] - 1))
+                    win = (slice(max(0, y - 6), y + 7), slice(max(0, x - 6), x + 7))
+                    mm, oo = m[win].mean(), o[win].mean()
+                    a_ += mm >= 0.2 and mm > oo
+                    b_ += oo >= 0.2 and oo > mm
+                return a_, b_
+
+            def pts_owner(p):
+                # 관절 자리 색(11-10 3109–3111): 두 인물이 붙으면 상자 안 색 비율은 큰 쪽 인물로 기운다.
+                # 어깨·엉덩이·팔꿈치·무릎과 몸통 중간점이 어느 인물 색 위에 있는지 센다. (대상색 점, 다른 색 점)
+                k = p[1]
+                pts = [k[j, :2] for j in (5, 6, 7, 8, 11, 12, 13, 14) if k[j, 2] >= 1.5]
+                for a, b in ((5, 11), (6, 12), (5, 12), (6, 11)):
+                    if k[a, 2] >= 1.5 and k[b, 2] >= 1.5:
+                        pts.append((k[a, :2] + k[b, :2]) / 2)
+                a_ = b_ = 0
+                for q in pts:
+                    x, y = int(np.clip(q[0], 0, m.shape[1] - 1)), int(np.clip(q[1], 0, m.shape[0] - 1))
+                    win = (slice(max(0, y - 4), y + 5), slice(max(0, x - 4), x + 5))
+                    mm, oo = m[win].mean(), o[win].mean()
+                    a_ += mm >= 0.3 and mm > oo
+                    b_ += oo >= 0.3 and oo > mm
+                return a_, b_
+
+            def clean(q, sign):
+                # sign=1: 대상색이 머리·몸 모두 분명 / -1: 다른 색이 머리·몸 모두 분명
+                ha, hb = head_owner(q)
+                ba, bb = pts_owner(q)
+                if sign < 0:
+                    ha, hb, ba, bb = hb, ha, bb, ba
+                return ha >= 2 and ha >= 3 * hb and ba >= 3 and ba >= 3 * bb
+
+            def passes(p):
+                if share(p, m) < min_share:
+                    return False
+                k = p[1]
+                if min(k[5, 2], k[6, 2], k[11, 2], k[12, 2]) >= 1.5:
+                    torso = np.linalg.norm((k[5, :2] + k[6, :2]) / 2 - (k[11, :2] + k[12, :2]) / 2)
+                    if torso < 60:  # 먼 작은 인물: 9×9 창이 두 인물을 다 덮어 색 근거가 흐리다(승인 10초 1234·1235)
+                        return share(p, m) > share(p, o)
+                ha, hb = head_owner(p)
+                ba, bb = pts_owner(p)
+                hd = 1 if ha >= 2 and ha >= 3 * hb else (-1 if hb >= 2 and hb >= 3 * ha else 0)
+                bd = 1 if ba >= 3 and ba >= 3 * bb else (-1 if bb >= 3 and bb >= 3 * ba else 0)
+                # 섞인 검출(머리는 한 인물, 몸은 다른 인물: 3114·3091·3093)은 어느 쪽에도 주지 않는다.
+                # 머리가 애매하고 몸만 대상색이면 상자도 다른 색일 때만 버린다(1162 파랑 p1: 머리는 빨강 얼굴, 승인 10초 1079 빨강은 유지)
+                if hd * bd == -1:
+                    # 머리와 몸이 다르다: 같은 장에 몸 색 인물의 깨끗한 검출(머리·몸 모두 그 색)이 따로 있으면
+                    # 이 검출의 몸 색은 그 인물에게 가린 것이다(3102·3091 파랑: 빨강 팔·몸 뒤) → 머리를 따른다. 없으면 섞인 검출로 버린다.
+                    other_clean = any(q is not p and clean(q, bd) for q in ps)
+                    return hd > 0 if other_clean else False
+                if hd == 0 and bd == 1 and hb >= 2 and share(p, o) > share(p, m):
+                    return False
+                if hd > 0 and ba <= bb and share(p, o) > 2 * share(p, m):
+                    return False  # 머리만 걸치고 몸·상자가 다른 인물(이펙트 근접 3273–3285: 파랑 주먹 위 머리점, 상자는 빨강 외투)
+                if hd:
+                    return hd > 0
+                if bd:
+                    return bd > 0
+                return share(p, m) > share(p, o)  # 근거 부족 → 상자 비율
+
+            cands = [p for p in ps if passes(p)]
             # 몸통 소유권 검사는 후보가 둘 이상일 때만(겹침 토론 3차, 11-03): 먼 화면의 작은 인물(몸통 23px)은 어깨 주변 9×9에
             # 대상색이 0%로 잡혀, 후보가 하나뿐인 빨강 1235가 탈락했고 키가 합쳐져 1234–1236이 멈췄다.
             if len(cands) > 1:

@@ -170,3 +170,22 @@ class TestKeyedPoseAndDespike(unittest.TestCase):
         out, log = despike(poses, list(range(5)), [], set())
         np.testing.assert_allclose(out[2]['blue']['wri_r'], [201, 0], atol=0.5)
         self.assertTrue(any(x['joint'] == 'wri_r' for x in log))
+
+
+class TestKeyEval(unittest.TestCase):
+    def test_sfa_joints_round_trip_and_error(self):
+        """키 평가 도구가 SFA 점을 관절 이름·원본 픽셀로 되돌리고, 머리 지름 단위 오차를 잰다."""
+        import stickman_key_eval as KE
+        j = pose(100); j['wri_r'] = np.array([300., 263.]); j['head_t'] = np.array([100., 100.]); j['head_b'] = np.array([100., 160.])
+        to_pct = lambda p: (100 * p[0] / 1152, 100 * (p[1] - 63) / 648)
+        xml = '<Sequence><Frame>' + sc.person_aos(0, 1, j, to_pct, 'red') + '</Frame></Sequence>'
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, 'a.sfa')
+            with __import__('zipfile').ZipFile(p, 'w') as z:
+                z.writestr('a.xml', xml)
+            got = KE.sfa_joints(p, 10, 63)
+            np.testing.assert_allclose(got[(10, 1)]['wri_r'], [300, 263], atol=0.1)
+            scene = dict(visible_views=[dict(actor='red', keys={'10': dict(wri_r=[330, 263], head_t=[0, 0], head_b=[0, 60])})])
+            rows = KE.evaluate(p, scene, 10, 63, {'blue': 0, 'red': 1})
+            self.assertEqual(len(rows), 1)  # 머리 키는 위치 오차에서 뺀다
+            self.assertAlmostEqual(rows[0]['err_px'] / rows[0]['head_d'], 0.5, places=2)
