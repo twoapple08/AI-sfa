@@ -244,11 +244,23 @@ def distance_thickness(S, refs, t_min=0.2, t_max=20.0):
     return np.clip(t1 * (np.asarray(S, float) / S1) ** k, t_min, t_max), float(k)
 
 
+def front_sides(k, margin=0.8):
+    """앞쪽 팔·다리(11-10 사용자: 든 팔이 앞 팔, 내린 팔이 뒤 팔). 몸에 가려진 먼 쪽 관절은 검출 점수가 낮다.
+    좌우 (팔꿈치·손목)/(무릎·발목) 평균 점수 차가 margin 이상일 때만 정한다. 'r'/'l' = 스틱맨 _r/_l 쪽."""
+    from rtmw_to_stickman_2d import LELB, RELB, LWRI, RWRI, LKNE, RKNE, LANK, RANK
+    out = {}
+    for part, (l1, l2, r1, r2) in (('arm', (LELB, LWRI, RELB, RWRI)), ('leg', (LKNE, LANK, RKNE, RANK))):
+        sl, sr = (k[l1, 2] + k[l2, 2]) / 2, (k[r1, 2] + k[r2, 2]) / 2
+        if abs(sl - sr) >= margin:
+            out[part] = 'l' if sl > sr else 'r'
+    return out or None
+
+
 def build(R, video, start, end, cuts, colors, img=None):
     frames = list(range(start, end + 1))
     bounds = [start] + [c for c in sorted(cuts) if start < c <= end] + [end + 1]
     shots = [(bounds[i], bounds[i + 1] - 1) for i in range(len(bounds) - 1)]
-    people = {c: {'J': None, 'present': np.zeros(len(frames), bool)} for c in colors}
+    people = {c: {'J': None, 'present': np.zeros(len(frames), bool), 'front': [None] * len(frames)} for c in colors}
     rep = {'shots': shots, 'people': {c: [] for c in colors}}
     for c in colors:
         Jall = None
@@ -263,6 +275,10 @@ def build(R, video, start, end, cuts, colors, img=None):
                 AW[border_mask(AK, *img)] = 0
             L_rig, n_rig, _ = calib(AK, AW, SELECT['q'], True)
             rep.setdefault('person_rig', {})[c] = {'L': {k: round(v, 3) for k, v in L_rig.items()}, 'samples': n_rig}
+        for (s, e), ks in picks.items():
+            for n, k in zip(range(s, e + 1), ks):
+                if k is not None:
+                    people[c]['front'][n - start] = front_sides(np.asarray(k, float))
         for s, e in shots:
             sub = list(range(s, e + 1))
             J, pres, r = person_in_shot(R, video, sub, c, img=img, L_fallback=L_rig, K=picks[(s, e)])
@@ -403,6 +419,15 @@ def main():
                     ap.error('장면 JSON의 원본 영상 해시가 다르다')
         poses, scene_report = apply_scene(poses, frames, scene)
         rep['scene'] = dict(rig=rig, **scene_report)
+    fronts = {c: list(people[c]['front']) for c in a.colors}
+    if a.scene:
+        for view in scene.get('visible_views', []):  # 원본 판독으로 정한 앞쪽 팔·다리가 우선
+            if view.get('front'):
+                for n, f in enumerate(frames):
+                    if view['start'] <= f <= view['end']:
+                        fronts[view['actor']][n] = dict(fronts[view['actor']][n] or {}, **view['front'])
+    rep['front'] = [dict(frame=f, actor=c, **fronts[c][n]) for n, f in enumerate(frames) for c in a.colors
+                    if fronts[c][n] and poses[n].get(c) is not None]
     thick = {c: np.ones(len(frames)) for c in a.colors}
     if a.thick_ref:
         pts = []

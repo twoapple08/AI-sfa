@@ -135,3 +135,23 @@ class HiddenDepth(unittest.TestCase):
         self.assertIn(((0, 'core'), (1, 'armB'), 'body', 0.5), out)
         self.assertFalse(any(m[0] in hidden for m in out))
         self.assertEqual(D.hidden_back(overlap, meas, set()), meas)  # 추론 없으면 그대로
+
+
+class FrontLimbDepth(unittest.TestCase):
+    def test_front_arm_above_head_back_arm_behind(self):
+        import sfa_depth_layers as D
+        overlap = {((1, 'core'), (1, 'armA')), ((1, 'core'), (1, 'armB'))}
+        meas = D.front_order(overlap, [], [dict(frame=5, actor='red', arm='r')], {'blue': 0, 'red': 1})
+        self.assertIn(((1, 'armA'), (1, 'core'), 'over_head', 0.8), meas)
+        self.assertIn(((1, 'core'), (1, 'armB'), 'body', 0.8), meas)
+        level, _ = D.assign_levels(overlap, meas, lambda k: (k[0], list(D.GROUPS).index(k[1])))
+        self.assertGreater(level[(1, 'armA')], level[(1, 'core')])  # 같은 칸이면 머리가 나중이라 반드시 위 칸
+        self.assertGreater(level[(1, 'core')], level[(1, 'armB')])
+
+    def test_front_sides_needs_clear_score_gap(self):
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
+        import stickman_clip as sc
+        k = np.zeros((133, 3)); k[:, 2] = 3.0
+        self.assertIsNone(sc.front_sides(k))  # 차이 없음 → 정하지 않음
+        k[7, 2] = k[9, 2] = 1.0  # 왼팔(팔꿈치·손목) 점수 낮음 → 오른팔이 앞
+        self.assertEqual(sc.front_sides(k), {'arm': 'r'})

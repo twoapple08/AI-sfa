@@ -227,7 +227,7 @@ def assign_levels(overlap,meas,file_order):
         if key in front_of:continue
         front_of[key]=(front,back,kind,st)
         lower,upper=sorted((front,back),key=file_order)
-        ordered.append(((back,front,1 if kind=='over_smear' or front!=upper else 0),('measured',front,back,kind,st)))
+        ordered.append(((back,front,1 if kind in ('over_smear','over_head') or front!=upper else 0),('measured',front,back,kind,st)))
     intra=[];inter=[];smear=[]
     for o in sorted(overlap,key=str):
         pair=frozenset(o[1:]) if o[0]=='smear' else frozenset(o)
@@ -291,7 +291,28 @@ def hidden_back(overlap,meas,hidden):
     return out
 
 
-def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None):
+def front_order(overlap,meas,fronts,name_slot,strength=0.8):
+    """같은 인물 안 앞뒤(11-10 사용자: 든 팔이 앞 팔, 내린 팔이 뒤 팔). 추출 보고서 front(검출 점수 또는 원본 판독)로
+    뒤쪽 팔다리 < 몸통·머리 < 앞쪽 팔다리. 실제로 겹치는 묶음끼리만 넣는다. 인물 사이 측정보다 약하게(세기 0.8)."""
+    pairs={frozenset(o) for o in overlap if o[0]!='smear'}
+    have={frozenset((m[0],m[1])) for m in meas}
+    out=list(meas)
+    for x in fronts:
+        sl=name_slot.get(x['actor'])
+        if sl is None:continue
+        for part,groups in (('arm',('armA','armB')),('leg',('legA','legB'))):
+            if x.get(part) not in ('r','l'):continue
+            fr,bk=((sl,groups[0]),(sl,groups[1])) if x[part]=='r' else ((sl,groups[1]),(sl,groups[0]))
+            core=(sl,'core')
+            for front,back,kind in ((fr,core,'over_head'),(core,bk,'body'),(fr,bk,'body')):
+                k=frozenset((front,back))
+                if k in pairs and k not in have:
+                    # 앞쪽 팔다리 > 몸통 묶음: 같은 칸이면 머리가 팔다리보다 나중에 그려지므로 반드시 한 칸 위(over_head)
+                    out.append((front,back,kind,strength));have.add(k)
+    return out
+
+
+def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None,fronts=None):
     import cv2
     actors=scene['actors'];slot_color={v['slot']:k for k,v in actors.items()};color_slot={int(v['smear_color']):v['slot'] for v in actors.values()}
     out=copy.deepcopy(root);frames=out.findall('Frame')
@@ -303,6 +324,7 @@ def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None):
         rgb=cv2.cvtColor(cv2.imread(str(Path(frames_dir)/f'{n+frame_base}.png')),cv2.COLOR_BGR2RGB)
         overlap,meas=relations(f,rgb,slot_color,color_slot,canvas)
         meas=hidden_back(overlap,meas,hidden_groups(hidden,n+frame_base,color_slot_name(actors)))
+        meas=front_order(overlap,meas,(fronts or {}).get(n+frame_base,[]),color_slot_name(actors))
         meas=user_depth(meas,scene,n+frame_base)
         level,dropped=assign_levels(overlap,meas,file_order)
         if n+frame_base in set(scene.get('depth_flat',[])):level={k:0 for k in level}  # 사용자 판정: 기존(한 칸)이 맞음
@@ -353,7 +375,11 @@ def main():
     if a.hidden_report:
         hidden={}
         for x in json.load(open(a.hidden_report)).get('scene',{}).get('inferred_joints',[]):hidden.setdefault(int(x['frame']),[]).append(x)
-    out,rep=build(root,a.frames,scene,int(scene.get('frame_base',1)),hidden=hidden)
+    fronts=None
+    if a.hidden_report:
+        fronts={}
+        for x in json.load(open(a.hidden_report)).get('front',[]):fronts.setdefault(int(x['frame']),[]).append(x)
+    out,rep=build(root,a.frames,scene,int(scene.get('frame_base',1)),hidden=hidden,fronts=fronts)
     import sfa_layer_order as LO
     rep['layer_check']=LO.check(out)
     with zipfile.ZipFile(a.out,'w',zipfile.ZIP_DEFLATED) as z:z.writestr('review.xml',E.tostring(out,encoding='utf-8',xml_declaration=True))
