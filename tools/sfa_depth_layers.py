@@ -457,6 +457,20 @@ def register_order(out,src,newid):
     return dict(registered_hidden=len(regs),first_frame_objects=len(first.findall('AO')),remaining_inversion_ids=len(app_inversions(frames,key)))
 
 
+def back_slots(scene,frame,name_slot):
+    return {name_slot[v['actor']] for v in scene.get('back_views',[]) if v['actor'] in name_slot and v['start']<=frame<=v['end']}
+
+
+def crosses_head(segs,head,inner=0.85,skip=0.15):
+    cen,rad=head
+    for q1,q2,_,_ in segs:
+        d1,d2=np.linalg.norm(q1-cen),np.linalg.norm(q2-cen)
+        a,b=(q1,q2) if d1<=d2 else (q2,q1)  # 머리에 가까운 끝(목)부터
+        for t in np.linspace(skip,1,16):
+            if np.linalg.norm(a+t*(b-a)-cen)<inner*rad:return True
+    return False
+
+
 def split_lower(frame,owner,level,canvas=CANVAS):
     """팔다리 아래 마디만 따로 칸에 둔다: 칸 배정에 '(slot, armA_lo)' 같은 묶음이 있으면(사용자 지정 depth_user)
     그 팔다리의 아래 마디(4·6·8·10번 조각)와 그 테두리 복제본을 그 묶음으로 옮긴다.
@@ -484,7 +498,7 @@ def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None,fronts=None
     out=copy.deepcopy(root);frames=out.findall('Frame')
     order_cache={}
     def file_order(k):
-        return (k[0],list(GROUPS).index(k[1].replace('_lo','')))
+        return (k[0],list(GROUPS).index(k[1].replace('_lo',''))+(0.5 if k[1].endswith('_lo') else 0))
     per_frame=[];maxlevel=0
     for n,f in enumerate(frames):
         rgb=cv2.cvtColor(cv2.imread(str(Path(frames_dir)/f'{n+frame_base}.png')),cv2.COLOR_BGR2RGB)
@@ -499,6 +513,13 @@ def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None,fronts=None
         # 같은 인물 머리는 자기 몸통·팔다리 위(세기 500): 인물 사이 약한 색 측정(1079 세기 62)에 밀려 머리가 자기 몸 아래로 가지 않게.
         # 이 쌍에 이미 판정(앞 팔이 얼굴을 가로지름 over_head, 사용자 지정)이 있으면 그것을 따른다.
         have={frozenset((m[0],m[1])) for m in meas}
+        # 뒷모습(장면 설정 back_views, 11-10 사용자 '1126은 뒤통수인데 왜 머리가 앞'): 카메라에 등이 보이면 머리를 가로지르는
+        # 자기 팔다리·몸통이 머리 위. 머리 원 안(0.85r)을 목 접합(시작 15%) 너머에서 지나는 묶음만 머리 위로 둔다.
+        for sl in back_slots(scene,n+frame_base,color_slot_name(actors)):
+            if sl not in heads_:continue
+            for g in {k[1] for k in lines_ if k[0]==sl}:
+                if crosses_head(lines_[(sl,g)],heads_[sl]) and frozenset(((sl,g),(sl,'head'))) not in have:
+                    meas.append(((sl,g),(sl,'head'),'back_view',500.));have.add(frozenset(((sl,g),(sl,'head'))));overlap.add(((sl,g),(sl,'head')))
         for o in list(overlap):
             if o[0]!='smear' and o[0][0]==o[1][0] and 'head' in (o[0][1],o[1][1]) and frozenset(o) not in have:
                 hd,g=(o[1],o[0]) if o[1][1]=='head' else (o[0],o[1])

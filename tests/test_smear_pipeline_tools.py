@@ -200,3 +200,15 @@ class AppDrawOrder(unittest.TestCase):
         self.assertEqual(reg.get('Color'), '0'); self.assertEqual(list(reg.iter('AC')), [])
         others = {p.get('ID') for a in out.iter('AO') if a is not reg for p in a.iter('AP')}
         self.assertFalse({p.get('ID') for p in reg.iter('AP')} & others)  # 등록용 점 ID는 파일 어디와도 겹치지 않음
+
+
+class BackView(unittest.TestCase):
+    def test_back_view_puts_crossing_limb_over_head(self):
+        import sfa_depth_layers as D
+        sc = {'back_views': [dict(actor='blue', start=10, end=12)]}
+        self.assertEqual(D.back_slots(sc, 11, {'blue': 0, 'red': 1}), {0})
+        self.assertEqual(D.back_slots(sc, 13, {'blue': 0, 'red': 1}), set())
+        head = (np.array([0., 0.]), 20.)
+        through = [(np.array([0., 18.]), np.array([-40., -5.]), 4, 'a')]   # 목에서 시작해 머리 원을 가로지름
+        below = [(np.array([0., 18.]), np.array([30., 60.]), 4, 'b')]      # 목에서 아래로
+        self.assertTrue(D.crosses_head(through, head)); self.assertFalse(D.crosses_head(below, head))
