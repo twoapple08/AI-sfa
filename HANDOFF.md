@@ -1,42 +1,87 @@
-# AI-sfa 현행 인수인계 — 2026-11-08 (새 세션용)
+# AI-sfa 현행 인수인계 — 2026-11-10
 
-한국어로만 답한다(중간 안내 포함). 브랜치 `claude/new-session-gknz4t`만 쓴다(main 읽기/쓰기 금지). 작업 브랜치 `claude/smear-detection-redesign-3032w2`에도 같은 커밋을 올려 왔다. 저장 전 원격 fetch·다른 변경 보존. 커밋 전 루트 `python -m unittest discover -s tests` 전체 OK/exit0을 따로 확인한다(최근 510개 OK). GPU/새 학습/Kaggle 실행은 사용자 명시 승인 뒤에만.
+한국어로만 답한다(중간 안내 포함). 브랜치는 `claude/new-session-gknz4t`만 쓴다(main 읽기/쓰기 금지). 저장 전 원격을 fetch하고 다른 변경을 보존한다. 커밋 전 루트에서 `python -m unittest discover -s tests` 전체 OK를 따로 확인한다(11-10 기준 530여 개). GPU·새 학습·Kaggle 실행은 사용자 명시 승인 뒤에만 한다.
 
-이전 HANDOFF 전문(11-05~11-08 경과, 변환기·SFA화·60초판·단계 2 상세)은 `docs/history/HANDOFF-2026-11-08-before-new-session.md`에 그대로 보존했다. 필요한 갈래만 찾아 읽는다.
+- 이전 HANDOFF(11-08~11-09): `docs/history/HANDOFF-2026-11-08-new-session.md`. 그 전: `docs/history/HANDOFF-2026-11-08-before-new-session.md`.
+- **목표 정리표:** `docs/GOALS-TABLE-2026-11-10.md`. **체크 목록:** `docs/REPLAN-PLAN-DRAFT-2026-11-05.md` 맨 위(11-10 갱신).
 
-## 지금 할 일(사용자 11-08 지시)
-**"새 세션에서 가장 위에 체크 안 된 것부터 하나씩."** 체크 목록은 `docs/REPLAN-PLAN-DRAFT-2026-11-05.md` 맨 위 '체크 목록'이다(PDF로도 사용자에게 줬다). 위에서부터 `- [ ]` 항목을 하나씩 처리한다. 항목마다 시작 전에 무엇을·왜·얼마나 걸릴지 한 줄로 말하고 시작한다. 끝나면 체크하고 근거·커밋을 적는다. `[~]`(진행 중/부분)와 '11-08 대체됨' 표시는 건너뛴다.
+## 현재 우선순위(사용자 11-10)
 
-위에서부터 순서(11-08 기준):
-1. ~~원본 가닥 방향 지정~~ — 11-08 새 세션 완료(체크 목록 근거 참고). 11-09 1231 빨강 정강이·1176 앞뒤 수정까지 반영.
-2. ~~예전 v18 모양으로 둔 곳 정리~~ — 11-09 완료: 6곳 모두 유지(사용자 "잘되어있는데 왜 바꾸냐").
-3. ~~직진 후보에서 빠진 장면 점검~~ — 11-09 완료: 1215·1216 자세 교정+앞뒤 갈래, 나머지 경계 장 유지.
-4. 자동 탐지의 손·신발 오탐(의미 판정).
-5. 새 구간에 처음부터 적용(정립한 기술의 재사용 시험). 손목이 상대 손에 잡혀 팔이 꺾이는 RTMW 오류(1036·1037·1230·1231에서 4회)를 먼저 점검한다.
-6. 깊이 칸에 파편(debris) 넣기(파편 추출기 필요).
-7. 옛 기준판·GPT 테두리 시험 파일의 레이어 번호 결함.
-8. 이어서 11-06 구조 재검토 항목(결합 경로 A/B/C 등), 전용 도구 항목, 단계 1~6 남은 항목(단계 2는 **끝 기준 대비 미달**: 18구간 28초 vs 초안 300구간·20분).
+**스틱맨 추출을 '딸깍'으로 거의 완벽하게.** "전부 다 스틱맨 뽑는 기술로 가져가야 한다." 고친 내용은 장 지정 데이터가 아니라 공통 규칙(코드)으로 남긴다. 장 지정(`pose_fixes`·`visible_views`·`depth_user`·`back_views`)은 공통 규칙으로 안 되는 장에만 쓴다.
 
-## 스미어 현재 상태(반완성·보류)
-- 절차: 스킬 `.claude/skills/stickman-extraction/references/SMEAR-PIPELINE.md`(스틱맨 확정 → 탐지/사용자 확인 라벨 → `smear_from_labels` → `sfa_axial_smear` → `sfa_depth_layers` → `smear_checks` → `sfa_overlay_video`).
-- 장면 설정: `scenes/nian41_1032-1271_smear.json`(인물색→slot, extra, pose_fixes, drop, smear_size, depth_flat), `scenes/nian41_1032-1271_axial_smear.json`(axial_overrides 부위별 키, stretch_directions, forced_streaks).
-- 용어: **앞뒤** = 직진 갈래(폭 팔 굵기×1.6, 선 굵기 75%), **좌우** = 원본 측정 v18 지그재그(`keep_v18`) 또는 GPT 표시 테이퍼. 회전 `rotate_deg`는 삼각함수 기준(음수=오른쪽이 내려감).
-- **전달물은 깊이 칸 판만**(SFA + 원본 겹침·SFA만 영상). 앱은 레이어를 번호순으로 그린다(`sfa_layer_order`).
-- 최신 결과: Drive `AI-sfa/04_SFA시험작/nian41_10초_1215갈래_2026-11-09/`(방향 지정·1231 다리·1176 앞뒤·1215/1216 자세+앞뒤 갈래, SFA `fe522f20…`, 앱 확인 전). 그 전: `..._1176앞뒤_1231다리_2026-11-09/`, `..._방향지정_2026-11-08/`, 그 전 판: `AI-sfa/04_SFA시험작/nian41_10초_1230팔_2026-11-08/`(깊이 칸 SFA·영상, 스미어 99, 검사 통과). 그 직전 판(`..._판정반영2_...`)까지 사용자 앱 확인 "잘됐음". 1230 팔 펴기판은 앱 재확인 전.
-- 상세 경과: `docs/SMEAR-AXIAL-STREAK-2026-11-08.md`, `docs/DEPTH-LAYERS-2026-11-08.md`, `docs/SMEAR-DETECTION-REDESIGN-2026-11-07.md`, 이전 HANDOFF 보존본.
+### 바로 할 일(순서)
+1. 새 구간(3072–3311) 자동 추출 남은 과제. 지표는 `tools/stickman_key_eval.py`(원본 판독 키 기준, 머리 지름 단위)로 잰다.
+   - 팔만 보이는 근접 3221–3241: 검출이 몸 전체를 지어낸다. 보이는 부위만 자동으로 그린다.
+   - 검출 없는 장(3112–3115 빨강, 3151–3154 파랑): 이웃 장 값을 그대로 끌어와 어긋난다.
+   - 다리 오차가 가장 크다(발목·무릎 1.5–2 머리).
+   - 자동이 맞는 구간에서는 원본 판독 키를 빼고 자동 결과를 쓴다. 3109 빨강 키는 판독 오류이고 3164도 의심된다.
+2. 새 구간 빠진 인물(약 33장)과 판독 구간 경계의 튐(약 57곳).
+3. 새 구간 `back_views` 지정, 교차점 재대조, 스미어 단계.
+4. 체크 목록의 나머지 `- [ ]` 항목(위에서부터).
+
+### 사용자 확인 대기(◆)
+- 10초 뒷모습 구간 판독(파랑 1054–1071·1100–1135, 빨강 1032–1052·1066–1135·1152–1160): `scenes/nian41_1032-1271_smear.json` `back_views`.
+- 최신 10초 깊이 칸 앱 확인: Drive `AI-sfa/04_SFA시험작/뒷모습머리_v2_2026-11-10/`(SFA `7bb9cd60…`).
+- 스미어 자동 탐지 2안(소형 판정기 학습): GPU·학습 허락 필요.
+
+## 11-09~11-10에 정한 것(상세: `docs/DEPTH-LAYERS-2026-11-08.md`, `docs/NEW-SEGMENT-3072-3311-2026-11-09.md`)
+
+- **앱 그리기 순서:** 앱은 DrawOrder를 무시하고, 같은 레이어 안을 ID의 파일 전체 첫 등장 순서로 그린다. `sfa_depth_layers`가 첫 장에 모든 ID를 등록한다(보이지 않는 등록 객체, Color 0). 검사는 `tools/sfa_depth_audit.py order`. 미리보기 `sfa_overlay_video`도 같은 규칙으로 그린다.
+- **깊이 칸 묶음:** core(몸통·망토), head(머리 원·가면), armA/B, legA/B. 같은 인물 안에서는 머리가 맨 위다(`head_top`). 다만 뒷모습 구간(`back_views`)에서는 머리를 가로지르는 자기 팔다리가 머리 위다.
+  - 뒷모습은 1차 배정을 바닥으로 고정한 뒤 더한다. 다른 인물과의 순서를 뒤집는 뒷모습 제약은 버린다(1079).
+- **깊이 칸 측정 규칙:** 팔다리 끝 색(`tip`), 한 색만 보이는 겹침(`visible`), 한쪽 가림, 추론 부위는 뒤(`--hidden-report`), 같은 인물 앞쪽/뒤쪽 팔다리(검출 점수, 검증 전).
+  - 검출 점수만으로 팔을 얼굴 위로 올리는 추정은 뺐다.
+  - 아래팔만 따로 칸에 두려면 `depth_user`에 `0:armA_lo`처럼 쓴다(1220–1227).
+- **인물 고르기:** 머리(코·눈·귀) 색 → 몸 관절 색 → 상자 비율 순서로 본다. 머리와 몸 색이 다르면 섞인 검출로 보고 버린다. 단, 같은 장에 몸 색 인물의 깨끗한 검출이 있으면 머리 색을 따른다. 승인 10초에서는 결과가 바뀌지 않았다.
+- **자동 추출 정확도(새 구간 키 469개, 원본 판독 없이 자동만):**
+
+  | 판 | 오차 중앙값 | 머리 반 개 안 | 머리 하나 안 |
+  |---|---|---|---|
+  | 고치기 전 | 1.18 | 20% | 44% |
+  | 인물 고르기 수정 | 0.83 | 29% | 56% |
+  | + `--key-motion-v2` | 0.82 | 33% | 58% |
+
+  앞으로 새 구간 자동 추출은 `--key-motion-v2`를 켠다.
+- **최신 추출 기술 확인:** 이 작업 전 마지막 판은 11-04 GPT 공통 v2(선택 옵션)다. 코드는 모두 이 브랜치에 있다. Drive `AI-sfa_Claude_세션전체전달_2026-11-07/`은 스미어 인계 자료이고, 그보다 새로운 추출 코드는 없다.
+- **뒷모습 자동 판별:** 애니 얼굴 검출과 RTMW 어깨 순서로는 불안정했다(측정). 지금은 판독 구간을 쓰고, 자동 판별은 과제로 남긴다.
 
 ## 새 환경 복원(비공개 자료, Git 제외)
-- Drive는 환경 rclone 리모트 `gdrive:`(drive.file 범위)로 접근한다. 사용자 공유 폴더는 `--drive-root-folder-id`로 읽는다.
-- 원본 영상: 스킬 `data/artifact_manifest.json`의 Drive ID `16KkKd-rqx_NEtjBTcJ8Hpug8q61ujFVG`(SHA `5736947008f14fe3…`). 프레임은 `ffmpeg -i video.mp4 -vf "select=between(n\,1032\,1271),crop=1152:648:0:63" -vsync 0 -start_number 1032 frames/%d.png`.
-- RTMW: manifest Drive ID `16MtJnEfLU1U66-DFCdgk1QZAldDQRN-c`(SHA `6c7905164776c208…`).
-- 스미어 입력 3종(스미어 전 스틱맨 `c3a1777c…`, 확인 라벨 `a9a38222…`, 사슬 틀 `dfb2ef3e…`): Drive `AI-sfa/02_분석자료/스미어파이프라인_입력_2026-11-08/`.
-- 새 컨테이너에는 rclone이 없을 수 있다: 공식 zip을 받아 `/usr/local/bin/rclone`에 두고 `RCLONE_CONFIG=/dev/null`로 실행한다(리모트는 환경변수 `RCLONE_CONFIG_GDRIVE_*`). libegl1은 `apt-get update` 뒤에 설치된다.
-- 테스트 의존성: opencv-python-headless, scikit-image, skia-python(+libegl1), CPU torch/torchvision, pandoc(문서 PDF).
 
-## 지킬 것(이번 세션에서 받은 지적)
-- 요청 범위만 바꾼다("팔을 펴랬지 누가 스미어 형식도 바꾸래?"). 더 나은 변경은 먼저 묻는다.
-- 승인 뼈대를 자동 교정하지 않는다. 자세 교정은 원본 판독 좌표로 장마다 `pose_fixes`에 적는다. **다만 원본과 분명히 어긋난 장을 Claude가 찾았으면 고칠지 묻지 말고 고쳐서 전후 시트로 보인다**(11-09 사용자 "고쳐야지 당연한거 아니야?"). 금지는 일괄 자동 교정이다.
-- 앞뒤(깊이 칸)가 원본과 다른 장은 장면 설정 `depth_user`(frame, front, back, kind)로 지정한다. 측정보다 우선한다(11-09 1176).
-- 스틱맨 팔다리 끝은 스미어 끝 밖으로 나오지 않는다(스미어를 늘린다). `smear_checks --scene`으로 검사한다.
-- 체크 표시와 단계 완료를 혼동하지 않는다. 끝 기준과 비교해 말한다.
-- 결과는 그림·영상으로 먼저 보이고, 영상은 MP4도 함께 준다.
+- Drive는 rclone 리모트 `gdrive:`다. 없으면 공식 zip을 `/usr/local/bin/rclone`에 두고 `RCLONE_CONFIG=/dev/null`로 실행한다(리모트는 환경변수 `RCLONE_CONFIG_GDRIVE_*`). 전체 목록(`lsf -R`)은 10분 넘게 걸리니, 경로를 알면 그 폴더만 본다.
+- 원본 영상: 스킬 `data/artifact_manifest.json` Drive ID `16KkKd-rqx_NEtjBTcJ8Hpug8q61ujFVG`(SHA `5736947008f14fe3…`). RTMW는 ID `16MtJnEfLU1U66-DFCdgk1QZAldDQRN-c`(SHA `6c7905164776c208…`).
+- 프레임(위 63px를 자른다):
+  - 10초: `ffmpeg -i video.mp4 -vf "select=between(n\,1032\,1271),crop=1152:648:0:63" -vsync 0 -start_number 1032 frames/%d.png`
+  - 새 구간: 같은 방식으로 3072–3311을 뽑아 `frames_new/`에 둔다.
+- 스미어 입력 3종: Drive `AI-sfa/02_분석자료/스미어파이프라인_입력_2026-11-08/`.
+- **11-10 작업 입력:** Drive `AI-sfa/02_분석자료/작업입력_2026-11-10/`(SHA256SUMS·읽어주세요 포함).
+  - 10초 깊이 칸 입력 `r6.sfa`와 추출 보고(앞뒤)
+  - 새 구간 스틱맨 fix15와 보고, 자동만 v2
+  - 최신 깊이 칸 두 구간과 보고(검사 기준선)
+  - 얼굴 검출 결과와 얼굴 모델(`face_detect_v1.4_n.onnx`, SHA `fd860b65…`)
+- 테스트 의존성: opencv-python-headless, scikit-image, skia-python(+libegl1, `apt-get update` 뒤), CPU torch/torchvision.
+
+## 자주 쓰는 명령(비공개 경로는 바꿔 쓴다)
+
+```bash
+# 자동 추출(새 구간): 원본 판독 키를 뺀 장면으로 돌리면 '딸깍' 성능을 잴 수 있다
+python tools/stickman_clip.py rtmw.jsonl.gz video.mp4 자동.sfa --start 3072 --end 3311 --cuts <컷> --crop-y 63 \
+  --select coverage --side-rule valid --projection --image-keys --key-motion-v2 --thick-ref 10:blue:3.853 235:red:0.975 \
+  --scene 키뺀장면.json --report 자동_report.json
+python tools/stickman_key_eval.py 자동.sfa --scene scenes/nian41_3072-3311.json --start 3072
+# 깊이 칸과 검사
+python tools/sfa_depth_layers.py --sfa 스미어결과.sfa --frames frames --scene scenes/nian41_1032-1271_smear.json \
+  --hidden-report 추출보고.json --out 깊이칸.sfa --report 깊이칸.json
+python tools/sfa_depth_audit.py order 스미어결과.sfa 깊이칸.sfa 깊이칸.json
+python tools/sfa_depth_audit.py cross-flip 이전.sfa 이전.json 새.sfa 새.json --frame-base 1032
+python tools/smear_checks.py 깊이칸.sfa --frame-base 1032 --same-shapes-as 스미어결과.sfa --depth-report 깊이칸.json --scene scenes/nian41_1032-1271_smear.json
+# 원본 대조 시트(ab·diff·cross·heads·dets·keys)
+python tools/stickman_review_sheets.py diff 이전.sfa 새.sfa --frames-dir frames --base 1032 --list 1100-1135 --out 시트.jpg
+```
+
+## 지킬 것(이번 세션 지적 요약, 전문은 AGENTS.md)
+
+- 형식 검사 통과(뒤집힘 0, 구조 0)는 품질이 아니다. 원본과 장별·교차점별로 대조한 결과부터 보고한다. 같은 순서를 두 방식으로 비교한 시트(의도 순서와 앱 순서)는 원본 대조가 아니다.
+- 명백한 오류는 묻지 말고 고친다. 잘된 것은 바꾸지 않는다. 요청 범위만 바꾼다.
+- 새 규칙을 넣으면 승인 구간에서 바뀐 장을 모두 렌더 차이로 찾아 원본과 대조한다. 다른 인물과의 순서가 뒤집히지 않았는지(`cross-flip`)도 본다.
+- 가려진 몸은 숨기지 않는다(깊이 칸으로 처리). 추론 부위는 앞에 두지 않는다. 머리 지름은 가림으로 줄이지 않는다.
+- 결과는 그림·영상으로 먼저 보이고, SFA와 MP4를 함께 Drive에 올린다.

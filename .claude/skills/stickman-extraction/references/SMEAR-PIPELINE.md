@@ -87,3 +87,16 @@ python tools/sfa_depth_layers.py --sfa 결과.sfa --frames frames --scene scenes
 python tools/smear_checks.py 결과_깊이칸.sfa --frame-base 1032 --same-shapes-as 결과.sfa --depth-report 깊이칸_report.json --scene scenes/nian41_1032-1271_smear.json
 ```
 스미어가 원본에서 앞에 있는 다른 인물 부위를 덮지 않게 한다. 인물과 상관없는 깊이 칸마다 '테두리→몸→스미어'를 두고, 장마다 원본 색으로 앞뒤를 재서 부위를 칸에 배정한다. 사람 편집은 고려하지 않는다. 설계·측정·결과·한계는 `docs/DEPTH-LAYERS-2026-11-08.md`. 앞뒤 측정은 근사라서 위 칸으로 올린 장의 시트를 사용자 판정에 낸다. 측정이 없거나 틀린 장은 장면 설정 `depth_user`(예: `{"frame":1176,"front":"0:armA","back":"1:armA","kind":"over_smear"}`)로 사람이 지정하며 측정보다 우선한다(11-09). 같은 칸 안에서는 스미어 층이 몸 층 위이므로, 다른 인물의 스미어가 팔다리를 가로지르면 그 팔다리를 위 칸으로 올려야 앞에 보인다. 파편(debris)도 같은 칸 체계에 넣을 예정이다(미구현).
+
+**11-09~11-10 깊이 칸 갱신**(상세 `docs/DEPTH-LAYERS-2026-11-08.md`):
+```bash
+python tools/sfa_depth_layers.py --sfa 결과.sfa --frames frames --scene scenes/nian41_1032-1271_smear.json \
+  --hidden-report 스틱맨_추출보고.json --out 결과_깊이칸.sfa --report 깊이칸_report.json
+python tools/sfa_depth_audit.py order 결과.sfa 결과_깊이칸.sfa 깊이칸_report.json       # 앱 순서 뒤집힘 0이어야
+python tools/sfa_depth_audit.py cross-flip 이전_깊이칸.sfa 이전.json 결과_깊이칸.sfa 깊이칸_report.json --frame-base 1032
+```
+- `--hidden-report`(스틱맨 추출 보고의 `inferred_joints`·`front`)는 항상 넘긴다.
+- 앱은 같은 레이어 안을 ID 첫 등장 순서로 그린다. 빌더가 첫 장에 등록 객체를 넣어 고정한다(보고서 `order_registration`).
+- 묶음: core(몸통·망토), head(머리 원·가면), 팔다리 4. 같은 인물에서 머리가 맨 위이고, 장면 `back_views` 구간에서만 머리를 가로지르는 자기 팔다리가 위다.
+- 사람 지정 `depth_user`: `{"frame":1220,"front":"0:armA_lo","back":"1:legA","kind":"body"}`. `_lo`는 아래 마디만 따로 칸에 둔다. 머리는 `0:head`처럼 쓴다.
+- 새 규칙을 넣으면 승인판과 렌더 차이가 나는 장을 모두 원본과 대조한다(`tools/stickman_review_sheets.py diff`·`cross`).

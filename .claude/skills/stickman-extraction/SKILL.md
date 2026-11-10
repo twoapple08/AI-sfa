@@ -5,7 +5,7 @@ description: AI-sfa의 사람 영상→편집 가능한 2D 스틱맨 SFA 추출�
 
 # 사람 모션 추출·재현 기술과 인계
 
-2026-11-04 현재. **START-HERE.md → references/CURRENT-STATE.md → references/DECISIONS-AND-LIMITS.md부터 읽는다.** 과거 스킬 원문은 references/HISTORICAL-SKILL-THROUGH-2026-11-04.md이며 그 안의 ‘최신’이 이 문서를 덮지 않는다.
+2026-11-10 갱신. **START-HERE.md → references/CURRENT-STATE.md(→ 루트 HANDOFF.md) → references/DECISIONS-AND-LIMITS.md부터 읽는다.** 과거 스킬 원문은 references/HISTORICAL-SKILL-THROUGH-2026-11-04.md이며 그 안의 ‘최신’이 이 문서를 덮지 않는다.
 
 ## 시작과 필요한 자료
 
@@ -27,9 +27,20 @@ description: AI-sfa의 사람 영상→편집 가능한 2D 스틱맨 SFA 추출�
 - 접촉은 실제 확인한 만남만. 근접 회피를 붙이지 않는다. 숨은 점/보완 방향은 추론으로 기록한다. 고점수/색 지지/구조0은 신체 의미의 정답이 아니다.
 - 미리보기 영상은 현재 생략하고 SFA+필요 정지 근거로 전달한다. 원본 크기 판독/구조 검사를 생략하는 뜻은 아니다.
 
+## 11-09~11-10 추가 규칙('딸깍' 목표, 사용자 11-10)
+
+- 고친 내용은 공통 규칙(코드)으로 옮긴다. 장 지정(`pose_fixes`·`visible_views`·`depth_user`·`back_views`)은 공통 규칙으로 안 되는 장에만 쓴다. 공통 규칙을 승인 구간에 켜서 바뀐 장을 렌더 차이로 모두 찾아 원본과 대조한 뒤 쓴다.
+- 자동 추출 성능은 `tools/stickman_key_eval.py`로 잰다. 정답은 장면의 원본 판독 키이고, 키를 뺀 장면 설정으로 만든 자동 결과를 넣는다. 머리 지름 단위 중앙값, 머리 반 개 안·하나 안 비율을 쓴다.
+- 새 구간 자동 추출에는 `--key-motion-v2`를 켠다(11-10 측정으로 조금 나음).
+- 인물 고르기(`pick_target` coverage)는 머리 색 → 몸 관절 색 → 상자 비율 순서로 본다. 섞인 검출(머리와 몸이 다른 인물)은 버린다.
+- 원본 판독 키도 틀릴 수 있다(3109 빨강). 자동과 크게 다른 키는 원본에 찍어 다시 본다(`tools/stickman_review_sheets.py keys`).
+- 가려진 몸은 숨기지 않는다. 자동 숨김(`--auto-visibility`)은 제거했다. 앞뒤는 깊이 칸으로 처리한다. 추론 부위(`inferred_joints`)는 깊이 칸에서 앞에 두지 않는다.
+- 머리 지름은 가림으로 줄이지 않는다(`visible_views.head_d` 구간 흐름).
+- 깊이 칸(레이어)은 `docs/DEPTH-LAYERS-2026-11-08.md`를 따른다. 앱은 같은 레이어 안을 ID 첫 등장 순서로 그린다. 머리 묶음은 따로 두고, 같은 인물에서 맨 위다. 뒷모습 구간에서만 머리를 가로지르는 자기 팔다리가 위다. 검사는 `tools/sfa_depth_audit.py`(order·head-under·cross-flip).
+
 ## 새로운 장면을 처리하는 순서
 
-1. 원본/관측/그림키/코드 지문과 보정 전 출력부터 저장한다. tools/stickman_clip.py --projection --image-keys, docs/STICKMAN-EXTRACTION-V1.md를 따른다. 선택 공통v2는 docs/GPT-STICKMAN-GENERIC-V2-2026-11-03.md. GPU/새 학습은 별도 사용자 허락이 필요하다.
+1. 원본/관측/그림키/코드 지문과 보정 전 출력부터 저장한다. tools/stickman_clip.py --projection --image-keys --key-motion-v2(11-10부터), docs/STICKMAN-EXTRACTION-V1.md를 따른다. 선택 공통v2는 docs/GPT-STICKMAN-GENERIC-V2-2026-11-03.md. GPU/새 학습은 별도 사용자 허락이 필요하다.
 2. 고정 프로필·공통 함수·장면 scenes/*.json을 분리한다. 장 번호 예외를 공통 코드에 넣지 않는다. 같은 증상이 여러 장이면 원관측→유효 축/뺀 점→허브/팔다리 출력→저장 XML을 먼저 측정한다.
 3. stickman_quality.py의 전체 구조/머리/흰 채움/접촉 검사와 움직임/겹침 후보를 본다. 선택 면/부속/앞뒤 기록까지 검사한다. 후보는 합격선/자동 삭제 지시가 아니다. 컷·실제 교차·빠른 차기를 평활해 지우지 않는다.
 4. 전신 미검출/부분 관측/전경 가림/실제 퇴장을 원본 크기로 구별한다. 구도/가시성/지역 관측/추론 끝점을 장면 자료에 명시한다. 같은 컷 양끝 없는 가림은 억지 연결하지 않는다. 양팔 일괄 삭제나 색만으로 부위 확정 금지.

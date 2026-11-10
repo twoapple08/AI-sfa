@@ -29,9 +29,12 @@
 # 1. 보정 전 투영본 보존. 실제 새 영상의 범위/컷/잘라낼 높이로 바꾼다.
 python tools/stickman_clip.py /비공개/관측.jsonl.gz /비공개/원본.mp4 /비공개/투영본.sfa \
   --start 1032 --end 1271 --cuts 1136 1234 --crop-y 63 \
-  --select coverage --side-rule valid --projection --image-keys \
+  --select coverage --side-rule valid --projection --image-keys --key-motion-v2 \
   --thick-ref 40:blue:1.0 120:red:5.0 \
   --report /비공개/추출보고.json --joints /비공개/출력좌표.json
+# (11-10) 기준 1032–1271 재현은 --key-motion-v2 없이. 새 구간·새 영상은 켠다.
+# 1b. 자동 정확도: 원본 판독 키를 뺀 장면으로 만든 결과를 키와 비교한다
+python tools/stickman_key_eval.py /비공개/자동.sfa --scene scenes/새장면.json --start 3072
 
 # 2. 원본 판독 후 장면 JSON을 적용. 이미 보정한 결과를 입력으로 다시 쓰지 않는다.
 python tools/stickman_finalize.py /비공개/투영본.sfa /비공개/결과.sfa \

@@ -9,7 +9,9 @@
 |`references/CURRENT-STATE.md`|최신 결과/검증/미완/바로 할 일|
 |`references/SESSION-LEDGER.md`|이번 세션 전체 경과와 상세 변경 로그|
 |`references/DECISIONS-AND-LIMITS.md`|유효 사용자 결정/금지/미채택/일반화 한계|
-|`references/SMEAR-PIPELINE.md`|스틱맨 다음 단계: 스미어 탐지·배치·모양·검사·영상 절차와 입력 위치(11-08)|
+|`references/SMEAR-PIPELINE.md`|스틱맨 다음 단계: 스미어 탐지·배치·모양·깊이 칸·검사·영상 절차와 입력 위치(11-08, 11-10 깊이 칸 갱신)|
+|루트 `HANDOFF.md`|**현행 상태·바로 할 일·새 환경 복원(11-10)**. CURRENT-STATE보다 우선|
+|`tools/stickman_key_eval.py`·`tools/sfa_depth_audit.py`·`tools/stickman_review_sheets.py`|정확도 지표·깊이 칸 순서 검사·원본 대조 시트(11-10)|
 |`references/ENVIRONMENT.md`|의존성과 환경 복원|
 |`data/artifact_manifest.json`|13종 파일의 정확 Drive ID/크기/SHA/역할/필수 여부|
 |`data/archive_inventory.json`|중첩 ZIP 포함752개 파일 항목 지문 색인|

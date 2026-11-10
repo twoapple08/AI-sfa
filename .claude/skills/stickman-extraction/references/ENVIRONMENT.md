@@ -11,3 +11,5 @@
 기존 환경변수는 RCLONE_GDRIVE_AUTH_B64/KAGGLE_USERNAME/KAGGLE_API_TOKEN 등이 있었다. 새 환경에 값이 주입됐다는 보장이 아니다. 값/토큰/키/서명키 출력 금지. 이 파일과 휴대 묶음에 자격증명은 없다. 앱 서명키·모델 가중치·원본 APK/역컴파일물도 휴대 묶음 대상이 아니다.
 
 전체 시험: 저장소 루트에서 python -m unittest discover -s tests. 커밋 전 별도 종료코드0과OK를 확인한다. UI/앱 설치는 서버 CPU시험으로 대신했다고 말하지 않는다. CPU 재현은 새 비공개 폴더에서 tools/stickman_replay.py로 하고 replay_result.json의 XML 동치/결정11개를 확인한다.
+
+11-10 추가: rclone이 없으면 공식 zip을 `/usr/local/bin/rclone`에 두고 `RCLONE_CONFIG=/dev/null`로 실행한다(리모트는 환경변수 `RCLONE_CONFIG_GDRIVE_*`). libegl1은 `apt-get update` 뒤 설치. 얼굴 보조 관측 모델은 Drive `AI-sfa/02_분석자료/작업입력_2026-11-10/face_detect_v1.4_n.onnx`(SHA `fd860b65…`, CPU OpenCV DNN). 작업 입력 전체 목록·지문은 같은 폴더의 SHA256SUMS. 대조 시트 글꼴은 `/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc`(없으면 기본 글꼴).
