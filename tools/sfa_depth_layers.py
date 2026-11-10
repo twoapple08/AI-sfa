@@ -327,6 +327,62 @@ def front_order(overlap,meas,fronts,name_slot,strength=0.8,geom=None):
     return out
 
 
+def app_inversions(frames,key):
+    """앱 순서(파일 전체 첫 등장)로 그렸을 때 같은 장·같은 레이어 안에서 의도 순서와 뒤집히는 객체 ID들."""
+    app={}
+    for f in frames:
+        for a in f.findall('AO'):app.setdefault(a.get('ID'),len(app))
+    bad=set()
+    for f in frames:
+        by={}
+        for a in f.findall('AO'):by.setdefault(a.get('LayerId'),[]).append(a.get('ID'))
+        for ids in by.values():
+            byk=sorted(ids,key=key)
+            bya=sorted(ids,key=app.get)
+            for x,y in zip(byk,bya):
+                if x!=y:bad.update((x,y))
+    return bad
+
+
+def register_order(out,src,newid):
+    """앱은 DrawOrder를 읽지 않고 같은 레이어 안을 객체 ID의 파일 전체 첫 등장 순서로 그린다(docs/FORMAT.md).
+    칸을 옮긴 복사본 ID는 여러 장에서 따로 처음 나와 순서가 뒤섞인다(11-10 사용자: 팔이 머리·가면 위로).
+    첫 장의 AO를 원래 순서(원본 첫 등장, 복사본은 원래 ID 기준)로 다시 적고, 첫 장에 없는 ID는 보이지 않는
+    등록용 복사본(Color 0, 연결 없음)으로 같은 자리에 넣어 모든 레이어의 순서를 고정한다.
+    한 장에만 나오는 객체(스미어 조각 등)는 대개 그 장에서 순서대로 처음 나오므로, 뒤집힘이 남는 것만 등록한다."""
+    base={}
+    for f in src.findall('Frame'):
+        for a in f.findall('AO'):base.setdefault(a.get('ID'),len(base))
+    rev={str(v):str(o) for (o,k),v in newid.items()}
+    key=lambda i:(base.get(rev.get(i,i),10**9),i)
+    frames=out.findall('Frame')
+    first=frames[0]
+    proto={};seen={}
+    for f in frames:
+        for a in f.findall('AO'):
+            proto.setdefault(a.get('ID'),a);seen[a.get('ID')]=seen.get(a.get('ID'),0)+1
+    cur=[max(int(p.get('ID')) for f in frames for p in f.iter('AP'))+1]  # 파일 전체 점 ID와 겹치지 않게
+    want={i for i in proto if seen[i]>1}
+    regs=[]
+    for _ in range(4):
+        present={a.get('ID') for a in first.findall('AO')}
+        add=[i for i in proto if i in want and i not in present]
+        for i in add:
+            r=copy.deepcopy(proto[i]);r.set('Color','0');r.set('GlowAlpha','0')
+            for p in r.findall('AP'):
+                for c in list(p):p.remove(c)
+                p.set('ID',str(cur[0]));cur[0]+=1
+            regs.append(r);first.append(r)
+        aos=first.findall('AO')
+        for a in aos:first.remove(a)
+        nlay=len(first.findall('LayerDef'))
+        for j,a in enumerate(sorted(aos,key=lambda a:key(a.get('ID')))):first.insert(nlay+j,a)
+        bad=app_inversions(frames,key)
+        if not bad-present-set(add):break
+        want|=bad
+    return dict(registered_hidden=len(regs),first_frame_objects=len(first.findall('AO')),remaining_inversion_ids=len(app_inversions(frames,key)))
+
+
 def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None,fronts=None):
     import cv2
     actors=scene['actors'];slot_color={v['slot']:k for k,v in actors.items()};color_slot={int(v['smear_color']):v['slot'] for v in actors.values()}
@@ -376,7 +432,8 @@ def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None,fronts=None
         for i,d in enumerate(defs):f.insert(i,d)
         lv={f'{s}:{g}':v for (s,g),v in info['level'].items() if v>0}
         report.append(dict(frame=n+frame_base,raised=lv,measured=[(f'{a[0]}:{a[1]}',f'{b[0]}:{b[1]}',kind,round(st,2)) for a,b,kind,st in info['meas']],dropped_measured=[(f'{d[1][0]}:{d[1][1]}',f'{d[2][0]}:{d[2][1]}',d[3]) for d in info['dropped'] if d[0]=='measured'],dropped_defaults=sum(1 for d in info['dropped'] if d[0]!='measured')))
-    return out,dict(levels=K,layers=3*K,frames=report,renamed_objects=len(newid),id_map=[[o,k,v] for (o,k),v in sorted(newid.items())])
+    reg=register_order(out,root,newid)
+    return out,dict(levels=K,order_registration=reg,layers=3*K,frames=report,renamed_objects=len(newid),id_map=[[o,k,v] for (o,k),v in sorted(newid.items())])
 
 
 def main():

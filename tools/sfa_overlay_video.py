@@ -10,17 +10,34 @@ import numpy as np
 import sfa_render as R
 
 
-def app_order(frame):
-    """LayerDef를 번호순으로 다시 적은 장 복사본(앱 그리기 순서)."""
+_FIRST={}
+
+
+def first_seen(root):
+    """객체 ID → 파일 전체에서 처음 나온 순번. 앱은 DrawOrder를 읽지 않고 이 순서로 그린다(docs/FORMAT.md, AOT 추적)."""
+    key=id(root)
+    if key not in _FIRST:
+        order={}
+        for f in root.findall('Frame'):
+            for a in f.findall('AO'):order.setdefault(a.get('ID'),len(order))
+        _FIRST[key]=order
+    return _FIRST[key]
+
+
+def app_order(frame,root=None):
+    """앱 그리기 순서의 장 복사본: LayerDef 번호순, 같은 레이어 안은 파일 전체 첫 등장 순서(DrawOrder 무시)."""
     f=copy.deepcopy(frame);ls=sorted(f.findall('LayerDef'),key=lambda l:int(l.get('ID')))
     for l in f.findall('LayerDef'):f.remove(l)
     for i,l in enumerate(ls):f.insert(i,l)
+    if root is not None:
+        order=first_seen(root)
+        for a in f.findall('AO'):a.set('DrawOrder',str(order.get(a.get('ID'),10**9)))
     return f
 
 
 def render_alpha(root,frame,w,h):
     """흰/검 배경 두 번 그려 알파와 색을 얻는다(안티앨리어싱·흰 머리 채움 보존)."""
-    f=app_order(frame)
+    f=app_order(frame,root)
     f.set('BackgroundColor','-1');white=R.render_frame(root,f,w,h).astype(np.float32)
     f.set('BackgroundColor','-16777216');black=R.render_frame(root,f,w,h).astype(np.float32)
     alpha=np.clip(1-np.mean(white-black,axis=2)/255,0,1)

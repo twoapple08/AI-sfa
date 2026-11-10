@@ -87,7 +87,7 @@ def body_same(ref,cur):
 def geometry_same(ref,cur):
     """ID·레이어만 바뀌고 객체 모양(종류·색·굵기·글로우·점 좌표)과 채움은 그대로인지(깊이 칸 정리 검사)."""
     def sig(f):
-        aos=sorted(tuple([a.get(k) for k in ('TypeId','Color','ThicknessScale','GlowRadius','GlowThickness','GlowAlpha')]+[(p.get('X'),p.get('Y')) for p in a.findall('AP')]) for a in f.findall('AO'))
+        aos=sorted(tuple([a.get(k) for k in ('TypeId','Color','ThicknessScale','GlowRadius','GlowThickness','GlowAlpha')]+[(p.get('X'),p.get('Y')) for p in a.findall('AP')]) for a in f.findall('AO') if a.get('Color')!='0')  # 안 보이는 객체(앱 순서 등록용 포함)는 모양에서 뺀다
         frs=sorted((r.get('Color'),len(r.findall('FS'))) for r in f.findall('FR'))
         return aos,frs
     return dict(frames_with_shape_change=[n for n,(a,b) in enumerate(zip(ref.findall('Frame'),cur.findall('Frame'))) if sig(a)!=sig(b)])

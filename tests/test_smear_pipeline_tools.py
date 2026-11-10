@@ -155,3 +155,25 @@ class FrontLimbDepth(unittest.TestCase):
         self.assertIsNone(sc.front_sides(k))  # 차이 없음 → 정하지 않음
         k[7, 2] = k[9, 2] = 1.0  # 왼팔(팔꿈치·손목) 점수 낮음 → 오른팔이 앞
         self.assertEqual(sc.front_sides(k), {'arm': 'r'})
+
+
+class AppDrawOrder(unittest.TestCase):
+    def test_copies_registered_in_first_frame_keep_source_order(self):
+        """앱은 같은 레이어 안을 ID 첫 등장 순서로 그린다. 칸 복사본이 뒤 장에서 처음 나와도 원래 순서를 지켜야 한다."""
+        import sfa_depth_layers as D
+        def seq(spec):
+            r = E.Element('Sequence')
+            for objs in spec:
+                f = E.SubElement(r, 'Frame'); E.SubElement(f, 'LayerDef', ID='0', Name='Layer 1')
+                for oid in objs: ao(f, oid, [(0, 0), (10, 10)])
+            return r
+        src = seq([[1, 2, 3], [1, 2, 3]])           # 의도: 1 < 2 < 3 (3이 맨 위)
+        out = seq([[2, 3], [600000001, 2, 3]])      # 1의 복사본이 둘째 장에서 처음 나오면 앱에선 맨 위가 된다
+        rep = D.register_order(out, src, {('1', 0): 600000001})
+        self.assertEqual(rep['remaining_inversion_ids'], 0)
+        first = [a.get('ID') for a in out.find('Frame').findall('AO')]
+        self.assertEqual(first, ['600000001', '2', '3'])
+        reg = out.find('Frame').findall('AO')[0]
+        self.assertEqual(reg.get('Color'), '0'); self.assertEqual(list(reg.iter('AC')), [])
+        others = {p.get('ID') for a in out.iter('AO') if a is not reg for p in a.iter('AP')}
+        self.assertFalse({p.get('ID') for p in reg.iter('AP')} & others)  # 등록용 점 ID는 파일 어디와도 겹치지 않음
