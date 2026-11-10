@@ -291,7 +291,19 @@ def hidden_back(overlap,meas,hidden):
     return out
 
 
-def front_order(overlap,meas,fronts,name_slot,strength=0.8):
+def head_crossed(geom,limb):
+    """limb(slot,묶음)의 아래 마디(LIMB_END 두 번째 조각)가 같은 인물 머리 원을 지나는가."""
+    lines,heads=geom
+    if limb[0] not in heads:return False
+    cen,rad=heads[limb[0]]
+    segs=lines.get(limb,[])
+    if len(segs)<2:return False
+    q1,q2=segs[-1][0],segs[-1][1]
+    u=q2-q1;t=np.clip((cen-q1)@u/max(u@u,1e-9),0,1)
+    return bool(np.linalg.norm(q1+t*u-cen)<0.8*rad)
+
+
+def front_order(overlap,meas,fronts,name_slot,strength=0.8,geom=None):
     """같은 인물 안 앞뒤(11-10 사용자: 든 팔이 앞 팔, 내린 팔이 뒤 팔). 추출 보고서 front(검출 점수 또는 원본 판독)로
     뒤쪽 팔다리 < 몸통·머리 < 앞쪽 팔다리. 실제로 겹치는 묶음끼리만 넣는다. 인물 사이 측정보다 약하게(세기 0.8)."""
     pairs={frozenset(o) for o in overlap if o[0]!='smear'}
@@ -304,7 +316,10 @@ def front_order(overlap,meas,fronts,name_slot,strength=0.8):
             if x.get(part) not in ('r','l'):continue
             fr,bk=((sl,groups[0]),(sl,groups[1])) if x[part]=='r' else ((sl,groups[1]),(sl,groups[0]))
             core=(sl,'core')
-            for front,back,kind in ((fr,core,'over_head'),(core,bk,'body'),(fr,bk,'body')):
+            # 앞쪽 팔다리를 머리보다 위에 두는 것은 팔꿈치·무릎 너머(아래 마디)가 실제로 머리 원을 가로지를 때만.
+            # 스틱맨 팔은 머리 원 안 목점에서 시작해 위 마디가 늘 머리를 지나므로, 무조건 올리면 팔이 얼굴을 긋는다(승인 10초 1151 등).
+            over=head_crossed(geom,fr) if geom else True
+            for front,back,kind in ((fr,core,'over_head' if over else 'body'),(core,bk,'body'),(fr,bk,'body')):
                 k=frozenset((front,back))
                 if k in pairs and k not in have:
                     # 앞쪽 팔다리 > 몸통 묶음: 같은 칸이면 머리가 팔다리보다 나중에 그려지므로 반드시 한 칸 위(over_head)
@@ -324,7 +339,8 @@ def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None,fronts=None
         rgb=cv2.cvtColor(cv2.imread(str(Path(frames_dir)/f'{n+frame_base}.png')),cv2.COLOR_BGR2RGB)
         overlap,meas=relations(f,rgb,slot_color,color_slot,canvas)
         meas=hidden_back(overlap,meas,hidden_groups(hidden,n+frame_base,color_slot_name(actors)))
-        meas=front_order(overlap,meas,(fronts or {}).get(n+frame_base,[]),color_slot_name(actors))
+        _,_,lines_,heads_=classify_frame(f,color_slot,canvas)
+        meas=front_order(overlap,meas,(fronts or {}).get(n+frame_base,[]),color_slot_name(actors),geom=(lines_,heads_))
         meas=user_depth(meas,scene,n+frame_base)
         level,dropped=assign_levels(overlap,meas,file_order)
         if n+frame_base in set(scene.get('depth_flat',[])):level={k:0 for k in level}  # 사용자 판정: 기존(한 칸)이 맞음
