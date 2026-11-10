@@ -310,7 +310,6 @@ def main():
     ap.add_argument('--body-views', help='위몸이 틀 밖인 구도 태그 JSON. 좌표가 아닌 관측 범위 데이터,미승인 시험')
     ap.add_argument('--face-evidence', help='CPU 독립 얼굴 관측 JSON. 확대/부분 인물 복구 선택 시험,원영상 지문 대조')
     ap.add_argument('--scene', help='고정 뼈대용 장면 JSON: 접촉·보완 관측·부분 인물. --projection 필요')
-    ap.add_argument('--auto-visibility', action='store_true', help='원본 인물색 받침이 없는 조각을 숨김(11-10 공통 규칙)')
     ap.add_argument('--thick-ref', nargs=2, metavar='장:색:굵기', help='거리 굵기 기준 두 점(클립 장 번호 0부터), 예: 40:blue:1.0 120:red:5.0')
     a = ap.parse_args()
     key_starts = {}
@@ -404,23 +403,6 @@ def main():
                     ap.error('장면 JSON의 원본 영상 해시가 다르다')
         poses, scene_report = apply_scene(poses, frames, scene)
         rep['scene'] = dict(rig=rig, **scene_report)
-    if a.auto_visibility:
-        # 원본 인물색이 받쳐 주지 않는 조각 숨김(11-10 공통 규칙). 사람이 지정한 장은 제외.
-        from stickman_auto_visibility import auto_visibility
-        protected = set()
-        if a.scene:
-            for sp in [*scene.get('partials', []), *scene.get('visible_views', [])]:
-                protected |= {(f, sp['actor']) for f in range(sp['start'], sp['end'] + 1)}
-        vcap = cv2.VideoCapture(a.video)
-        def read_rgb(n):
-            vcap.set(cv2.CAP_PROP_POS_FRAMES, n)
-            ok, bgr = vcap.read()
-            if not ok:
-                raise ValueError(f'원본 장 읽기 실패: {n}')
-            w = bgr.shape[1]
-            cy = int(round(a.crop_y)); return cv2.cvtColor(bgr[cy:cy + round(w * 9 / 16)], cv2.COLOR_BGR2RGB)
-        poses, rep['auto_visibility'] = auto_visibility(poses, frames, read_rgb, a.crop_y, protected)
-        vcap.release()
     thick = {c: np.ones(len(frames)) for c in a.colors}
     if a.thick_ref:
         pts = []

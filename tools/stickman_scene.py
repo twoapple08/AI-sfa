@@ -155,6 +155,39 @@ def despike(poses, frames, cuts, protected, agree=0.25, jump=0.35, length_ratio=
     return out, log
 
 
+def complete_body(j, names, view):
+    """키로 읽지 않은 관절(가려짐·화면 밖)을 읽은 관절에서 몸 비율로 잇는다(11-10 사용자: 물체 뒤의 몸은
+    사라지지 않는다 — 숨기지 않고 그린다). 검출이 지어낸 화면 안 위치를 쓰지 않는다. 결과는 추론이다."""
+    neck = np.asarray(j['neck'], float)
+    if view.get('head_d'):
+        unit = float(np.mean([float(v) for v in view['head_d'].values()]))
+    elif 'elb_r' in names or 'elb_l' in names:
+        e = 'elb_r' if 'elb_r' in names else 'elb_l'
+        unit = 0.7 * float(np.linalg.norm(np.subtract(j[e], neck)))
+    else:
+        unit = float(np.linalg.norm(np.subtract(j['head_t'], j['head_b']))) or 150.
+    T = 1.5 * unit
+    down = np.array([0., 1.])
+    put = {}
+    if 'pelvis' not in names:
+        put['pelvis'] = neck + down * T
+    if 'head_t' not in names and 'head_b' not in names:
+        c = neck - down * (unit / 2 + 0.05 * T)
+        put['head_t'], put['head_b'] = c - down * unit / 2, c + down * unit / 2
+    pelvis = put.get('pelvis', np.asarray(j['pelvis'], float))
+    for side, sx in (('r', -1), ('l', 1)):
+        if f'elb_{side}' not in names:
+            put[f'elb_{side}'] = neck + np.array([sx * 0.15 * T, 0.45 * T])
+        if f'wri_{side}' not in names:
+            put[f'wri_{side}'] = put.get(f'elb_{side}', np.asarray(j[f'elb_{side}'], float)) + down * 0.45 * T
+        if f'kne_{side}' not in names:
+            put[f'kne_{side}'] = pelvis + np.array([sx * 0.12 * T, 0.55 * T])
+        if f'ank_{side}' not in names:
+            put[f'ank_{side}'] = put.get(f'kne_{side}', np.asarray(j[f'kne_{side}'], float)) + down * 0.55 * T
+    j.update(put)
+    return sorted(put)
+
+
 def apply_scene(poses, frames, scene):
     """입력 불변. 좌표만 바꾸며 인물 사이 AC 연결이나 새 마디를 만들지 않는다."""
     if not frames or scene['start'] != frames[0] or scene['end'] != frames[-1]:
@@ -215,7 +248,14 @@ def apply_scene(poses, frames, scene):
             for name in names:
                 if name not in JOINTS:
                     raise ValueError(f'알 수 없는 관절: {name}')
+            if not names and i > 0 and result[i - 1].get(actor) is not None:
+                # 키가 없는 장(섬광·잔상 뒤): 지어내지 않고 직전 장 자세를 유지한다. 가려진 몸도 그 뒤에 그대로 있다.
+                j = {k: (np.asarray(v, float).copy() if k in JOINTS else v) for k, v in result[i - 1][actor].items()}
             j.update(keyed_pose(view.get('keys', {}), frame, names))
+            if names:
+                inferred = complete_body(j, names, view)
+                if inferred:
+                    report.setdefault('inferred_joints', []).append(dict(frame=frame, actor=actor, joints=inferred))
             if view.get('head_d'):  # 머리 지름은 장마다 읽지 않고 구간 흐름으로 고정(가림 때문에 줄이지 않는다, 11-09 사용자)
                 dia = float(np.interp(frame, *zip(*sorted((int(t), float(v)) for t, v in view['head_d'].items()))))
                 c = (np.asarray(j['head_t'], float) + np.asarray(j['head_b'], float)) / 2
