@@ -277,8 +277,8 @@ def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5,one_sided=
     return overlap,meas
 
 
-def _levels(cons):
-    nodes={x for c in cons for x in c[:2]};level={n:0 for n in nodes}
+def _levels(cons,floor=None):
+    nodes={x for c in cons for x in c[:2]};level={n:(floor or {}).get(n,0) for n in nodes}
     for _ in range(len(nodes)+2):
         changed=False
         for u,v,w in cons:
@@ -287,7 +287,7 @@ def _levels(cons):
     return None  # 양의 순환
 
 
-def assign_levels(overlap,meas,file_order):
+def assign_levels(overlap,meas,file_order,floor=None):
     """제약 level(v)>=level(u)+w 를 우선순위대로 하나씩 넣고, 순환을 만드는 제약은 버린다.
     우선순위: 측정(강한 것부터) > 같은 인물 원래 순서 > 인물 사이 기본 순서(파일 순서) > 스미어 기본.
     '부위 Q가 P의 스미어 위'는 Q가 P보다 위 칸이다(같은 칸이면 스미어 층이 몸 층 위라서).
@@ -298,7 +298,7 @@ def assign_levels(overlap,meas,file_order):
         if key in front_of:continue
         front_of[key]=(front,back,kind,st)
         lower,upper=sorted((front,back),key=file_order)
-        ordered.append(((back,front,1 if kind in ('over_smear','over_head') or front!=upper else 0),('measured',front,back,kind,st)))
+        ordered.append(((back,front,1 if kind in ('over_smear','over_head','back_view') or front!=upper else 0),('measured',front,back,kind,st)))
     intra=[];inter=[];smear=[]
     for o in sorted(overlap,key=str):
         pair=frozenset(o[1:]) if o[0]=='smear' else frozenset(o)
@@ -309,9 +309,11 @@ def assign_levels(overlap,meas,file_order):
             (intra if o[0][0]==o[1][0] else inter).append(((lower,upper,0),('default',)))
     cons=[];dropped=[]
     for c,why in ordered+intra+inter+smear:
-        if _levels(cons+[c]) is None:dropped.append(why)
+        if _levels(cons+[c],floor) is None:dropped.append(why)
         else:cons.append(c)
-    return _levels(cons) or {},dropped
+    lv=_levels(cons,floor) or {}
+    for k,v in (floor or {}).items():lv.setdefault(k,v)
+    return lv,dropped
 
 
 def user_depth(meas,scene,frame):
@@ -515,16 +517,36 @@ def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None,fronts=None
         have={frozenset((m[0],m[1])) for m in meas}
         # 뒷모습(장면 설정 back_views, 11-10 사용자 '1126은 뒤통수인데 왜 머리가 앞'): 카메라에 등이 보이면 머리를 가로지르는
         # 자기 팔다리·몸통이 머리 위. 머리 원 안(0.85r)을 목 접합(시작 15%) 너머에서 지나는 묶음만 머리 위로 둔다.
+        back=[]
         for sl in back_slots(scene,n+frame_base,color_slot_name(actors)):
             if sl not in heads_:continue
             for g in {k[1] for k in lines_ if k[0]==sl}:
                 if crosses_head(lines_[(sl,g)],heads_[sl]) and frozenset(((sl,g),(sl,'head'))) not in have:
-                    meas.append(((sl,g),(sl,'head'),'back_view',500.));have.add(frozenset(((sl,g),(sl,'head'))));overlap.add(((sl,g),(sl,'head')))
+                    back.append(((sl,g),(sl,'head'),'back_view',500.))
         for o in list(overlap):
             if o[0]!='smear' and o[0][0]==o[1][0] and 'head' in (o[0][1],o[1][1]) and frozenset(o) not in have:
                 hd,g=(o[1],o[0]) if o[1][1]=='head' else (o[0],o[1])
                 meas.append((hd,g,'head_top',500.))
         level,dropped=assign_levels(overlap,meas,file_order)
+        if back:
+            # 뒷모습(11-10 사용자 1079: 뒷모습 반영 뒤 다른 인물과의 순서가 꼬임): 1차 배정을 바닥으로 고정하고
+            # 머리를 가로지르는 자기 팔다리만 머리보다 올린다. 다른 묶음은 내려가지 않고, 필요한 만큼만 함께 오른다.
+            # 뒷모습 제약은 하나씩 넣고, 다른 인물과의 앞뒤(1차 배정)를 하나라도 뒤집으면 그 제약은 버린다.
+            base_lv=dict(level)
+            overlap_keys={k for o in overlap if o[0]!='smear' for k in o}
+            def flips(lv):
+                ks=set(base_lv)|set(lv)
+                # 같은 칸이면 파일 순서(뒤 인물 위)로 그려지므로 (칸, 파일 순서)로 비교한다(1079: 같은 칸 두 머리)
+                r=lambda d,k:(d.get(k,0),file_order(k))
+                return any(x[0]!=y[0] and r(base_lv,x)>r(base_lv,y) and r(lv,x)<r(lv,y) for x in ks for y in ks if x in overlap_keys and y in overlap_keys)
+            kept=[]
+            for b in back:
+                trial=kept+[b];bk={frozenset((m[0],m[1])) for m in trial}
+                m2=[m for m in meas if not (m[2]=='head_top' and frozenset((m[0],m[1])) in bk)]+trial
+                lv,dr=assign_levels(overlap|{(b[0],b[1])},m2,file_order,floor=base_lv)
+                if lv.get(b[0],0)>lv.get(b[1],0) and not flips(lv):kept=trial;level,dropped=lv,dr
+            bk={frozenset((m[0],m[1])) for m in kept}
+            meas=[m for m in meas if not (m[2]=='head_top' and frozenset((m[0],m[1])) in bk)]+kept
         if n+frame_base in set(scene.get('depth_flat',[])):level={k:0 for k in level}  # 사용자 판정: 기존(한 칸)이 맞음
         maxlevel=max(maxlevel,max(level.values(),default=0))
         per_frame.append(dict(level=level,meas=meas,dropped=dropped))
