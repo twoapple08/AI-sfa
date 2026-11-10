@@ -122,3 +122,16 @@ class UserDepth(unittest.TestCase):
         order=lambda k:(k[0],0)
         level,_=D.assign_levels([((0,'armA'),(1,'armA'))],m,order)
         self.assertGreater(level[(0,'armA')],level[(1,'armA')])
+
+
+class HiddenDepth(unittest.TestCase):
+    def test_inferred_group_never_in_front(self):
+        import sfa_depth_layers as D
+        hidden = D.hidden_groups({5: [dict(actor='red', joints=['elb_l', 'wri_l', 'pelvis', 'head_t', 'head_b'])]}, 5, {'blue': 0, 'red': 1})
+        self.assertIn((1, 'armB'), hidden); self.assertIn((1, 'core'), hidden); self.assertNotIn((1, 'armA'), hidden)
+        overlap = {((0, 'core'), (1, 'armB')), ((0, 'armA'), (1, 'legA'))}
+        meas = [((1, 'armB'), (0, 'core'), 'body', 1.9)]  # 추론 팔이 앞이라는 약한 측정 → 버리고 뒤로
+        out = D.hidden_back(overlap, meas, hidden)
+        self.assertIn(((0, 'core'), (1, 'armB'), 'body', 0.5), out)
+        self.assertFalse(any(m[0] in hidden for m in out))
+        self.assertEqual(D.hidden_back(overlap, meas, set()), meas)  # 추론 없으면 그대로

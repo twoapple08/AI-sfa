@@ -255,7 +255,43 @@ def user_depth(meas,scene,frame):
     return out
 
 
-def build(root,frames_dir,scene,frame_base,canvas=CANVAS):
+GROUP_JOINTS={'core':('head_t','head_b','neck','pelvis'),'armA':('elb_r','wri_r'),'armB':('elb_l','wri_l'),
+              'legA':('kne_r','ank_r'),'legB':('kne_l','ank_l')}
+
+
+def color_slot_name(actors):
+    return {name:v['slot'] for name,v in actors.items()}
+
+
+def hidden_groups(hidden,frame,name_slot):
+    """추출 보고서의 추론 관절(stickman_scene inferred_joints) → 보이지 않아 추론한 부위 묶음 {(slot, 묶음)}.
+    묶음 관절의 절반 이상이 추론이면 그 묶음은 가려진 부위로 본다."""
+    out=set()
+    for x in (hidden or {}).get(frame,[]):
+        slot=name_slot.get(x['actor'])
+        if slot is None:continue
+        for g,js in GROUP_JOINTS.items():
+            if sum(j in x['joints'] for j in js)*2>=len(js):out.add((slot,g))
+    return out
+
+
+def hidden_back(overlap,meas,hidden):
+    """추론으로 만든(보이지 않는) 부위는 정의상 가려진 부위다(11-10 사용자: 그 자리에 원본 빨강이 없는데 빨강 부위가
+    파랑 위로 온다). 그런 부위를 앞에 두는 측정은 버리고, 겹치는 다른 인물 부위 뒤에 둔다."""
+    if not hidden:return meas
+    out=[m for m in meas if m[0] not in hidden]
+    have={frozenset((m[0],m[1])) for m in out}
+    for o in overlap:
+        if o[0]=='smear':continue
+        a,b=o
+        if a[0]==b[0]:continue
+        for back,front in ((a,b),(b,a)):
+            if back in hidden and front not in hidden and frozenset((a,b)) not in have:
+                out.append((front,back,'body',0.5));have.add(frozenset((a,b)))
+    return out
+
+
+def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None):
     import cv2
     actors=scene['actors'];slot_color={v['slot']:k for k,v in actors.items()};color_slot={int(v['smear_color']):v['slot'] for v in actors.values()}
     out=copy.deepcopy(root);frames=out.findall('Frame')
@@ -266,6 +302,7 @@ def build(root,frames_dir,scene,frame_base,canvas=CANVAS):
     for n,f in enumerate(frames):
         rgb=cv2.cvtColor(cv2.imread(str(Path(frames_dir)/f'{n+frame_base}.png')),cv2.COLOR_BGR2RGB)
         overlap,meas=relations(f,rgb,slot_color,color_slot,canvas)
+        meas=hidden_back(overlap,meas,hidden_groups(hidden,n+frame_base,color_slot_name(actors)))
         meas=user_depth(meas,scene,n+frame_base)
         level,dropped=assign_levels(overlap,meas,file_order)
         if n+frame_base in set(scene.get('depth_flat',[])):level={k:0 for k in level}  # 사용자 판정: 기존(한 칸)이 맞음
@@ -308,10 +345,15 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--sfa',required=True);ap.add_argument('--frames',required=True);ap.add_argument('--scene',required=True)
     ap.add_argument('--out',required=True);ap.add_argument('--report')
+    ap.add_argument('--hidden-report',help='stickman_clip 보고서: scene.inferred_joints(보이지 않아 추론한 관절)를 뒤에 둔다')
     a=ap.parse_args()
     with zipfile.ZipFile(a.sfa) as z:root=E.fromstring(z.read(z.namelist()[0]))
     scene=json.loads(Path(a.scene).read_text())
-    out,rep=build(root,a.frames,scene,int(scene.get('frame_base',1)))
+    hidden=None
+    if a.hidden_report:
+        hidden={}
+        for x in json.load(open(a.hidden_report)).get('scene',{}).get('inferred_joints',[]):hidden.setdefault(int(x['frame']),[]).append(x)
+    out,rep=build(root,a.frames,scene,int(scene.get('frame_base',1)),hidden=hidden)
     import sfa_layer_order as LO
     rep['layer_check']=LO.check(out)
     with zipfile.ZipFile(a.out,'w',zipfile.ZIP_DEFLATED) as z:z.writestr('review.xml',E.tostring(out,encoding='utf-8',xml_declaration=True))
