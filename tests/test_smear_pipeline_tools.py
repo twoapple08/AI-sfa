@@ -138,15 +138,38 @@ class HiddenDepth(unittest.TestCase):
 
 
 class FrontLimbDepth(unittest.TestCase):
-    def test_front_arm_above_head_back_arm_behind(self):
+    def test_front_arm_over_torso_but_never_over_own_head(self):
+        """앞 팔 > 몸통 > 뒤 팔. 머리는 따로 묶어 같은 인물 팔다리보다 늘 위(11-10 사용자 '머리 레이어가 왜 몸 뒤로')."""
         import sfa_depth_layers as D
-        overlap = {((1, 'core'), (1, 'armA')), ((1, 'core'), (1, 'armB'))}
+        overlap = {((1, 'core'), (1, 'armA')), ((1, 'core'), (1, 'armB')), ((1, 'armA'), (1, 'head')), ((1, 'core'), (1, 'head'))}
         meas = D.front_order(overlap, [], [dict(frame=5, actor='red', arm='r')], {'blue': 0, 'red': 1})
-        self.assertIn(((1, 'armA'), (1, 'core'), 'over_head', 0.8), meas)
+        self.assertIn(((1, 'armA'), (1, 'core'), 'body', 0.8), meas)
         self.assertIn(((1, 'core'), (1, 'armB'), 'body', 0.8), meas)
-        level, _ = D.assign_levels(overlap, meas, lambda k: (k[0], list(D.GROUPS).index(k[1])))
-        self.assertGreater(level[(1, 'armA')], level[(1, 'core')])  # 같은 칸이면 머리가 나중이라 반드시 위 칸
-        self.assertGreater(level[(1, 'core')], level[(1, 'armB')])
+        self.assertFalse(any(m[1] == (1, 'head') for m in meas))  # 추정만으로 팔을 얼굴 위로 올리지 않는다
+        # 다른 인물 때문에 팔이 한 칸 올라가도 머리 기본(head_top 500)이 머리를 함께 올린다
+        meas += [((1, 'head'), (1, 'armA'), 'head_top', 500.), ((1, 'head'), (1, 'core'), 'head_top', 500.),
+                 ((1, 'armA'), (0, 'core'), 'body', 60.)]
+        overlap |= {((0, 'core'), (1, 'armA'))}
+        order = lambda k: (k[0], list(D.GROUPS).index(k[1]))
+        level, _ = D.assign_levels(overlap, meas, order)
+        self.assertGreaterEqual(level[(1, 'head')], level[(1, 'armA')])
+        self.assertGreaterEqual(level[(1, 'armA')], level[(1, 'core')])
+
+    def test_mask_is_head_cape_is_torso(self):
+        import sfa_depth_layers as D
+        mask = E.Element('AO', ID='4570003', TypeId='1', Color='-65536'); cape = E.Element('AO', ID='4570010', TypeId='3', Color='-1207959552')
+        self.assertEqual(D.part_of_body(4570003, mask), (0, 'head'))
+        self.assertEqual(D.part_of_body(4570010, cape), (0, 'core'))
+        self.assertEqual(D.part_of_body(4560101), (1, 'head'))
+
+    def test_split_lower_moves_only_forearm(self):
+        import sfa_depth_layers as D
+        f = E.Element('Frame'); E.SubElement(f, 'LayerDef', ID='0', Name='Layer 1')
+        for k in (3, 4):
+            ao(f, D.BASE + k, [(k, 0), (k + 1, 0)])
+        own = {str(D.BASE + 3): (0, 'armA'), str(D.BASE + 4): (0, 'armA')}
+        out = D.split_lower(f, own, {(0, 'armA_lo'): 2})
+        self.assertEqual(out[str(D.BASE + 4)], (0, 'armA_lo')); self.assertEqual(out[str(D.BASE + 3)], (0, 'armA'))
 
     def test_front_sides_needs_clear_score_gap(self):
         sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))

@@ -20,7 +20,9 @@ import xml.etree.ElementTree as E
 import numpy as np
 
 BASE=4560000
-GROUPS={'core':(1,2),'armA':(3,4),'armB':(5,6),'legA':(7,8),'legB':(9,10)}
+# 머리(원·흰 채움·가면)는 몸통과 따로 둔다(11-10 사용자 '머리 레이어가 왜 몸 뒤로'): 몸통 묶음에 머리가 있으면
+# 다른 인물 때문에 팔이 한 칸 올라갈 때 목에서 시작하는 팔이 머리 위에 그려진다. 같은 인물에서 머리는 기본으로 맨 위.
+GROUPS={'core':(2,),'armA':(3,4),'armB':(5,6),'legA':(7,8),'legB':(9,10),'head':(1,11)}
 LIMB_END={'armA':(3,4),'armB':(5,6),'legA':(7,8),'legB':(9,10)}
 CANVAS=(1152,648)
 
@@ -48,14 +50,19 @@ def layer_role(frame):
     return roles
 
 
-def part_of_body(oid):
+def part_of_body(oid,a=None):
     """몸 객체 ID → (slot, 부위). 부속(4570xxx)은 slot0 core."""
     if BASE<oid<BASE+200:
         slot,k=divmod(oid-BASE,100)
         for g,ks in GROUPS.items():
             if k in ks:return slot,g
         return slot,'core'
-    if 4570000<=oid<4580000:return 0,'core'
+    if 4570000<=oid<4570500 and a is not None:
+        # 머리 묶음은 가면만: 빨간 가면 선(TypeId1, 색 RGB=FF0000)과 가면 안쪽 채움 경계(45703xx).
+        # 같은 번호대의 반투명 검은 곡선은 망토라 몸통에 둔다(머리로 옮기면 망토가 회색으로 변함, 11-10).
+        c=int(a.get('Color','0'))&0xFFFFFF
+        if (a.get('TypeId')=='1' and c==0xFF0000) or oid//100==45703:return 0,'head'
+    if 4570000<=oid<4580000:return 0,'core'  # 망토 등
     return None
 
 
@@ -65,7 +72,7 @@ def classify_frame(frame,color_slot,canvas=CANVAS):
     aos=frame.findall('AO');byid={a.get('ID'):a for a in aos}
     for a in aos:
         if roles.get(a.get('LayerId'))!='body':continue
-        k=part_of_body(int(a.get('ID')))
+        k=part_of_body(int(a.get('ID')),a)
         if k is None:continue
         owner[a.get('ID')]=k
         if BASE<int(a.get('ID'))<BASE+200 and int(a.get('Color','0'))&0xff000000:
@@ -116,7 +123,7 @@ def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5,one_sided=
     owner,smear_pts,lines,heads=classify_frame(frame,color_slot,canvas)
     masks={c:(m>0) for c,m in V.color_masks(rgb).items()}
     overlap=set();meas=[]
-    keys=sorted({k for k in lines}|{(s,'core') for s in heads})
+    keys=sorted({k for k in lines}|{(s,'head') for s in heads})
     def segs(k):
         out=list(lines.get(k,[]))
         return out
@@ -129,7 +136,7 @@ def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5,one_sided=
                     d,c=seg_closest(p1,p2,q1,q2)
                     if d<(wa+wb)/2:pts_.append(c)
             for s,kk,other in ((0,ka,kb),(1,kb,ka)):
-                if kk[1]=='core' and kk[0] in heads:
+                if kk[1]=='head' and kk[0] in heads:
                     cen,rad=heads[kk[0]]
                     for q1,q2,wb,_ in segs(other):
                         u=q2-q1;t=np.clip((cen-q1)@u/max(u@u,1e-9),0,1);c=q1+t*u
@@ -173,7 +180,7 @@ def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5,one_sided=
                             m=masks[slot_color[k[0]]]
                             if 0<=x<m.shape[1] and 0<=y<m.shape[0]:
                                 tot+=1;hits+=color_count(masks,slot_color,k[0],c,6)>0
-                    if k[1]=='core' and k[0] in heads:
+                    if k[1]=='head' and k[0] in heads:
                         cen=heads[k[0]][0];tot+=3;hits+=3*(color_count(masks,slot_color,k[0],cen,8)>0)
                     return hits/tot if tot>=6 else None
                 dense=[]  # 겹치는 구간을 따라 여러 점(가장 가까운 한 점만 보면 쌍마다 1~2점뿐이라 근거가 모이지 않는다)
@@ -197,7 +204,7 @@ def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5,one_sided=
                 elif oa>=3 and sb is not None and sb<0.2 and (sa is None or sa>=0.2):meas.append((ka,kb,'body',min(1.,oa/10)))
     # 팔다리 끝이 상대 머리 안(11-10 사용자 1174·1192–1199): 머리 원 가장자리 색은 머리카락·목이라 앞뒤를 못 가린다.
     # 끝(주먹·발) 자리에 원본에서 보이는 색으로 정한다. 주먹이 보이면 팔이 앞, 얼굴·머리카락이 보이면 팔이 뒤.
-    for k in [k for k in keys if k[1]!='core']:
+    for k in [k for k in keys if k[1] not in ('core','head')]:
         segl=segs(k)
         if not segl:continue
         ends=[p for q1,q2,_,_ in segl for p in (q1,q2)]
@@ -228,18 +235,19 @@ def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5,one_sided=
             if dh>1.5*rad and not near_torso(tip):continue
             own,oth=cnt(k[0],tip),cnt(o,tip)
             if own+oth<20:continue
-            pair={k,(o,'core')}
-            if dh<=0.9*rad and own>ratio*oth and color_count(masks,slot_color,o,tip,15)>20 and own_share(tip)>=0.5:new_=(k,(o,'core'),'tip',1500.+own/(oth+1))
-            elif oth>ratio*own and (dh<=0.9*rad or own<0.1*oth):new_=((o,'core'),k,'tip',1500.+oth/(own+1))
+            tgt=(o,'head') if dh<=1.5*rad else (o,'core')
+            pair={k,tgt}
+            if dh<=0.9*rad and own>ratio*oth and color_count(masks,slot_color,o,tip,15)>20 and own_share(tip)>=0.5:new_=(k,tgt,'tip',1500.+own/(oth+1))
+            elif oth>ratio*own and (dh<=0.9*rad or own<0.1*oth):new_=(tgt,k,'tip',1500.+oth/(own+1))
             elif dh<=0.9*rad:
                 # 끝에 양쪽 색이 섞이면(손이 목 뒤로 지나 반대편에 보임, 1193) 머리 안을 지나는 팔 마디 색으로 정한다
                 ins=inside(tip)
                 a_=sum(cnt(k[0],c) for c in ins);b_=sum(cnt(o,c) for c in ins)
-                if len(ins)>=3 and b_>ratio*a_ and a_+b_>=40:new_=((o,'core'),k,'tip',1500.+b_/(a_+1))
+                if len(ins)>=3 and b_>ratio*a_ and a_+b_>=40:new_=(tgt,k,'tip',1500.+b_/(a_+1))
                 else:continue
             else:continue
             meas[:]=[m for m in meas if {m[0],m[1]}!=pair]+[new_]
-            overlap.add((k,(o,'core')))
+            overlap.add((k,tgt))
     # 같은 인물 안 겹침: 원래 순서 유지(측정하지 않음)
     for s in (0,1):
         ks_=[k for k in keys if k[0]==s]
@@ -259,7 +267,7 @@ def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5,one_sided=
                 for t in np.linspace(0,1,n):
                     c=q1+t*(q2-q1)
                     if cv2.pointPolygonTest(hull,(float(c[0]),float(c[1])),False)>=0:samples.append(c)
-            if kb[1]=='core' and kb[0] in heads:
+            if kb[1]=='head' and kb[0] in heads:
                 cen,rad=heads[kb[0]]
                 if cv2.pointPolygonTest(hull,(float(cen[0]),float(cen[1])),True)>-rad:samples.append(cen)
             if len(samples)<3:continue
@@ -318,7 +326,7 @@ def user_depth(meas,scene,frame):
     return out
 
 
-GROUP_JOINTS={'core':('head_t','head_b','neck','pelvis'),'armA':('elb_r','wri_r'),'armB':('elb_l','wri_l'),
+GROUP_JOINTS={'head':('head_t','head_b'),'core':('neck','pelvis'),'armA':('elb_r','wri_r'),'armB':('elb_l','wri_l'),
               'legA':('kne_r','ank_r'),'legB':('kne_l','ank_l')}
 
 
@@ -378,11 +386,14 @@ def front_order(overlap,meas,fronts,name_slot,strength=0.8,geom=None):
         for part,groups in (('arm',('armA','armB')),('leg',('legA','legB'))):
             if x.get(part) not in ('r','l'):continue
             fr,bk=((sl,groups[0]),(sl,groups[1])) if x[part]=='r' else ((sl,groups[1]),(sl,groups[0]))
-            core=(sl,'core')
+            core=(sl,'core');head=(sl,'head')
             # 앞쪽 팔다리를 머리보다 위에 두는 것은 팔꿈치·무릎 너머(아래 마디)가 실제로 머리 원을 가로지를 때만.
             # 스틱맨 팔은 머리 원 안 목점에서 시작해 위 마디가 늘 머리를 지나므로, 무조건 올리면 팔이 얼굴을 긋는다(승인 10초 1151 등).
             over=head_crossed(geom,fr) if geom else True
-            for front,back,kind in ((fr,core,'over_head' if over else 'body'),(core,bk,'body'),(fr,bk,'body')):
+            # 앞 팔다리가 얼굴을 가로질러도 머리 위로 올리지 않는다(11-10 사용자 '머리 레이어가 왜 몸 뒤로'): 앞뒤 판정이
+            # 검출 점수 추정이라 검증되지 않았고, 얼굴 위 팔은 사용자 지정(depth_user)·끝 규칙 같은 원본 근거로만 둔다.
+            cand=[(fr,core,'body'),(core,bk,'body'),(fr,bk,'body')]
+            for front,back,kind in cand:
                 k=frozenset((front,back))
                 if k in pairs and k not in have:
                     # 앞쪽 팔다리 > 몸통 묶음: 같은 칸이면 머리가 팔다리보다 나중에 그려지므로 반드시 한 칸 위(over_head)
@@ -446,21 +457,52 @@ def register_order(out,src,newid):
     return dict(registered_hidden=len(regs),first_frame_objects=len(first.findall('AO')),remaining_inversion_ids=len(app_inversions(frames,key)))
 
 
+def split_lower(frame,owner,level,canvas=CANVAS):
+    """팔다리 아래 마디만 따로 칸에 둔다: 칸 배정에 '(slot, armA_lo)' 같은 묶음이 있으면(사용자 지정 depth_user)
+    그 팔다리의 아래 마디(4·6·8·10번 조각)와 그 테두리 복제본을 그 묶음으로 옮긴다.
+    11-10 사용자 1220–1227: 빨강 발차기를 파랑이 피함 → 빨강 다리는 파랑 몸 앞, 파랑 손(아래팔)만 다리 앞."""
+    want={k for k in level if k[1].endswith('_lo')}
+    if not want:return owner
+    roles=layer_role(frame);aos=frame.findall('AO');out=dict(owner);low={}
+    for a in aos:
+        i=int(a.get('ID'))
+        if roles.get(a.get('LayerId'))=='body' and BASE<i<BASE+200:
+            sl,k=divmod(i-BASE,100)
+            for g,(_,lo) in LIMB_END.items():
+                if k==lo and (sl,g+'_lo') in want:
+                    out[a.get('ID')]=(sl,g+'_lo');low[(a.get('TypeId'),tuple(np.round(pts(a,canvas),3).ravel()))]=(sl,g+'_lo')
+    for a in aos:
+        if roles.get(a.get('LayerId'))=='outline':
+            k=low.get((a.get('TypeId'),tuple(np.round(pts(a,canvas),3).ravel())))
+            if k is not None:out[a.get('ID')]=k
+    return out
+
+
 def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None,fronts=None):
     import cv2
     actors=scene['actors'];slot_color={v['slot']:k for k,v in actors.items()};color_slot={int(v['smear_color']):v['slot'] for v in actors.values()}
     out=copy.deepcopy(root);frames=out.findall('Frame')
     order_cache={}
     def file_order(k):
-        return (k[0],list(GROUPS).index(k[1]))
+        return (k[0],list(GROUPS).index(k[1].replace('_lo','')))
     per_frame=[];maxlevel=0
     for n,f in enumerate(frames):
         rgb=cv2.cvtColor(cv2.imread(str(Path(frames_dir)/f'{n+frame_base}.png')),cv2.COLOR_BGR2RGB)
         overlap,meas=relations(f,rgb,slot_color,color_slot,canvas)
+        own,_,_,heads0=classify_frame(f,color_slot,canvas)
+        for sl in heads0:
+            for g in {k[1] for k in own.values() if k[0]==sl}-{'head'}:overlap.add(((sl,g),(sl,'head')))
         meas=hidden_back(overlap,meas,hidden_groups(hidden,n+frame_base,color_slot_name(actors)))
         _,_,lines_,heads_=classify_frame(f,color_slot,canvas)
         meas=front_order(overlap,meas,(fronts or {}).get(n+frame_base,[]),color_slot_name(actors),geom=(lines_,heads_))
         meas=user_depth(meas,scene,n+frame_base)
+        # 같은 인물 머리는 자기 몸통·팔다리 위(세기 500): 인물 사이 약한 색 측정(1079 세기 62)에 밀려 머리가 자기 몸 아래로 가지 않게.
+        # 이 쌍에 이미 판정(앞 팔이 얼굴을 가로지름 over_head, 사용자 지정)이 있으면 그것을 따른다.
+        have={frozenset((m[0],m[1])) for m in meas}
+        for o in list(overlap):
+            if o[0]!='smear' and o[0][0]==o[1][0] and 'head' in (o[0][1],o[1][1]) and frozenset(o) not in have:
+                hd,g=(o[1],o[0]) if o[1][1]=='head' else (o[0],o[1])
+                meas.append((hd,g,'head_top',500.))
         level,dropped=assign_levels(overlap,meas,file_order)
         if n+frame_base in set(scene.get('depth_flat',[])):level={k:0 for k in level}  # 사용자 판정: 기존(한 칸)이 맞음
         maxlevel=max(maxlevel,max(level.values(),default=0))
@@ -481,6 +523,7 @@ def build(root,frames_dir,scene,frame_base,canvas=CANVAS,hidden=None,fronts=None
     report=[]
     for n,f in enumerate(frames):
         info=per_frame[n];roles=layer_role(f);owner,_,_,_=classify_frame(f,color_slot,canvas)
+        owner=split_lower(f,owner,info['level'],canvas)
         present={roles[l.get('ID')] for l in f.findall('LayerDef')}
         for l in f.findall('LayerDef'):f.remove(l)
         moved={}
