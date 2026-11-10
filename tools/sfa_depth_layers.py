@@ -136,6 +136,24 @@ def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5,one_sided=
                         if np.linalg.norm(c-cen)<rad+wb/2:pts_.append(c)
             if not pts_:continue
             overlap.add((ka,kb))
+            vote={0:0,1:0}
+            for p1,p2,wa,_ in segs(ka):
+                for q1,q2,wb,_ in segs(kb):
+                    d,c=seg_closest(p1,p2,q1,q2)
+                    if d>=(wa+wb)/2:continue
+                    c0,c1=color_count(masks,slot_color,0,c,15),color_count(masks,slot_color,1,c,15)
+                    for x,y,(r1,r2) in ((0,1,(q1,q2)),(1,0,(p1,p2))):
+                        cx,cy=(c0,c1) if x==0 else (c1,c0)
+                        if cx<200 or cy>0:continue
+                        u=r2-r1;L=np.linalg.norm(u)
+                        if L<1:continue
+                        u=u/L;t0=(c-r1)@u;seen=0
+                        for sg in (-1,1):
+                            hits=sum(color_count(masks,slot_color,y,r1+u*np.clip(t0+sg*dd,0,L),6)>0 for dd in (25,35,45,55))
+                            seen=max(seen,hits)
+                        if seen>=2:vote[x]+=1
+            if vote[0]>=1 and vote[1]==0:meas.append((ka,kb,'visible',min(1.,vote[0]/3)));continue
+            if vote[1]>=1 and vote[0]==0:meas.append((kb,ka,'visible',min(1.,vote[1]/3)));continue
             na=nb=0
             for c in pts_:
                 if color_count(masks,slot_color,0,c,15)>20 and color_count(masks,slot_color,1,c,15)>20:
@@ -177,6 +195,51 @@ def relations(frame,rgb,slot_color,color_slot,canvas=CANVAS,ratio=1.5,one_sided=
                 if min(torso(0),torso(1))<80:sa=sb=None  # 먼 작은 인물은 색 영역이 가늘어 근거로 쓰지 않는다(승인 10초 1236)
                 if ob>=3 and sa is not None and sa<0.2 and (sb is None or sb>=0.2):meas.append((kb,ka,'body',min(1.,ob/10)))
                 elif oa>=3 and sb is not None and sb<0.2 and (sa is None or sa>=0.2):meas.append((ka,kb,'body',min(1.,oa/10)))
+    # 팔다리 끝이 상대 머리 안(11-10 사용자 1174·1192–1199): 머리 원 가장자리 색은 머리카락·목이라 앞뒤를 못 가린다.
+    # 끝(주먹·발) 자리에 원본에서 보이는 색으로 정한다. 주먹이 보이면 팔이 앞, 얼굴·머리카락이 보이면 팔이 뒤.
+    for k in [k for k in keys if k[1]!='core']:
+        segl=segs(k)
+        if not segl:continue
+        ends=[p for q1,q2,_,_ in segl for p in (q1,q2)]
+        free=[p for p in ends if sum(np.linalg.norm(p-q)<1 for q in ends)==1]
+        o=1-k[0]
+        if o not in heads:continue
+        cen,rad=heads[o]
+        torso=[(q1,q2) for q1,q2,_,_ in lines.get((o,'core'),[])]
+        def near_torso(p):
+            for q1,q2 in torso:
+                u=q2-q1;t=np.clip((p-q1)@u/max(u@u,1e-9),0,1)
+                if np.linalg.norm(p-(q1+t*u))<max(25.,0.5*rad):return True
+            return False
+        def cnt(sl,c):return sum(color_count(masks,slot_color,sl,c+d,6) for d in ((0,0),(5,0),(-5,0),(0,5),(0,-5)))
+        def inside(tip):
+            seg=min(segl,key=lambda s_:min(np.linalg.norm(s_[0]-tip),np.linalg.norm(s_[1]-tip)))
+            far=seg[1] if np.linalg.norm(seg[0]-tip)<1 else seg[0]
+            return [tip+t*(far-tip) for t in np.linspace(0.1,0.9,9) if np.linalg.norm(tip+t*(far-tip)-cen)<0.9*rad]
+        def own_share(tip):
+            a_=b_=0
+            for c in inside(tip):
+                x_,y_=cnt(k[0],c)>0,cnt(o,c)>0
+                if x_ and not y_:a_+=1
+                elif y_ and not x_:b_+=1
+            return a_/(a_+b_) if a_+b_ else 0.
+        for tip in free:
+            dh=np.linalg.norm(tip-cen)
+            if dh>1.5*rad and not near_torso(tip):continue
+            own,oth=cnt(k[0],tip),cnt(o,tip)
+            if own+oth<20:continue
+            pair={k,(o,'core')}
+            if dh<=0.9*rad and own>ratio*oth and color_count(masks,slot_color,o,tip,15)>20 and own_share(tip)>=0.5:new_=(k,(o,'core'),'tip',1500.+own/(oth+1))
+            elif oth>ratio*own and (dh<=0.9*rad or own<0.1*oth):new_=((o,'core'),k,'tip',1500.+oth/(own+1))
+            elif dh<=0.9*rad:
+                # 끝에 양쪽 색이 섞이면(손이 목 뒤로 지나 반대편에 보임, 1193) 머리 안을 지나는 팔 마디 색으로 정한다
+                ins=inside(tip)
+                a_=sum(cnt(k[0],c) for c in ins);b_=sum(cnt(o,c) for c in ins)
+                if len(ins)>=3 and b_>ratio*a_ and a_+b_>=40:new_=((o,'core'),k,'tip',1500.+b_/(a_+1))
+                else:continue
+            else:continue
+            meas[:]=[m for m in meas if {m[0],m[1]}!=pair]+[new_]
+            overlap.add((k,(o,'core')))
     # 같은 인물 안 겹침: 원래 순서 유지(측정하지 않음)
     for s in (0,1):
         ks_=[k for k in keys if k[0]==s]
