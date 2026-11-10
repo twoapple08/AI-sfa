@@ -326,7 +326,6 @@ def main():
     ap.add_argument('--body-views', help='위몸이 틀 밖인 구도 태그 JSON. 좌표가 아닌 관측 범위 데이터,미승인 시험')
     ap.add_argument('--face-evidence', help='CPU 독립 얼굴 관측 JSON. 확대/부분 인물 복구 선택 시험,원영상 지문 대조')
     ap.add_argument('--scene', help='고정 뼈대용 장면 JSON: 접촉·보완 관측·부분 인물. --projection 필요')
-    ap.add_argument('--partial-arms', action='store_true', help='부분 구도 컷(접힌 검출이 40% 이상)에서 인물 색 마스크로 팔을 잡아 자동 보이는 부위 키를 만든다(11-10, stickman_mask_limbs). --projection 필요')
     ap.add_argument('--thick-ref', nargs=2, metavar='장:색:굵기', help='거리 굵기 기준 두 점(클립 장 번호 0부터), 예: 40:blue:1.0 120:red:5.0')
     a = ap.parse_args()
     key_starts = {}
@@ -408,9 +407,6 @@ def main():
     if a.face_evidence:
         rep['face_evidence'] = {k: SELECT['face_evidence'][k] for k in
             ('schema', 'source_sha256', 'model_sha256', 'threshold', 'backend')}
-    if a.partial_arms and not a.projection:
-        ap.error('--partial-arms는 --projection과 함께 사용한다')
-    scene = None
     if a.scene:
         from stickman_scene import load_scene, apply_scene
         scene, rig = load_scene(a.scene)
@@ -421,28 +417,10 @@ def main():
             with open(a.video, 'rb') as source:
                 if hashlib.file_digest(source, 'sha256').hexdigest() != scene['source_sha256']:
                     ap.error('장면 JSON의 원본 영상 해시가 다르다')
-    if a.partial_arms:
-        from stickman_mask_limbs import auto_views, HEAD_PER_ARM_R
-        from stickman_scene import apply_scene
-        from rtmw_to_stickman_2d import HEAD_LEN
-        if scene is None:
-            scene, rig = dict(start=a.start, end=a.end, cuts=list(a.cuts)), 'stickman-2d-11-v1'
-        scene = dict(scene)
-        taken = {(f, v['actor']) for v in scene.get('visible_views', []) + scene.get('partials', [])
-                 for f in range(v['start'], v['end'] + 1)}
-        views, rep['partial_arms'] = auto_views(R, a.video, rep['shots'], a.colors, a.crop_y, taken)
-        scene['visible_views'] = views + list(scene.get('visible_views', []))
-        for v in views:   # 거리 굵기: 머리 지름 → 몸통 배율(머리 = 몸통×HEAD_LEN)
-            J = people[v['actor']]['J']
-            if J is not None:
-                S = float(next(iter(v['head_d'].values()))) / HEAD_LEN
-                for f in range(v['start'], v['end'] + 1):
-                    J['_S'][f - a.start] = S
-    if scene is not None:
         poses, scene_report = apply_scene(poses, frames, scene)
         rep['scene'] = dict(rig=rig, **scene_report)
     fronts = {c: list(people[c]['front']) for c in a.colors}
-    if scene is not None:
+    if a.scene:
         for view in scene.get('visible_views', []):  # 원본 판독으로 정한 앞쪽 팔·다리가 우선
             if view.get('front'):
                 for n, f in enumerate(frames):
